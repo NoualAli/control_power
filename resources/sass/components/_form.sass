@@ -1,0 +1,365 @@
+$form-radius: 5px
+
+// Inputs
+$input-padding: 10px
+$input-border-radius: 4px
+$input-border: 2px solid $primary-dark
+$input-bgc: $white
+$input-font-size: 12px
+$input-inset-shadow: inset 0 0.0625em 0.125em rgb(10 10 10 / 5%)
+$input-shadow: 0px 0px 1.3px rgba(0, 0, 0, 0.016), 0px 0px 4.2px rgba(0, 0, 0, 0.024), 0px 0px 19px rgba(0, 0, 0, 0.04)
+$input-color: $dracula
+$textarea-min-height: 137px
+
+// Hover
+$input-hover-border: $dracula
+
+// Focus & Active
+$input-focus-border: $primary-dark
+$input-focus-shadow: 0 0 0 0.125em rgb(72 95 199 / 25%)
+
+form
+    width: auto
+    height: auto
+    // padding: 1rem
+    margin-bottom: 2.5rem !important
+.select
+    & .vue-treeselect__control
+        position: relative
+        margin: 1rem 0
+        outline: none
+        width: 100%
+        border: $input-border !important
+        border-radius: $input-border-radius
+        background-color: $white
+        font-size: $input-font-size
+        box-shadow: $input-inset-shadow, $input-shadow
+        transition: .1s ease
+        color: $input-color
+    @each $color in $colors-list
+        &.is-#{nth($color, 1)}
+            & .vue-treeselect__control
+                border: 2px solid lighten(nth($color, 2), 10%) !important
+.nl-select
+    position: relative
+    margin: 1rem 0
+    outline: none
+    width: 100%
+    padding: $input-padding
+    border: $input-border !important
+    border-radius: $input-border-radius
+    background-color: $white
+    font-size: $input-font-size
+    box-shadow: $input-inset-shadow, $input-shadow
+    transition: .1s ease
+    color: $input-color
+    &:focus
+        background-color: $primary-dark
+        color: $white
+        & option
+            background-color: $input-bgc
+            color: $input-color
+    @each $color in $colors-list
+        &.is-#{nth($color, 1)}
+            border-color: lighten(nth($color, 2), 10%)
+            &:hover
+                border-color: nth($color, 2)
+            &:focus
+                background-color: nth($color, 2)
+                color: $white
+.quillWrapper
+    margin: 1rem 0
+    outline: none
+    width: 100%
+    padding: $input-padding
+    border: $input-border
+    border-radius: $input-border-radius
+    background-color: $white
+    font-size: $input-font-size
+    box-shadow: $input-inset-shadow, $input-shadow
+    transition: .1s ease
+    color: $input-color
+.input
+    margin: 1rem 0
+    outline: none
+    width: 100%
+    padding: $input-padding
+    border: $input-border
+    border-radius: $input-border-radius
+    background-color: $white
+    font-size: $input-font-size
+    box-shadow: $input-inset-shadow, $input-shadow
+    transition: .1s ease
+    color: $input-color
+    &.is-for-auth
+        border-radius: 0 !important
+        border: none
+        border-left: 3px solid $primary-dark
+        & + .show-password-btn
+            border: none !important
+    &:is(textarea)
+        min-height: $textarea-min-height
+    &:read-only
+        background-color: $primary-dark
+        color: $white !important
+        font-weight: 700
+    &:disabled
+        background-color: $grey
+        color: $dark
+    @each $color in $colors-list
+        &.is-#{nth($color, 1)}
+            border-color: lighten(nth($color, 2), 10%)
+            &:hover
+                border-color: nth($color, 2)
+
+.form-label
+    color: $dark
+    font-weight: 700
+    &.is-required
+        position: relative
+        &::after
+            content: '*'
+            position: absolute
+            top: 50%
+            right: -10px
+            transform: translateY(-50%)
+            color: $danger
+    @each $color in $colors-list
+        &.text-#{nth($color, 1)}
+            color: nth($color, 2)
+
+.register-form,
+.login-form
+    width: 556px
+    margin: 0 auto
+    @media screen and (max-width: $tablet)
+        width: 100%
+
+.form-check-container
+    position: relative
+    width: 100%
+    display: flex
+    flex-direction: column
+    &.is-inline
+        align-items: center
+        justify-content: start
+        flex-direction: row
+        gap: 1rem
+    & .form-check
+        & label
+            padding: $input-padding
+            display: flex
+            align-items: center
+            gap: 8px
+            &.radio-hidden
+                border-bottom: 1px solid $grey
+                background-color: #E4F9FC
+                &:hover
+                    background-color: $clouds
+            &:not(.radio-hidden)
+                &:hover
+                    & .checkable
+                        border-color: $primary-dark
+                & .input-checkable:checked + .checkable
+                    border-color: $dark
+                    &::before, &::after
+                        opacity: 1
+                & .checkable
+                    position: relative
+                    display: inline-block
+                    width: 20px
+                    height: 20px
+                    border: 2px solid $grey
+                    color: $white
+                    &::before
+                        opacity: 0
+                        content: ''
+                        background-color: $primary-dark
+                        position: absolute
+                        top: 50%
+                        left: 50%
+                        height: 90%
+                        width: 90%
+                        transform: translate(-50%, -50%)
+                        overflow: hidden
+                    &:hover
+                        border-color: $primary-dark
+                    &.is-radio
+                        border-radius: 50%
+                        &::before
+                            border-radius: 50%
+                            width: 50%
+                            height: 50%
+                    &.is-checkbox
+                        border-radius: 4px
+                        &::before
+                            border-radius: 4px
+                        &::after
+                            opacity: 0
+                            content: '✓'
+                            position: absolute
+                            top: 50%
+                            left: 50%
+                            transform: translate(-50%,-50%)
+    & .input-checkable
+        display: none
+.is-password-input
+    display: flex
+    justify-content: center
+    align-items: center
+    position: relative
+    & .show-password-btn
+        cursor: pointer
+        padding: $input-padding
+        font-size: $input-font-size
+        height: 100%
+        width: 36px
+        display: flex
+        justify-content: center
+        align-content: center
+        padding: $input-padding
+        border: $input-border
+        border-left: none
+        background-color: $white
+        font-size: $input-font-size
+        box-shadow: $input-inset-shadow
+        color: $input-color
+        border-top-right-radius: $input-border-radius
+        border-bottom-right-radius: $input-border-radius
+        transition: .2s ease
+        &:hover
+            background-color: $clouds
+            color: lighten($dracula, 10%)
+        @each $color in $colors-list
+            &.is-#{nth($color, 1)}
+                border-color: lighten(nth($color, 2), 10%)
+                &:hover
+                    border-color: nth($color, 2)
+    & .input
+        border-top-right-radius: 0
+        border-bottom-right-radius: 0
+
+// .samples-form
+//     position: relative
+//     border: 1px solid $primary-dark
+//     border-radius: 12px 12px 0px 0px
+//     padding: 0
+//     overflow: hidden
+//     background-color: $light-grey
+//     &__header
+//         padding: 8px 12px
+//         border-bottom: 1px solid $primary-dark
+//         background-color: $primary-dark
+//         text-align: center
+//         color: $white
+//     &__informations
+//         padding: 16px 32px
+//         border-bottom: 1px solid $primary-dark
+//     &__body
+//         // padding: 8px 12px
+//     &__form
+//         // padding: 8px 12px
+//     &__content
+//         padding: 16px 32px
+//     &__processes-bar
+//         display: flex
+//         align-items: center
+//         justify-content: flex-start
+//         background-color: $primary-dark
+//         & .processes-bar__item
+//             flex-grow: 1
+//             padding: 20px
+//             color: $white
+//             cursor: pointer
+//             transition: .2s ease-in-out
+//             border-right: 1px solid $white
+//             &:last-child
+//                 border-right: none
+//             &:hover
+//                 background-color: lighten($primary-dark, 20)
+//             & span
+//                 margin-left: 10px
+//             &.active
+//                 position: relative
+//                 background-color: $light-grey
+//                 color: $dark
+//                 border-radius: 4px 4px 0px 0px
+//                 user-select: none !important
+//                 &:hover
+//                     cursor: default
+//                 &::before
+//                     content: ''
+//                     position: absolute
+//                     top: 50%
+//                     transform: translateY(-50%)
+//                     height: 80%
+//                     width: 2px
+//                     background-color: $primary-dark
+//                     left: 10px
+//     &__container
+//         position: relative
+//         margin: 3rem auto !important
+//         &::after
+//             content: ''
+//             position: absolute
+//             bottom: 0
+//             left: 50%
+//             transform: translateX(-50%)
+//             height: 2px
+//             width: 80%
+//             background-color: $primary-dark
+
+.form-row
+    position: relative
+    padding-bottom: 2rem
+    &::after
+        content: ''
+        position: absolute
+        bottom: 1rem
+        left: 50%
+        transform: translateX(-50%)
+        height: 1px
+        width: 90%
+        background-color: $primary-dark
+    &:last-child::after
+        display: none !important
+
+.switch-input
+    display: none
+
+.switch
+    position: relative
+    margin: 15px 0
+    width: 70px
+    height: 25px
+    border-radius: 5px
+    background-color: $white
+    box-shadow: 0.5px 1px 2.2px rgba(0, 0, 0, 0.008),1.1px 2.4px 5.3px rgba(0, 0, 0, 0.012),2.1px 4.5px 10px rgba(0, 0, 0, 0.015),3.8px 8px 17.9px rgba(0, 0, 0, 0.018),7.1px 15px 33.4px rgba(0, 0, 0, 0.022),17px 36px 80px rgba(0, 0, 0, 0.03)
+    cursor: pointer
+    border: 1px solid $primary-dark
+    transition: .2s ease-in-out
+    &::after
+        content: attr(data-false-label)
+        position: absolute
+        left: -5px
+        top: 50%
+        transform: translateY(-50%)
+        height: 35px
+        width: 35px
+        border-radius: 5px
+        background-color: $white
+        box-shadow: 0.5px 1px 2.2px rgba(0, 0, 0, 0.034),1.1px 2.4px 5.3px rgba(0, 0, 0, 0.048),2.1px 4.5px 10px rgba(0, 0, 0, 0.06),3.8px 8px 17.9px rgba(0, 0, 0, 0.072),7.1px 15px 33.4px rgba(0, 0, 0, 0.086), 17px 36px 80px rgba(0, 0, 0, 0.12)
+        border: 1px solid $primary-dark
+        display: flex
+        justify-content: center
+        align-items: center
+        transition: .2s ease-in-out
+.switch-input:checked ~ .switch
+    background-color: $danger
+    border: 1px solid $danger
+    &::after
+        content: attr(data-true-label)
+        color: $danger
+        left: 35px
+        box-shadow: 0.5px 1px 2.2px rgba($danger, 0.034),1.1px 2.4px 5.3px rgba($danger, 0.048),2.1px 4.5px 10px rgba($danger, 0.06),3.8px 8px 17.9px rgba($danger, 0.072),7.1px 15px 33.4px rgba($danger, 0.086), 17px 36px 80px rgba($danger, 0.12)
+        border: 1px solid $danger

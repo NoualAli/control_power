@@ -1,0 +1,228 @@
+<template>
+  <ContentBody v-can="'view_control_campaign'">
+    <div class="d-flex justify-end align-center gap-3 my-2">
+      <router-link :to="{ name: 'campaign-missions', params: { campaignId: campaign?.current.id } }" class="btn"
+        v-can="'view_mission'">
+        Missions
+      </router-link>
+      <router-link class="btn btn-warning"
+        :to="{ name: 'campaigns-edit', params: { campaignId: campaign?.current.id } }" v-can="'edit_control_campaign'"
+        v-if="campaign?.current?.remaining_days_before_start > 5">
+        <i class="las la-edit icon"></i>
+      </router-link>
+      <button class="btn btn-danger" @click.stop="destroy" v-can="'delete_control_campaign'"
+        v-if="campaign?.current?.remaining_days_before_start > 5">
+        <i class="las la-trash icon"></i>
+      </button>
+    </div>
+    <!-- Control campaign informations -->
+    <div class="box mb-10 border-primary-dark border-1">
+      <div class="grid gap-12">
+        <div class="col-12 col-lg-6">
+          <span class="text-bold">
+            Référence:
+          </span>
+          <span class="text-bold">
+            {{ campaign?.current?.reference }}
+          </span>
+        </div>
+        <div class="col-12 col-lg-6">
+          <div class="grid">
+            <div class="col-12 grid">
+              <div class="col-12 col-lg-6">
+                <span class="text-bold">
+                  Début:
+                </span>
+                <span>
+                  {{ campaign?.current?.start + ' / ' +
+                  campaign?.current?.remaining_days_before_start_str }}
+                </span>
+              </div>
+              <div class="col-12 col-lg-6">
+                <span class="text-bold">
+                  Fin:
+                </span>
+                <span>
+                  {{ campaign?.current?.end + ' / ' +
+                  campaign?.current?.remaining_days_before_end_str }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <span class="text-bold">
+            Description:
+          </span>
+          <span>
+            {{ campaign?.current?.description }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Processes List -->
+    <NLDatatable :config="config" @show="show" @delete="destroy">
+      <template v-slot:actions="item">
+        <button class="btn btn-danger has-icon" @click.stop="detachProcess(item.item)" v-can="'edit_control_campaign'"
+          v-if="campaign?.current?.remaining_days_before_start > 5">
+          <i class="las la-unlink icon"></i>
+        </button>
+      </template>
+    </NLDatatable>
+
+    <!-- Process details (control points) -->
+    <NLModal :show="rowSelected" @close="close">
+      <template v-slot:title>
+        <small class="tag is-info text-small">
+          {{ rowSelected?.familly_name }}
+        </small>
+        <small class="tag is-primary-dark text-small mx-1">
+          {{ rowSelected?.domain_name }}
+        </small>
+        <small class="tag is-warning text-small">
+          {{ rowSelected?.name }}
+        </small>
+      </template>
+      <template v-slot>
+        <p class="text-bold mb-6">
+          Points de contrôle
+        </p>
+        <div class="grid list">
+          <div class="col-12 list-item" v-for="controlPoint in process?.controlPoints" :key="controlPoint.id">
+            <div class="list-item-content">
+              {{ controlPoint.label }}
+            </div>
+          </div>
+        </div>
+      </template>
+      <template v-slot:footer v-can="'edit_control_campaign'" v-if="campaign?.current?.remaining_days_before_start > 5">
+        <button class="btn btn-danger has-icon" @click.stop="destroy(rowSelected, campaign?.current)">
+          <i class="las la-unlink icon"></i>
+          Détacher
+        </button>
+      </template>
+    </NLModal>
+  </ContentBody>
+</template>
+
+<script>
+import NLDatatable from '../../components/NLDatatable';
+import { mapGetters } from 'vuex';
+import api from '../../plugins/api'
+export default {
+  layout: 'backend',
+  middleware: [ 'auth' ],
+  components: {
+    NLDatatable
+  },
+  breadcrumb() {
+    return {
+      label: 'Détails campagne ' + this.campaign?.current.reference
+    }
+  },
+  data() {
+    return {
+      rowSelected: null,
+      config: {
+        data: null,
+        namespace: 'campaigns',
+        state_key: 'current',
+        rowKey: 'id',
+        columns: [
+          {
+            label: "Famille",
+            field: "familly_name"
+          },
+          {
+            label: "Domaine",
+            field: "domain_name"
+          },
+          {
+            label: "Processus",
+            field: "name"
+          },
+          {
+            label: "Total points de contrôle",
+            field: "control_points_count"
+          },
+        ],
+        actions: {
+          show: true,
+        }
+      },
+    }
+  },
+  computed: {
+    ...mapGetters({
+      processes: 'campaigns/processes',
+      process: 'processes/controlPoints',
+      campaign: 'campaigns/current',
+    }),
+  },
+
+  created() {
+    this.initData()
+  },
+
+  methods: {
+    initData() {
+      this.close()
+      const campaignId = this.$route.params.campaignId
+      this.$store.dispatch('campaigns/fetch', { campaignId })
+      this.$store.dispatch('campaigns/fetchProcesses', campaignId).then(() => this.config.data = this.processes.processes)
+    },
+    loadControlPoints(process) {
+      this.$store.dispatch('processes/fetch', { id: process.id, onlyControlPoints: true }).then(() => this.control_points = this.process.controlPoints)
+    },
+    /**
+     * Delete campaign
+     */
+    destroy() {
+      swal.confirm_destroy().then((action) => {
+        if (action.isConfirmed) {
+          api.delete('campaigns/' + this.campaign?.current.id).then(response => {
+            if (response.data.status) {
+              swal.toast_success(response.data.message)
+              this.$router.push({ name: 'campaigns' })
+            } else {
+              swal.alert_error(response.data.message)
+            }
+          }).catch(error => {
+            console.log(error);
+          })
+        }
+      })
+    },
+
+    /**
+     * Detach specific process from campaign
+     *
+     * @param {Object} process
+     */
+    detachProcess(process) {
+      swal.confirm_destroy().then((action) => {
+        if (action.isConfirmed) {
+          api.delete('campaigns/' + this.campaign?.current.id + '/process/' + process.id).then(response => {
+            if (response.data.status) {
+              this.initData()
+              swal.toast_success(response.data.message)
+            } else {
+              swal.alert_error(response.data.message)
+            }
+          }).catch(error => {
+            console.log(error);
+          })
+        }
+      })
+    },
+    show(item) {
+      this.rowSelected = item
+      this.loadControlPoints(item)
+    },
+    close() {
+      this.rowSelected = null
+    },
+  },
+}
+</script>

@@ -1,0 +1,74 @@
+<?php
+
+namespace App\Models;
+
+use App\Traits\IsFilterable;
+use App\Traits\IsOrderable;
+use App\Traits\IsSearchable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use \Znck\Eloquent\Traits\BelongsToThrough;
+
+class ControlPoint extends Model
+{
+    use HasFactory, IsFilterable, BelongsToThrough, IsSearchable, IsOrderable;
+
+    protected $filter = 'App\Filters\PCF';
+
+    protected $fillable = [
+        'name',
+        'process_id',
+        'scores',
+        'fields',
+    ];
+
+    public $timestamps = false;
+
+    protected $perPage = 10;
+
+    protected $searchable = ['name'];
+
+    protected $appends = ['scores_str'];
+
+    public $casts = [
+        'scores' => 'object',
+        'fields' => 'object',
+    ];
+
+    /**
+     * Getters
+     */
+
+    public function getScoresStrAttribute()
+    {
+        $scores = $this->scores;
+        $scores_str = '';
+        if (is_array($scores)) {
+            foreach ($scores as $score) {
+                $scores_str .= '<span class="tag"><b>' . $score[1]->label . ':</b> ' . $score[0]->score . '</span>';
+            }
+        }
+        return $scores_str;
+    }
+
+    /**
+     * Relationships
+     */
+    public function familly()
+    {
+        return $this->belongsToThrough(Familly::class, [Domain::class, Process::class]);
+    }
+    public function process()
+    {
+        return $this->belongsTo(Process::class);
+    }
+    public function domain()
+    {
+        return $this->belongsToThrough(Domain::class, Process::class);
+    }
+
+    public function samples()
+    {
+        return $this->hasManyThrough(Pcf::class, PcfSample::class);
+    }
+}

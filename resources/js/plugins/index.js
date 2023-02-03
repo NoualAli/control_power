@@ -1,0 +1,8 @@
+// import './chartjs-plugin-colorschemes'
+import './helpers'
+import './user'
+import './api'
+import './charts'
+import './settings'
+import './swal'
+import './acl'

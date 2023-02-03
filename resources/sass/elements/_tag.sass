@@ -1,0 +1,33 @@
+.tags
+    display: flex
+    justify-content: start
+    align-items: center
+    flex-wrap: wrap
+    gap: .25rem
+    .tag
+        flex: 1 0 21%
+.tag
+    padding: .5rem
+    background-color: $primary-light
+    color: $white
+    border-radius: 4px
+    text-align: center
+    &:first-child
+        margin: 0
+    @each $color in $colors-list
+        &.is-#{nth($color, 1)}
+            background-color: nth($color, 2)
+            color: darkOrWhiteFont(nth($color, 2))
+            border-color: lighten(nth($color, 2), 10%)
+            &:hover
+                color: darkOrWhiteFont(nth($color, 2))
+                background-color: lighten(nth($color, 2), 10%)
+                border-color: lighten(nth($color, 2), 10%)
+            &.reverse
+                background-color: transparent
+                color: nth($color, 2)
+                border-color: nth($color, 2), 10%
+                &:hover
+                    background-color: nth($color, 2)
+                    color: darkOrWhiteFont(nth($color, 2))
+                    border-color: lighten(nth($color, 2), 10%)

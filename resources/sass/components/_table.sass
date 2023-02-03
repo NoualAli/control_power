@@ -1,0 +1,137 @@
+$td-padding: .5rem 1rem
+$th-padding: 1rem
+$table-shadows: 0px 0px 0.7px -2px rgba(0, 0, 0, 0.024), 0px 0px 2px -2px rgba(0, 0, 0, 0.035), 0px 0px 4.8px -2px rgba(0, 0, 0, 0.046),0px 0px 16px -2px rgba(0, 0, 0, 0.07)
+$table-align: center
+$table-radius: 4px
+$table-border: $grey
+$link-active-bg: $primary-dark
+$link-active-color: $white
+$link-active-opacity: .5
+$cell-font-size: 1rem
+$cell-btn-padding: 0 .3rem
+
+.table-container
+    position: relative
+    width: 100% !important
+    margin: 1em 0
+    color: $dark
+    overflow: auto
+
+table
+    table-layout: auto
+    width: 100%
+    margin: 1em 0
+    min-width: $mobile
+    color: $dark
+    border-collapse: collapse
+    & th
+        display: none
+    & td
+        position: relative
+        display: block
+        &:before
+            content: attr(data-th)
+            font-weight: bold
+            width: 100%
+            display: block
+    & th,
+    & td
+        position: relative !important
+        margin: 0.5em 1em
+        font-size: $cell-font-size
+        // width: auto
+        // max-width: 200px
+        &.cell-actions
+            max-width: 200px
+        & .btn
+            padding: $cell-btn-padding
+            font-size: $cell-font-size
+    & tbody
+        &.is-busy
+            position: relative
+            &::after
+                content: 'Chargement en cours...'
+                position: absolute
+                top: 50%
+                left: 50%
+                transform: translate(-50%, -50%)
+                color: $white
+                font-weight: 700
+                z-index: 2
+            &::before
+                content: ''
+                position: absolute
+                top: 0
+                left: 0
+                height: 100%
+                width: 100%
+                background-color: rgba($dark, .4)
+                z-index: 1
+            & tr
+                user-select: none
+        & tr
+            background-color: $white
+            border-bottom: 1px solid $table-border
+            &:nth-child(odd)
+                background-color: transparent
+            &:hover
+                background-color: rgba($primary,.2)
+                color: $brown
+.pagination
+    maring: 0 1rem
+    width: 100%
+    & .btn
+        &.is-active
+            background-color: $primary-dark
+            cursor: not-allowed
+            color: $primary-extra-light
+
+/* Responsive media */
+
+@media (min-width: $tablet)
+    table
+        // table-layout: auto
+        // width: 100%
+        position: relative
+        border-radius: $table-radius
+        box-shadow: $table-shadows
+        & td, & th
+            vertical-align: middle
+            // text-align: left
+            display: table-cell
+            border-left: 1px solid $table-border
+            & span svg
+                font-size: $cell-font-size !important
+                cursor: pointer
+            &:first-child
+                border: none
+            &:before
+                display: none
+        & th
+            position: sticky !important
+            top: 0 !important
+            z-index: 1
+            background-color: $primary-dark
+            color: $white
+            padding: $th-padding
+            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4)
+            font-weight: bolder
+            &:first-child
+                border-top-left-radius: $table-radius
+            &:last-child
+                border-top-right-radius: $table-radius
+        & td
+            padding: $td-padding
+            // min-width: 110px
+            // width: auto !important
+            // white-space: nowrap !important
+            &:hover
+                // color: $white
+                // background-color: rgba($dark, .5)
+        & tbody
+            overflow: hidden
+        & tr
+            border: 1px solid $table-border
+            padding: .6em !important
+    .pagination
+        flex-direction: row
