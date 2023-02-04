@@ -24,6 +24,7 @@ define('ATTACH_SUCCESS', 'Resource attaché avec succès');
 define('ATTACH_ERROR', 'Une erreur est survenue lors de la tentative d\'attachement de la resource !');
 define('DETACH_SUCCESS', 'Resource détacher avec succès');
 define('DETACH_ERROR', 'Une erreur est survenue lors de la tentative de détachement de la resource !');
+define('REPORT_TYPES', ['Avis contrôleur', 'Rapport', 'Synthèse']);
 /*
 |--------------------------------------------------------------------------
 | Check If Application Is Under Maintenance
