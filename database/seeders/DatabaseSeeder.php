@@ -30,5 +30,6 @@ class DatabaseSeeder extends Seeder
         $this->call(MissionsTableSeeder::class);
         $this->call(MissionHasControllersTableSeeder::class);
         $this->call(MissionDetailsTableSeeder::class);
+        $this->call(MissionReportsTableSeeder::class);
     }
 }
