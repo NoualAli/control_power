@@ -217,7 +217,9 @@ return [
         'rows.*.report' => 'constat',
         'rows.*.recovery_plan' => 'plan de redressement',
         'rows.*.detail' => 'détail',
-        'rows.*.metadata.*.*' => 'métadonnées'
+        'rows.*.metadata.*.*' => 'métadonnées',
+        'opinion' => 'avis du contrôleur',
+        'report' => 'rapport du chef de département'
     ],
 
 ];
