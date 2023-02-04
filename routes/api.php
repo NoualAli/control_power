@@ -4,17 +4,16 @@ use App\Http\Controllers\Api\DataController;
 use App\Http\Controllers\Api\AgencyController;
 use App\Http\Controllers\Api\ControlCampaignController;
 use App\Http\Controllers\Api\ControlPointController;
-use App\Http\Controllers\Api\DetailController;
 use App\Http\Controllers\Api\DomainController;
 use App\Http\Controllers\Api\DreController;
 use App\Http\Controllers\Api\FamillyController;
 use App\Http\Controllers\Api\MissionController;
 use App\Http\Controllers\Api\MissionDetailController;
+use App\Http\Controllers\Api\MissionReportController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\ProcessController;
 use App\Http\Controllers\Api\RoleController;
-// use App\Http\Controllers\Api\SampleController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ResetPasswordController;
@@ -141,10 +140,20 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::put('{mission}', 'update');
         Route::get('/concerns/config', 'config');
         Route::delete('{mission}', 'destroy');
+        /**
+         * Details
+         */
         Route::prefix('details')->controller(MissionDetailController::class)->group(function () {
             Route::post('/{mission}', 'store');
             Route::get('/', 'index');
             Route::get('/concerns/config', 'show');
+        });
+        /**
+         * Report
+         */
+        Route::prefix('reports')->controller(MissionReportController::class)->group(function () {
+            Route::post('/{mission}', 'store');
+            Route::put('/{mission}', 'validateReport');
         });
         // Route::get('/missions_state', 'missions_state');
         // Route::put('/{mission}/validate', 'confirm');

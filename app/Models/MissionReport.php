@@ -2,13 +2,37 @@
 
 namespace App\Models;
 
+use App\Traits\HasDates;
+use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MissionReport extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasUuid, HasDates;
+
+    protected $fillable = [
+        'type',
+        'content',
+        'mission_id',
+        'created_by_id',
+        'validated_at',
+    ];
+
+    public $appends = ['is_validated'];
+
+    public $casts = [
+        'validated_at' => 'datetime: d-m-Y H:i'
+    ];
+
+    /**
+     * Getters
+     */
+    public function getIsValidatedAttribute()
+    {
+        return $this->validated_at ? true : false;
+    }
 
     /**
      * Relationships

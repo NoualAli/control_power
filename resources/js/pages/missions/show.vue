@@ -125,18 +125,51 @@
     <!-- Processes List -->
     <div class="d-flex justify-between align-items">
       <h2>Processus de la mission</h2>
-      <button class="btn btn-info" v-if="mission?.current.progress_status !== 100" v-can="'add_opinion'"
-        @click="showOpinion">
-        Ajouter votre avis
-      </button>
-      <button class="btn btn-info"
-        v-if="mission?.current.progress_status == 100 && mission?.current.controller_opinion">
-        Avis du contrôleur
-      </button>
-      <button class="btn btn-success" v-can="'validated_mission'"
-        v-if="mission?.current.progress_status == 100 && !mission?.current.validated_at">
-        Valider la mission
-      </button>
+      <!-- Opinion creation -->
+      <div v-can="'create_opinion'">
+        <button class="btn btn-info"
+          v-if="mission?.current.progress_status !== 100 && mission?.current.head_of_department_report?.is_validated"
+          @click="showReport">
+          Rapport de la mission
+        </button>
+        <button class="btn btn-success"
+          v-if="mission?.current.progress_status !== 100 && !mission?.current.controller_opinion?.is_validated && mission?.current.controller_opinion"
+          @click.prevent="validateOpinion">
+          Valider la mission
+        </button>
+        <button class="btn btn-info" v-if="mission?.current.progress_status !== 100" @click="showOpinion">
+          <span v-if="!mission?.current.controller_opinion">
+            Ajouter votre avis
+          </span>
+          <span v-else>
+            Avis du contrôleur
+          </span>
+        </button>
+      </div>
+
+      <!-- Rport creation -->
+      <div v-can="'create_report'">
+        <button class="btn btn-success"
+          v-if="mission?.current.progress_status !== 100 && mission?.current.controller_opinion?.is_validated && mission?.current.head_of_department_report && !mission?.current.head_of_department_report?.is_validated"
+          @click.prevent="validateReport">
+          Valider la mission
+        </button>
+        <button class="btn btn-info"
+          v-if="mission?.current.progress_status !== 100 && mission?.current.controller_opinion?.is_validated"
+          @click="showReport">
+          <span v-if="!mission?.current.head_of_department_report">
+            Ajouter votre rapport
+          </span>
+          <span v-else>
+            Rapport
+          </span>
+        </button>
+        <button class="btn btn-info"
+          v-if="mission?.current.progress_status !== 100 && mission?.current.controller_opinion?.is_validated"
+          @click="showOpinion">
+          Avis du contrôleur
+        </button>
+      </div>
     </div>
     <NLDatatable :config="config" @show="show">
       <template v-slot:actions="item" v-can="'edit_mission'">
@@ -184,23 +217,95 @@
       </template>
     </NLModal>
 
+    <!-- Controller opinion -->
     <NLModal :show="modals.opinion" @close="modals.opinion = false">
       <template v-slot:title>
-        <h2>Avis contrôleur</h2>
+        <h2>Avis du contrôleur</h2>
       </template>
       <template v-slot>
-        <form @submit.prevent="saveOpinion" @keydown="forms.opinion.onKeydown($event)">
+        <form @submit.prevent="saveOpinion" @keydown="forms.opinion.onKeydown($event)"
+          v-if="!mission?.current.controller_opinion || forms.opinion.edit_mode">
           <div class="grid">
             <div class="col-12">
-              <NLWyswyg :name="'opinion'" v-model="forms.opinion.opinion" :form="forms.opinion" label="Avis" />
+              <NLWyswyg :name="'opinion'" v-model="forms.opinion.opinion" :form="forms.opinion"
+                label="Avis du contrôleur" labelRequired />
+            </div>
+            <div class="col-12">
+              <NLCheckbox name="validated" :form="forms.opinion" label="Validé la mission"
+                v-model="forms.opinion.validated" />
             </div>
           </div>
           <!-- Submit Button -->
-          <div class="d-flex justify-end align-center gap-2">
+          <div class="d-flex justify-end align-center">
             <NLButton :loading="forms.opinion.busy" label="Save" />
-            <NLButton :loading="forms.opinion.busy" label="Save and validate" validate />
           </div>
         </form>
+        <div class="grid" v-else>
+          <div class="col-12" v-html="mission?.current.controller_opinion.content"></div>
+          <div class="col-12" v-if="mission?.current.controller_opinion?.is_validated">
+            <b>Validé le:</b> <time>{{ mission?.current.controller_opinion.validated_at }}</time>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <button class="btn btn-success has-icon" @click.prevent="validateOpinion"
+          v-if="!mission?.current.controller_opinion?.is_validated && mission?.current.controller_opinion && !forms.opinion.edit_mode"
+          v-can="'create_opinion'">
+          <i class="las la-check-circle icon"></i>
+          Valider la mission
+        </button>
+        <button class="btn btn-warning has-icon" @click.prevent="enableEdition('opinion')"
+          v-if="!mission?.current.controller_opinion?.is_validated && mission?.current.controller_opinion && !forms.opinion.edit_mode"
+          v-can="'create_opinion'">
+          <i class="las la-edit icon"></i>
+          Editer l'avis
+        </button>
+      </template>
+    </NLModal>
+
+    <!-- Head of department report -->
+    <NLModal :show="modals.report" @close="modals.report = false">
+      <template v-slot:title>
+        <h2>Rapport du chef de département</h2>
+      </template>
+      <template v-slot>
+        <form @submit.prevent="saveReport" @keydown="forms.report.onKeydown($event)"
+          v-if="!mission?.current.head_of_department_report || forms.report.edit_mode">
+          <div class="grid">
+            <div class="col-12">
+              <NLWyswyg :name="'report'" v-model="forms.report.report" :form="forms.report"
+                label="Rapport du chef de département" labelRequired />
+            </div>
+            <div class="col-12">
+              <NLCheckbox name="validated" :form="forms.report" label="Validé la mission"
+                v-model="forms.report.validated" />
+            </div>
+          </div>
+          <!-- Submit Button -->
+          <div class="d-flex justify-end align-center">
+            <NLButton :loading="forms.report.busy" label="Save" />
+          </div>
+        </form>
+        <div class="grid" v-else>
+          <div class="col-12" v-html="mission?.current.head_of_department_report.content"></div>
+          <div class="col-12" v-if="mission?.current.head_of_department_report?.is_validated">
+            <b>Validé le:</b> <time>{{ mission?.current.head_of_department_report.validated_at }}</time>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <button class="btn btn-success has-icon" @click.prevent="validateReport"
+          v-if="!mission?.current.head_of_department_report?.is_validated && mission?.current.head_of_department_report && !forms.report.edit_mode"
+          v-can="'create_report'">
+          <i class="las la-check-circle icon"></i>
+          Valider la mission
+        </button>
+        <button class="btn btn-warning has-icon" @click.prevent="enableEdition('report')"
+          v-if="!mission?.current.head_of_?.is_validated && mission?.current.head_of_department_report && !forms.report.edit_mode"
+          v-can="'create_report'">
+          <i class="las la-edit icon"></i>
+          Editer le rapport
+        </button>
       </template>
     </NLModal>
   </ContentBody>
@@ -254,7 +359,7 @@ export default {
                   return 'bg-info text-white text-bold'
                 } else if (score == 3) {
                   return 'bg-warning text-bold'
-                } else {
+                } else if (score == 4) {
                   return 'bg-danger text-white text-bold'
                 }
               }
@@ -281,14 +386,26 @@ export default {
       forms: {
         opinion: new Form({
           opinion: null,
+          id: null,
           type: 'Avis contrôleur',
-          validate: false,
+          validated: false,
+          edit_mode: true,
         }),
         report: new Form({
           report: null,
+          id: null,
           type: 'Rapport',
-          validate: false,
+          validated: false,
+          edit_mode: true,
         }),
+        validations: {
+          opinion: new Form({
+            type: 'Avis contrôleur'
+          }),
+          report: new Form({
+            type: 'Rapport'
+          })
+        }
       }
     }
   },
@@ -309,11 +426,103 @@ export default {
   },
 
   methods: {
+    /**
+     * Affiche l'avis du contrôleur
+     */
+    showReport() {
+      this.modals.report = true
+    },
+    /**
+     * Enregistre l'avis du contrôleur
+     */
+    saveReport() {
+      this.forms.report.post('/api/missions/reports/' + this.mission.current.id).then(response => {
+        if (response.data.status) {
+          swal.toast_success(response.data.message)
+          this.forms.opinion.reset()
+          this.initData()
+        } else {
+          swal.alert_error(response.data.message)
+        }
+      }).catch(error => {
+        console.log(error);
+      })
+    },
+    /**
+     * Valide l'avis du contrôleur
+     */
+    validateReport() {
+      swal.confirm_update().then((action) => {
+        if (action.isConfirmed) {
+          this.forms.validations.report.put('/api/missions/reports/' + this.mission.current.id).then(response => {
+            if (response.data.status) {
+              swal.toast_success(response.data.message)
+              this.initData()
+            } else {
+              swal.alert_error(response.data.message)
+            }
+          }).catch(error => {
+            console.log(error);
+          })
+        }
+      })
+    },
+    /**
+     * Affiche l'avis du contrôleur
+     */
     showOpinion() {
       this.modals.opinion = true
     },
-    saveOpinion(e) {
-      console.log(e);
+    /**
+     * Enregistre l'avis du contrôleur
+     */
+    saveOpinion() {
+      this.forms.opinion.post('/api/missions/reports/' + this.mission.current.id).then(response => {
+        if (response.data.status) {
+          swal.toast_success(response.data.message)
+          this.forms.opinion.reset()
+          this.initData()
+        } else {
+          swal.alert_error(response.data.message)
+        }
+      }).catch(error => {
+        console.log(error);
+      })
+    },
+    /**
+     * Valide l'avis du contrôleur
+     */
+    validateOpinion() {
+      swal.confirm_update().then((action) => {
+        if (action.isConfirmed) {
+          this.forms.validations.opinion.put('/api/missions/reports/' + this.mission.current.id).then(response => {
+            if (response.data.status) {
+              swal.toast_success(response.data.message)
+              this.initData()
+            } else {
+              swal.alert_error(response.data.message)
+            }
+          }).catch(error => {
+            console.log(error);
+          })
+        }
+      })
+    },
+    /**
+     * Bascule vers le mode edition
+     *
+     * @param {String} type
+     */
+    enableEdition(type) {
+      if (type == 'opinion') {
+        this.forms.opinion.edit_mode = true
+        this.forms.opinion.opinion = this.mission.current.controller_opinion.content
+        this.forms.opinion.id = this.mission.current.controller_opinion.id
+      } else if (type == 'report') {
+        this.forms.report.edit_mode = true
+        this.forms.report.report = this.mission.current.head_of_department_report.content
+        this.forms.report.id = this.mission.current.head_of_department_report.id
+      }
     },
     /**
      * Initialise les données
@@ -322,6 +531,8 @@ export default {
       this.close()
       this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId })
       this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId, onlyProcesses: true }).then(() => this.config.data = this.processes.processes)
+      this.forms.opinion.edit_mode = false
+      this.forms.report.edit_mode = false
     },
     /**
      * Redérige vers la page des détails de la mission

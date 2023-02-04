@@ -19,6 +19,7 @@ class CreateMissionReportsTable extends Migration
             $table->text('content');
             $table->foreignUuid('mission_id');
             $table->foreignId('created_by_id');
+            $table->timestamp('validated_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
 

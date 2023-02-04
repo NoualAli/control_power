@@ -101,7 +101,7 @@ class Mission extends Model
                 return 'EN RETARD';
             }
             return 'EN COURS';
-        } elseif ($this->controller_opinion && !$this->head_of_department_report) {
+        } elseif ($this->controller_opinion && $this->controller_opinion->is_validated && !$this->head_of_department_report) {
             return 'En attente de validation';
         } elseif ($this->head_of_department_report) {
             return 'Validé et envoyé';
