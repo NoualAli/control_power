@@ -218,6 +218,8 @@ Route::group(['middleware' => 'auth:api'], function () {
     // });
 
     Route::prefix('notifications')->controller(NotificationController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::put('/', 'update');
         Route::get('total-unread-major-facts', 'total_unread_major_facts');
         Route::post('read-major-facts', 'read_major_facts');
     });

@@ -523,29 +523,6 @@ export default [
       }
     }
   },
-  // Mission processes
-  // {
-  //   path: '/missions/:missionId',
-  //   name: 'mission-samples',
-  //   component: page('missions/samples.vue'),
-  //   meta: {
-  //     breadcrumb: {
-  //       label: 'Processus de mission',
-  //       parent: '',
-  //     }
-  //   }
-  // },
-  // Mission details
-  // {
-  //   path: '/mission/:missionId/sample/:sampleId/details',
-  //   name: 'mission-details',
-  //   component: page('missions/details.vue'),
-  //   meta: {
-  //     breadcrumb: {
-  //       label: "Échantillions du processus de mission",
-  //     },
-  //   }
-  // },
 
   /**
    * Global
@@ -599,4 +576,18 @@ export default [
       }
     }
   },
+
+  /**
+   * Notifications center
+   */
+  {
+    path: '/notifications',
+    name: 'notifications',
+    component: page('notifications/index'),
+    meta: {
+      breadcrumb: {
+        label: "Centre de notification"
+      }
+    }
+  }
 ]
