@@ -2,18 +2,16 @@
 
 namespace App\Models;
 
-use App\Http\Controllers\Api\MissionController;
 use App\Notifications\ResetPassword;
 use App\Traits\HasDres;
 use App\Traits\HasRoles;
 use App\Traits\IsOrderable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use \Staudenmeir\EloquentHasManyDeep\HasRelationships;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
-use Znck\Eloquent\Traits\BelongsToThrough;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -59,8 +57,6 @@ class User extends Authenticatable implements JWTSubject
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-
-    // public $with = ['roles', 'dres'];
 
     public $searchable = ['last_name', 'first_name', 'username', 'email', 'phone'];
 
@@ -157,8 +153,95 @@ class User extends Authenticatable implements JWTSubject
     /**
      * Scopes
      */
-    public function scopeDcp($query)
+    /**
+     * @param Illuminate\Database\Eloquent\Builder $query
+     * @param string $code
+     *
+     * @return App\Models\User
+     */
+    public function scopeUser(Builder $query, string $code)
     {
-        return $query->whereRelation('role', 'roles.code', 'dcp');
+        return $query->whereRelation('roles', 'roles.code', $code)->get();
+    }
+    /**
+     * @param Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return App\Models\User
+     */
+    public function scopeDcp(Builder $query)
+    {
+        return $this->user('dcp');
+    }
+    /**
+     * @param Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return App\Models\User
+     */
+    public function scopeRoot(Builder $query)
+    {
+        return $this->user('root');
+    }
+    /**
+     * @param Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return App\Models\User
+     */
+    public function scopeAdmin(Builder $query)
+    {
+        return $this->user('admin');
+    }
+    /**
+     * @param Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return App\Models\User
+     */
+    public function scopeDg(Builder $query)
+    {
+        return $this->user('dg');
+    }
+    /**
+     * @param Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return App\Models\User
+     */
+    public function scopeIg(Builder $query)
+    {
+        return $this->user('ig');
+    }
+    /**
+     * @param Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return App\Models\User
+     */
+    public function scopeCdc(Builder $query)
+    {
+        return $this->user('cdc');
+    }
+    /**
+     * @param Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return App\Models\User
+     */
+    public function scopeCi(Builder $query)
+    {
+        return $this->user('ci');
+    }
+    /**
+     * @param Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return App\Models\User
+     */
+    public function scopeCdr(Builder $query)
+    {
+        return $this->user('cdr');
+    }
+    /**
+     * @param Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return App\Models\User
+     */
+    public function scopeDiv(Builder $query)
+    {
+        return $this->user('div');
     }
 }
