@@ -103,7 +103,7 @@
           Consultation des rapports
         </span>
       </router-link>
-      <router-link class="sidebar-item" :to="{ name: 'global-details' }" v-can="'view_details'">
+      <router-link class="sidebar-item" :to="{ name: 'global-details' }" v-can="'view_mission'">
         <i class="lab la-stack-overflow sidebar-icon"></i>
         <span class="icon-text">
           Anomalie • Notation • Plan de redressement
