@@ -26,7 +26,7 @@ class MissionController extends Controller
             $missions = hasRole('dcp') ? new Mission : auth()->user()->missions();
             // $missions = $missions->without('controlPoints');
             if (request()->has('campaign_id')) {
-                $missions->where('control_campaign_id', request()->campaign_id);
+                $missions = $missions->where('control_campaign_id', request()->campaign_id);
             }
             if (request()->has('order')) {
                 $missions = $missions->orderByMultiple(request()->order);
