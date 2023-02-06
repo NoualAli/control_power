@@ -22,7 +22,7 @@ class ValidateRequest extends FormRequest
                 $report = request()->mission->head_of_department_report;
                 break;
         }
-        return isAbleTo(['create_opinion', 'create_report']) && $report->created_by_id == auth()->user()->id;
+        return isAbleTo(['validate_opinion', 'validate_report']) && $report->created_by_id == auth()->user()->id;
     }
 
     /**

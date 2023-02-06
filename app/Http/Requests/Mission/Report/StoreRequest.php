@@ -24,12 +24,11 @@ class StoreRequest extends FormRequest
      */
     public function rules()
     {
-        $types = implode(',', REPORT_TYPES);
         $type = request()->type;
-        if ($type == 'opinion') {
+        if ($type == 'Avis contrôleur') {
             return [
                 'opinion' => ['required', 'string', 'max:1000'],
-                'type' => ['required', 'in:Avis du contrôleur'],
+                'type' => ['required', 'in:Avis contrôleur'],
                 'id' => ['nullable', 'exists:mission_reports'],
                 'validated' => ['required', 'boolean']
             ];
