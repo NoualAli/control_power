@@ -25,6 +25,8 @@ class sendControlCampaignNotification extends Command
      */
     protected $description = 'Send notification for users about a specific control campaign';
 
+    protected $concerned = ['ci', 'cdc', 'dg', 'div'];
+
     /**
      * Create a new command instance.
      *
@@ -43,19 +45,14 @@ class sendControlCampaignNotification extends Command
     public function handle()
     {
         try {
+            $users = User::all()->filter(fn ($user) => hasRole($this->concerned, $user));
             if ($this->argument('id')) {
                 $campaign =  ControlCampaign::find($this->argument('id'));
                 $created = boolval($this->argument('created'));
-                if ($created) {
-                    $users = User::all()->filter(fn ($user) => hasRole(['root'], $user));
-                } else {
-                    $users = User::all()->filter(fn ($user) => hasRole(['root'], $user));
-                }
                 foreach ($users as $user) {
                     $user->notify(new ControlCampaignNotification($campaign, $created));
                 }
             } else {
-                $users = User::all()->filter(fn ($user) => hasRole(['root'], $user));
                 $campaigns =  ControlCampaign::all()->filter(fn ($campaign) => $campaign->remaining_days_before_start <= 5);
                 foreach ($campaigns as $campaign) {
                     foreach ($users as $user) {
