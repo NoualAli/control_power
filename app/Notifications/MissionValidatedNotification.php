@@ -82,7 +82,10 @@ class MissionValidatedNotification extends Notification
     public function toArray($notifiable)
     {
         return [
-            'mission_id' => $this->mission->id,
+            'id' => $this->mission->id,
+            'className' =>  'App\Models\Mission',
+            'routeName' => 'mission',
+            'paramNames' => 'missionId',
             'content' => $this->content,
             'title' => $this->title,
         ];

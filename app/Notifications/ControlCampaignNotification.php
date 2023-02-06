@@ -12,8 +12,22 @@ class ControlCampaignNotification extends Notification
 {
     use Queueable;
 
+    /**
+     * @var App\Models\ControlCampaign
+     */
     private $campaign;
+    /**
+     * @var Boolean
+     */
     private $created;
+    /**
+     * @var string
+     */
+    private $title;
+    /**
+     * @var String
+     */
+    private $content;
 
     /**
      * Create a new notification instance.
@@ -24,6 +38,25 @@ class ControlCampaignNotification extends Notification
     {
         $this->campaign = $campaign;
         $this->created = $created;
+        $this->title = 'Création d\'une nouvelle campagne de contrôle ' . $this->campaign->reference;
+        $this->content = 'Nous vous informons qu\'une nouvelle campagne de contrôle avec la référence ' . $this->campaign->reference . ' vient d\'être créer';
+
+        if (!$this->created) {
+            $this->title = 'Mise à jour de la campagne de contrôle ' . $this->campaign->reference;
+            $this->content = 'Des modifications ont étaient apportés à la campagne de contrôle avec la référence ' . $this->campaign->reference;
+        }
+        if ($this->campaign->remaining_days_before_start <= 5) {
+            $this->title = 'Rappel: lancement de la campagne de contrôle ' . $this->campaign->reference;
+            $this->content = 'La campagne de contrôle avec la référence ' . $this->campaign->reference . ' débutera bientôt';
+        }
+        if ($this->campaign->remaining_days_before_start == 0) {
+            $this->title = 'Lancement de la campagne de contrôle ' . $this->campaign->reference;
+            $this->content = 'La campagne de contrôle avec la référence ' . $this->campaign->reference . ' vient d\'être lancée';
+        }
+        if ($this->campaign->remaining_days_before_end == 0) {
+            $this->title = 'Fin de la campagne de contrôle ' . $this->campaign->reference;
+            $this->content = 'La campagne de contrôle avec la référence ' . $this->campaign->reference . ' vient de s\'achevée';
+        }
     }
 
     /**
@@ -45,35 +78,22 @@ class ControlCampaignNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        $subject = 'Création d\'une nouvelle campagne de contrôle #' . $this->campaign->reference;
-        $introduction = 'Nous vous informons qu\'une nouvelle campagne de contrôle avec la référence #' . $this->campaign->reference . ' vient d\'être créer';
         $startingSuffix = $this->campaign->remaining_days_before_start > 1 ? ' jours' : ' jour';
         $endingSuffix = $this->campaign->remaining_days_before_end > 1 ? ' jours' : ' jour';
         $startingLine = 'La campagne débutera le ' . $this->campaign->start . ' dans exactement ' . $this->campaign->remaining_days_before_start . $startingSuffix;
         $endingLine = 'La campagne se terminera le ' . $this->campaign->end . ' dans exactement ' . $this->campaign->remaining_days_before_end . $endingSuffix;
-        if (!$this->created) {
-            $subject = 'Mise à jour de la campagne de contrôle #' . $this->campaign->reference;
-            $introduction = 'Des modifications ont étaient apportés à la campagne de contrôle avec la référence #' . $this->campaign->reference;
-        }
-        if ($this->campaign->remaining_days_before_start <= 5) {
-            $subject = 'Rappel: lancement de la campagne de contrôle #' . $this->campaign->reference;
-            $introduction = 'La campagne de contrôle avec la référence #' . $this->campaign->reference . ' débutera bientôt';
-        }
+
         if ($this->campaign->remaining_days_before_start == 0) {
-            $subject = 'Lancement de la campagne de contrôle #' . $this->campaign->reference;
-            $introduction = 'La campagne de contrôle avec la référence #' . $this->campaign->reference . ' vient d\'être lancée';
             $startingLine = '';
         }
         if ($this->campaign->remaining_days_before_end == 0) {
-            $subject = 'Fin de la campagne de contrôle #' . $this->campaign->reference;
-            $introduction = 'La campagne de contrôle avec la référence #' . $this->campaign->reference . ' vient de s\'achevée';
             $startingLine = '';
             $endingLine = '';
         }
 
         return (new MailMessage)
-            ->subject($subject)
-            ->line($introduction)
+            ->subject($this->title)
+            ->line($this->content)
             ->line($startingLine)
             ->line($endingLine)
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
@@ -90,7 +110,12 @@ class ControlCampaignNotification extends Notification
     public function toDatabase($notifiable)
     {
         return [
-            'campaign_id' => $this->campaign->id,
+            'id' => $this->campaign->id,
+            'className' =>  'App\Models\ControlCampaign',
+            'routeName' => 'campaign',
+            'paramNames' => 'campaignId',
+            'content' => $this->content,
+            'title' => $this->title,
         ];
     }
 
@@ -103,7 +128,12 @@ class ControlCampaignNotification extends Notification
     public function toArray($notifiable)
     {
         return [
-            //
+            'id' => $this->campaign->id,
+            'className' =>  'App\Models\ControlCampaign',
+            'routeName' => 'campaign',
+            'paramNames' => 'campaignId',
+            'content' => $this->content,
+            'title' => $this->title,
         ];
     }
 }
