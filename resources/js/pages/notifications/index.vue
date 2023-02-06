@@ -1,6 +1,6 @@
 <template>
   <ContentBody>
-    <NLDatatable :config="config" />
+    <NLDatatable :config="config" @show="show" />
   </ContentBody>
 </template>
 
@@ -60,10 +60,16 @@ export default {
             }
           },
         ],
+        actions: {
+          show: true,
+        }
       }
     }
   },
   methods: {
+    /**
+     * Initialise les données
+     */
     initData() {
       this.$store.dispatch('notifications/fetchPaginated').then(() => {
         this.config.data = this.notifications.paginated
@@ -72,6 +78,29 @@ export default {
         }
       })
     },
+    /**
+     * Affiche l'élément seléctionner
+     *
+     * @param {Object} item
+     */
+    show(item) {
+      this.$router.push(this.getRoute(item))
+    },
+    /**
+     * Formate les différentes informations pour créer la route d'action
+     *
+     * @param {Object} item
+     */
+    getRoute(item) {
+      const paramName = item.paramNames
+      const id = item.modelId
+      const routeName = item.routeName
+      console.log(routeName, id, paramName);
+      return { name: routeName, params: { [ paramName ]: id } }
+    },
+    /**
+     * Marque les notifications comme lu
+     */
     async markAsRead() {
       await api.put('notifications')
     }
