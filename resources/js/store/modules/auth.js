@@ -53,6 +53,7 @@ export const actions = {
     try {
       const { data } = await api.get('user')
       localStorage.setItem("authorizations", JSON.stringify(data.authorizations))
+      localStorage.setItem("roles", JSON.stringify(data.roles))
       commit(types.FETCH_USER_SUCCESS, { user: data })
     } catch (e) {
       commit(types.FETCH_USER_FAILURE)
@@ -65,7 +66,10 @@ export const actions = {
 
   async logout({ commit }) {
     try {
-      await api.post('logout').then(() => localStorage.removeItem('authorizations'))
+      await api.post('logout').then(() => {
+        localStorage.removeItem('authorizations')
+        localStorage.removeItem('roles')
+      })
     } catch (e) { }
 
     commit(types.LOGOUT)
