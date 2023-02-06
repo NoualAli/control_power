@@ -1,6 +1,8 @@
+import vue from 'vue'
 import Swal from "sweetalert2";
 import axios from 'axios'
 import store from '~/store'
+// import router from '~/router'
 
 const api = axios.create({
   headers: {
@@ -15,20 +17,17 @@ api.interceptors.response.use(response => response, error => {
   const title = status + ' ' + error?.response?.statusText
   if (status === 401 && store.getters[ 'auth/check' ]) {
     swal.alert_error(message, title)
-    // .then(() => {
-    //   store.commit('auth/LOGOUT')
-
-    //   router.push({ name: 'login' })
-    // })
+      .then(() => {
+        store.commit('auth/LOGOUT')
+        location.reload()
+      })
   }
-  console.log(response);
   if (status === 403 && store.getters[ 'auth/check' ]) {
     swal.alert_error(message, title)
-    // .then(() => {
-    //   store.commit('auth/LOGOUT')
-
-    //   router.push({ name: 'login' })
-    // })
+      .then(() => {
+        store.commit('auth/LOGOUT')
+        location.reload()
+      })
   }
 
   if (status >= 500) {
