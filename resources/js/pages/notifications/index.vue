@@ -10,6 +10,9 @@ import api from '../../plugins/api';
 export default {
   layout: 'backend',
   middleware: [ 'auth' ],
+  metaInfo() {
+    return { title: 'Centre de notification' }
+  },
   computed: {
     ...mapGetters({
       'notifications': 'notifications/paginated'
