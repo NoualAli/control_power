@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Mission\Detail\StoreRequest;
+use App\Http\Resources\MissionDetailResource;
 use App\Models\Mission;
 use App\Models\MissionDetail;
 use App\Models\Process;
@@ -12,6 +13,44 @@ use Illuminate\Support\Facades\DB;
 
 class MissionDetailController extends Controller
 {
+    public function index()
+    {
+        isAbleOrAbort(['view_mission_detail']);
+        try {
+            $details = hasRole(['dcp', 'dg', 'div']) ? (new MissionDetail)->executed() : auth()->user()->missions();
+
+            if (request()->has('campaign_id')) {
+                $details = $details->where('control_campaign_id', request()->campaign_id);
+            }
+            if (request()->has('order')) {
+                $details = $details->orderByMultiple(request()->order);
+            } else {
+                $details = $details->orderBy('created_at', 'DESC');
+            }
+
+            $search = request()->has('search') && !empty(request()->search) ? request()->search : false;
+            if ($search) {
+                $details = $details->search($search);
+            }
+
+            $filter = request()->has('filter') ? request()->filter : null;
+            if ($filter) {
+                $details = $details->filter($filter);
+            }
+
+            if (request()->has('fetchAll')) {
+                $details = $details->get()->pluck('reference', 'id');
+            } else {
+                $details = MissionDetailResource::collection($details->paginate(10)->onEachSide(1));
+            }
+            return $details;
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage(),
+                'status' => false
+            ]);
+        }
+    }
     /**
      * Enregistre les informations de la mission dans la base de donéees
      *

@@ -144,9 +144,8 @@ Route::group(['middleware' => 'auth:api'], function () {
          * Details
          */
         Route::prefix('details')->controller(MissionDetailController::class)->group(function () {
-            Route::post('/{mission}', 'store');
-            Route::get('/', 'index');
             Route::get('/concerns/config', 'show');
+            Route::post('/{mission}', 'store');
         });
         /**
          * Report
@@ -164,6 +163,12 @@ Route::group(['middleware' => 'auth:api'], function () {
         // Route::get('/campaign/{campaign}', 'campaign');
     });
 
+    /**
+     * Details
+     */
+    Route::prefix('details')->controller(MissionDetailController::class)->group(function () {
+        Route::get('/', 'index');
+    });
     /**
      * Dre -> agencies
      */

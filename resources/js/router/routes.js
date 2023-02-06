@@ -541,14 +541,13 @@ export default [
   {
     path: '/global/details',
     name: 'global-details',
-    component: page('details.vue'),
+    component: page('global/details.vue'),
     meta: {
       breadcrumb: {
         label: 'Anomalie • Notation • Plan de redressement',
         parent: '',
       }
     }
-
   },
   {
     path: '/major-facts',

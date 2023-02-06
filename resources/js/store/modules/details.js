@@ -5,6 +5,7 @@ export const state = {
   paginated: null,
   current: null,
   config: null,
+  global: null,
 }
 
 export const mutations = {
@@ -20,17 +21,28 @@ export const mutations = {
   FETCH_CONFIG(state, data) {
     state.config = data
   },
+  FETCH_GLOBAL(state, data) {
+    state.global = data
+  }
 }
 
 export const actions = {
   async fetchAll({ commit }) {
-    const { data } = await api.get('missions?fetchAll')
-    commit('FETCH_ALL', { all: data })
+    try {
+      const { data } = await api.get('missions?fetchAll')
+      commit('FETCH_ALL', { all: data })
+    } catch (error) {
+      console.error(error);
+    }
   },
   async fetchPaginated({ commit }, missionId = null) {
-    const url = missionId ? 'missions?campaign_id=' + missionId : 'missions'
-    const { data } = await api.get(url)
-    commit('FETCH_PAGINATED', { paginated: data })
+    try {
+      const url = missionId ? 'missions?campaign_id=' + missionId : 'missions'
+      const { data } = await api.get(url)
+      commit('FETCH_PAGINATED', { paginated: data })
+    } catch (error) {
+      console.error(error);
+    }
   },
   async fetch({ commit }, { missionId, onlyProcesses = false, edit = false }) {
     try {
@@ -43,7 +55,7 @@ export const actions = {
         commit('FETCH', { current: data })
       }
     } catch (error) {
-
+      console.error(error);
     }
   },
   async fetchConfig({ commit }, { missionId = null, processId = null }) {
@@ -52,9 +64,17 @@ export const actions = {
       const { data } = await api.get(url)
       commit('FETCH_CONFIG', { config: data })
     } catch (error) {
-
+      console.error(error);
     }
   },
+  async fetchGlobal({ commit }) {
+    try {
+      const { data } = await api.get('details')
+      commit('FETCH_GLOBAL', { global: data })
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 
 export const getters = {
@@ -62,4 +82,5 @@ export const getters = {
   paginated: state => state.paginated,
   current: state => state.current,
   config: state => state.config,
+  global: state => state.global
 }
