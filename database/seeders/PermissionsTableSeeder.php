@@ -21,291 +21,315 @@ class PermissionsTableSeeder extends Seeder
         \DB::table('permissions')->insert(array (
             0 => 
             array (
+                'guard_name' => 'api',
                 'id' => 1,
                 'name' => 'edit_role',
-                'guard_name' => 'api',
             ),
             1 => 
             array (
+                'guard_name' => 'api',
                 'id' => 2,
                 'name' => 'create_role',
-                'guard_name' => 'api',
             ),
             2 => 
             array (
+                'guard_name' => 'api',
                 'id' => 3,
                 'name' => 'delete_role',
-                'guard_name' => 'api',
             ),
             3 => 
             array (
+                'guard_name' => 'api',
                 'id' => 4,
                 'name' => 'view_role',
-                'guard_name' => 'api',
             ),
             4 => 
             array (
+                'guard_name' => 'api',
                 'id' => 5,
                 'name' => 'create_user',
-                'guard_name' => 'api',
             ),
             5 => 
             array (
+                'guard_name' => 'api',
                 'id' => 6,
                 'name' => 'delete_user',
-                'guard_name' => 'api',
             ),
             6 => 
             array (
+                'guard_name' => 'api',
                 'id' => 7,
                 'name' => 'edit_role',
-                'guard_name' => 'api',
             ),
             7 => 
             array (
+                'guard_name' => 'api',
                 'id' => 8,
                 'name' => 'view_user',
-                'guard_name' => 'api',
             ),
             8 => 
             array (
+                'guard_name' => 'api',
                 'id' => 9,
                 'name' => 'create_permission',
-                'guard_name' => 'api',
             ),
             9 => 
             array (
+                'guard_name' => 'api',
                 'id' => 10,
                 'name' => 'delete_permission',
-                'guard_name' => 'api',
             ),
             10 => 
             array (
+                'guard_name' => 'api',
                 'id' => 11,
                 'name' => 'edit_permission',
-                'guard_name' => 'api',
             ),
             11 => 
             array (
+                'guard_name' => 'api',
                 'id' => 12,
                 'name' => 'view_permission',
-                'guard_name' => 'api',
             ),
             12 => 
             array (
+                'guard_name' => 'api',
                 'id' => 13,
                 'name' => 'edit_user',
-                'guard_name' => 'api',
             ),
             13 => 
             array (
+                'guard_name' => 'api',
                 'id' => 14,
                 'name' => 'create_dre',
-                'guard_name' => 'api',
             ),
             14 => 
             array (
+                'guard_name' => 'api',
                 'id' => 15,
                 'name' => 'edit_dre',
-                'guard_name' => 'api',
             ),
             15 => 
             array (
+                'guard_name' => 'api',
                 'id' => 16,
                 'name' => 'delete_dre',
-                'guard_name' => 'api',
             ),
             16 => 
             array (
+                'guard_name' => 'api',
                 'id' => 17,
                 'name' => 'view_dre',
-                'guard_name' => 'api',
             ),
             17 => 
             array (
+                'guard_name' => 'api',
                 'id' => 18,
                 'name' => 'create_agency',
-                'guard_name' => 'api',
             ),
             18 => 
             array (
+                'guard_name' => 'api',
                 'id' => 19,
                 'name' => 'view_agency',
-                'guard_name' => 'api',
             ),
             19 => 
             array (
+                'guard_name' => 'api',
                 'id' => 20,
                 'name' => 'edit_agency',
-                'guard_name' => 'api',
             ),
             20 => 
             array (
+                'guard_name' => 'api',
                 'id' => 21,
                 'name' => 'delete_agency',
-                'guard_name' => 'api',
             ),
             21 => 
             array (
+                'guard_name' => 'api',
                 'id' => 22,
                 'name' => 'create_familly',
-                'guard_name' => 'api',
             ),
             22 => 
             array (
+                'guard_name' => 'api',
                 'id' => 23,
                 'name' => 'view_familly',
-                'guard_name' => 'api',
             ),
             23 => 
             array (
+                'guard_name' => 'api',
                 'id' => 24,
                 'name' => 'edit_familly',
-                'guard_name' => 'api',
             ),
             24 => 
             array (
+                'guard_name' => 'api',
                 'id' => 25,
                 'name' => 'delete_familly',
-                'guard_name' => 'api',
             ),
             25 => 
             array (
+                'guard_name' => 'api',
                 'id' => 26,
                 'name' => 'create_domain',
-                'guard_name' => 'api',
             ),
             26 => 
             array (
+                'guard_name' => 'api',
                 'id' => 27,
                 'name' => 'edit_domain',
-                'guard_name' => 'api',
             ),
             27 => 
             array (
+                'guard_name' => 'api',
                 'id' => 28,
                 'name' => 'view_domain',
-                'guard_name' => 'api',
             ),
             28 => 
             array (
+                'guard_name' => 'api',
                 'id' => 29,
                 'name' => 'delete_domain',
-                'guard_name' => 'api',
             ),
             29 => 
             array (
+                'guard_name' => 'api',
                 'id' => 30,
                 'name' => 'create_process',
-                'guard_name' => 'api',
             ),
             30 => 
             array (
+                'guard_name' => 'api',
                 'id' => 31,
                 'name' => 'edit_process',
-                'guard_name' => 'api',
             ),
             31 => 
             array (
+                'guard_name' => 'api',
                 'id' => 32,
                 'name' => 'view_process',
-                'guard_name' => 'api',
             ),
             32 => 
             array (
+                'guard_name' => 'api',
                 'id' => 33,
                 'name' => 'delete_process',
-                'guard_name' => 'api',
             ),
             33 => 
             array (
+                'guard_name' => 'api',
                 'id' => 34,
                 'name' => 'create_control_point',
-                'guard_name' => 'api',
             ),
             34 => 
             array (
+                'guard_name' => 'api',
                 'id' => 35,
                 'name' => 'edit_control_point',
-                'guard_name' => 'api',
             ),
             35 => 
             array (
+                'guard_name' => 'api',
                 'id' => 36,
                 'name' => 'view_control_point',
-                'guard_name' => 'api',
             ),
             36 => 
             array (
+                'guard_name' => 'api',
                 'id' => 37,
                 'name' => 'delete_control_point',
-                'guard_name' => 'api',
             ),
             37 => 
             array (
+                'guard_name' => 'api',
                 'id' => 38,
                 'name' => 'create_control_campaign',
-                'guard_name' => 'api',
             ),
             38 => 
             array (
+                'guard_name' => 'api',
                 'id' => 39,
                 'name' => 'edit_control_campaign',
-                'guard_name' => 'api',
             ),
             39 => 
             array (
+                'guard_name' => 'api',
                 'id' => 40,
                 'name' => 'view_control_campaign',
-                'guard_name' => 'api',
             ),
             40 => 
             array (
+                'guard_name' => 'api',
                 'id' => 41,
                 'name' => 'delete_control_campaign',
-                'guard_name' => 'api',
             ),
             41 => 
             array (
+                'guard_name' => 'api',
                 'id' => 42,
                 'name' => 'create_mission',
-                'guard_name' => 'api',
             ),
             42 => 
             array (
+                'guard_name' => 'api',
                 'id' => 43,
                 'name' => 'edit_mission',
-                'guard_name' => 'api',
             ),
             43 => 
             array (
+                'guard_name' => 'api',
                 'id' => 44,
                 'name' => 'delete_mission',
-                'guard_name' => 'api',
             ),
             44 => 
             array (
+                'guard_name' => 'api',
                 'id' => 45,
                 'name' => 'view_mission',
-                'guard_name' => 'api',
             ),
             45 => 
             array (
+                'guard_name' => 'api',
                 'id' => 46,
                 'name' => 'control_agency',
-                'guard_name' => 'api',
             ),
             46 => 
             array (
+                'guard_name' => 'api',
                 'id' => 47,
                 'name' => 'create_opinion',
-                'guard_name' => 'api',
             ),
             47 => 
             array (
+                'guard_name' => 'api',
                 'id' => 48,
                 'name' => 'create_report',
+            ),
+            48 => 
+            array (
                 'guard_name' => 'api',
+                'id' => 49,
+                'name' => 'view_mission_detail',
+            ),
+            49 => 
+            array (
+                'guard_name' => 'api',
+                'id' => 50,
+                'name' => 'validate_report',
+            ),
+            50 => 
+            array (
+                'guard_name' => 'api',
+                'id' => 51,
+                'name' => 'validate_opinion',
+            ),
+            51 => 
+            array (
+                'guard_name' => 'api',
+                'id' => 52,
+                'name' => 'view_major_fact',
             ),
         ));
         

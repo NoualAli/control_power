@@ -68,6 +68,20 @@ class RolesTableSeeder extends Seeder
                 'id' => 7,
                 'name' => 'admin',
             ),
+            7 => 
+            array (
+                'code' => 'div',
+                'guard_name' => 'api',
+                'id' => 8,
+                'name' => 'divisionnaire',
+            ),
+            8 => 
+            array (
+                'code' => 'ig',
+                'guard_name' => 'api',
+                'id' => 9,
+                'name' => 'Inspecteur général',
+            ),
         ));
         
         
