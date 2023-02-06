@@ -54,12 +54,16 @@ class MissionDetail extends Model
             });
         });
     }
+    public function getMajorFactStrAttribute()
+    {
+        return $this->major_fact ? 'Oui' : 'Non';
+    }
     /**
      * Relationships
      */
     public function campaign()
     {
-        $this->belongsToThrough(ControlCampaign::class, Mission::class);
+        return $this->belongsToThrough(ControlCampaign::class, Mission::class);
     }
 
     public function mission()
@@ -85,16 +89,20 @@ class MissionDetail extends Model
 
     public function dre()
     {
-        return $this->belongsToThrough(Dre::class, [Mission::class, Agency::class]);
+        return $this->belongsToThrough(Dre::class, [Agency::class, Mission::class]);
     }
 
     public function agency()
     {
-        $this->belongsToThrough(Agency::class, Mission::class);
+        return $this->belongsToThrough(Agency::class, Mission::class);
     }
 
 
     /**
      * Scopes
      */
+    public function scopeExecuted($query)
+    {
+        return $query->where('executed_at', '!=', null);
+    }
 }

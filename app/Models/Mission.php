@@ -49,7 +49,7 @@ class Mission extends Model
      */
     public function getReferenceAttribute($reference)
     {
-        if ($this->realisation_state !== 'RÉALISÉ') {
+        if (!$this->head_of_department_report && !$this->head_of_department_report?->is_validated) {
             return str_replace('RAP', '', $reference);
         }
         return $reference;
@@ -123,42 +123,6 @@ class Mission extends Model
         // }
     }
 
-    // public function getStateAttribute()
-    // {
-    //     if (hasRole(['dcp', 'dg'])) {
-    //         return Carbon::parse($this->campaign->end)->diffInDays($this->validated_at, false) < 0 ? 'Dans les délais' : 'Hors délais';
-    //     } elseif (hasRole(['ci', 'cdc'])) {
-    //         return !$this->validated_by_id ? 'En attente de validation' : 'Validé et envoyé';
-    //     }
-    // }
-
-    // public function getValidationStateAttribute()
-    // {
-    //     return $this->validated_at ? 'Validé et envoyé' : 'En attente de validation';
-    // }
-
-
-
-    // public function getValidatedAtAttribute($validated_at)
-    // {
-    //     return $validated_at ? Carbon::parse($validated_at)->format('d-m-Y') : null;
-    // }
-
-    // public function getCreatedAtAttribute($created_at)
-    // {
-    //     return $created_at ? Carbon::parse($created_at)->format('d-m-Y') : null;
-    // }
-
-    // public function getStartAttribute($start)
-    // {
-    //     return Carbon::parse($start)->format('d-m-Y');
-    // }
-
-    // public function getEndAttribute($end)
-    // {
-    //     return Carbon::parse($end)->format('d-m-Y');
-    // }
-
     /**
      * Relationships
      */
@@ -190,33 +154,6 @@ class Mission extends Model
     {
         return $this->hasMany(MissionReport::class);
     }
-    // public function processes()
-    // {
-    //     return $this->hasManyDeep(Process::class, [MissionDetail::class]);
-    // }
-    // public function processes()
-    // {
-    //     return $this->belongsToThrough(Process::class, [ControlPoint::class, MissionDetail::class]);
-    // }
-    // public function details()
-    // {
-    //     return $this->hasManyDeep(DetailPoint::class, [Sample::class, SampleDetail::class]);
-    // }
-    // public function samples()
-    // {
-    //     return $this->hasMany(Sample::class);
-    // }
-
-    // public function assigned()
-    // {
-    //     return $this->belongsTo(User::class, 'controller_id');
-    // }
-
-    // public function validator()
-    // {
-    //     return $this->belongsTo(User::class, 'validated_by_id');
-    // }
-
 
     /**
      * Scopes

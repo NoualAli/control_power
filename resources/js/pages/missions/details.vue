@@ -99,7 +99,7 @@
       </div>
     </form>
   </ContentBody>
-  <div v-can="'view_mission'" v-else>
+  <div v-can="'view_mission_detail'" v-else>
     <ContentHeader>
       <template #actions>
         <button v-can="'edit_mission,control_agency'" class="btn btn-warning my-6" @click="switchToExeMode()">
