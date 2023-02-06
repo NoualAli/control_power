@@ -85,7 +85,6 @@ class MissionReportController extends Controller
     {
         try {
             $data = $request->validated();
-
             DB::transaction(function () use ($data, $mission) {
                 $report = null;
                 switch (request()->type) {
@@ -100,7 +99,8 @@ class MissionReportController extends Controller
                 if ($report->type == 'Avis contrôleur') {
                     $this->notifyUsers($mission, $mission->creator);
                 } elseif ($report->type == 'Rapport') {
-                    $users = $mission->controllers->push(User::dcp());
+                    // $users = $mission->controllers->push(User::dcp());
+                    $users = User::dcp()->merge($mission->controllers);
                     $this->notifyUsers($mission, $users);
                 }
             });
@@ -118,12 +118,21 @@ class MissionReportController extends Controller
 
     private function notifyUsers(Mission $mission, Collection|User $users)
     {
-        if ($users instanceof Model) {
-            Artisan::call('mission:validated', ['id' => $mission->id, 'user_id' => $users->id]);
-        } else {
-            foreach ($users as $user) {
-                Artisan::call('mission:validated', ['id' => $mission->id, 'user_id' => $user->id]);
+        try {
+            if ($users instanceof Model) {
+                Artisan::call('mission:validated', ['id' => $mission->id, 'user_id' => $users->id]);
+            } else {
+                foreach ($users as $user) {
+                    if ($user?->id) {
+                        Artisan::call('mission:validated', ['id' => $mission->id, 'user_id' => $user?->id]);
+                    }
+                }
             }
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage(),
+                'status' => false,
+            ]);
         }
     }
 }
