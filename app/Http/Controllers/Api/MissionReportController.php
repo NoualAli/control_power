@@ -7,7 +7,11 @@ use App\Models\Mission;
 use App\Http\Requests\Mission\Report\StoreRequest;
 use App\Http\Requests\Mission\Report\ValidateRequest;
 use App\Models\MissionReport;
+use App\Models\User;
 use Exception;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 
 class MissionReportController extends Controller
@@ -26,7 +30,7 @@ class MissionReportController extends Controller
             $data = $request->validated();
             $hasId = isset($data['id']) && !empty($data['id']);
             $report = $hasId ? MissionReport::findOrFail($data['id']) : null;
-            DB::transaction(function () use ($data, $mission, $report) {
+            $report = DB::transaction(function () use ($data, $mission, $report) {
                 $validatedAt = boolval($data['validated']) ? now() : null;
                 $content = isset($data['opinion']) ? $data['opinion'] : $data['report'];
                 if ($report) {
@@ -39,12 +43,21 @@ class MissionReportController extends Controller
                         throw new Exception(UPDATE_ERROR, 403);
                     }
                 } else {
-                    $mission->reports()->create([
+                    $report = $mission->reports()->create([
                         'content' => $content,
                         'type' => $data['type'],
                         'created_by_id' => auth()->user()->id,
                         'validated_at' => $validatedAt,
                     ]);
+                }
+
+                if ($report->is_validated) {
+                    if ($report->type == 'Avis contrôleur') {
+                        $this->notifyUser($mission, $mission->creator);
+                    } elseif ($report->type == 'Rapport') {
+                        $users = $mission->controllers->push(User::dcp());
+                        $this->notifyUser($mission, $users);
+                    }
                 }
             });
             $message = $hasId ? UPDATE_SUCCESS : CREATE_SUCCESS;
@@ -84,6 +97,12 @@ class MissionReportController extends Controller
                         break;
                 }
                 $report->update(['validated_at' => now()]);
+                if ($report->type == 'Avis contrôleur') {
+                    $this->notifyUsers($mission, $mission->creator);
+                } elseif ($report->type == 'Rapport') {
+                    $users = $mission->controllers->push(User::dcp());
+                    $this->notifyUsers($mission, $users);
+                }
             });
             return response()->json([
                 'message' => UPDATE_SUCCESS,
@@ -94,6 +113,17 @@ class MissionReportController extends Controller
                 'message' => $th->getMessage(),
                 'status' => false,
             ]);
+        }
+    }
+
+    private function notifyUsers(Mission $mission, Collection|User $users)
+    {
+        if ($users instanceof Model) {
+            Artisan::call('mission:validated', ['id' => $mission->id, 'user_id' => $users->id]);
+        } else {
+            foreach ($users as $user) {
+                Artisan::call('mission:validated', ['id' => $mission->id, 'user_id' => $user->id]);
+            }
         }
     }
 }
