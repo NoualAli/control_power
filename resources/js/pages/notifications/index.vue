@@ -95,11 +95,15 @@ export default {
      * @param {Object} item
      */
     getRoute(item) {
-      const paramName = item.paramNames
-      const id = item.modelId
-      const routeName = item.routeName
-      console.log(routeName, id, paramName);
-      return { name: routeName, params: { [ paramName ]: id } }
+      console.log(item);
+      if (item.url) {
+        return item.url
+      } else {
+        const paramName = item.paramName
+        const id = item.modelId
+        const routeName = item.routeName
+        return { name: routeName, params: { [ paramName ]: id } }
+      }
     },
     /**
      * Marque les notifications comme lu
