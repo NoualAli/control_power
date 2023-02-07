@@ -128,22 +128,22 @@
       <div>
         <div v-can="'create_opinion,validate_opinion'" class="create opinion">
           <button class="btn btn-info"
-            v-if="!mission?.current.controller_opinion && !mission?.current.head_of_department_report && mission?.current.progress_status !== 100"
+            v-if="!mission?.current.controller_opinion && !mission?.current.head_of_department_report && mission?.current.progress_status == 100"
             @click="showOpinion" v-can="'create_opinion'">
             Ajouter votre avis
           </button>
           <button class="btn btn-info"
-            v-if="mission?.current.progress_status !== 100 && mission?.current.head_of_department_report && mission?.current.head_of_department_report?.is_validated"
+            v-if="mission?.current.progress_status == 100 && mission?.current.head_of_department_report && mission?.current.head_of_department_report?.is_validated"
             @click="showReport" v-can="'create_opinion'">
             Rapport de la mission
           </button>
           <button class="btn btn-info"
-            v-if="mission?.current.controller_opinion && mission?.current.progress_status !== 100" @click="showOpinion"
+            v-if="mission?.current.controller_opinion && mission?.current.progress_status == 100" @click="showOpinion"
             v-can="'create_opinion'">
             Votre avis
           </button>
           <button class="btn btn-success"
-            v-if="mission?.current.progress_status !== 100 && !mission?.current.controller_opinion?.is_validated && mission?.current.controller_opinion"
+            v-if="mission?.current.progress_status == 100 && !mission?.current.controller_opinion?.is_validated && mission?.current.controller_opinion"
             @click.prevent="validateOpinion" v-can="'validate_opinion'">
             Valider la mission
           </button>
@@ -151,22 +151,22 @@
 
         <div v-can="'create_report,validate_report'" class="create report">
           <button class="btn btn-info"
-            v-if="mission?.current.progress_status !== 100 && !mission?.current.head_of_department_report && mission?.current.controller_opinion?.is_validated"
+            v-if="mission?.current.progress_status == 100 && !mission?.current.head_of_department_report && mission?.current.controller_opinion?.is_validated"
             @click="showReport">
             Ajouter votre rapport
           </button>
           <button class="btn btn-info"
-            v-if="mission?.current.progress_status !== 100 && mission?.current.head_of_department_report && mission?.current.controller_opinion?.is_validated"
+            v-if="mission?.current.progress_status == 100 && mission?.current.head_of_department_report && mission?.current.controller_opinion?.is_validated"
             @click="showReport">
             Votre rapport
           </button>
           <button class="btn btn-info"
-            v-if="mission?.current.progress_status !== 100 && mission?.current.controller_opinion?.is_validated"
+            v-if="mission?.current.progress_status == 100 && mission?.current.controller_opinion?.is_validated"
             @click="showOpinion">
             Avis du contrôleur
           </button>
           <button class="btn btn-success"
-            v-if="mission?.current.progress_status !== 100 && mission?.current.controller_opinion?.is_validated && !mission?.current.head_of_department_report?.is_validated && mission?.current.head_of_department_report"
+            v-if="mission?.current.progress_status == 100 && mission?.current.controller_opinion?.is_validated && !mission?.current.head_of_department_report?.is_validated && mission?.current.head_of_department_report"
             @click.prevent="validateReport">
             Valider la mission
           </button>
@@ -174,12 +174,12 @@
 
         <div v-can="'create_control_campaign'" class="has role">
           <button class="btn btn-info"
-            v-if="mission?.current.progress_status !== 100 && mission?.current.head_of_department_report && mission?.current.head_of_department_report?.is_validated"
+            v-if="mission?.current.progress_status == 100 && mission?.current.head_of_department_report && mission?.current.head_of_department_report?.is_validated"
             @click="showReport">
             Rapport de la mission
           </button>
           <button class="btn btn-info"
-            v-if="mission?.current.controller_opinion && mission?.current.progress_status !== 100" @click="showOpinion">
+            v-if="mission?.current.controller_opinion && mission?.current.progress_status == 100" @click="showOpinion">
             Avis du contrôleur
           </button>
         </div>
