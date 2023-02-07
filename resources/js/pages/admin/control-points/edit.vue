@@ -259,6 +259,15 @@ export default {
           style: 'col-12',
           multiple: true,
           placeholder: "Veuillez choisir une ou plusieurs règles de validation",
+          options: [
+            { id: 'nullable', label: 'Facultatif' },
+            { id: 'required', label: 'Obligatoire' },
+            { id: 'distinct', label: 'Distinct' },
+            { id: 'email', label: 'Adresse e-mail' },
+            { id: 'integer', label: 'Nombre entier' },
+            { id: 'float', label: 'Nombre flottant' },
+            { id: 'boolean', label: 'Booléen' },
+          ]
         },
       ],
       form: new Form({
@@ -274,6 +283,8 @@ export default {
   methods: {
     initData() {
       this.$store.dispatch('controlPoints/fetch', this.$route.params.controlPoint).then(() => {
+        this.loadFamillies()
+        this.loadValidationRules()
         this.form.name = this.controlPoint.current.name
         this.form.familly_id = this.controlPoint.current.familly.id
         this.form.domain_id = this.controlPoint.current.domain.id
@@ -281,8 +292,6 @@ export default {
         this.form.scores = this.controlPoint.current.scores ? this.controlPoint.current.scores : []
         this.form.fields = this.controlPoint.current.fields ? this.controlPoint.current.fields : []
 
-        this.loadFamillies()
-        this.loadValidationRules()
       })
     },
     /**
@@ -325,10 +334,19 @@ export default {
    * Récupère la liste des règles de validation
    */
     loadValidationRules() {
-      this.$store.dispatch('settings/fetchValidationRules').then(() => {
-        this.validationRulesList = this.validationRules.validationRules
-        this.fieldsSchema[ this.fieldsSchema.length - 1 ].options = this.validationRulesList
-      })
+      // this.$store.dispatch('settings/fetchValidationRules').then(() => {
+      //   this.validationRulesList = this.validationRules.validationRules
+      //   this.fieldsSchema[ this.fieldsSchema.length - 1 ].options = this.validationRulesList
+      // })
+      this.validationRulesList = [
+        { id: 'nullable', label: 'Facultatif' },
+        { id: 'required', label: 'Obligatoire' },
+        { id: 'distinct', label: 'Distinct' },
+        { id: 'email', label: 'Adresse e-mail' },
+        { id: 'integer', label: 'Nombre entier' },
+        { id: 'float', label: 'Nombre flottant' },
+        { id: 'boolean', label: 'Booléen' },
+      ]
     },
     update() {
       this.form.put('/api/control-points/' + this.$route.params.controlPoint).then(response => {

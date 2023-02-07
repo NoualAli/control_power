@@ -25,7 +25,16 @@ export const actions = {
     commit('SET_TITLE', title)
   },
   async fetchValidationRules({ commit }) {
-    const { data } = await api.get('settings/laravel/rules')
+    // const { data } = await api.get('settings/laravel/rules')
+    const data = [
+      { id: 'nullable', label: 'Facultatif' },
+      { id: 'required', label: 'Obligatoire' },
+      { id: 'distinct', label: 'Distinct' },
+      { id: 'email', label: 'Adresse e-mail' },
+      { id: 'integer', label: 'Nombre entier' },
+      { id: 'float', label: 'Nombre flottant' },
+      { id: 'boolean', label: 'Booléen' },
+    ]
     commit('SET_VALIDATION_RULES', { validationRules: data })
   }
 }
