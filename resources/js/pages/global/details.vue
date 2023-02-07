@@ -9,9 +9,21 @@
         <small class="tag is-primary-extra-light text-small mx-1">
           {{ rowSelected?.mission_reference }}
         </small>
+        <small class="tag text-small text-white text-white mx-1"
+          :class="{ 'is-danger': rowSelected?.major_fact_str == 'Oui', 'is-success': rowSelected?.major_fact_str == 'Non' }">
+          Fait majeur: {{ rowSelected?.major_fact_str }}
+        </small>
       </template>
       <template v-slot>
         <div class="grid gap-6">
+          <div class="col-12 col-lg-6">
+            <span class="label">Dre: </span>
+            <span>{{ rowSelected?.dre_full_name }}</span>
+          </div>
+          <div class="col-12 col-lg-6">
+            <span class="label">Agence: </span>
+            <span>{{ rowSelected?.agency_full_name }}</span>
+          </div>
           <div class="col-12 col-lg-6">
             <span class="label">Famille: </span>
             <span>{{ rowSelected?.familly_name }}</span>
@@ -29,14 +41,6 @@
             <span>{{ rowSelected?.control_point_name }}</span>
           </div>
           <div class="col-12 col-lg-6">
-            <span class="label">Dre: </span>
-            <span>{{ rowSelected?.dre_full_name }}</span>
-          </div>
-          <div class="col-12 col-lg-6">
-            <span class="label">Agence: </span>
-            <span>{{ rowSelected?.agency_full_name }}</span>
-          </div>
-          <div class="col-12 col-lg-6">
             <span class="label">Appréciation: </span>
             <span>{{ rowSelected?.appreciation }}</span>
           </div>
@@ -49,7 +53,7 @@
               Informations supplémentaires:
             </span>
           </div>
-          <div class="col-12" :class="{ 'col-lg-8': !rowSelected?.parsed_metadata }">
+          <div class="col-12" :class="{ 'col-lg-8': !rowSelected?.parsed_metadata }" v-if="rowSelected?.metadata">
             <table v-if="rowSelected?.parsed_metadata">
               <thead>
                 <tr>
@@ -70,6 +74,9 @@
               </tbody>
             </table>
             <span v-else>-</span>
+          </div>
+          <div class="col-8" v-else>
+            -
           </div>
           <div class="col-12">
             <span class="label">Constat: </span>
@@ -139,19 +146,21 @@ export default {
           {
             label: 'Fait majeur',
             field: 'major_fact_str',
+            methods: {
+              style() {
+                return 'text-center'
+              }
+            }
           },
-          // {
-          //   label: 'Notation',
-          //   field: 'score',
-          // },
-          // {
-          //   label: 'Constat / Anomalie',
-          //   field: 'report',
-          // },
-          // {
-          //   label: 'Plan de redressement',
-          //   field: 'recovery_plan',
-          // },
+          {
+            label: 'Notation',
+            field: 'score',
+            methods: {
+              style() {
+                return 'text-center'
+              }
+            }
+          },
         ],
         actions: {
           show: true,
