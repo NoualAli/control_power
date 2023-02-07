@@ -97,12 +97,12 @@
           Suivi des réalisations des missions
         </span>
       </router-link>
-      <router-link class="sidebar-item" :to="{ name: 'missions-validated' }" v-can="'view_mission'">
+      <!-- <router-link class="sidebar-item" :to="{ name: 'missions-validated' }" v-can="'view_mission'">
         <i class="las la-file-alt sidebar-icon"></i>
         <span class="icon-text">
           Consultation des rapports
         </span>
-      </router-link>
+      </router-link> -->
       <router-link class="sidebar-item" :to="{ name: 'global-details' }" v-can="'view_mission'">
         <i class="lab la-stack-overflow sidebar-icon"></i>
         <span class="icon-text">
@@ -124,12 +124,12 @@
         </span>
       </router-link>
 
-      <router-link class="sidebar-item" :to="{ name: 'missions-validated' }" v-can="'view_report'">
+      <!-- <router-link class="sidebar-item" :to="{ name: 'missions-validated' }" v-can="'view_report'">
         <i class="las la-clipboard-list sidebar-icon"></i>
         <span class="icon-text">
           Consultation des rapports
         </span>
-      </router-link>
+      </router-link> -->
 
       <router-link class="sidebar-item" :to="{ name: 'references-pcf' }">
         <i class="las la-newspaper sidebar-icon"></i>
