@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ControlPointController;
 use App\Http\Controllers\Api\DomainController;
 use App\Http\Controllers\Api\DreController;
 use App\Http\Controllers\Api\FamillyController;
+use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\MissionController;
 use App\Http\Controllers\Api\MissionDetailController;
 use App\Http\Controllers\Api\MissionReportController;
@@ -185,6 +186,11 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::post('/', 'store');
         Route::put('{agency}', 'update');
         Route::delete('{agency}', 'destroy');
+    });
+    Route::prefix('upload')->controller(MediaController::class)->group(function () {
+        Route::post('/', 'store');
+        Route::delete('{media}', 'destroy');
+        Route::get('/', 'index');
     });
 
     /**
