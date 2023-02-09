@@ -122,15 +122,6 @@ class User extends Authenticatable implements JWTSubject
     /**
      * Relationships
      */
-    public function plannings()
-    {
-        if ($this->role->code == 'ci') {
-            return $this->hasMany(Planning::class, 'first_controller_id');
-        } elseif ($this->role->code == 'cdc') {
-            return $this->hasMany(Planning::class, 'created_by_id');
-        }
-    }
-
     public function missions()
     {
         if (hasRole('cdc')) {
@@ -144,10 +135,14 @@ class User extends Authenticatable implements JWTSubject
     {
         if (hasRole('dcp')) {
             return $this->hasMany(ControlCampaign::class, 'created_by_id');
-        } elseif (hasRole('ci')) {
-            return $this->hasManyThrough(ControlCampaign::class, Planning::class, 'first_controller_id');
+        }
+    }
+    public function details()
+    {
+        if (hasRole('ci')) {
+            return $this->hasManyDeep(MissionDetail::class, ['mission_has_controllers', Mission::class]);
         } elseif (hasRole('cdc')) {
-            return $this->hasManyThrough(ControlCampaign::class, Planning::class, 'created_by_id');
+            return $this->hasManyDeep(MissionDetail::class, [Mission::class], ['created_by_id']);
         }
     }
     /**
