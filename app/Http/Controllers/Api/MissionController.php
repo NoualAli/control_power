@@ -23,10 +23,12 @@ class MissionController extends Controller
     {
         isAbleOrAbort(['view_mission']);
         try {
-            $missions = hasRole('dcp') ? new Mission : auth()->user()->missions();
-            // $missions = $missions->without('controlPoints');
+            $missions = hasRole(['dcp', 'dg', 'div']) ? (new Mission) : auth()->user()->missions();
+
             if (request()->has('campaign_id')) {
                 $missions = $missions->where('control_campaign_id', request()->campaign_id);
+            } else {
+                // $missions = $missions->validated();
             }
             if (request()->has('order')) {
                 $missions = $missions->orderByMultiple(request()->order);
