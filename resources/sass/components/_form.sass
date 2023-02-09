@@ -363,3 +363,53 @@ form
         left: 35px
         box-shadow: 0.5px 1px 2.2px rgba($danger, 0.034),1.1px 2.4px 5.3px rgba($danger, 0.048),2.1px 4.5px 10px rgba($danger, 0.06),3.8px 8px 17.9px rgba($danger, 0.072),7.1px 15px 33.4px rgba($danger, 0.086), 17px 36px 80px rgba($danger, 0.12)
         border: 1px solid $danger
+
+.file-input
+    display: none
+
+.file-input-area
+    display: flex
+    justify-content: center
+    align-items: center
+    margin: 1rem 0
+    outline: none
+    width: 100%
+    height: 150px
+    padding: $input-padding
+    border: $input-border
+    border-radius: $input-border-radius
+    background-color: lighten($primary-extra-light, 75)
+    font-size: $input-font-size
+    box-shadow: $input-inset-shadow, $input-shadow
+    transition: .1s ease
+    color: $input-color
+    overflow-y: auto
+    &:hover
+        background-color: lighten($primary-dark, 80)
+    @each $color in $colors-list
+        &.is-#{nth($color, 1)}
+            border-color: lighten(nth($color, 2), 10%)
+            &:hover
+                border-color: nth($color, 2)
+    &.has-files
+        display: block
+        & .files-list
+            display: block
+
+.files-list
+    display: none
+    width: 100%
+    height: auto
+    cursor: auto
+    & .delete-btn
+        cursor: pointer
+
+.file-uploader
+    display: flex
+    justify-content: center
+    align-items: center
+    gap: .5rem
+    z-index: 10
+    cursor: pointer
+    width: 100%
+    height: 30px

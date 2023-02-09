@@ -11,6 +11,7 @@
     background-color: $primary-light
     color: $white
     border-radius: 4px
+    border: 1px solid darken($primary-light, 20%)
     text-align: center
     &:first-child
         margin: 0
@@ -18,7 +19,7 @@
         &.is-#{nth($color, 1)}
             background-color: nth($color, 2)
             color: darkOrWhiteFont(nth($color, 2))
-            border-color: lighten(nth($color, 2), 10%)
+            border-color: darken(nth($color, 2), 5%)
             &:hover
                 color: darkOrWhiteFont(nth($color, 2))
                 background-color: lighten(nth($color, 2), 10%)
