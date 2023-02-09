@@ -7,6 +7,7 @@ import store from '~/store'
 const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json'
   },
   baseURL: '/api/'
 })
