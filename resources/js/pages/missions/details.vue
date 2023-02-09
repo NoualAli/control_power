@@ -4,7 +4,7 @@
       Il y a {{ formErrorsCount }}
       {{ formErrorsCount > 1 ? 'problèmes avec vos entrées' : 'problème avec une entrée'}}.
     </Notification>
-    <form @submit.prevent="create" @keydown="form.onKeydown($event)">
+    <form @submit.prevent="create" @keydown="form.onKeydown($event)" enctype="multipart/form-data">
       <div class="grid my-2 form-row" v-for="(detail, row) in details" :key="'detail-' + row">
         <div class="col-10">
           <h2 class="text-medium">{{ detail?.control_point.name }}</h2>
@@ -18,10 +18,9 @@
             :options="setupScores(detail.control_point.scores)" labelRequired />
         </div>
 
-        <div class="col-12" v-if="detail.control_point.fields">
+        <div class="col-12" v-if="detail.control_point.fields && form.rows[row].score > 1">
           <div class="repeater">
             <h2 class="mb-6">Informations supplémentaires</h2>
-
             <!-- Repeater row -->
             <div class="grid my-6 repeater-row" v-for="(item, dataRow) in form.rows[row].metadata"
               :key="'metadata-' + dataRow + 'row-' + row">
@@ -34,30 +33,31 @@
                         <!-- Defining different inputs -->
                         <NLInput :form="form" :label="input.label" :placeholder="input.placeholder" :type="input.type"
                           :labelRequired="input.required"
-                          :name="'rows.' + row + '.metadata.' + dataRow + '.' + input.name"
+                          :name="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name"
                           v-model="form.rows[row].metadata[dataRow][index][input.name]"
-                          :id="'rows.' + dataRow + '.' + input.name" v-if="isInput(input.type)" />
+                          :id="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name"
+                          v-if="isInput(input.type)" />
 
                         <NLTextarea :form="form" :label="input.label" :placeholder="input.placeholder"
                           :type="input.type" :labelRequired="input.required"
-                          :name="'rows.' + row + '.metadata.' + dataRow + '.' + input.name"
+                          :name="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name"
                           v-model="form.rows[row].metadata[dataRow][index][input.name]"
-                          :id="'rows.' + dataRow + '.' + input.name" v-if="input.type == 'textarea'"
-                          :length="input.length" />
+                          :id="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name"
+                          v-if="input.type == 'textarea'" :length="input.length" />
 
                         <NLWyswyg :form="form" :label="input.label" :placeholder="input.placeholder" :type="input.type"
                           :labelRequired="input.required"
-                          :name="'rows.' + row + '.metadata.' + dataRow + '.' + input.name"
+                          :name="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name"
                           v-model="form.rows[row].metadata[dataRow][index][input.name]"
-                          :id="'rows.' + dataRow + '.' + input.name" v-if="input.type == 'wyswyg'"
-                          :length="input.length" />
+                          :id="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name"
+                          v-if="input.type == 'wyswyg'" :length="input.length" />
 
                         <NLSelect :form="form" :label="input.label" :type="input.type" :labelRequired="input.required"
-                          :name="'rows.' + row + '.metadata.' + dataRow + '.' + input.name"
+                          :name="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name"
                           v-model="form.rows[row].metadata[dataRow][index][input.name]"
-                          :id="'rows.' + dataRow + '.' + input.name" :options="input.options"
-                          :placeholder="input.placeholder || 'Choisissez une option...'" :multiple="input.multiple"
-                          v-if="input.type == 'select'" />
+                          :id="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name"
+                          :options="input.options" :placeholder="input.placeholder || 'Choisissez une option...'"
+                          :multiple="input.multiple" v-if="input.type == 'select'" />
                       </div>
                     </div>
                   </div>
@@ -70,26 +70,30 @@
                 </div>
               </div>
             </div>
-
             <!-- Add new row -->
             <div class="d-flex justify-start align-center">
               <span class="btn" @click="addRow(row, detail.control_point.fields)">
                 <i class="las la-plus"></i>
               </span>
             </div>
-
           </div>
         </div>
         <div class="col-12">
           <NLTextarea :name="'rows.' + row + '.report'" label="Constat" :form="form" v-model="form.rows[row].report"
             :placeholder="form.rows[row].score == 1 || form.rows[row].score == null ? '' : 'Ajouter votre constat'"
-            labelRequired :disabled="form.rows[row].score == 1 || form.rows[row].score == null" />
+            :labelRequired="form.rows[row].score > 1"
+            :disabled="form.rows[row].score == 1 || form.rows[row].score == null && !form.rows[row].major_fact" />
         </div>
         <div class="col-12">
           <NLTextarea :name="'rows.' + row + '.recovery_plan'" label="Plan de redressement" :form="form"
             v-model="form.rows[row].recovery_plan"
             :placeholder="form.rows[row].score == 1 || form.rows[row].score == null ? '' : 'Ajouter votre plan de redressement'"
-            labelRequired :disabled="form.rows[row].score == 1 || form.rows[row].score == null" />
+            :labelRequired="form.rows[row].score > 1"
+            :disabled="form.rows[row].score == 1 || form.rows[row].score == null && !form.rows[row].major_fact" />
+        </div>
+        <div class="col-12">
+          <NLFile :name="'rows.' + row + '.media'" label="Pièces jointes" attachableType="App\Models\MissionDetail"
+            :attachableId="form.rows[row].detail" v-model="form.rows[row].media" :form="form" multiple />
         </div>
       </div>
 
@@ -223,8 +227,9 @@
                         <td class="text-left" v-for="(items, index) in data"
                           :key="'metadata-row-' + row + '-item-' + index">
                           <span v-for="(item, key) in items"
-                            :key="'metadata-row-' + row + '-item-' + index + '-content'" v-if="key !== 'label'">
-                            {{ item }}
+                            :key="'metadata-row-' + row + '-item-' + index + '-content'"
+                            v-if="key !== 'label' && key !== 'rules'">
+                            {{ item || '-' }}
                           </span>
                         </td>
                       </tr>
@@ -247,6 +252,7 @@ import ContentBody from '../../components/ContentBody'
 import { mapGetters } from 'vuex'
 import Form from 'vform'
 import Notification from '../../components/Notification'
+
 export default {
   layout: 'backend',
   middleware: [ 'auth' ],
@@ -281,7 +287,6 @@ export default {
   },
   breadcrumb() {
     return {
-      // label: this.isCompleted ? 'Détails de la mission' : 'Exécution de la mission'
       label: this.process?.name
     }
   },
@@ -331,12 +336,13 @@ export default {
     initForm() {
       this.details.forEach(detail => {
         this.form.rows.push({
+          media: detail.media.length ? detail.media.map(file => file.id) : [],
           detail: detail.id,
           report: detail.report,
           recovery_plan: detail.recovery_plan,
           score: detail.score,
           major_fact: detail.major_fact ? true : false,
-          metadata: detail.metadata || []
+          metadata: detail.metadata || [],
         })
       })
     },
@@ -356,6 +362,7 @@ export default {
           id: field[ 5 ].id,
           placeholder: field[ 6 ].placeholder,
           help_text: field[ 7 ].help_text,
+          rules: field[ 8 ].rules,
         }
       })
     },
@@ -409,7 +416,7 @@ export default {
         const name = element.name
         let defaultValue = element.default !== undefined ? element.default : ''
         defaultValue = element.multiple ? [] : ''
-        schema.push({ [ name ]: defaultValue, label: element.label })
+        schema.push({ [ name ]: defaultValue, label: element.label, rules: element.rules })
       }
       if (this.form.rows[ row ][ 'metadata' ]) this.form.rows[ row ].metadata.push(schema)
     },

@@ -160,7 +160,7 @@ class Mission extends Model
      */
     public function scopeValidated($query)
     {
-        return $query->where('report', '!=', null)->where('validated_at', '!=', null);
+        return $query->whereRelation('reports', 'type', 'Rapport')->whereRelation('reports', 'validated_at', '!=', null);
     }
 
     public function scopeNotValidated($query)

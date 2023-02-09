@@ -31,14 +31,15 @@ class StoreRequest extends FormRequest
             'rows.*.major_fact' => ['required', 'boolean'],
             'rows.*.score' => ['required', 'in:1,2,3,4'],
             'rows.*.metadata' => ['sometimes', 'array'],
+            'rows.*.media' => ['nullable', 'array'],
         ];
     }
 
     public function messages()
     {
         return [
-            'rows.*.report.required_if' => 'Le champs :attribute est obligatoirs.',
-            'rows.*.recovery_plan.required_if' => 'Le champs :attribute est obligatoirs.'
+            'rows.*.report.required_if' => 'Le champs :attribute est obligatoire.',
+            'rows.*.recovery_plan.required_if' => 'Le champs :attribute est obligatoire.'
         ];
     }
 }
