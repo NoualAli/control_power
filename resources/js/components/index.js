@@ -20,8 +20,10 @@ import ContentHeader from './ContentHeader'
 import ContentBody from './ContentBody'
 import NLRepeater from './Inputs/NLRepeater'
 import NLSwitch from './Inputs/NLSwitch'
+import NLFile from './Inputs/NLFile'
 // Components that are registered globaly.
 [
+  NLFile,
   NLSwitch,
   NLRepeater,
   ContentBody,

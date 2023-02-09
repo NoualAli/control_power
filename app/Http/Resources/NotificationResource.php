@@ -22,6 +22,7 @@ class NotificationResource extends JsonResource
         $routeName = isset($this->data['routeName']) ? $this->data['routeName'] : '-';
         $paramNames = isset($this->data['paramNames']) ? $this->data['paramNames'] : '-';
         $modelId = isset($this->data['id']) ? $this->data['id'] : '-';
+        $url = isset($this->data['url']) ? $this->data['url'] : '-';
         return [
             'id' => $this->id,
             'content' => $content,
@@ -31,6 +32,7 @@ class NotificationResource extends JsonResource
             'routeName' => $routeName,
             'paramNames' => $paramNames,
             'modelId' => $modelId,
+            'url' => $url,
         ];
     }
 }
