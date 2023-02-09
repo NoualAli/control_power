@@ -51,6 +51,18 @@ class ControlPoint extends Model
         return $scores_str;
     }
 
+    public function getScoresArrAttribute()
+    {
+        $scores = $this->scores;
+        $scores_arr = [];
+        if (is_array($scores)) {
+            foreach ($scores as $score) {
+                $scores_arr[intval($score[0]->score)] = $score[1]->label;
+            }
+        }
+        return $scores_arr;
+    }
+
     /**
      * Relationships
      */
