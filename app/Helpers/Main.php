@@ -202,3 +202,22 @@ if (!function_exists('getValidationRules')) {
         }, $methods);
     }
 }
+
+if (!function_exists('formatBytes')) {
+    /**
+     * Convet bytes to KB, MB, GB, TB
+     *
+     * @param int $size
+     * @param bool $withSuffix
+     * @param int $precision
+     *
+     * @return float|string
+     */
+    function formatBytes(int $size, bool $withSuffix = true, int $precision = 2)
+    {
+        $base = log($size, 1024);
+        $suffixes = array('B', 'KB', 'MB', 'GB', 'TB');
+        $result = round(pow(1024, $base - floor($base)), $precision);
+        return $withSuffix ? $result . ' ' . $suffixes[floor($base)] : $result;
+    }
+}
