@@ -1,10 +1,12 @@
 <template>
-  <DefaultContainer :id="getId" :form="form" :label="label" :name="name" :labelRequired="labelRequired">
+  <DefaultContainer :id="id || name" :form="form" :label="label" :name="name" :labelRequired="labelRequired"
+    :length="length" :currentLength="currentLength" :helpText="helpText">
     <div class="input-container" :class="{ 'is-password-input': type == 'password' }">
-      <input :maxlength="length" v-on="$listeners" @input="$emit('update', $event.target.value)" :id="getId"
+
+      <input :maxlength="length" v-on="$listeners" @input="onInput($event)" :id="id || name"
         :class="[{ 'is-danger': form?.errors.has(name) }, 'input', { 'is-for-auth': isForAuth }]" :type="finalType"
-        :name="name" :autocomplete="autocomplete" :autofocus="autofocus" :placeholder="$t(finalPlaceholder)"
-        :value="value" :readonly="readonly">
+        :name="name" :autocomplete="autocomplete" :autofocus="autofocus" :placeholder="placeholder || label"
+        :value="value" :readonly="readonly" />
 
       <div class="show-password-btn has-icon" v-if="type == 'password'" :class="{ 'is-danger': form?.errors.has(name) }"
         @click="toggleType">
@@ -33,7 +35,8 @@ export default {
     placeholder: { type: String, default: '' },
     value: { type: String | Number, default: '' },
     readonly: { type: Boolean, default: false },
-    length: { type: Number | null, default: 255 }
+    length: { type: Number | null, default: null },
+    helpText: { type: String, default: null },
   },
   model: {
     prop: 'value',
@@ -45,23 +48,43 @@ export default {
       finalType: this.type,
       eyeIcon: 'las la-eye',
       isForAuth: false,
-    }
-  },
-  computed: {
-    finalPlaceholder() {
-      if (!this.readonly) {
-        return this.placeholder ? this.placeholder : this.label
-      }
-    },
-    getId() {
-      return this.id !== null && this.id !== '' ? this.id : this.name
+      currentLength: 0,
     }
   },
   created() {
+    if (this.length && this.value) {
+      this.currentLength = this.value.length
+    }
     this.finalType = this.readonly ? 'text' : this.type
     this.isForAuth = window.location.pathname == '/login'
   },
   methods: {
+    /**
+     * handle input event
+     *
+     * @param {Object} $event
+     */
+    onInput($event) {
+      let value = $event.target.value
+      this.currentLength = value.length
+
+      if (this.type == 'number') {
+        value = this.sanitizeInput(value)
+      }
+
+      this.$emit('update', value.slice(0, this.length))
+    },
+    /**
+     * Sanitize input from special chars
+     *
+     * @param {*} value
+     */
+    sanitizeInput(value) {
+      return value.replace(/[^\w\s-\+\-]/gi, '');
+    },
+    /**
+     * Used by password field to show input value
+     */
     toggleType() {
       if (this.finalType == 'password') {
         this.finalType = 'text'

@@ -1,8 +1,10 @@
 <template>
-  <DefaultContainer :id="getId" :form="form" :label="label" :name="name" :labelRequired="labelRequired">
-    <textarea v-on="$listeners" @input="$emit('update', $event.target.value)" :id="getId"
+  <DefaultContainer :id="id || name" :form="form" :label="label" :name="name" :labelRequired="labelRequired"
+    :length="length" :currentLength="currentLength" :helpText="helpText">
+    <textarea v-on="$listeners" @input="onInput($event)" :id="id || name"
       :class="{ 'is-danger': form?.errors.has(name) }" class="input" :name="name" :autofocus="autofocus"
-      :placeholder="finalPlaceholder" :value="value" :readonly="readonly" :disabled="disabled"></textarea>
+      :placeholder="placeholder || label" :value="value" :readonly="readonly" :disabled="disabled"
+      :maxlength="length"></textarea>
   </DefaultContainer>
 </template>
 
@@ -22,18 +24,29 @@ export default {
     placeholder: { type: String, default: '' },
     value: { type: String, default: '' },
     readonly: { type: Boolean, default: false },
-    disabled: { type: Boolean, default: false }
+    disabled: { type: Boolean, default: false },
+    length: { type: Number | String, default: null },
+    helpText: { type: String, default: null },
+  },
+  data() {
+    return {
+      currentLength: 0,
+    }
   },
   model: {
     prop: "value",
     event: "update"
   },
-  computed: {
-    finalPlaceholder() {
-      return this.placeholder ? this.placeholder : this.label
-    },
-    getId() {
-      return this.id !== null && this.id !== '' ? this.id : this.name
+  created() {
+    if (this.length && this.value) {
+      this.currentLength = this.value.length
+    }
+  },
+  methods: {
+    onInput($event) {
+      let value = $event.target.value
+      this.currentLength = value.length
+      this.$emit('update', value.slice(0, this.length))
     }
   },
 }

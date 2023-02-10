@@ -1,9 +1,11 @@
 <template>
   <div>
-    <DefaultContainer :id="getId" :form="form" :label="label" :name="name" :labelRequired="labelRequired">
-      <VueEditor :editor-toolbar="editorSettings" @input="updateValue" :id="name"
+    <DefaultContainer :id="id || name" :form="form" :label="label" :name="name" :labelRequired="labelRequired"
+      :length="length" :currentLength="currentLength">
+      <VueEditor :editor-toolbar="editorSettings" @input="onInput($event)" v-on="$listeners" :id="id || name"
         :class="[{ 'is-danger': form?.errors.has(name) }]" :name="name" :autocomplete="autocomplete"
-        :autofocus="autofocus" :placeholder="finalPlaceholder" :value="value" />
+        :autofocus="autofocus" @ready="quill => editorQuill = quill" :max-length="length"
+        :placeholder="placeholder || label" :value="currentValue" :helpText="helpText" />
     </DefaultContainer>
   </div>
 </template>
@@ -29,10 +31,21 @@ export default {
     placeholder: { type: String, default: '' },
     value: { type: String | Number, default: '' },
     readonly: { type: Boolean, default: false },
-    length: { type: Number | null, default: 255 }
+    length: { type: Number | null, default: null },
+    helpText: { type: String, default: null },
+  },
+  watch: {
+    currentValue: function (currentValue) {
+      if (!!this.length && this.editorQuill.getLength() >= this.length) {
+        this.editorQuill.deleteText(this.length, this.editorQuill.getLength());
+      }
+    }
   },
   data() {
     return {
+      editorQuill: null,
+      currentLength: 0,
+      currentValue: null,
       editorSettings: [
         [ { 'header': [ 1, 2, 3, 4, 5, 6, false ] } ],
         // [ { 'font': [] } ],
@@ -53,20 +66,12 @@ export default {
     prop: "value",
     event: "update"
   },
-  computed: {
-    finalPlaceholder() {
-      if (!this.readonly) {
-        return this.placeholder ? this.placeholder : this.label
-      }
-    },
-    getId() {
-      return this.id !== null && this.id !== '' ? this.id : this.name
-    }
-  },
   methods: {
-    updateValue(e) {
-      this.form[ this.name ] = e
-    },
+    onInput(value) {
+      this.currentValue = value
+      this.currentLength = this.editorQuill.getLength() - 1
+      this.$emit('update', this.currentValue)
+    }
   }
 }
 </script>

@@ -1,7 +1,7 @@
 <template>
-  <NLCheckableContainer :name="name" :form="form" :label="label" :id="getId">
+  <NLCheckableContainer :name="name" :form="form" :label="label" :id="id || name" :helpText="helpText">
     <input type="checkbox" :class="[{ 'is-danger': form?.errors.has(name) }, 'switch-input']" v-model="selected"
-      @change="updateValue" :name="name" :id="getId">
+      @change="updateValue" :name="name" :id="id || name">
     <div class="switch" :data-true-label="trueLabel" :data-false-label="falseLabel" @click="updateValue"></div>
   </NLCheckableContainer>
 </template>
@@ -23,6 +23,7 @@ export default {
     id: { type: String | null, default: null },
     trueLabel: { type: String | null, default: 'Oui' },
     falseLabel: { type: String | null, default: 'Non' },
+    helpText: { type: String, default: null },
   },
   data() {
     return {
@@ -38,14 +39,5 @@ export default {
       this.$emit('change', this.selected);
     },
   },
-  computed: {
-    getId() {
-      return this.id !== null && this.id !== '' ? this.id : this.name
-    }
-  },
 }
 </script>
-
-<style lang="scss" scoped>
-
-</style>

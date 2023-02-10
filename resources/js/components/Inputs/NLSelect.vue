@@ -1,5 +1,6 @@
 <template>
-  <DefaultContainer :id="getId" :form="form" :label="label" :name="name" :labelRequired="labelRequired">
+  <DefaultContainer :id="id || name" :form="form" :label="label" :name="name" :labelRequired="labelRequired"
+    :helpText="helpText">
     <treeselect :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" v-model="selected" @input="updateValue"
       :value="value" :name="name" :multiple="multiple" :options="options" :placeholder="placeholder"
       :loadingText="loadingText" :noOptionsText="noOptionsText" search-nested>
@@ -25,6 +26,7 @@ export default {
     multiple: { type: Boolean, default: false },
     value: { type: String | Array, default: () => [] },
     options: { required: true },
+    helpText: { type: String, default: null },
   },
   model: {
     prop: 'value',
@@ -42,11 +44,6 @@ export default {
     updateValue() {
       this.$emit('change', this.selected);
     },
-  },
-  computed: {
-    getId() {
-      return this.id !== null && this.id !== '' ? this.id : this.name
-    }
   },
 }
 </script>

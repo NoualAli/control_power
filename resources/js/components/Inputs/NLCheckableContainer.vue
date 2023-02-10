@@ -22,11 +22,7 @@ export default {
     label: { type: String, default: '' },
     labelRequired: { type: Boolean, default: false },
     isInline: { type: Boolean, default: true },
-  },
-  computed: {
-    getId() {
-      return this.id !== null && this.id !== '' ? this.id : this.name
-    }
+    helpText: { type: String, default: null },
   },
 }
 </script>

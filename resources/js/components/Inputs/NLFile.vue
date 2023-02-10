@@ -1,6 +1,7 @@
 <template>
-  <DefaultContainer :name="name" :id="getId" :form="form" :label="label" :labelRequired="labelRequired">
-    <input type="file" :name="name" :id="getId" :multiple="multiple" class="file-input" @change="onChange($event)">
+  <DefaultContainer :name="name" :id="id || name" :form="form" :label="label" :labelRequired="labelRequired"
+    :helpText="helpText">
+    <input type="file" :name="name" :id="id || name" :multiple="multiple" class="file-input" @change="onChange($event)">
     <div :class="[{ 'is-danger': form?.errors.has(name), 'has-files': hasFiles }, 'file-input-area']" :draggable="true"
       @dragover="dragover" @dragleave="dragleave" @drop="drop">
       <p class="text-medium file-uploader" @click.stop="openFileBrowser($event)">
@@ -40,6 +41,7 @@ export default {
     attachableType: { type: String, default: '' },
     attachableId: { type: String | Number, default: '' },
     accepted: { type: String, default: 'jpg,jpeg,png,doc,docx,xls,xlsx,pdf' },
+    helpText: { type: String, default: null },
   },
   model: {
     prop: 'value',
@@ -183,9 +185,6 @@ export default {
     }
   },
   computed: {
-    getId() {
-      return this.id !== null && this.id !== '' ? this.id : this.name
-    },
     hasFiles() {
       return this.files.length
     },
