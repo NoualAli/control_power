@@ -74,10 +74,4 @@ export const actions = {
 
     commit(types.LOGOUT)
   },
-
-  async fetchOauthUrl(ctx, { provider }) {
-    const { data } = await api.post(`oauth/${provider}`)
-
-    return data.url
-  }
 }
