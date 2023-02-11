@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasMedia;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ use Znck\Eloquent\Traits\BelongsToThrough;
 
 class MissionDetail extends Model
 {
-    use HasFactory, SoftDeletes, HasUuid, BelongsToThrough;
+    use HasFactory, SoftDeletes, HasUuid, BelongsToThrough, HasMedia;
 
     public $fillable = [
         'control_point_id',
@@ -24,7 +25,7 @@ class MissionDetail extends Model
         'executed_at'
     ];
 
-    public $with = ['process', 'domain', 'controlPoint', 'familly'];
+    public $with = ['process', 'domain', 'controlPoint', 'familly', 'media'];
 
     public $casts = [
         'metadata' => 'object'
