@@ -20,7 +20,6 @@ Vue.use(Vue2Crumbs)
 Vue.use(loader);
 Vue.use(swal)
 Vue.use(api)
-Vue.use(collect)
 
 Vue.config.productionTip = false
 
