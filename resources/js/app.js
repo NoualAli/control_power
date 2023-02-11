@@ -11,12 +11,10 @@ import { user } from './plugins/helpers'
 import App from '~/components/App'
 import '~/plugins'
 import '~/components'
-import collect from 'collect.js';
 window.Swal = Swal
 window.swal = swal
 window.api = api
 window.user = user
-window.collect = collect
 
 Vue.use(Vue2Crumbs)
 Vue.use(loader);
