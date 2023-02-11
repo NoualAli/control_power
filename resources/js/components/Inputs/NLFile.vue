@@ -1,21 +1,30 @@
 <template>
   <DefaultContainer :name="name" :id="id || name" :form="form" :label="label" :labelRequired="labelRequired"
     :helpText="helpText">
-    <input type="file" :name="name" :id="id || name" :multiple="multiple" class="file-input" @change="onChange($event)">
+    <input type="file" :name="name" :id="id || name" :multiple="multiple" :accept="accept" class="file-input"
+      @change="onChange($event)">
     <div :class="[{ 'is-danger': form?.errors.has(name), 'has-files': hasFiles }, 'file-input-area']" :draggable="true"
       @dragover="dragover" @dragleave="dragleave" @drop="drop">
-      <p class="text-medium file-uploader" @click.stop="openFileBrowser($event)">
-        {{ inProgress? 'Chargement en cours...': placeholder }} <i class="las la-cloud-upload-alt text-large"></i>
+      <p class="text-medium file-uploader" @click.stop="openFileBrowser($event)" v-if="!inProgress">
+        {{ placeholder }} <i class="las la-cloud-upload-alt text-large"></i>
+      </p>
+      <p class="text-medium file-uploader" v-else>
+        <i class="las la-spinner la-spin text-large"></i> {{ loadingText }}{{ progress }} %
       </p>
       <div class="files-list list text-medium">
         <div class="list-item my-1" v-for="(file, index) in getFilesList" :key="name + '-' + index">
           <div class="grid gap-4 list-item-content" @click.stop="">
             <div class="col-11 d-flex justify-between align-center">
-              <span>{{ file.name }}</span>
+              <a :href="file.link" target="_blank" class="text-dark">
+                {{ file.name }}
+              </a>
               <span>{{ file.size }}</span>
             </div>
-            <div class="col-1 d-flex justify-end align-center">
-              <i class="las la-trash text-danger icon delete-btn" @click.stop="deleteItem(file, index)"></i>
+            <div class="col-1 d-flex justify-end align-center gap-4">
+              <a :href="file.link" :download="file.name">
+                <i class="las la-download text-info icon"></i>
+              </a>
+              <i class="las la-trash text-danger icon is-clickable" @click.stop="deleteItem(file, index)"></i>
             </div>
           </div>
         </div>
@@ -36,6 +45,7 @@ export default {
     label: { type: String, default: '' },
     labelRequired: { type: Boolean, default: false },
     placeholder: { type: String, default: 'Téléverser des fichiers' },
+    loadingText: { type: String, default: 'Téléversement en cours... ' },
     multiple: { type: Boolean, default: false },
     value: { type: String | Array, default: () => [] },
     attachableType: { type: String, default: '' },
@@ -51,6 +61,7 @@ export default {
     return {
       isDragging: false,
       inProgress: false,
+      progress: 0,
       files: [],
     };
   },
@@ -102,29 +113,6 @@ export default {
       $event.target.parentNode.parentNode.children[ 1 ].click();
     },
     /**
-     * Parse mimetype to determine extension
-     *
-     * @param {string} type
-     */
-    getType(type) {
-      return type.split('/')[ 1 ]
-    },
-    /**
-     * Convert file size from byte to mb
-     *
-     * @param {Number} bytes
-     */
-    convertToMegabyte(bytes) {
-      let value = (bytes / 1024 / 1024).toFixed(2)
-      let suffix = 'Mb'
-      if (value < 1) {
-        value = (bytes / 1024).toFixed(2)
-        suffix = 'Kb'
-      }
-      return value + ' ' + suffix
-    },
-
-    /**
      * Fetch exesting files
      *
      * @param {String} filesStr
@@ -137,19 +125,23 @@ export default {
       })
     },
     /**
-     * Delete file from serve
+     * Delete file from server
      *
      * @param {Object} file
      * @param {Number} index
      */
     deleteItem(file, index) {
-      api.delete('upload/' + file.id).then(response => {
-        this.files.splice(index, 1)
-        this.inProgress = false
-        this.$emit('change', this.files.map(file => file.id))
-      }).catch(error => {
-        this.inProgress = false
-        console.error(error)
+      swal.confirm_destroy().then((action) => {
+        if (action.isConfirmed) {
+          api.delete('upload/' + file.id).then(response => {
+            this.files.splice(index, 1)
+            this.inProgress = false
+            this.$emit('change', this.files.map(file => file.id))
+          }).catch(error => {
+            this.inProgress = false
+            console.error(error)
+          })
+        }
       })
     },
     /**
@@ -167,10 +159,9 @@ export default {
         data.append('attachable[id]', this.attachableId)
         data.append('attachable[type]', this.attachableType)
         api.post('upload', data, {
-          // onUploadProgress: progressEvent => {
-          //   // this.progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          //   console.log(Math.round((progressEvent.loaded * 100) / progressEvent.total), progressEvent.loaded, progressEvent.total);
-          // }
+          onUploadProgress: progressEvent => {
+            this.progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          }
         }).then(response => {
           this.inProgress = false
           this.files.push(...response.data)
@@ -188,15 +179,17 @@ export default {
     hasFiles() {
       return this.files.length
     },
+    accept() {
+      return this.accepted.split(',').map(accept => '.' + accept).join(',')
+    },
     getFilesList() {
       return [ ...this.files ].map((file) => {
-        const size = this.convertToMegabyte(file.size)
-        const type = this.getType(file.mimetype)
         return {
           id: file.id,
           name: file.original_name,
-          size,
-          type
+          size: file.size,
+          type: file.type,
+          link: file.link
         }
       })
     },
