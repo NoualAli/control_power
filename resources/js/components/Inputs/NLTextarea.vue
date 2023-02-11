@@ -46,7 +46,10 @@ export default {
     onInput($event) {
       let value = $event.target.value
       this.currentLength = value.length
-      this.$emit('update', value.slice(0, this.length))
+      if (this.length) {
+        value = value.slice(0, this.length)
+      }
+      this.$emit('update', value)
     }
   },
 }

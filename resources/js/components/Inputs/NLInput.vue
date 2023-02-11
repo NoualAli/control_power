@@ -72,7 +72,11 @@ export default {
         value = this.sanitizeInput(value)
       }
 
-      this.$emit('update', value.slice(0, this.length))
+      if (this.length) {
+        value = value.slice(0, this.length)
+      }
+
+      this.$emit('update', value)
     },
     /**
      * Sanitize input from special chars
