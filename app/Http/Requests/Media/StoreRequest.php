@@ -31,11 +31,11 @@ class StoreRequest extends FormRequest
             return [
                 'attachable' => ['nullable', 'array'],
                 'media' => ['required', 'array'],
-                'media.*' => ['required', 'file', 'max:2000', 'mimes:' . $accepted]
+                'media.*' => ['required', 'file', 'max:3000', 'mimes:' . $accepted]
             ];
         } else {
             return [
-                'media' => ['required', 'file', 'max:2000', 'mimes:' . $accepted]
+                'media' => ['required', 'file', 'max:3000', 'mimes:' . $accepted]
             ];
         }
     }
