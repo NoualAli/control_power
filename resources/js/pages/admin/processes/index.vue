@@ -1,6 +1,6 @@
 <template>
   <div v-can="'view_process'">
-    <ContentHeader title="Liste des processus">
+    <ContentHeader>
       <template v-slot:actions>
         <router-link :to="{ name: 'processes-create' }" class="btn btn-info" v-can="'create_process'">
           Ajouter
@@ -8,7 +8,8 @@
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" />
+      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" title="Liste des processus"
+        namespace="processes" />
       <NLModal :show="rowSelected" @close="rowSelected = null">
         <template v-slot:title>Informations processus</template>
         <template v-slot>
@@ -84,10 +85,6 @@ export default {
       rowSelected: null,
       config: {
         data: null,
-        namespace: 'processes',
-        state_key: 'paginated',
-        rowKey: 'id',
-        search: true,
         columns: [
           {
             label: 'Famille',

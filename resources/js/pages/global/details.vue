@@ -1,6 +1,6 @@
 <template>
   <ContentBody>
-    <NLDatatable :config="config" @show="show" />
+    <NLDatatable namespace="details" stateKey="global" :config="config" @show="show" />
     <NLModal :show="rowSelected" @close="close">
       <template v-slot:title>
         <small class="tag is-primary-dark text-small">
@@ -107,9 +107,6 @@ export default {
       rowSelected: null,
       config: {
         data: null,
-        namespace: 'details',
-        state_key: 'global',
-        rowKey: 'id',
         columns: [
           {
             label: 'CDC-ID',

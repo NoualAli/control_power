@@ -17,6 +17,7 @@ class ReferenceController extends Controller
         if ($filter) {
             $controlPoints = $controlPoints->filter($filter);
         }
-        return PCFResource::collection($controlPoints->paginate()->onEachSide(1));
+        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        return PCFResource::collection($controlPoints->paginate($perPage)->onEachSide(1));
     }
 }

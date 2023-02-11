@@ -1,6 +1,6 @@
 <template>
   <div v-can="'view_dre'">
-    <ContentHeader title="Liste des DRE">
+    <ContentHeader>
       <template v-slot:actions>
         <router-link :to="{ name: 'dre-create' }" class="btn btn-info" v-can="'create_dre'">
           Ajouter
@@ -8,7 +8,7 @@
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" />
+      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" namespace="dre" title="Liste des DRE" />
       <NLModal :show="rowSelected" @close="rowSelected = null">
         <template v-slot:title>Informations dre</template>
         <template v-slot>
@@ -76,10 +76,6 @@ export default {
       rowSelected: null,
       config: {
         data: null,
-        namespace: 'dre',
-        state_key: 'paginated',
-        rowKey: 'id',
-        search: true,
         columns: [
           {
             label: 'Code',

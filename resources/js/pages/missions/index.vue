@@ -9,7 +9,7 @@
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" />
+      <NLDatatable namespace="missions" :config="config" @show="show" @delete="destroy" @edit="edit" />
     </ContentBody>
   </div>
 </template>
@@ -33,10 +33,6 @@ export default {
       campaignId: null,
       config: {
         data: null,
-        namespace: 'missions',
-        state_key: 'paginated',
-        rowKey: 'id',
-        search: true,
         columns: [
           {
             label: 'CDC-ID',
@@ -87,22 +83,42 @@ export default {
           {
             label: 'État',
             field: 'state',
+            isHtml: true,
             methods: {
-              style: (item) => {
+              showField(item) {
+                let state = 'inProgress'
                 if (item.state == 'EN COURS') {
-                  return 'bg-warning text-bold text-small'
+                  state = 'inProgress'
                 } else if (item.state == 'À RÉALISER') {
-                  return 'bg-info text-white text-bold text-small'
+                  state = 'todo'
                 } else if (item.state == 'RÉALISÉ') {
-                  return 'bg-success text-white text-bold text-small'
+                  state = 'done'
                 } else if (item.state == 'EN RETARD') {
-                  return 'bg-danger text-white text-bold text-small'
+                  state = 'late'
                 } else if (item.state == 'Validé et envoyé') {
-                  return 'bg-success text-white text-bold text-small'
+                  state = 'validated'
                 } else if (item.state == 'En attente de validation') {
-                  return 'bg-danger text-white text-bold text-small'
+                  state = 'wating-validation'
                 }
-              }
+                return `<div class="container" title="${item.state}">
+                  <div class="mission-state ${state}"></div>
+                </div>`
+              },
+              // style: (item) => {
+              //   if (item.state == 'EN COURS') {
+              //     return 'mission-state bg-warning text-bold text-small'
+              //   } else if (item.state == 'À RÉALISER') {
+              //     return 'mission-state bg-info text-white text-bold text-small'
+              //   } else if (item.state == 'RÉALISÉ') {
+              //     return 'mission-state bg-success text-white text-bold text-small'
+              //   } else if (item.state == 'EN RETARD') {
+              //     return 'mission-state bg-danger text-white text-bold text-small'
+              //   } else if (item.state == 'Validé et envoyé') {
+              //     return 'mission-state bg-success text-white text-bold text-small'
+              //   } else if (item.state == 'En attente de validation') {
+              //     return 'mission-state bg-danger text-white text-bold text-small'
+              //   }
+              // }
             }
           },
           {

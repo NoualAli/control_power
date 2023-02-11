@@ -21,8 +21,14 @@ class RoleController extends Controller
     {
         isAbleOrAbort(['view_role', 'create_user', 'update_user']);
         $roles = new Role();
+
         $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
         $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
+        $filter = request()->has('filter') ? request()->filter : null;
+
+        if ($filter) {
+            $roles = $roles->filter($filter);
+        }
 
         if ($order) {
             $roles = $roles->orderByMultiple($order);
@@ -30,8 +36,8 @@ class RoleController extends Controller
         if ($search) {
             $roles = $roles->search($search);
         }
-
-        $roles = request()->has('fetchAll') ? $roles->get()->toJson() : RoleResource::collection($roles->paginate()->onEachSide(1));
+        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $roles = request()->has('fetchAll') ? $roles->get()->toJson() : RoleResource::collection($roles->paginate($perPage)->onEachSide(1));
         return $roles;
     }
 
@@ -57,10 +63,12 @@ class RoleController extends Controller
                 'status' => true
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
     /**
@@ -98,10 +106,12 @@ class RoleController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 
@@ -121,10 +131,12 @@ class RoleController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 }

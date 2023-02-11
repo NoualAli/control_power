@@ -1,6 +1,6 @@
 <template>
   <div v-can="'view_role'">
-    <ContentHeader title="Liste des rôles">
+    <ContentHeader>
       <template v-slot:actions>
         <router-link :to="{ name: 'roles-create' }" class="btn btn-info" v-can="'create_role'">
           Ajouter
@@ -8,7 +8,8 @@
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" />
+      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" title="Liste des rôles"
+        namespace="roles" />
       <NLModal :show="rowSelected" @close="rowSelected = null">
         <template v-slot:title>Informations rôle</template>
         <template v-slot>
@@ -83,10 +84,6 @@ export default {
       rowSelected: null,
       config: {
         data: null,
-        namespace: 'roles',
-        state_key: 'paginated',
-        rowKey: 'id',
-        search: true,
         columns: [
           {
             label: 'Code',

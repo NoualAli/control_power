@@ -1,6 +1,6 @@
 <template>
   <ContentBody>
-    <NLDatatable :config="config" @show="show" />
+    <NLDatatable namespace="notifications" :searchable="false" :config="config" @show="show" />
   </ContentBody>
 </template>
 
@@ -25,9 +25,6 @@ export default {
     return {
       config: {
         data: null,
-        namespace: 'notifications',
-        state_key: 'paginated',
-        rowKey: 'id',
         columns: [
           {
             label: 'Titre',

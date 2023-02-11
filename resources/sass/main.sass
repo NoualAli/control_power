@@ -399,3 +399,50 @@ input[type="date"]::-webkit-inner-spin-button,
 .label
     color: $dracula
     font-weight: 700
+
+.mission-state
+    position: relative
+    display: block
+    height: 30px
+    width: 30px
+    border-radius: 50%
+    border: 3px solid $success
+    overflow: hidden
+    &::before
+        content: ''
+        position: absolute
+        left: 0
+        top: 0
+        width: 100%
+        height: 100%
+        background-color: $success
+        box-shadow: 0 0 30px $success, 0 0 50px $success
+    &.inProgress
+        border-color: darken($info, 10)
+        &::before
+            background-color: $info
+    &.done
+        border-color: darken($success, 10)
+        box-shadow: 0 0 30px $success, 0 0 50px $success
+        &::before
+            background-color: transparent
+    &.todo
+        border-color: darken($info, 10)
+        box-shadow: 0 0 30px $info, 0 0 50px $info
+        &::before
+            background-color: transparent
+    &.late
+        border-color: darken($danger, 10)
+        box-shadow: 0 0 30px $danger, 0 0 50px $danger
+        &::before
+            background-color: transparent
+    &.validated
+        border-color: darken($success, 10)
+        box-shadow: 0 0 30px $success, 0 0 50px $success
+        &::before
+            background-color: $success
+    &.wating-validation
+        border-color: darken($danger, 10)
+        box-shadow: 0 0 30px $danger, 0 0 50px $danger
+        &::before
+            background-color: $danger

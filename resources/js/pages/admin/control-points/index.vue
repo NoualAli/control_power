@@ -1,6 +1,6 @@
 <template>
   <div v-can="'view_control_point'">
-    <ContentHeader title="Liste des Points de contrôle">
+    <ContentHeader>
       <template v-slot:actions>
         <router-link :to="{ name: 'control-points-create' }" class="btn btn-info" v-can="'create_control_point'">
           Ajouter
@@ -8,7 +8,8 @@
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" />
+      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" namespace="controlPoints"
+        title="Liste des Points de contrôle" />
       <NLModal :show="rowSelected" @close="rowSelected = null">
         <template v-slot:title>Informations point de contrôle</template>
         <template v-slot>
@@ -145,10 +146,6 @@ export default {
       rowSelected: null,
       config: {
         data: null,
-        namespace: 'controlPoints',
-        state_key: 'paginated',
-        rowKey: 'id',
-        search: true,
         columns: [
           {
             label: 'Famille',

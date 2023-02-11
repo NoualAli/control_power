@@ -22,7 +22,8 @@
       </div>
     </div>
     <ContentBody>
-      <NLDatatable :config="config" @delete="destroy" @show="show" @edit="edit" :filters="getFilters" />
+      <NLDatatable namespace="campaigns" :config="config" @delete="destroy" @show="show" @edit="edit"
+        :filters="getFilters" />
     </ContentBody>
   </div>
 </template>
@@ -50,10 +51,6 @@ export default {
       rowSelected: null,
       config: {
         data: null,
-        namespace: 'campaigns',
-        state_key: 'paginated',
-        rowKey: 'id',
-        search: true,
         columns: [
           {
             label: 'Référence',

@@ -6,20 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ControlCampaign\StoreRequest;
 use App\Http\Requests\ControlCampaign\UpdateRequest;
 use App\Http\Resources\ControlCampaignResource;
-use App\Http\Resources\DetailsResource;
 use App\Http\Resources\ProcessResource;
-use App\Http\Resources\SampleResource;
-use App\Models\Agency;
 use App\Models\ControlCampaign;
 use App\Models\Domain;
 use App\Models\Familly;
 use App\Models\Process;
-use App\Models\Sample;
-use App\Models\User;
-use App\Notifications\ControlCampaignNotification;
 use DragonCode\Support\Facades\Helpers\Arr;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -56,7 +48,8 @@ class ControlCampaignController extends Controller
         if (request()->has('fetchAll')) {
             $campaigns = $campaigns->get()->pluck('reference', 'id');
         } else {
-            $campaigns = ControlCampaignResource::collection($campaigns->paginate(10)->onEachSide(1));
+            $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+            $campaigns = ControlCampaignResource::collection($campaigns->paginate($perPage)->onEachSide(1));
         }
         return $campaigns;
     }
@@ -128,10 +121,12 @@ class ControlCampaignController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
-                'status' => false,
-            ]);
+                'status' => false
+            ], $code);
         }
     }
 
@@ -164,10 +159,12 @@ class ControlCampaignController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
-                'status' => false,
-            ]);
+                'status' => false
+            ], $code);
         }
     }
 
@@ -192,10 +189,12 @@ class ControlCampaignController extends Controller
                 'status' => false,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
-                'status' => false,
-            ]);
+                'status' => false
+            ], $code);
         }
     }
 
@@ -221,10 +220,12 @@ class ControlCampaignController extends Controller
                 'status' => false,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
-                'status' => false,
-            ]);
+                'status' => false
+            ], $code);
         }
     }
 

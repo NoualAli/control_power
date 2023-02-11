@@ -1,6 +1,6 @@
 <template>
   <div v-can="'view_agency'">
-    <ContentHeader title="Liste des agences">
+    <ContentHeader>
       <template v-slot:actions>
         <router-link :to="{ name: 'agencies-create' }" class="btn btn-info" v-can="'create_agency'">
           Ajouter
@@ -8,7 +8,8 @@
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" />
+      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" title="Liste des agences"
+        namespace="agencies" />
       <NLModal :show="rowSelected" @close="rowSelected = null">
         <template v-slot:title>Informations agence</template>
         <template v-slot>
@@ -76,10 +77,6 @@ export default {
       rowSelected: null,
       config: {
         data: null,
-        namespace: 'agencies',
-        state_key: 'paginated',
-        rowKey: 'id',
-        search: true,
         columns: [
           {
             label: 'Code',

@@ -1,6 +1,6 @@
 <template>
   <div v-can="'view_user'">
-    <ContentHeader title="Liste des utilisateurs">
+    <ContentHeader>
       <template v-slot:actions>
         <router-link :to="{ name: 'users-create' }" class="btn btn-info" v-can="'create_user'">
           Ajouter
@@ -8,7 +8,8 @@
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" />
+      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" title="Liste des utilisateurs"
+        namespace="users" />
       <NLModal :show="rowSelected" @close="rowSelected = null">
         <template v-slot:title>Informations utilisateur</template>
         <template v-slot>
@@ -107,10 +108,6 @@ export default {
       rowSelected: null,
       config: {
         data: null,
-        namespace: 'users',
-        state_key: 'paginated',
-        rowKey: 'id',
-        search: true,
         columns: [
           {
             label: "Nom d'utilisateur",

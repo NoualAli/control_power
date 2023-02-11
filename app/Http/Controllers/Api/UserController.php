@@ -28,20 +28,21 @@ class UserController extends Controller
     public function index()
     {
         isAbleOrAbort('view_user');
-        $searchables = ['username', 'email', 'last_name', 'first_name'];
         $users = new User;
-        if (request()->has('order')) {
-            foreach (request()->order as $key => $value) {
-                $users = $users->orderBy($key, $value);
-            }
+
+        $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
+        $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
+        $filter = request()->has('filter') ? request()->filter : null;
+
+        if ($filter) {
+            $users = $users->filter($filter);
         }
-        if (request()->has('search') && !empty(request()->search)) {
-            $i = 0;
-            foreach ($searchables as $column) {
-                $clause = $i ? 'orWhere' : 'where';
-                $users = $users->$clause($column, 'LIKE', "%" . request()->search . "%");
-                $i += 1;
-            }
+
+        if ($order) {
+            $users = $users->orderByMultiple($order);
+        }
+        if ($search) {
+            $users = $users->search($search);
         }
 
         if (request()->has('fetchAll')) {
@@ -49,7 +50,8 @@ class UserController extends Controller
         } elseif (request()->has('dre_id')) {
             $users = $users->where('dre_id', request()->dre_id)->get();
         } else {
-            $users = UserResource::collection($users->paginate()->onEachSide(1));
+            $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+            $users = UserResource::collection($users->paginate($perPage)->onEachSide(1));
         }
 
         return $users;
@@ -80,10 +82,12 @@ class UserController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
-                'status' => false,
-            ]);
+                'status' => false
+            ], $code);
         }
     }
 
@@ -122,10 +126,12 @@ class UserController extends Controller
                 'status' => true
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 
@@ -147,10 +153,12 @@ class UserController extends Controller
                 'status' => true
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 
@@ -170,10 +178,12 @@ class UserController extends Controller
                 'status' => true
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 }

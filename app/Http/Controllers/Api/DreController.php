@@ -20,8 +20,14 @@ class DreController extends Controller
     {
         isAbleOrAbort(['view_dre', 'create_user', 'update_user']);
         $dres = new Dre();
+
         $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
         $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
+        $filter = request()->has('filter') ? request()->filter : null;
+
+        if ($filter) {
+            $dres = $dres->filter($filter);
+        }
 
         if ($order) {
             $dres = $dres->orderByMultiple($order);
@@ -29,7 +35,9 @@ class DreController extends Controller
         if ($search) {
             $dres = $dres->search($search);
         }
-        $dres = request()->has('fetchAll') ? $dres->get()->toJson() : DreResource::collection($dres->paginate()->onEachSide(1));
+
+        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $dres = request()->has('fetchAll') ? $dres->get()->toJson() : DreResource::collection($dres->paginate($perPage)->onEachSide(1));
         return $dres;
     }
 
@@ -50,10 +58,12 @@ class DreController extends Controller
                 'status' => true
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
     /**
@@ -86,10 +96,12 @@ class DreController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 
@@ -109,10 +121,12 @@ class DreController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 }

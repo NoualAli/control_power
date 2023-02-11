@@ -1,6 +1,6 @@
 <template>
   <div v-can="'view_familly'">
-    <ContentHeader title="Liste des familles">
+    <ContentHeader>
       <template v-slot:actions>
         <router-link :to="{ name: 'famillies-create' }" class="btn btn-info" v-can="'create_familly'">
           Ajouter
@@ -8,7 +8,7 @@
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable :config="config" @delete="destroy" @edit="edit" />
+      <NLDatatable :config="config" @delete="destroy" @edit="edit" title="Liste des familles" namespace="famillies" />
     </ContentBody>
   </div>
 </template>
@@ -33,10 +33,6 @@ export default {
       rowSelected: null,
       config: {
         data: null,
-        namespace: 'famillies',
-        state_key: 'paginated',
-        rowKey: 'id',
-        search: true,
         columns: [
           {
             label: 'Nom',

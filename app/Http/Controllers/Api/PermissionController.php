@@ -19,8 +19,14 @@ class PermissionController extends Controller
     public function index()
     {
         $permissions = new Permission();
+
         $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
         $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
+        $filter = request()->has('filter') ? request()->filter : null;
+
+        if ($filter) {
+            $permissions = $permissions->filter($filter);
+        }
 
         if ($order) {
             $permissions = $permissions->orderByMultiple($order);
@@ -28,7 +34,9 @@ class PermissionController extends Controller
         if ($search) {
             $permissions = $permissions->search($search);
         }
-        $permissions = request()->has('fetchAll') ? $permissions->get()->toJson() : PermissionResource::collection($permissions->paginate()->onEachSide(1));
+        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+
+        $permissions = request()->has('fetchAll') ? $permissions->get()->toJson() : PermissionResource::collection($permissions->paginate($perPage)->onEachSide(1));
 
         return $permissions;
     }
@@ -57,10 +65,12 @@ class PermissionController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 
@@ -102,10 +112,12 @@ class PermissionController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
-                'status' => false,
-            ]);
+                'status' => false
+            ], $code);
         }
     }
 
@@ -125,10 +137,12 @@ class PermissionController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 }

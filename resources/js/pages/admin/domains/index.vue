@@ -1,6 +1,6 @@
 <template>
   <div v-can="'view_domain'">
-    <ContentHeader title="Liste des domaines">
+    <ContentHeader>
       <template v-slot:actions>
         <router-link :to="{ name: 'domains-create' }" class="btn btn-info" v-can="'create_domain'">
           Ajouter
@@ -8,7 +8,8 @@
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" />
+      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" title="Liste des domaines"
+        namespace="domains" />
       <NLModal :show="rowSelected" @close="rowSelected = null">
         <template v-slot:title>Informations domaine</template>
         <template v-slot>
@@ -76,10 +77,6 @@ export default {
       rowSelected: null,
       config: {
         data: null,
-        namespace: 'domains',
-        state_key: 'paginated',
-        rowKey: 'id',
-        search: true,
         columns: [
           {
             label: 'Famille',

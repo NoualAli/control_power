@@ -19,17 +19,23 @@ class ControlPointController extends Controller
     public function index()
     {
         $controlPoints = new ControlPoint();
+
         $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
         $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
+        $filter = request()->has('filter') ? request()->filter : null;
+
+        if ($filter) {
+            $controlPoints = $controlPoints->filter($filter);
+        }
 
         if ($order) {
             $controlPoints = $controlPoints->orderByMultiple($order);
         }
         if ($search) {
             $controlPoints = $controlPoints->search($search);
-            // dd($controlPoints->paginate());
         }
-        $controlPoints = request()->has('fetchAll') ? $controlPoints->get()->toJson() : ControlPointResource::collection($controlPoints->paginate()->onEachSide(1));
+        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $controlPoints = request()->has('fetchAll') ? $controlPoints->get()->toJson() : ControlPointResource::collection($controlPoints->paginate($perPage)->onEachSide(1));
         return $controlPoints;
     }
 
@@ -52,10 +58,12 @@ class ControlPointController extends Controller
                 'status' => true
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
     /**
@@ -95,10 +103,12 @@ class ControlPointController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 
@@ -118,10 +128,12 @@ class ControlPointController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 }

@@ -1,6 +1,6 @@
 <template>
   <div v-can="'view_permission'">
-    <ContentHeader title="Liste des permissions">
+    <ContentHeader>
       <template v-slot:actions>
         <router-link :to="{ name: 'permissions-create' }" class="btn btn-info" v-can="'create_permission'">
           Ajouter
@@ -8,7 +8,8 @@
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" />
+      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" title="Liste des permissions"
+        namespace="permissions" />
       <NLModal :show="rowSelected" @close="rowSelected = null">
         <template v-slot:title>Informations permission</template>
         <template v-slot>
@@ -76,10 +77,6 @@ export default {
       rowSelected: null,
       config: {
         data: null,
-        namespace: 'permissions',
-        state_key: 'paginated',
-        rowKey: 'id',
-        search: true,
         columns: [
           {
             label: 'Name',

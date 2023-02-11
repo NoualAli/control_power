@@ -21,8 +21,14 @@ class FamillyController extends Controller
     public function index()
     {
         $famillies = new Familly();
+
         $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
         $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
+        $filter = request()->has('filter') ? request()->filter : null;
+
+        if ($filter) {
+            $famillies = $famillies->filter($filter);
+        }
 
         if ($order) {
             $famillies = $famillies->orderByMultiple($order);
@@ -30,6 +36,7 @@ class FamillyController extends Controller
         if ($search) {
             $famillies = $famillies->search($search);
         }
+
         if (request()->has('fetchAll')) {
             $famillies = $famillies->orderBy('id', 'ASC')->with(['domains' => fn ($domain) => $domain->with(['processes' => fn ($process) => $process->without('control_points')])])->get()->toArray();
             $famillies = array_map(function ($familly) {
@@ -51,7 +58,8 @@ class FamillyController extends Controller
                 ];
             }, $famillies);
         }
-        $famillies = request()->has('fetchAll') ? $famillies : FamillyResource::collection($famillies->paginate()->onEachSide(1));
+        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $famillies = request()->has('fetchAll') ? $famillies : FamillyResource::collection($famillies->paginate($perPage)->onEachSide(1));
         return $famillies;
     }
 
@@ -72,10 +80,12 @@ class FamillyController extends Controller
                 'status' => true
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
     /**
@@ -110,10 +120,12 @@ class FamillyController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 
@@ -133,10 +145,12 @@ class FamillyController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 }

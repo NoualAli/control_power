@@ -20,8 +20,14 @@ class ProcessController extends Controller
     public function index()
     {
         $processes = new Process();
+
         $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
         $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
+        $filter = request()->has('filter') ? request()->filter : null;
+
+        if ($filter) {
+            $processes = $processes->filter($filter);
+        }
 
         if ($order) {
             $processes = $processes->orderByMultiple($order);
@@ -29,7 +35,8 @@ class ProcessController extends Controller
         if ($search) {
             $processes = $processes->search($search);
         }
-        $processes = request()->has('fetchAll') ? $processes->get()->toJson() : ProcessResource::collection($processes->paginate()->onEachSide(1));
+        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $processes = request()->has('fetchAll') ? $processes->get()->toJson() : ProcessResource::collection($processes->paginate($perPage)->onEachSide(1));
         return $processes;
     }
 
@@ -50,10 +57,12 @@ class ProcessController extends Controller
                 'status' => true
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
     /**
@@ -88,10 +97,12 @@ class ProcessController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 
@@ -111,10 +122,12 @@ class ProcessController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 }

@@ -22,8 +22,14 @@ class DomainController extends Controller
     public function index()
     {
         $domains = new Domain();
+
         $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
         $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
+        $filter = request()->has('filter') ? request()->filter : null;
+
+        if ($filter) {
+            $domains = $domains->filter($filter);
+        }
 
         if ($order) {
             $domains = $domains->orderByMultiple($order);
@@ -31,7 +37,8 @@ class DomainController extends Controller
         if ($search) {
             $domains = $domains->search($search);
         }
-        $domains = request()->has('fetchAll') ? $domains->get()->toJson() : DomainResource::collection($domains->paginate()->onEachSide(1));
+        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $domains = request()->has('fetchAll') ? $domains->get()->toJson() : DomainResource::collection($domains->paginate($perPage)->onEachSide(1));
         return $domains;
     }
 
@@ -52,10 +59,12 @@ class DomainController extends Controller
                 'status' => true
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
     /**
@@ -90,10 +99,12 @@ class DomainController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 
@@ -113,10 +124,12 @@ class DomainController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 }

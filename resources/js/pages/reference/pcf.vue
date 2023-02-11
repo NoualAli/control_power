@@ -42,7 +42,7 @@
         Annuler
       </button>
     </div>
-    <NLDatatable :config="config" :filters="{
+    <NLDatatable namespace="references" :config="config" :filters="{
       familly_id: this.currentFamilly,
       domain_id: this.currentDomain,
       process_id: this.currentProcess
@@ -69,9 +69,6 @@ export default {
       currentProcess: null,
       config: {
         data: null,
-        namespace: 'references',
-        state_key: 'paginated',
-        rowKey: 'id',
         columns: [
           {
             label: 'Famille',

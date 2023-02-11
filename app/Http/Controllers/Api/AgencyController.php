@@ -21,8 +21,14 @@ class AgencyController extends Controller
     {
         isAbleOrAbort(['view_agency', 'create_dre', 'update_dre']);
         $agencies = new Agency();
+
         $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
         $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
+        $filter = request()->has('filter') ? request()->filter : null;
+
+        if ($filter) {
+            $agencies = $agencies->filter($filter);
+        }
 
         if ($order) {
             $agencies = $agencies->orderByMultiple($order);
@@ -30,8 +36,8 @@ class AgencyController extends Controller
         if ($search) {
             $agencies = $agencies->search($search);
         }
-
-        $agencies = request()->has('fetchAll') ? $agencies->get()->toJson() : AgencyResource::collection($agencies->paginate()->onEachSide(1));
+        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $agencies = request()->has('fetchAll') ? $agencies->get()->toJson() : AgencyResource::collection($agencies->paginate($perPage)->onEachSide(1));
         return $agencies;
     }
 
@@ -52,10 +58,12 @@ class AgencyController extends Controller
                 'status' => true
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
     /**
@@ -89,10 +97,12 @@ class AgencyController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 
@@ -112,10 +122,12 @@ class AgencyController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
+            $code = $th->getCode() ?: 500;
+
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ]);
+            ], $code);
         }
     }
 }
