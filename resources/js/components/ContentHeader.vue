@@ -1,8 +1,9 @@
 <template>
   <header class="content-header d-flex justify-between align-center py-5">
-    <h2 class="title">
+    <!-- <h2 class="title" v-if="title">
       {{ title }}
-    </h2>
+    </h2> -->
+    <slot name="title"></slot>
     <div class="actions">
       <slot name="actions"></slot>
     </div>

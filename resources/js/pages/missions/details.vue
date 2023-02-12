@@ -105,6 +105,17 @@
   </ContentBody>
   <div v-can="'view_mission_detail'" v-else>
     <ContentHeader>
+      <template #title>
+        <div class="tags w-90">
+          <span class="tag is-info">{{ details[0].familly.name }}</span>
+          <span class="tag">{{ details[0].domain.name }}</span>
+          <span class="tag is-warning">{{ details[0].process.name }}</span>
+        </div>
+        <!-- <div class="grid">
+          <div class="col-12">
+          </div>
+        </div> -->
+      </template>
       <template #actions>
         <button v-can="'edit_mission,control_agency'" class="btn btn-warning my-6" @click="switchToExeMode()">
           <i class="las la-pen"></i>
@@ -116,13 +127,6 @@
         <div class="col-12" v-for="detail in details" :key="detail.id">
           <div class="box">
             <div class="grid gap-4">
-              <div class="col-12">
-                <div class="tags">
-                  <span class="tag is-info">{{ detail.familly.name }}</span>
-                  <span class="tag">{{ detail.domain.name }}</span>
-                  <span class="tag is-warning">{{ detail.process.name }}</span>
-                </div>
-              </div>
 
               <div class="col-12">
                 <h3>{{ detail.control_point.name }}</h3>
