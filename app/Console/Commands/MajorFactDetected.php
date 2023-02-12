@@ -46,7 +46,7 @@ class MajorFactDetected extends Command
         if ($this->argument('user_id')) {
             $users = User::findOrFail($this->argument('user_id'));
         } else {
-            $users = User::dcp();
+            $users = User::all()->filter(fn ($user) => hasRole(['dcp', 'ig', 'div', 'dg'], $user));
         }
         foreach ($users as $user) {
             $user->notify(new MajorFactDetectedNotification($detail));

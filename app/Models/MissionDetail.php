@@ -102,6 +102,10 @@ class MissionDetail extends Model
     /**
      * Scopes
      */
+    public function scopeOnlyMajorFacts($query)
+    {
+        return $query->where('major_fact', true);
+    }
     public function scopeExecuted($query)
     {
         return $query->where('executed_at', '!=', null);
