@@ -62,7 +62,7 @@
     </div>
 
     <!-- Processes List -->
-    <NLDatatable :config="config" @show="show" @delete="destroy">
+    <NLDatatable namespace="campaigns" stateKey="current" :config="config" @show="show" @delete="destroy">
       <template v-slot:actions="item">
         <button class="btn btn-danger has-icon" @click.stop="detachProcess(item.item)" v-can="'edit_control_campaign'"
           v-if="campaign?.current?.remaining_days_before_start > 5">
@@ -126,9 +126,6 @@ export default {
       rowSelected: null,
       config: {
         data: null,
-        namespace: 'campaigns',
-        state_key: 'current',
-        rowKey: 'id',
         columns: [
           {
             label: "Famille",

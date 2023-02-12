@@ -124,7 +124,7 @@
 
     <!-- Processes List -->
     <div class="d-flex justify-between align-items">
-      <h2>Processus de la mission</h2>
+      <!-- <h2>Processus de la mission</h2> -->
       <div>
         <div v-can="'create_opinion,validate_opinion'" class="create opinion">
           <button class="btn btn-info"
@@ -185,7 +185,8 @@
         </div>
       </div>
     </div>
-    <NLDatatable :config="config" @show="show">
+    <NLDatatable title="Processus de la mission" namespace="missions" stateKey="processes" :config="config"
+      @show="show">
       <template v-slot:actions="item">
         <button class="btn btn-info has-icon" @click.stop="details(item)" v-can="'control_agency'"
           v-if="item.item.progress_status < 100">
