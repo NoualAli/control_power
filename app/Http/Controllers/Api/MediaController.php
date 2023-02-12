@@ -84,9 +84,9 @@ class MediaController extends Controller
 
         if (in_array($extension, IMAGE_TYPES)) {
             $file->move($tmpFolder, $hashName);
-            // $watermark = Image::make(public_path('images/brand.png'))->resize(250, 125);
+            $watermark = Image::make(public_path('images/brand.png'))->resize(250, 125);
             $img = Image::make($tmpPath);
-            // $img = $img->insert($watermark, 'bottom-right', 10, 10);
+            $img = $img->insert($watermark, 'bottom-right', 10, 10);
             $img = $img->save($path, 60);
             $size = $img->filesize();
             File::delete($tmpPath);
