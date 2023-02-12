@@ -57,7 +57,7 @@ class MissionDetail extends Model
     }
     public function getMajorFactStrAttribute()
     {
-        return $this->major_fact ? 'Oui' : 'Non';
+        return $this->major_fact ? '<i class="las la-check-circle text-success text-medium" title="Oui"></i>' : '<i class="las la-times-circle text-danger text-medium" title="Non"></i>';
     }
     /**
      * Relationships

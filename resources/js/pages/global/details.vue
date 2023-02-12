@@ -1,21 +1,23 @@
 <template>
   <ContentBody>
-    <NLDatatable namespace="details" stateKey="global" :config="config" @show="show" />
+    <NLDatatable :searchable="false" namespace="details" stateKey="global" :config="config" @show="show" />
     <NLModal :show="rowSelected" @close="close">
       <template v-slot:title>
-        <small class="tag is-primary-dark text-small">
-          {{ rowSelected?.cdc_reference }}
-        </small>
-        <small class="tag is-primary-extra-light text-small mx-1">
-          {{ rowSelected?.mission_reference }}
-        </small>
-        <small class="tag text-small text-white text-white mx-1"
-          :class="{ 'is-danger': rowSelected?.major_fact_str == 'Oui', 'is-success': rowSelected?.major_fact_str == 'Non' }">
-          Fait majeur: {{ rowSelected?.major_fact_str }}
-        </small>
+        <div class="tags">
+          <small class="tag is-primary-dark text-small">
+            {{ rowSelected?.cdc_reference }}
+          </small>
+          <small class="tag is-primary-extra-light text-small mx-1">
+            {{ rowSelected?.mission_reference }}
+          </small>
+        </div>
       </template>
       <template v-slot>
         <div class="grid gap-6">
+          <div class="col-12">
+            <span class="label">Fait majeur: </span>
+            <span v-html="rowSelected?.major_fact_str"></span>
+          </div>
           <div class="col-12 col-lg-6">
             <span class="label">Dre: </span>
             <span>{{ rowSelected?.dre_full_name }}</span>
@@ -91,7 +93,6 @@
     </NLModal>
   </ContentBody>
 </template>
-
 <script>
 import { mapGetters } from 'vuex';
 export default {
@@ -143,9 +144,14 @@ export default {
           {
             label: 'Fait majeur',
             field: 'major_fact_str',
+            isHtml: true,
             methods: {
-              style() {
-                return 'text-center'
+              showField(item) {
+                return `
+                <div class="text-center">
+                  ${item.major_fact_str}
+                </div>
+                `
               }
             }
           },
