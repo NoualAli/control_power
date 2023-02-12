@@ -65,11 +65,11 @@ async function serverError(response) {
   } else {
     Swal.fire({
       icon: 'error',
-      title: i18n.t('error_alert_title'),
-      text: i18n.t('error_alert_text'),
+      title: 'Oops...',
+      text: 'Quelque chose s\'est mal passé ! Veuillez réessayer.',
       reverseButtons: true,
-      confirmButtonText: i18n.t('ok'),
-      cancelButtonText: i18n.t('cancel')
+      confirmButtonText: 'ok',
+      cancelButtonText: 'Annuler'
     })
   }
 }
