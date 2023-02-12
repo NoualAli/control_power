@@ -357,17 +357,16 @@ export default {
      */
     setupFields(fields) {
       return fields.map(field => {
-        return {
-          type: field[ 0 ].type,
-          label: field[ 1 ].label,
-          name: field[ 2 ].name,
-          length: field[ 3 ].length,
-          style: field[ 4 ].style,
-          id: field[ 5 ].id,
-          placeholder: field[ 6 ].placeholder,
-          help_text: field[ 7 ].help_text,
-          rules: field[ 8 ].rules,
-        }
+        const type = field.hasOwnProperty(0) ? field[ 0 ].type : ''
+        const label = field.hasOwnProperty(1) ? field[ 1 ].label : ''
+        const name = field.hasOwnProperty(2) ? field[ 2 ].name : ''
+        const length = field.hasOwnProperty(3) ? field[ 3 ].length : null
+        const style = field.hasOwnProperty(4) ? field[ 4 ].style : ''
+        const id = field.hasOwnProperty(5) ? field[ 5 ].id : ''
+        const placeholder = field.hasOwnProperty(6) ? field[ 6 ].placeholder : ''
+        const help_text = field.hasOwnProperty(7) ? field[ 7 ].help_text : ''
+        const rules = field.hasOwnProperty(8) ? field[ 8 ].rules : []
+        return { type, label, name, length, style, id, placeholder, help_text, rules }
       })
     },
     /**
