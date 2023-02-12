@@ -28,17 +28,6 @@ class Process extends Model
     /**
      * Getters
      */
-    public function getProgressStatusAttribute()
-    {
-        $totalDetails = $this->details()->count();
-        $totalFinishedDetails = $this->details->filter(fn ($detail) => $detail->score !== null)->count();
-        return number_format($totalFinishedDetails * 100 / $totalDetails);
-    }
-
-    public function getAvgScoreAttribute()
-    {
-        return addZero(intVal($this->details->avg('score')));
-    }
 
     /**
      * Relationships
