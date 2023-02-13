@@ -77,6 +77,10 @@ class MissionController extends Controller
         }
         if (request()->has('onlyProcesses') || request()->has('page')) {
             $processes = $mission->details->pluck('process')->unique('id')->values()->sortBy('familly.id');
+            $search = request()->has('search') ? request()->search : false;
+            if ($search) {
+                $processes = $processes->filter(fn ($processe) => preg_match('/' . strtolower($search) . '/', strtolower($processe->name)));
+            }
             return MissionProcessesResource::collection(paginate($processes, '/api/missions/' . $mission->id));
         }
         $mission = $mission->load(['agency', 'dre', 'controllers', 'campaign' => fn ($campaign) => $campaign->without('processes')])->unsetRelation('reports');
