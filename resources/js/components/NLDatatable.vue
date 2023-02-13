@@ -68,10 +68,10 @@
       </div>
     </div>
     <div class="pagination my-6 grid">
-      <div class="col-12 col-lg-2 d-flex align-center justify-center">
+      <div class="col-12 col-lg-2 d-flex align-center justify-center" v-if="config?.data?.data.length">
         <div class="grid gap-2">
           <div class="col-4">
-            <NLSelect name="per_page" :options="perPageOptions" v-model="appliedPerPage" @change="showMore()" />
+            <NLSelect name="per_page" :options="perPageOptions" v-model="appliedPerPage" @change="showPerPage()" />
           </div>
           <div class="col-8 d-flex align-center justify-center gap-2">
             <span v-if="config.data?.meta?.total || appliedSearch !== ''">
@@ -121,7 +121,7 @@ export default {
     namespace: { type: String, required: true },
     rowKey: { type: String, default: 'id' },
     stateKey: { type: String, default: 'paginated' },
-    config: { type: Object | null, required: true },
+    config: { type: Object | null, required: true, defaul: { data: {}, columns: [] } },
     filters: { type: Object | null, default: null }
   },
   data() {
@@ -348,7 +348,7 @@ export default {
     /**
      * Show more data per page
      */
-    async showMore() {
+    async showPerPage() {
       this.updateState(true)
       // this.appliedSearch = value
       // this.current_page = 1
