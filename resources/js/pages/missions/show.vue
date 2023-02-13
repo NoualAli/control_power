@@ -126,7 +126,7 @@
     <div class="d-flex justify-between align-items">
       <!-- <h2>Processus de la mission</h2> -->
       <div>
-        <div v-can="'create_opinion,validate_opinion'" class="create opinion">
+        <div v-can="'create_opinion,validate_opinion'">
           <button class="btn btn-info"
             v-if="!mission?.current.controller_opinion && !mission?.current.head_of_department_report && mission?.current.progress_status == 100"
             @click="showOpinion" v-can="'create_opinion'">
@@ -149,7 +149,7 @@
           </button>
         </div>
 
-        <div v-can="'create_report,validate_report'" class="create report">
+        <div v-can="'create_report,validate_report'">
           <button class="btn btn-info"
             v-if="mission?.current.progress_status == 100 && !mission?.current.head_of_department_report && mission?.current.controller_opinion?.is_validated"
             @click="showReport">
@@ -172,7 +172,7 @@
           </button>
         </div>
 
-        <div v-can="'create_control_campaign'" class="has role">
+        <div v-can="'create_control_campaign'">
           <button class="btn btn-info"
             v-if="mission?.current.progress_status == 100 && mission?.current.head_of_department_report && mission?.current.head_of_department_report?.is_validated"
             @click="showReport">
