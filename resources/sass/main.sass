@@ -420,10 +420,11 @@ input[type="date"]::-webkit-inner-spin-button,
         // box-shadow: 0 0 5px $success, 0 0 10px $success
     &.todo
         border-color: darken($info, 10)
-        box-shadow: 0 0 5px $info, 0 0 10px $info
+        // box-shadow: 0 0 5px $info, 0 0 10px $info
         &::before
-            width: 50%
-            background-color: $info
+            // width: 50%
+            background-color: $white
+
     &.inProgress
         border-color: darken($info, 10)
         &::before
@@ -431,23 +432,23 @@ input[type="date"]::-webkit-inner-spin-button,
             background-color: $info
     &.done
         border-color: darken($success, 10)
-        box-shadow: 0 0 5px $success, 0 0 10px $success
+        // box-shadow: 0 0 5px $success, 0 0 10px $success
         &::before
             // width: 50%
             background-color: transparent
     &.late
         border-color: darken($danger, 10)
-        box-shadow: 0 0 5px $danger, 0 0 10px $danger
+        // box-shadow: 0 0 5px $danger, 0 0 10px $danger
         &::before
             background-color: $danger
     &.wating-validation
         border-color: darken($success, 10)
-        box-shadow: 0 0 5px $success, 0 0 10px $success
+        // box-shadow: 0 0 5px $success, 0 0 10px $success
         &::before
             width: 50%
             background-color: $success
     &.validated
         border-color: darken($success, 10)
-        box-shadow: 0 0 5px $success, 0 0 10px $success
+        // box-shadow: 0 0 5px $success, 0 0 2px $success
         &::before
             background-color: $success
