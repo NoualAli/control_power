@@ -6,14 +6,14 @@ use App\Traits\HasDates;
 use App\Traits\IsFilterable;
 use App\Traits\IsOrderable;
 use App\Traits\IsSearchable;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 class ControlCampaign extends Model
 {
-    use HasFactory, SoftDeletes, IsSearchable, IsOrderable, IsFilterable, HasDates;
+    use HasFactory, SoftDeletes, IsSearchable, IsOrderable, IsFilterable, HasDates, HasRelationships;
 
     protected $fillable = [
         'description',
@@ -31,9 +31,8 @@ class ControlCampaign extends Model
     ];
 
     public $withCount = ['processes'];
-    // public $with = ['processes'];
 
-    protected $searchable = ['reference'];
+    protected $searchable = ['campaigns.reference'];
 
     protected $filter = 'App\Filters\Campaign';
     protected $filterable = ['reference'];
@@ -56,6 +55,11 @@ class ControlCampaign extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by_id');
+    }
+
+    public function controllers()
+    {
+        return $this->hasManyDeepFromRelations($this->missions(), (new Mission())->controllers());
     }
 
     public function missions()
