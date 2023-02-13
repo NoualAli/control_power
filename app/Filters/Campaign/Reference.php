@@ -9,6 +9,6 @@ class Reference extends QueryFilter implements FilterContract
 {
     public function handle($value): void
     {
-        $this->query->where('reference', 'LIKE', '%' . $value . '%');
+        $this->query->where('control_campaigns.reference', 'LIKE', '%' . $value . '%');
     }
 }
