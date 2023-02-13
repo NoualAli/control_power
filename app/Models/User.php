@@ -127,7 +127,7 @@ class User extends Authenticatable implements JWTSubject
         if (hasRole('cdc')) {
             return $this->hasMany(Mission::class, 'created_by_id');
         } elseif (hasRole('ci')) {
-            return $this->belongsToMany(Mission::class, 'mission_has_controllers', 'user_id');
+            return $this->belongsToMany(Mission::class, 'mission_has_controllers');
         }
     }
 
@@ -135,6 +135,8 @@ class User extends Authenticatable implements JWTSubject
     {
         if (hasRole('dcp')) {
             return $this->hasMany(ControlCampaign::class, 'created_by_id');
+        } elseif (hasRole('ci')) {
+            return $this->hasManyDeepFromRelations($this->missions(), (new Mission())->campaign());
         }
     }
     public function details()
