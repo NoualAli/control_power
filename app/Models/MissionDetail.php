@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\HasMedia;
 use App\Traits\HasUuid;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -102,12 +103,37 @@ class MissionDetail extends Model
     /**
      * Scopes
      */
-    public function scopeOnlyMajorFacts($query)
+    /**
+     * Get only major facts
+     *
+     * @param Builder $query
+     *
+     * @return Builder
+     */
+    public function scopeOnlyMajorFacts(Builder $query)
     {
         return $query->where('major_fact', true);
     }
-    public function scopeExecuted($query)
+    /**
+     * Get validated
+     *
+     * @param Builder $query
+     *
+     * @return Builder
+     */
+    public function scopeValidated(Builder $query)
     {
-        return $query->where('executed_at', '!=', null);
+        return $query->whereNotNull('validated_at');
+    }
+    /**
+     * Get executed
+     *
+     * @param Builder $query
+     *
+     * @return Builder
+     */
+    public function scopeExecuted(Builder $query)
+    {
+        return $query->whereNotNull('executed_at');
     }
 }
