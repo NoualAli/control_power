@@ -25,7 +25,7 @@ class MissionResource extends JsonResource
             'state' => $this->realisation_state,
             'end' => $this->end,
             'start' => $this->start,
-            'controllers_str' => $this->controllers_str,
+            'agency_controllers_str' => $this->agency_controllers_str,
             'remaining_days_before_start' => $this->remaining_days_before_start,
             'progress_status' => $this->progress_status,
             'avg_score' => $this->avg_score
