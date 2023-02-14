@@ -10,6 +10,7 @@ use App\Http\Resources\MissionResource;
 use App\Models\Agency;
 use App\Models\ControlCampaign;
 use App\Models\Mission;
+use App\Notifications\MissionCreatedNotification;
 use Illuminate\Support\Facades\DB;
 
 class MissionController extends Controller
@@ -141,6 +142,10 @@ class MissionController extends Controller
                     ]);
                     $mission->controllers()->attach($data['controllers']);
                     $mission->details()->createMany($controlPoints);
+
+                    foreach ($mission->controllers as $controller) {
+                        $controller->notify(new MissionCreatedNotification($mission, $controller));
+                    }
                 });
             }
 
