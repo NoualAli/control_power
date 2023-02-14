@@ -234,7 +234,12 @@ class ControlCampaignController extends Controller
      */
     public function processes(ControlCampaign $campaign)
     {
-        return ProcessResource::collection($campaign->processes()->paginate(10)->onEachSide(1));
+        $processes = $campaign->processes;
+        $search = request()->has('search') ? request()->search : false;
+        if ($search) {
+            $processes = $processes->filter(fn ($process) => preg_match('/' . strtolower($search) . '/', strtolower($process->name)));
+        }
+        return ProcessResource::collection(paginate($processes, '/api/campaigns/processes/' . $campaign->id));
     }
 
     /**
