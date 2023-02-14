@@ -26,8 +26,7 @@ class ControlCampaignController extends Controller
     public function index()
     {
         isAbleOrAbort(['view_control_campaign', 'create_mission', 'edit_mission']);
-        $campaigns = hasRole(['dcp', 'dg', 'cdrcp', 'cdc']) ? new ControlCampaign() : auth()->user()->campaigns();
-
+        $campaigns = !hasRole(['ci', ['cc']]) ? new ControlCampaign() : auth()->user()->campaigns();
         if (request()->has('order')) {
             foreach (request()->order as $key => $value) {
                 $campaigns = $campaigns->orderBy($key, $value);

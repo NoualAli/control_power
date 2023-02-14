@@ -25,7 +25,7 @@ class MissionDetailController extends Controller
     {
         isAbleOrAbort(['view_mission_detail']);
         try {
-            $details = hasRole(['dcp', 'dg', 'div']) ? (new MissionDetail)->executed() : auth()->user()->details()->executed();
+            $details = !hasRole(['ci', 'cdc']) ? (new MissionDetail)->executed() : auth()->user()->details()->executed();
             $details = hasRole('ig') ? MissionDetail::onlyMajorFacts() : $details;
 
             if (request()->has('campaign_id')) {

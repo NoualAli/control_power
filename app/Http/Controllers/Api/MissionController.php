@@ -24,7 +24,7 @@ class MissionController extends Controller
     {
         isAbleOrAbort(['view_mission']);
         try {
-            $missions = hasRole(['dcp', 'dg', 'div']) ? (new Mission) : auth()->user()->missions();
+            $missions = !hasRole(['ci', 'cdc']) ? (new Mission) : auth()->user()->missions();
 
             if (request()->has('campaign_id')) {
                 $missions = $missions->where('control_campaign_id', request()->campaign_id);
@@ -70,7 +70,7 @@ class MissionController extends Controller
     public function show(Mission $mission)
     {
         isAbleOrAbort('view_mission');
-        $condition = (in_array(auth()->user()->id, $mission->controllers->pluck('id')->toArray()) || $mission->created_by_id == auth()->user()->id || hasRole(['dcp', 'dg']));
+        $condition = (in_array(auth()->user()->id, $mission->agencyControllers->pluck('id')->toArray()) || $mission->created_by_id == auth()->user()->id || hasRole(['dcp', 'dg']));
         abort_if(!$condition, 401, __('unauthorized'));
         if (request()->has('edit')) {
             $condition = $mission->remaining_days_before_start > 5;
@@ -84,7 +84,7 @@ class MissionController extends Controller
             }
             return MissionProcessesResource::collection(paginate($processes, '/api/missions/' . $mission->id));
         }
-        $mission = $mission->load(['agency', 'dre', 'controllers', 'campaign' => fn ($campaign) => $campaign->without('processes')])->unsetRelation('reports');
+        $mission = $mission->load(['agency', 'dre', 'agencyControllers', 'campaign' => fn ($campaign) => $campaign->without('processes')])->unsetRelation('reports');
         return $mission;
     }
 
