@@ -135,10 +135,17 @@ class User extends Authenticatable implements JWTSubject
     {
         if (hasRole('dcp')) {
             return $this->hasMany(ControlCampaign::class, 'created_by_id');
-        } elseif (hasRole('ci')) {
-            return $this->hasManyDeepFromRelations($this->missions(), (new Mission())->campaign());
+        } elseif (hasRole(['ci', 'cc'])) {
+            return ControlCampaign::whereIn('id', function ($query) {
+                $query->select('control_campaigns.id')
+                    ->from('control_campaigns')
+                    ->join('missions', 'missions.control_campaign_id', '=', 'control_campaigns.id')
+                    ->join('mission_has_controllers', 'mission_has_controllers.mission_id', '=', 'missions.id')
+                    ->where('mission_has_controllers.user_id', '=', $this->id);
+            })->groupBy('control_campaigns.id')->distinct();
         }
     }
+    // users -> mission_has_controllers -> missions -> control_campaigns
     public function details()
     {
         if (hasRole('ci')) {
