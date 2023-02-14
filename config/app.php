@@ -82,21 +82,6 @@ return [
 
     'locale' => 'fr',
 
-    'locales' => [
-        'ar' => [
-            'translation' => 'ar',
-            'flag' => 'dz',
-            'title' => 'Arabe',
-            'text-dir' => 'rtl'
-        ],
-        'fr' => [
-            'translation' => 'fr',
-            'flag' => 'fr',
-            'title' => 'Français',
-            'text-dir' => 'ltr'
-        ],
-    ],
-
     /*
     |--------------------------------------------------------------------------
     | Application Fallback Locale
@@ -108,7 +93,7 @@ return [
     |
     */
 
-    'fallback_locale' => 'ar',
+    'fallback_locale' => 'en',
 
     /*
     |--------------------------------------------------------------------------
@@ -137,21 +122,6 @@ return [
     'key' => env('APP_KEY'),
 
     'cipher' => 'AES-256-CBC',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Currency
-    |--------------------------------------------------------------------------
-    |
-    | This key is used by the Wilaya model and should to determine wich suffix to use when showing prices
-    |
-    */
-
-    'currency' => [
-        'sign' => null, // €, $, £...
-        'ar' => 'دج',
-        'fr' => 'dzd',
-    ],
 
     /*
     |--------------------------------------------------------------------------
