@@ -356,7 +356,7 @@ export default {
      * @param {Array} fields
      */
     setupFields(fields) {
-      return fields.map(field => {
+      return fields?.map(field => {
         const type = field.hasOwnProperty(0) ? field[ 0 ].type : ''
         const label = field.hasOwnProperty(1) ? field[ 1 ].label : ''
         const name = field.hasOwnProperty(2) ? field[ 2 ].name : ''
@@ -376,7 +376,7 @@ export default {
      */
     setupScores(scores) {
       if (typeof scores == 'object') {
-        return scores.map(score => {
+        return scores?.map(score => {
           return {
             id: score[ 0 ].score,
             label: score[ 1 ].label
