@@ -237,8 +237,8 @@ class User extends Authenticatable implements JWTSubject
      *
      * @return App\Models\User
      */
-    public function scopeDiv(Builder $query)
+    public function scopeCdrcp(Builder $query)
     {
-        return $this->user('div');
+        return $this->user('cdrcp');
     }
 }

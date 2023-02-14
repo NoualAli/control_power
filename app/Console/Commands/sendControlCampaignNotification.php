@@ -25,7 +25,7 @@ class sendControlCampaignNotification extends Command
      */
     protected $description = 'Send notification for users about a specific control campaign';
 
-    protected $concerned = ['cdc', 'dg', 'div'];
+    protected $concerned = ['cdc', 'dg', 'cdrcp'];
 
     /**
      * Create a new command instance.
