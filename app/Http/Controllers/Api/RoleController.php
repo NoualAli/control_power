@@ -97,6 +97,7 @@ class RoleController extends Controller
             $data = $request->validated();
             $role->update([
                 'name' => $data['name'],
+                'code' => $data['code'],
                 'guard_name' => Auth::getDefaultDriver()
             ]);
 
