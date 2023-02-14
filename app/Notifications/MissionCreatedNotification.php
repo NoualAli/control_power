@@ -3,7 +3,6 @@
 namespace App\Notifications;
 
 use App\Models\Mission;
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -78,8 +77,8 @@ class MissionCreatedNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        $startLine = "\n\rLa mission commence le " . $this->mission->start;
-        $endLine = "\n\rLa mission se termine le " . $this->mission->end;
+        $startLine = "La mission commence le " . $this->mission->start;
+        $endLine = "La mission se termine le " . $this->mission->end;
         return (new MailMessage)
             ->subject($this->getSubject())
             ->line($this->getContent())
