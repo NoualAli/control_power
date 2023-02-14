@@ -60,9 +60,9 @@ class Mission extends Model
         return addZero(intval($this->details->avg('score')));
     }
 
-    public function getControllersStrAttribute()
+    public function getAgencyControllersStrAttribute()
     {
-        return implode(', ', $this->controllers->pluck('full_name')->toArray());
+        return implode(', ', $this->agencyControllers->pluck('full_name')->toArray());
     }
 
     public function getProgressStatusAttribute()
@@ -126,10 +126,16 @@ class Mission extends Model
     /**
      * Relationships
      */
-    public function controllers()
+    public function agencyControllers()
     {
-        return $this->belongsToMany(User::class, 'mission_has_controllers');
+        return $this->belongsToMany(User::class, 'mission_has_controllers')->wherePivot('control_agency', true);
     }
+
+    public function dcpControllers()
+    {
+        return $this->belongsToMany(User::class, 'mission_has_controllers')->wherePivot('control_agency', false);
+    }
+
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by_id');
