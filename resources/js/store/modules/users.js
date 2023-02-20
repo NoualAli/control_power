@@ -20,8 +20,16 @@ export const mutations = {
 }
 
 export const actions = {
-  async fetchAll({ commit }) {
-    const { data } = await api.get('users?fetchAll')
+  async fetchAll({ commit }, filters = null) {
+    let url = 'users?fetchAll'
+    if (filters) {
+      for (const key in filters) {
+        if (Object.hasOwnProperty.call(filters, key)) {
+          url += '&filter[' + key + ']=' + filters[ key ];
+        }
+      }
+    }
+    const { data } = await api.get(url)
     commit('FETCH_ALL', { all: data })
   },
   async fetchByDre({ commit }, dreId) {

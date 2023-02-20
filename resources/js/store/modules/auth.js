@@ -52,6 +52,7 @@ export const actions = {
   async fetchUser({ commit }) {
     try {
       const { data } = await api.get('user')
+      localStorage.setItem("user", JSON.stringify(data))
       localStorage.setItem("authorizations", JSON.stringify(data.authorizations))
       localStorage.setItem("roles", JSON.stringify(data.roles))
       commit(types.FETCH_USER_SUCCESS, { user: data })

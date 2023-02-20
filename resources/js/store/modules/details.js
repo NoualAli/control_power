@@ -6,6 +6,7 @@ export const state = {
   current: null,
   config: null,
   global: null,
+  majorFacts: null,
 }
 
 export const mutations = {
@@ -23,6 +24,9 @@ export const mutations = {
   },
   FETCH_GLOBAL(state, data) {
     state.global = data
+  },
+  FETCH_MAJOR_FACTS(state, data) {
+    state.majorFacts = data
   }
 }
 
@@ -58,9 +62,12 @@ export const actions = {
       console.error(error);
     }
   },
-  async fetchConfig({ commit }, { missionId = null, processId = null }) {
+  async fetchConfig({ commit }, { missionId = null, processId = null, detailId = null }) {
     try {
-      const url = 'missions/details/concerns/config?mission_id=' + missionId + '&process_id=' + processId
+      let url = 'missions/details/concerns/config?mission_id=' + missionId + '&process_id=' + processId
+      if (detailId) {
+        url += '&detail_id=' + detailId
+      }
       const { data } = await api.get(url)
       commit('FETCH_CONFIG', { config: data })
     } catch (error) {
@@ -74,6 +81,14 @@ export const actions = {
     } catch (error) {
       console.error(error);
     }
+  },
+  async fetchMajorFacts({ commit }) {
+    try {
+      const { data } = await api.get('details/major-facts')
+      commit('FETCH_MAJOR_FACTS', { majorFacts: data })
+    } catch (error) {
+      console.error(error);
+    }
   }
 }
 
@@ -82,5 +97,6 @@ export const getters = {
   paginated: state => state.paginated,
   current: state => state.current,
   config: state => state.config,
-  global: state => state.global
+  global: state => state.global,
+  majorFacts: state => state.majorFacts
 }

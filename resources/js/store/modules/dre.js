@@ -19,8 +19,9 @@ export const mutations = {
 }
 
 export const actions = {
-  async fetchAll({ commit }) {
-    const { data } = await api.get('dre?fetchAll')
+  async fetchAll({ commit }, { withAgencies = false }) {
+    const url = withAgencies ? 'dre?fetchAll&withAgencies' : 'dre?fetchAll'
+    const { data } = await api.get(url)
     commit('FETCH_ALL', { all: data })
   },
   async fetchPaginated({ commit }) {
