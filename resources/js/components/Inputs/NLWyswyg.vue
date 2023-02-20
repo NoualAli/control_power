@@ -7,7 +7,7 @@
         :autofocus="autofocus" @ready="quill => editorQuill = quill" :max-length="length"
         :placeholder="placeholder || label" :value="currentValue" :helpText="helpText" />
     </DefaultContainer>
-  </div>
+</div>
 </template>
 
 <script>
@@ -61,6 +61,9 @@ export default {
         [ 'link' ],
       ]
     }
+  },
+  created() {
+    this.currentValue = this.value
   },
   model: {
     prop: "value",

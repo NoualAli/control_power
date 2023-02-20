@@ -2,11 +2,11 @@
   <div class="repeater">
     <h2 class="mb-6" v-if="title">{{ title }}</h2>
     <!-- Repeater row -->
-    <div class="grid my-6 repeater-row" v-for="(item, index) in form[name]" :key="name + '-row-' + index">
+    <div class="grid my-6 form-row" v-for="(item, index) in form[name]" :key="name + '-row-' + index">
       <div class="col-11">
         <div class="grid">
-          <div v-for="(input, id) in rowSchema" :key="name + '-input-' + input.name + '-' + index + '-id'"
-            class="col-12" :class="input.style">
+          <div v-for="(input, id) in rowSchema" :key="name + '-input-' + input.name + '-' + index + '-id'" class="col-12"
+            :class="input.style">
 
             <!-- Defining different inputs -->
             <NLInput :form="form" :label="input.label" :placeholder="input.placeholder" :type="input.type"
@@ -14,10 +14,9 @@
               v-model="form[name][index][id][input.name]" :id="name + '-row-' + index + '-' + input.name"
               v-if="isInput(input.type)" />
 
-            <NLTextarea :form="form" :label="input.label" :placeholder="input.placeholder"
-              :labelRequired="input.required" :name="name + '.' + index + '.' + id + '.' + input.name"
-              v-model="form[name][index][id][input.name]" :id="name + '-row-' + index + '-' + input.name"
-              v-if="input.type == 'textarea'" />
+            <NLTextarea :form="form" :label="input.label" :placeholder="input.placeholder" :labelRequired="input.required"
+              :name="name + '.' + index + '.' + id + '.' + input.name" v-model="form[name][index][id][input.name]"
+              :id="name + '-row-' + index + '-' + input.name" v-if="input.type == 'textarea'" />
 
             <NLWyswyg :form="form" :label="input.label" :placeholder="input.placeholder" :labelRequired="input.required"
               :name="name + '.' + index + '.' + id + '.' + input.name" v-model="form[name][index][id][input.name]"
@@ -46,7 +45,7 @@
         {{ addButtonLabel }}
       </span>
     </div>
-
+    <has-error :form="form" :field="name" class="text-danger mt-5" v-if="form" />
   </div>
 </template>
 

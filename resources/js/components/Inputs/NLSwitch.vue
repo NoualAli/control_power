@@ -30,9 +30,14 @@ export default {
       selected: this.value,
     }
   },
-  updated() {
-    this.selected = this.value;
+  watch: {
+    value(newVal, oldVal) {
+      if (newVal !== oldVal) this.selected = newVal
+    }
   },
+  // updated() {
+  //   this.selected = this.value;
+  // },
   methods: {
     updateValue() {
       this.selected = !this.selected

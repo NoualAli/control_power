@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="input-base-container">
     <label class="form-label" :for="id" :class="{ 'text-danger': form?.errors.has(name), 'is-required': labelRequired }"
       v-if="label">
       {{ $t(label) }}

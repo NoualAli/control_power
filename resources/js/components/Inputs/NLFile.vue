@@ -65,8 +65,13 @@ export default {
       files: [],
     };
   },
+  watch: {
+    value(newVal, oldVal) {
+      if (newVal !== oldVal) this.loadFiles(newVal.join(','))
+    }
+  },
   created() {
-    if (this.value.length) {
+    if (!this.files.length) {
       this.loadFiles(this.value.join(','))
     }
   },
