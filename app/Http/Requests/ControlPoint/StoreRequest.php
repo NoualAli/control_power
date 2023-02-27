@@ -30,6 +30,9 @@ class StoreRequest extends FormRequest
             'familly_id' => ['required', 'exists:famillies,id'],
             'domain_id' => ['required', 'exists:domains,id'],
             'process_id' => ['required', 'exists:processes,id'],
+            'has_major_fact' => ['required', 'boolean'],
+            'major_fact_types' => ['required_if:has_major_fact,true', 'array'],
+            'major_fact_types.*.0.type' => ['required', 'distinct'],
             'scores' => ['nullable', 'array'],
             'scores.*' => ['required', 'array'],
             'scores.*.0.score' => ['required', 'distinct'],
@@ -43,7 +46,7 @@ class StoreRequest extends FormRequest
             'fields.*.4.style' => ['required', 'string', 'max:255'],
             'fields.*.5.id' => ['nullable', 'distinct', 'max:255'],
             'fields.*.6.placeholder' => ['nullable', 'distinct', 'max:255'],
-            'fields.*.7.help_text' => ['nullable', 'distinct', 'max:255'],
+            'fields.*.7.help_text' => ['nullable', 'distinct', 'max:1000'],
             'fields.*.8.rules' => ['required', 'max:255'],
         ];
     }

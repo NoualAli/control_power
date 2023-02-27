@@ -33,8 +33,7 @@
 
               <!-- Dres -->
               <div class="col-12 col-lg-6 col-md-6">
-                <NLSelect :form="form" name="dres" label="Dre" v-model="form.dres" :options="dresList"
-                  :multiple="true" />
+                <NLSelect :form="form" name="dres" label="Dre" v-model="form.dres" :options="dresList" :multiple="true" />
               </div>
 
               <!-- Role -->
@@ -96,27 +95,16 @@ export default {
   layout: 'backend',
   created() {
     this.$store.dispatch('roles/fetchAll').then(() => {
-      this.roles.all.forEach(role => {
-        role = {
-          'id': role.id,
-          'label': role.name
-        }
-        this.rolesList.push(role);
-      });
+      this.rolesList = this.roles.all;
     })
-    this.$store.dispatch('dre/fetchAll').then(() => {
-      this.dres.all.forEach(dre => {
-        dre = {
-          'id': dre.id,
-          'label': dre.name
-        }
-        this.dresList.push(dre);
-      });
+    this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
+      this.dresList = this.dres.all
     })
     this.$store.dispatch('users/fetch', this.$route.params.user).then((result) => {
       this.form.fill(this.user.current)
       this.form.roles = this.user.current.roles.map(item => item.id)
-      this.form.dres = this.user.current.dres.map(item => item.id)
+      console.log(this.user.current);
+      this.form.dres = this.user.current.agencies.map(item => item.id)
     })
   },
   data() {

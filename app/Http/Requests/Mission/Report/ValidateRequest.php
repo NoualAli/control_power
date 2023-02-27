@@ -16,13 +16,13 @@ class ValidateRequest extends FormRequest
         $report = null;
         switch (request()->type) {
             case 'Avis contrôleur':
-                $report = request()->mission->controller_opinion;
+                $report = request()->mission->opinion;
                 break;
             default:
-                $report = request()->mission->head_of_department_report;
+                $report = request()->mission->dre_report;
                 break;
         }
-        return isAbleTo(['validate_opinion', 'validate_report']) && $report->created_by_id == auth()->user()->id;
+        return isAbleTo(['validate_opinion', 'validate_dre_report']) && $report->created_by_id == auth()->user()->id;
     }
 
     /**

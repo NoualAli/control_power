@@ -27,12 +27,27 @@ class FamilliesTableSeeder extends Seeder
             1 => 
             array (
                 'id' => 1,
-                'name' => 'Commerciale',
+                'name' => 'commerciale',
             ),
             2 => 
             array (
+                'id' => 5,
+                'name' => 'Contrôle',
+            ),
+            3 => 
+            array (
                 'id' => 2,
                 'name' => 'Engagement',
+            ),
+            4 => 
+            array (
+                'id' => 4,
+                'name' => 'Finances',
+            ),
+            5 => 
+            array (
+                'id' => 6,
+                'name' => 'Support et administration',
             ),
         ));
         

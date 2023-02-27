@@ -7,6 +7,7 @@ export const state = {
   config: null,
   global: null,
   majorFacts: null,
+  flters: null,
 }
 
 export const mutations = {
@@ -27,6 +28,9 @@ export const mutations = {
   },
   FETCH_MAJOR_FACTS(state, data) {
     state.majorFacts = data
+  },
+  FETCH_FILTERS(state, data) {
+    state.filters = data
   }
 }
 
@@ -74,6 +78,15 @@ export const actions = {
       console.error(error);
     }
   },
+  async fetchFilters({ commit }) {
+    try {
+      let url = 'details/concerns/filters'
+      const { data } = await api.get(url)
+      commit('FETCH_FILTERS', { filters: data })
+    } catch (error) {
+      console.error(error);
+    }
+  },
   async fetchGlobal({ commit }) {
     try {
       const { data } = await api.get('details')
@@ -98,5 +111,6 @@ export const getters = {
   current: state => state.current,
   config: state => state.config,
   global: state => state.global,
-  majorFacts: state => state.majorFacts
+  majorFacts: state => state.majorFacts,
+  filters: state => state.filters,
 }

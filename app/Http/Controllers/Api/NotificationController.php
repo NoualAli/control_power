@@ -4,7 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\NotificationResource;
+use App\Models\MissionDetail;
+use App\Models\User;
+use App\Notifications\MajorFactDetectedNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class NotificationController extends Controller
 {
@@ -15,7 +19,6 @@ class NotificationController extends Controller
      */
     public function index()
     {
-        isAbleOrAbort(['view_mission']);
         try {
             $notifications = auth()->user()->notifications();
 
@@ -39,6 +42,10 @@ class NotificationController extends Controller
             } else {
                 $notifications = NotificationResource::collection($notifications->paginate(10)->onEachSide(1));
             }
+            if (request()->has('withCount')) {
+                $totalUnread = auth()->user()->unreadNotifications()->count();
+                return compact('notifications', 'totalUnread');
+            }
             return $notifications;
         } catch (\Throwable $th) {
             return response()->json([
@@ -55,7 +62,9 @@ class NotificationController extends Controller
     public function update()
     {
         auth()->user()->unreadNotifications->markAsRead();
-        return true;
+        $notifications = auth()->user()->unreadNotifications;
+        $totalUnread = $notifications->count();
+        return compact('notifications', 'totalUnread');
     }
 
     /**
@@ -65,7 +74,7 @@ class NotificationController extends Controller
      */
     public function total_unread_major_facts()
     {
-        return auth()->user()->unreadNotifications->where('type', 'App\Notifications\MajorFactDetectedNotification')->count();
+        return auth()->user()->unreadNotifications()->where('type', 'App\Notifications\MajorFactDetectedNotification')->count();
     }
 
     /**
@@ -75,9 +84,30 @@ class NotificationController extends Controller
      */
     public function read_major_facts()
     {
-        $notifications = auth()->user()->unreadNotifications->where('type', 'App\Notifications\MajorFactDetectedNotification');
+        $notifications = auth()->user()->unreadNotifications()->where('type', 'App\Notifications\MajorFactDetectedNotification');
         foreach ($notifications as $notification) {
             $notification->update(['read_at' => now()]);
+        }
+    }
+
+    public function dispatchMajorFact(MissionDetail $majorFact)
+    {
+        try {
+            $roles = ['ig', 'dg', 'cdrcp', 'der'];
+            $users = User::hasRole($roles);
+            foreach ($users as $user) {
+                $majorFact->update(['major_fact_dispatched_at' => now()]);
+                Notification::send($user, new MajorFactDetectedNotification($majorFact));
+            }
+            return response()->json([
+                'message' => NOTIFICATION_SUCCESS,
+                'status' => true
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage(),
+                'status' => false
+            ], 500);
         }
     }
 }

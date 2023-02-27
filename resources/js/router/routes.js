@@ -482,8 +482,19 @@ export default [
   },
   {
     path: '/missions/:missionId/details/:processId?',
-    name: 'missions-details',
+    name: 'mission-details',
     component: page('missions/details.vue'),
+    meta: {
+      breadcrumb: {
+        parent: 'mission',
+        label: "Détails de la mission"
+      }
+    }
+  },
+  {
+    path: '/missions/:missionId/execute/:processId?',
+    name: 'mission-details-execute',
+    component: page('missions/execute.vue'),
     meta: {
       breadcrumb: {
         parent: 'mission',
@@ -552,7 +563,7 @@ export default [
   {
     path: '/major-facts',
     name: 'major-facts',
-    component: page('major_facts.vue'),
+    component: page('global/major_facts.vue'),
     meta: {
       breadcrumb: {
         label: 'Faits majeurs',

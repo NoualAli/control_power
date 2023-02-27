@@ -68,6 +68,17 @@ class ControlCampaignNotification extends Notification
     public function via($notifiable)
     {
         return ['mail', 'database'];
+        // return ['database'];
+    }
+
+    /**
+     * Get action url
+     *
+     * @return string
+     */
+    private function getUrl(): string
+    {
+        return url('/campaigns/' . $this->campaign->id);
     }
 
     /**
@@ -111,9 +122,7 @@ class ControlCampaignNotification extends Notification
     {
         return [
             'id' => $this->campaign->id,
-            'className' =>  'App\Models\ControlCampaign',
-            'routeName' => 'campaign',
-            'paramNames' => 'campaignId',
+            'url' => $this->getUrl(),
             'content' => $this->content,
             'title' => $this->title,
         ];
@@ -129,9 +138,7 @@ class ControlCampaignNotification extends Notification
     {
         return [
             'id' => $this->campaign->id,
-            'className' =>  'App\Models\ControlCampaign',
-            'routeName' => 'campaign',
-            'paramNames' => 'campaignId',
+            'url' => $this->getUrl(),
             'content' => $this->content,
             'title' => $this->title,
         ];

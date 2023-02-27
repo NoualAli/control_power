@@ -89,22 +89,10 @@ export default {
   }),
   created() {
     this.$store.dispatch('roles/fetchAll').then(() => {
-      this.roles.all.forEach(role => {
-        role = {
-          'id': role.id,
-          'label': role.name
-        }
-        this.rolesList.push(role);
-      });
+      this.rolesList = this.roles.all;
     })
-    this.$store.dispatch('dre/fetchAll').then(() => {
-      this.dres.all.forEach(dre => {
-        dre = {
-          'id': dre.id,
-          'label': dre.name
-        }
-        this.dresList.push(dre);
-      });
+    this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
+      this.dresList = this.dres.all;
     })
   },
   methods: {
@@ -131,6 +119,4 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>

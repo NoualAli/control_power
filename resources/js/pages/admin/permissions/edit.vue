@@ -37,13 +37,7 @@ export default {
   },
   created() {
     this.$store.dispatch('roles/fetchAll').then(() => {
-      this.roles.all.forEach(role => {
-        role = {
-          'id': role.id,
-          'label': role.name
-        }
-        this.rolesList.push(role);
-      });
+      this.rolesList = this.roles.all;
     })
     this.$store.dispatch('permissions/fetch', this.$route.params.permission).then(() => {
       const data = this.permission.current

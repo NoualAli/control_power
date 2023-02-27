@@ -26,8 +26,13 @@ class MissionReportController extends Controller
      */
     public function store(StoreRequest $request, Mission $mission)
     {
+        $data = $request->validated();
+        if ($data['type'] == 'Rapport') {
+            isAbleOrAbort(['create_dre_report', 'validate_dre_report']);
+        } else {
+            isAbleOrAbort(['create_opinion', 'validate_opinion']);
+        }
         try {
-            $data = $request->validated();
             $hasId = isset($data['id']) && !empty($data['id']);
             $report = $hasId ? MissionReport::findOrFail($data['id']) : null;
             $report = DB::transaction(function () use ($data, $mission, $report) {
@@ -53,10 +58,10 @@ class MissionReportController extends Controller
 
                 if ($report->is_validated) {
                     if ($report->type == 'Avis contrôleur') {
-                        $this->notifyUser($mission, $mission->creator);
+                        $this->notifyUsers($mission, $mission->creator);
                     } elseif ($report->type == 'Rapport') {
                         $users = $mission->controllers->push(User::dcp());
-                        $this->notifyUser($mission, $users);
+                        $this->notifyUsers($mission, $users);
                     }
                 }
             });
@@ -83,24 +88,32 @@ class MissionReportController extends Controller
      */
     public function validateReport(ValidateRequest $request, Mission $mission)
     {
+        $data = $request->validated();
         try {
-            $data = $request->validated();
             DB::transaction(function () use ($data, $mission) {
                 $report = null;
-                switch (request()->type) {
+                $type = $data['type'];
+                $column = '';
+                switch ($type) {
                     case 'Avis contrôleur':
-                        $report = request()->mission->controller_opinion;
+                        $report = request()->mission->opinion;
+                        $column = 'executed_at';
                         break;
                     default:
-                        $report = request()->mission->head_of_department_report;
+                        $report = request()->mission->dre_report;
+                        $column = 'validated_at';
                         break;
                 }
                 $report->update(['validated_at' => now()]);
+
+                foreach ($mission->details()->whereNull($column)->get() as $detail) {
+                    $detail->update([$column => now()]);
+                }
+
                 if ($report->type == 'Avis contrôleur') {
                     $this->notifyUsers($mission, $mission->creator);
                 } elseif ($report->type == 'Rapport') {
-                    // $users = $mission->controllers->push(User::dcp());
-                    $users = User::dcp()->merge($mission->controllers);
+                    $users = User::cdcr()->merge($mission->agencyControllers);
                     $this->notifyUsers($mission, $users);
                 }
             });

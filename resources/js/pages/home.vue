@@ -1,11 +1,10 @@
-<template>
-  <div class="grid gap-6" v-if="permissions.show.inProgress">
-    <div class="col-12">
+<template><!-- <div class="grid gap-6" v-if="permissions.show.inProgress"> -->
+  <!-- <div class="col-12">
       <div class="box" v-if="user?.username == 'dg'">
         Monsieur le Directeur Général <span class="text-bold">{{ user.full_name }}</span> 👋
       </div>
-    </div>
-    <!-- <div class="col-12" id="missions_state" v-if="permissions.show.inProgress">
+    </div> -->
+  <!-- <div class="col-12" id="missions_state" v-if="permissions.show.inProgress">
       <h2 class="my-6">État des missions</h2>
       <div class="grid">
         <div class="col-3">
@@ -33,8 +32,8 @@
       </div>
     </div> -->
 
-    <!-- Anomalies -->
-    <!-- <div class="col-12" id="anomalies_block" v-if="permissions.show.inProgress">
+  <!-- Anomalies -->
+  <!-- <div class="col-12" id="anomalies_block" v-if="permissions.show.inProgress">
       <h2 class="my-6">Statistiques anomalies</h2>
       <div class="grid">
         <div class="box col-12 col-lg-6"
@@ -103,8 +102,8 @@
       </div>
     </div> -->
 
-    <!-- Major facts -->
-    <!-- <div class="col-12" id="major_facts_block" v-if="permissions.show.inProgress">
+  <!-- Major facts -->
+  <!-- <div class="col-12" id="major_facts_block" v-if="permissions.show.inProgress">
       <h2 class="my-6">Statistiques faits majeurs</h2>
       <div class="grid">
         <div class="box col-12 col-lg-6"
@@ -172,8 +171,8 @@
         </div>
       </div>
     </div> -->
-  </div>
-  <div class="container no-data my-6 d-flex is-column align-center justify-between" v-else>
+  <!-- </div> -->
+  <div class="container no-data my-6 d-flex is-column align-center justify-between">
     <h1>En cours de développement...</h1>
     <InProgress />
   </div>
@@ -230,13 +229,13 @@ export default {
   },
 
   created() {
-    setTitle('Tableau de bord')
-    this.$store.dispatch('auth/fetchUser')
-    this.$store.dispatch('statistics/fetchMissionsState')
-    this.setMissionsPercentage()
-    this.initPermissions()
-    this.initAnomalies()
-    this.initMajorFacts()
+    // setTitle('Tableau de bord')
+    // this.$store.dispatch('auth/fetchUser')
+    // this.$store.dispatch('statistics/fetchMissionsState')
+    // this.setMissionsPercentage()
+    // this.initPermissions()
+    // this.initAnomalies()
+    // this.initMajorFacts()
   },
   data() {
     return {
@@ -434,7 +433,7 @@ export default {
     },
 
     initPermissions() {
-      this.permissions.show.inProgress = isDcp() || isDG()
+      // this.permissions.show.inProgress = t
 
       this.permissions.show.charts.missions_percentage = isDcp() || isDG()
       this.permissions.show.boxes.missions_state = isDcp() || isDG()

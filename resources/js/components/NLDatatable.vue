@@ -1,14 +1,41 @@
 <template>
   <div class="my-6">
     <div class="table-header grid my-6">
+      <div class="col-12" v-if="filters">
+        <div class="grid gap-2" v-if="showFilters">
+          <div class="col-12 col-lg-4" :class="filter?.cols" v-for="(filter, name) in filters" :key="'filter-' + name"
+            v-if="!filter?.hide">
+            <NLSelect :name="name" :label="filter.label" :options="filter.data" :multiple="filter.multiple"
+              v-model="filter.value" />
+          </div>
+          <div class="col-lg-12">
+            <button class="btn btn-danger has-icon" @click="resetFilter">
+              <i class="las la-backspace icon"></i>
+            </button>
+          </div>
+        </div>
+      </div>
       <div class="col-12 col-lg-4 d-flex align-center">
         <h2 class="title" v-if="title">
           {{ title }}
         </h2>
       </div>
-      <div class="col-12 col-lg-8">
-        <input type="search" class="input" placeholder="Faite votre recherche..." @input="search($event.target.value)"
-          v-if="(searchable && config.data?.meta?.total) || appliedSearch !== ''">
+      <div class="col-12 col-lg-8 d-flex justify-end alin-center gap-2">
+        <!-- <div>_
+                                                                            <button class="btn btn-success has-icon" @click="exportData">
+                                                                              <i class="las la-file-excel icon"></i>
+                                                                              Exporter
+                                                                            </button>
+                                                                          </div> -->
+        <div class="d-flex align-center">
+          <input type="search" class="input m-0" placeholder="Faite votre recherche..."
+            @input="search($event.target.value)" v-if="(searchable && config.data?.meta?.total) || appliedSearch !== ''">
+        </div>
+        <div v-if="(filters && config.data?.meta?.total)">
+          <button class="btn btn-success has-icon" @click="showFilters = !showFilters">
+            <i class="las la-filter icon"></i>
+          </button>
+        </div>
       </div>
     </div>
     <div class="table-container">
@@ -68,7 +95,7 @@
       </div>
     </div>
     <div class="pagination my-6 grid">
-      <div class="col-12 col-lg-2 d-flex align-center justify-center" v-if="config?.data?.data.length">
+      <div class="col-12 col-lg-2 d-flex align-center justify-center" v-if="config?.data?.data?.length">
         <div class="grid gap-2">
           <div class="col-4">
             <NLSelect name="per_page" :options="perPageOptions" v-model="appliedPerPage" @change="showPerPage()" />
@@ -109,9 +136,10 @@
 <script>
 import api from '../plugins/api';
 import NoData from './NoData';
+import { saveAs } from 'file-saver';
 export default {
   name: 'NLDatatable',
-  emits: [ 'openDetails', 'delete', 'show', 'edit' ],
+  emits: [ 'delete', 'show', 'edit' ],
   components: {
     NoData
   },
@@ -122,14 +150,17 @@ export default {
     rowKey: { type: String, default: 'id' },
     stateKey: { type: String, default: 'paginated' },
     config: { type: Object | null, required: true, defaul: { data: {}, columns: [] } },
-    filters: { type: Object | null, default: null }
+    filters: { type: Object | null, default: null },
+    exportable: { type: Boolean, default: true }
   },
   data() {
     return {
       appliedSort: {},
-      appliedFilters: {},
       appliedSearch: '',
       appliedPerPage: 10,
+      filterData: {},
+      export: false,
+      showFilters: false,
       perPageOptions: [
         { id: 10, label: 10 },
         { id: 25, label: 25 },
@@ -153,17 +184,60 @@ export default {
   },
   watch: {
     filters: {
-      handler(value) {
-        this.updateState(true)
-        this.buildUrl()
-        if (value) {
-          this.updateState()
+      handler() {
+        let loadData = []
+        if (this.filters) {
+          for (const key in this.filters) {
+            if (Object.hasOwnProperty.call(this.filters, key)) {
+              loadData.push(this.filters[ key ].value !== null)
+            }
+          }
+        }
+        if (loadData.some(value => value)) {
+          this.updateState(true)
+          this.buildUrl()
+          api.get(this.url).then(response => {
+            this.updateState()
+            this.config.data = response.data
+          }).catch(error => {
+            this.updateState()
+            swal.alert_error(error)
+          })
         }
       },
+      deep: true,
       immediate: true,
     }
   },
   methods: {
+    resetFilter() {
+      this.showFilter = false
+      for (const key in this.filters) {
+        if (Object.hasOwnProperty.call(this.filters, key)) {
+          this.filters[ key ].value = null
+        }
+      }
+    },
+    exportData() {
+      this.export = true
+      this.buildUrl()
+      api.get(this.url, {
+        responseType: 'blob',
+        onDownloadProgress: (progressEvent) => {
+          this.isBusy = true
+          const size = progressEvent.target.getResponseHeader('Content-Length');
+          const loaded = progressEvent.loaded;
+          const progress = Math.round((loaded / size) * 100);
+          swal.loading(progress)
+        }
+      }).then(response => {
+        this.isBusy = false
+        const file = response.data.file
+        const fileName = response.data.fileName
+        saveAs(file, fileName)
+      })
+
+    },
     /**
      * Emit delete event
      *
@@ -271,6 +345,9 @@ export default {
       this.url += 'page=' + currentPage
       this.url += '&search=' + this.appliedSearch
       this.url += '&perPage=' + this.appliedPerPage
+      if (this.export) {
+        this.url += '&export'
+      }
 
       for (const key in this.appliedSort) {
         if (Object.hasOwnProperty.call(this.appliedSort, key)) {
@@ -282,9 +359,9 @@ export default {
       }
       if (this.filters) {
         for (const key in this.filters) {
-          if (this.filters[ key ]) {
+          if (this.filters[ key ].value !== null) {
             if (Object.hasOwnProperty.call(this.filters, key)) {
-              this.url += '&filter[' + key + ']=' + this.filters[ key ]
+              this.url += '&filter[' + key + ']=' + this.filters[ key ].value
             }
           }
         }

@@ -38,6 +38,9 @@ class DreController extends Controller
 
         $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
         $dres = request()->has('fetchAll') ? $dres->get()->toJson() : DreResource::collection($dres->paginate($perPage)->onEachSide(1));
+        if (request()->has('withAgencies')) {
+            $dres = $this->loadWithAgencies();
+        }
         return $dres;
     }
 
@@ -128,5 +131,24 @@ class DreController extends Controller
                 'status' => false
             ], $code);
         }
+    }
+
+    private function loadWithAgencies()
+    {
+        $dre = Dre::orderBy('id', 'ASC')->with('agencies')->get()->toArray();
+        $dre = array_map(function ($dre) {
+            return [
+                'id' => 'd-' . $dre['id'],
+                'label' => $dre['full_name'],
+                'children' => array_map(function ($agency) {
+                    return [
+                        'id' => $agency['id'],
+                        'label' => $agency['full_name'],
+                    ];
+                }, $dre['agencies'])
+            ];
+        }, $dre);
+
+        return $dre;
     }
 }

@@ -25,11 +25,15 @@ class Role extends Model
 
     protected $searchable = ['name', 'code'];
 
-    protected $appends = ['permissions_str'];
+    protected $appends = ['permissions_str', 'full_name'];
 
     /**
      * Getters
      */
+    public function getFullNameAttribute()
+    {
+        return $this->name . ' (' . $this->code . ')';
+    }
     public function getPermissionsStrAttribute()
     {
         $permissions = $this->permissions->pluck('name')->flatten()->toArray();

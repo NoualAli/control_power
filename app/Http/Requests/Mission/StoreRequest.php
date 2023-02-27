@@ -31,7 +31,8 @@ class StoreRequest extends FormRequest
             'start' => ['required', 'date'],
             'end' => ['required', 'date', 'after:start'],
             'control_campaign_id' => ['required', 'exists:control_campaigns,id'],
-            'note' => ['nullable', 'string', 'max:255']
+            'note' => ['nullable', 'string', 'max:255'],
+            'processMode' => ['nullable'],
         ];
     }
 }

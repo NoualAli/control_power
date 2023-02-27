@@ -7,8 +7,12 @@ use App\Http\Requests\User\StoreRequest;
 use App\Http\Requests\User\UpdateUserInfoRequest;
 use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Resources\UserResource;
+use App\Models\Dre;
 use App\Models\User;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -33,7 +37,6 @@ class UserController extends Controller
         $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
         $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
         $filter = request()->has('filter') ? request()->filter : null;
-
         if ($filter) {
             $users = $users->filter($filter);
         }
@@ -44,9 +47,12 @@ class UserController extends Controller
         if ($search) {
             $users = $users->search($search);
         }
-
+        // $users = User::whereId(9)->first();
+        // // $users = [];
+        // $dre = Dre::findOrFail(1);
+        // dd($users->agencies, $users->dres);
         if (request()->has('fetchAll')) {
-            $users = $users->get()->toArray();
+            $users = formatForSelect($users->get()->toArray(), 'full_name');
         } elseif (request()->has('dre_id')) {
             $users = $users->where('dre_id', request()->dre_id)->get();
         } else {
@@ -67,16 +73,19 @@ class UserController extends Controller
     {
         try {
             $data = $request->validated();
-            $data['password'] = Hash::make($data['password']);
-            $user = User::create($data);
-            if (isset($data['dres'])) {
-                $dres = $data['dres'];
-                unset($data['dres']);
-                $user->dres()->sync($dres);
-            }
-            $roles = $data['roles'];
-            unset($data['roles']);
-            $user->roles()->sync($roles);
+            DB::transaction(function () use ($data) {
+                $data['password'] = Hash::make($data['password']);
+                $user = User::create($data);
+                if (isset($data['dres'])) {
+                    $dres = $data['dres'];
+                    $agencies = $this->loadAgencies($dres);
+                    unset($data['dres']);
+                    $user->agencies()->sync($agencies);
+                }
+                $roles = $data['roles'];
+                unset($data['roles']);
+                $user->roles()->sync($roles);
+            });
             return response()->json([
                 'message' => CREATE_SUCCESS,
                 'status' => true,
@@ -100,7 +109,7 @@ class UserController extends Controller
     public function show(User $user)
     {
         isAbleOrAbort('view_user');
-        return response()->json($user);
+        return response()->json($user->load('agencies'));
     }
 
     /**
@@ -114,13 +123,20 @@ class UserController extends Controller
     {
         try {
             $data = $request->validated();
-            $roles = $data['roles'];
-            $dres = $data['dres'];
-            unset($data['roles']);
-            unset($data['dres']);
-            $user->update($data);
-            $user->roles()->sync($roles);
-            $user->dres()->sync($dres);
+            DB::transaction(function () use ($data, $user) {
+                $roles = $data['roles'];
+                unset($data['roles']);
+
+                $user->update($data);
+                $user->roles()->sync($roles);
+
+                if (isset($data['dres'])) {
+                    $dres = $data['dres'];
+                    $agencies = $this->loadAgencies($dres);
+                    unset($data['dres']);
+                    $user->agencies()->sync($agencies);
+                }
+            });
             return response()->json([
                 'message' => UPDATE_SUCCESS,
                 'status' => true
@@ -185,5 +201,23 @@ class UserController extends Controller
                 'status' => false
             ], $code);
         }
+    }
+
+    private function loadAgencies(array $data)
+    {
+        $data = Arr::flatten(array_map(function ($item) {
+            $item = explode('-', $item);
+            $ids = [];
+            if ($item[0] == 'd') {
+                $ids = array_merge(Dre::findOrFail($item[1])->agencies->pluck('id')->toArray(), $ids);
+            } else {
+                $ids = array_merge($ids, [intval($item[0])]);
+            }
+            return $ids;
+        }, $data));
+        $data = Validator::make($data, [
+            '*' => 'exists:agencies,id'
+        ])->validated();
+        return $data;
     }
 }

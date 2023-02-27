@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\Settings\PasswordController;
 use App\Http\Controllers\Api\Settings\ProfileController;
 use App\Http\Controllers\Api\ReferenceController;
+use App\Http\Controllers\Api\RegularizationController;
 use App\Http\Controllers\Api\Settings\SettingController;
 use Illuminate\Support\Facades\Route;
 
@@ -139,8 +140,10 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::get('/', 'index');
         Route::get('/{mission}', 'show');
         Route::put('{mission}', 'update');
+        Route::put('{mission}/assign', 'assignToCC');
         Route::get('/concerns/config', 'config');
         Route::delete('{mission}', 'destroy');
+        Route::post('{mission}/validate/{step}', 'validateMission');
         /**
          * Details
          */
@@ -169,6 +172,11 @@ Route::group(['middleware' => 'auth:api'], function () {
      */
     Route::prefix('details')->controller(MissionDetailController::class)->group(function () {
         Route::get('/', 'index');
+        Route::get('/major-facts', 'majorFacts');
+        Route::get('/concerns/filters', 'filtersData');
+    });
+    Route::prefix('regularize')->controller(RegularizationController::class)->group(function () {
+        Route::post('/{detail}', 'store');
     });
     /**
      * Dre -> agencies
@@ -231,8 +239,10 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::prefix('notifications')->controller(NotificationController::class)->group(function () {
         Route::get('/', 'index');
         Route::put('/', 'update');
-        Route::get('total-unread-major-facts', 'total_unread_major_facts');
+        // Route::get('total-unread-major-facts', 'total_unread_major_facts');
+        Route::get('unreadNotifications', 'unreadNotifications');
         Route::post('read-major-facts', 'read_major_facts');
+        Route::post('major-fact/{majorFact}', 'dispatchMajorFact');
     });
 });
 

@@ -37,7 +37,7 @@ class FamillyController extends Controller
             $famillies = $famillies->search($search);
         }
 
-        if (request()->has('fetchAll')) {
+        if (request()->has('fetchAll') && request()->has('withChildren')) {
             $famillies = $famillies->orderBy('id', 'ASC')->with(['domains' => fn ($domain) => $domain->with(['processes' => fn ($process) => $process->without('control_points')])])->get()->toArray();
             $famillies = array_map(function ($familly) {
                 return [
@@ -57,6 +57,8 @@ class FamillyController extends Controller
                     }, $familly['domains'])
                 ];
             }, $famillies);
+        } elseif (request()->has('fetchAll') && !request()->has('withChildren')) {
+            $famillies = formatForSelect($famillies->get()->toArray());
         }
         $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
         $famillies = request()->has('fetchAll') ? $famillies : FamillyResource::collection($famillies->paginate($perPage)->onEachSide(1));

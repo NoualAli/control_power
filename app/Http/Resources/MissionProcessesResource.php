@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\details;
 use App\Models\MissionDetail;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -16,17 +17,37 @@ class MissionProcessesResource extends JsonResource
     public function toArray($request)
     {
         $processId = $this->id;
-        $missionDetail = MissionDetail::whereRelation('process', 'processes.id', $processId)->whereRelation('mission', 'missions.id', request()->mission->id);
-        return [
+        $details = MissionDetail::whereRelation('process', 'processes.id', $processId)->whereRelation('mission', 'missions.id', request()->mission->id);
+        $totalDetails = $details->count();
+        $detailsCollection = (clone $details)->get();
+        $controlPoints = $detailsCollection->pluck('controlPoint');
+        $data =  [
             'id' => $this->id,
             'familly' => $this->familly->name,
             'domain' => $this->domain->name,
             'name' => $this->name,
-            'controlPoints' => $this->control_points,
-            'control_points_count' => $this->control_points_count,
-            'progress_status' => $this->calculateProgress($missionDetail),
-            'avg_score' => $this->calculateAvgScore($missionDetail),
+            'controlPoints' => $controlPoints,
+            'control_points_count' => $controlPoints->count(),
+            'progress_status' => $this->calculateProgress($detailsCollection, $totalDetails),
+            'avg_score' => $this->calculateAvgScore($details),
+            'executed_at' => $this->executedAt($detailsCollection, $totalDetails),
         ];
+        if (isAbleTo(['process_mission', 'assign_mission_processing'])) $data['processed_at'] = $this->processedAt($detailsCollection, $totalDetails);
+        return $data;
+    }
+
+    private function executedAt($details, $totalDetails)
+    {
+        $totalExecuted = $details->filter(fn ($detail) => $detail->executed_at !== null)->count();
+        $detail = $details->first();
+        return $totalDetails == $totalExecuted ? $detail?->executed_at : '-';
+    }
+
+    private function processedAt($details, $totalDetails)
+    {
+        $totalProcessed = $details->filter(fn ($detail) => $detail->processed_at !== null)->count();
+        $detail = $details->first();
+        return $totalDetails == $totalProcessed ? $detail?->processed_at : '-';
     }
 
     private function calculateAvgScore($details)
@@ -34,10 +55,9 @@ class MissionProcessesResource extends JsonResource
         return addZero(intVal($details->executed()->avg('score')));
     }
 
-    private function calculateProgress($details)
+    private function calculateProgress($details, $totalDetails)
     {
-        $totalDetails = $details->count();
-        $totalFinishedDetails = $details->get()->filter(fn ($detail) => $detail->score !== null)->count();
+        $totalFinishedDetails = $details->filter(fn ($detail) => $detail->score !== null)->count();
         return number_format($totalFinishedDetails * 100 / $totalDetails);
     }
 }

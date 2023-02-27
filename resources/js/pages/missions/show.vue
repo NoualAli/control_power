@@ -57,7 +57,7 @@
               </span>
               <span>
                 {{ mission?.current?.start + ' / ' +
-                mission?.current?.remaining_days_before_start_str }}
+                  mission?.current?.remaining_days_before_start_str }}
               </span>
             </div>
             <div class="col-12">
@@ -66,7 +66,7 @@
               </span>
               <span>
                 {{ mission?.current?.end + ' / ' +
-                mission?.current?.remaining_days_before_end_str }}
+                  mission?.current?.remaining_days_before_end_str }}
               </span>
             </div>
           </div>
@@ -75,11 +75,11 @@
           <div class="grid gap-6">
             <div class="col-12">
               <span class="text-bold">
-                Contrôleurs:
+                Contrôleurs dre:
               </span>
               <span>
                 <ul class="d-inline-block ml-6">
-                  <li v-for="controller in mission?.current?.controllers" :key="'controller-' + controller.id">
+                  <li v-for="controller in mission?.current?.agency_controllers" :key="'dre_controller-' + controller.id">
                     {{ controller.full_name }}
                   </li>
                 </ul>
@@ -87,28 +87,40 @@
             </div>
             <div class="col-12">
               <span class="text-bold">
-                Progression:
+                Contrôleurs dcp:
               </span>
               <span>
-                {{ mission?.current?.progress_status }}%
-              </span>
-            </div>
-            <div class="col-12">
-              <span class="text-bold">
-                Statut:
-              </span>
-              <span>
-                {{ mission?.current?.realisation_state }}
+                <ul class="d-inline-block ml-6">
+                  <li v-for="controller in mission?.current?.dcp_controllers" :key="'dcp-controller-' + controller.id">
+                    {{ controller.full_name }}
+                  </li>
+                </ul>
               </span>
             </div>
           </div>
         </div>
-        <div class="col-12">
+        <div class="col-12 col-lg-4">
           <span class="text-bold">
             Moyenne:
           </span>
           <span>
             {{ mission?.current?.avg_score }}
+          </span>
+        </div>
+        <div class="col-12 col-lg-4">
+          <span class="text-bold">
+            Progression:
+          </span>
+          <span>
+            {{ mission?.current?.progress_status }}%
+          </span>
+        </div>
+        <div class="col-12 col-lg-4">
+          <span class="text-bold">
+            Statut:
+          </span>
+          <span>
+            {{ mission?.current?.realisation_state }}
           </span>
         </div>
         <div class="col-12">
@@ -122,78 +134,90 @@
       </div>
     </div>
 
-    <!-- Processes List -->
-    <div class="d-flex justify-between align-items">
-      <!-- <h2>Processus de la mission</h2> -->
-      <div>
-        <div v-can="'create_opinion,validate_opinion'">
-          <button class="btn btn-info"
-            v-if="!mission?.current.controller_opinion && !mission?.current.head_of_department_report && mission?.current.progress_status == 100"
-            @click="showOpinion" v-can="'create_opinion'">
-            Ajouter votre avis
-          </button>
-          <button class="btn btn-info"
-            v-if="mission?.current.progress_status == 100 && mission?.current.head_of_department_report && mission?.current.head_of_department_report?.is_validated"
-            @click="showReport" v-can="'create_opinion'">
-            Rapport de la mission
-          </button>
-          <button class="btn btn-info"
-            v-if="mission?.current.controller_opinion && mission?.current.progress_status == 100" @click="showOpinion"
-            v-can="'create_opinion'">
-            Votre avis
-          </button>
-          <button class="btn btn-success"
-            v-if="mission?.current.progress_status == 100 && !mission?.current.controller_opinion?.is_validated && mission?.current.controller_opinion"
-            @click.prevent="validateOpinion" v-can="'validate_opinion'">
-            Valider la mission
-          </button>
-        </div>
+    <!-- Actions -->
+    <div class="d-flex align-items">
+      <!-- CDC -->
+      <div v-can="'create_dre_report'">
+        <!-- Report actions -->
+        <button class="btn btn-info"
+          v-if="mission?.current.progress_status == 100 && !mission?.current.dre_report && mission?.current.opinion?.is_validated"
+          @click="showReport">
+          Ajouter votre rapport
+        </button>
+        <button class="btn btn-success"
+          v-if="mission?.current.progress_status == 100 && mission?.current.opinion?.is_validated && !mission?.current.dre_report?.is_validated && mission?.current.dre_report"
+          @click.prevent="validateReport">
+          Valider la mission
+        </button>
 
-        <div v-can="'create_report,validate_report'">
-          <button class="btn btn-info"
-            v-if="mission?.current.progress_status == 100 && !mission?.current.head_of_department_report && mission?.current.controller_opinion?.is_validated"
-            @click="showReport">
-            Ajouter votre rapport
-          </button>
-          <button class="btn btn-info"
-            v-if="mission?.current.progress_status == 100 && mission?.current.head_of_department_report && mission?.current.controller_opinion?.is_validated"
-            @click="showReport">
-            Votre rapport
-          </button>
-          <button class="btn btn-info"
-            v-if="mission?.current.progress_status == 100 && mission?.current.controller_opinion?.is_validated"
-            @click="showOpinion">
-            Avis du contrôleur
-          </button>
-          <button class="btn btn-success"
-            v-if="mission?.current.progress_status == 100 && mission?.current.controller_opinion?.is_validated && !mission?.current.head_of_department_report?.is_validated && mission?.current.head_of_department_report"
-            @click.prevent="validateReport">
-            Valider la mission
-          </button>
-        </div>
+        <!-- Read actions -->
+        <button class="btn btn-info" v-if="mission?.current.dre_report" @click="showReport" v-can="'create_dre_report'">
+          Rapport de la mission
+        </button>
+        <button class="btn btn-info" v-if="mission?.current.opinion?.is_validated" @click="showOpinion"
+          v-can="'view_opinion'">
+          Avis sur la mission
+        </button>
+      </div>
 
-        <div v-can="'create_control_campaign'">
-          <button class="btn btn-info"
-            v-if="mission?.current.progress_status == 100 && mission?.current.head_of_department_report && mission?.current.head_of_department_report?.is_validated"
-            @click="showReport">
-            Rapport de la mission
-          </button>
-          <button class="btn btn-info"
-            v-if="mission?.current.controller_opinion && mission?.current.progress_status == 100" @click="showOpinion">
-            Avis du contrôleur
-          </button>
-        </div>
+      <!-- CI -->
+      <div v-can="'create_opinion'">
+        <button class="btn btn-info"
+          v-if="!mission?.current.controller_opinion_exist && !mission?.dre_report_exist && mission?.current.progress_status == 100"
+          @click="showOpinion" v-can="'create_opinion'">
+          Ajouter votre avis
+        </button>
+        <button class="btn btn-success"
+          v-if="mission?.current.progress_status == 100 && !mission?.current.controller_opinion_validated && mission?.controller_opinion_exist"
+          @click.prevent="validateOpinion" v-can="'validate_opinion'">
+          Valider la mission
+        </button>
+        <button class="btn btn-info" v-if="mission?.controller_opinion_exist" @click="showOpinion"
+          v-can="'validate_opinion'">
+          Avis sur la mission
+        </button>
+      </div>
+
+      <!-- CDCR -->
+      <div v-can="'make_first_validation'">
+        <button class="btn btn-success" v-if="!mission?.current.cdcr_validation_at" @click.prevent="validateMission(1)"
+          v-can="'make_first_validation'">
+          Valider la mission
+        </button>
+        <button class="btn btn-success" v-if="!mission?.current.cdcr_validation_at" @click.prevent="showDispatchForm"
+          v-can="'assign_mission_processing'">
+          Assigné
+        </button>
+        <button class="btn btn-info" v-if="mission?.current.dre_report?.is_validated" @click="showReport"
+          v-can="'make_first_validation'">
+          Rapport de la mission
+        </button>
+      </div>
+
+      <!-- DCP -->
+      <div v-can="'make_second_validation'">
+        <button class="btn btn-success" v-if="mission?.current.cdcr_validation_at && !mission?.current.dcp_validation_at"
+          @click.prevent="validateMission(2)" v-can="'make_second_validation'">
+          Valider la mission
+        </button>
+        <button class="btn btn-info" v-if="mission?.current.cdcr_validation_at" @click="showReport"
+          v-can="'make_second_validation'">
+          Rapport de la mission
+        </button>
+      </div>
+      <div v-has-role="'dg,cdrcp,da,cc'">
+        <button class="btn btn-info" v-if="mission?.current.cdcr_validation_at" @click="showReport">
+          Rapport de la mission
+        </button>
       </div>
     </div>
-    <NLDatatable title="Processus de la mission" namespace="missions" stateKey="processes" :config="config"
-      @show="show">
+
+    <!-- Processes List -->
+    <NLDatatable title="Processus de la mission" namespace="missions" stateKey="processes" :config="config" @show="show">
       <template v-slot:actions="item">
-        <button class="btn btn-info has-icon" @click.stop="details(item)" v-can="'control_agency'"
-          v-if="item.item.progress_status < 100">
-          <i class="las la-tasks icon"></i>
-        </button>
-        <button class="btn btn-info has-icon" @click.stop="details(item)" v-can="'view_mission_detail'" v-else>
-          <i class="las la-list-alt icon"></i>
+        <button class="btn btn-info has-icon" @click.stop="details(item)" v-can="'control_agency,view_mission_detail'">
+          <i class="las la-tasks icon" v-if="item.item.progress_status < 100 && !mission?.current.opinion"></i>
+          <i class="las la-list-alt icon" v-else></i>
         </button>
       </template>
     </NLDatatable>
@@ -243,11 +267,11 @@
       </template>
       <template v-slot>
         <form @submit.prevent="saveOpinion" @keydown="forms.opinion.onKeydown($event)"
-          v-if="!mission?.current.controller_opinion || forms.opinion.edit_mode">
+          v-if="!mission?.current.opinion || forms.opinion.edit_mode">
           <div class="grid">
             <div class="col-12">
-              <NLWyswyg :name="'opinion'" v-model="forms.opinion.opinion" :form="forms.opinion"
-                label="Avis du contrôleur" labelRequired />
+              <NLWyswyg :name="'opinion'" v-model="forms.opinion.opinion" :form="forms.opinion" label="Avis du contrôleur"
+                labelRequired />
             </div>
             <div class="col-12">
               <NLCheckbox name="validated" :form="forms.opinion" label="Validé la mission"
@@ -260,21 +284,21 @@
           </div>
         </form>
         <div class="grid" v-else>
-          <div class="col-12" v-html="mission?.current.controller_opinion.content"></div>
-          <div class="col-12" v-if="mission?.current.controller_opinion?.is_validated">
-            <b>Validé le:</b> <time>{{ mission?.current.controller_opinion.validated_at }}</time>
+          <div class="col-12" v-html="mission?.current.opinion.content"></div>
+          <div class="col-12" v-if="mission?.current.opinion?.is_validated">
+            <b>Validé le:</b> <time>{{ mission?.current.opinion.validated_at }}</time>
           </div>
         </div>
       </template>
       <template #footer>
         <button class="btn btn-success has-icon" @click.prevent="validateOpinion"
-          v-if="!mission?.current.controller_opinion?.is_validated && mission?.current.controller_opinion && !forms.opinion.edit_mode"
+          v-if="!mission?.current.opinion?.is_validated && mission?.current.opinion && !forms.opinion.edit_mode"
           v-can="'create_opinion'">
           <i class="las la-check-circle icon"></i>
           Valider la mission
         </button>
         <button class="btn btn-warning has-icon" @click.prevent="enableEdition('opinion')"
-          v-if="!mission?.current.controller_opinion?.is_validated && mission?.current.controller_opinion && !forms.opinion.edit_mode"
+          v-if="!mission?.current.opinion?.is_validated && mission?.current.opinion && !forms.opinion.edit_mode"
           v-can="'create_opinion'">
           <i class="las la-edit icon"></i>
           Editer l'avis
@@ -289,7 +313,7 @@
       </template>
       <template v-slot>
         <form @submit.prevent="saveReport" @keydown="forms.report.onKeydown($event)"
-          v-if="!mission?.current.head_of_department_report || forms.report.edit_mode">
+          v-if="!mission?.current.dre_report || forms.report.edit_mode">
           <div class="grid">
             <div class="col-12">
               <NLWyswyg :name="'report'" v-model="forms.report.report" :form="forms.report"
@@ -306,25 +330,47 @@
           </div>
         </form>
         <div class="grid" v-else>
-          <div class="col-12" v-html="mission?.current.head_of_department_report.content"></div>
-          <div class="col-12" v-if="mission?.current.head_of_department_report?.is_validated">
-            <b>Validé le:</b> <time>{{ mission?.current.head_of_department_report.validated_at }}</time>
+          <div class="col-12" v-html="mission?.current.dre_report.content"></div>
+          <div class="col-12" v-if="mission?.current.dre_report?.is_validated">
+            <b>Validé le:</b> <time>{{ mission?.current.dre_report.validated_at }}</time>
           </div>
         </div>
       </template>
       <template #footer>
         <button class="btn btn-success has-icon" @click.prevent="validateReport"
-          v-if="!mission?.current.head_of_department_report?.is_validated && mission?.current.head_of_department_report && !forms.report.edit_mode"
-          v-can="'create_report'">
+          v-if="mission?.current.opinion?.is_validated && mission?.current.dre_report && !mission?.current.dre_report?.is_validated && !forms.report.edit_mode"
+          v-can="'validate_dre_report'">
           <i class="las la-check-circle icon"></i>
           Valider la mission
         </button>
         <button class="btn btn-warning has-icon" @click.prevent="enableEdition('report')"
-          v-if="!mission?.current.head_of_department_report?.is_validated && mission?.current.head_of_department_report && !forms.report.edit_mode"
-          v-can="'create_report'">
+          v-if="mission?.current.opinion?.is_validated && mission?.current.dre_report && !mission?.current.dre_report?.is_validated && !forms.report.edit_mode"
+          v-can="'create_dre_report'">
           <i class="las la-edit icon"></i>
           Editer le rapport
         </button>
+      </template>
+    </NLModal>
+
+    <!-- Assign mission processing -->
+    <NLModal :show="modals.dispatch" @close="modals.dispatch = false">
+      <template v-slot:title>
+        <h2>Assigné le traitement de la mission</h2>
+      </template>
+      <template v-slot>
+        <form @submit.prevent="dispatchMission" @keydown="forms.dispatch.onKeydown($event)">
+          <div class="grid">
+            <div class="col-12">
+              <NLSelect name="controllers" v-model="forms.dispatch.controllers" :form="forms.dispatch"
+                :options="controllersList" label="Contrôleurs" placeholder="Choisissez un ou plusieurs contrôleurs"
+                multiple labelRequired />
+            </div>
+          </div>
+          <!-- Submit Button -->
+          <div class="d-flex justify-end align-center">
+            <NLButton :loading="forms.dispatch.busy" label="Save" />
+          </div>
+        </form>
       </template>
     </NLModal>
   </ContentBody>
@@ -343,6 +389,7 @@ export default {
   },
   data() {
     return {
+      controllersList: [],
       rowSelected: null,
       config: {
         data: null,
@@ -393,6 +440,15 @@ export default {
               }
             }
           },
+          {
+            label: "Date d\'exécution",
+            field: 'executed_at',
+          },
+          {
+            label: "Date de traitement",
+            field: 'processed_at',
+            hide: !(this.currentUser?.authorizations.process_mission || this.currentUser?.authorizations.assign_mission_processing || this.currentUser?.authorizations.create_control_campaign)
+          }
         ],
         actions: {
           show: true,
@@ -401,6 +457,7 @@ export default {
       modals: {
         opinion: false,
         report: false,
+        dispatch: false,
       },
       forms: {
         opinion: new Form({
@@ -417,13 +474,16 @@ export default {
           validated: false,
           edit_mode: true,
         }),
+        dispatch: new Form({
+          controllers: null,
+        }),
         validations: {
           opinion: new Form({
             type: 'Avis contrôleur'
           }),
           report: new Form({
             type: 'Rapport'
-          })
+          }),
         }
       }
     }
@@ -434,9 +494,13 @@ export default {
     }
   },
   computed: {
+    currentUser() {
+      return localStorage.getItem('user')
+    },
     ...mapGetters({
       mission: 'missions/current',
-      processes: 'missions/processes'
+      processes: 'missions/processes',
+      users: 'users/all'
     }),
   },
 
@@ -445,11 +509,46 @@ export default {
   },
 
   methods: {
+    validateMission(step) {
+      swal.confirm({ title: 'Mission ' + this.mission.current.reference, message: 'Vous êtes sur de vouloir valider la mission ' + this.mission.current.reference }).then(action => {
+        if (action.isConfirmed) {
+          api.post('missions/' + this.mission.current.id + '/validate/' + step).then(response => {
+            swal.toast_success(response.data.message)
+            this.initData()
+          }).catch(error => {
+            console.log(error);
+          })
+        }
+      })
+    },
     /**
-     * Affiche l'avis du contrôleur
+     * Assigne le traitement de la mission
      */
-    showReport() {
-      this.modals.report = true
+    dispatchMission() {
+      this.forms.dispatch.put('/api/missions/' + this.mission.current.id + '/assign').then(response => {
+        if (response.data.status) {
+          swal.toast_success(response.data.message)
+          this.forms.dispatch.reset()
+          this.initData()
+        } else {
+          swal.alert_error(response.data.message)
+        }
+      }).catch(error => {
+        console.log(error);
+      })
+    },
+    /**
+     * Affiche le formulaire d'assignation du traitement de la mission
+     */
+    showDispatchForm() {
+      let filters = {
+        roles_codes: 'cc'
+      }
+      this.$store.dispatch('users/fetchAll', filters).then(() => {
+        this.controllersList = this.users.all
+        this.forms.dispatch.controllers = this.mission.current.dcp_controllers.map(controller => controller.id);
+        this.modals.dispatch = true
+      })
     },
     /**
      * Enregistre l'avis du contrôleur
@@ -471,7 +570,7 @@ export default {
      * Valide l'avis du contrôleur
      */
     validateReport() {
-      swal.confirm_update().then((action) => {
+      swal.confirm({ title: 'Mission ' + this.mission.current.reference, message: 'Vous êtes sur de vouloir valider la mission ' + this.mission.current.reference }).then((action) => {
         if (action.isConfirmed) {
           this.forms.validations.report.put('/api/missions/reports/' + this.mission.current.id).then(response => {
             if (response.data.status) {
@@ -485,6 +584,12 @@ export default {
           })
         }
       })
+    },
+    /**
+     * Affiche le rapport de la mission
+     */
+    showReport() {
+      this.modals.report = true
     },
     /**
      * Affiche l'avis du contrôleur
@@ -512,7 +617,7 @@ export default {
      * Valide l'avis du contrôleur
      */
     validateOpinion() {
-      swal.confirm_update().then((action) => {
+      swal.confirm({ title: 'Mission ' + this.mission.current.reference, message: 'Vous êtes sur de vouloir valider la mission ' + this.mission.current.reference }).then((action) => {
         if (action.isConfirmed) {
           this.forms.validations.opinion.put('/api/missions/reports/' + this.mission.current.id).then(response => {
             if (response.data.status) {
@@ -535,12 +640,12 @@ export default {
     enableEdition(type) {
       if (type == 'opinion') {
         this.forms.opinion.edit_mode = true
-        this.forms.opinion.opinion = this.mission.current.controller_opinion.content
-        this.forms.opinion.id = this.mission.current.controller_opinion.id
+        this.forms.opinion.opinion = this.mission.current.opinion.content
+        this.forms.opinion.id = this.mission.current.opinion.id
       } else if (type == 'report') {
         this.forms.report.edit_mode = true
-        this.forms.report.report = this.mission.current.head_of_department_report.content
-        this.forms.report.id = this.mission.current.head_of_department_report.id
+        this.forms.report.report = this.mission.current.dre_report.content
+        this.forms.report.id = this.mission.current.dre_report.id
       }
     },
     /**
@@ -552,6 +657,7 @@ export default {
       this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId, onlyProcesses: true }).then(() => this.config.data = this.processes.processes)
       this.forms.opinion.edit_mode = false
       this.forms.report.edit_mode = false
+      this.modals.dispatch = false
     },
     /**
      * Redérige vers la page des détails de la mission
@@ -560,7 +666,11 @@ export default {
      */
     details(item) {
       item = item?.item?.id ? item.item : item
-      this.$router.push({ name: "missions-details", params: { missionId: this.mission.current.id, processId: item.id } })
+      let name = 'mission-details'
+      if (item.progress_status < 100 && !this.mission?.current.opinion) {
+        name = 'mission-details-execute'
+      }
+      this.$router.push({ name, params: { missionId: this.mission.current.id, processId: item.id } })
     },
     /**
      * Supprime la mission

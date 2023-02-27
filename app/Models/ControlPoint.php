@@ -20,6 +20,8 @@ class ControlPoint extends Model
         'process_id',
         'scores',
         'fields',
+        'has_major_fact',
+        'major_fact_types',
     ];
 
     public $timestamps = false;
@@ -31,8 +33,10 @@ class ControlPoint extends Model
     protected $appends = ['scores_str'];
 
     public $casts = [
+        'has_major_fact' => 'boolean',
         'scores' => 'object',
         'fields' => 'object',
+        'major_fact_types' => 'object'
     ];
 
     /**

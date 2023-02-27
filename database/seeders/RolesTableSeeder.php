@@ -21,66 +21,94 @@ class RolesTableSeeder extends Seeder
         \DB::table('roles')->insert(array (
             0 => 
             array (
-                'code' => 'root',
-                'guard_name' => 'api',
                 'id' => 1,
                 'name' => 'root',
+                'code' => 'root',
+                'guard_name' => 'api',
             ),
             1 => 
             array (
-                'code' => 'dg',
-                'guard_name' => 'api',
                 'id' => 2,
                 'name' => 'Directeur général',
+                'code' => 'dg',
+                'guard_name' => 'api',
             ),
             2 => 
             array (
-                'code' => 'dcp',
-                'guard_name' => 'api',
                 'id' => 3,
                 'name' => 'Directeur du contrôle permanant',
+                'code' => 'dcp',
+                'guard_name' => 'api',
             ),
             3 => 
             array (
-                'code' => 'cdr',
-                'guard_name' => 'api',
                 'id' => 4,
-                'name' => 'Chef département réseau',
+            'name' => 'chef de département de contrôle réseau (DCP)',
+                'code' => 'cdcr',
+                'guard_name' => 'api',
             ),
             4 => 
             array (
+                'id' => 5,
+            'name' => 'Chef de département de contrôle (DRE)',
                 'code' => 'cdc',
                 'guard_name' => 'api',
-                'id' => 5,
-                'name' => 'Chef de département contrôle',
             ),
             5 => 
             array (
-                'code' => 'ci',
-                'guard_name' => 'api',
                 'id' => 6,
                 'name' => 'controlleur itinérant',
+                'code' => 'ci',
+                'guard_name' => 'api',
             ),
             6 => 
             array (
-                'code' => 'admin',
-                'guard_name' => 'api',
                 'id' => 7,
                 'name' => 'admin',
+                'code' => 'admin',
+                'guard_name' => 'api',
             ),
             7 => 
             array (
-                'code' => 'div',
-                'guard_name' => 'api',
                 'id' => 8,
-                'name' => 'divisionnaire',
+                'name' => 'Chef division des risques et du contrôle permanent',
+                'code' => 'cdrcp',
+                'guard_name' => 'api',
             ),
             8 => 
             array (
-                'code' => 'ig',
-                'guard_name' => 'api',
                 'id' => 9,
                 'name' => 'Inspecteur général',
+                'code' => 'ig',
+                'guard_name' => 'api',
+            ),
+            9 => 
+            array (
+                'id' => 10,
+                'name' => 'Contrôleur central',
+                'code' => 'cc',
+                'guard_name' => 'api',
+            ),
+            10 => 
+            array (
+                'id' => 11,
+                'name' => 'Directeur d\'agence',
+                'code' => 'da',
+                'guard_name' => 'api',
+            ),
+            11 => 
+            array (
+                'id' => 12,
+                'name' => 'Direction encadrement réseau',
+                'code' => 'der',
+                'guard_name' => 'api',
+            ),
+            12 => 
+            array (
+                'id' => 13,
+                'name' => 'Direction réseau exploitation',
+                'code' => 'dre',
+                'guard_name' => 'api',
             ),
         ));
         

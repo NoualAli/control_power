@@ -6,6 +6,7 @@ use App\Models\ControlCampaign;
 use App\Models\User;
 use App\Notifications\ControlCampaignNotification;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Notification;
 
 class sendControlCampaignNotification extends Command
 {
@@ -25,7 +26,7 @@ class sendControlCampaignNotification extends Command
      */
     protected $description = 'Send notification for users about a specific control campaign';
 
-    protected $concerned = ['cdc', 'dg', 'cdrcp'];
+    protected $concerned = ['cdc', 'dg', 'cdrcp', 'der', 'dre', 'ig'];
 
     /**
      * Create a new command instance.
@@ -45,18 +46,21 @@ class sendControlCampaignNotification extends Command
     public function handle()
     {
         try {
-            $users = User::all()->filter(fn ($user) => hasRole($this->concerned, $user));
+            $users = User::hasRole($this->concerned);
+            dd($users);
             if ($this->argument('id')) {
                 $campaign =  ControlCampaign::find($this->argument('id'));
                 $created = boolval($this->argument('created'));
                 foreach ($users as $user) {
-                    $user->notify(new ControlCampaignNotification($campaign, $created));
+                    // $user->notify(new ControlCampaignNotification($campaign, $created));
+                    Notification::send($user, new ControlCampaignNotification($campaign));
                 }
             } else {
                 $campaigns =  ControlCampaign::all()->filter(fn ($campaign) => $campaign->remaining_days_before_start <= 5);
                 foreach ($campaigns as $campaign) {
                     foreach ($users as $user) {
-                        $user->notify(new ControlCampaignNotification($campaign));
+                        Notification::send($user, new ControlCampaignNotification($campaign));
+                        // $user->notify(new ControlCampaignNotification($campaign));
                     }
                 }
             }

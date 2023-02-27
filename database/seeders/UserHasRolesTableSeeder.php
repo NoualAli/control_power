@@ -31,52 +31,52 @@ class UserHasRolesTableSeeder extends Seeder
             ),
             2 => 
             array (
-                'role_id' => 5,
+                'role_id' => 2,
                 'user_id' => 4,
             ),
             3 => 
             array (
-                'role_id' => 6,
-                'user_id' => 5,
+                'role_id' => 8,
+                'user_id' => 3,
             ),
             4 => 
             array (
-                'role_id' => 6,
-                'user_id' => 6,
+                'role_id' => 5,
+                'user_id' => 5,
             ),
             5 => 
             array (
-                'role_id' => 2,
-                'user_id' => 7,
+                'role_id' => 5,
+                'user_id' => 6,
             ),
             6 => 
             array (
                 'role_id' => 5,
-                'user_id' => 8,
+                'user_id' => 7,
             ),
             7 => 
             array (
-                'role_id' => 2,
-                'user_id' => 3,
+                'role_id' => 5,
+                'user_id' => 8,
             ),
             8 => 
             array (
-                'role_id' => 5,
+                'role_id' => 6,
                 'user_id' => 9,
             ),
             9 => 
             array (
-                'role_id' => 5,
+                'role_id' => 6,
                 'user_id' => 10,
             ),
             10 => 
             array (
-                'role_id' => 5,
+                'role_id' => 6,
                 'user_id' => 11,
             ),
             11 => 
             array (
-                'role_id' => 5,
+                'role_id' => 6,
                 'user_id' => 12,
             ),
             12 => 
@@ -91,7 +91,7 @@ class UserHasRolesTableSeeder extends Seeder
             ),
             14 => 
             array (
-                'role_id' => 6,
+                'role_id' => 5,
                 'user_id' => 15,
             ),
             15 => 
@@ -101,33 +101,43 @@ class UserHasRolesTableSeeder extends Seeder
             ),
             16 => 
             array (
-                'role_id' => 6,
+                'role_id' => 7,
                 'user_id' => 17,
             ),
             17 => 
             array (
-                'role_id' => 5,
+                'role_id' => 4,
                 'user_id' => 18,
             ),
             18 => 
             array (
-                'role_id' => 6,
+                'role_id' => 10,
                 'user_id' => 19,
             ),
             19 => 
             array (
-                'role_id' => 5,
+                'role_id' => 9,
                 'user_id' => 20,
             ),
             20 => 
             array (
-                'role_id' => 6,
-                'user_id' => 21,
+                'role_id' => 7,
+                'user_id' => 22,
             ),
             21 => 
             array (
                 'role_id' => 7,
-                'user_id' => 22,
+                'user_id' => 23,
+            ),
+            22 => 
+            array (
+                'role_id' => 11,
+                'user_id' => 24,
+            ),
+            23 => 
+            array (
+                'role_id' => 12,
+                'user_id' => 25,
             ),
         ));
         

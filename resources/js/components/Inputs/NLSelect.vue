@@ -9,10 +9,9 @@
 </template>
 
 <script>
-import NLCheckableContainer from './NLCheckableContainer'
 import Treeselect from '@riophae/vue-treeselect'
 export default {
-  components: { NLCheckableContainer, Treeselect },
+  components: { Treeselect },
   name: "NLSelect",
   props: {
     form: { type: Object, required: false },

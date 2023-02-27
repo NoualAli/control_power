@@ -42,6 +42,11 @@ class MissionReport extends Model
         return $this->belongsTo(Mission::class);
     }
 
+    public function detail()
+    {
+        return $this->belongsTo(MissionDetail::class);
+    }
+
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by_id');

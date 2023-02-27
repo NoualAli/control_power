@@ -15,12 +15,22 @@
           </div>
           <!-- Processes -->
           <div class="col-12 col-md-6">
-            <NLSelect :form="form" name="process_id" v-model="form.process_id" label="Processus"
-              :options="processesList" labelRequired :multiple="false" />
+            <NLSelect :form="form" name="process_id" v-model="form.process_id" label="Processus" :options="processesList"
+              labelRequired :multiple="false" />
           </div>
           <!-- Name -->
           <div class="col-12 col-md-6">
             <NLInput :form="form" name="name" label="Name" v-model="form.name" labelRequired />
+          </div>
+          <!-- Major fact -->
+          <div class="col-12">
+            <NLSwitch v-model="form.has_major_fact" name="has_major_fact" :form="form" label="Fait majeur" />
+          </div>
+          <!-- Major fact types -->
+          <div class="col-12" v-if="form.has_major_fact">
+            <NLRepeater name="major_fact_types" :rowSchema="majorFactTypesSchema" :form="form"
+              title="Types des faits majeur" addButtonLabel="Ajouter un type">
+            </NLRepeater>
           </div>
           <!-- Scores -->
           <div class="col-12">
@@ -76,6 +86,16 @@ export default {
       domainsList: [],
       processesList: [],
       validationRulesList: [],
+      majorFactTypesSchema: [
+        {
+          type: 'text',
+          label: 'Type',
+          name: 'type',
+          placeholder: 'Veuillez saisir le type',
+          required: true,
+          style: 'col-12'
+        },
+      ],
       scoresSchema: [
         {
           type: 'number',
@@ -275,6 +295,8 @@ export default {
         familly_id: null,
         domain_id: null,
         process_id: null,
+        major_fact_types: [],
+        has_major_fact: false,
         scores: [],
         fields: [],
       }),
@@ -289,8 +311,10 @@ export default {
         this.form.familly_id = this.controlPoint.current.familly.id
         this.form.domain_id = this.controlPoint.current.domain.id
         this.form.process_id = this.controlPoint.current.process.id
+        this.form.has_major_fact = this.controlPoint.current.has_major_fact
         this.form.scores = this.controlPoint.current.scores ? this.controlPoint.current.scores : []
         this.form.fields = this.controlPoint.current.fields ? this.controlPoint.current.fields : []
+        this.form.major_fact_types = this.controlPoint.current.major_fact_types ? this.controlPoint.current.major_fact_types : []
 
       })
     },
@@ -298,7 +322,7 @@ export default {
  * Récupère la liste des familles
  */
     loadFamillies() {
-      this.$store.dispatch('famillies/fetchAll').then(() => {
+      this.$store.dispatch('famillies/fetchAll', { withChildren: false }).then(() => {
         this.familliesList = this.famillies.all
         this.loadDomains(this.form.familly_id)
         this.loadProcesses(this.form.domain_id)

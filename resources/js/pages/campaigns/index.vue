@@ -1,12 +1,12 @@
 <template>
   <div v-can="'view_control_campaign'">
     <div class="d-flex justify-between align-center">
-      <div class="filter-bar w-100">
+      <!-- <div class="filter-bar w-100">
         <div class="grid mt-6">
           <div class="col-12 col-lg-4">
             <div class="d-flex align-center justify-between gap-4">
               <i class="las la-filter icon text-primary-dark"></i>
-              <NLSelect name="filter['reference']" :options="yearsList" v-model="filterFields.reference"
+              <NLSelect name="filter['reference']" :options="initYearsList" v-model="filterFields.reference"
                 placeholder="Veuillez choisir une année" :multiple="false" />
             </div>
           </div>
@@ -14,7 +14,7 @@
         <button class="btn btn-danger" @click="resetFilter" v-if="filterFields.reference">
           Annuler
         </button>
-      </div>
+      </div> -->
       <div class="w-100 d-flex justify-end align-center">
         <router-link class="btn btn-info" :to="{ name: 'campaigns-create' }" v-can="'create_control_campaign'">
           Ajouter
@@ -23,7 +23,7 @@
     </div>
     <ContentBody>
       <NLDatatable namespace="campaigns" :config="config" @delete="destroy" @show="show" @edit="edit"
-        :filters="getFilters" />
+        :filters="filters" />
     </ContentBody>
   </div>
 </template>
@@ -45,9 +45,6 @@ export default {
   },
   data() {
     return {
-      filterFields: {
-        reference: null
-      },
       rowSelected: null,
       config: {
         data: null,
@@ -86,6 +83,13 @@ export default {
           },
         }
       },
+      filters: {
+        reference: {
+          label: 'Année',
+          data: null,
+          value: null,
+        }
+      }
     }
 
   },
@@ -93,20 +97,17 @@ export default {
     ...mapGetters({
       controlCampaigns: 'campaigns/paginated',
     }),
-    getFilters() {
-      return this.filterFields
-    },
-    yearsList() {
+  },
+  methods: {
+    initYearsList() {
       let start = 2020
       const currentYear = new Date().getFullYear()
       let years = []
       for (start; start <= currentYear; start++) {
         years.push({ id: start, label: start })
       }
-      return years
-    }
-  },
-  methods: {
+      this.filters.reference.data = years
+    },
     /**
      * Affiche une campagne de contrôle
      *
@@ -142,7 +143,7 @@ export default {
           })
         }
       }).catch(error => {
-        swal.alert_error()
+        swal.alert_error(error)
       })
     },
 
@@ -152,38 +153,8 @@ export default {
     initData() {
       this.$store.dispatch('campaigns/fetchPaginated').then(() => {
         this.config.data = this.controlCampaigns.paginated
+        this.initYearsList()
       })
-    },
-
-    /**
-     * Annule le filtre
-     */
-    resetFilter() {
-      for (const key in this.filterFields) {
-        if (Object.hasOwnProperty.call(this.filterFields, key)) {
-          this.filterFields[ key ] = null;
-        }
-      }
-      this.initData()
-    },
-
-    /**
-     * Applique le filtre
-     */
-    filter() {
-      this.$store.dispatch('campaigns/filter', this.filterFields)
-        .then(() => {
-          this.config.data = this.controlCampaigns.paginated
-        })
-    },
-  },
-  watch: {
-    'filterFields.reference': function (newVal, oldVal) {
-      if (newVal == '' || newVal == null || newVal == undefined && newVal !== oldVal) {
-        this.resetFilter()
-      } else {
-        this.filter()
-      }
     },
   },
   created() {

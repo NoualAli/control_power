@@ -3,7 +3,6 @@
 namespace App\Notifications;
 
 use App\Models\Mission;
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -12,11 +11,6 @@ use Illuminate\Notifications\Notification;
 class MissionValidatedNotification extends Notification
 {
     use Queueable;
-
-    /**
-     * @var App\Models\User
-     */
-    private $user;
 
     /**
      * @var App\Models\Mission
@@ -38,12 +32,21 @@ class MissionValidatedNotification extends Notification
      *
      * @return void
      */
-    public function __construct(Mission $mission, User $user)
+    public function __construct(Mission $mission)
     {
-        $this->user = $user;
         $this->mission = $mission;
         $this->content = 'La mission de contrôle ' . $this->mission->reference . ' vient d\'être validée';
         $this->title = 'Mission validée';
+    }
+
+    /**
+     * Get action url
+     *
+     * @return string
+     */
+    private function getUrl(): string
+    {
+        return url('/missions/' . $this->mission->id);
     }
 
     /**
@@ -55,6 +58,7 @@ class MissionValidatedNotification extends Notification
     public function via($notifiable)
     {
         return ['mail', 'database'];
+        // return ['database'];
     }
 
     /**
@@ -83,9 +87,7 @@ class MissionValidatedNotification extends Notification
     {
         return [
             'id' => $this->mission->id,
-            'className' =>  'App\Models\Mission',
-            'routeName' => 'mission',
-            'paramNames' => 'missionId',
+            'url' => $this->getUrl(),
             'content' => $this->content,
             'title' => $this->title,
         ];

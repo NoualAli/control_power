@@ -19,7 +19,8 @@ class CreateControlPointsTable extends Migration
             $table->foreignId('process_id');
             $table->json('scores')->nullable();
             $table->json('fields')->nullable();
-
+            $table->json('major_fact_types')->nullable();
+            $table->boolean('has_major_fact')->default(false);
             $table->foreign('process_id')->on('processes')->references('id')->onDelete('cascade')->onUpdate('cascade');
         });
     }

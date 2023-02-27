@@ -21,7 +21,7 @@ class Process extends Model
 
     public $withCount = ['control_points'];
 
-    public $with = ['domain', 'control_points'];
+    // public $with = ['domain', 'control_points', 'familly'];
 
     protected $searchable = ['name'];
 

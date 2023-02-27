@@ -23,10 +23,14 @@ class UniqueInProcess implements Rule
      *
      * @return void
      */
-    public function __construct(int $process, ?int $controlPoint = null)
+    public function __construct(?int $process, ?int $controlPoint = null)
     {
-        $this->process = Process::findOrFail($process);
-        $this->controlPoint = $controlPoint ? ControlPoint::find($controlPoint) : null;
+        if ($process) {
+            $this->process = Process::findOrFail($process);
+            $this->controlPoint = $controlPoint ? ControlPoint::find($controlPoint) : null;
+        } else {
+            return false;
+        }
     }
 
     /**

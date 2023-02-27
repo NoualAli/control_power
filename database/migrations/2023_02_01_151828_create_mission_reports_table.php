@@ -15,7 +15,7 @@ class CreateMissionReportsTable extends Migration
     {
         Schema::create('mission_reports', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->set('type', ['Avis contrôleur', 'Rapport', 'Synthèse']);
+            $table->set('type', ['Avis contrôleur', 'Rapport', 'Synthèse', 'Commentaire']);
             $table->text('content');
             $table->foreignUuid('mission_id');
             $table->foreignId('created_by_id');

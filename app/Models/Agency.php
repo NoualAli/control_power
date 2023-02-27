@@ -40,6 +40,21 @@ class Agency extends Model
      */
     public function dre()
     {
-        return $this->belongsTo(Dre::class);
+        return $this->belongsTo(Dre::class, 'dre_id');
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_has_agencies', 'agency_id', 'user_id');
+    }
+
+    public function missions()
+    {
+        return $this->hasMany(Mission::class);
+    }
+
+    public function details()
+    {
+        return $this->hasManyThrough(MissionDetail::class, Mission::class);
     }
 }

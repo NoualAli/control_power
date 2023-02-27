@@ -9,6 +9,8 @@ $link-active-color: $white
 $link-active-opacity: .5
 $cell-font-size: 1rem
 $cell-btn-padding: 0 .3rem
+$cell-min-width: 100px
+$cell-max-width: 500px
 
 .table-container
     position: relative
@@ -39,11 +41,14 @@ table
         position: relative !important
         margin: 0.5em 1em
         font-size: $cell-font-size
-        // width: auto
-        // max-width: 200px
+        width: auto
+        min-width: $cell-min-width
+        max-width: $cell-max-width
         &.cell-actions
             max-width: 200px
         & .btn
+            border: none
+            background-color: none
             padding: $cell-btn-padding
             font-size: $cell-font-size
     & tbody

@@ -2,10 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\DetailPoint;
-use App\Models\Mission;
 use App\Models\MissionDetail;
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -21,7 +18,7 @@ class MajorFactDetectedNotification extends Notification
 
     /**
      * Create a new notification instance.
-     *
+     * @param App\Models\MissionDetail $detail
      * @return void
      */
     public function __construct(MissionDetail $detail)
@@ -40,6 +37,12 @@ class MajorFactDetectedNotification extends Notification
     public function via($notifiable)
     {
         return ['database', 'mail'];
+        // return ['database'];
+    }
+
+    public function getUrl()
+    {
+        return url('/missions/' . $this->detail->mission->id . '/details/' . $this->detail->process->id);
     }
 
     /**
@@ -54,7 +57,7 @@ class MajorFactDetectedNotification extends Notification
             ->subject($this->title)
             ->line($this->content)
             ->line('Pour plus d\'informations veuillez cliquer sur le lien ci-dessous.')
-            ->action('Voir le fait majeur', env('APP_URL') . '/missions/' . $this->detail->mission->id . '/details/' . $this->detail->process->id)
+            ->action('Voir le fait majeur', env('APP_URL') . '/major-facts?search=' . $this->detail->id)
             ->line('Merci d\'utiliser notre application!');
     }
 
@@ -68,9 +71,10 @@ class MajorFactDetectedNotification extends Notification
     {
         return [
             'id' => $this->detail->mission->id,
-            'url' => '/missions/' . $this->detail->mission->id . '/details/' . $this->detail->process->id,
+            'url' => $this->getUrl(),
             'content' => $this->content,
             'title' => $this->title,
+            'detail_id' => $this->detail->id,
         ];
     }
 }

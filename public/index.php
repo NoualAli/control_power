@@ -26,6 +26,9 @@ define('DETACH_SUCCESS', 'Resource détacher avec succès');
 define('DETACH_ERROR', 'Une erreur est survenue lors de la tentative de détachement de la resource !');
 define('REPORT_TYPES', ['Avis contrôleur', 'Rapport', 'Synthèse']);
 define('IMAGE_TYPES', ['jpeg', 'jpg', 'png', 'gif', 'tif', 'bmp', 'ico', 'psd', 'webp']);
+define('NOTIFICATION_SUCCESS', 'Notification envoyé avec succès.');
+define('MISSION_VALIDATION_SUCCESS', 'La mission a été valider avec succès');
+define('MISSION_VALIDATION_ERROR', 'Une erreur est survenu lors de la tentative de validation de la mission, si le problème persiste contacter votre administrateur.');
 /*
 |--------------------------------------------------------------------------
 | Check If Application Is Under Maintenance

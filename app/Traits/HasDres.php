@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Models\Agency;
 use App\Models\Dre;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Znck\Eloquent\Traits\BelongsToThrough;
@@ -20,7 +21,7 @@ trait HasDres
     }
     public function getAgenciesArrAttribute()
     {
-        return $this->dres->pluck('agencies')->flatten()->pluck('id')->toArray();
+        return $this->agencies?->pluck('id')->toArray();
     }
 
     /**
@@ -41,8 +42,17 @@ trait HasDres
     /**
      * Relationships
      */
+    public function agencies()
+    {
+        return $this->belongsToMany(Agency::class, 'user_has_agencies', 'user_id', 'agency_id');
+    }
+
     public function dres()
     {
-        return $this->belongsToMany(dre::class, 'user_has_dres');
+        return $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->dre())->distinct();
     }
 }
+// levé / non levé
+// Action engagé / Action à engagé - Cause
+// piece joints
+// Commentaire

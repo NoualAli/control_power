@@ -18,7 +18,7 @@ class CreateAgenciesTable extends Migration
             $table->string('name')->unique();
             $table->unsignedInteger('code')->unique();
             $table->foreignId('dre_id');
-            $table->foreign('dre_id')->on('dres')->references('id');
+            $table->foreign('dre_id')->on('dres')->references('id')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

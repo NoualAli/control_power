@@ -7,7 +7,8 @@ export default async (to, from, next) => {
 
     next({ name: 'login' })
   } else {
-    await store.dispatch('notifications/fetchTotalUnreadMajorFacts')
+    // await store.dispatch('notifications/fetchTotalUnreadMajorFacts')
+    // await store.dispatch('notifications/fetchUnreadNotifications')
     next()
   }
 }

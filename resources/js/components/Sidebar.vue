@@ -12,57 +12,57 @@
           Tableau de bord
         </span>
       </router-link>
-      <router-link class="sidebar-item" :to="{ name: 'users-index' }" v-can="'view_user'">
+      <router-link class="sidebar-item" :to="{ name: 'users-index' }" v-can="'view_page_users'">
         <i class="las la-users sidebar-icon"></i>
         <span class="icon-text">
           Utilisateurs
         </span>
       </router-link>
-      <router-link class="sidebar-item" :to="{ name: 'roles-index' }" v-can="'view_role'">
+      <router-link class="sidebar-item" :to="{ name: 'roles-index' }" v-can="'view_page_roles'">
         <i class="las la-user-shield sidebar-icon"></i>
         <span class="icon-text">
           Roles
         </span>
       </router-link>
-      <router-link class="sidebar-item" :to="{ name: 'permissions-index' }" v-can="'view_permission'">
+      <router-link class="sidebar-item" :to="{ name: 'permissions-index' }" v-can="'view_page_permissions'">
         <i class="las la-user-cog sidebar-icon"></i>
         <span class="icon-text">
           Permissions
         </span>
       </router-link>
-      <router-link class="sidebar-item" :to="{ name: 'dre-index' }" v-can="'view_dre'">
+      <router-link class="sidebar-item" :to="{ name: 'dre-index' }" v-can="'view_page_dres'">
         <i class="las la-building sidebar-icon"></i>
         <span class="icon-text">
           Dre
         </span>
       </router-link>
-      <router-link class="sidebar-item" :to="{ name: 'agencies-index' }" v-can="'view_agency'">
+      <router-link class="sidebar-item" :to="{ name: 'agencies-index' }" v-can="'view_page_agencies'">
         <i class="las la-landmark sidebar-icon"></i>
         <span class="icon-text">
           Agences
         </span>
       </router-link>
-      <router-link class="sidebar-item" :to="{ name: 'famillies-index' }" v-can="'view_familly'">
+      <router-link class="sidebar-item" :to="{ name: 'famillies-index' }" v-can="'view_page_families'">
         <i class="las la-tag sidebar-icon"></i>
         <span class="icon-text">
           Familles
         </span>
       </router-link>
-      <router-link class="sidebar-item" :to="{ name: 'domains-index' }" v-can="'view_domain'">
+      <router-link class="sidebar-item" :to="{ name: 'domains-index' }" v-can="'view_page_domains'">
         <i class="las la-tags sidebar-icon"></i>
         <span class="icon-text">
           Domaines
         </span>
       </router-link>
 
-      <router-link class="sidebar-item" :to="{ name: 'processes-index' }" v-can="'view_process'">
+      <router-link class="sidebar-item" :to="{ name: 'processes-index' }" v-can="'view_page_processes'">
         <i class="las la-project-diagram sidebar-icon"></i>
         <span class="icon-text">
           Processus
         </span>
       </router-link>
 
-      <router-link class="sidebar-item" :to="{ name: 'control-points-index' }" v-can="'view_control_point'">
+      <router-link class="sidebar-item" :to="{ name: 'control-points-index' }" v-can="'view_page_control_points'">
         <i class="las la-list-alt sidebar-icon"></i>
         <span class="icon-text">
           Points de contrôle
@@ -84,33 +84,33 @@
         </span>
       </router-link>
 
-      <router-link class="sidebar-item" :to="{ name: 'campaigns' }" v-can="'view_control_campaign'">
+      <router-link class="sidebar-item" :to="{ name: 'campaigns' }" v-can="'view_page_control_campaigns'">
         <i class="las la-calendar sidebar-icon"></i>
         <span class="icon-text">
           Suivi du planning annuel
         </span>
       </router-link>
-      <!-- <router-link class="sidebar-item" :to="{ name: 'missions-state' }" v-can="'view_mission'">
-        <i class="las la-question-circle sidebar-icon"></i>
-        <span class="icon-text">
-          État des missions
-        </span>
-      </router-link> -->
+      <!-- <router-link class="sidebar-item" :to="{ name: 'missions-state' }" v-can="'view_page_mission'">
+                                      <i class="las la-question-circle sidebar-icon"></i>
+                                      <span class="icon-text">
+                                        État des missions
+                                      </span>
+                                    </router-link> -->
 
-      <router-link class="sidebar-item" :to="{ name: 'missions' }" v-can="'view_mission'">
+      <router-link class="sidebar-item" :to="{ name: 'missions' }" v-can="'view_page_missions'">
         <i class="las la-eye sidebar-icon"></i>
         <span class="icon-text">
           Suivi des réalisations des missions
         </span>
       </router-link>
-      <!-- <router-link class="sidebar-item" :to="{ name: 'missions-validated' }" v-can="'view_mission'">
-        <i class="las la-file-alt sidebar-icon"></i>
-        <span class="icon-text">
-          Consultation des rapports
-        </span>
-      </router-link> -->
+      <!-- <router-link class="sidebar-item" :to="{ name: 'missions-validated' }" v-can="'view_page_mission'">
+                                      <i class="las la-file-alt sidebar-icon"></i>
+                                      <span class="icon-text">
+                                        Consultation des rapports
+                                      </span>
+                                    </router-link> -->
 
-      <router-link class="sidebar-item" :to="{ name: 'global-details' }" v-can="'view_mission_details'">
+      <router-link class="sidebar-item" :to="{ name: 'global-details' }" v-can="'view_page_mission_details'">
         <i class="lab la-stack-overflow sidebar-icon"></i>
         <span class="icon-text">
           Anomalie • Notation • Plan de redressement
@@ -118,7 +118,7 @@
       </router-link>
 
       <router-link class="sidebar-item" :class="{ 'has-badge': unreadMajorFacts }" :to="{ name: 'major-facts' }"
-        v-can="'view_major_fact'">
+        v-can="'view_page_major_facts,view_major_fact'">
         <i class="las la-exclamation-triangle sidebar-icon"></i>
         <span class="icon-text">
           Faits majeurs
@@ -133,12 +133,12 @@
         </span>
       </router-link>
 
-      <!-- <router-link class="sidebar-item" :to="{ name: 'missions-validated' }" v-can="'view_report'">
-        <i class="las la-clipboard-list sidebar-icon"></i>
-        <span class="icon-text">
-          Consultation des rapports
-        </span>
-      </router-link> -->
+      <!-- <router-link class="sidebar-item" :to="{ name: 'missions-validated' }" v-can="'view_page_report'">
+                                      <i class="las la-clipboard-list sidebar-icon"></i>
+                                      <span class="icon-text">
+                                        Consultation des rapports
+                                      </span>
+                                    </router-link> -->
 
       <router-link class="sidebar-item" :to="{ name: 'references-pcf' }">
         <i class="las la-newspaper sidebar-icon"></i>
@@ -160,6 +160,7 @@
 </template>
 
 <script>
+import { Store } from 'vuex'
 export default {
   data() {
     return {
@@ -175,13 +176,20 @@ export default {
       this.$router.push({ name: 'login' })
     }
   },
-  // watch: {
-  //   $route(to, from) {
-  //     this.$store.dispatch('notifications/fetchTotalUnreadMajorFacts').then(() => {
-  //       this.unreadMajorFacts = this.$store.getters[ 'notifications/total_unread_major_facts' ].total_unread_major_facts
-  //     })
-  //   }
-  // },
+  watch: {
+    // $route(to, from) {
+    //   this.dispatch('notifications/fetchTotalUnreadMajorFacts').then(() => {
+    //     this.unreadMajorFacts = this.$store.getters[ 'notifications/total_unread_major_facts' ].total_unread_major_facts
+    //   })
+    // },
+    // unreadMajorFacts: (newVal, oldVal) => {
+    //   if (newVal !== oldVal) {
+    //     this.$store.dispatch('notifications/fetchTotalUnreadMajorFacts').then(() => {
+    //       // this.unreadMajorFacts = newVal
+    //     })
+    //   }
+    // }
+  },
   // created() {
   //   this.$store.dispatch('notifications/fetchTotalUnreadMajorFacts').then(() => {
   //     this.unreadMajorFacts = this.$store.getters[ 'notifications/total_unread_major_facts' ].total_unread_major_facts

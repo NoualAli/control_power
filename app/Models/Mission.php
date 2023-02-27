@@ -24,7 +24,11 @@ class Mission extends Model
         'controlled_by_id',
         'note',
         'start',
-        'end'
+        'end',
+        'cdcr_validation_at',
+        'dcp_validation_at',
+        'cdcr_validation_by_id',
+        'dcp_validation_by_id',
     ];
 
     protected $appends = [
@@ -35,8 +39,8 @@ class Mission extends Model
         'progress_status',
         'realisation_state',
         'avg_score',
-        'controller_opinion',
-        'head_of_department_report',
+        'opinion',
+        'dre_report',
         'synthesis'
     ];
 
@@ -47,6 +51,27 @@ class Mission extends Model
     /**
      * Getters
      */
+
+    public function getDreReportExistAttribute()
+    {
+        return $this->dre_report !== null;
+    }
+
+    public function getDreReportIsValidatedAttribute()
+    {
+        return $this->dre_report->is_validated;
+    }
+
+    public function getControllerOpinionExistAttribute()
+    {
+        return $this->opinion !== null;
+    }
+
+    public function getControllerOpinionValidatedAttribute()
+    {
+        return $this->opinion->is_validated;
+    }
+
     public function getReferenceAttribute($reference)
     {
         if (!$this->head_of_department_report && !$this->head_of_department_report?->is_validated) {
@@ -57,7 +82,7 @@ class Mission extends Model
 
     public function getAvgScoreAttribute()
     {
-        return addZero(intval($this->details->avg('score')));
+        return addZero(intval($this->details()->avg('score')));
     }
 
     public function getAgencyControllersStrAttribute()
@@ -72,19 +97,19 @@ class Mission extends Model
         return number_format($totalFinishedDetails * 100 / $totalDetails);
     }
 
-    public function getControllerOpinionAttribute()
+    public function getOpinionAttribute()
     {
-        return $this->reports->where('type', 'Avis contrôleur')->first();
+        return $this->reports()->where('type', 'Avis contrôleur')->first();
     }
 
-    public function getHeadOfDepartmentReportAttribute()
+    public function getDreReportAttribute()
     {
-        return $this->reports->where('type', 'Rapport')->first();
+        return $this->reports()->where('type', 'Rapport')->first();
     }
 
     public function getSynthesisAttribute()
     {
-        return $this->reports->where('type', 'Synthèse')->first();
+        return $this->reports()->where('type', 'Synthèse')->first();
     }
     public function getRealisationStateAttribute()
     {
@@ -156,22 +181,45 @@ class Mission extends Model
     {
         return $this->hasMany(MissionDetail::class);
     }
+
     public function reports()
     {
         return $this->hasMany(MissionReport::class);
+    }
+    public function cdcrValidator()
+    {
+        $this->belongsTo(User::class, 'cdcr_validation_by_id');
+    }
+
+    public function dcpValidator()
+    {
+        $this->belongsTo(User::class, 'dcp_validation_by_id');
     }
 
     /**
      * Scopes
      */
+    public function scopeHasCdcrValidation($query)
+    {
+        return $query->whereNotNull('cdcr_validation_at');
+    }
+    public function scopeHasDcpValidation($query)
+    {
+        return $query->whereNotNull('dcp_validation_at');
+    }
     public function scopeValidated($query)
     {
-        return $query->whereRelation('reports', 'type', 'Rapport')->whereRelation('reports', 'validated_at', '!=', null);
+        return $query->whereHas('reports', fn ($report) => $report->where('type', 'Rapport')->whereNotNull('validated_at'));
     }
 
     public function scopeNotValidated($query)
     {
-        return $query->where('report', '!=', null)->where('validated_at', null);
+        return $query->whereRelation('reports', 'type', 'Rapport')->whereRelation('reports', 'validated_at', null);
+    }
+
+    public function scopeOnlyValidatedMajorFacts($query)
+    {
+        return $query->where('major_fact', true)->whereNotNull('validated_at');
     }
 
     // public function scopeHasDetails($query)

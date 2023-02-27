@@ -11,9 +11,12 @@ use App\Models\ControlCampaign;
 use App\Models\Domain;
 use App\Models\Familly;
 use App\Models\Process;
+use App\Models\User;
+use App\Notifications\ControlCampaignNotification;
 use DragonCode\Support\Facades\Helpers\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 
 class ControlCampaignController extends Controller
@@ -25,8 +28,8 @@ class ControlCampaignController extends Controller
      */
     public function index()
     {
-        isAbleOrAbort(['view_control_campaign', 'create_mission', 'edit_mission']);
-        $campaigns = !hasRole(['ci', ['cc']]) ? new ControlCampaign() : auth()->user()->campaigns();
+        isAbleOrAbort(['view_control_campaign', 'view_page_control_campaigns', 'create_mission', 'edit_mission']);
+        $campaigns = !hasRole(['ci', 'cc']) ? new ControlCampaign() : auth()->user()->campaigns();
         if (request()->has('order')) {
             foreach (request()->order as $key => $value) {
                 $campaigns = $campaigns->orderBy($key, $value);
@@ -67,7 +70,7 @@ class ControlCampaignController extends Controller
      */
     public function show(ControlCampaign $campaign)
     {
-        isAbleOrAbort('view_control_campaign');
+        isAbleOrAbort(['view_control_campaign']);
         if (request()->has('edit')) {
             $condition = $campaign->remaining_days_before_start > 5;
             abort_if(!$condition, 401, __('unauthorized'));
@@ -108,8 +111,14 @@ class ControlCampaignController extends Controller
                 foreach ($pcf as $process) {
                     $campaign->processes()->attach($process);
                 }
-
-                Artisan::call('campaign:notify', ['id' => $campaign->id, 'created' => true]);
+                // $users = ['cdc', 'dg', 'cdrcp', 'der', 'dre', 'ig'];
+                // $users = User::whereRelation('roles', 'roles.code', 'in', $users)->get();
+                // dd($users);
+                // foreach ($users as $user) {
+                //     Notification::send($user, new ControlCampaignNotification($campaign));
+                //     // $user->notify(new ControlCampaignNotification($campaign));
+                // }
+                // Artisan::call('campaign:notify', ['id' => $campaign->id, 'created' => true]);
                 return $campaign;
             });
 

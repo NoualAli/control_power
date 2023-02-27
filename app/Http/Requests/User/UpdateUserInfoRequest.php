@@ -34,7 +34,6 @@ class UpdateUserInfoRequest extends FormRequest
             'roles' => ['required', 'array'],
             'roles.*' => ['exists:roles,id'],
             'dres' => ['nullable', 'array'],
-            'dres.*' => ['exists:dres,id'],
         ];
     }
 }

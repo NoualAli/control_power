@@ -13,7 +13,9 @@ class StoreRequest extends FormRequest
      */
     public function authorize()
     {
-        return isAbleTo('control_agency');
+        $processMode = request()->process_mode;
+        $isAbleTo = !$processMode ? 'control_agency' : 'process_mission';
+        return isAbleTo($isAbleTo) || hasRole(['dcp', 'cdcr', 'cc']);
     }
 
     /**
@@ -23,16 +25,30 @@ class StoreRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'rows' => ['required', 'array'],
-            'rows.*.detail' => ['required', 'exists:mission_details,id'],
-            'rows.*.report' => ['required_if:rows.*.score,2,3,4'],
-            'rows.*.recovery_plan' => ['required_if:rows.*.score,2,3,4'],
-            'rows.*.major_fact' => ['required', 'boolean'],
-            'rows.*.score' => ['required', 'in:1,2,3,4'],
-            'rows.*.metadata' => ['sometimes', 'array'],
-            'rows.*.media' => ['nullable', 'array'],
-        ];
+        if (request()->has('detail')) {
+            return [
+                'process_mode' => ['required', 'boolean'],
+                'detail' => ['required', 'exists:mission_details,id'],
+                'report' => ['required_if:rows.*.score,2,3,4'],
+                'recovery_plan' => ['required_if:rows.*.score,2,3,4'],
+                'major_fact' => ['required', 'boolean'],
+                'score' => ['required', 'in:1,2,3,4'],
+                'metadata' => ['sometimes', 'array'],
+                'media' => ['nullable', 'array'],
+            ];
+        } else {
+            return [
+                'process_mode' => ['required', 'boolean'],
+                'rows' => ['required', 'array'],
+                'rows.*.detail' => ['required', 'exists:mission_details,id'],
+                'rows.*.report' => ['required_if:rows.*.score,2,3,4'],
+                'rows.*.recovery_plan' => ['required_if:rows.*.score,2,3,4'],
+                'rows.*.major_fact' => ['required', 'boolean'],
+                'rows.*.score' => ['required', 'in:1,2,3,4'],
+                'rows.*.metadata' => ['sometimes', 'array'],
+                'rows.*.media' => ['nullable', 'array'],
+            ];
+        }
     }
 
     public function messages()

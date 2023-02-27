@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Notifications\ResetPassword;
 use App\Traits\HasDres;
 use App\Traits\HasRoles;
+use App\Traits\IsFilterable;
 use App\Traits\IsOrderable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,7 +21,10 @@ class User extends Authenticatable implements JWTSubject
         HasRoles,
         HasDres,
         IsOrderable,
-        IsSearchable;
+        IsSearchable,
+        IsFilterable;
+
+    protected $filter = 'App\Filters\User';
 
     protected $perPage = 10;
     /**
@@ -126,8 +130,10 @@ class User extends Authenticatable implements JWTSubject
     {
         if (hasRole('cdc')) {
             return $this->hasMany(Mission::class, 'created_by_id');
-        } elseif (hasRole('ci')) {
+        } elseif (hasRole(['ci', 'cc'])) {
             return $this->belongsToMany(Mission::class, 'mission_has_controllers');
+        } elseif (hasRole(['da', 'dre'])) {
+            return $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->missions());
         }
     }
 
@@ -145,14 +151,20 @@ class User extends Authenticatable implements JWTSubject
             })->groupBy('control_campaigns.id')->distinct();
         }
     }
-    // users -> mission_has_controllers -> missions -> control_campaigns
+
     public function details()
     {
-        if (hasRole('ci')) {
+        if (hasRole(['ci', 'cc'])) {
             return $this->hasManyDeep(MissionDetail::class, ['mission_has_controllers', Mission::class]);
         } elseif (hasRole('cdc')) {
             return $this->hasManyDeep(MissionDetail::class, [Mission::class], ['created_by_id']);
+        } elseif (hasRole(['da', 'dre'])) {
+            return $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->details());
         }
+    }
+    public function regularization()
+    {
+        return $this->hasMany(User::class);
     }
     /**
      * Scopes
@@ -175,6 +187,15 @@ class User extends Authenticatable implements JWTSubject
     public function scopeDcp(Builder $query)
     {
         return $this->user('dcp');
+    }
+    /**
+     * @param Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return App\Models\User
+     */
+    public function scopeCc(Builder $query)
+    {
+        return $this->user('cc');
     }
     /**
      * @param Illuminate\Database\Eloquent\Builder $query
@@ -244,8 +265,22 @@ class User extends Authenticatable implements JWTSubject
      *
      * @return App\Models\User
      */
+    public function scopeCdcr(Builder $query)
+    {
+        return $this->user('cdcr');
+    }
+    /**
+     * @param Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return App\Models\User
+     */
     public function scopeCdrcp(Builder $query)
     {
         return $this->user('cdrcp');
+    }
+
+    public function scopeWhereRoles(Builder $query, $roles)
+    {
+        return $query->whereRelation('roles', 'roles.code', 'in', $roles);
     }
 }

@@ -13,20 +13,20 @@
           <div class="col-1">
             <div class="d-flex align-center justify-end gap-3">
               <!-- <svg class="icon modal-action-icon" @click="handleReduce" width="24" height="24" viewBox="0 0 24 24"
-                fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M19 13H5C4.73478 13 4.48043 12.8946 4.29289 12.7071C4.10536 12.5196 4 12.2652 4 12C4 11.7348 4.10536 11.4804 4.29289 11.2929C4.48043 11.1054 4.73478 11 5 11H19C19.2652 11 19.5196 11.1054 19.7071 11.2929C19.8946 11.4804 20 11.7348 20 12C20 12.2652 19.8946 12.5196 19.7071 12.7071C19.5196 12.8946 19.2652 13 19 13Z"
-                  fill="black" />
-              </svg> -->
+                  fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M19 13H5C4.73478 13 4.48043 12.8946 4.29289 12.7071C4.10536 12.5196 4 12.2652 4 12C4 11.7348 4.10536 11.4804 4.29289 11.2929C4.48043 11.1054 4.73478 11 5 11H19C19.2652 11 19.5196 11.1054 19.7071 11.2929C19.8946 11.4804 20 11.7348 20 12C20 12.2652 19.8946 12.5196 19.7071 12.7071C19.5196 12.8946 19.2652 13 19 13Z"
+                    fill="black" />
+                </svg> -->
 
               <svg @click="(e) => close(e, true)" class="icon modal-action-icon modal-close-icon" version="1.1"
-                id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
-                y="0px" viewBox="0 0 50 50" enable-background="new 0 0 50 50" xml:space="preserve">
+                id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                viewBox="0 0 50 50" enable-background="new 0 0 50 50" xml:space="preserve">
                 <path fill="#231F20" d="M9.016,40.837c0.195,0.195,0.451,0.292,0.707,0.292c0.256,0,0.512-0.098,0.708-0.293l14.292-14.309
-      l14.292,14.309c0.195,0.196,0.451,0.293,0.708,0.293c0.256,0,0.512-0.098,0.707-0.292c0.391-0.39,0.391-1.023,0.001-1.414
-      L26.153,25.129L40.43,10.836c0.39-0.391,0.39-1.024-0.001-1.414c-0.392-0.391-1.024-0.391-1.414,0.001L24.722,23.732L10.43,9.423
-      c-0.391-0.391-1.024-0.391-1.414-0.001c-0.391,0.39-0.391,1.023-0.001,1.414l14.276,14.293L9.015,39.423
-      C8.625,39.813,8.625,40.447,9.016,40.837z" />
+        l14.292,14.309c0.195,0.196,0.451,0.293,0.708,0.293c0.256,0,0.512-0.098,0.707-0.292c0.391-0.39,0.391-1.023,0.001-1.414
+        L26.153,25.129L40.43,10.836c0.39-0.391,0.39-1.024-0.001-1.414c-0.392-0.391-1.024-0.391-1.414,0.001L24.722,23.732L10.43,9.423
+        c-0.391-0.391-1.024-0.391-1.414-0.001c-0.391,0.39-0.391,1.023-0.001,1.414l14.276,14.293L9.015,39.423
+        C8.625,39.813,8.625,40.447,9.016,40.837z" />
               </svg>
 
               <svg @click="handleExpansion" v-if="!isExpanded" class="icon modal-action-icon"
@@ -64,7 +64,7 @@
         <slot name="footer"></slot>
       </footer>
     </div>
-  </div>
+</div>
 </template>
 
 <script>
@@ -72,6 +72,7 @@ export default {
   name: 'NLModal',
   props: {
     show: { type: Boolean | Array | Object, required: true },
+    defaultMode: { type: Boolean, default: false }
   },
   watch: {
     show() {
@@ -96,6 +97,7 @@ export default {
   },
   created() {
     this.setShowSlots()
+    this.isExpanded = this.defaultMode
   },
   beforeUpdate() {
     this.setShowSlots()

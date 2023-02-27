@@ -117,3 +117,25 @@ export function alert_status(error) {
   const message = code != 422 ? error.response.data.message : 'Les données fournies sont invalides.'
   confirm({ icon: 'error', title, message, showCancelButton: false })
 }
+
+export function loading(progress, message = "Chargement en cours...") {
+  let timerInterval
+  Swal.fire({
+    // title: 'Auto close alert!',
+    html: message + ' <b></b>',
+    // timer: 2000,
+    // timerProgressBar: true,
+    didOpen: () => {
+      Swal.showLoading()
+      const b = Swal.getHtmlContainer().querySelector('b')
+      timerInterval = setInterval(() => {
+        b.textContent = progress + ' %'
+      }, 100)
+    },
+  }).then((result) => {
+    /* Read more about handling dismissals below */
+    if (result.dismiss === Swal.DismissReason.timer) {
+      console.log('I was closed by the timer')
+    }
+  })
+}

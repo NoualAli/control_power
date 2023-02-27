@@ -22,8 +22,11 @@ class CreateMissionDetailsTable extends Migration
             $table->tinyInteger('score')->nullable();
             $table->boolean('major_fact')->default(false);
             $table->json('metadata')->nullable();
+
             $table->timestamp('executed_at')->nullable();
+            $table->timestamp('processed_at')->nullable();
             $table->timestamp('validated_at')->nullable();
+            $table->timestamp('major_fact_dispatched_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

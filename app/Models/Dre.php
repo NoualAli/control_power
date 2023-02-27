@@ -55,16 +55,24 @@ class Dre extends Model
     /**
      * Relationships
      */
+    // public function agencies()
+    // {
+    //     return $this->hasMany(Agency::class);
+    // }
+    // public function users()
+    // {
+    //     // return $this->belongsToMany(User::class, 'user_has_dres');
+    //     return $this->hasManyThrough(User::class, Agency::class, 'dre_id', 'user_id', 'id', 'agency_id');
+    // }
+    // Define the many-to-many relationship with User through UserHasAgency pivot table
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_has_agencies', 'agency_id', 'user_id');
+    }
+
+    // Define the one-to-many relationship with Agency
     public function agencies()
     {
         return $this->hasMany(Agency::class);
-    }
-    public function users()
-    {
-        return $this->belongsToMany(User::class, 'user_has_dres');
-    }
-    public function detailPoints()
-    {
-        return $this->hasManyDeep(DetailPoint::class, [Agency::class, Sample::class, SampleDetail::class]);
     }
 }

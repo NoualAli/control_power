@@ -6,10 +6,11 @@ use App\Traits\IsOrderable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Znck\Eloquent\Traits\BelongsToThrough;
 
 class Familly extends Model
 {
-    use HasFactory, IsOrderable, IsSearchable;
+    use HasFactory, IsOrderable, IsSearchable, BelongsToThrough;
 
     protected $fillable = [
         'name',
@@ -17,7 +18,7 @@ class Familly extends Model
 
     public $timestamps = false;
 
-    public $withCount = ['domains'];
+    // public $withCount = ['domains'];
 
     protected $searchable = ['name'];
 
@@ -36,5 +37,15 @@ class Familly extends Model
     public function processes()
     {
         return $this->hasManyThrough(Process::class, Domain::class);
+    }
+
+    public function controlPoints()
+    {
+        return $this->belongsToThrough(ControlPoint::class, [Domain::class, Process::class]);
+    }
+
+    public function details()
+    {
+        return $this->belongsToThrough(MissionDetail::class, [Domain::class, Process::class, ControlPoint::class]);
     }
 }

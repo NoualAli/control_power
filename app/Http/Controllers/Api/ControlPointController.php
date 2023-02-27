@@ -51,6 +51,7 @@ class ControlPointController extends Controller
         try {
             $data['scores'] = count($data['scores']) ? $data['scores'] : null;
             $data['fields'] = count($data['fields']) ? $data['fields'] : null;
+            $data['major_fact_types'] = count($data['major_fact_types']) ? $data['major_fact_types'] : null;
             $controlPoint = ControlPoint::create($data);
 
             return response()->json([
@@ -58,7 +59,7 @@ class ControlPointController extends Controller
                 'status' => true
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
+            $code = 500;
 
             return response()->json([
                 'message' => $th->getMessage(),
@@ -97,6 +98,10 @@ class ControlPointController extends Controller
             if (is_null($controlPoint->fields) || empty($controlPoint->fields)) {
                 $data['fields'] = $data['fields'] ?: null;
             }
+
+            if (is_null($controlPoint->major_fact_types) || empty($controlPoint->major_fact_types)) {
+                $data['major_fact_types'] =  count($data['major_fact_types']) ? $data['major_fact_types'] : null;
+            }
             $controlPoint->update($data);
             return response()->json([
                 'message' => UPDATE_SUCCESS,
@@ -120,7 +125,7 @@ class ControlPointController extends Controller
      */
     public function destroy(ControlPoint $controlPoint): JsonResponse
     {
-        isAbleOrAbort('delete_control_points');
+        isAbleOrAbort('delete_control_point');
         try {
             $controlPoint->delete();
             return response()->json([
@@ -128,12 +133,12 @@ class ControlPointController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
+            $code = 500;
 
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $code);
+            ], 500);
         }
     }
 }

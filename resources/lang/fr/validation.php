@@ -188,6 +188,7 @@ return [
         'process_id' => 'processus',
         'scores.*.0.score' => 'note',
         'scores.*.1.label' => 'label',
+        'major_fact_types.*.0.type' =>   'type',
         'fields.*.0.type' => 'type',
         'fields.*.1.label' => 'label',
         'fields.*.2.name' => 'nom',
@@ -219,7 +220,10 @@ return [
         'rows.*.detail' => 'détail',
         'rows.*.metadata.*.*' => 'métadonnées',
         'opinion' => 'avis du contrôleur',
-        'report' => 'rapport du chef de département'
+        'report' => 'rapport du chef de département',
+        'major_fact_types' => 'types des faits majeur',
+        'has_major_fact' => 'faits majeur',
+        'regularized_at' => 'date de régularization'
     ],
 
 ];

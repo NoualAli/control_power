@@ -52,7 +52,7 @@ export default {
           },
           {
             label: 'Contrôle sur place par',
-            field: 'controllers_str',
+            field: 'agency_controllers_str',
           },
           {
             label: 'Date début',

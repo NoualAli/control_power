@@ -19,6 +19,10 @@
               {{ user?.username }}
             </router-link>
           </div>
+          <router-link :to="{ name: 'notifications' }" class="notification-link has-icon"
+            :class="{ 'notified': totalUnreadNotifications > 0 }">
+            <i class="las la-bell icon" :class="{ 'la-spin': totalUnreadNotifications > 0 }"></i>
+          </router-link>
           <button class="hamburger hamburger--elastic" :class="{ 'is-active': !showSidebar }" type="button"
             @click="toggleSidebar">
             <span class="hamburger-box">
@@ -51,7 +55,23 @@ export default {
   computed: mapGetters({
     showSidebar: 'sidebar/showSidebar',
     user: 'auth/user',
+    notifications: 'notifications/unread'
   }),
+  data() {
+    return {
+      totalUnreadNotifications: 0
+    }
+  },
+  watch: {
+    $route(to, from) {
+      this.$store.dispatch('notifications/fetchUnreadNotifications').then(() => {
+        this.totalUnreadNotifications = this.notifications.unread.totalUnread
+      })
+    },
+    totalUnreadNotifications(newVal, oldVal) {
+      console.log(newVal, oldVal);
+    }
+  },
   methods: {
     toggleSidebar() {
       this.$store.dispatch('sidebar/toggleSidebar')

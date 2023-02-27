@@ -14,7 +14,7 @@ class StoreRequest extends FormRequest
     public function authorize()
     {
         $currentUser = auth()->user()->id;
-        return isAbleTo(['create_opinion', 'create_report']) && (in_array($currentUser, request()->mission->controllers->pluck('id')->toArray()) || $currentUser == request()->mission->created_by_id);
+        return isAbleTo(['create_opinion', 'create_dre_report']) && (in_array($currentUser, request()->mission->agencyControllers->pluck('id')->toArray()) || $currentUser == request()->mission->created_by_id);
     }
 
     /**
