@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\MissionDetail;
 use App\Models\User;
 use App\Notifications\MajorFactDetectedNotification;
+use App\Notifications\Mission\MajorFact\Detected;
 use Illuminate\Console\Command;
 
 class MajorFactDetected extends Command
@@ -44,11 +45,11 @@ class MajorFactDetected extends Command
         if ($this->argument('user_id')) {
             $users = User::findOrFail($this->argument('user_id'));
         } else {
-            $users = User::all()->filter(fn ($user) => hasRole(['dcp', 'ig', 'cdrcp', 'dg'], $user));
+            $users = User::whereRoles(['dcp', 'ig', 'cdrcp', 'dg']);
         }
         foreach ($users as $user) {
-            $user->notify(new MajorFactDetectedNotification($detail));
+            $user->notify(new Detected($detail));
         }
-        return 0;
+        return Command::SUCCESS;
     }
 }

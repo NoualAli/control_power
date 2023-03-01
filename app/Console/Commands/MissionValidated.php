@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Mission;
 use App\Models\User;
+use App\Notifications\Mission\Validated;
 use App\Notifications\MissionValidatedNotification;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Notification;
@@ -46,10 +47,10 @@ class MissionValidated extends Command
         $user = User::findOrFail($this->argument('user_id'));
         $mission = Mission::findOrFail($this->argument('id'));
         try {
-            Notification::send($user, new MissionValidatedNotification($mission));
+            Notification::send($user, new Validated($mission));
         } catch (\Throwable $th) {
             $this->error($th->getMessage());
         }
-        return 0;
+        return Command::SUCCESS;
     }
 }

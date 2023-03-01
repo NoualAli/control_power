@@ -62,6 +62,6 @@ class BackupDatabase extends Command
         } else {
             $this->error('Une erreur est survenu lors de la création du fichier DatabaseSeeder');
         }
-        return 0;
+        return Command::SUCCESS;
     }
 }
