@@ -9,6 +9,6 @@ class Id extends QueryFilter implements FilterContract
 {
     public function handle($value): void
     {
-        $this->query->where('', $value);
+        $this->query->where('mission_details.id', $value);
     }
 }
