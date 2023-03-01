@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Mission;
 
 use App\Rules\CanBeControlled;
+use App\Rules\IncludedInsideCDCDate;
 use App\Rules\IsAbleTo;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -28,8 +29,8 @@ class UpdateRequest extends FormRequest
     {
         return [
             'controllers' => ['required', 'array', new IsAbleTo('control_agency')],
-            'start' => ['required', 'date'],
-            'end' => ['required', 'date', 'after:start'],
+            'start' => ['required', 'date', new IncludedInsideCDCDate(request()->control_campaign_id)],
+            'end' => ['required', 'date', 'after:start', new IncludedInsideCDCDate(request()->control_campaign_id)],
             'note' => ['nullable', 'string', 'max:255']
         ];
     }
