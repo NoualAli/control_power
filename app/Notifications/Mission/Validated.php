@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Mission;
 
 use App\Models\Mission;
 use Illuminate\Bus\Queueable;
@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class MissionValidatedNotification extends Notification
+class Validated extends Notification
 {
     use Queueable;
 
@@ -18,16 +18,6 @@ class MissionValidatedNotification extends Notification
     private $mission;
 
     /**
-     * @var string
-     */
-    private $content;
-
-    /**
-     * @var string
-     */
-    private $title;
-
-    /**
      * Create a new notification instance.
      *
      * @return void
@@ -35,8 +25,26 @@ class MissionValidatedNotification extends Notification
     public function __construct(Mission $mission)
     {
         $this->mission = $mission;
-        $this->content = 'La mission de contrôle ' . $this->mission->reference . ' vient d\'être validée';
-        $this->title = 'Mission validée';
+    }
+    /**
+     * Get email body
+     *
+     * @return string
+     */
+    private function getContent(): string
+    {
+        $content = 'La mission de contrôle ' . $this->mission->reference . ' vient d\'être validée';
+        return $content;
+    }
+
+    /**
+     * Get email subject
+     *
+     * @return string
+     */
+    private function getTitle(): string
+    {
+        return 'Mission ' . $this->mission->reference . ' validée';
     }
 
     /**
@@ -48,7 +56,6 @@ class MissionValidatedNotification extends Notification
     {
         return url('/missions/' . $this->mission->id);
     }
-
     /**
      * Get the notification's delivery channels.
      *
@@ -57,8 +64,7 @@ class MissionValidatedNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail', 'database'];
-        // return ['database'];
+        return !app()->environment('hostinger') ? ['mail', 'database'] : ['database'];
     }
 
     /**
@@ -70,11 +76,12 @@ class MissionValidatedNotification extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->title)
-            ->line($this->content)
+            ->subject($this->getTitle())
+            ->line($this->getContent())
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
-            ->action('Voir la mission', env('APP_URL') . '/missions/' . $this->mission->id)
-            ->line('Merci d\'utiliser notre application!');
+            ->action('Voir la mission', url('/missions/' . $this->mission->id))
+            ->line('Merci d\'utiliser notre application!')
+            ->success();
     }
 
     /**
@@ -88,8 +95,8 @@ class MissionValidatedNotification extends Notification
         return [
             'id' => $this->mission->id,
             'url' => $this->getUrl(),
-            'content' => $this->content,
-            'title' => $this->title,
+            'content' => $this->getContent(),
+            'title' => $this->getTitle(),
         ];
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Mission\MajorFact;
 
 use App\Models\MissionDetail;
 use Illuminate\Bus\Queueable;
@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class MissionDetailRegularized extends Notification
+class Detected extends Notification
 {
     use Queueable;
 
@@ -28,24 +28,14 @@ class MissionDetailRegularized extends Notification
     }
 
     /**
-     * Get email body
+     * Get the notification's delivery channels.
      *
-     * @return string
+     * @param  mixed  $notifiable
+     * @return array
      */
-    private function getContent(): string
+    public function via($notifiable)
     {
-        $content = "La mission avec la référence " . $this->detail->mission->reference . " qui concerne l'agence " . $this->detail->mission->agency->full_name . " vous a été assigné.";
-        return $content;
-    }
-
-    /**
-     * Get email subject
-     *
-     * @return string
-     */
-    private function getSubject(): string
-    {
-        return 'Mission assignée';
+        return !app()->environment('hostinger') ? ['mail', 'database'] : ['database'];
     }
 
     /**
@@ -55,20 +45,27 @@ class MissionDetailRegularized extends Notification
      */
     private function getUrl(): string
     {
-        return url('/missions/' . $this->detail->mission->id);
+        return url('/major-facts?filter[id]=' . $this->detail->id);
     }
 
+    /**
+     * Get Email / Notification title (subject)
+     *
+     * @return string
+     */
+    private function getTitle(): string
+    {
+        return 'Fait majeur détecter';
+    }
 
     /**
-     * Get the notification's delivery channels.
+     * Get Email / Notification content
      *
-     * @param  mixed  $notifiable
-     * @return array
+     * @return string
      */
-    public function via($notifiable)
+    private function getContent(): string
     {
-        return ['mail', 'database'];
-        // return ['database'];
+        return 'Un fait majeur vient d\'être détecter dans la mission ' . $this->detail->mission->reference;
     }
 
     /**
@@ -80,10 +77,12 @@ class MissionDetailRegularized extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->getSubject())
+            ->subject($this->getTitle())
             ->line($this->getContent())
-            ->action('Voir la mission', $this->getUrl())
-            ->line('Merci d\'utiliser notre application');
+            ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
+            ->action('Voir le fait majeur', $this->getUrl())
+            ->line('Merci d\'utiliser notre application!')
+            ->success();
     }
 
     /**
@@ -95,10 +94,10 @@ class MissionDetailRegularized extends Notification
     public function toArray($notifiable)
     {
         return [
-            'id' => $this->detail->mission->id,
+            'id' => $this->detail->id,
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
-            'title' => $this->getSubject(),
+            'title' => $this->getTitle(),
         ];
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Mission;
 
 use App\Models\Mission;
 use Illuminate\Bus\Queueable;
@@ -8,10 +8,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class MissionCreatedNotification extends Notification
+class Assigned extends Notification
 {
     use Queueable;
-
     /**
      * @var App\Models\Mission
      */
@@ -66,8 +65,7 @@ class MissionCreatedNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail', 'database'];
-        // return ['database'];
+        return !app()->environment('hostinger') ? ['mail', 'database'] : ['database'];
     }
 
     /**
@@ -86,7 +84,8 @@ class MissionCreatedNotification extends Notification
             ->line($startLine)
             ->line($endLine)
             ->action('Voir la mission', $this->getUrl())
-            ->line('Merci d\'utiliser notre application');
+            ->line('Merci d\'utiliser notre application')
+            ->success();
     }
 
     /**

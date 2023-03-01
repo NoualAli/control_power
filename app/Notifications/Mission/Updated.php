@@ -1,30 +1,30 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Mission;
 
-use App\Models\MissionDetail;
+use App\Models\Mission;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class MissionDetailUnregularized extends Notification
+class Updated extends Notification
 {
     use Queueable;
 
     /**
-     * @var App\Models\MissionDetail
+     * @var App\Models\Mission
      */
-    private $detail;
+    private $mission;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct(MissionDetail $detail)
+    public function __construct(Mission $mission)
     {
-        $this->detail = $detail;
+        $this->mission = $mission;
     }
 
     /**
@@ -34,7 +34,7 @@ class MissionDetailUnregularized extends Notification
      */
     private function getContent(): string
     {
-        $content = "La mission avec la référence " . $this->detail->mission->reference . " qui concerne l'agence " . $this->detail->mission->agency->full_name . " vous a été assigné.";
+        $content = "La mission " . $this->mission->reference . " pour l'agence " . $this->mission->agency->full_name . " a été mise à jour.";
         return $content;
     }
 
@@ -45,7 +45,7 @@ class MissionDetailUnregularized extends Notification
      */
     private function getSubject(): string
     {
-        return 'Mission assignée';
+        return 'Mise à jour: mission ' . $this->mission->reference;
     }
 
     /**
@@ -55,9 +55,8 @@ class MissionDetailUnregularized extends Notification
      */
     private function getUrl(): string
     {
-        return url('/missions/' . $this->detail->mission->id);
+        return url('/missions/' . $this->mission->id);
     }
-
 
     /**
      * Get the notification's delivery channels.
@@ -67,8 +66,7 @@ class MissionDetailUnregularized extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail', 'database'];
-        // return ['database'];
+        return !app()->environment('hostinger') ? ['mail', 'database'] : ['database'];
     }
 
     /**
@@ -79,11 +77,16 @@ class MissionDetailUnregularized extends Notification
      */
     public function toMail($notifiable)
     {
+        $startLine = "La mission commence le " . $this->mission->start;
+        $endLine = "La mission se termine le " . $this->mission->end;
         return (new MailMessage)
             ->subject($this->getSubject())
             ->line($this->getContent())
+            ->line($startLine)
+            ->line($endLine)
             ->action('Voir la mission', $this->getUrl())
-            ->line('Merci d\'utiliser notre application');
+            ->line('Merci d\'utiliser notre application')
+            ->success();
     }
 
     /**
@@ -95,7 +98,7 @@ class MissionDetailUnregularized extends Notification
     public function toArray($notifiable)
     {
         return [
-            'id' => $this->detail->mission->id,
+            'id' => $this->mission->id,
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
             'title' => $this->getSubject(),
