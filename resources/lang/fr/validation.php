@@ -223,7 +223,8 @@ return [
         'report' => 'rapport du chef de département',
         'major_fact_types' => 'types des faits majeur',
         'has_major_fact' => 'faits majeur',
-        'regularized_at' => 'date de régularization'
+        'regularized_at' => 'date de régularization',
+        'committed_action' => 'action engagé'
     ],
 
 ];
