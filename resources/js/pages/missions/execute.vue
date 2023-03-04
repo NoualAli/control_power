@@ -33,12 +33,6 @@
                 <NLSwitch v-model="form.rows[row].major_fact" :name="'rows.' + row + '.major_fact'" :form="form"
                   label="Fait majeur" />
               </div>
-              <!-- Major Fact type -->
-              <div class="col-12" v-if="form.rows[row].major_fact">
-                <NLSelect :name="'rows.' + row + '.major_fact_type'" label="Type fait majeur" :form="form"
-                  v-model="form.rows[row].major_fact_type"
-                  :options="setupMajorFactTypes(detail.control_point.major_fact_types)" labelRequired />
-              </div>
               <div class="col-12">
                 <NLSelect :name="'rows.' + row + '.score'" label="Notation" :form="form" v-model="form.rows[row].score"
                   :options="setupScores(detail.control_point.scores)" labelRequired />

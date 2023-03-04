@@ -1,14 +1,21 @@
-
 import Vue from "vue";
 import api from "./api";
+import { hasRole, isAbleTo } from './user'
 
-// api.get('user').then(success => {
-//   localStorage.setItem("authorizations", JSON.stringify(success.data.authorizations));
-// });
-function checkAbility(ability) {
-  const authorizations = JSON.parse(localStorage.getItem('authorizations')) || {};
-  return !authorizations.hasOwnProperty(ability.trim());
-}
+Vue.mixin({
+  computed: {
+    can() {
+      return (permissions) => {
+        return isAbleTo(permissions)
+      };
+    },
+    is() {
+      return (roles) => {
+        return hasRole(roles)
+      };
+    },
+  }
+})
 
 /**
  * v-can: Check user abilities to determine if he can perform or not some action
@@ -18,11 +25,10 @@ Vue.directive('can', {
     let can = []
     const authorizations = JSON.parse(localStorage.getItem('authorizations')) || [];
     const abilities = (binding.value || '').split(/\s*,\s*/);
-    // const vifDirective = checkVIfDire(vnode, binding)
+    const vifDirective = checkVIfDire(vnode, binding)
     abilities.some(ability => {
-      can.push(!authorizations.hasOwnProperty(ability.trim()))
+      can.push(!authorizations.hasOwnProperty(ability.trim()) || vifDirective)
     });
-    // console.log(vifDirective && can.some(value => value === true));
     if (can.every(value => value === true)) {
       customComment(vnode, el)
     }
@@ -36,31 +42,52 @@ Vue.directive('can', {
     abilities.some(ability => {
       can.push(!authorizations.hasOwnProperty(ability.trim()))
     });
-    // console.log(vifDirective && can.some(value => value === true));
     if (vifDirective || can.every(value => value === true)) {
       customComment(vnode, el)
     }
     return
   },
-  // bind: function (el, binding, vnode) {
-  //   const abilities = (binding.value || '').split(/\s*,\s*/);
-  //   const can = abilities.some(checkAbility);
+})
 
-  //   if (!can) {
-  //     customComment(vnode, el);
-  //   }
-  //   return
-  // },
-  // update: function (el, binding, vnode) {
-  //   const abilities = (binding.value || '').split(/\s*,\s*/);
-  //   const can = abilities.some(checkAbility);
-  //   const vifDirective = vnode.data.directives.find(d => d.name === 'if');
+Vue.directive('can-hide', {
+  bind: function (el, binding, vnode) {
+    const authorizations = JSON.parse(localStorage.getItem('authorizations')) || [];
+    const abilities = (binding.value || '').split(/\s*,\s*/);
+    abilities.forEach(ability => {
+      if (!authorizations.hasOwnProperty(ability.trim())) {
+        el.style.display = 'none';
+      }
+    });
+  }
+});
 
-  //   if (!vifDirective || can) {
-  //     customComment(vnode, el);
-  //   }
-  //   return
-  // },
+Vue.directive('can-strict', {
+  bind: function (el, binding, vnode) {
+    let can = []
+    const authorizations = JSON.parse(localStorage.getItem('authorizations')) || [];
+    const abilities = (binding.value || '').split(/\s*,\s*/);
+    const vifDirective = checkVIfDire(vnode, binding)
+    abilities.every(ability => {
+      can.push(!authorizations.hasOwnProperty(ability.trim()) && vifDirective)
+    });
+    if (can.every(value => value === true)) {
+      customComment(vnode, el)
+    }
+    return
+  },
+  update: function (el, binding, vnode) {
+    let can = []
+    const authorizations = JSON.parse(localStorage.getItem('authorizations')) || [];
+    const abilities = (binding.value || '').split(/\s*,\s*/);
+    const vifDirective = checkVIfDire(vnode, binding)
+    abilities.every(ability => {
+      can.push(!authorizations.hasOwnProperty(ability.trim()) && vifDirective)
+    });
+    if (can.every(value => value === true)) {
+      customComment(vnode, el)
+    }
+    return
+  },
 })
 
 /**
@@ -70,9 +97,19 @@ Vue.directive('has-role', {
   bind: function (el, binding, vnode) {
     const roles = JSON.parse(localStorage.getItem('roles')) || [];
     const data = (binding.value || '').split(/\s*,\s*/);
-    const hasRole = data.every(item => roles.some(role => role.code === item.trim()));
-    // console.log(hasRole);
-    if (!hasRole) {
+    const vifDirective = checkVIfDire(vnode, binding)
+    const hasRole = data.some(item => roles.some(role => role.code === item.trim()));
+    if (!hasRole && !vifDirective) {
+      customComment(vnode, el)
+    }
+    return
+  },
+  update: function (el, binding, vnode) {
+    const roles = JSON.parse(localStorage.getItem('roles')) || [];
+    const data = (binding.value || '').split(/\s*,\s*/);
+    const hasRole = data.some(item => roles.some(role => role.code === item.trim()));
+    const vifDirective = checkVIfDire(vnode, binding)
+    if (!hasRole && !vifDirective) {
       customComment(vnode, el)
     }
     return

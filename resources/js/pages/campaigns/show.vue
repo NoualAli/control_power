@@ -1,24 +1,27 @@
 <template>
   <ContentBody v-can="'view_control_campaign'">
     <div class="d-flex justify-end align-center gap-3 my-2">
-      <router-link :to="{ name: 'campaign-missions', params: { campaignId: campaign?.current.id } }" class="btn"
+      <router-link :to="{ name: 'campaign-missions', params: { campaignId: campaign?.current?.id } }" class="btn"
         v-can="'view_mission'">
         Missions
       </router-link>
-      <router-link class="btn btn-warning"
-        :to="{ name: 'campaigns-edit', params: { campaignId: campaign?.current.id } }" v-can="'edit_control_campaign'"
-        v-if="campaign?.current?.remaining_days_before_start > 5">
+      <router-link class="btn btn-warning" :to="{ name: 'campaigns-edit', params: { campaignId: campaign?.current?.id } }"
+        v-can="'edit_control_campaign'" v-if="campaign?.current?.remaining_days_before_start > 5">
         <i class="las la-edit icon"></i>
       </router-link>
       <button class="btn btn-danger" @click.stop="destroy" v-can="'delete_control_campaign'"
         v-if="campaign?.current?.remaining_days_before_start > 5">
         <i class="las la-trash icon"></i>
       </button>
+      <button class="btn btn-info has-icon" @click.stop="validate(campaign?.current)" v-can="'validate_control_campaign'"
+        v-if="!campaign?.current?.validated_by_id">
+        <i class="las la-check icon"></i>
+      </button>
     </div>
     <!-- Control campaign informations -->
     <div class="box mb-10 border-primary-dark border-1">
       <div class="grid gap-12">
-        <div class="col-12 col-lg-6">
+        <div class="col-12 col-lg-4">
           <span class="text-bold">
             Référence:
           </span>
@@ -26,7 +29,15 @@
             {{ campaign?.current?.reference }}
           </span>
         </div>
-        <div class="col-12 col-lg-6">
+        <div class="col-12 col-lg-4" v-has-role="'cdcr,dcp'">
+          <span class="text-bold">
+            Etat:
+          </span>
+          <span>
+            {{ campaign?.current?.validated_by_id ? 'Validé' : 'En attente de validation' }}
+          </span>
+        </div>
+        <div class="col-12 col-lg-4">
           <div class="grid">
             <div class="col-12 grid">
               <div class="col-12 col-lg-6">
@@ -35,7 +46,7 @@
                 </span>
                 <span>
                   {{ campaign?.current?.start + ' / ' +
-                  campaign?.current?.remaining_days_before_start_str }}
+                    campaign?.current?.remaining_days_before_start_str }}
                 </span>
               </div>
               <div class="col-12 col-lg-6">
@@ -44,7 +55,7 @@
                 </span>
                 <span>
                   {{ campaign?.current?.end + ' / ' +
-                  campaign?.current?.remaining_days_before_end_str }}
+                    campaign?.current?.remaining_days_before_end_str }}
                 </span>
               </div>
             </div>
@@ -118,7 +129,7 @@ export default {
   },
   breadcrumb() {
     return {
-      label: 'Détails campagne ' + this.campaign?.current.reference
+      label: 'Détails campagne ' + this.campaign?.current?.reference
     }
   },
   data() {
@@ -173,12 +184,33 @@ export default {
       this.$store.dispatch('processes/fetch', { id: process.id, onlyControlPoints: true }).then(() => this.control_points = this.process.controlPoints)
     },
     /**
+     * Valide une campagne de contrôle
+     *
+     * @param {Object} item
+     */
+    validate(item) {
+      swal.confirm({ title: 'Validation', message: 'Validation de la campagne de contrôle ' + item.reference, icon: 'success' }).then(response => {
+        if (response.isConfirmed) {
+          api.put('campaigns/' + item.id + '/validate').then(response => {
+            if (response.data.status) {
+              this.initData()
+              swal.toast_success(response.data.message)
+            } else {
+              swal.toast_error(response.data.message)
+            }
+          })
+        }
+      }).catch(error => {
+        swal.alert_error(error)
+      })
+    },
+    /**
      * Delete campaign
      */
     destroy() {
       swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
-          api.delete('campaigns/' + this.campaign?.current.id).then(response => {
+          api.delete('campaigns/' + this.campaign?.current?.id).then(response => {
             if (response.data.status) {
               swal.toast_success(response.data.message)
               this.$router.push({ name: 'campaigns' })
@@ -200,7 +232,7 @@ export default {
     detachProcess(process) {
       swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
-          api.delete('campaigns/' + this.campaign?.current.id + '/process/' + process.id).then(response => {
+          api.delete('campaigns/' + this.campaign?.current?.id + '/process/' + process.id).then(response => {
             if (response.data.status) {
               this.initData()
               swal.toast_success(response.data.message)

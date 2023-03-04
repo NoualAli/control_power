@@ -3,51 +3,32 @@ import Swal from "sweetalert2"
 
 export const state = {
   pcf: null,
+  filters: null,
 }
 
 export const mutations = {
   FETCH_PCF(state, data) {
     state.pcf = data
   },
-  SUCCESS(state, message) {
-    Swal.fire({
-      icon: 'success',
-      title: 'Succès',
-      confirmButtonColor: '#0C9AAC',
-      text: message.message,
-    })
+  FETCH_FILTERS_DATA(state, data) {
+    state.filters = data
   },
-  ERROR(state, message) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Erreur',
-      text: message.message,
-    })
-  }
 }
 
 export const actions = {
-  async fetchPCF({ commit }) {
-    const { data } = await axios.get('/api/references/pcf')
-    commit('FETCH_PCF', { pcf: data })
-  },
-  async filterPCF({ commit }, { famillyId, domainId, process }) {
-    let queryString = ''
-    if (famillyId) {
-      queryString = '?filter[familly_id]=' + famillyId
-      if (domainId) {
-        queryString += '&filter[domain_id]=' + domainId
-        if (process) {
-          queryString += '&filter[process_id]=' + process
-        }
-      }
+  async fetchPCF({ commit }, onlyFiltersData = false) {
+    const url = onlyFiltersData ? '/api/references/pcf?onlyFiltersData' : '/api/references/pcf'
+    const { data } = await axios.get(url)
+    if (onlyFiltersData) {
+      commit('FETCH_FILTERS_DATA', { filters: data })
+    } else {
+      commit('FETCH_PCF', { pcf: data })
     }
-    const { data } = await axios.get('/api/references/pcf' + queryString)
-    commit('FETCH_PCF', { pcf: data })
   },
 }
 
 export const getters = {
   pcf: state => state.pcf,
+  filters: state => state.filters
 }
 

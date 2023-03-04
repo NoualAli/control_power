@@ -2,13 +2,14 @@
   <DefaultContainer :name="name" :id="id || name" :form="form" :label="label" :labelRequired="labelRequired"
     :helpText="helpText">
     <input type="file" :name="name" :id="id || name" :multiple="multiple" :accept="accept" class="file-input"
-      @change="onChange($event)">
-    <div :class="[{ 'is-danger': form?.errors.has(name), 'has-files': hasFiles }, 'file-input-area']" :draggable="true"
-      @dragover="dragover" @dragleave="dragleave" @drop="drop">
-      <p class="text-medium file-uploader" @click.stop="openFileBrowser($event)" v-if="!inProgress">
+      @change="onChange($event)" v-if="!readonly">
+    <div
+      :class="[{ 'is-danger': form?.errors.has(name), 'has-files': hasFiles, 'is-readonly': readonly }, 'file-input-area']"
+      :draggable="true" @dragover="dragover" @dragleave="dragleave" @drop="drop">
+      <p class="text-medium file-uploader" @click.stop="openFileBrowser($event)" v-if="!inProgress && !readonly">
         {{ placeholder }} <i class="las la-cloud-upload-alt text-large"></i>
       </p>
-      <p class="text-medium file-uploader" v-else>
+      <p class="text-medium file-uploader" v-else-if="inProgress && !readonly">
         <i class="las la-spinner la-spin text-large"></i> {{ loadingText }}{{ progress }} %
       </p>
       <div class="files-list list text-medium">
@@ -24,7 +25,8 @@
               <a :href="file.link" :download="file.name">
                 <i class="las la-download text-info icon"></i>
               </a>
-              <i class="las la-trash text-danger icon is-clickable" @click.stop="deleteItem(file, index)"></i>
+              <i class="las la-trash text-danger icon is-clickable" @click.stop="deleteItem(file, index)"
+                v-if="canDelete && !readonly"></i>
             </div>
           </div>
         </div>
@@ -52,6 +54,8 @@ export default {
     attachableId: { type: String | Number, default: '' },
     accepted: { type: String, default: 'jpg,jpeg,png,doc,docx,xls,xlsx,pdf' },
     helpText: { type: String, default: null },
+    canDelete: { type: Boolean, default: true },
+    readonly: { type: Boolean, default: false },
   },
   model: {
     prop: 'value',

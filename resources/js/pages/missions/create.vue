@@ -79,9 +79,7 @@ export default {
   },
   watch: {
     "form.control_campaign_id": function (newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.initData()
-      }
+      if (newVal !== oldVal && newVal !== null && newVal !== undefined) this.initData()
     }
   },
   breadcrumb() {
@@ -96,10 +94,6 @@ export default {
     config: 'missions/config',
   }),
   created() {
-    if (this.$route.params.campaignId) {
-      this.form.control_campaign_id = this.$route.params.campaignId
-      this.campaignId = this.$route.params.campaignId
-    }
     this.initData()
   },
   methods: {
@@ -107,6 +101,10 @@ export default {
      * Initialise les données
      */
     initData() {
+      if (this.$route.params.campaignId) {
+        this.form.control_campaign_id = this.$route.params.campaignId
+        this.campaignId = this.$route.params.campaignId
+      }
       this.$store.dispatch('missions/fetchConfig', this.form.control_campaign_id).then(() => {
         this.agenciesList = this.config.config.agencies
         this.controllersList = this.config.config.controllers

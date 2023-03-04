@@ -69,7 +69,7 @@ export default {
       })
     },
     totalUnreadNotifications(newVal, oldVal) {
-      console.log(newVal, oldVal);
+      // console.log(newVal, oldVal);
     }
   },
   methods: {

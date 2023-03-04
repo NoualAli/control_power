@@ -18,6 +18,7 @@
 import ContentHeader from '../../components/ContentHeader'
 import ContentBody from '../../components/ContentBody'
 import { mapGetters } from 'vuex'
+import { hasRole } from '../../plugins/user'
 export default {
   components: {
     ContentHeader, ContentBody
@@ -65,6 +66,7 @@ export default {
           {
             label: 'Moyenne',
             field: 'avg_score',
+            hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
             methods: {
               style: (item) => {
                 const score = item.avg_score
@@ -122,7 +124,7 @@ export default {
             }
           },
           {
-            label: 'Progression',
+            label: 'Taux de progression',
             field: 'progress_status',
             methods: {
               showField(item) {
@@ -136,10 +138,10 @@ export default {
             return user().authorizations.view_mission
           },
           edit: (item) => {
-            return user().authorizations.edit_mission && item.remaining_days_before_start > 5
+            return this.can('edit_mission') && item.remaining_days_before_start > 5
           },
           delete: (item) => {
-            return user().authorizations.delete_mission && item.remaining_days_before_start > 5
+            return this.can('edit_mission') && item.remaining_days_before_start > 5
           },
         }
       },

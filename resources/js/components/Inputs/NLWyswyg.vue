@@ -7,7 +7,7 @@
         :autofocus="autofocus" @ready="quill => editorQuill = quill" :max-length="length"
         :placeholder="placeholder || label" :value="currentValue" :helpText="helpText" />
     </DefaultContainer>
-</div>
+  </div>
 </template>
 
 <script>
@@ -58,7 +58,6 @@ export default {
         [ { 'indent': '-1' }, { 'indent': '+1' } ],
         [ { 'direction': 'ltr' }, { 'direction': 'rtl' } ],
         [ { 'color': [] }, { 'background': [] } ],
-        [ 'link' ],
       ]
     }
   },

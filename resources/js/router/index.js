@@ -80,7 +80,8 @@ async function beforeEach(to, from, next) {
 
   // Start the loading bar.
   if (components[ components.length - 1 ].loading !== false) {
-    router.app.$nextTick(() => router.app.$loading.start())
+    router?.app?.$nextTick()
+    // router?.app?.$nextTick(() => router?.app?.$loading?.start())
   }
 
   // Get the middleware for all the matched components.

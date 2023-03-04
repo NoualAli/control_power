@@ -84,7 +84,8 @@ export default {
      * @param {Object} item
      */
     show(item) {
-      this.$router.push(this.getRoute(item))
+      const { pathname, search } = new URL(item.url)
+      this.$router.push({ path: pathname, query: Object.fromEntries(new URLSearchParams(search)) })
     },
     /**
      * Formate les différentes informations pour créer la route d'action
@@ -92,7 +93,6 @@ export default {
      * @param {Object} item
      */
     getRoute(item) {
-      console.log(item);
       if (item.url) {
         return item.url
       } else {

@@ -91,13 +91,14 @@ export default {
           })
           this.form.agency = this.mission.current.agency.name
           this.form.campaign = this.mission.current.campaign.reference
-          this.form.controllers = this.mission.current.controllers.map((controller) => controller.id)
+          this.form.controllers = this.mission.current.agency_controllers.map((controller) => controller.id)
           this.form.start = this.mission.current.start.split('-').reverse().join('-')
           this.form.end = this.mission.current.end.split('-').reverse().join('-')
           this.form.note = this.mission.current.note
         }
       }).catch(error => {
-        this.$router.push({ name: 'missions' })
+        // this.$router.push({ name: 'missions' })
+        swal.alert_error(error)
       })
     },
     /**

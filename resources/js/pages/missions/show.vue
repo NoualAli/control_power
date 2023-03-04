@@ -2,7 +2,7 @@
   <ContentBody v-can="'view_mission'">
     <div class="d-flex justify-end align-center gap-3 my-2">
       <router-link :to="{ name: 'campaign', params: { campaignId: mission?.current.campaign.id } }" class="btn"
-        v-can="'view_mission'">
+        v-can="'view_control_campaign,view_page_control_campaigns'">
         Campagne de contrôle
       </router-link>
       <router-link class="btn btn-warning" :to="{ name: 'missions-edit', params: { missionId: mission?.current.id } }"
@@ -101,15 +101,7 @@
         </div>
         <div class="col-12 col-lg-4">
           <span class="text-bold">
-            Moyenne:
-          </span>
-          <span>
-            {{ mission?.current?.avg_score }}
-          </span>
-        </div>
-        <div class="col-12 col-lg-4">
-          <span class="text-bold">
-            Progression:
+            Taux de progression:
           </span>
           <span>
             {{ mission?.current?.progress_status }}%
@@ -121,6 +113,48 @@
           </span>
           <span>
             {{ mission?.current?.realisation_state }}
+          </span>
+        </div>
+        <div class="col-12 col-lg-4" v-has-role="'cdc,cdcr,cc'">
+          <span class="text-bold">
+            Moyenne:
+          </span>
+          <span>
+            {{ mission?.current?.avg_score }}
+          </span>
+        </div>
+        <!-- <div class="col-12 col-lg-4 d-none d-lg-block"></div> -->
+        <div class="col-12 col-lg-4" v-if="mission?.current?.cdcr_validation_at">
+          <span class="text-bold">
+            1<sup>ère</sup> validation
+          </span>
+          <span>
+            {{ mission?.current?.cdcr_validation_at }}
+          </span>
+        </div>
+        <div class="col-12 col-lg-4" v-if="mission?.current?.cdcr_validation_at">
+          <span class="text-bold">
+            Validé par:
+          </span>
+          <span>
+            {{ mission?.current?.cdcr_validator?.full_name }}
+          </span>
+        </div>
+        <div class="col-12 col-lg-4 d-none d-lg-block"></div>
+        <div class="col-12 col-lg-4" v-if="mission?.current?.dcp_validation_at">
+          <span class="text-bold">
+            2<sup>ème</sup> validation
+          </span>
+          <span>
+            {{ mission?.current?.dcp_validation_at }}
+          </span>
+        </div>
+        <div class="col-12 col-lg-4" v-if="mission?.current?.dcp_validation_at">
+          <span class="text-bold">
+            Validé par:
+          </span>
+          <span>
+            {{ mission?.current?.dcp_validator?.full_name }}
           </span>
         </div>
         <div class="col-12">
@@ -135,76 +169,73 @@
     </div>
 
     <!-- Actions -->
-    <div class="d-flex align-items">
+    <div class="d-flex align-items gap-2">
       <!-- CDC -->
-      <div v-can="'create_dre_report'">
-        <!-- Report actions -->
-        <button class="btn btn-info"
-          v-if="mission?.current.progress_status == 100 && !mission?.current.dre_report && mission?.current.opinion?.is_validated"
-          @click="showReport">
-          Ajouter votre rapport
-        </button>
-        <button class="btn btn-success"
-          v-if="mission?.current.progress_status == 100 && mission?.current.opinion?.is_validated && !mission?.current.dre_report?.is_validated && mission?.current.dre_report"
-          @click.prevent="validateReport">
-          Valider la mission
-        </button>
 
-        <!-- Read actions -->
-        <button class="btn btn-info" v-if="mission?.current.dre_report" @click="showReport" v-can="'create_dre_report'">
-          Rapport de la mission
-        </button>
-        <button class="btn btn-info" v-if="mission?.current.opinion?.is_validated" @click="showOpinion"
-          v-can="'view_opinion'">
-          Avis sur la mission
-        </button>
-      </div>
+      <!-- Report actions -->
+      <button class="btn btn-info"
+        v-if="mission?.current.progress_status == 100 && !mission?.current.dre_report && mission?.current.opinion?.is_validated && can('create_dre_report')"
+        @click="showReport">
+        Ajouter votre rapport
+      </button>
+      <button class="btn btn-success"
+        v-if="mission?.current.progress_status == 100 && mission?.current.opinion?.is_validated && !mission?.current.dre_report?.is_validated && mission?.current.dre_report && can('validate_dre_report')"
+        @click.prevent="validateReport">
+        Valider la mission
+      </button>
+
+      <!-- Read actions -->
+      <button class="btn btn-info" v-if="mission?.current.dre_report && can('create_dre_report')" @click="showReport">
+        Rapport de la mission
+      </button>
 
       <!-- CI -->
-      <div v-can="'create_opinion'">
-        <button class="btn btn-info"
-          v-if="!mission?.current.controller_opinion_exist && !mission?.dre_report_exist && mission?.current.progress_status == 100"
-          @click="showOpinion" v-can="'create_opinion'">
-          Ajouter votre avis
-        </button>
-        <button class="btn btn-success"
-          v-if="mission?.current.progress_status == 100 && !mission?.current.controller_opinion_validated && mission?.controller_opinion_exist"
-          @click.prevent="validateOpinion" v-can="'validate_opinion'">
-          Valider la mission
-        </button>
-        <button class="btn btn-info" v-if="mission?.controller_opinion_exist" @click="showOpinion"
-          v-can="'validate_opinion'">
-          Avis sur la mission
-        </button>
-      </div>
+      <button class="btn btn-success"
+        v-if="mission?.current.progress_status == 100 && !mission?.current.controller_opinion_is_validated && mission?.current?.controller_opinion_exist && can('validate_opinion')"
+        @click.prevent="validateOpinion">
+        Valider la mission
+      </button>
+      <button class="btn btn-info"
+        v-if="!mission?.current.controller_opinion_exist && !mission?.current?.dre_report_exist && mission?.current.progress_status == 100 && can('create_opinion')"
+        @click="showOpinion">
+        Ajouter votre avis
+      </button>
+
+      <button class="btn btn-info" v-if="mission?.current.opinion?.is_validated && can('view_opinion')"
+        @click="showOpinion">
+        Avis sur la mission
+      </button>
+      <button class="btn btn-info"
+        v-if="mission?.current?.controller_opinion_exist && !mission?.current.opinion?.is_validated && can('create_opinion')"
+        @click="showOpinion">
+        Avis sur la mission
+      </button>
 
       <!-- CDCR -->
-      <div v-can="'make_first_validation'">
-        <button class="btn btn-success" v-if="!mission?.current.cdcr_validation_at" @click.prevent="validateMission(1)"
-          v-can="'make_first_validation'">
-          Valider la mission
-        </button>
-        <button class="btn btn-success" v-if="!mission?.current.cdcr_validation_at" @click.prevent="showDispatchForm"
-          v-can="'assign_mission_processing'">
-          Assigné
-        </button>
-        <button class="btn btn-info" v-if="mission?.current.dre_report?.is_validated" @click="showReport"
-          v-can="'make_first_validation'">
-          Rapport de la mission
-        </button>
-      </div>
+      <button class="btn btn-success" v-if="!mission?.current.cdcr_validation_at && can('make_first_validation')"
+        @click.prevent="validateMission(1)">
+        Valider la mission
+      </button>
+      <button class="btn btn-success" v-if="!mission?.current.cdcr_validation_at && can('assign_mission_processing')"
+        @click.prevent="showDispatchForm">
+        Assigné
+      </button>
+      <button class="btn btn-info" v-if="mission?.current.dre_report?.is_validated && can('make_first_validation')"
+        @click="showReport">
+        Rapport de la mission
+      </button>
 
       <!-- DCP -->
-      <div v-can="'make_second_validation'">
-        <button class="btn btn-success" v-if="mission?.current.cdcr_validation_at && !mission?.current.dcp_validation_at"
-          @click.prevent="validateMission(2)" v-can="'make_second_validation'">
-          Valider la mission
-        </button>
-        <button class="btn btn-info" v-if="mission?.current.cdcr_validation_at" @click="showReport"
-          v-can="'make_second_validation'">
-          Rapport de la mission
-        </button>
-      </div>
+      <button class="btn btn-success"
+        v-if="mission?.current.cdcr_validation_at && !mission?.current.dcp_validation_at && can('make_second_validation')"
+        @click.prevent="validateMission(2)">
+        Valider la mission
+      </button>
+      <button class="btn btn-info" v-if="mission?.current.dre_report?.is_validated && can('make_second_validation')"
+        @click="showReport">
+        Rapport de la mission
+      </button>
+
       <div v-has-role="'dg,cdrcp,da,cc'">
         <button class="btn btn-info" v-if="mission?.current.cdcr_validation_at" @click="showReport">
           Rapport de la mission
@@ -381,6 +412,7 @@ import NLDatatable from '../../components/NLDatatable';
 import { mapGetters } from 'vuex';
 import api from '../../plugins/api'
 import { Form } from 'vform';
+import { hasRole } from '../../plugins/user'
 export default {
   layout: 'backend',
   middleware: [ 'auth' ],
@@ -416,6 +448,7 @@ export default {
           {
             label: "Moyenne",
             field: "avg_score",
+            hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
             methods: {
               style: (item) => {
                 const score = item.avg_score
@@ -432,7 +465,7 @@ export default {
             }
           },
           {
-            label: "Progression",
+            label: "Taux de progression",
             field: "progress_status",
             methods: {
               showField: (item) => {

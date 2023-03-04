@@ -1,14 +1,16 @@
 <template>
   <ContentBody>
-    <NLDatatable :filters="filters" namespace="details" stateKey="majorFacts" :config="tableConfig" @show="show" />
+    <NLDatatable :filters="filters" namespace="details" stateKey="global" :config="tableConfig" @show="show" />
+
+    <!-- View control point informations -->
     <NLModal :show="modals.show" @close="close('show')" :defaultMode="true">
       <template v-slot:title>
         <div class="tags">
           <small class="tag is-primary-dark text-small">
-            {{ rowSelected?.cdc_reference }}
+            {{ mission?.campaign?.reference }}
           </small>
           <small class="tag is-primary-extra-light text-small mx-1">
-            {{ rowSelected?.mission_reference }}
+            {{ mission?.reference }}
           </small>
         </div>
       </template>
@@ -20,27 +22,27 @@
           </div>
           <div class="col-12 col-lg-6">
             <span class="label">Dre: </span>
-            <span>{{ rowSelected?.dre_full_name }}</span>
+            <span>{{ mission?.dre?.full_name }}</span>
           </div>
           <div class="col-12 col-lg-6">
             <span class="label">Agence: </span>
-            <span>{{ rowSelected?.agency_full_name }}</span>
+            <span>{{ mission?.agency?.full_name }}</span>
           </div>
           <div class="col-12 col-lg-6">
             <span class="label">Famille: </span>
-            <span>{{ rowSelected?.familly_name }}</span>
+            <span>{{ process?.familly?.name }}</span>
           </div>
           <div class="col-12 col-lg-6">
             <span class="label">Domaine: </span>
-            <span>{{ rowSelected?.domain_name }}</span>
+            <span>{{ rowSelected?.domain?.name }}</span>
           </div>
           <div class="col-12">
             <span class="label">Processus: </span>
-            <span>{{ rowSelected?.process_name }}</span>
+            <span>{{ process?.name }}</span>
           </div>
           <div class="col-12">
             <span class="label">Point de contrôle: </span>
-            <span>{{ rowSelected?.control_point_name }}</span>
+            <span>{{ rowSelected?.control_point?.name }}</span>
           </div>
           <div class="col-12 col-lg-6">
             <span class="label">Appréciation: </span>
@@ -89,47 +91,55 @@
             <span>{{ rowSelected?.recovery_plan || '-' }}</span>
           </div>
           <div class="col-12 list-item" v-if="rowSelected?.media">
-            <div class="list-item-content" @click.stop="" v-for="file in rowSelected?.media">
-              <div class="files-list list is-visible grid gap-4 text-medium">
-                <div class="col-11 d-flex justify-between align-center">
-                  <a :href="file.link" target="_blank" class="text-dark text-small">
-                    {{ file.original_name }}
-                  </a>
-                  <span class="text-small">{{ file.size }}</span>
-                </div>
-                <div class="col-1 d-flex justify-end align-center gap-4">
-                  <a :href="file.link" :download="file.original_name">
-                    <i class="las la-download text-info icon"></i>
-                  </a>
-                  <i class="las la-trash text-danger icon is-clickable" @click.stop="deleteItem(file, index)"></i>
-                </div>
-              </div>
-            </div>
+            <NLFile label="Pièces jointes" name="media" v-model="files" :canDelete="false" readonly />
           </div>
-
-          <div class="col-12 d-flex justify-end align-center" v-can="'dispatch_major_fact'">
+          <div class="col-12 d-flex justify-end align-center">
             <div class="d-flex align-center gap-2">
-              <button class="btn btn-warning has-icon" @click.prevent="edit" v-can="'process_mission,dispatch_major_fact'"
-                v-if="rowSelected?.mission_dcp_validation_at">
-                <i class="las la-check icon"></i>
-                Traiter
-              </button>
-              <button class="btn btn-warning has-icon" @click.prevent="edit" v-can="'control_agency'"
-                v-if="!rowSelected?.mission_dcp_validation_at">
+              <!-- CI -->
+              <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
+                v-if="!mission?.controller_opinion_is_validated && !rowSelected?.major_fact && can('create_opinion')">
                 <i class="las la-pen icon"></i>
                 Modifier
               </button>
 
-              <button class="btn btn-info has-icon" @click.prevent="notify" v-if="rowSelected?.mission_dcp_validation_at">
+              <!-- CDC -->
+              <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
+                v-if="!mission?.dre_report_is_validated && !rowSelected?.major_fact && can('create_dre_report,validate_dre_report')">
+                <i class="las la-pen icon"></i>
+                Modifier
+              </button>
+
+              <!-- CDCR -->
+              <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
+                v-if="!mission?.cdcr_validation_at && !rowSelected?.major_fact_dispatched_at && can('make_first_validation,make_second_validation')">
+                <i class="las la-pen icon"></i>
+                Traiter
+              </button>
+
+              <!-- DCP -->
+              <!-- <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
+                v-if="!mission?.dcp_validation_at && rowSelected?.mission?.cdcr_validation_at && !rowSelected?.major_fact_dispatched_at && can('make_second_validation')">
+                <i class="las la-pen icon"></i>
+                Traiter
+              </button> -->
+              <button class="btn btn-info has-icon" @click.prevent="notify(rowSelected)"
+                v-if="!rowSelected?.major_fact_dispatched_at && rowSelected?.major_fact && can('dispatch_major_fact')">
                 <i class="las la-bell icon"></i>
                 Notifier
+              </button>
+              <!-- Agency director -->
+              <button
+                v-if="mission?.dcp_validation_at && !rowSelected?.regularization?.regularized_at && rowSelected?.score !== 1 && can('regularize_mission_detail')"
+                class="btn btn-warning has-icon" @click="edit(rowSelected)">
+                <i class="las la-pen icon"></i>
+                Régulariser
               </button>
             </div>
           </div>
         </div>
       </template>
     </NLModal>
-    <!-- Edition du point de contrôle -->
+    <!-- Traitement du point de contrôle -->
     <NLModal :show="modals.edit" :defaultMode="true" @close="close('edit')" v-if="modals.edit">
       <template v-slot:title>
         <small>
@@ -137,25 +147,31 @@
         </small>
       </template>
       <template v-slot>
-        <Notification type="is-danger" v-if="form.errors.any()">
+        <Notification type="is-danger" v-if="forms.detail.errors.any()">
           Il y a {{ formErrorsCount }}
           {{ formErrorsCount > 1 ? 'problèmes avec vos entrées' : 'problème avec une entrée' }}.
         </Notification>
-        <form @submit.prevent="save" @keydown="form.onKeydown($event)" enctype="multipart/form-data" class="grid gap-6">
+        <form @submit.prevent="save('edit')" @keydown="forms.detail.onKeydown($event)" enctype="multipart/form-data"
+          class="grid gap-6">
+          <!-- Major Fact -->
           <div class="col-12">
-            <NLSwitch v-model="form.major_fact" :name="'major_fact'" :form="form" label="Fait majeur" />
+            <NLSwitch v-model="forms.detail.major_fact" :name="'major_fact'" :form="forms.detail" label="Fait majeur" />
           </div>
+
+          <!-- Score -->
           <div class="col-12">
-            <NLSelect :name="'score'" label="Notation" :form="form" v-model="form.score"
+            <NLSelect :name="'score'" label="Notation" :form="forms.detail" v-model="forms.detail.score"
               :options="setupScores(rowSelected?.control_point?.scores)" labelRequired />
           </div>
 
           <!-- Metadata -->
-          <div class="col-12" v-if="rowSelected?.control_point?.fields && form.score > 1 && !form.process_mode">
+          <div class="col-12"
+            v-if="rowSelected?.control_point?.fields && forms.detail.score > 1 && !forms.detail.process_mode">
             <div class="repeater">
               <h2 class="mb-6">Informations supplémentaires</h2>
               <!-- Repeater row -->
-              <div class="grid my-6 repeater-row" v-for="(item, dataRow) in form.metadata" :key="'metadata-' + dataRow">
+              <div class="grid my-6 repeater-row" v-for="(item, dataRow) in forms.detail.metadata"
+                :key="'metadata-' + dataRow">
                 <div class="col-12">
                   <div class="grid gap-2">
                     <div class="col-11">
@@ -163,27 +179,29 @@
                         <div :key="'metadata-input-' + input.name + '-' + dataRow + '-id'" :class="input.style"
                           v-for="(input, index) in setupFields(rowSelected?.control_point?.fields)">
                           <!-- Defining different inputs -->
-                          <NLInput :form="form" :label="input.label" :placeholder="input.placeholder" :type="input.type"
-                            :labelRequired="input.required" :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                            v-model="form.metadata[dataRow][index][input.name]"
-                            :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-if="isInput(input.type)" />
-
-                          <NLTextarea :form="form" :label="input.label" :placeholder="input.placeholder"
+                          <NLInput :form="forms.detail" :label="input.label" :placeholder="input.placeholder"
                             :type="input.type" :labelRequired="input.required"
                             :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                            v-model="form.metadata[dataRow][index][input.name]"
+                            v-model="forms.detail.metadata[dataRow][index][input.name]"
+                            :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-if="isInput(input.type)" />
+
+                          <NLTextarea :form="forms.detail" :label="input.label" :placeholder="input.placeholder"
+                            :type="input.type" :labelRequired="input.required"
+                            :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
+                            v-model="forms.detail.metadata[dataRow][index][input.name]"
                             :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-if="input.type == 'textarea'"
                             :length="input.length" />
 
-                          <NLWyswyg :form="form" :label="input.label" :placeholder="input.placeholder" :type="input.type"
-                            :labelRequired="input.required" :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                            v-model="form.metadata[dataRow][index][input.name]"
+                          <NLWyswyg :form="forms.detail" :label="input.label" :placeholder="input.placeholder"
+                            :type="input.type" :labelRequired="input.required"
+                            :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
+                            v-model="forms.detail.metadata[dataRow][index][input.name]"
                             :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-if="input.type == 'wyswyg'"
                             :length="input.length" />
 
-                          <NLSelect :form="form" :label="input.label" :type="input.type" :labelRequired="input.required"
-                            :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                            v-model="form.metadata[dataRow][index][input.name]"
+                          <NLSelect :form="forms.detail" :label="input.label" :type="input.type"
+                            :labelRequired="input.required" :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
+                            v-model="forms.detail.metadata[dataRow][index][input.name]"
                             :id="'metadata.' + dataRow + '.' + index + '.' + input.name" :options="input.options"
                             :placeholder="input.placeholder || 'Choisissez une option...'" :multiple="input.multiple"
                             v-if="input.type == 'select'" />
@@ -207,7 +225,9 @@
               </div>
             </div>
           </div>
-          <div class="col-12" :class="{ 'col-lg-8': !rowSelected?.parsed_metadata }" v-else>
+          <!-- Metadata -->
+          <div class="col-12" :class="{ 'col-lg-8': !rowSelected?.parsed_metadata }"
+            v-else-if="!rowSelected?.control_point?.fields && forms.detail.process_mode">
             <div class=" label">
               Informations supplémentaires
             </div>
@@ -234,54 +254,35 @@
           </div>
 
           <!-- Report -->
-          <div class="col-12" v-if="!form.process_mode">
-            <NLTextarea :name="'report'" label="Constat" :form="form" v-model="form.report"
-              :placeholder="form.score == 1 || form.score == null && !form.major_fact ? '' : 'Ajouter votre constat'"
-              :labelRequired="form.score > 1 || form.major_fact"
-              :disabled="form.score == 1 || form.score == null && !form.major_fact" />
+          <div class="col-12" v-if="!forms.detail.process_mode">
+            <NLTextarea :name="'report'" label="Constat" :form="forms.detail" v-model="forms.detail.report"
+              :placeholder="forms.detail.score == 1 || forms.detail.score == null && !forms.detail.major_fact ? '' : 'Ajouter votre constat'"
+              :labelRequired="forms.detail.score > 1 || forms.detail.major_fact"
+              :readonly="forms.detail.score == 1 || forms.detail.score == null && !forms.detail.major_fact" />
           </div>
           <div class="col-12" v-else>
             <span class="label">Constat: </span>
             <span>{{ rowSelected?.report || '-' }}</span>
           </div>
           <!-- Media (attachements) -->
-          <div class="col-12" v-if="!form.process_mode">
+          <div class="col-12">
             <NLFile :name="'media'" label="Pièces jointes" attachableType="App\Models\MissionDetail"
-              :attachableId="form.detail" v-model="form.media" :form="form" multiple />
-          </div>
-          <div class="col-12 list-item" v-else-if="form.process_mode && rowSelected?.media">
-            <div class="list-item-label label">
-              Pièces jointes
-            </div>
-            <div class="list-item-content" @click.stop="" v-for="file in rowSelected?.media">
-              <div class="files-list list is-visible grid gap-4 text-medium">
-                <div class="col-11 d-flex justify-between align-center">
-                  <a :href="file.link" target="_blank" class="text-dark text-small">
-                    {{ file.original_name }}
-                  </a>
-                  <span class="text-small">{{ file.size }}</span>
-                </div>
-                <div class="col-1 d-flex justify-end align-center gap-4">
-                  <a :href="file.link" :download="file.original_name">
-                    <i class="las la-download text-info icon"></i>
-                  </a>
-                  <i class="las la-trash text-danger icon is-clickable" @click.stop="deleteItem(file, index)"></i>
-                </div>
-              </div>
-            </div>
+              :attachableId="forms.detail.detail" v-model="forms.detail.media" :form="forms.detail" multiple
+              :canDelete="!rowSelected?.major_fact && !forms.detail.process_mode" :readonly="forms.detail.process_mode" />
           </div>
           <!-- Recovery plan -->
           <div class="col-12">
-            <NLTextarea :name="'recovery_plan'" label="Plan de redressement" :form="form" v-model="form.recovery_plan"
-              :placeholder="form.score == 1 || form.score == null && !form.major_fact ? '' : 'Ajouter votre plan de redressement'"
-              :labelRequired="form.score > 1 || form.major_fact"
-              :disabled="form.score == 1 || form.score == null && !form.major_fact" />
+            <NLTextarea :name="'recovery_plan'" label="Plan de redressement" :form="forms.detail"
+              v-model="forms.detail.recovery_plan"
+              :placeholder="forms.detail.score == 1 || forms.detail.score == null && !forms.detail.major_fact ? '' : 'Ajouter votre plan de redressement'"
+              :labelRequired="forms.detail.score > 1 || forms.detail.major_fact"
+              :readonly="forms.detail.score == 1 || forms.detail.score == null && !forms.detail.major_fact" />
           </div>
 
           <!-- Submit Button -->
           <div class="col-12 d-flex justify-end align-center">
-            <NLButton :loading="form.busy" label="Save" class="is-radius" v-if="!form.process_mode" />
-            <NLButton :loading="form.busy" label="Validate" class="is-radius" v-else />
+            <NLButton :loading="forms.detail.busy" label="Save" class="is-radius" v-if="!forms.detail.process_mode" />
+            <NLButton :loading="forms.detail.busy" label="Validate" class="is-radius" v-else />
           </div>
         </form>
       </template>
@@ -291,11 +292,12 @@
 <script>
 import { mapGetters } from 'vuex';
 import { Form } from 'vform';
-import { hasRole } from '../../plugins/user'
+import { hasRole, isAbleTo } from '../../plugins/user'
 import Notification from '../../components/Notification'
 export default {
   layout: 'backend',
   middleware: [ 'auth' ],
+  components: { Notification },
   computed: {
     ...mapGetters({
       details: 'details/majorFacts',
@@ -303,12 +305,31 @@ export default {
       filtersData: 'details/filters'
     }),
     formErrorsCount() {
-      return Object.entries(this.form.errors.all()).length
+      if (this.modals.edit) {
+        return Object.entries(this.forms.detail.errors.all()).length
+      } else if (this.modals.regularize) {
+        return Object.entries(this.forms.regularization.errors.all()).length
+      }
     },
+    files() {
+      return this.rowSelected.media.map(file => file.id)
+    }
   },
   data: () => {
     return {
       rowSelected: null,
+      mission: null,
+      process: null,
+      regularizationTypes: [
+        {
+          id: 'Cause',
+          label: 'Cause',
+        },
+        {
+          id: 'Action à engagé',
+          label: 'Action à engagé',
+        },
+      ],
       tableConfig: {
         data: null,
         columns: [
@@ -361,6 +382,7 @@ export default {
           {
             label: 'Notation',
             field: 'score',
+            hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
             methods: {
               style() {
                 return 'text-center'
@@ -369,83 +391,128 @@ export default {
           },
         ],
         actions: {
-          show: true,
+          show: false,
         }
+      },
+      forms: {
+        // regularization: new Form({
+        //   regularization_id: null,
+        //   detail_id: null,
+        //   regularized: false,
+        //   reason: null,
+        //   committed_action: null,
+        //   action_to_be_taken: null,
+        //   type: null
+        // }),
+        detail: new Form({
+          process_mode: false,
+          mission: null,
+          process: null,
+          media: [],
+          detail: null,
+          report: null,
+          recovery_plan: null,
+          score: null,
+          major_fact: null,
+          metadata: [],
+          process_mode: null,
+        }),
+      },
+      modals: {
+        show: false,
+        edit: false,
+        regularize: false,
       },
       filters: {
         campaign: {
           label: 'Campagne de contrôle',
-          name: 'campaign',
-          multiple: false,
+          multiple: true,
           data: null,
           value: null
         },
         mission_id: {
           label: 'Mission',
-          name: 'mission_id',
-          multiple: false,
+          multiple: true,
           data: null,
           value: null
         },
-        agency_id: {
+        agency: {
           label: 'Agence',
-          name: 'agency_id',
-          multiple: false,
+          multiple: true,
           data: null,
           value: null
         },
         familly: {
           label: 'Famille',
-          name: 'familly',
-          multiple: false,
+          multiple: true,
           data: null,
           value: null
         },
         domain: {
           label: 'Domaine',
-          name: 'domain',
-          multiple: false,
+          multiple: true,
           data: null,
           value: null
         },
         process: {
           label: 'Processus',
-          name: 'process',
-          multiple: false,
+          multiple: true,
           data: null,
-          value: null
+          value: null,
         },
-        // {
-        //   label: 'Point de contrôle',
-        //   name: 'control_point_id',
-        //   multiple: false,
-        //   cols: 'col-lg-12',
-        //   data: {},
-        // },
+        is_regularized: {
+          label: 'Régularisation',
+          multiple: false,
+          value: null,
+          hide: !hasRole([ 'dcp', 'cdcr' ]),
+          data: [
+            {
+              id: 0,
+              label: 'Non levé'
+            },
+            {
+              id: 1,
+              label: 'Levé'
+            },
+          ],
+        },
         score: {
           label: 'Notation',
-          name: 'score',
-          multiple: false,
-          data: null,
+          multiple: true,
+          data: [
+            {
+              id: 1,
+              label: 1
+            },
+            {
+              id: 2,
+              label: 2
+            },
+            {
+              id: 3,
+              label: 3
+            },
+            {
+              id: 4,
+              label: 4
+            },
+          ],
+          value: null,
+        },
+        major_fact: {
+          label: 'Fait majeur',
+          data: [
+            {
+              id: 0,
+              label: 'Non'
+            },
+            {
+              id: 1,
+              label: 'Oui'
+            },
+          ],
           value: null
         },
-      },
-      form: new Form({
-        process_mode: false,
-        mission: null,
-        process: null,
-        media: [],
-        detail: null,
-        report: null,
-        recovery_plan: null,
-        score: null,
-        major_fact: null,
-        metadata: [],
-        process_mode: null,
-      }),
-      modals: {
-        show: false,
-        edit: false,
       },
       currentMetadata: {},
     }
@@ -462,12 +529,10 @@ export default {
       this.$store.dispatch('details/fetchFilters').then(() => {
         this.filters.campaign.data = this.filtersData.filters.campaigns
         this.filters.mission_id.data = this.filtersData.filters.missions
-        this.filters.agency_id.data = this.filtersData.filters.agencies
+        this.filters.agency.data = this.filtersData.filters.agencies
         this.filters.familly.data = this.filtersData.filters.famillies
         this.filters.domain.data = this.filtersData.filters.domains
         this.filters.process.data = this.filtersData.filters.processes
-        this.filters.score.data = this.filtersData.filters.scores
-        // this.filters.major_fact.data = this.filtersData.filters.major_fact
       })
     },
     /**
@@ -477,24 +542,38 @@ export default {
       this.$store.dispatch('details/fetchMajorFacts').then(() => this.tableConfig.data = this.details.majorFacts)
     },
     /**
-        * Affiche le modal des informations du point de contrôle
-        */
-    show(item) {
-      this.rowSelected = item
-      this.modals.show = true
+     * Affiche le formulaire de régularisation
+     */
+    regularize(item) {
       this.modals.edit = false
-      this.currentMetadata.keys = Object.keys(item.parsed_metadata)
+      this.modals.show = false
+      this.modals.regularize = true
+      this.initRegularizationForm()
+    },
+    /**
+    * Affiche le modal des informations du point de contrôle
+    * @param {Object} item
+    */
+    show(item) {
+      this.$store.dispatch('details/fetchConfig', { missionId: item.mission_id, processId: item.process_id, detailId: item.id }).then(() => {
+        const config = this.config.config
+        this.rowSelected = config.detail
+        this.mission = config.mission
+        this.process = config.process
+        this.modals.show = true
+        this.modals.edit = false
+        this.currentMetadata.keys = Object.keys(this.rowSelected.parsed_metadata)
+      })
+      // this.rowSelected = item
     },
     /**
      * Affiche le modal pour modifer informations du point de contrôle
      *
      */
     edit() {
-      // this.rowSelected = item
       this.modals.edit = true
       this.modals.show = false
-      // this.currentMetadata.keys = Object.keys(this.rowSelected.parsed_metadata)
-      this.initForm()
+      this.initDetailForm()
     },
     /**
      * Ferme la boite modal des détails du point de contrôle
@@ -503,33 +582,51 @@ export default {
       if (this.modals.hasOwnProperty(modal)) {
         this.modals[ modal ] = false
       }
+      this.forms.detail.reset()
+      this.forms.regularization.reset()
+      this.initData()
+      this.currentMetadata = {}
+      this.rowSelected = null
       if (modal == 'show') {
-        this.currentMetadata = {}
-        this.rowSelected = null
       } else {
-        this.form.reset()
-        this.initData()
       }
     },
     /**
- * Initialise le formulaire
- */
-    initForm() {
+     * Initialise le formulaire
+     */
+    initDetailForm() {
       this.$store.dispatch('details/fetchConfig', { missionId: this.$route.params.missionId, processId: this.$route.params.processId, detailId: this.rowSelected?.id }).then(() => {
         const config = this.config.config
         this.rowSelected = config.detail
-        this.form.process_mode = !hasRole([ 'cc', 'cdcr' ])
-        this.form.mission = config.mission.id
-        this.form.process = config.process.id
-        this.form.detail = config.detail.id
-        this.form.media = config.detail.media.length ? config.detail.media.map(file => file.id) : []
-        this.form.detail = config.detail.id
-        this.form.report = config.detail.report
-        this.form.recovery_plan = config.detail.recovery_plan
-        this.form.score = config.detail.score
-        this.form.major_fact = config.detail.major_fact ? true : false
-        this.form.metadata = config.detail.metadata || []
+        this.forms.detail.process_mode = hasRole([ 'cc', 'cdcr', 'dcp' ])
+        this.forms.detail.mission = config.mission.id
+        this.forms.detail.process = config.process.id
+        this.forms.detail.detail = config.detail.id
+        this.forms.detail.media = config.detail.media.length ? config.detail.media.map(file => file.id) : []
+        this.forms.detail.detail = config.detail.id
+        this.forms.detail.report = config.detail.report
+        this.forms.detail.recovery_plan = config.detail.recovery_plan
+        this.forms.detail.score = config.detail.score
+        this.forms.detail.major_fact = config.detail.major_fact ? true : false
+        this.forms.detail.metadata = config.detail.metadata || []
       })
+    },
+    initRegularizationForm() {
+      // this.$store.dispatch('details/fetchConfig', { missionId: this.$route.params.missionId, processId: this.$route.params.processId, detailId: this.rowSelected?.id }).then(() => {
+      //   const config = this.config.config
+      //   this.rowSelected = config.detail
+      //   this.forms.regularization.detail_id = this.rowSelected.id
+      //   this.forms.regularization.id = config.detail.regularization?.id
+      //   this.forms.regularization.regularized = config.detail.regularization?.regularized_at ? true : false
+      //   this.forms.regularization.reason = config.detail.regularization?.reason
+      //   this.forms.regularization.committed_action = config.detail.regularization?.committed_action
+      //   this.forms.regularization.action_to_be_taken = config.detail.regularization?.action_to_be_taken
+      //   if (config.detail.regularization?.reason) {
+      //     this.forms.regularization.type = 'Cause'
+      //   } else if (config.detail.regularization?.action_to_be_taken) {
+      //     this.forms.regularization.type = 'Action à engagé'
+      //   }
+      // })
     },
     /**
      * Initialise les champs supplémentaire pour chaque point de contrôle
@@ -570,14 +667,23 @@ export default {
     /**
      * Création de la mission
      */
-    save() {
-      this.form.post('/api/missions/details/' + this.form.mission).then(response => {
+    save(action) {
+      let form, url
+      if (action == 'edit') {
+        form = this.forms.detail
+        url = '/api/missions/details/' + this.forms.detail.mission
+      } else if (action == 'regularize') {
+        form = this.forms.regularization
+        url = '/api/regularize/' + this.forms.regularization.detail_id
+      }
+      form.post(url).then(response => {
         if (response.data.status) {
           swal.toast_success(response.data.message)
           this.initData()
-          this.form.reset()
+          form.reset()
           this.close('edit')
           this.close('show')
+          this.close('regularize')
         } else {
           swal.alert_error(response.data.message)
         }
@@ -590,32 +696,6 @@ export default {
       })
     },
     /**
-     * Ajouter une ligne dans le répéteur
-     *
-     * @param {Number} fields Index du champs
-     */
-    addRow(fields) {
-      fields = this.setupFields(fields)
-      const schema = []
-      for (let index = 0; index < fields.length; index++) {
-        const element = fields[ index ];
-        const name = element.name
-        let defaultValue = element.default !== undefined ? element.default : ''
-        defaultValue = element.multiple ? [] : ''
-        schema.push({ [ name ]: defaultValue, label: element.label, rules: element.rules })
-      }
-      if (this.form.metadata) this.form.metadata.push(schema)
-    },
-    /**
-     * Supprimer une ligne du répéteur
-     *
-     * @param {Number} row
-     * @param {Number} field
-     */
-    removeRow(row, field) {
-      this.form.metadata.splice(field, 1)
-    },
-    /**
      * Vérifie que la valeur est un input valide
      *
      * @param {String} value
@@ -623,19 +703,21 @@ export default {
     isInput(value) {
       return [ 'text', 'date', 'datetime', 'time', 'week', 'number', 'tel', 'email', 'month', 'url' ].includes(value)
     },
+    /**
+     * Notifier les authoritées concernées
+     */
     notify() {
       swal.confirm({ title: 'Dispatch notification', message: 'Voulez-vous notifier les autorités concernées?' }).then(action => {
         if (action.isConfirmed) {
           api.post('notifications/major-fact/' + this.rowSelected.id).then(response => {
             swal.toast_success(response.data.message)
-            this.close('edit')
-            this.close('show')
+            this.rowSelected = null
           }).catch(error => {
             swal.alert_error(error)
           })
         }
       })
-    }
+    },
   }
 }
 </script>

@@ -7,10 +7,10 @@
       <template v-slot:title>
         <div class="tags">
           <small class="tag is-primary-dark text-small">
-            {{ rowSelected?.cdc_reference }}
+            {{ mission?.campaign?.reference }}
           </small>
           <small class="tag is-primary-extra-light text-small mx-1">
-            {{ rowSelected?.mission_reference }}
+            {{ mission?.reference }}
           </small>
         </div>
       </template>
@@ -22,27 +22,27 @@
           </div>
           <div class="col-12 col-lg-6">
             <span class="label">Dre: </span>
-            <span>{{ rowSelected?.dre_full_name }}</span>
+            <span>{{ mission?.dre?.full_name }}</span>
           </div>
           <div class="col-12 col-lg-6">
             <span class="label">Agence: </span>
-            <span>{{ rowSelected?.agency_full_name }}</span>
+            <span>{{ mission?.agency?.full_name }}</span>
           </div>
           <div class="col-12 col-lg-6">
             <span class="label">Famille: </span>
-            <span>{{ rowSelected?.familly_name }}</span>
+            <span>{{ process?.familly?.name }}</span>
           </div>
           <div class="col-12 col-lg-6">
             <span class="label">Domaine: </span>
-            <span>{{ rowSelected?.domain_name }}</span>
+            <span>{{ rowSelected?.domain?.name }}</span>
           </div>
           <div class="col-12">
             <span class="label">Processus: </span>
-            <span>{{ rowSelected?.process_name }}</span>
+            <span>{{ process?.name }}</span>
           </div>
           <div class="col-12">
             <span class="label">Point de contrôle: </span>
-            <span>{{ rowSelected?.control_point_name }}</span>
+            <span>{{ rowSelected?.control_point?.name }}</span>
           </div>
           <div class="col-12 col-lg-6">
             <span class="label">Appréciation: </span>
@@ -52,12 +52,12 @@
             <span class="label">Notation: </span>
             <span>{{ rowSelected?.score }}</span>
           </div>
-          <div class="col-12" :class="{ 'col-lg-4': !rowSelected?.metadata }">
+          <div class="col-12" :class="{ 'col-lg-4': !rowSelected?.metadata }" v-if="rowSelected?.metadata?.length">
             <span class="label">
               Informations supplémentaires:
             </span>
           </div>
-          <div class="col-12" :class="{ 'col-lg-8': !rowSelected?.parsed_metadata }" v-if="rowSelected?.metadata">
+          <div class="col-12" :class="{ 'col-lg-8': !rowSelected?.parsed_metadata }" v-if="rowSelected?.metadata?.length">
             <table v-if="rowSelected?.parsed_metadata">
               <thead>
                 <tr>
@@ -77,10 +77,6 @@
                 </tr>
               </tbody>
             </table>
-            <span v-else>-</span>
-          </div>
-          <div class="col-8" v-else>
-            -
           </div>
           <div class="col-12">
             <span class="label">Constat: </span>
@@ -90,51 +86,53 @@
             <span class="label">Plan de redressement: </span>
             <span>{{ rowSelected?.recovery_plan || '-' }}</span>
           </div>
-          <div class="col-12">
+          <div class="col-12" v-if="rowSelected?.regularization?.regularized_at">
             <span class="label">Date de régularisation: </span>
-            <span>{{ rowSelected?.recovery_plan || '-' }}</span>
+            <span>{{ rowSelected?.regularization?.regularized_at || '-' }}</span>
           </div>
-          <div class="col-12 list-item" v-if="rowSelected?.media">
-            <div class="list-item-content" @click.stop="" v-for="file in rowSelected?.media">
-              <div class="files-list list is-visible grid gap-4 text-medium">
-                <div class="col-11 d-flex justify-between align-center">
-                  <a :href="file.link" target="_blank" class="text-dark text-small">
-                    {{ file.original_name }}
-                  </a>
-                  <span class="text-small">{{ file.size }}</span>
-                </div>
-                <div class="col-1 d-flex justify-end align-center gap-4">
-                  <a :href="file.link" :download="file.original_name">
-                    <i class="las la-download text-info icon"></i>
-                  </a>
-                  <i class="las la-trash text-danger icon is-clickable" @click.stop="deleteItem(file, index)"></i>
-                </div>
-              </div>
-            </div>
+          <div class="col-12 list-item" v-if="rowSelected?.media?.length">
+            <NLFile label="Pièces jointes" name="media" v-model="files" :canDelete="false" readonly />
           </div>
 
           <div class="col-12 d-flex justify-end align-center">
             <div class="d-flex align-center gap-2">
-              <div v-if="!rowSelected?.mission_dcp_validation_at">
-                <button class="btn btn-warning has-icon" @click.prevent="edit"
-                  v-can="'process_mission,dispatch_major_fact'">
-                  <i class="las la-check icon"></i>
-                  Traiter
-                </button>
-              </div>
-              <button class="btn btn-warning has-icon" @click.prevent="edit" v-can="'control_agency'"
-                v-if="!rowSelected?.controller_opinion_validated && !rowSelected?.major_fact">
+              <!-- CI -->
+              <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
+                v-if="!mission?.controller_opinion_is_validated && !rowSelected?.major_fact && can('create_opinion')">
                 <i class="las la-pen icon"></i>
                 Modifier
               </button>
 
-              <button class="btn btn-info has-icon" @click.prevent="notify" v-if="!rowSelected?.mission_dcp_validation_at"
-                v-can="'dispatch_major_fact'">
+              <!-- CDC -->
+              <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
+                v-if="!mission?.dre_report_is_validated && !rowSelected?.major_fact && can('create_dre_report,validate_dre_report')">
+                <i class="las la-pen icon"></i>
+                Modifier
+              </button>
+
+              <!-- CDCR -->
+              <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
+                v-if="!mission?.cdcr_validation_at && !rowSelected?.major_fact_dispatched_at && can('make_first_validation,make_second_validation')">
+                <i class="las la-pen icon"></i>
+                Traiter
+              </button>
+
+              <!-- DCP -->
+              <!-- <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
+                v-if="!mission?.dcp_validation_at && rowSelected?.mission?.cdcr_validation_at && !rowSelected?.major_fact_dispatched_at && can('make_second_validation')">
+                <i class="las la-pen icon"></i>
+                Traiter
+              </button> -->
+              <button class="btn btn-info has-icon" @click.prevent="notify(rowSelected)"
+                v-if="!rowSelected?.major_fact_dispatched_at && rowSelected?.major_fact && can('dispatch_major_fact')">
                 <i class="las la-bell icon"></i>
                 Notifier
               </button>
-              <button class="btn btn-info has-icon" @click.prevent="regularize" v-can="'regularize_mission_detail'">
-                <i class="las la-user-clock icon"></i>
+              <!-- Agency director -->
+              <button
+                v-if="mission?.dcp_validation_at && !rowSelected?.regularization?.regularized_at && rowSelected?.score !== 1 && can('regularize_mission_detail')"
+                class="btn btn-warning has-icon" @click="edit(rowSelected)">
+                <i class="las la-pen icon"></i>
                 Régulariser
               </button>
             </div>
@@ -156,9 +154,12 @@
         </Notification>
         <form @submit.prevent="save('edit')" @keydown="forms.detail.onKeydown($event)" enctype="multipart/form-data"
           class="grid gap-6">
+          <!-- Major Fact -->
           <div class="col-12">
             <NLSwitch v-model="forms.detail.major_fact" :name="'major_fact'" :form="forms.detail" label="Fait majeur" />
           </div>
+
+          <!-- Score -->
           <div class="col-12">
             <NLSelect :name="'score'" label="Notation" :form="forms.detail" v-model="forms.detail.score"
               :options="setupScores(rowSelected?.control_point?.scores)" labelRequired />
@@ -225,7 +226,8 @@
               </div>
             </div>
           </div>
-          <div class="col-12" :class="{ 'col-lg-8': !rowSelected?.parsed_metadata }" v-else>
+          <div class="col-12" :class="{ 'col-lg-8': !rowSelected?.parsed_metadata }"
+            v-else-if="forms.detail.process_mode && rowSelected?.parsed_metadata.length && forms.detail.score > 1">
             <div class=" label">
               Informations supplémentaires
             </div>
@@ -256,45 +258,27 @@
             <NLTextarea :name="'report'" label="Constat" :form="forms.detail" v-model="forms.detail.report"
               :placeholder="forms.detail.score == 1 || forms.detail.score == null && !forms.detail.major_fact ? '' : 'Ajouter votre constat'"
               :labelRequired="forms.detail.score > 1 || forms.detail.major_fact"
-              :disabled="forms.detail.score == 1 || forms.detail.score == null && !forms.detail.major_fact" />
+              :readonly="forms.detail.score == 1 || forms.detail.score == null && !forms.detail.major_fact" />
           </div>
           <div class="col-12" v-else>
             <span class="label">Constat: </span>
             <span>{{ rowSelected?.report || '-' }}</span>
           </div>
           <!-- Media (attachements) -->
-          <div class="col-12" v-if="!forms.detail.process_mode">
+          <div class="col-12">
             <NLFile :name="'media'" label="Pièces jointes" attachableType="App\Models\MissionDetail"
-              :attachableId="forms.detail.detail" v-model="forms.detail.media" :form="forms.detail" multiple />
+              :attachableId="forms.detail.detail" v-model="forms.detail.media" :form="forms.detail" multiple
+              :readonly="forms.detail.process_mode" />
+            {{ forms.detail.process_mode }}
           </div>
-          <div class="col-12 list-item" v-else-if="forms.detail.process_mode && rowSelected?.media">
-            <div class="list-item-label label" v-if="rowSelected?.media">
-              Pièces jointes
-            </div>
-            <div class="list-item-content" @click.stop="" v-for="file in rowSelected?.media">
-              <div class="files-list list is-visible grid gap-4 text-medium">
-                <div class="col-11 d-flex justify-between align-center">
-                  <a :href="file.link" target="_blank" class="text-dark text-small">
-                    {{ file.original_name }}
-                  </a>
-                  <span class="text-small">{{ file.size }}</span>
-                </div>
-                <div class="col-1 d-flex justify-end align-center gap-4">
-                  <a :href="file.link" :download="file.original_name">
-                    <i class="las la-download text-info icon"></i>
-                  </a>
-                  <i class="las la-trash text-danger icon is-clickable" @click.stop="deleteItem(file, index)"></i>
-                </div>
-              </div>
-            </div>
-          </div>
+
           <!-- Recovery plan -->
           <div class="col-12">
             <NLTextarea :name="'recovery_plan'" label="Plan de redressement" :form="forms.detail"
               v-model="forms.detail.recovery_plan"
               :placeholder="forms.detail.score == 1 || forms.detail.score == null && !forms.detail.major_fact ? '' : 'Ajouter votre plan de redressement'"
               :labelRequired="forms.detail.score > 1 || forms.detail.major_fact"
-              :disabled="forms.detail.score == 1 || forms.detail.score == null && !forms.detail.major_fact" />
+              :readonly="forms.detail.score == 1 || forms.detail.score == null && !forms.detail.major_fact" />
           </div>
 
           <!-- Submit Button -->
@@ -355,7 +339,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import { Form } from 'vform';
-import { hasRole } from '../../plugins/user'
+import { hasRole, isAbleTo } from '../../plugins/user'
 import Notification from '../../components/Notification'
 export default {
   layout: 'backend',
@@ -374,10 +358,15 @@ export default {
         return Object.entries(this.forms.regularization.errors.all()).length
       }
     },
+    files() {
+      return this.rowSelected.media.map(file => file.id)
+    }
   },
   data: () => {
     return {
       rowSelected: null,
+      mission: null,
+      process: null,
       regularizationTypes: [
         {
           id: 'Cause',
@@ -440,6 +429,7 @@ export default {
           {
             label: 'Notation',
             field: 'score',
+            hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
             methods: {
               style() {
                 return 'text-center'
@@ -448,7 +438,7 @@ export default {
           },
         ],
         actions: {
-          show: true,
+          show: false,
         }
       },
       forms: {
@@ -612,10 +602,16 @@ export default {
     * @param {Object} item
     */
     show(item) {
-      this.rowSelected = item
-      this.modals.show = true
-      this.modals.edit = false
-      this.currentMetadata.keys = Object.keys(item.parsed_metadata)
+      this.$store.dispatch('details/fetchConfig', { missionId: item.mission_id, processId: item.process_id, detailId: item.id }).then(() => {
+        const config = this.config.config
+        this.rowSelected = config.detail
+        this.mission = config.mission
+        this.process = config.process
+        this.modals.show = true
+        this.modals.edit = false
+        this.currentMetadata.keys = Object.keys(this.rowSelected.parsed_metadata)
+      })
+      // this.rowSelected = item
     },
     /**
      * Affiche le modal pour modifer informations du point de contrôle
@@ -649,7 +645,7 @@ export default {
       this.$store.dispatch('details/fetchConfig', { missionId: this.$route.params.missionId, processId: this.$route.params.processId, detailId: this.rowSelected?.id }).then(() => {
         const config = this.config.config
         this.rowSelected = config.detail
-        this.forms.detail.process_mode = !hasRole([ 'cc', 'cdcr' ])
+        this.forms.detail.process_mode = hasRole([ 'cc', 'cdcr', 'dcp' ])
         this.forms.detail.mission = config.mission.id
         this.forms.detail.process = config.process.id
         this.forms.detail.detail = config.detail.id

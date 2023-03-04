@@ -12,64 +12,64 @@
           Tableau de bord
         </span>
       </router-link>
-      <router-link class="sidebar-item" :to="{ name: 'users-index' }" v-can="'view_page_users'">
+      <router-link class="sidebar-item" :to="{ name: 'users-index' }" v-if="can('view_page_users')">
         <i class="las la-users sidebar-icon"></i>
         <span class="icon-text">
           Utilisateurs
         </span>
       </router-link>
-      <router-link class="sidebar-item" :to="{ name: 'roles-index' }" v-can="'view_page_roles'">
+      <router-link class="sidebar-item" :to="{ name: 'roles-index' }" v-if="can('view_page_roles')">
         <i class="las la-user-shield sidebar-icon"></i>
         <span class="icon-text">
           Roles
         </span>
       </router-link>
-      <router-link class="sidebar-item" :to="{ name: 'permissions-index' }" v-can="'view_page_permissions'">
+      <router-link class="sidebar-item" :to="{ name: 'permissions-index' }" v-if="can('view_page_permissions')">
         <i class="las la-user-cog sidebar-icon"></i>
         <span class="icon-text">
           Permissions
         </span>
       </router-link>
-      <router-link class="sidebar-item" :to="{ name: 'dre-index' }" v-can="'view_page_dres'">
+      <router-link class="sidebar-item" :to="{ name: 'dre-index' }" v-if="can('view_page_dres')">
         <i class="las la-building sidebar-icon"></i>
         <span class="icon-text">
           Dre
         </span>
       </router-link>
-      <router-link class="sidebar-item" :to="{ name: 'agencies-index' }" v-can="'view_page_agencies'">
+      <router-link class="sidebar-item" :to="{ name: 'agencies-index' }" v-if="can('view_page_agencies')">
         <i class="las la-landmark sidebar-icon"></i>
         <span class="icon-text">
           Agences
         </span>
       </router-link>
-      <router-link class="sidebar-item" :to="{ name: 'famillies-index' }" v-can="'view_page_families'">
+      <router-link class="sidebar-item" :to="{ name: 'famillies-index' }" v-if="can('view_page_families')">
         <i class="las la-tag sidebar-icon"></i>
         <span class="icon-text">
           Familles
         </span>
       </router-link>
-      <router-link class="sidebar-item" :to="{ name: 'domains-index' }" v-can="'view_page_domains'">
+      <router-link class="sidebar-item" :to="{ name: 'domains-index' }" v-if="can('view_page_domains')">
         <i class="las la-tags sidebar-icon"></i>
         <span class="icon-text">
           Domaines
         </span>
       </router-link>
 
-      <router-link class="sidebar-item" :to="{ name: 'processes-index' }" v-can="'view_page_processes'">
+      <router-link class="sidebar-item" :to="{ name: 'processes-index' }" v-if="can('view_page_processes')">
         <i class="las la-project-diagram sidebar-icon"></i>
         <span class="icon-text">
           Processus
         </span>
       </router-link>
 
-      <router-link class="sidebar-item" :to="{ name: 'control-points-index' }" v-can="'view_page_control_points'">
+      <router-link class="sidebar-item" :to="{ name: 'control-points-index' }" v-if="can('view_page_control_points')">
         <i class="las la-list-alt sidebar-icon"></i>
         <span class="icon-text">
           Points de contrôle
         </span>
       </router-link>
 
-      <router-link class="sidebar-item" :to="{ name: 'missions-create' }" v-can="'create_mission'">
+      <router-link class="sidebar-item" :to="{ name: 'missions-create' }" v-if="can('create_mission')">
         <i class="las la-calendar-day sidebar-icon"></i>
         <span class="icon-text">
           Répartition des missions de contrôle
@@ -77,40 +77,28 @@
       </router-link>
 
 
-      <router-link class="sidebar-item" :to="{ name: 'campaigns-create' }" v-can="'create_control_campaign'">
+      <router-link class="sidebar-item" :to="{ name: 'campaigns-create' }" v-if="can('create_control_campaign')">
         <i class="las la-calendar-plus sidebar-icon"></i>
         <span class="icon-text">
           Ajouter une campagne de contrôle
         </span>
       </router-link>
 
-      <router-link class="sidebar-item" :to="{ name: 'campaigns' }" v-can="'view_page_control_campaigns'">
+      <router-link class="sidebar-item" :to="{ name: 'campaigns' }" v-if="can('view_page_control_campaigns')">
         <i class="las la-calendar sidebar-icon"></i>
         <span class="icon-text">
           Suivi du planning annuel
         </span>
       </router-link>
-      <!-- <router-link class="sidebar-item" :to="{ name: 'missions-state' }" v-can="'view_page_mission'">
-                                      <i class="las la-question-circle sidebar-icon"></i>
-                                      <span class="icon-text">
-                                        État des missions
-                                      </span>
-                                    </router-link> -->
 
-      <router-link class="sidebar-item" :to="{ name: 'missions' }" v-can="'view_page_missions'">
+      <router-link class="sidebar-item" :to="{ name: 'missions' }" v-if="can('view_page_missions')">
         <i class="las la-eye sidebar-icon"></i>
         <span class="icon-text">
           Suivi des réalisations des missions
         </span>
       </router-link>
-      <!-- <router-link class="sidebar-item" :to="{ name: 'missions-validated' }" v-can="'view_page_mission'">
-                                      <i class="las la-file-alt sidebar-icon"></i>
-                                      <span class="icon-text">
-                                        Consultation des rapports
-                                      </span>
-                                    </router-link> -->
 
-      <router-link class="sidebar-item" :to="{ name: 'global-details' }" v-can="'view_page_mission_details'">
+      <router-link class="sidebar-item" :to="{ name: 'global-details' }" v-if="can('view_page_mission_details')">
         <i class="lab la-stack-overflow sidebar-icon"></i>
         <span class="icon-text">
           Anomalie • Notation • Plan de redressement
@@ -118,27 +106,20 @@
       </router-link>
 
       <router-link class="sidebar-item" :class="{ 'has-badge': unreadMajorFacts }" :to="{ name: 'major-facts' }"
-        v-can="'view_page_major_facts,view_major_fact'">
+        v-if="can('view_page_major_facts,view_major_fact')">
         <i class="las la-exclamation-triangle sidebar-icon"></i>
         <span class="icon-text">
-          Faits majeurs
+          Faits majeur
         </span>
         <div class="badge is-blink" v-if="unreadMajorFacts">{{ unreadMajorFacts }}</div>
       </router-link>
 
-      <router-link class="sidebar-item" :to="{ name: 'missions-not-validated' }" v-can="'validate_report'">
+      <router-link class="sidebar-item" :to="{ name: 'missions-not-validated' }" v-if="can('validate_report')">
         <i class="las la-clipboard-check sidebar-icon"></i>
         <span class="icon-text">
           Validation des rapports
         </span>
       </router-link>
-
-      <!-- <router-link class="sidebar-item" :to="{ name: 'missions-validated' }" v-can="'view_page_report'">
-                                      <i class="las la-clipboard-list sidebar-icon"></i>
-                                      <span class="icon-text">
-                                        Consultation des rapports
-                                      </span>
-                                    </router-link> -->
 
       <router-link class="sidebar-item" :to="{ name: 'references-pcf' }">
         <i class="las la-newspaper sidebar-icon"></i>

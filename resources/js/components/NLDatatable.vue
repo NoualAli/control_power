@@ -61,7 +61,7 @@
         <tbody :class="{ 'is-busy': isBusy }">
           <tr v-for="item in config.data?.data" :key="item[rowKey]">
             <td :colspan="column.colspan ? column.colspan : null" :align="column.align ? column.align : 'left'"
-              v-for="column in config.columns" :key="column.field" v-if="!column.hide" :data-th="column.label"
+              v-for="column in config.columns" :key="column.field" v-if="!column?.hide" :data-th="column.label"
               :class="{ 'p-0': column.isHtml, [applyClass(item, column)]: !column.isHtml }">
               <span v-if="column.isHtml" :class="applyClass(item, column)">
                 <span v-html="showField(item, column)" :class="applyClass(item, column)"></span>
@@ -151,6 +151,7 @@ export default {
     stateKey: { type: String, default: 'paginated' },
     config: { type: Object | null, required: true, defaul: { data: {}, columns: [] } },
     filters: { type: Object | null, default: null },
+    filtersQueryKey: { type: String | null, default: 'onlyFiltersData' },
     exportable: { type: Boolean, default: true }
   },
   data() {
@@ -203,6 +204,15 @@ export default {
             this.updateState()
             swal.alert_error(error)
           })
+          // if (this.filtersQueryKey) {
+          //   api.get(this.url+'&onlyFiltersData').then(response => {
+          //     this.updateState()
+          //     this.config.data = response.data
+          //   }).catch(error => {
+          //     this.updateState()
+          //     swal.alert_error(error)
+          //   })
+          // }
         }
       },
       deep: true,
@@ -349,6 +359,7 @@ export default {
         this.url += '&export'
       }
 
+
       for (const key in this.appliedSort) {
         if (Object.hasOwnProperty.call(this.appliedSort, key)) {
           let direction = this.appliedSort[ key ].direction
@@ -366,8 +377,18 @@ export default {
           }
         }
       }
+      const additionalParams = this.$route.params
+      if (additionalParams) {
+        for (const key in additionalParams) {
+          if (additionalParams[ key ].value !== null) {
+            if (Object.hasOwnProperty.call(additionalParams, key)) {
+              this.url += '&' + key + '=' + additionalParams[ key ]
+            }
+          }
+        }
+      }
+      // this.$route.params.forEach((value, key) => this.url += "&" + value + "=" + key)
     },
-
     /**
      * Update table state
      * @param {Boolean} state

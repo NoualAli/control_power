@@ -2,7 +2,6 @@ import vue from 'vue'
 import Swal from "sweetalert2";
 import axios from 'axios'
 import store from '~/store'
-// import router from '~/router'
 
 const api = axios.create({
   headers: {
@@ -22,6 +21,9 @@ api.interceptors.response.use(response => response, error => {
         store.commit('auth/LOGOUT')
         location.reload()
       })
+  }
+  if (status === 404) {
+    // window.location.href = '/404'
   }
   if (status === 403 && store.getters[ 'auth/check' ]) {
     swal.alert_error(message, title)
