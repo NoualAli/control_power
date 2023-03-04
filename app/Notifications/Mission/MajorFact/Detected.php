@@ -82,7 +82,7 @@ class Detected extends Notification
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
             ->action('Voir le fait majeur', $this->getUrl())
             ->line('Merci d\'utiliser notre application!')
-            ->success();
+            ->error();
     }
 
     /**

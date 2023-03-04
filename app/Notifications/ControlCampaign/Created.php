@@ -54,9 +54,9 @@ class Created extends Notification
      *
      * @return string
      */
-    private function getTitle(): string
+    private function getTitle($notifiable): string
     {
-        return  'Création d\'une nouvelle campagne de contrôle ' . $this->campaign->reference;
+        return  hasRole('cdcr', $notifiable) && $this->campaign?->validated_at ? 'Validation de la campagne de contrôle ' . $this->campaign->reference : 'Création d\'une nouvelle campagne de contrôle ' . $this->campaign->reference;
     }
 
     /**
@@ -64,9 +64,9 @@ class Created extends Notification
      *
      * @return string
      */
-    private function getContent(): string
+    private function getContent($notifiable): string
     {
-        return 'Nous vous informons qu\'une nouvelle campagne de contrôle avec la référence ' . $this->campaign->reference . ' vient d\'être créer';
+        return hasRole('cdcr', $notifiable) && $this->campaign?->validated_at ? 'Nous vous informons que la campagne de contrôle avec la référence ' . $this->campaign->reference . ' vient d\'être validé' : 'Nous vous informons qu\'une nouvelle campagne de contrôle avec la référence ' . $this->campaign->reference . ' vient d\'être créer';
     }
 
     /**
@@ -83,8 +83,8 @@ class Created extends Notification
         $endingLine = 'La campagne se terminera le ' . $this->campaign->end . ' dans exactement ' . $this->campaign->remaining_days_before_end . $endingSuffix;
 
         return (new MailMessage)
-            ->subject($this->getTitle())
-            ->line($this->getContent())
+            ->subject($this->getTitle($notifiable))
+            ->line($this->getContent($notifiable))
             ->line($startingLine)
             ->line($endingLine)
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
@@ -104,8 +104,9 @@ class Created extends Notification
         return [
             'id' => $this->campaign->id,
             'url' => $this->getUrl(),
-            'content' => $this->getContent(),
-            'title' => $this->getTitle(),
+            'content' => $this->getContent($notifiable),
+            'title' => $this->getTitle($notifiable),
+            'transmitter' => auth()->user()->id
         ];
     }
 }

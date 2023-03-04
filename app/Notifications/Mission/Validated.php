@@ -33,7 +33,7 @@ class Validated extends Notification
      */
     private function getContent(): string
     {
-        $content = 'La mission de contrôle ' . $this->mission->reference . ' vient d\'être validée';
+        $content = 'Mission ' . $this->mission->reference . ' a été réalisé';
         return $content;
     }
 

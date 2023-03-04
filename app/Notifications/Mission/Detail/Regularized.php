@@ -67,7 +67,7 @@ class Regularized extends Notification
     private function getContent($toString = false): array|string
     {
         $content = [
-            "L'anomalie concernant le point de contrôle " . $this->detail->control_point->name,
+            "L'anomalie concernant le point de contrôle " . $this->detail->controlPoint->name,
             "dans l'agence " . $this->detail->agency->full_name . " a été levée avec succès."
         ];
         if ($toString) {
@@ -86,7 +86,7 @@ class Regularized extends Notification
     {
         return (new MailMessage)
             ->subject($this->getTitle())
-            ->lines($this->getContent())
+            ->lines($this->getContent(true))
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
             ->action('Voir le point de contrôle', $this->getUrl())
             ->line('Merci d\'utiliser notre application!')

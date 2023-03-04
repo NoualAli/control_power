@@ -43,7 +43,7 @@ class Updated extends Notification
      *
      * @return string
      */
-    private function getSubject(): string
+    private function getTitle(): string
     {
         return 'Mise à jour: mission ' . $this->mission->reference;
     }
@@ -80,7 +80,7 @@ class Updated extends Notification
         $startLine = "La mission commence le " . $this->mission->start;
         $endLine = "La mission se termine le " . $this->mission->end;
         return (new MailMessage)
-            ->subject($this->getSubject())
+            ->subject($this->getTitle())
             ->line($this->getContent())
             ->line($startLine)
             ->line($endLine)
@@ -101,7 +101,7 @@ class Updated extends Notification
             'id' => $this->mission->id,
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
-            'title' => $this->getSubject(),
+            'title' => $this->getTitle(),
         ];
     }
 }

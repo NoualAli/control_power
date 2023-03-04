@@ -83,7 +83,7 @@ class Deleted extends Notification
         return [
             'id' => $this->campaign->id,
             'content' => $this->getContent(),
-            'title' => $this->getContent(),
+            'title' => $this->getTItle(),
         ];
     }
 }
