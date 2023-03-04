@@ -113,7 +113,8 @@ class MissionReportController extends Controller
                 if ($report->type == 'Avis contrôleur') {
                     $this->notifyUsers($mission, $mission->creator);
                 } elseif ($report->type == 'Rapport') {
-                    $users = User::cdcr()->merge($mission->agencyControllers);
+                    // $users = User::cdcr()->merge($mission->agencyControllers);
+                    $users = User::whereRoles(['cdcr', 'dcp'])->get()->merge($mission->agencyControllers);
                     $this->notifyUsers($mission, $users);
                 }
             });

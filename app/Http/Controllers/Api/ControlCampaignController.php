@@ -12,12 +12,15 @@ use App\Models\Domain;
 use App\Models\Familly;
 use App\Models\Process;
 use App\Models\User;
-use App\Notifications\ControlCampaignNotification;
+use App\Notifications\ControlCampaign\Created;
+use App\Notifications\ControlCampaign\Deleted;
+use App\Notifications\ControlCampaign\Reminder;
+use App\Notifications\ControlCampaign\Updated;
 use DragonCode\Support\Facades\Helpers\Arr;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class ControlCampaignController extends Controller
 {
@@ -29,7 +32,11 @@ class ControlCampaignController extends Controller
     public function index()
     {
         isAbleOrAbort(['view_control_campaign', 'view_page_control_campaigns', 'create_mission', 'edit_mission']);
-        $campaigns = !hasRole(['ci', 'cc']) ? new ControlCampaign() : auth()->user()->campaigns();
+        $campaigns = new ControlCampaign();
+        if (!hasRole(['dcp', 'cdcr'])) {
+            $campaigns = hasRole(['ci', 'cc']) ? auth()->user()->campaigns() : $campaigns->validated();
+        }
+        // $campaigns = !hasRole(['ci', 'cc']) ? new ControlCampaign() : auth()->user()->campaigns();
         if (request()->has('order')) {
             foreach (request()->order as $key => $value) {
                 $campaigns = $campaigns->orderBy($key, $value);
@@ -71,9 +78,12 @@ class ControlCampaignController extends Controller
     public function show(ControlCampaign $campaign)
     {
         isAbleOrAbort(['view_control_campaign']);
+        abort_if(!($campaign->validated_by_id || hasRole(['dcp', 'cdcr'])), 401, __('unauthorized'));
+
         if (request()->has('edit')) {
             $condition = $campaign->remaining_days_before_start > 5;
             abort_if(!$condition, 401, __('unauthorized'));
+            $campaign->load('processes');
         }
         return $campaign;
     }
@@ -84,7 +94,7 @@ class ControlCampaignController extends Controller
     public function getNextReference()
     {
         isAbleOrAbort('create_control_campaign');
-        return 'CDC-' . today()->format('Y-') . addZero(ControlCampaign::max('id') + 1);
+        return 'CDC-' . today()->format('Y-') . addZero(ControlCampaign::count() + 1);
     }
 
     /**
@@ -99,42 +109,42 @@ class ControlCampaignController extends Controller
             $data = $request->validated();
             $pcf = $data['pcf'];
             $pcf = $this->loadProcesses($pcf);
-            unset($data['pcf']);
+            $data['validated_by_id'] = isset($data['validate']) && boolval($data['validate']) ? auth()->user()->id : null;
+            $data['validated_at'] = isset($data['validate']) && boolval($data['validate']) ? now() : null;
+            unset($data['pcf'], $data['validate']);
 
-            $user = auth()->user();
-            $campaign = DB::transaction(function () use ($user, $data, $pcf) {
-                $campaign = $user->campaigns()->create([
-                    'description' => $data['description'],
-                    'start' => $data['start'],
-                    'end' => $data['end'],
-                ]);
+            $campaign = DB::transaction(function () use ($data, $pcf) {
+                $campaign = auth()->user()->campaigns()->create($data);
+
                 foreach ($pcf as $process) {
                     $campaign->processes()->attach($process);
                 }
-                // $users = ['cdc', 'dg', 'cdrcp', 'der', 'dre', 'ig'];
-                // $users = User::whereRelation('roles', 'roles.code', 'in', $users)->get();
-                // dd($users);
-                // foreach ($users as $user) {
-                //     Notification::send($user, new ControlCampaignNotification($campaign));
-                //     // $user->notify(new ControlCampaignNotification($campaign));
-                // }
-                // Artisan::call('campaign:notify', ['id' => $campaign->id, 'created' => true]);
+                if ($campaign->validated_at) {
+                    $roles = ['cdc', 'dg', 'cdrcp', 'der', 'dre', 'ig', 'cdcr'];
+                    $users = User::whereRoles($roles)->get();
+                    foreach ($users as $user) {
+                        Notification::send($user, new Created($campaign));
+                    }
+                } else {
+                    $roles = !hasRole('dcp') ? ['dcp'] : ['cdcr'];
+                    $users = User::whereRoles($roles)->get();
+                    foreach ($users as $user) {
+                        Notification::send($user, new Created($campaign));
+                    }
+                }
+
                 return $campaign;
             });
-
-
 
             return response()->json([
                 'message' => CREATE_SUCCESS,
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $code);
+            ], 500);
         }
     }
 
@@ -155,10 +165,21 @@ class ControlCampaignController extends Controller
 
             DB::transaction(function () use ($campaign, $data, $pcf) {
                 if ($campaign->remaining_days_before_start > 5) {
+                    $data['validated_at'] = isset($data['validate']) && boolVal($data['validate']) ? now() : null;
+                    $data['validated_by_id'] = isset($data['validate']) && boolVal($data['validate']) ? auth()->user()->id : null;
                     $campaign->update($data);
                 }
+
                 $campaign->processes()->sync($pcf);
-                Artisan::call('campaign:notify', ['id' => $campaign->id, 'created' => false]);
+
+                if (!$campaign->validated_at && boolval($data['validate'])) {
+                    $roles = ['cdc', 'dg', 'cdrcp', 'der', 'dre', 'ig', 'cdcr'];
+                    $users = User::whereRoles($roles)->get();
+                    foreach ($users as $user) {
+                        Notification::send($user, new Updated($campaign));
+                        Notification::send($user, new Reminder($campaign));
+                    }
+                }
             });
 
 
@@ -167,12 +188,43 @@ class ControlCampaignController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $code);
+            ], 500);
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  App\Models\ControlCampaign  $campaign
+     * @return \Illuminate\Http\Response
+     */
+    public function validateCampaign(ControlCampaign $campaign)
+    {
+        isAbleOrAbort('validate_control_campaign');
+        abort_if($campaign->validated_by_id, 401);
+        try {
+            DB::transaction(function () use ($campaign) {
+                $campaign->update(['validated_by_id' => auth()->user()->id, 'validated_at' => now()]);
+                $roles = ['cdc', 'dg', 'cdrcp', 'der', 'dre', 'ig', 'cdcr'];
+                $users = User::whereRoles($roles)->get();
+                foreach ($users as $user) {
+                    Notification::send($user, new Created($campaign));
+                }
+            });
+
+
+            return response()->json([
+                'message' => UPDATE_SUCCESS,
+                'status' => true,
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage(),
+                'status' => false
+            ], 500);
         }
     }
 
@@ -187,6 +239,16 @@ class ControlCampaignController extends Controller
         isAbleOrAbort('delete_control_campaign');
         try {
             if ($campaign->delete()) {
+                if ($campaign->validated_at) {
+                    $roles = ['cdc', 'dg', 'cdrcp', 'der', 'dre', 'ig'];
+                    if (!hasRole('cdcr')) {
+                        $roles = ['cdc', 'dg', 'cdrcp', 'der', 'dre', 'ig', 'cdcr'];
+                    }
+                    $users = User::whereRoles($roles)->get();
+                    foreach ($users as $user) {
+                        Notification::send($user, new Deleted($campaign));
+                    }
+                }
                 return response()->json([
                     'message' => DELETE_SUCCESS,
                     'status' => true,
@@ -197,12 +259,12 @@ class ControlCampaignController extends Controller
                 'status' => false,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
+
 
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $code);
+            ], 500);
         }
     }
 
@@ -228,12 +290,12 @@ class ControlCampaignController extends Controller
                 'status' => false,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
+
 
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $code);
+            ], 500);
         }
     }
 
@@ -242,12 +304,15 @@ class ControlCampaignController extends Controller
      */
     public function processes(ControlCampaign $campaign)
     {
+
+        abort_if(!($campaign->validated_by_id || hasRole(['dcp', 'cdcr'])), 401, __('unauthorized'));
         $processes = $campaign->processes;
         $search = request()->has('search') ? request()->search : false;
         if ($search) {
             $processes = $processes->filter(fn ($process) => preg_match('/' . strtolower($search) . '/', strtolower($process->name)));
         }
-        return ProcessResource::collection(paginate($processes, '/api/campaigns/processes/' . $campaign->id));
+        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        return ProcessResource::collection(paginate($processes, '/api/campaigns/processes/' . $campaign->id, $perPage));
     }
 
     /**

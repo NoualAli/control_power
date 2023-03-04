@@ -7,7 +7,6 @@ use App\Http\Requests\Mission\Detail\StoreRequest;
 use App\Http\Resources\MissionDetailResource;
 use App\Models\Agency;
 use App\Models\ControlCampaign;
-use App\Models\ControlPoint;
 use App\Models\Domain;
 use App\Models\Familly;
 use App\Models\Media;
@@ -15,7 +14,7 @@ use App\Models\Mission;
 use App\Models\MissionDetail;
 use App\Models\Process;
 use App\Models\User;
-use App\Notifications\MajorFactDetectedNotification;
+use App\Notifications\Mission\MajorFact\Detected;
 use App\Traits\UploadFiles;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -74,17 +73,17 @@ class MissionDetailController extends Controller
 
         $user = auth()->user();
         if (hasRole('dcp')) {
-            $details = $details->hasCdcrValidation()->majorFacts()->whereAnomaly();
+            $details = $details->dreReportValidated();
         } elseif (hasRole('cdcr')) {
-            $details = $details->dreReportValidated()->majorFacts()->whereAnomaly();
+            $details = $details->dreReportValidated();
         } elseif (hasRole(['cdc', 'cc', 'ci'])) {
             $details = $user->details();
         } elseif (hasRole(['dg', 'cdrcp', 'der'])) {
-            $details = $details->hasDcpValidation()->whereAnomaly();
+            $details = $details->hasDcpValidation();
         } elseif (hasRole('dre')) {
             $details = auth()->user()->details()->hasDcpValidation();
         } elseif (hasRole('da')) {
-            $details = $user->details()->hasDcpValidation()->whereAnomaly()->onlyUnregularized();
+            $details = $user->details()->hasDcpValidation()->onlyUnregularized();
         }
         return $details;
     }
@@ -113,7 +112,6 @@ class MissionDetailController extends Controller
             }
 
             $filter = request()->has('filter') ? request()->filter : null;
-
             if ($filter) {
                 $details = $details->filter($filter);
             }
@@ -134,11 +132,12 @@ class MissionDetailController extends Controller
 
     private function getMajorFacts()
     {
-        $details = MissionDetail::majorFacts();
+        $details = MissionDetail::onlyMajorFacts();
         if (hasRole(['dcp', 'cdcr'])) {
             $details = $details;
         } elseif (hasRole(['cdc', 'ci', 'cc'])) {
-            $details = auth()->user()->details()->majorFacts();
+            $details = auth()->user()->details()->executed()->onlyMajorFacts();
+            // dd($details->get());
         } elseif (hasRole(['ig', 'dg', 'cdrcp', 'der'])) {
             $details = $details->onlyDispatchedMajorFacts();
         } elseif (hasRole(['da', 'dre'])) {
@@ -190,15 +189,32 @@ class MissionDetailController extends Controller
         $detailId = request()->has('detail_id') && !empty(request()->detail_id) && request()->detail_id !== 'null' ? request()->detail_id : false;
         $missionId = request()->has('mission_id') && !empty(request()->mission_id) && request()->mission_id !== 'null' ? request()->mission_id : false;
         $processId = request()->has('process_id') && !empty(request()->process_id) && request()->process_id !== 'null' ? request()->process_id : false;
-        // dd($detailId, $missionId, $processId);
+
         $detail = $detailId ? MissionDetail::findOrFail($detailId)->load(['controlPoint', 'domain', 'process']) : false;
         $mission = $missionId ? Mission::findOrFail($missionId) : $detail->mission;
         $process = $processId ? Process::findOrFail($processId)->load(['familly', 'domain']) : $detail->process->load(['familly', 'domain']);
+
+        $currentUser = auth()->user();
+        $agencyControllers = $mission->agencyControllers->pluck('id')->toArray();
+        $dcpControllers = $mission->dcpControllers->pluck('id')->toArray();
+        $agencies = $currentUser->agencies->pluck('id')->toArray();
+
+        $condition = (in_array($currentUser->id, $agencyControllers)
+            || in_array($currentUser->id, $dcpControllers)
+            || $mission->created_by_id == $currentUser->id
+            || (hasRole(['dcp', 'cdcr']) && $mission->dre_report?->is_validated)
+            || (hasRole(['da', 'dg', 'cdrcp', 'ig', 'der']) && $mission->dcp_validation_at)
+            || hasRole('dre') && in_array($mission->agency->id, $agencies)
+            || hasRole(['dcp', 'cdcr']) && $detail->major_fact
+        );
+        abort_if(!$condition, 401, __('unauthorized'));
         if ($detailId) {
             $detail->load('regularization');
+            $mission->load(['dre', 'agency', 'campaign']);
             return compact('mission', 'detail', 'process');
         } else {
-            $details = $mission->details()->whereRelation('process', 'processes.id', $process->id)->with(['controlPoint', 'domain', 'process'])->get();
+            $details = $mission->details()->with('regularization');
+            $details = $details->whereRelation('process', 'processes.id', $process->id)->with(['controlPoint', 'domain', 'process'])->get();
             return compact('mission', 'details', 'process');
         }
     }
@@ -259,14 +275,16 @@ class MissionDetailController extends Controller
      */
     private function storeFiles(array $data, MissionDetail $detail)
     {
-        $files = $data['media'];
-        $media = Media::whereIn('id', $files)->get();
-        foreach ($media as $file) {
-            if (empty($file->attachable_type)) {
-                $file->update([
-                    'attachable_type' => MissionDetail::class,
-                    'attachable_id' => $detail->id,
-                ]);
+        $files = !isset($data['media']) ?: $data['media'];
+        if ($files) {
+            $media = Media::whereIn('id', $files)->get();
+            foreach ($media as $file) {
+                if (empty($file->attachable_type)) {
+                    $file->update([
+                        'attachable_type' => MissionDetail::class,
+                        'attachable_id' => $detail->id,
+                    ]);
+                }
             }
         }
     }
@@ -282,7 +300,7 @@ class MissionDetailController extends Controller
             $users = User::all()->filter(fn ($user) => hasRole($roles, $user) || $detail->mission->creator->id == $user->id);
             foreach ($users as $user) {
                 if (!$user->notifications()->where('data->detail_id', $detail->id)->count()) {
-                    Notification::send($user, new MajorFactDetectedNotification($detail));
+                    Notification::send($user, new Detected($detail));
                 }
             }
         }
@@ -300,22 +318,24 @@ class MissionDetailController extends Controller
     {
         $detail = MissionDetail::findOrFail($data['detail']);
         // Vidé les champs report et recovery_plan si la note égale 1
-        if ($data['score'] == 1) {
+        if (isset($data['score']) && $data['score'] == 1) {
             $data['report'] = null;
             $data['recovery_plan'] = null;
         }
 
         // Mettre la note max si jamais il y'a un fait majeur
-        if ($data['major_fact']) $data['score'] = max(array_keys($detail->controlPoint->scores_arr));
+        if (isset($data['major_fact']) && $data['major_fact']) $data['score'] = max(array_keys($detail->controlPoint->scores_arr));
         $processedAt = $processMode ? now() : null;
+        $executedAt = now();
         // Mise à jour des informations dans la base de données
+        $metadata = isset($data['metadata']) && !empty($data['metadata']) ? $data['metadata'] : $detail->metadata;
         $detail->update([
             'major_fact' => $data['major_fact'],
             'score' => $data['score'],
-            'report' => $data['report'],
-            'recovery_plan' => $data['recovery_plan'],
-            'metadata' => !empty($data['metadata']) ? $data['metadata'] : null,
-            'executed_at' => now(),
+            'report' => isset($data['report']) ? $data['report'] : $detail->report,
+            'recovery_plan' => isset($data['recovery_plan']) ? $data['recovery_plan'] : $detail->recovery_plan,
+            'metadata' => $metadata,
+            'executed_at' => $executedAt,
             'processed_at' => $processedAt
         ]);
 
@@ -324,7 +344,7 @@ class MissionDetailController extends Controller
 
     public function filtersData()
     {
-        $details = $this->getDetails()->with(['domain', 'process', 'agency', 'mission', 'campaign', 'controlPoint']);
+        // $details = $this->getDetails()->with(['domain', 'process', 'agency', 'mission', 'campaign', 'controlPoint']);
         // $scores = $details->get()->pluck('controlPoint')->map(fn ($controlPoint) => $controlPoint->scores_arr)->toArray();
 
         // $scores = array_values(array_unique(array_reduce($scores, function ($carry, $item) {
@@ -332,63 +352,77 @@ class MissionDetailController extends Controller
         // }, [])));
         // $scores = array_map(fn ($value) => ['id' => $value, 'label' => $value], $scores);
 
-        $familliesId = (clone $details)->get()->pluck('familly')->map(fn ($familly) => $familly->id)->unique()->toArray();
-        $unformatedFamillies = Familly::whereIn('id', $familliesId);
-        $famillies = formatForSelect((clone $unformatedFamillies)->get()->toArray());
+        // $familliesId = (clone $details)->get()->pluck('familly')->map(fn ($familly) => $familly->id)->unique()->toArray();
+        // $unformatedFamillies = Familly::whereIn('id', $familliesId);
+        // $famillies = formatForSelect((clone $unformatedFamillies)->get()->toArray());
 
-        $domainsId = (clone $details)->get()->pluck('domain')->map(fn ($domain) => $domain->id)->unique()->toArray();
-        $unformatedDomains = Domain::whereIn('id', $domainsId)->get();
-        $domains = formatForSelect($unformatedDomains->toArray());
+        // $domainsId = (clone $details)->get()->pluck('domain')->map(fn ($domain) => $domain->id)->unique()->toArray();
+        // $unformatedDomains = Domain::whereIn('id', $domainsId)->get();
+        // $domains = formatForSelect($unformatedDomains->toArray());
 
-        $processesId = (clone $details)->get()->pluck('process')->map(fn ($process) => $process->id)->unique()->toArray();
-        $unformatedProcesses = Process::whereIn('id', $processesId)->get();
-        $processes = formatForSelect($unformatedProcesses->toArray());
+        // $processesId = (clone $details)->get()->pluck('process')->map(fn ($process) => $process->id)->unique()->toArray();
+        // $unformatedProcesses = Process::whereIn('id', $processesId)->get();
+        // $processes = formatForSelect($unformatedProcesses->toArray());
 
-        $agenciesId = (clone $details)->get()->pluck('agency')->map(fn ($agency) => $agency->id)->unique()->toArray();
-        $unformatedAgencies = Agency::whereIn('id', $agenciesId)->get();
-        $agencies = formatForSelect($unformatedAgencies->toArray(), 'full_name');
+        // $agenciesId = (clone $details)->get()->pluck('agency')->map(fn ($agency) => $agency->id)->unique()->toArray();
+        // $unformatedAgencies = Agency::whereIn('id', $agenciesId)->get();
+        // $agencies = formatForSelect($unformatedAgencies->toArray(), 'full_name');
 
-        $missionsId = (clone $details)->get()->pluck('mission')->map(fn ($mission) => $mission->id)->unique()->toArray();
-        $unformatedMissions = Mission::whereIn('id', $missionsId)->get();
-        $missions = formatForSelect($unformatedMissions->toArray(), 'reference');
+        // $missionsId = (clone $details)->get()->pluck('mission')->map(fn ($mission) => $mission->id)->unique()->toArray();
+        // $unformatedMissions = Mission::whereIn('id', $missionsId)->get();
+        // $missions = formatForSelect($unformatedMissions->toArray(), 'reference');
 
-        $campaignsId = (clone $details)->get()->pluck('campaign')->map(fn ($campaign) => $campaign->id)->unique()->toArray();
-        $unformatedCampaigns = ControlCampaign::whereIn('id', $campaignsId)->get();
-        $campaigns = formatForSelect($unformatedCampaigns->toArray(), 'reference');
+        // $campaignsId = (clone $details)->get()->pluck('campaign')->map(fn ($campaign) => $campaign->id)->unique()->toArray();
+        // $unformatedCampaigns = ControlCampaign::whereIn('id', $campaignsId)->get();
+        // $campaigns = formatForSelect($unformatedCampaigns->toArray(), 'reference');
+        $famillies = formatForSelect(Familly::all()->pluck('name', 'id')->toArray());
+        $domains = formatForSelect(Domain::all()->pluck('name', 'id')->toArray());
+        $processes = formatForSelect(Process::all()->pluck('name', 'id')->toArray());
+        $agencies = formatForSelect(Agency::all()->pluck('full_name', 'id')->toArray());
+        $missions = !hasRole(['cc', 'cdc', 'ci']) ? formatForSelect(Mission::all()->pluck('refernce', 'id')->toArray(), 'reference') : formatForSelect(auth()->user()->missions->toArray(), 'reference');
+        $campaigns = !hasRole(['cc', 'ci']) ? formatForSelect(ControlCampaign::all()->pluck('reference', 'id')->toArray(), 'reference') : formatForSelect(auth()->user()->campaigns->toArray(), 'reference');
 
         return compact('missions', 'famillies', 'domains', 'processes', 'agencies', 'campaigns');
     }
 
     public function majorFactsFilterData()
     {
-        $details = $this->getMajorFacts()->with(['domain', 'process', 'agency', 'mission', 'campaign']);
+        // $details = $this->getMajorFacts()->with(['domain', 'process', 'agency', 'mission', 'campaign']);
 
-        $familliesId = (clone $details)->get()->pluck('familly')->map(fn ($familly) => $familly->id)->unique()->toArray();
-        $unformatedFamillies = Familly::whereIn('id', $familliesId);
-        $famillies = formatForSelect((clone $unformatedFamillies)->get()->toArray());
+        // $familliesId = (clone $details)->get()->pluck('familly')->map(fn ($familly) => $familly->id)->unique()->toArray();
+        // $unformatedFamillies = Familly::whereIn('id', $familliesId);
+        // $famillies = formatForSelect((clone $unformatedFamillies)->get()->toArray());
 
-        $domainsId = (clone $details)->get()->pluck('domain')->map(fn ($domain) => $domain->id)->unique()->toArray();
-        $unformatedDomains = Domain::whereIn('id', $domainsId)->get();
-        $domains = formatForSelect($unformatedDomains->toArray());
+        // $domainsId = (clone $details)->get()->pluck('domain')->map(fn ($domain) => $domain->id)->unique()->toArray();
+        // $unformatedDomains = Domain::whereIn('id', $domainsId)->get();
+        // $domains = formatForSelect($unformatedDomains->toArray());
 
-        $processesId = (clone $details)->get()->pluck('process')->map(fn ($process) => $process->id)->unique()->toArray();
-        $unformatedProcesses = Process::whereIn('id', $processesId)->get();
-        $processes = formatForSelect($unformatedProcesses->toArray());
+        // $processesId = (clone $details)->get()->pluck('process')->map(fn ($process) => $process->id)->unique()->toArray();
+        // $unformatedProcesses = Process::whereIn('id', $processesId)->get();
+        // $processes = formatForSelect($unformatedProcesses->toArray());
 
-        $agenciesId = (clone $details)->get()->pluck('agency')->map(fn ($agency) => $agency->id)->unique()->toArray();
-        $unformatedAgencies = Agency::whereIn('id', $agenciesId)->get();
-        $agencies = formatForSelect($unformatedAgencies->toArray(), 'full_name');
+        // $agenciesId = (clone $details)->get()->pluck('agency')->map(fn ($agency) => $agency->id)->unique()->toArray();
+        // $unformatedAgencies = Agency::whereIn('id', $agenciesId)->get();
+        // $agencies = formatForSelect($unformatedAgencies->toArray(), 'full_name');
 
-        $missionsId = (clone $details)->get()->pluck('mission')->map(fn ($mission) => $mission->id)->unique()->toArray();
-        $unformatedMissions = Mission::whereIn('id', $missionsId)->get();
-        $missions = formatForSelect($unformatedMissions->toArray(), 'reference');
+        // $missionsId = (clone $details)->get()->pluck('mission')->map(fn ($mission) => $mission->id)->unique()->toArray();
+        // $unformatedMissions = Mission::whereIn('id', $missionsId)->get();
+        // $missions = formatForSelect($unformatedMissions->toArray(), 'reference');
 
-        $campaignsId = (clone $details)->get()->pluck('campaign')->map(fn ($campaign) => $campaign->id)->unique()->toArray();
-        $unformatedCampaigns = ControlCampaign::whereIn('id', $campaignsId)->get();
-        $campaigns = formatForSelect($unformatedCampaigns->toArray(), 'reference');
+        // $campaignsId = (clone $details)->get()->pluck('campaign')->map(fn ($campaign) => $campaign->id)->unique()->toArray();
+        // $unformatedCampaigns = ControlCampaign::whereIn('id', $campaignsId)->get();
+        // $campaigns = formatForSelect($unformatedCampaigns->toArray(), 'reference');
 
-        $scores = formatForSelect([['id' => 2, 'name' => '2'], ['id' => 3, 'name' => '3'], ['id' => 4, 'name' => '4']]);
+        // $scores = formatForSelect([['id' => 2, 'name' => '2'], ['id' => 3, 'name' => '3'], ['id' => 4, 'name' => '4']]);
 
-        return compact('missions', 'famillies', 'domains', 'processes', 'scores', 'agencies', 'campaigns');
+        // return compact('missions', 'famillies', 'domains', 'processes', 'scores', 'agencies', 'campaigns');
+        $famillies = formatForSelect(Familly::all()->pluck('name', 'id')->toArray());
+        $domains = formatForSelect(Domain::all()->pluck('name', 'id')->toArray());
+        $processes = formatForSelect(Process::all()->pluck('name', 'id')->toArray());
+        $agencies = formatForSelect(Agency::all()->pluck('full_name', 'id')->toArray());
+        $missions = !hasRole(['cc', 'cdc', 'ci']) ? formatForSelect(Mission::all()->pluck('refernce', 'id')->toArray(), 'reference') : formatForSelect(auth()->user()->missions->toArray(), 'reference');
+        $campaigns = !hasRole(['cc', 'ci']) ? formatForSelect(ControlCampaign::all()->pluck('reference', 'id')->toArray(), 'reference') : formatForSelect(auth()->user()->campaigns->toArray(), 'reference');
+
+        return compact('missions', 'famillies', 'domains', 'processes', 'agencies', 'campaigns');
     }
 }

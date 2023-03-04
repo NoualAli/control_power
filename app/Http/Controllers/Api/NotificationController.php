@@ -6,8 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\NotificationResource;
 use App\Models\MissionDetail;
 use App\Models\User;
-use App\Notifications\MajorFactDetectedNotification;
-use Illuminate\Http\Request;
+use App\Notifications\Mission\MajorFact\Detected;
 use Illuminate\Support\Facades\Notification;
 
 class NotificationController extends Controller
@@ -94,10 +93,10 @@ class NotificationController extends Controller
     {
         try {
             $roles = ['ig', 'dg', 'cdrcp', 'der'];
-            $users = User::hasRole($roles);
+            $users = User::whereRoles($roles)->get();
             foreach ($users as $user) {
                 $majorFact->update(['major_fact_dispatched_at' => now()]);
-                Notification::send($user, new MajorFactDetectedNotification($majorFact));
+                Notification::send($user, new Detected($majorFact));
             }
             return response()->json([
                 'message' => NOTIFICATION_SUCCESS,

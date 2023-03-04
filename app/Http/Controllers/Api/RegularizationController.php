@@ -7,8 +7,8 @@ use App\Http\Requests\Mission\Detail\Regularization\StoreRequest;
 use App\Models\MissionDetail;
 use App\Models\Regularization;
 use App\Models\User;
-use App\Notifications\MissionDetailRegularized;
-use App\Notifications\MissionDetailUnregularized;
+use App\Notifications\Mission\Detail\Regularized;
+use App\Notifications\Mission\Detail\Unregularized;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -41,6 +41,7 @@ class RegularizationController extends Controller
                     $data['regularized_at'] = now();
                 }
                 unset($data['regularized'], $data['detail_id']);
+                // dd($data);
                 if (isset($data['id'])) {
                     $regularization = Regularization::findOrFail($data['id']);
                     unset($data['id']);
@@ -51,13 +52,19 @@ class RegularizationController extends Controller
                 return $detail->update(['regularization_id' => $regularization->id]);
             });
             if ($res) {
-                Notification::send(User::dcp(), new MissionDetailRegularized($detail));
+                // $users = User::dcp();
+                // foreach ($users as $user) {
+                //     Notification::send($user, new Regularized($detail));
+                // }
                 return response()->json([
                     'message' => CREATE_SUCCESS,
                     'status' => true,
                 ]);
             }
-            Notification::send(User::dcp(), new MissionDetailUnregularized($detail));
+            // $users = User::dcp();
+            // foreach ($users as $user) {
+            //     Notification::send($user, new Unregularized($detail));
+            // }
             return response()->json([
                 'message' => CREATE_ERROR,
                 'status' => false,
@@ -68,40 +75,5 @@ class RegularizationController extends Controller
                 'status' => false,
             ]);
         }
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Regularization  $regularization
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Regularization $regularization)
-    {
-        //
-    }
-
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Regularization  $regularization
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Regularization $regularization)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Regularization  $regularization
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Regularization $regularization)
-    {
-        //
     }
 }
