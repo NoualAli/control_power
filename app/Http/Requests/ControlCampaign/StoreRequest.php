@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\ControlCampaign;
 
+use App\Rules\CheckCampaignDate;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\RequiredIf;
 
 class StoreRequest extends FormRequest
 {
@@ -25,10 +25,11 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'description' => ['required', 'string', 'max:500'],
-            'start' => ['required', 'date'],
-            'end' => ['required', 'date', 'after:start'],
+            'description' => ['required', 'string', 'max:3000'],
+            'start' => ['required', 'date', new CheckCampaignDate],
+            'end' => ['required', 'date', 'after:start', new CheckCampaignDate],
             'pcf' => ['required', 'array'],
+            'validate' => ['required', 'boolean'],
         ];
     }
 }

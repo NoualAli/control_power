@@ -25,11 +25,12 @@ class UpdateRequest extends FormRequest
     {
         $id = request()->campaign->id;
         return [
-            'reference' => ['required', 'unique:control_campaigns,reference,' . $id . ',id'],
-            'description' => ['required', 'string', 'max:500'],
+            // 'reference' => ['required', 'unique:control_campaigns,reference,' . $id . ',id'],
+            'description' => ['required', 'string', 'max:3000'],
             'start' => ['required', 'date'],
             'end' => ['required', 'date', 'after:start'],
             'pcf' => ['required', 'array'],
+            'validate' => ['required', 'boolean'],
         ];
     }
 }

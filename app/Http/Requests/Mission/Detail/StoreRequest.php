@@ -26,6 +26,17 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         if (request()->has('detail')) {
+            // if detail id is provided
+            if (request()->process_mode) {
+                // if process mode is true
+                return [
+                    'process_mode' => ['required', 'boolean'],
+                    'detail' => ['required', 'exists:mission_details,id'],
+                    'major_fact' => ['required', 'boolean'],
+                    'score' => ['required', 'in:1,2,3,4'],
+                ];
+            }
+            // else we accept updating all data
             return [
                 'process_mode' => ['required', 'boolean'],
                 'detail' => ['required', 'exists:mission_details,id'],
@@ -37,6 +48,7 @@ class StoreRequest extends FormRequest
                 'media' => ['nullable', 'array'],
             ];
         } else {
+            // If detail id is not provided
             return [
                 'process_mode' => ['required', 'boolean'],
                 'rows' => ['required', 'array'],
