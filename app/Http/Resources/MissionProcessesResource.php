@@ -19,7 +19,7 @@ class MissionProcessesResource extends JsonResource
         $processId = $this->id;
         $details = MissionDetail::whereRelation('process', 'processes.id', $processId)->whereRelation('mission', 'missions.id', request()->mission->id);
         $totalDetails = $details->count();
-        $detailsCollection = (clone $details)->get();
+        $detailsCollection = $details->get();
         $controlPoints = $detailsCollection->pluck('controlPoint');
         $data =  [
             'id' => $this->id,
