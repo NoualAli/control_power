@@ -15,17 +15,20 @@ class CreateControlCampaignsTable extends Migration
     {
         Schema::create('control_campaigns', function (Blueprint $table) {
             $table->id();
-            $table->string('description');
+            $table->text('description');
             $table->timestamp('start');
             $table->timestamp('end');
-            $table->foreignId('created_by_id');
+            $table->foreignId('created_by_id')->nullable();
             $table->string('reference');
             $table->set('state', ['En cours', 'Réaliser', 'En retard', 'À effectuer'])->default('À effectuer');
+            $table->foreignId('validated_by_id')->nullable();
 
+            $table->timestamp('validated_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('created_by_id')->on('users')->references('id');
+            $table->foreign('created_by_id')->on('users')->references('id')->onDelete('set null')->onUpdate('set null');
+            $table->foreign('validated_by_id')->on('users')->references('id')->onDelete('set null')->onUpdate('set null');
         });
     }
 
