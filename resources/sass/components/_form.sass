@@ -105,11 +105,16 @@ form
         min-height: $textarea-min-height
     &:read-only
         background-color: $primary-dark
-        color: $white !important
-        font-weight: 700
+        color: $white
+        &::placeholder
+            color: $white
+            font-weight: 700
     &:disabled
         background-color: $grey
-        color: $dark
+        color: $white
+        &::placeholder
+            color: $white
+            font-weight: 700
     @each $color in $colors-list
         &.is-#{nth($color, 1)}
             border-color: lighten(nth($color, 2), 10%)
@@ -340,6 +345,8 @@ form
             border-color: lighten(nth($color, 2), 10%)
             &:hover
                 border-color: nth($color, 2)
+    &.is-readonly
+        height: auto !important
     &.has-files
         display: block
         & .files-list
