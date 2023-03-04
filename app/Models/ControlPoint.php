@@ -36,7 +36,6 @@ class ControlPoint extends Model
         'has_major_fact' => 'boolean',
         'scores' => 'object',
         'fields' => 'object',
-        'major_fact_types' => 'object'
     ];
 
     /**
@@ -81,10 +80,5 @@ class ControlPoint extends Model
     public function domain()
     {
         return $this->belongsToThrough(Domain::class, Process::class);
-    }
-
-    public function samples()
-    {
-        return $this->hasManyThrough(Pcf::class, PcfSample::class);
     }
 }

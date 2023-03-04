@@ -36,4 +36,8 @@ class Domain extends Model
     {
         return $this->hasMany(Process::class);
     }
+    public function controlPoints()
+    {
+        return $this->hasManyThrough(ControlPoint::class, Process::class);
+    }
 }

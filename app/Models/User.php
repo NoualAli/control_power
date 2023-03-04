@@ -139,7 +139,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function campaigns()
     {
-        if (hasRole('dcp')) {
+        if (hasRole(['dcp', 'cdcr'])) {
             return $this->hasMany(ControlCampaign::class, 'created_by_id');
         } elseif (hasRole(['ci', 'cc'])) {
             return ControlCampaign::whereIn('id', function ($query) {
@@ -155,7 +155,7 @@ class User extends Authenticatable implements JWTSubject
     public function details()
     {
         if (hasRole(['ci', 'cc'])) {
-            return $this->hasManyDeep(MissionDetail::class, ['mission_has_controllers', Mission::class]);
+            return $this->hasManyDeep(MissionDetail::class, [MissionHasController::class, Mission::class]);
         } elseif (hasRole('cdc')) {
             return $this->hasManyDeep(MissionDetail::class, [Mission::class], ['created_by_id']);
         } elseif (hasRole(['da', 'dre'])) {
@@ -281,6 +281,8 @@ class User extends Authenticatable implements JWTSubject
 
     public function scopeWhereRoles(Builder $query, $roles)
     {
-        return $query->whereRelation('roles', 'roles.code', 'in', $roles);
+        return $query->whereHas('roles', function ($query) use ($roles) {
+            return $query->whereIn('code', $roles);
+        });
     }
 }

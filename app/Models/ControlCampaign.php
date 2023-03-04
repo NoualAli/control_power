@@ -20,7 +20,9 @@ class ControlCampaign extends Model
         'start',
         'end',
         'reference',
-        'created_by_id'
+        'created_by_id',
+        'validated_by_id',
+        'validated_at',
     ];
 
     protected $appends = [
@@ -32,7 +34,7 @@ class ControlCampaign extends Model
 
     public $withCount = ['processes'];
 
-    protected $searchable = ['campaigns.reference'];
+    protected $searchable = ['reference'];
 
     protected $filter = 'App\Filters\Campaign';
     protected $filterable = ['reference'];
@@ -45,7 +47,7 @@ class ControlCampaign extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            $model->reference = 'CDC-' . today()->format('Y-') . addZero($model->max('id') + 1);
+            $model->reference = 'CDC-' . today()->format('Y-') . addZero($model->count() + 1);
         });
     }
 
@@ -57,6 +59,11 @@ class ControlCampaign extends Model
         return $this->belongsTo(User::class, 'created_by_id');
     }
 
+    public function validator()
+    {
+        return $this->belongsTo(User::class, 'validated_by_id');
+    }
+
     public function controllers()
     {
         return $this->hasManyDeepFromRelations($this->missions(), (new Mission())->controllers());
@@ -65,6 +72,11 @@ class ControlCampaign extends Model
     public function missions()
     {
         return $this->hasMany(Mission::class, 'control_campaign_id');
+    }
+
+    public function details()
+    {
+        return $this->hasManyThrough(MissionDetail::class, Mission::class);
     }
 
     public function processes()
@@ -78,5 +90,10 @@ class ControlCampaign extends Model
     public function scopeCurrent($query)
     {
         return $query->orderBy('created_at', 'ASC')->get()->last();
+    }
+
+    public function scopeValidated($query)
+    {
+        return $query->whereNotNull('validated_by_id');
     }
 }

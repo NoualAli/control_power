@@ -25,10 +25,10 @@ class Mission extends Model
         'note',
         'start',
         'end',
-        'cdcr_validation_at',
-        'dcp_validation_at',
         'cdcr_validation_by_id',
         'dcp_validation_by_id',
+        'cdcr_validation_at',
+        'dcp_validation_at',
     ];
 
     protected $appends = [
@@ -41,7 +41,11 @@ class Mission extends Model
         'avg_score',
         'opinion',
         'dre_report',
-        'synthesis'
+        'synthesis',
+        'controller_opinion_exist',
+        'dre_report_exist',
+        'controller_opinion_is_validated',
+        'dre_report_is_validated',
     ];
 
     protected $searchable = ['reference', 'campaign.reference'];
@@ -51,6 +55,14 @@ class Mission extends Model
     /**
      * Getters
      */
+    public function getHasDcpControllersAttribute()
+    {
+        return $this->dcpControllers->count();
+    }
+    public function getHasDreControllersAttribute()
+    {
+        return $this->dreControllers->count();
+    }
 
     public function getDreReportExistAttribute()
     {
@@ -59,7 +71,7 @@ class Mission extends Model
 
     public function getDreReportIsValidatedAttribute()
     {
-        return $this->dre_report->is_validated;
+        return $this->dre_report?->is_validated;
     }
 
     public function getControllerOpinionExistAttribute()
@@ -67,14 +79,14 @@ class Mission extends Model
         return $this->opinion !== null;
     }
 
-    public function getControllerOpinionValidatedAttribute()
+    public function getControllerOpinionIsValidatedAttribute()
     {
-        return $this->opinion->is_validated;
+        return $this->opinion?->is_validated;
     }
 
     public function getReferenceAttribute($reference)
     {
-        if (!$this->head_of_department_report && !$this->head_of_department_report?->is_validated) {
+        if (!$this->dre_report_is_validated && !$this->dre_report_is_validated) {
             return str_replace('RAP', '', $reference);
         }
         return $reference;
@@ -82,7 +94,7 @@ class Mission extends Model
 
     public function getAvgScoreAttribute()
     {
-        return addZero(intval($this->details()->avg('score')));
+        return addZero(intval($this->details->avg('score')));
     }
 
     public function getAgencyControllersStrAttribute()
@@ -92,24 +104,24 @@ class Mission extends Model
 
     public function getProgressStatusAttribute()
     {
-        $totalDetails = $this->details()->count();
+        $totalDetails = $this->details->count();
         $totalFinishedDetails = $this->details->filter(fn ($detail) => $detail->score !== null)->count();
         return number_format($totalFinishedDetails * 100 / $totalDetails);
     }
 
     public function getOpinionAttribute()
     {
-        return $this->reports()->where('type', 'Avis contrôleur')->first();
+        return $this->reports->where('type', 'Avis contrôleur')->first();
     }
 
     public function getDreReportAttribute()
     {
-        return $this->reports()->where('type', 'Rapport')->first();
+        return $this->reports->where('type', 'Rapport')->first();
     }
 
     public function getSynthesisAttribute()
     {
-        return $this->reports()->where('type', 'Synthèse')->first();
+        return $this->reports->where('type', 'Synthèse')->first();
     }
     public function getRealisationStateAttribute()
     {
@@ -151,14 +163,18 @@ class Mission extends Model
     /**
      * Relationships
      */
+    public function controllers()
+    {
+        return $this->belongsToMany(User::class, 'mission_has_controllers')->withPivot('control_agency');
+    }
     public function agencyControllers()
     {
-        return $this->belongsToMany(User::class, 'mission_has_controllers')->wherePivot('control_agency', true);
+        return $this->controllers()->wherePivot('control_agency', true);
     }
 
     public function dcpControllers()
     {
-        return $this->belongsToMany(User::class, 'mission_has_controllers')->wherePivot('control_agency', false);
+        return $this->controllers()->wherePivot('control_agency', false);
     }
 
     public function creator()
@@ -188,17 +204,29 @@ class Mission extends Model
     }
     public function cdcrValidator()
     {
-        $this->belongsTo(User::class, 'cdcr_validation_by_id');
+        return $this->belongsTo(User::class, 'cdcr_validation_by_id');
     }
 
     public function dcpValidator()
     {
-        $this->belongsTo(User::class, 'dcp_validation_by_id');
+        return $this->belongsTo(User::class, 'dcp_validation_by_id');
     }
 
     /**
      * Scopes
      */
+    public function scopeHasControllers($query)
+    {
+        return $query->whereHas('controllers');
+    }
+    public function scopeHasDcpControllers($query)
+    {
+        return $query->whereHas('dcpControllers');
+    }
+    public function scopeHasDreControllers($query)
+    {
+        return $query->whereHas('dreControllers');
+    }
     public function scopeHasCdcrValidation($query)
     {
         return $query->whereNotNull('cdcr_validation_at');

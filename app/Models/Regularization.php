@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasUuid;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -17,6 +18,18 @@ class Regularization extends Model
         'action_to_be_taken',
         'regularized_by_id',
     ];
+
+    protected $appends = ['regularized'];
+
+    public function getRegularizedAttribute()
+    {
+        return $this->regularized_at ? 'Levée' : 'Non levée';
+    }
+
+    public function getRegularizedAtAttribute($regularized_at)
+    {
+        return $regularized_at ? Carbon::parse($regularized_at)->format('d-m-Y') : null;
+    }
 
     /**
      * Relationships

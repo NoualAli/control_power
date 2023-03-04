@@ -6,6 +6,7 @@ use App\Traits\IsOrderable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Znck\Eloquent\Traits\BelongsToThrough;
 
 class Familly extends Model

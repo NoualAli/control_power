@@ -42,12 +42,14 @@ class MissionDetail extends Model
     public $casts = [
         'metadata' => 'object',
         'executed_at' => 'datetime:d-m-Y H:i',
-        'processed_at' => 'datetime:d-m-Y H:i'
+        'processed_at' => 'datetime:d-m-Y H:i',
+        'major_fact' => 'boolean'
     ];
 
     public $appends = [
         'appreciation',
-        'parsed_metadata'
+        'parsed_metadata',
+        'major_fact_str'
     ];
 
     /**
@@ -63,7 +65,7 @@ class MissionDetail extends Model
     }
     public function getAppreciationAttribute()
     {
-        $score = collect($this->controlPoint->scores)->filter(fn ($score) => $score[0]->score == $this->score)->first();
+        $score = collect($this->controlPoint?->scores)->filter(fn ($score) => $score[0]->score == $this->score)->first();
         return isset($score[1]) ? $score[1]->label : null;
     }
 
@@ -80,7 +82,7 @@ class MissionDetail extends Model
     }
     public function getMajorFactStrAttribute()
     {
-        return $this->major_fact ? '<i class="las la-times-circle text-danger text-medium" title="Oui"></i>' : '<i class="las la-check-circle text-success text-medium" title="Non"></i>';
+        return $this->major_fact ? '<i class="las la-times-circle text-danger text-medium icon" title="Oui"></i>' : '<i class="las la-check-circle text-success text-medium icon" title="Non"></i>';
     }
     /**
      * Relationships
