@@ -128,6 +128,7 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::get('/{campaign}', 'show');
         Route::get('/processes/{campaign}', 'processes');
         Route::put('/{campaign}', 'update');
+        Route::put('/{campaign}/validate', 'validateCampaign');
         Route::delete('{campaign}', 'destroy');
         Route::delete('{campaign}/process/{process}', 'destroyProcess');
     });
@@ -204,37 +205,38 @@ Route::group(['middleware' => 'auth:api'], function () {
     /**
      * Data for charts
      */
-    // Route::prefix('statistics')->controller(DataController::class)->group(function () {
-    //     Route::get('/missions_state', 'missions_state');
-    //     Route::get('/missions_percentage', 'missions_percentage');
+    Route::prefix('statistics')->controller(DataController::class)->group(function () {
+        Route::get('/dashboard', 'dashboard');
+        // Route::get('/missions_state', 'missions_state');
+        // Route::get('/missions_percentage', 'missions_percentage');
 
-    //     /**
-    //      * Anomalies
-    //      */
-    //     Route::prefix('anomalies')->group(function () {
-    //         Route::get('/missions', 'missions_anomalies');
-    //         Route::get('/campaigns', 'campaigns_anomalies');
-    //         Route::get('/dres', 'dres_anomalies');
-    //         Route::get('/agencies', 'agencies_anomalies');
-    //         Route::get('/famillies', 'famillies_anomalies');
-    //         Route::get('/domains', 'domains_anomalies');
-    //         Route::get('/processes', 'processes_anomalies');
-    //         Route::get('/score', 'score_anomalies');
-    //     });
+        // /**
+        //  * Anomalies
+        //  */
+        // Route::prefix('anomalies')->group(function () {
+        //     Route::get('/missions', 'missions_anomalies');
+        //     Route::get('/campaigns', 'campaigns_anomalies');
+        //     Route::get('/dres', 'dres_anomalies');
+        //     Route::get('/agencies', 'agencies_anomalies');
+        //     Route::get('/famillies', 'famillies_anomalies');
+        //     Route::get('/domains', 'domains_anomalies');
+        //     Route::get('/processes', 'processes_anomalies');
+        //     Route::get('/score', 'score_anomalies');
+        // });
 
-    //     /**
-    //      * Major facts
-    //      */
-    //     Route::prefix('major-facts')->group(function () {
-    //         Route::get('/missions', 'missions_major_facts');
-    //         Route::get('/campaigns', 'campaigns_major_facts');
-    //         Route::get('/dres', 'dres_major_facts');
-    //         Route::get('/agencies', 'agencies_major_facts');
-    //         Route::get('/famillies', 'famillies_major_facts');
-    //         Route::get('/domains', 'domains_major_facts');
-    //         Route::get('/processes', 'processes_major_facts');
-    //     });
-    // });
+        // /**
+        //  * Major facts
+        //  */
+        // Route::prefix('major-facts')->group(function () {
+        //     Route::get('/missions', 'missions_major_facts');
+        //     Route::get('/campaigns', 'campaigns_major_facts');
+        //     Route::get('/dres', 'dres_major_facts');
+        //     Route::get('/agencies', 'agencies_major_facts');
+        //     Route::get('/famillies', 'famillies_major_facts');
+        //     Route::get('/domains', 'domains_major_facts');
+        //     Route::get('/processes', 'processes_major_facts');
+        // });
+    });
 
     Route::prefix('notifications')->controller(NotificationController::class)->group(function () {
         Route::get('/', 'index');
