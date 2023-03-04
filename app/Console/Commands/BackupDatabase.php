@@ -40,12 +40,19 @@ class BackupDatabase extends Command
     public function handle()
     {
         $seeders = database_path('seeders');
-        File::deleteDirectory($seeders);
-        File::makeDirectory($seeders);
-
+        if (File::deleteDirectory($seeders)) {
+            $this->info('Seeders directory deleted successfully');
+        } else {
+            $this->error('An error occured when trying to delete seeders directory');
+        }
+        if (File::makeDirectory($seeders)) {
+            $this->info('Seeders directory created successfully');
+        } else {
+            $this->error('An error occured when trying to create seeders directory');
+        }
         $seederCreation = $this->call('make:seeder', ['name' => 'DatabaseSeeder']);
         if ($seederCreation === 0) {
-            $database = env('DB_DATABASE');
+            $database = env('APP_DATABASE') ?? config('database.connections.mysql.database');
             $tables = collect(Schema::getAllTables())->pluck('Tables_in_' . $database)->filter(fn ($table) => $table !== 'migrations' && $table !== 'password_resets')->toArray();
             $tables = implode(',', $tables);
             $driver = $this->argument('driver') ?: 'iseed';
