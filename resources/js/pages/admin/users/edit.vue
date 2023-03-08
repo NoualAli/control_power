@@ -1,5 +1,5 @@
 <template>
-  <div v-can="'edit_user'">
+  <div v-if="can('edit_user')">
     <ContentBody>
       <div class="grid gap-10 my-4">
         <!-- Update User informations -->

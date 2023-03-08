@@ -1,5 +1,5 @@
 <template>
-  <div v-can="'edit_role'">
+  <div v-if="can('edit_role')">
     <ContentBody>
       <form @submit.prevent="update" @keydown="form.onKeydown($event)">
         <div class="grid gap-10 my-4">

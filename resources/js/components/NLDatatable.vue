@@ -21,12 +21,6 @@
         </h2>
       </div>
       <div class="col-12 col-lg-8 d-flex justify-end alin-center gap-2">
-        <!-- <div>_
-                                                                            <button class="btn btn-success has-icon" @click="exportData">
-                                                                              <i class="las la-file-excel icon"></i>
-                                                                              Exporter
-                                                                            </button>
-                                                                          </div> -->
         <div class="d-flex align-center">
           <input type="search" class="input m-0" placeholder="Faite votre recherche..."
             @input="search($event.target.value)" v-if="(searchable && config.data?.meta?.total) || appliedSearch !== ''">
@@ -71,8 +65,9 @@
               </span>
             </td>
             <td v-if="config.actions" class="cell-actions">
-              <span class="d-flex align-center gap-4">
-                <span v-for="(value, key) in config.actions" :key="key">
+              <span class="d-flex justify-start align-center gap-4">
+                <span v-for="(value, key) in config.actions" :key="key"
+                  v-if="showAction(value, key, 'show', item) || showAction(value, key, 'edit', item) || showAction(value, key, 'delete', item)">
                   <button class="btn btn-success" @click.stop="show(item)" v-if="showAction(value, key, 'show', item)">
                     <i class="las la-eye icon"></i>
                   </button>
@@ -83,8 +78,8 @@
                     v-if="showAction(value, key, 'delete', item)">
                     <i class="las la-trash icon"></i>
                   </button>
-                  <slot name="actions" v-bind:item="item"></slot>
                 </span>
+                <slot name="actions" v-bind:item="item"></slot>
               </span>
             </td>
           </tr>

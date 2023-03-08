@@ -1,9 +1,9 @@
 <template>
-  <div v-can="'view_mission'">
+  <div v-if="can('view_mission')">
     <ContentHeader v-if="campaignId">
       <template v-slot:actions>
         <router-link :to="{ name: 'missions-create', params: { campaignId } }" class="btn btn-info"
-          v-can="'create_mission'">
+          v-if="can('create_mission')">
           Ajouter
         </router-link>
       </template>
@@ -135,13 +135,13 @@ export default {
         ],
         actions: {
           show: (item) => {
-            return user().authorizations.view_mission
+            return this.can('view_mission')
           },
           edit: (item) => {
             return this.can('edit_mission') && item.remaining_days_before_start > 5
           },
           delete: (item) => {
-            return this.can('edit_mission') && item.remaining_days_before_start > 5
+            return this.can('delete_mission') && item.remaining_days_before_start > 5
           },
         }
       },

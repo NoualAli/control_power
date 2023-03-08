@@ -1,20 +1,20 @@
 <template>
-  <div v-can="'view_control_campaign'">
+  <div v-if="can('view_control_campaign')">
     <div class="d-flex justify-between align-center">
       <div class="w-100 d-flex justify-end align-center">
-        <router-link class="btn btn-info" :to="{ name: 'campaigns-create' }" v-can="'create_control_campaign'">
+        <router-link class="btn btn-info" :to="{ name: 'campaigns-create' }" v-if="can('create_control_campaign')">
           Ajouter
         </router-link>
       </div>
     </div>
     <ContentBody>
       <NLDatatable namespace="campaigns" :config="config" @delete="destroy" @show="show" @edit="edit" :filters="filters">
-        <!-- <template v-slot:actions="item">
-          <button class="btn btn-info has-icon" @click.stop="validate(item.item)" v-can="'validate_control_campaign'"
-            v-if="!item?.item?.validated_by_id">
+        <template v-slot:actions="item">
+          <button class="btn btn-info has-icon" @click.stop="validate(item.item)"
+            v-if="!item?.item?.validated_by_id && can('validate_control_campaign')">
             <i class="las la-check icon"></i>
           </button>
-        </template> -->
+        </template>
       </NLDatatable>
     </ContentBody>
   </div>
@@ -24,7 +24,7 @@
 import ContentBody from '../../components/ContentBody'
 import NLDatatable from '../../components/NLDatatable'
 import { mapGetters } from 'vuex'
-import { user, hasRole } from '../../plugins/user'
+import { hasRole } from '../../plugins/user'
 import api from '../../plugins/api'
 export default {
   components: {
@@ -78,13 +78,10 @@ export default {
         actions: {
           show: true,
           edit: (item) => {
-            // if (hasRole('cdcr') && item.validated_by_id) {
-            //   return
-            // }
-            return user().authorizations.edit_control_campaign && item.remaining_days_before_start > 5
+            return this.can('edit_control_campaign') && item.remaining_days_before_start > 5 && !item.validated_by_id && this.is('dcp')
           },
           delete: (item) => {
-            return user().authorizations.delete_control_campaign && item.remaining_days_before_start > 5
+            return this.can('delete_control_campaign') && item.remaining_days_before_start > 5 && !item.validated_by_id && this.is('dcp')
           },
         }
       },
@@ -144,27 +141,27 @@ export default {
     edit(item) {
       this.$router.push({ name: 'campaigns-edit', params: { campaignId: item.id } })
     },
-    // /**
-    //  * Valide une campagne de contrôle
-    //  *
-    //  * @param {Object} item
-    //  */
-    // validate(item) {
-    //   swal.confirm({ title: 'Validation', message: 'Validation de la campagne de contrôle ' + item.reference, icon: 'success' }).then(response => {
-    //     if (response.isConfirmed) {
-    //       api.put('campaigns/' + item.id + '/validate').then(response => {
-    //         if (response.data.status) {
-    //           this.initData()
-    //           swal.toast_success(response.data.message)
-    //         } else {
-    //           swal.toast_error(response.data.message)
-    //         }
-    //       })
-    //     }
-    //   }).catch(error => {
-    //     swal.alert_error(error)
-    //   })
-    // },
+    /**
+     * Valide une campagne de contrôle
+     *
+     * @param {Object} item
+     */
+    validate(item) {
+      swal.confirm({ title: 'Validation', message: 'Validation de la campagne de contrôle ' + item.reference, icon: 'success' }).then(response => {
+        if (response.isConfirmed) {
+          api.put('campaigns/' + item.id + '/validate').then(response => {
+            if (response.data.status) {
+              this.initData()
+              swal.toast_success(response.data.message)
+            } else {
+              swal.toast_error(response.data.message)
+            }
+          })
+        }
+      }).catch(error => {
+        swal.alert_error(error)
+      })
+    },
     /**
      * Supprime une campagne de contrôle
      *

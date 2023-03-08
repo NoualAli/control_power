@@ -1,25 +1,64 @@
-import store from '~/store'
+export function user() {
+  return JSON.parse(localStorage.getItem('user')) || []
+}
+
+export function getRoles() {
+  return JSON.parse(localStorage.getItem('roles')) || []
+}
+
+export function getPermissions() {
+  return JSON.parse(localStorage.getItem('permissions')) || []
+}
+
+
+export function getDres() {
+  return JSON.parse(localStorage.getItem('dres')) || []
+}
+
+export function getAgencies() {
+  return JSON.parse(localStorage.getItem('agencies')) || []
+}
+
+export function isAbleTo($abilities = String | Array,) {
+  let can = []
+  let userPermissions = getPermissions()
+  if (typeof $abilities == 'string') {
+    $abilities = ($abilities || '').split(/\s*,\s*/);
+    $abilities.some(ability => {
+      can.push(userPermissions.includes(ability.trim()))
+    });
+    return can.some(value => value === true)
+  } else if (typeof $abilities == 'array') {
+    $abilities.foreEach($ability => {
+      can.push(userPermissions.includes($ability.trim()))
+    })
+    return can.includes(true)
+  } else if (typeof $abilities == 'object') {
+    for (const key in $abilities) {
+      if (Object.hasOwnProperty.call($abilities, key)) {
+        const $ability = $abilities[ key ].trim();
+        can.push(userPermissions.includes($ability))
+      }
+    }
+    return can.includes(true)
+  }
+}
 
 export function hasRole(roles = String | Array, status) {
   let userRoles = status ? status : getRoles()
+  let hasRoles = []
   if (typeof roles == 'string') {
-    let hasRoles = []
     roles = (roles || '').split(/\s*,\s*/);
     roles.some(role => {
       hasRoles.push(userRoles.includes(role))
     });
-    // console.log(hasRoles.some(value => value === true));
     return hasRoles.some(value => value === true)
-
-    return userRoles.includes(roles)
   } else if (typeof roles == 'array') {
-    let hasRoles = []
     roles.foreEach(role => {
       hasRoles.push(userRoles.includes(role))
     })
     return hasRoles.includes(true)
   } else if (typeof roles == 'object') {
-    let hasRoles = []
     for (const key in roles) {
       if (Object.hasOwnProperty.call(roles, key)) {
         const role = roles[ key ];
@@ -28,39 +67,5 @@ export function hasRole(roles = String | Array, status) {
     }
     return hasRoles.includes(true)
   }
-  // return true
 }
 
-export function user() {
-  return store.getters[ 'auth/user' ]
-}
-
-export function getRoles() {
-  let roles = user()?.roles.map(item => item.code)
-  return roles
-}
-
-export function isAbleTo($abilities) {
-  let can = []
-  $abilities = ($abilities || '').split(/\s*,\s*/);
-  $abilities.some(ability => {
-    can.push(user()?.permissions_arr?.includes(ability.trim()))
-  });
-  return can.some(value => value === true)
-}
-
-export function isRoot() {
-  return hasRole('root')
-}
-export function isDG() {
-  return hasRole('dg')
-}
-export function isDcp() {
-  return hasRole('dcp')
-}
-export function isHeadOfDepartment() {
-  return hasRole('cdc')
-}
-export function isController() {
-  return hasRole('ci')
-}

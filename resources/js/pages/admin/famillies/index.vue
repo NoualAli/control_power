@@ -1,8 +1,8 @@
 <template>
-  <div v-can="'view_familly'">
+  <div v-if="can('view_familly')">
     <ContentHeader>
       <template v-slot:actions>
-        <router-link :to="{ name: 'famillies-create' }" class="btn btn-info" v-can="'create_familly'">
+        <router-link :to="{ name: 'famillies-create' }" class="btn btn-info" v-if="can('create_familly')">
           Ajouter
         </router-link>
       </template>
@@ -49,10 +49,10 @@ export default {
             return false
           },
           edit: (item) => {
-            return user().authorizations.edit_familly
+            return this.can('.edit_familly')
           },
           delete: (item) => {
-            return user().authorizations.delete_familly
+            return this.can('.delete_familly')
           }
         }
       }

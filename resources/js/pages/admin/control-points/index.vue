@@ -1,8 +1,8 @@
 <template>
-  <div v-can="'view_control_point'">
+  <div v-if="can('view_control_point')">
     <ContentHeader>
       <template v-slot:actions>
-        <router-link :to="{ name: 'control-points-create' }" class="btn btn-info" v-can="'create_control_point'">
+        <router-link :to="{ name: 'control-points-create' }" class="btn btn-info" v-if="can('create_control_point')">
           Ajouter
         </router-link>
       </template>
@@ -103,16 +103,15 @@
         </template>
         <template v-slot:footer>
           <div class="d-flex justify-end align-center gap-5 w-100"
-            v-if="rowSelected?.authorizations.delete || rowSelected?.authorizations.edit">
+            v-if="can(['delete_control_point', 'edit_control_point'])">
             <button class="btn btn-danger has-icon" @click.prevent="destroy(rowSelected)"
-              v-if="rowSelected?.authorizations.delete">
+              v-if="can('delete_control_point')">
               <i class="las la-trash icon"></i>
               <span class="icon-text">
                 Supprimer
               </span>
             </button>
-            <button @click.prevent="edit(rowSelected)" class="btn btn-warning has-icon"
-              v-if="rowSelected?.authorizations.edit">
+            <button @click.prevent="edit(rowSelected)" class="btn btn-warning has-icon" v-if="can('edit_control_point')">
               <i class="las la-edit icon"></i>
               <span class="icon-text">
                 Modifier
@@ -166,13 +165,13 @@ export default {
         ],
         actions: {
           show: (item) => {
-            return user().authorizations.view_control_point
+            return this.can('view_control_point')
           },
           edit: (item) => {
-            return user().authorizations.edit_control_point
+            return this.can('edit_control_point')
           },
           delete: (item) => {
-            return user().authorizations.delete_control_point
+            return this.can('delete_control_point')
           }
         }
       }

@@ -37,7 +37,8 @@ class CheckCampaignDate implements Rule
      */
     public function passes($attribute, $value)
     {
-        $this->lastCampaign = ControlCampaign::current();
+        $this->lastCampaign = ControlCampaign::whereYear('start', Carbon::parse(request()->start)->format('Y'))->orderBy('start', 'ASC')->first();
+        // dd($this->lastCampaign);
         if ($this->lastCampaign instanceof ControlCampaign) {
             $this->endDate = Carbon::parse($this->lastCampaign?->end);
             return Carbon::parse($this->endDate)->diffInDays($value, false) > 0;

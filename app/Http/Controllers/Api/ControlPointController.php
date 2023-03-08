@@ -51,7 +51,7 @@ class ControlPointController extends Controller
         try {
             $data['scores'] = count($data['scores']) ? $data['scores'] : null;
             $data['fields'] = count($data['fields']) ? $data['fields'] : null;
-            $data['major_fact_types'] = count($data['major_fact_types']) ? $data['major_fact_types'] : null;
+            // $data['major_fact_types'] = count($data['major_fact_types']) ? $data['major_fact_types'] : null;
             $controlPoint = ControlPoint::create($data);
 
             return response()->json([
@@ -99,9 +99,9 @@ class ControlPointController extends Controller
                 $data['fields'] = $data['fields'] ?: null;
             }
 
-            if (is_null($controlPoint->major_fact_types) || empty($controlPoint->major_fact_types)) {
-                $data['major_fact_types'] =  count($data['major_fact_types']) ? $data['major_fact_types'] : null;
-            }
+            // if (is_null($controlPoint->major_fact_types) || empty($controlPoint->major_fact_types)) {
+            //     $data['major_fact_types'] =  count($data['major_fact_types']) ? $data['major_fact_types'] : null;
+            // }
             $controlPoint->update($data);
             return response()->json([
                 'message' => UPDATE_SUCCESS,

@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
+// declare(strict_types=1);
+
 /**
  * Constantes
  */

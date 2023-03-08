@@ -83,9 +83,11 @@ export default {
   methods: {
     initData() {
       this.$store.dispatch('statistics/fetchData').then(() => {
+        console.log(this.statistics.data.missionsAnomalies);
         this.anomalies.charts.missions = this.statistics.data.missionsAnomalies
         this.anomalies.charts.campaigns = this.statistics.data.campaignssAnomalies
         this.anomalies.charts.famillies = this.statistics.data.familliesAnomalies
+
         this.majorFacts.charts.missions = this.statistics.data.missionsMajorFacts
         this.majorFacts.charts.campaigns = this.statistics.data.campaignsMajorFacts
         this.majorFacts.charts.famillies = this.statistics.data.familliesMajorFacts

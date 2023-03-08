@@ -54,6 +54,15 @@ class MissionReportController extends Controller
                         'created_by_id' => auth()->user()->id,
                         'validated_at' => $validatedAt,
                     ]);
+
+                    if ($data['type'] == 'Avis contrôleur') {
+                        $state = today()->diffInDays($mission->end) > 0 ? 'En attente de validation' : 'En attente de validation (en retard)';
+                        $mission->states()->create(['state' => $state]);
+                    }
+                    if ($data['type'] == 'Rapport') {
+                        $state = today()->diffInDays($mission->end) > 0 ? 'Validé et envoyé' : 'Validé et envoyé (en retard)';
+                        $mission->states()->create(['state' => $state]);
+                    }
                 }
 
                 if ($report->is_validated) {
@@ -108,6 +117,15 @@ class MissionReportController extends Controller
 
                 foreach ($mission->details()->whereNull($column)->get() as $detail) {
                     $detail->update([$column => now()]);
+                }
+
+                if ($data['type'] == 'Avis contrôleur') {
+                    $state = today()->diffInDays($mission->end) > 0 ? 'En attente de validation' : 'En attente de validation (en retard)';
+                    $mission->states()->create(['state' => $state]);
+                }
+                if ($data['type'] == 'Rapport') {
+                    $state = today()->diffInDays($mission->end) > 0 ? 'Validé et envoyé' : 'Validé et envoyé (en retard)';
+                    $mission->states()->create(['state' => $state]);
                 }
 
                 if ($report->type == 'Avis contrôleur') {

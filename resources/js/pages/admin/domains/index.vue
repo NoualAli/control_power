@@ -1,8 +1,8 @@
 <template>
-  <div v-can="'view_domain'">
+  <div v-if="can('view_domain')">
     <ContentHeader>
       <template v-slot:actions>
-        <router-link :to="{ name: 'domains-create' }" class="btn btn-info" v-can="'create_domain'">
+        <router-link :to="{ name: 'domains-create' }" class="btn btn-info" v-if="can('create_domain')">
           Ajouter
         </router-link>
       </template>
@@ -33,17 +33,14 @@
           </div>
         </template>
         <template v-slot:footer>
-          <div class="d-flex justify-end align-center gap-5 w-100"
-            v-if="rowSelected?.authorizations.delete || rowSelected?.authorizations.edit">
-            <button class="btn btn-danger has-icon" @click.prevent="destroy(rowSelected)"
-              v-if="rowSelected?.authorizations.delete">
+          <div class="d-flex justify-end align-center gap-5 w-100" v-if="can(['delete_domain', 'edit_domain'])">
+            <button class="btn btn-danger has-icon" @click.prevent="destroy(rowSelected)" v-if="can('delete_domain')">
               <i class="las la-trash icon"></i>
               <span class="icon-text">
                 Supprimer
               </span>
             </button>
-            <button @click.prevent="edit(rowSelected)" class="btn btn-warning has-icon"
-              v-if="rowSelected?.authorizations.edit">
+            <button @click.prevent="edit(rowSelected)" class="btn btn-warning has-icon" v-if="can('edit_domain')">
               <i class="las la-edit icon"></i>
               <span class="icon-text">
                 Modifier
@@ -94,13 +91,13 @@ export default {
         ],
         actions: {
           show: (item) => {
-            return user().authorizations.view_domain
+            return this.can('view_domain')
           },
           edit: (item) => {
-            return user().authorizations.edit_domain
+            return this.can('edit_domain')
           },
           delete: (item) => {
-            return user().authorizations.delete_domain
+            return this.can('delete_domain')
           }
         }
       }

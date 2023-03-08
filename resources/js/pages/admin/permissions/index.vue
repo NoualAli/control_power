@@ -1,8 +1,8 @@
 <template>
-  <div v-can="'view_permission'">
+  <div v-if="can('view_permission')">
     <ContentHeader>
       <template v-slot:actions>
-        <router-link :to="{ name: 'permissions-create' }" class="btn btn-info" v-can="'create_permission'">
+        <router-link :to="{ name: 'permissions-create' }" class="btn btn-info" v-if="can('create_permission')">
           Ajouter
         </router-link>
       </template>
@@ -33,17 +33,14 @@
           </div>
         </template>
         <template v-slot:footer>
-          <div class="d-flex justify-end align-center gap-5 w-100"
-            v-if="rowSelected?.authorizations.delete || rowSelected?.authorizations.edit">
-            <button class="btn btn-danger has-icon" @click.prevent="destroy(rowSelected)"
-              v-if="rowSelected?.authorizations.delete">
+          <div class="d-flex justify-end align-center gap-5 w-100" v-if="can(['delete_permission', 'edit_permission'])">
+            <button class="btn btn-danger has-icon" @click.prevent="destroy(rowSelected)" v-if="can('delete_permission')">
               <i class="las la-trash icon"></i>
               <span class="icon-text">
                 Supprimer
               </span>
             </button>
-            <button @click.prevent="edit(rowSelected)" class="btn btn-warning has-icon"
-              v-if="rowSelected?.authorizations.edit">
+            <button @click.prevent="edit(rowSelected)" class="btn btn-warning has-icon" v-if="can('edit_permission')">
               <i class="las la-edit icon"></i>
               <span class="icon-text">
                 Modifier
@@ -90,13 +87,13 @@ export default {
         ],
         actions: {
           show: (item) => {
-            return user().authorizations.view_permission
+            return this.can('.view_permission')
           },
           edit: (item) => {
-            return user().authorizations.edit_permission
+            return this.can('.edit_permission')
           },
           delete: (item) => {
-            return user().authorizations.delete_permission
+            return this.can('.delete_permission')
           }
         }
       }

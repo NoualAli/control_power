@@ -1,5 +1,14 @@
 <template>
-  <ContentBody v-can="'edit_mission'" v-if="mission?.current?.remaining_days_before_start > 5">
+  <ContentBody v-if="mission?.current?.remaining_days_before_start > 5 && can('edit_mission')">
+    <ContentHeader>
+      <template #actions>
+        <button class="btn btn-info has-icon" @click.prevent="cdcModalIsOpen = true">
+          <i class="las la-exclamation-circle icon"></i>
+          Campagne de contrôle
+        </button>
+      </template>
+    </ContentHeader>
+
     <form @submit.prevent="update" @keydown="form.onKeydown($event)">
       <div class="grid my-2">
         <!-- Campaign -->
@@ -40,6 +49,42 @@
         <NLButton :loading="form.busy" label="Update" class="is-radius" />
       </div>
     </form>
+    <!-- Control campaign informations -->
+    <NLModal :show="cdcModalIsOpen" @close="cdcModalIsOpen = false">
+      <template #title>
+        {{ currentCampaign?.reference }}
+      </template>
+      <template>
+        <div class="list grid gap-12">
+          <div class="col-12 col-lg-6 list-item">
+            <span class="list-item-label">
+              Début
+            </span>
+            <span class="list-item-content">
+              {{ currentCampaign?.start + ' / ' +
+                currentCampaign?.remaining_days_before_start_str }}
+            </span>
+          </div>
+          <div class="col-12 col-lg-6 list-item">
+            <span class="list-item-label">
+              Fin
+            </span>
+            <span class="list-item-content">
+              {{ currentCampaign?.end + ' / ' +
+                currentCampaign?.remaining_days_before_end_str }}
+            </span>
+          </div>
+          <div class="col-12 list-item">
+            <span class="list-item-label">
+              Description:
+            </span>
+            <span class="list-item-content">
+              {{ currentCampaign?.description }}
+            </span>
+          </div>
+        </div>
+      </template>
+    </NLModal>
   </ContentBody>
 </template>
 
@@ -56,7 +101,7 @@ export default {
   },
   breadcrumb() {
     return {
-      label: 'Edition mission ' + this.mission?.current?.reference
+      label: 'Edition mission ' + this.currentCampaign?.reference
     }
   },
   data() {
@@ -70,6 +115,8 @@ export default {
         controllers: null,
       }),
       controllersList: [],
+      cdcModalIsOpen: false,
+      currentCampaign: null,
     }
   },
   computed: mapGetters({
@@ -91,6 +138,7 @@ export default {
           })
           this.form.agency = this.mission.current.agency.name
           this.form.campaign = this.mission.current.campaign.reference
+          this.currentCampaign = this.mission.current.campaign
           this.form.controllers = this.mission.current.agency_controllers.map((controller) => controller.id)
           this.form.start = this.mission.current.start.split('-').reverse().join('-')
           this.form.end = this.mission.current.end.split('-').reverse().join('-')

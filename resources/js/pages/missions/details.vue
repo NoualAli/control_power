@@ -70,14 +70,14 @@
 
                   <!-- CDCR -->
                   <button class="btn btn-warning has-icon" @click="edit(detail)"
-                    v-if="!mission?.cdcr_validation_at && !detail?.major_fact_dispatched_at && can('make_first_validation')">
+                    v-if="!mission?.cdcr_validation_at && !detail?.major_fact_dispatched_at && can('make_first_validation,process_mission') && [2, 3, 4].includes(detail?.score) && !detail?.processed_at">
                     <i class="las la-pen icon"></i>
                     Traiter
                   </button>
 
                   <!-- DCP -->
                   <button class="btn btn-warning has-icon" @click="edit(detail)"
-                    v-if="!mission?.dcp_validation_at && mission.cdcr_validation_at && !detail?.major_fact_dispatched_at && can('make_second_validation')">
+                    v-if="!mission?.dcp_validation_at && mission.cdcr_validation_at && !detail?.major_fact_dispatched_at && can('make_second_validation') && [2, 3, 4].includes(detail?.score)">
                     <i class="las la-pen icon"></i>
                     Traiter
                   </button>
@@ -89,7 +89,7 @@
 
                   <!-- Agency director -->
                   <button
-                    v-if="mission?.dcp_validation_at && !detail?.regularization?.regularized_at && detail?.score !== 1 && can('regularize_mission_detail')"
+                    v-if="mission?.dcp_validation_at && !detail?.regularization?.regularized_at && !detail?.major_fact && detail?.score !== 1 && can('regularize_mission_detail')"
                     class="btn btn-warning has-icon" @click="edit(detail)">
                     <i class="las la-pen icon"></i>
                     Régulariser
@@ -348,9 +348,9 @@
             <!-- Report -->
             <div class="col-12">
               <NLTextarea :name="'report'" label="Constat" :form="forms.generic" v-model="forms.generic.report"
-                :placeholder="forms.generic.score == 1 || forms.generic.score == null && !forms.generic.major_fact ? '' : 'Ajouter votre constat'"
+                :placeholder="![2, 3, 4].includes(forms.generic.score) && !forms.generic.major_fact ? '' : 'Ajouter votre constat'"
                 :labelRequired="forms.generic.score > 1 || forms.generic.major_fact"
-                :disabled="(forms.generic.score == 1 || forms.generic.score == null && !forms.generic.major_fact)"
+                :disabled="(![2, 3, 4].includes(forms.generic.score) && !forms.generic.major_fact)"
                 v-if="!forms.generic.process_mode" />
               <NLTextarea label="Constat" :form="forms.generic" v-model="forms.generic.report" placeholder="Constat"
                 name="report" readonly v-else />
@@ -360,19 +360,16 @@
             <div class="col-12" v-if="forms.generic.media.length">
               <NLFile :name="'media'" label="Pièces jointes" attachableType="App\Models\MissionDetail"
                 :attachableId="forms.generic.detail" v-model="forms.generic.media" :form="forms.generic" multiple
-                :canDelete="!rowSelected?.dre_report_is_validated" :readonly="forms.generic.process_mode" />
+                :canDelete="!rowSelected?.controller_opinion_is_validated" :readonly="forms.generic.process_mode" />
             </div>
 
             <!-- Recovery plan -->
             <div class="col-12">
               <NLTextarea :name="'recovery_plan'" label="Plan de redressement" :form="forms.generic"
                 v-model="forms.generic.recovery_plan"
-                :placeholder="forms.generic.score == 1 || forms.generic.score == null && !forms.generic.major_fact ? '' : 'Ajouter votre plan de redressement'"
+                :placeholder="![2, 3, 4].includes(forms.generic.score) && !forms.generic.major_fact ? '' : 'Ajouter votre plan de redressement'"
                 :labelRequired="forms.generic.score > 1 || forms.generic.major_fact"
-                :disabled="(forms.generic.score == 1 || forms.generic.score == null && !forms.generic.major_fact)"
-                v-if="!forms.generic.process_mode" />
-              <NLTextarea :name="'recovery_plan'" label="Plan de redressement" :form="forms.generic"
-                v-model="forms.generic.recovery_plan" placeholder="Plan de redressement" readonly v-else />
+                :disabled="(![2, 3, 4].includes(forms.generic.score) && !forms.generic.major_fact)" />
             </div>
 
             <!-- Submit Button -->
@@ -563,7 +560,7 @@ export default {
         this.forms.generic.score = config.detail.score
         this.forms.generic.metadata = config.detail.metadata || []
         this.forms.generic.major_fact = config.detail.major_fact ? true : false
-        console.log(this.forms.generic.media.length);
+        this.forms.generic.process_mode = this.is([ 'dcp', 'cdcr', 'cc' ])
       })
     },
     initRegularizationForm() {

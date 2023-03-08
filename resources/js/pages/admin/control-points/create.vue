@@ -1,5 +1,5 @@
 <template>
-  <div v-can="'create_control_point'">
+  <div v-if="can('create_control_point')">
     <ContentHeader title="Ajouter une nouveau point de contrôle" />
     <ContentBody>
       <form @submit.prevent="create" @keydown="form.onKeydown($event)">

@@ -1,5 +1,5 @@
 <template>
-  <div v-can="'create_process'">
+  <div v-if="can('create_process')">
     <ContentHeader title="Ajouter un nouveau processus" />
     <ContentBody>
       <form @submit.prevent="create" @keydown="form.onKeydown($event)">

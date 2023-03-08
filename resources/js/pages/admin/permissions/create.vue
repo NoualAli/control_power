@@ -1,5 +1,5 @@
 <template>
-  <div v-can="'create_permission'">
+  <div v-if="can('create_permission')">
     <ContentHeader title="Ajouter une nouvelle permission" />
     <ContentBody>
       <form @submit.prevent="create" @keydown="form.onKeydown($event)">

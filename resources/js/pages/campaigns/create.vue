@@ -1,5 +1,5 @@
 <template>
-  <div v-can="'create_control_campaign'">
+  <div v-if="can('create_control_campaign')">
     <ContentBody>
       <form @submit.prevent="create" @keydown="form.onKeydown($event)">
         <!-- Control campaign base informations -->

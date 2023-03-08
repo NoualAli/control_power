@@ -1,8 +1,8 @@
 <template>
-  <div v-can="'view_user'">
+  <div v-if="can('view_user')">
     <ContentHeader>
       <template v-slot:actions>
-        <router-link :to="{ name: 'users-create' }" class="btn btn-info" v-can="'create_user'">
+        <router-link :to="{ name: 'users-create' }" class="btn btn-info" v-if="can('create_user')">
           Ajouter
         </router-link>
       </template>
@@ -54,7 +54,7 @@
                 N° de téléphone
               </div>
               <div class="list-item-content">
-                {{ rowSelected?.phone? rowSelected?.phone: '-' }}
+                {{ rowSelected?.phone ? rowSelected?.phone : '-' }}
               </div>
             </div>
             <div class="col-12 col-lg-6 list-item">
@@ -68,16 +68,15 @@
           </div>
         </template>
         <template v-slot:footer>
-          <div class="d-flex justify-end align-center gap-5 w-100" v-if="!isCurrent(rowSelected)">
-            <button class="btn btn-danger has-icon" @click.prevent="destroy(rowSelected)"
-              v-if="rowSelected?.authorizations.delete">
+          <div class="d-flex justify-end align-center gap-5 w-100"
+            v-if="!isCurrent(rowSelected) && can('delete_user', 'edit_user')">
+            <button class="btn btn-danger has-icon" @click.prevent="destroy(rowSelected)" v-if="can('edit_user')">
               <i class="las la-trash icon"></i>
               <span class="icon-text">
                 Supprimer
               </span>
             </button>
-            <button @click.prevent="edit(rowSelected)" class="btn btn-warning has-icon"
-              v-if="rowSelected?.authorizations.edit">
+            <button @click.prevent="edit(rowSelected)" class="btn btn-warning has-icon" v-if="can('edit_user')">
               <i class="las la-edit icon"></i>
               <span class="icon-text">
                 Modifier
@@ -135,10 +134,10 @@ export default {
         actions: {
           show: true,
           edit: (item) => {
-            return !this.isCurrent(item) && user().authorizations.edit_user && !item.roles.includes('root')
+            return !this.isCurrent(item) && this.can('.edit_user') && !item.roles.includes('root')
           },
           delete: (item) => {
-            return !this.isCurrent(item) && user().authorizations.delete_user && !item.roles.includes('root')
+            return !this.isCurrent(item) && this.can('.delete_user') && !item.roles.includes('root')
           }
         }
       },

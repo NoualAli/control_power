@@ -1,20 +1,20 @@
 <template>
-  <ContentBody v-can="'view_control_campaign'">
+  <ContentBody v-if="can('view_control_campaign')">
     <div class="d-flex justify-end align-center gap-3 my-2">
       <router-link :to="{ name: 'campaign-missions', params: { campaignId: campaign?.current?.id } }" class="btn"
-        v-can="'view_mission'">
+        v-if="can('view_mission')">
         Missions
       </router-link>
       <router-link class="btn btn-warning" :to="{ name: 'campaigns-edit', params: { campaignId: campaign?.current?.id } }"
-        v-can="'edit_control_campaign'" v-if="campaign?.current?.remaining_days_before_start > 5">
+        v-if="campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign') && !campaign?.current.validated_by_id && is('dcp')">
         <i class="las la-edit icon"></i>
       </router-link>
-      <button class="btn btn-danger" @click.stop="destroy" v-can="'delete_control_campaign'"
-        v-if="campaign?.current?.remaining_days_before_start > 5">
+      <button class="btn btn-danger" @click.stop="destroy"
+        v-if="campaign?.current?.remaining_days_before_start > 5 && can('delete_control_campaign') && !campaign?.current.validated_by_id && is('dcp')">
         <i class="las la-trash icon"></i>
       </button>
-      <button class="btn btn-info has-icon" @click.stop="validate(campaign?.current)" v-can="'validate_control_campaign'"
-        v-if="!campaign?.current?.validated_by_id">
+      <button class="btn btn-info has-icon" @click.stop="validate(campaign?.current)"
+        v-if="!campaign?.current?.validated_by_id && can('validate_control_campaign')">
         <i class="las la-check icon"></i>
       </button>
     </div>
@@ -73,10 +73,11 @@
     </div>
 
     <!-- Processes List -->
-    <NLDatatable namespace="campaigns" stateKey="current" :config="config" @show="show" @delete="destroy">
+    <NLDatatable namespace="campaigns" stateKey="current" :config="config" @show="show" @delete="destroy"
+      title="Liste des processus de la campagne de contrôle">
       <template v-slot:actions="item">
-        <button class="btn btn-danger has-icon" @click.stop="detachProcess(item.item)" v-can="'edit_control_campaign'"
-          v-if="campaign?.current?.remaining_days_before_start > 5">
+        <button class="btn btn-danger has-icon" @click.stop="detachProcess(item.item)"
+          v-if="campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign') && !campaign?.current.validated_by_id && config.data?.meta?.total > 1 && is('dcp')">
           <i class="las la-unlink icon"></i>
         </button>
       </template>
@@ -107,8 +108,10 @@
           </div>
         </div>
       </template>
-      <template v-slot:footer v-can="'edit_control_campaign'" v-if="campaign?.current?.remaining_days_before_start > 5">
-        <button class="btn btn-danger has-icon" @click.stop="destroy(rowSelected, campaign?.current)">
+      <template v-slot:footer
+        v-if="campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign') && config.data?.meta?.total > 1 && is('dcp')">
+        <button class="btn btn-danger has-icon"
+          @click.stop="destroy(rowSelected, campaign?.current) && config.data?.meta?.total > 1">
           <i class="las la-unlink icon"></i>
           Détacher
         </button>

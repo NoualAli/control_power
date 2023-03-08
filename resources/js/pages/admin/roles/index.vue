@@ -1,8 +1,8 @@
 <template>
-  <div v-can="'view_role'">
+  <div v-if="can('view_role')">
     <ContentHeader>
       <template v-slot:actions>
-        <router-link :to="{ name: 'roles-create' }" class="btn btn-info" v-can="'create_role'">
+        <router-link :to="{ name: 'roles-create' }" class="btn btn-info" v-if="can('create_role')">
           Ajouter
         </router-link>
       </template>
@@ -39,17 +39,14 @@
           </div>
         </template>
         <template v-slot:footer>
-          <div class="d-flex justify-end align-center gap-5 w-100"
-            v-if="rowSelected?.authorizations.delete || rowSelected?.authorizations.edit">
-            <button class="btn btn-danger has-icon" @click.prevent="destroy(rowSelected)"
-              v-if="rowSelected?.authorizations.delete">
+          <div class="d-flex justify-end align-center gap-5 w-100" v-if="can('delete_role', 'edit_role')">
+            <button class="btn btn-danger has-icon" @click.prevent="destroy(rowSelected)" v-if="can('delete_role')">
               <i class="las la-trash icon"></i>
               <span class="icon-text">
                 Supprimer
               </span>
             </button>
-            <button @click.prevent="edit(rowSelected)" class="btn btn-warning has-icon"
-              v-if="rowSelected?.authorizations.edit">
+            <button @click.prevent="edit(rowSelected)" class="btn btn-warning has-icon" v-if="can('edit_role')">
               <i class="las la-edit icon"></i>
               <span class="icon-text">
                 Modifier
@@ -98,13 +95,13 @@ export default {
         ],
         actions: {
           show: (item) => {
-            return user().authorizations.view_role
+            return this.can('.view_role')
           },
           edit: (item) => {
-            return user().authorizations.edit_role
+            return this.can('.edit_role')
           },
           delete: (item) => {
-            return user().authorizations.delete_role && item.code !== 'root'
+            return this.can('.delete_role') && item.code !== 'root'
           }
         }
       }

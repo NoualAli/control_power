@@ -71,7 +71,7 @@ export default {
       })
 
       // Fetch the user.
-      await this.$store.dispatch('auth/fetchUser')
+      this.$store.dispatch('auth/fetchUser')
 
       // Redirect home.
       this.redirect()

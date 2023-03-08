@@ -52,9 +52,16 @@ export const actions = {
   async fetchUser({ commit }) {
     try {
       const { data } = await api.get('user')
-      localStorage.setItem("user", JSON.stringify(data))
-      localStorage.setItem("authorizations", JSON.stringify(data.authorizations))
-      localStorage.setItem("roles", JSON.stringify(data.roles))
+      let user = { ...data }
+      delete user.roles
+      delete user.roles_str
+      delete user.dres
+      delete user.dres_str
+      localStorage.setItem("user", JSON.stringify(user))
+      localStorage.setItem("roles", JSON.stringify(data.roles.map(role => role.code)))
+      localStorage.setItem("permissions", JSON.stringify(data.roles.map(role => role.permissions.map(permission => permission.name))[ 0 ]))
+      localStorage.setItem("dres", JSON.stringify(data.dres.map(dre => dre.full_name)))
+      localStorage.setItem("agencies", JSON.stringify(data.dres?.map(dre => dre.agencies?.map(agency => agency.full_name))[ 0 ]))
       commit(types.FETCH_USER_SUCCESS, { user: data })
     } catch (e) {
       commit(types.FETCH_USER_FAILURE)
@@ -68,7 +75,7 @@ export const actions = {
   async logout({ commit }) {
     try {
       await api.post('logout').then(() => {
-        localStorage.removeItem('authorizations')
+        localStorage.removeItem('permissions')
         localStorage.removeItem('roles')
       })
     } catch (e) { }

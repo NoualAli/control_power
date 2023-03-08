@@ -234,6 +234,42 @@ export default [
     }
   },
   /**
+   * Categories
+   */
+  {
+    path: '/admin/categories',
+    name: 'categories-index',
+    component: page('admin/categories/index.vue'),
+    meta: {
+      breadcrumb: {
+        label: "Catégorie",
+
+      }
+    }
+  },
+  {
+    path: '/admin/categories/create',
+    name: 'categories-create',
+    component: page('admin/categories/create.vue'),
+    meta: {
+      breadcrumb: {
+        label: "Nouvelle catégorie",
+        parent: "categories-index",
+      }
+    }
+  },
+  {
+    path: '/admin/categories/edit/:category',
+    name: 'categories-edit',
+    component: page('admin/categories/edit.vue'),
+    meta: {
+      breadcrumb: {
+        label: "Edition catégorie",
+        parent: "categories-index",
+      }
+    }
+  },
+  /**
    * Famillies
    */
   {

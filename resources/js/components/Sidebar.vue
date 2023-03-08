@@ -42,6 +42,12 @@
           Agences
         </span>
       </router-link>
+      <router-link class="sidebar-item" :to="{ name: 'categories-index' }" v-if="can('view_page_categories')">
+        <i class="las la-landmark sidebar-icon"></i>
+        <span class="icon-text">
+          Catégories
+        </span>
+      </router-link>
       <router-link class="sidebar-item" :to="{ name: 'famillies-index' }" v-if="can('view_page_families')">
         <i class="las la-tag sidebar-icon"></i>
         <span class="icon-text">

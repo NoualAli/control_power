@@ -1,5 +1,13 @@
 <template>
-  <ContentBody v-can="'create_mission'">
+  <ContentBody v-if="can('create_mission')">
+    <ContentHeader>
+      <template #actions>
+        <button class="btn btn-info has-icon" @click.prevent="cdcModalIsOpen = true">
+          <i class="las la-exclamation-circle icon"></i>
+          Campagne de contrôle
+        </button>
+      </template>
+    </ContentHeader>
     <form @submit.prevent="create" @keydown="form.onKeydown($event)">
       <div class="grid my-2">
         <!-- Control campaigns -->
@@ -9,7 +17,7 @@
             v-model="form.control_campaign_id" labelRequired />
         </div>
         <div class="col-12 col-lg-6" v-else>
-          <NLInput name="campaign" label="Campagne de contrôle" v-model="currentCampaign" readonly />
+          <NLInput name="campaign" label="Campagne de contrôle" v-model="currentCampaignReference" readonly />
         </div>
         <!-- Agencies -->
         <div class="col-12 col-lg-6">
@@ -46,15 +54,54 @@
         <NLButton :loading="form.busy" label="Add" class="is-radius" />
       </div>
     </form>
+    <!-- Control campaign informations -->
+    <NLModal :show="cdcModalIsOpen" @close="cdcModalIsOpen = false">
+      <template #title>
+        {{ currentCampaign?.reference }}
+      </template>
+      <template>
+        <div class="list grid gap-12">
+          <div class="col-12 col-lg-6 list-item">
+            <span class="list-item-label">
+              Début
+            </span>
+            <span class="list-item-content">
+              {{ currentCampaign?.start + ' / ' +
+                currentCampaign?.remaining_days_before_start_str }}
+            </span>
+          </div>
+          <div class="col-12 col-lg-6 list-item">
+            <span class="list-item-label">
+              Fin
+            </span>
+            <span class="list-item-content">
+              {{ currentCampaign?.end + ' / ' +
+                currentCampaign?.remaining_days_before_end_str }}
+            </span>
+          </div>
+          <div class="col-12 list-item">
+            <span class="list-item-label">
+              Description:
+            </span>
+            <span class="list-item-content">
+              {{ currentCampaign?.description }}
+            </span>
+          </div>
+        </div>
+      </template>
+    </NLModal>
   </ContentBody>
 </template>
 
 <script>
+import ContentHeader from '../../components/ContentHeader'
 import NLSelect from '../../components/Inputs/NLSelect'
 import { mapGetters } from 'vuex'
 import Form from 'vform'
 export default {
-  components: { NLSelect },
+  components: {
+    ContentHeader, NLSelect
+  },
   layout: 'backend',
   middleware: [ 'auth' ],
   metaInfo() {
@@ -75,18 +122,25 @@ export default {
       campaignsList: [],
       controllersList: [],
       agenciesList: [],
+      cdcModalIsOpen: false,
+      currentCampaignReference: null,
     }
   },
   watch: {
     "form.control_campaign_id": function (newVal, oldVal) {
       if (newVal !== oldVal && newVal !== null && newVal !== undefined) this.initData()
+    },
+    currentCampaignReference: function (newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.currentCampaignReference = newVal
+      }
     }
   },
   breadcrumb() {
     if (this.$route.params.campaignId) {
       return {
         parent: 'campaign',
-        label: 'Répartition des missions de contrôle de la campagne ' + this.currentCampaign
+        label: 'Répartition des missions de contrôle de la campagne ' + this.currentCampaignReference
       }
     }
   },
@@ -109,8 +163,16 @@ export default {
         this.agenciesList = this.config.config.agencies
         this.controllersList = this.config.config.controllers
         this.campaignsList = this.config.config.campaigns
-        this.currentCampaign = this.config.config.currentCampaign.reference
+        this.currentCampaign = this.config.config.currentCampaign
+        this.currentCampaignReference = this.config.config.currentCampaign.reference
       })
+    },
+    resetForm() {
+      this.form.note = null
+      this.form.start = null
+      this.form.end = null
+      this.form.agencies = null
+      this.form.controllers = null
     },
     /**
      * Création de la mission
@@ -120,7 +182,7 @@ export default {
         if (response.data.status) {
           swal.toast_success(response.data.message)
           this.initData()
-          this.form.reset()
+          this.resetForm()
         } else {
           swal.alert_error(response.data.message)
         }

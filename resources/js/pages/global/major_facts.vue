@@ -52,7 +52,7 @@
             <span class="label">Notation: </span>
             <span>{{ rowSelected?.score }}</span>
           </div>
-          <div class="col-12" :class="{ 'col-lg-4': !rowSelected?.metadata }">
+          <div class="col-12" :class="{ 'col-lg-4': !rowSelected?.metadata }" v-if="rowSelected?.metadata">
             <span class="label">
               Informations supplémentaires:
             </span>
@@ -79,9 +79,6 @@
             </table>
             <span v-else>-</span>
           </div>
-          <div class="col-8" v-else>
-            -
-          </div>
           <div class="col-12">
             <span class="label">Constat: </span>
             <span>{{ rowSelected?.report || '-' }}</span>
@@ -90,7 +87,7 @@
             <span class="label">Plan de redressement: </span>
             <span>{{ rowSelected?.recovery_plan || '-' }}</span>
           </div>
-          <div class="col-12 list-item" v-if="rowSelected?.media">
+          <div class="col-12 list-item" v-if="rowSelected?.media.length">
             <NLFile label="Pièces jointes" name="media" v-model="files" :canDelete="false" readonly />
           </div>
           <div class="col-12 d-flex justify-end align-center">
@@ -111,7 +108,7 @@
 
               <!-- CDCR -->
               <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
-                v-if="!mission?.cdcr_validation_at && !rowSelected?.major_fact_dispatched_at && can('make_first_validation,make_second_validation')">
+                v-if="!rowSelected?.major_fact_dispatched_at && can('make_first_validation,make_second_validation')">
                 <i class="las la-pen icon"></i>
                 Traiter
               </button>
@@ -428,7 +425,7 @@ export default {
           label: 'Campagne de contrôle',
           multiple: true,
           data: null,
-          value: null
+          value: null,
         },
         mission_id: {
           label: 'Mission',
@@ -583,7 +580,7 @@ export default {
         this.modals[ modal ] = false
       }
       this.forms.detail.reset()
-      this.forms.regularization.reset()
+      // this.forms.regularization.reset()
       this.initData()
       this.currentMetadata = {}
       this.rowSelected = null

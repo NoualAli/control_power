@@ -1,8 +1,8 @@
 <template>
-  <div v-can="'view_process'">
+  <div v-if="can('view_process')">
     <ContentHeader>
       <template v-slot:actions>
-        <router-link :to="{ name: 'processes-create' }" class="btn btn-info" v-can="'create_process'">
+        <router-link :to="{ name: 'processes-create' }" class="btn btn-info" v-if="can('create_process')">
           Ajouter
         </router-link>
       </template>
@@ -41,17 +41,14 @@
           </div>
         </template>
         <template v-slot:footer>
-          <div class="d-flex justify-end align-center gap-5 w-100"
-            v-if="rowSelected?.authorizations.delete || rowSelected?.authorizations.edit">
-            <button class="btn btn-danger has-icon" @click.prevent="destroy(rowSelected)"
-              v-if="rowSelected?.authorizations.delete">
+          <div class="d-flex justify-end align-center gap-5 w-100" v-if="can(['delete_process', 'edit_process'])">
+            <button class="btn btn-danger has-icon" @click.prevent="destroy(rowSelected)" v-if="can('delete_process')">
               <i class="las la-trash icon"></i>
               <span class="icon-text">
                 Supprimer
               </span>
             </button>
-            <button @click.prevent="edit(rowSelected)" class="btn btn-warning has-icon"
-              v-if="rowSelected?.authorizations.edit">
+            <button @click.prevent="edit(rowSelected)" class="btn btn-warning has-icon" v-if="can('edit_process')">
               <i class="las la-edit icon"></i>
               <span class="icon-text">
                 Modifier

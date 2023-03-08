@@ -27,16 +27,24 @@ class StoreRequest extends FormRequest
         $isActionToBeTaken = request()->type == 'Action à engagé' && !request()->id && request()->reason == null;
         $isReason = request()->type == 'Cause' && !request()->id && request()->action_to_be_taken == null;
         $regularized = boolval(request()->regularized);
+        if ($regularized) {
+            return [
+                'detail_id' => ['required', 'exists:mission_details,id'],
+                'id' => ['nullable', 'exists:regularizations,id'],
+                'regularized' => ['required', 'boolean'],
+                'committed_action' => ['required_if:regularized,true', 'string', 'max:3000'],
+            ];
+        } else {
+            return [
+                'detail_id' => ['required', 'exists:mission_details,id'],
+                'id' => ['nullable', 'exists:regularizations,id'],
+                'regularized' => ['required', 'boolean'],
+                'type' => ['required_if:regularized,false'],
+                'reason' => ['required_if:type,Cause', 'max:1000'],
+                'action_to_be_taken' => ['required_if:type,Action à engagé', 'max:3000'],
+            ];
+        }
         // dd($regularized, request()->all());
-        return [
-            'detail_id' => ['required', 'exists:mission_details,id'],
-            'id' => ['nullable', 'exists:regularizations,id'],
-            'regularized' => ['required', 'boolean'],
-            'type' => ['required_if:regularized,false'],
-            'reason' => [new RequiredIf(fn () => $isReason), 'max:1000'],
-            'action_to_be_taken' => [new RequiredIf(fn () => $isActionToBeTaken), 'max:3000'],
-            'committed_action' => ['required_if:regularized,true', 'string', 'max:3000'],
-        ];
     }
 
     public function messages()

@@ -1,5 +1,5 @@
 <template>
-  <div v-can="'create_user'">
+  <div v-if="can('create_user')">
     <ContentHeader title="Ajouter un utilisateur" />
     <ContentBody>
       <form @submit.prevent="create" @keydown="form.onKeydown($event)">

@@ -85,7 +85,7 @@ class MissionDetailController extends Controller
         } elseif (hasRole('da')) {
             $details = $user->details()->hasDcpValidation()->onlyUnregularized();
         }
-        return $details;
+        return $details->whereAnomaly()->with(['process', 'domain', 'controlPoint', 'familly', 'media']);
     }
     /**
      * @return Illuminate\Http\JsonResponse
@@ -132,18 +132,17 @@ class MissionDetailController extends Controller
 
     private function getMajorFacts()
     {
-        $details = MissionDetail::onlyMajorFacts();
+        $details = new MissionDetail;
         if (hasRole(['dcp', 'cdcr'])) {
             $details = $details;
         } elseif (hasRole(['cdc', 'ci', 'cc'])) {
-            $details = auth()->user()->details()->executed()->onlyMajorFacts();
-            // dd($details->get());
+            $details = auth()->user()->details()->executed();
         } elseif (hasRole(['ig', 'dg', 'cdrcp', 'der'])) {
             $details = $details->onlyDispatchedMajorFacts();
         } elseif (hasRole(['da', 'dre'])) {
             $details = auth()->user()->details()->onlyDispatchedMajorFacts();
         }
-        return $details;
+        return $details->onlyMajorFacts();
     }
     /**
      * Enregistre les informations de la mission dans la base de donéees
@@ -276,7 +275,7 @@ class MissionDetailController extends Controller
     private function storeFiles(array $data, MissionDetail $detail)
     {
         $files = !isset($data['media']) ?: $data['media'];
-        if ($files) {
+        if (is_array($files)) {
             $media = Media::whereIn('id', $files)->get();
             foreach ($media as $file) {
                 if (empty($file->attachable_type)) {
@@ -322,11 +321,11 @@ class MissionDetailController extends Controller
             $data['report'] = null;
             $data['recovery_plan'] = null;
         }
-
         // Mettre la note max si jamais il y'a un fait majeur
-        if (isset($data['major_fact']) && $data['major_fact']) $data['score'] = max(array_keys($detail->controlPoint->scores_arr));
+        if (isset($data['major_fact']) && !empty($data['major_fact'])) $data['score'] = max(array_keys($detail->controlPoint->scores_arr));
         $processedAt = $processMode ? now() : null;
         $executedAt = now();
+
         // Mise à jour des informations dans la base de données
         $metadata = isset($data['metadata']) && !empty($data['metadata']) ? $data['metadata'] : $detail->metadata;
         $detail->update([
@@ -338,7 +337,15 @@ class MissionDetailController extends Controller
             'executed_at' => $executedAt,
             'processed_at' => $processedAt
         ]);
-
+        if ($processMode) {
+            if ($detail->mission->realisation_state !== 'En cours de validation') {
+                $detail->mission->states()->create(['state' => 'En cours de validation']);
+            }
+        } else {
+            if ($detail->mission->realisation_state !== 'En cours') {
+                $detail->mission->states()->create(['state' => 'En cours']);
+            }
+        }
         return $detail;
     }
 
@@ -380,7 +387,7 @@ class MissionDetailController extends Controller
         $processes = formatForSelect(Process::all()->pluck('name', 'id')->toArray());
         $agencies = formatForSelect(Agency::all()->pluck('full_name', 'id')->toArray());
         $missions = !hasRole(['cc', 'cdc', 'ci']) ? formatForSelect(Mission::all()->pluck('refernce', 'id')->toArray(), 'reference') : formatForSelect(auth()->user()->missions->toArray(), 'reference');
-        $campaigns = !hasRole(['cc', 'ci']) ? formatForSelect(ControlCampaign::all()->pluck('reference', 'id')->toArray(), 'reference') : formatForSelect(auth()->user()->campaigns->toArray(), 'reference');
+        $campaigns = !hasRole(['cc', 'ci']) ? formatForSelect(ControlCampaign::all()->pluck('reference', 'id')->toArray(), 'reference') : [];
 
         return compact('missions', 'famillies', 'domains', 'processes', 'agencies', 'campaigns');
     }
@@ -422,7 +429,6 @@ class MissionDetailController extends Controller
         $agencies = formatForSelect(Agency::all()->pluck('full_name', 'id')->toArray());
         $missions = !hasRole(['cc', 'cdc', 'ci']) ? formatForSelect(Mission::all()->pluck('refernce', 'id')->toArray(), 'reference') : formatForSelect(auth()->user()->missions->toArray(), 'reference');
         $campaigns = !hasRole(['cc', 'ci']) ? formatForSelect(ControlCampaign::all()->pluck('reference', 'id')->toArray(), 'reference') : formatForSelect(auth()->user()->campaigns->toArray(), 'reference');
-
         return compact('missions', 'famillies', 'domains', 'processes', 'agencies', 'campaigns');
     }
 }

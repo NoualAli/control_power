@@ -7,8 +7,13 @@ use App\Http\Requests\Agency\StoreRequest;
 use App\Http\Requests\Agency\UpdateRequest;
 use App\Http\Resources\AgencyResource;
 use App\Models\Agency;
+use App\Models\Category;
+use App\Models\Dre;
+use App\Models\Familly;
+use App\Models\Process;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AgencyController extends Controller
 {
@@ -20,7 +25,7 @@ class AgencyController extends Controller
     public function index()
     {
         isAbleOrAbort(['view_agency', 'create_dre', 'update_dre']);
-        $agencies = new Agency();
+        $agencies = Agency::with(['category', 'dre']);
 
         $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
         $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
@@ -41,6 +46,16 @@ class AgencyController extends Controller
         return $agencies;
     }
 
+    public function config()
+    {
+        $categories = formatForSelect(Category::select(['id', 'name'])->get()->toArray());
+        $dres = Dre::all()->makeHidden('agencies');
+        $dres = formatForSelect($dres->toArray(), 'full_name');
+        $pcf = getPCF();
+        $agency = request()->has('agency_id') && !empty(request()->agency_id) ? Agency::findOrFail(intval(request()->agency_id))->load(['usableProcesses', 'unusableProcesses'])->only('id', 'name', 'code', 'category_id', 'dre_id', 'usableProcesses', 'unusableProcesses') : null;
+        return $agency ? compact('dres', 'categories', 'agency', 'pcf') : compact('dres', 'categories', 'pcf');
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -51,19 +66,31 @@ class AgencyController extends Controller
     {
         try {
             $data = $request->validated();
-            $agency = Agency::create($data);
+            DB::transaction(function () use ($data) {
+                $pcfUsable = pcfToProcesses($data['pcf_usable']);
+                $pcfUnusable = pcfToProcesses($data['pcf_unusable']);
+                unset($data['pcf_usable'], $data['pcf_unusable']);
+                $agency = Agency::create($data);
+                if ($agency->id) {
+                    if (!empty($pcfUnusable)) {
+                        $agency->processes()->attach($pcfUsable, ['is_usable' => true]);
+                    }
+
+                    if (!empty($pcfUsable)) {
+                        $agency->processes()->attach($pcfUnusable, ['is_usable' => false]);
+                    }
+                }
+            });
 
             return response()->json([
                 'message' => CREATE_SUCCESS,
                 'status' => true
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $code);
+            ], 500);
         }
     }
     /**
@@ -91,18 +118,28 @@ class AgencyController extends Controller
     {
         try {
             $data = $request->validated();
-            $agency->update($data);
+            DB::transaction(function () use ($data, $agency) {
+                $pcfUsable = pcfToProcesses($data['pcf_usable']);
+                $pcfUnusable = pcfToProcesses($data['pcf_unusable']);
+                unset($data['pcf_usable'], $data['pcf_unusable']);
+
+                $agency->update($data);
+
+                $agency->usableProcesses()->detach();
+                if (count($pcfUsable)) $agency->usableProcesses()->attach($pcfUsable, ['is_usable' => true]);
+
+                $agency->unusableProcesses()->detach();
+                if (count($pcfUnusable)) $agency->unusableProcesses()->attach($pcfUnusable, ['is_usable' => false]);
+            });
             return response()->json([
                 'message' => UPDATE_SUCCESS,
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $code);
+            ], 500);
         }
     }
 
@@ -122,12 +159,24 @@ class AgencyController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $code);
+            ], 500);
         }
+    }
+
+    /**
+     * Sanitize PCF array to extract and load only processes ids
+     *
+     * @param array $data
+     *
+     * @return array
+     */
+    private function loadProcesses($families)
+    {
+        return Process::whereHas('familly', function ($query) use ($families) {
+            return $query->whereIn('famillies.id', $families);
+        })->get();
     }
 }

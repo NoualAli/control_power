@@ -1,5 +1,5 @@
 <template>
-  <div v-can="'create_familly'">
+  <div v-if="can('create_familly')">
     <ContentHeader title="Ajouter une nouvelle famille" />
     <ContentBody>
       <form @submit.prevent="create" @keydown="form.onKeydown($event)">

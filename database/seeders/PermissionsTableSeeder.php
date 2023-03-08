@@ -463,6 +463,42 @@ class PermissionsTableSeeder extends Seeder
                 'name' => 'regularize_mission_detail',
                 'guard_name' => 'api',
             ),
+            74 => 
+            array (
+                'id' => 75,
+                'name' => 'validate_control_campaign',
+                'guard_name' => 'api',
+            ),
+            75 => 
+            array (
+                'id' => 76,
+                'name' => 'create_category',
+                'guard_name' => 'api',
+            ),
+            76 => 
+            array (
+                'id' => 77,
+                'name' => 'edit_category',
+                'guard_name' => 'api',
+            ),
+            77 => 
+            array (
+                'id' => 78,
+                'name' => 'delete_category',
+                'guard_name' => 'api',
+            ),
+            78 => 
+            array (
+                'id' => 79,
+                'name' => 'view_category',
+                'guard_name' => 'api',
+            ),
+            79 => 
+            array (
+                'id' => 80,
+                'name' => 'view_page_categories',
+                'guard_name' => 'api',
+            ),
         ));
         
         

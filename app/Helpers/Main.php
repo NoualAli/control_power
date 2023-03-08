@@ -1,7 +1,13 @@
 <?php
 
+use App\Models\ControlCampaign;
+use App\Models\Domain;
+use App\Models\Familly;
 use App\Models\User;
+use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -135,17 +141,17 @@ if (!function_exists('formatForSelect')) {
      *
      * @return array
      */
-    function formatForSelect(array $array = [], string $label = 'name', string $id = 'id')
+    function formatForSelect(array $array = [], string $label = 'name', string $id = 'id'): array
     {
         if (!empty($array)) {
-            $array = array_map(function ($item) use ($label, $id) {
-                $id = isset($item[$id]) ? $item[$id] : $item;
-                $label = isset($item[$label]) ? $item[$label] : $item;
+            return Arr::map($array, function ($item) use ($label, $id) {
+                $id = isset($item[$id]) && !empty($item[$id]) ? $item[$id] : $item;
+                $label = isset($item[$label]) && !empty($item[$label]) ? $item[$label] : $item;
                 return [
                     'id' => $id,
                     'label' => $label,
                 ];
-            }, $array, $array);
+            });
         }
         return $array;
     }
@@ -219,5 +225,86 @@ if (!function_exists('formatBytes')) {
         $suffixes = array('B', 'KB', 'MB', 'GB', 'TB');
         $result = round(pow(1024, $base - floor($base)), $precision);
         return $withSuffix ? $result . ' ' . $suffixes[floor($base)] : $result;
+    }
+}
+
+if (!function_exists('getPCF')) {
+    /**
+     * Fetch and format PCF array
+     *
+     * @param Familly|null $famillies
+     *
+     * @return array
+     */
+    function getPCF(?Familly $famillies = null): array
+    {
+        $famillies = $famillies ? $famillies : new Familly;
+        $famillies = $famillies->orderBy('id', 'ASC')->with(['domains' => fn ($domain) => $domain->with(['processes' => fn ($process) => $process->without('control_points')])])->get()->toArray();
+        return array_map(function ($familly) {
+            return [
+                'id' => 'f-' . $familly['id'] . '-' . $familly['name'],
+                'label' => $familly['name'],
+                'children' => array_map(function ($domain) {
+                    return [
+                        'id' => 'd-' . $domain['id'] . '-' . $domain['name'],
+                        'label' => $domain['name'],
+                        'children' => array_map(function ($process) {
+                            return [
+                                'id' => $process['id'],
+                                'label' => $process['name'],
+                            ];
+                        }, $domain['processes'])
+                    ];
+                }, $familly['domains'])
+            ];
+        }, $famillies);
+    }
+}
+
+if (!function_exists('pcfToProcesses')) {
+    /**
+     * Sanitize PCF array to extract and load only processes ids
+     *
+     * @param array|null $pcf
+     *
+     * @return array
+     */
+    function pcfToProcesses(?array $pcf = null): array
+    {
+        if ($pcf) {
+            $pcf = Arr::flatten(array_map(function ($item) {
+                $item = explode('-', $item);
+                $ids = [];
+                if ($item[0] == 'd') {
+                    $ids = array_merge(Domain::findOrFail($item[1])->processes->pluck('id')->toArray(), $ids);
+                } elseif ($item[0] == 'f') {
+                    $ids = array_merge(Familly::findOrFail($item[1])->processes->pluck('id')->toArray(), $ids);
+                } else {
+                    $ids = array_merge($ids, [intval($item[0])]);
+                }
+                return $ids;
+            }, $pcf));
+            $pcf = Validator::make($pcf, [
+                '*' => 'exists:processes,id'
+            ])->validated();
+
+            return $pcf;
+        }
+        return [];
+    }
+}
+
+if (!function_exists('generateCDCRef')) {
+    function generateCDCRef(bool $validate = false, ?string $date = null)
+    {
+        $reference = '';
+        $date = $date ? Carbon::parse($date)->format('Y') : today()->format('Y');
+        $cdc = ControlCampaign::whereYear('start', $date);
+        if ($validate) {
+            $reference = 'CDC-' . $date . '-' . addZero($cdc->validated()->count() + 1);
+        } else {
+            $reference = 'CDC-' . $date . '-' . addZero($cdc->max('id') + 1) . '-tmp';
+        }
+        return $reference;
     }
 }

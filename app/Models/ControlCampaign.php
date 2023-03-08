@@ -46,9 +46,9 @@ class ControlCampaign extends Model
     {
         parent::boot();
 
-        static::creating(function ($model) {
-            $model->reference = 'CDC-' . today()->format('Y-') . addZero($model->count() + 1);
-        });
+        // static::creating(function ($model) {
+        //     $model->reference = generateCDCRef(false, $model->created_at);
+        // });
     }
 
     /**

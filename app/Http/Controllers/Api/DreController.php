@@ -19,7 +19,7 @@ class DreController extends Controller
     public function index()
     {
         isAbleOrAbort(['view_dre', 'create_user', 'update_user']);
-        $dres = new Dre();
+        $dres = Dre::withCount('agencies');
 
         $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
         $order = request()->has('order') && !empty(request()->order) ? request()->order : null;

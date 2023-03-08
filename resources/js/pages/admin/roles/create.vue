@@ -1,5 +1,5 @@
 <template>
-  <div v-can="'create_role'">
+  <div v-if="can('create_role')">
     <ContentHeader title="Ajouter un nouveau rôle" />
     <ContentBody>
       <form @submit.prevent="create" @keydown="form.onKeydown($event)">

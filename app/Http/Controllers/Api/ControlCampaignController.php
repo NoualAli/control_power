@@ -8,19 +8,14 @@ use App\Http\Requests\ControlCampaign\UpdateRequest;
 use App\Http\Resources\ControlCampaignResource;
 use App\Http\Resources\ProcessResource;
 use App\Models\ControlCampaign;
-use App\Models\Domain;
-use App\Models\Familly;
 use App\Models\Process;
 use App\Models\User;
 use App\Notifications\ControlCampaign\Created;
 use App\Notifications\ControlCampaign\Deleted;
-use App\Notifications\ControlCampaign\Reminder;
-use App\Notifications\ControlCampaign\Updated;
-use DragonCode\Support\Facades\Helpers\Arr;
+// use App\Notifications\ControlCampaign\Reminder;
+// use App\Notifications\ControlCampaign\Updated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Validator;
-use Carbon\Carbon;
 
 class ControlCampaignController extends Controller
 {
@@ -94,7 +89,7 @@ class ControlCampaignController extends Controller
     public function getNextReference()
     {
         isAbleOrAbort('create_control_campaign');
-        return 'CDC-' . today()->format('Y-') . addZero(ControlCampaign::count() + 1);
+        return generateCDCRef();
     }
 
     /**
@@ -107,29 +102,30 @@ class ControlCampaignController extends Controller
     {
         try {
             $data = $request->validated();
-            $pcf = $data['pcf'];
-            $pcf = $this->loadProcesses($pcf);
+            $processes = pcfToProcesses($data['pcf']);
             $data['validated_by_id'] = isset($data['validate']) && boolval($data['validate']) ? auth()->user()->id : null;
             $data['validated_at'] = isset($data['validate']) && boolval($data['validate']) ? now() : null;
+            $data['reference'] = generateCDCRef($data['validate'], $data['start']);
             unset($data['pcf'], $data['validate']);
 
-            $campaign = DB::transaction(function () use ($data, $pcf) {
+            $campaign = DB::transaction(function () use ($data, $processes) {
                 $campaign = auth()->user()->campaigns()->create($data);
 
-                foreach ($pcf as $process) {
+                foreach ($processes as $process) {
                     $campaign->processes()->attach($process);
                 }
-                if ($campaign->validated_at) {
+                if ($campaign->validation_by_id) {
                     $roles = ['cdc', 'dg', 'cdrcp', 'der', 'dre', 'ig', 'cdcr'];
                     $users = User::whereRoles($roles)->get();
                     foreach ($users as $user) {
                         Notification::send($user, new Created($campaign));
                     }
                 } else {
-                    $roles = !hasRole('dcp') ? ['dcp'] : ['cdcr'];
-                    $users = User::whereRoles($roles)->get();
-                    foreach ($users as $user) {
-                        Notification::send($user, new Created($campaign));
+                    if (hasRole('cdcr')) {
+                        $users = User::whereRoles(['dcp'])->get();
+                        foreach ($users as $user) {
+                            Notification::send($user, new Created($campaign));
+                        }
                     }
                 }
 
@@ -159,27 +155,13 @@ class ControlCampaignController extends Controller
     {
         try {
             $data = $request->validated();
-            $pcf = $data['pcf'];
-            $pcf = $this->loadProcesses($pcf);
+            $processes = $data['pcf'];
+            $processes = pcfToProcesses($processes);
             unset($data['pcf'], $data['reference']);
 
-            DB::transaction(function () use ($campaign, $data, $pcf) {
-                if ($campaign->remaining_days_before_start > 5) {
-                    $data['validated_at'] = isset($data['validate']) && boolVal($data['validate']) ? now() : null;
-                    $data['validated_by_id'] = isset($data['validate']) && boolVal($data['validate']) ? auth()->user()->id : null;
-                    $campaign->update($data);
-                }
-
-                $campaign->processes()->sync($pcf);
-
-                if (!$campaign->validated_at && boolval($data['validate'])) {
-                    $roles = ['cdc', 'dg', 'cdrcp', 'der', 'dre', 'ig', 'cdcr'];
-                    $users = User::whereRoles($roles)->get();
-                    foreach ($users as $user) {
-                        Notification::send($user, new Updated($campaign));
-                        Notification::send($user, new Reminder($campaign));
-                    }
-                }
+            DB::transaction(function () use ($campaign, $data, $processes) {
+                $campaign->update($data);
+                $campaign->processes()->sync($processes);
             });
 
 
@@ -207,15 +189,13 @@ class ControlCampaignController extends Controller
         abort_if($campaign->validated_by_id, 401);
         try {
             DB::transaction(function () use ($campaign) {
-                $campaign->update(['validated_by_id' => auth()->user()->id, 'validated_at' => now()]);
+                $campaign->update(['validated_by_id' => auth()->user()->id, 'validated_at' => now(), 'reference' => generateCDCRef(true, $campaign->start)]);
                 $roles = ['cdc', 'dg', 'cdrcp', 'der', 'dre', 'ig', 'cdcr'];
                 $users = User::whereRoles($roles)->get();
                 foreach ($users as $user) {
                     Notification::send($user, new Created($campaign));
                 }
             });
-
-
             return response()->json([
                 'message' => UPDATE_SUCCESS,
                 'status' => true,
@@ -277,7 +257,7 @@ class ControlCampaignController extends Controller
      */
     public function destroyProcess(ControlCampaign $campaign, Process $process)
     {
-        isAbleOrAbort('delete_control_campaign');
+        isAbleOrAbort('edit_control_campaign');
         try {
             if ($campaign->processes()->detach($process)) {
                 return response()->json([
@@ -306,6 +286,7 @@ class ControlCampaignController extends Controller
     {
 
         abort_if(!($campaign->validated_by_id || hasRole(['dcp', 'cdcr'])), 401, __('unauthorized'));
+        $campaign->load(['processes' => fn ($query) => $query->with(['familly', 'domain'])]);
         $processes = $campaign->processes;
         $search = request()->has('search') ? request()->search : false;
         if ($search) {
@@ -313,33 +294,5 @@ class ControlCampaignController extends Controller
         }
         $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
         return ProcessResource::collection(paginate($processes, '/api/campaigns/processes/' . $campaign->id, $perPage));
-    }
-
-    /**
-     * Sanitize PCF array to extract and load only processes ids
-     *
-     * @param array $data
-     *
-     * @return array
-     */
-    private function loadProcesses(array $data)
-    {
-        $data = Arr::flatten(array_map(function ($item) {
-            $item = explode('-', $item);
-            $ids = [];
-            if ($item[0] == 'd') {
-                $ids = array_merge(Domain::findOrFail($item[1])->processes->pluck('id')->toArray(), $ids);
-            } elseif ($item[0] == 'f') {
-                $ids = array_merge(Familly::findOrFail($item[1])->processes->pluck('id')->toArray(), $ids);
-            } else {
-                $ids = array_merge($ids, [intval($item[0])]);
-            }
-            return $ids;
-        }, $data));
-        $data = Validator::make($data, [
-            '*' => 'exists:processes,id'
-        ])->validated();
-
-        return $data;
     }
 }

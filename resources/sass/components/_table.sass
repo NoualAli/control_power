@@ -46,11 +46,25 @@ table
         max-width: $cell-max-width
         &.cell-actions
             max-width: 200px
-        & .btn
-            border: none
-            background-color: none
-            padding: $cell-btn-padding
-            font-size: $cell-font-size
+            & .btn
+                border: none transparent
+                background-color: transparent
+                padding: $cell-btn-padding
+                font-size: $cell-font-size
+                &:hover
+                    border: none !important
+                    background-color: none !important
+                    box-shadow: none !important
+            @each $color in $colors-list
+                & .btn-#{nth($color, 1)}
+                    background-color: transparent
+                    border: none
+                    color: nth($color, 2)
+                    &:hover
+                        background-color: transparent
+                        border: none
+                        color: darken(nth($color, 2), 20%)
+                        box-shadow: none
     & tbody
         &.is-busy
             position: relative

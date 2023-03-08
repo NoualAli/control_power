@@ -1,5 +1,5 @@
 <template>
-  <div v-can="'create_domain'">
+  <div v-if="can('create_domain')">
     <ContentHeader title="Ajouter un nouveau domaine" />
     <ContentBody>
       <form @submit.prevent="create" @keydown="form.onKeydown($event)">

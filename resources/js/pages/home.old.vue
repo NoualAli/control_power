@@ -1,4 +1,5 @@
-<template><!-- <div class="grid gap-6" v-if="permissions.show.inProgress"> -->
+<template>
+  <!-- <div class="grid gap-6" v-if="permissions.show.inProgress"> -->
   <!-- <div class="col-12">
       <div class="box" v-if="user?.username == 'dg'">
         Monsieur le Directeur Général <span class="text-bold">{{ user.full_name }}</span> 👋
@@ -182,7 +183,7 @@
 import { mapGetters } from 'vuex'
 import { Bar, Doughnut, Pie } from 'vue-chartjs/legacy'
 import { setTitle } from '../plugins/settings'
-import { isDcp, isDG } from '../plugins/user'
+// import { isDcp, isDG } from '../plugins/user'
 import InProgress from '../components/InProgress'
 export default {
   middleware: [ 'auth' ],

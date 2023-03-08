@@ -25,6 +25,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence TOLGA',
                 'code' => 709,
                 'dre_id' => 1,
+                'category_id' => 1,
             ),
             1 => 
             array (
@@ -32,6 +33,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BISKRA "A"',
                 'code' => 386,
                 'dre_id' => 1,
+                'category_id' => 1,
             ),
             2 => 
             array (
@@ -39,6 +41,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BISKRA "C"',
                 'code' => 387,
                 'dre_id' => 1,
+                'category_id' => 1,
             ),
             3 => 
             array (
@@ -46,6 +49,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => '-AP BATNA "A"',
                 'code' => 335,
                 'dre_id' => 1,
+                'category_id' => 1,
             ),
             4 => 
             array (
@@ -53,6 +57,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BATNA',
                 'code' => 336,
                 'dre_id' => 1,
+                'category_id' => 1,
             ),
             5 => 
             array (
@@ -60,6 +65,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BARIKA',
                 'code' => 340,
                 'dre_id' => 1,
+                'category_id' => 1,
             ),
             6 => 
             array (
@@ -67,6 +73,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence EL OUED',
                 'code' => 710,
                 'dre_id' => 1,
+                'category_id' => 1,
             ),
             7 => 
             array (
@@ -74,6 +81,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence Zeribet El Oued',
                 'code' => 713,
                 'dre_id' => 1,
+                'category_id' => 1,
             ),
             8 => 
             array (
@@ -81,6 +89,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence ADRAR',
                 'code' => 250,
                 'dre_id' => 2,
+                'category_id' => 1,
             ),
             9 => 
             array (
@@ -88,6 +97,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence TMIMOUN',
                 'code' => 251,
                 'dre_id' => 2,
+                'category_id' => 1,
             ),
             10 => 
             array (
@@ -95,6 +105,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BENI OUNIF',
                 'code' => 410,
                 'dre_id' => 2,
+                'category_id' => 1,
             ),
             11 => 
             array (
@@ -102,6 +113,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence TINDOUF',
                 'code' => 411,
                 'dre_id' => 2,
+                'category_id' => 1,
             ),
             12 => 
             array (
@@ -109,6 +121,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP BECHAR',
                 'code' => 412,
                 'dre_id' => 2,
+                'category_id' => 1,
             ),
             13 => 
             array (
@@ -116,6 +129,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence AOULEF',
                 'code' => 413,
                 'dre_id' => 2,
+                'category_id' => 1,
             ),
             14 => 
             array (
@@ -123,6 +137,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence DEBDABA',
                 'code' => 414,
                 'dre_id' => 2,
+                'category_id' => 1,
             ),
             15 => 
             array (
@@ -130,6 +145,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BECHAR',
                 'code' => 415,
                 'dre_id' => 2,
+                'category_id' => 1,
             ),
             16 => 
             array (
@@ -137,6 +153,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP TLEMCEN',
                 'code' => 512,
                 'dre_id' => 3,
+                'category_id' => 1,
             ),
             17 => 
             array (
@@ -144,6 +161,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence MAGHNIA',
                 'code' => 514,
                 'dre_id' => 3,
+                'category_id' => 1,
             ),
             18 => 
             array (
@@ -151,6 +169,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP ABOU TACHFINE',
                 'code' => 526,
                 'dre_id' => 3,
+                'category_id' => 1,
             ),
             19 => 
             array (
@@ -158,6 +177,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BENI SAF',
                 'code' => 525,
                 'dre_id' => 3,
+                'category_id' => 1,
             ),
             20 => 
             array (
@@ -165,6 +185,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence NEDROMA',
                 'code' => 529,
                 'dre_id' => 3,
+                'category_id' => 1,
             ),
             21 => 
             array (
@@ -172,6 +193,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence HENNAYA',
                 'code' => 531,
                 'dre_id' => 3,
+                'category_id' => 1,
             ),
             22 => 
             array (
@@ -179,6 +201,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence KIFANE',
                 'code' => 533,
                 'dre_id' => 3,
+                'category_id' => 1,
             ),
             23 => 
             array (
@@ -186,6 +209,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP TLEMCEN 2',
                 'code' => 527,
                 'dre_id' => 3,
+                'category_id' => 1,
             ),
             24 => 
             array (
@@ -193,6 +217,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence SEBDOU',
                 'code' => 528,
                 'dre_id' => 3,
+                'category_id' => 1,
             ),
             25 => 
             array (
@@ -200,6 +225,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence REMCHI',
                 'code' => 530,
                 'dre_id' => 3,
+                'category_id' => 1,
             ),
             26 => 
             array (
@@ -207,6 +233,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence GHAZAOUAT',
                 'code' => 532,
                 'dre_id' => 3,
+                'category_id' => 1,
             ),
             27 => 
             array (
@@ -214,6 +241,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence MECHERIA',
                 'code' => 725,
                 'dre_id' => 3,
+                'category_id' => 1,
             ),
             28 => 
             array (
@@ -221,6 +249,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence Am Sefra',
                 'code' => 727,
                 'dre_id' => 3,
+                'category_id' => 1,
             ),
             29 => 
             array (
@@ -228,6 +257,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence NAAMA',
                 'code' => 730,
                 'dre_id' => 3,
+                'category_id' => 1,
             ),
             30 => 
             array (
@@ -235,6 +265,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence HAI ESSALEM',
                 'code' => 900,
                 'dre_id' => 4,
+                'category_id' => 1,
             ),
             31 => 
             array (
@@ -242,6 +273,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP ORAN SOUMMAM',
                 'code' => 951,
                 'dre_id' => 4,
+                'category_id' => 1,
             ),
             32 => 
             array (
@@ -249,6 +281,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence ORAN "Boulanger"',
                 'code' => 952,
                 'dre_id' => 4,
+                'category_id' => 1,
             ),
             33 => 
             array (
@@ -256,6 +289,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence ORAN BEN M\'HIDI',
                 'code' => 953,
                 'dre_id' => 4,
+                'category_id' => 1,
             ),
             34 => 
             array (
@@ -263,6 +297,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence ARZEW',
                 'code' => 954,
                 'dre_id' => 4,
+                'category_id' => 1,
             ),
             35 => 
             array (
@@ -270,6 +305,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence MISSERGHIN',
                 'code' => 955,
                 'dre_id' => 4,
+                'category_id' => 1,
             ),
             36 => 
             array (
@@ -277,6 +313,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence ST EUGENE',
                 'code' => 957,
                 'dre_id' => 4,
+                'category_id' => 1,
             ),
             37 => 
             array (
@@ -284,6 +321,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence PLATEAU',
                 'code' => 958,
                 'dre_id' => 4,
+                'category_id' => 1,
             ),
             38 => 
             array (
@@ -291,6 +329,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP ORAN Djillali',
                 'code' => 960,
                 'dre_id' => 4,
+                'category_id' => 1,
             ),
             39 => 
             array (
@@ -298,6 +337,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence AEROPORT',
                 'code' => 962,
                 'dre_id' => 4,
+                'category_id' => 1,
             ),
             40 => 
             array (
@@ -305,6 +345,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence OUEO TIELAT',
                 'code' => 963,
                 'dre_id' => 4,
+                'category_id' => 1,
             ),
             41 => 
             array (
@@ -312,6 +353,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence ES-SENIA Ville',
                 'code' => 965,
                 'dre_id' => 4,
+                'category_id' => 1,
             ),
             42 => 
             array (
@@ -319,6 +361,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP ORAN sidi el houari',
                 'code' => 966,
                 'dre_id' => 4,
+                'category_id' => 1,
             ),
             43 => 
             array (
@@ -326,6 +369,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence AÎN EL TURCK',
                 'code' => 967,
                 'dre_id' => 4,
+                'category_id' => 1,
             ),
             44 => 
             array (
@@ -333,6 +377,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence Renault O/Tlelat',
                 'code' => 969,
                 'dre_id' => 4,
+                'category_id' => 1,
             ),
             45 => 
             array (
@@ -340,6 +385,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BOUIRA',
                 'code' => 460,
                 'dre_id' => 5,
+                'category_id' => 1,
             ),
             46 => 
             array (
@@ -347,6 +393,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence AZAZGA',
                 'code' => 462,
                 'dre_id' => 5,
+                'category_id' => 1,
             ),
             47 => 
             array (
@@ -354,6 +401,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence LAKHDARIA',
                 'code' => 576,
                 'dre_id' => 5,
+                'category_id' => 1,
             ),
             48 => 
             array (
@@ -361,6 +409,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BOGHNI',
                 'code' => 577,
                 'dre_id' => 5,
+                'category_id' => 1,
             ),
             49 => 
             array (
@@ -368,6 +417,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence Larbâa Nathlrathen',
                 'code' => 578,
                 'dre_id' => 5,
+                'category_id' => 1,
             ),
             50 => 
             array (
@@ -375,6 +425,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BORDJ MENAIEL',
                 'code' => 643,
                 'dre_id' => 5,
+                'category_id' => 1,
             ),
             51 => 
             array (
@@ -382,6 +433,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP TIZI OUZOU',
                 'code' => 581,
                 'dre_id' => 5,
+                'category_id' => 1,
             ),
             52 => 
             array (
@@ -389,6 +441,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence LES OUAOHIAS',
                 'code' => 582,
                 'dre_id' => 5,
+                'category_id' => 1,
             ),
             53 => 
             array (
@@ -396,6 +449,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP TIZI OUZOU 2',
                 'code' => 583,
                 'dre_id' => 5,
+                'category_id' => 1,
             ),
             54 => 
             array (
@@ -403,6 +457,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence DRAA BEN KHEDDA',
                 'code' => 584,
                 'dre_id' => 5,
+                'category_id' => 1,
             ),
             55 => 
             array (
@@ -410,6 +465,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence DELLYS',
                 'code' => 642,
                 'dre_id' => 5,
+                'category_id' => 1,
             ),
             56 => 
             array (
@@ -417,6 +473,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agonce TIZI OUZOU',
                 'code' => 580,
                 'dre_id' => 5,
+                'category_id' => 1,
             ),
             57 => 
             array (
@@ -424,6 +481,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence GHARDAIA',
                 'code' => 291,
                 'dre_id' => 6,
+                'category_id' => 1,
             ),
             58 => 
             array (
@@ -431,6 +489,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence GHARDAÏA 2',
                 'code' => 292,
                 'dre_id' => 6,
+                'category_id' => 1,
             ),
             59 => 
             array (
@@ -438,6 +497,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BERRIANE',
                 'code' => 294,
                 'dre_id' => 6,
+                'category_id' => 1,
             ),
             60 => 
             array (
@@ -445,6 +505,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence GUERRARA',
                 'code' => 295,
                 'dre_id' => 6,
+                'category_id' => 1,
             ),
             61 => 
             array (
@@ -452,6 +513,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence METLILI CHAAMBA',
                 'code' => 296,
                 'dre_id' => 6,
+                'category_id' => 1,
             ),
             62 => 
             array (
@@ -459,6 +521,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence AFLOU',
                 'code' => 297,
                 'dre_id' => 6,
+                'category_id' => 1,
             ),
             63 => 
             array (
@@ -466,6 +529,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP LAGHOUAT',
                 'code' => 301,
                 'dre_id' => 6,
+                'category_id' => 1,
             ),
             64 => 
             array (
@@ -473,6 +537,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence TAMANRASSET',
                 'code' => 473,
                 'dre_id' => 6,
+                'category_id' => 1,
             ),
             65 => 
             array (
@@ -480,6 +545,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence TOUGGOURT',
                 'code' => 941,
                 'dre_id' => 6,
+                'category_id' => 1,
             ),
             66 => 
             array (
@@ -487,6 +553,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence OUARGLA "B"',
                 'code' => 943,
                 'dre_id' => 6,
+                'category_id' => 1,
             ),
             67 => 
             array (
@@ -494,6 +561,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence OUARGLA',
                 'code' => 944,
                 'dre_id' => 6,
+                'category_id' => 1,
             ),
             68 => 
             array (
@@ -501,6 +569,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence DJANET',
                 'code' => 945,
                 'dre_id' => 6,
+                'category_id' => 1,
             ),
             69 => 
             array (
@@ -508,6 +577,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP OUARGLA',
                 'code' => 946,
                 'dre_id' => 6,
+                'category_id' => 1,
             ),
             70 => 
             array (
@@ -515,6 +585,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence HASSI MESSAOUD',
                 'code' => 947,
                 'dre_id' => 6,
+                'category_id' => 1,
             ),
             71 => 
             array (
@@ -522,6 +593,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence Illizi',
                 'code' => 948,
                 'dre_id' => 6,
+                'category_id' => 1,
             ),
             72 => 
             array (
@@ -529,6 +601,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence CONSTANTINE PYRAMIDE',
                 'code' => 832,
                 'dre_id' => 7,
+                'category_id' => 1,
             ),
             73 => 
             array (
@@ -536,6 +609,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence TADJE-NANET',
                 'code' => 833,
                 'dre_id' => 7,
+                'category_id' => 1,
             ),
             74 => 
             array (
@@ -543,6 +617,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence EL KHROUB',
                 'code' => 835,
                 'dre_id' => 7,
+                'category_id' => 1,
             ),
             75 => 
             array (
@@ -550,6 +625,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP AIN SMARA',
                 'code' => 840,
                 'dre_id' => 7,
+                'category_id' => 1,
             ),
             76 => 
             array (
@@ -557,6 +633,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence EL MILIA',
                 'code' => 841,
                 'dre_id' => 7,
+                'category_id' => 1,
             ),
             77 => 
             array (
@@ -564,6 +641,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence Chelghoum El Aïd',
                 'code' => 843,
                 'dre_id' => 7,
+                'category_id' => 1,
             ),
             78 => 
             array (
@@ -571,6 +649,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence DAKSI "C"',
                 'code' => 844,
                 'dre_id' => 7,
+                'category_id' => 1,
             ),
             79 => 
             array (
@@ -578,6 +657,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP CONSTANTINE ',
                 'code' => 845,
                 'dre_id' => 7,
+                'category_id' => 1,
             ),
             80 => 
             array (
@@ -585,6 +665,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence MILA',
                 'code' => 846,
                 'dre_id' => 7,
+                'category_id' => 1,
             ),
             81 => 
             array (
@@ -592,6 +673,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence HAMMA BOUZIANE',
                 'code' => 848,
                 'dre_id' => 7,
+                'category_id' => 1,
             ),
             82 => 
             array (
@@ -599,6 +681,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP FILLALI',
                 'code' => 850,
                 'dre_id' => 7,
+                'category_id' => 1,
             ),
             83 => 
             array (
@@ -606,6 +689,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence AIN EL BEY',
                 'code' => 834,
                 'dre_id' => 7,
+                'category_id' => 1,
             ),
             84 => 
             array (
@@ -613,6 +697,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence ANNABA',
                 'code' => 482,
                 'dre_id' => 8,
+                'category_id' => 1,
             ),
             85 => 
             array (
@@ -620,6 +705,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence AZZABA',
                 'code' => 485,
                 'dre_id' => 8,
+                'category_id' => 1,
             ),
             86 => 
             array (
@@ -627,6 +713,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence COLLO',
                 'code' => 487,
                 'dre_id' => 8,
+                'category_id' => 1,
             ),
             87 => 
             array (
@@ -634,6 +721,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence EL TARF',
                 'code' => 489,
                 'dre_id' => 8,
+                'category_id' => 1,
             ),
             88 => 
             array (
@@ -641,6 +729,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence OUED ZEN ATI',
                 'code' => 488,
                 'dre_id' => 8,
+                'category_id' => 1,
             ),
             89 => 
             array (
@@ -648,6 +737,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP SKIKDA',
                 'code' => 743,
                 'dre_id' => 8,
+                'category_id' => 1,
             ),
             90 => 
             array (
@@ -655,6 +745,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence SKIKDA',
                 'code' => 744,
                 'dre_id' => 8,
+                'category_id' => 1,
             ),
             91 => 
             array (
@@ -662,6 +753,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP ANNABA',
                 'code' => 810,
                 'dre_id' => 8,
+                'category_id' => 1,
             ),
             92 => 
             array (
@@ -669,6 +761,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP ANNABA 2',
                 'code' => 811,
                 'dre_id' => 8,
+                'category_id' => 1,
             ),
             93 => 
             array (
@@ -676,6 +769,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence EL KALA',
                 'code' => 812,
                 'dre_id' => 8,
+                'category_id' => 1,
             ),
             94 => 
             array (
@@ -683,6 +777,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence ANNABA "B"',
                 'code' => 813,
                 'dre_id' => 8,
+                'category_id' => 1,
             ),
             95 => 
             array (
@@ -690,6 +785,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence SOUK AHRAS',
                 'code' => 814,
                 'dre_id' => 8,
+                'category_id' => 1,
             ),
             96 => 
             array (
@@ -697,6 +793,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence EL BOUNI',
                 'code' => 815,
                 'dre_id' => 8,
+                'category_id' => 1,
             ),
             97 => 
             array (
@@ -704,6 +801,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence GUELMA',
                 'code' => 816,
                 'dre_id' => 8,
+                'category_id' => 1,
             ),
             98 => 
             array (
@@ -711,6 +809,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence DAR EL BEIDA',
                 'code' => 612,
                 'dre_id' => 9,
+                'category_id' => 1,
             ),
             99 => 
             array (
@@ -718,6 +817,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence Aéroport HB',
                 'code' => 613,
                 'dre_id' => 9,
+                'category_id' => 1,
             ),
             100 => 
             array (
@@ -725,6 +825,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP EL HARRACH',
                 'code' => 616,
                 'dre_id' => 9,
+                'category_id' => 1,
             ),
             101 => 
             array (
@@ -732,6 +833,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence EL HARRACH',
                 'code' => 619,
                 'dre_id' => 9,
+                'category_id' => 1,
             ),
             102 => 
             array (
@@ -739,6 +841,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence PINS MARITIMES',
                 'code' => 624,
                 'dre_id' => 9,
+                'category_id' => 1,
             ),
             103 => 
             array (
@@ -746,6 +849,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence KOUBA',
                 'code' => 625,
                 'dre_id' => 9,
+                'category_id' => 1,
             ),
             104 => 
             array (
@@ -753,6 +857,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP OUED SMAR',
                 'code' => 634,
                 'dre_id' => 9,
+                'category_id' => 1,
             ),
             105 => 
             array (
@@ -760,6 +865,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BARAKI',
                 'code' => 636,
                 'dre_id' => 9,
+                'category_id' => 1,
             ),
             106 => 
             array (
@@ -767,6 +873,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence GUE DE CONSTANTINE',
                 'code' => 637,
                 'dre_id' => 9,
+                'category_id' => 1,
             ),
             107 => 
             array (
@@ -774,6 +881,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP EL HAMIZ',
                 'code' => 647,
                 'dre_id' => 9,
+                'category_id' => 1,
             ),
             108 => 
             array (
@@ -781,6 +889,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence MOHAMMADIA',
                 'code' => 648,
                 'dre_id' => 9,
+                'category_id' => 1,
             ),
             109 => 
             array (
@@ -788,6 +897,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP BIRKHADEM',
                 'code' => 633,
                 'dre_id' => 9,
+                'category_id' => 1,
             ),
             110 => 
             array (
@@ -795,6 +905,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence Birkhadem',
                 'code' => 638,
                 'dre_id' => 9,
+                'category_id' => 1,
             ),
             111 => 
             array (
@@ -802,6 +913,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence CHERCHELL',
                 'code' => 427,
                 'dre_id' => 10,
+                'category_id' => 1,
             ),
             112 => 
             array (
@@ -809,6 +921,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence ZERALDA',
                 'code' => 428,
                 'dre_id' => 10,
+                'category_id' => 1,
             ),
             113 => 
             array (
@@ -816,6 +929,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BABA HACENE',
                 'code' => 436,
                 'dre_id' => 10,
+                'category_id' => 1,
             ),
             114 => 
             array (
@@ -823,6 +937,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence TIPAZA',
                 'code' => 438,
                 'dre_id' => 10,
+                'category_id' => 1,
             ),
             115 => 
             array (
@@ -830,6 +945,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence HADJOUT',
                 'code' => 439,
                 'dre_id' => 10,
+                'category_id' => 1,
             ),
             116 => 
             array (
@@ -837,6 +953,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence STAOUELI',
                 'code' => 440,
                 'dre_id' => 10,
+                'category_id' => 1,
             ),
             117 => 
             array (
@@ -844,6 +961,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP KOLEA',
                 'code' => 441,
                 'dre_id' => 10,
+                'category_id' => 1,
             ),
             118 => 
             array (
@@ -851,6 +969,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BOU ISMAIL',
                 'code' => 444,
                 'dre_id' => 10,
+                'category_id' => 1,
             ),
             119 => 
             array (
@@ -858,6 +977,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence AÏN BENIAN',
                 'code' => 630,
                 'dre_id' => 10,
+                'category_id' => 1,
             ),
             120 => 
             array (
@@ -865,6 +985,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP BOUFARIK',
                 'code' => 430,
                 'dre_id' => 11,
+                'category_id' => 1,
             ),
             121 => 
             array (
@@ -872,6 +993,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence Blida',
                 'code' => 431,
                 'dre_id' => 11,
+                'category_id' => 1,
             ),
             122 => 
             array (
@@ -879,6 +1001,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence EL AFFROUN',
                 'code' => 437,
                 'dre_id' => 11,
+                'category_id' => 1,
             ),
             123 => 
             array (
@@ -886,6 +1009,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP BLIDA',
                 'code' => 442,
                 'dre_id' => 11,
+                'category_id' => 1,
             ),
             124 => 
             array (
@@ -893,6 +1017,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence LES BANANIERS',
                 'code' => 445,
                 'dre_id' => 11,
+                'category_id' => 1,
             ),
             125 => 
             array (
@@ -900,6 +1025,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence AIN OUSSERA',
                 'code' => 653,
                 'dre_id' => 11,
+                'category_id' => 1,
             ),
             126 => 
             array (
@@ -907,6 +1033,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP DJELFA',
                 'code' => 654,
                 'dre_id' => 11,
+                'category_id' => 1,
             ),
             127 => 
             array (
@@ -914,6 +1041,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BERROUAGHIA',
                 'code' => 849,
                 'dre_id' => 11,
+                'category_id' => 1,
             ),
             128 => 
             array (
@@ -921,6 +1049,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP MEDEA',
                 'code' => 851,
                 'dre_id' => 11,
+                'category_id' => 1,
             ),
             129 => 
             array (
@@ -928,6 +1057,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence KSAR EL BOUKHARI',
                 'code' => 858,
                 'dre_id' => 11,
+                'category_id' => 1,
             ),
             130 => 
             array (
@@ -935,6 +1065,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP ROUIBA',
                 'code' => 632,
                 'dre_id' => 12,
+                'category_id' => 1,
             ),
             131 => 
             array (
@@ -942,6 +1073,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP BORDJ EL KIFFAN',
                 'code' => 640,
                 'dre_id' => 12,
+                'category_id' => 1,
             ),
             132 => 
             array (
@@ -949,6 +1081,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence THENIA',
                 'code' => 631,
                 'dre_id' => 12,
+                'category_id' => 1,
             ),
             133 => 
             array (
@@ -956,6 +1089,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP ROUIBA 2',
                 'code' => 641,
                 'dre_id' => 12,
+                'category_id' => 1,
             ),
             134 => 
             array (
@@ -963,6 +1097,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'CCD',
                 'code' => 173,
                 'dre_id' => 12,
+                'category_id' => 1,
             ),
             135 => 
             array (
@@ -970,6 +1105,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence REGHAIA"1"',
                 'code' => 644,
                 'dre_id' => 12,
+                'category_id' => 1,
             ),
             136 => 
             array (
@@ -977,6 +1113,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BOUMERDES',
                 'code' => 645,
                 'dre_id' => 12,
+                'category_id' => 1,
             ),
             137 => 
             array (
@@ -984,6 +1121,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence AIN TAYA',
                 'code' => 646,
                 'dre_id' => 12,
+                'category_id' => 1,
             ),
             138 => 
             array (
@@ -991,6 +1129,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence EL HAMIZ',
                 'code' => 649,
                 'dre_id' => 12,
+                'category_id' => 1,
             ),
             139 => 
             array (
@@ -998,6 +1137,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence REGHAIA “II"',
                 'code' => 650,
                 'dre_id' => 12,
+                'category_id' => 1,
             ),
             140 => 
             array (
@@ -1005,6 +1145,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BORDJ EL BAHRI',
                 'code' => 651,
                 'dre_id' => 12,
+                'category_id' => 1,
             ),
             141 => 
             array (
@@ -1012,6 +1153,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP BEJAIA',
                 'code' => 356,
                 'dre_id' => 13,
+                'category_id' => 1,
             ),
             142 => 
             array (
@@ -1019,6 +1161,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence EL KSEUR',
                 'code' => 585,
                 'dre_id' => 13,
+                'category_id' => 1,
             ),
             143 => 
             array (
@@ -1026,6 +1169,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence TAZMALT',
                 'code' => 586,
                 'dre_id' => 13,
+                'category_id' => 1,
             ),
             144 => 
             array (
@@ -1033,6 +1177,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence S.EL TENINE AOKAS',
                 'code' => 589,
                 'dre_id' => 13,
+                'category_id' => 1,
             ),
             145 => 
             array (
@@ -1040,6 +1185,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence IHADDADEN',
                 'code' => 587,
                 'dre_id' => 13,
+                'category_id' => 1,
             ),
             146 => 
             array (
@@ -1047,6 +1193,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BEJAIA',
                 'code' => 588,
                 'dre_id' => 13,
+                'category_id' => 1,
             ),
             147 => 
             array (
@@ -1054,6 +1201,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence JIJEL',
                 'code' => 671,
                 'dre_id' => 13,
+                'category_id' => 1,
             ),
             148 => 
             array (
@@ -1061,6 +1209,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Bureau de change Soummam',
                 'code' => 0,
                 'dre_id' => 13,
+                'category_id' => 1,
             ),
             149 => 
             array (
@@ -1068,6 +1217,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence AKBOU',
                 'code' => 590,
                 'dre_id' => 13,
+                'category_id' => 1,
             ),
             150 => 
             array (
@@ -1075,6 +1225,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence KHENCHELA',
                 'code' => 315,
                 'dre_id' => 14,
+                'category_id' => 1,
             ),
             151 => 
             array (
@@ -1082,6 +1233,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence OUM EL BOUAGUI',
                 'code' => 316,
                 'dre_id' => 14,
+                'category_id' => 1,
             ),
             152 => 
             array (
@@ -1089,6 +1241,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence AIN BEIDA',
                 'code' => 321,
                 'dre_id' => 14,
+                'category_id' => 1,
             ),
             153 => 
             array (
@@ -1096,6 +1249,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence KHENCHELA 2',
                 'code' => 323,
                 'dre_id' => 14,
+                'category_id' => 1,
             ),
             154 => 
             array (
@@ -1103,6 +1257,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence AIN MLILA',
                 'code' => 325,
                 'dre_id' => 14,
+                'category_id' => 1,
             ),
             155 => 
             array (
@@ -1110,6 +1265,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP TEBESSA',
                 'code' => 491,
                 'dre_id' => 14,
+                'category_id' => 1,
             ),
             156 => 
             array (
@@ -1117,6 +1273,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence TEBESSA',
                 'code' => 483,
                 'dre_id' => 14,
+                'category_id' => 1,
             ),
             157 => 
             array (
@@ -1124,6 +1281,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence OUENZA',
                 'code' => 484,
                 'dre_id' => 14,
+                'category_id' => 1,
             ),
             158 => 
             array (
@@ -1131,6 +1289,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BIR ELATER',
                 'code' => 486,
                 'dre_id' => 14,
+                'category_id' => 1,
             ),
             159 => 
             array (
@@ -1138,6 +1297,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence Ain Beida 2',
                 'code' => 800,
                 'dre_id' => 14,
+                'category_id' => 1,
             ),
             160 => 
             array (
@@ -1145,6 +1305,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence OUM EL BOUAGHI',
                 'code' => 842,
                 'dre_id' => 14,
+                'category_id' => 1,
             ),
             161 => 
             array (
@@ -1152,6 +1313,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP CHE GUEVARA',
                 'code' => 599,
                 'dre_id' => 15,
+                'category_id' => 1,
             ),
             162 => 
             array (
@@ -1159,6 +1321,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP TELEMLY',
                 'code' => 602,
                 'dre_id' => 15,
+                'category_id' => 1,
             ),
             163 => 
             array (
@@ -1166,6 +1329,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP LIBERTE',
                 'code' => 605,
                 'dre_id' => 15,
+                'category_id' => 1,
             ),
             164 => 
             array (
@@ -1173,6 +1337,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agenoe BAB EL OUED',
                 'code' => 629,
                 'dre_id' => 15,
+                'category_id' => 1,
             ),
             165 => 
             array (
@@ -1180,6 +1345,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Caisse Centrale CHE "CCD"',
                 'code' => 162,
                 'dre_id' => 15,
+                'category_id' => 1,
             ),
             166 => 
             array (
@@ -1187,6 +1353,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP ZIROUT YOUCEF',
                 'code' => 620,
                 'dre_id' => 15,
+                'category_id' => 1,
             ),
             167 => 
             array (
@@ -1194,6 +1361,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP BOUZAREAH',
                 'code' => 627,
                 'dre_id' => 15,
+                'category_id' => 1,
             ),
             168 => 
             array (
@@ -1201,6 +1369,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence PORT-SAÏD',
                 'code' => 628,
                 'dre_id' => 15,
+                'category_id' => 1,
             ),
             169 => 
             array (
@@ -1208,6 +1377,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BOLOGHINE',
                 'code' => 608,
                 'dre_id' => 15,
+                'category_id' => 1,
             ),
             170 => 
             array (
@@ -1215,6 +1385,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP Didooche Mourad',
                 'code' => 601,
                 'dre_id' => 16,
+                'category_id' => 1,
             ),
             171 => 
             array (
@@ -1222,6 +1393,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence Hydra',
                 'code' => 603,
                 'dre_id' => 16,
+                'category_id' => 1,
             ),
             172 => 
             array (
@@ -1229,6 +1401,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence Hamani "B"',
                 'code' => 607,
                 'dre_id' => 16,
+                'category_id' => 1,
             ),
             173 => 
             array (
@@ -1236,6 +1409,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence "D"',
                 'code' => 609,
                 'dre_id' => 16,
+                'category_id' => 1,
             ),
             174 => 
             array (
@@ -1243,6 +1417,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP Les Halles',
                 'code' => 610,
                 'dre_id' => 16,
+                'category_id' => 1,
             ),
             175 => 
             array (
@@ -1250,6 +1425,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP Hussein Dey',
                 'code' => 611,
                 'dre_id' => 16,
+                'category_id' => 1,
             ),
             176 => 
             array (
@@ -1257,6 +1433,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence Hussein Dey',
                 'code' => 635,
                 'dre_id' => 16,
+                'category_id' => 1,
             ),
             177 => 
             array (
@@ -1264,6 +1441,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence "N"',
                 'code' => 614,
                 'dre_id' => 16,
+                'category_id' => 1,
             ),
             178 => 
             array (
@@ -1271,6 +1449,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BELAHDJEL',
                 'code' => 615,
                 'dre_id' => 16,
+                'category_id' => 1,
             ),
             179 => 
             array (
@@ -1278,6 +1457,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence RIADH EL FETH',
                 'code' => 617,
                 'dre_id' => 16,
+                'category_id' => 1,
             ),
             180 => 
             array (
@@ -1285,6 +1465,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP EL BIAR',
                 'code' => 621,
                 'dre_id' => 16,
+                'category_id' => 1,
             ),
             181 => 
             array (
@@ -1292,6 +1473,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence El Quods',
                 'code' => 622,
                 'dre_id' => 16,
+                'category_id' => 1,
             ),
             182 => 
             array (
@@ -1299,6 +1481,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP Ben M\'hidi',
                 'code' => 623,
                 'dre_id' => 16,
+                'category_id' => 1,
             ),
             183 => 
             array (
@@ -1306,6 +1489,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP AGHA',
                 'code' => 626,
                 'dre_id' => 16,
+                'category_id' => 1,
             ),
             184 => 
             array (
@@ -1313,6 +1497,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence CHLEF',
                 'code' => 260,
                 'dre_id' => 17,
+                'category_id' => 1,
             ),
             185 => 
             array (
@@ -1320,6 +1505,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence MILIANA',
                 'code' => 262,
                 'dre_id' => 17,
+                'category_id' => 1,
             ),
             186 => 
             array (
@@ -1327,6 +1513,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP AIN DEFLA',
                 'code' => 268,
                 'dre_id' => 17,
+                'category_id' => 1,
             ),
             187 => 
             array (
@@ -1334,6 +1521,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence EL ATTAF',
                 'code' => 272,
                 'dre_id' => 17,
+                'category_id' => 1,
             ),
             188 => 
             array (
@@ -1341,6 +1529,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP CHLEF',
                 'code' => 275,
                 'dre_id' => 17,
+                'category_id' => 1,
             ),
             189 => 
             array (
@@ -1348,6 +1537,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence OUED RHIOU',
                 'code' => 276,
                 'dre_id' => 17,
+                'category_id' => 1,
             ),
             190 => 
             array (
@@ -1355,6 +1545,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence TISSEMSILT',
                 'code' => 277,
                 'dre_id' => 17,
+                'category_id' => 1,
             ),
             191 => 
             array (
@@ -1362,6 +1553,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence KHEMIS MILIANA',
                 'code' => 278,
                 'dre_id' => 17,
+                'category_id' => 1,
             ),
             192 => 
             array (
@@ -1369,6 +1561,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence TENES',
                 'code' => 279,
                 'dre_id' => 17,
+                'category_id' => 1,
             ),
             193 => 
             array (
@@ -1376,6 +1569,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence Amoucha',
                 'code' => 338,
                 'dre_id' => 18,
+                'category_id' => 1,
             ),
             194 => 
             array (
@@ -1383,6 +1577,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BOUSSAADA',
                 'code' => 701,
                 'dre_id' => 18,
+                'category_id' => 1,
             ),
             195 => 
             array (
@@ -1390,6 +1585,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence AIN EL KEBIRA',
                 'code' => 702,
                 'dre_id' => 18,
+                'category_id' => 1,
             ),
             196 => 
             array (
@@ -1397,6 +1593,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence SETIF MAABOUDA',
                 'code' => 703,
                 'dre_id' => 18,
+                'category_id' => 1,
             ),
             197 => 
             array (
@@ -1404,6 +1601,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence M\'SILA',
                 'code' => 901,
                 'dre_id' => 18,
+                'category_id' => 1,
             ),
             198 => 
             array (
@@ -1411,6 +1609,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP SETIF',
                 'code' => 704,
                 'dre_id' => 18,
+                'category_id' => 1,
             ),
             199 => 
             array (
@@ -1418,6 +1617,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence BORDJ BOU ARRERIDJ',
                 'code' => 705,
                 'dre_id' => 18,
+                'category_id' => 1,
             ),
             200 => 
             array (
@@ -1425,6 +1625,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence EL EULMA',
                 'code' => 706,
                 'dre_id' => 18,
+                'category_id' => 1,
             ),
             201 => 
             array (
@@ -1432,6 +1633,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence AIN EL MELH',
                 'code' => 707,
                 'dre_id' => 18,
+                'category_id' => 1,
             ),
             202 => 
             array (
@@ -1439,6 +1641,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence SIDI AISSA',
                 'code' => 708,
                 'dre_id' => 18,
+                'category_id' => 1,
             ),
             203 => 
             array (
@@ -1446,6 +1649,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence SETIF',
                 'code' => 711,
                 'dre_id' => 18,
+                'category_id' => 1,
             ),
             204 => 
             array (
@@ -1453,6 +1657,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence Park Mall',
                 'code' => 712,
                 'dre_id' => 18,
+                'category_id' => 1,
             ),
             205 => 
             array (
@@ -1460,6 +1665,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP TIARET "A"',
                 'code' => 540,
                 'dre_id' => 19,
+                'category_id' => 1,
             ),
             206 => 
             array (
@@ -1467,6 +1673,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence TIARET',
                 'code' => 545,
                 'dre_id' => 19,
+                'category_id' => 1,
             ),
             207 => 
             array (
@@ -1474,6 +1681,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence SIG',
                 'code' => 546,
                 'dre_id' => 19,
+                'category_id' => 1,
             ),
             208 => 
             array (
@@ -1481,6 +1689,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence SNVI TIARET',
                 'code' => 548,
                 'dre_id' => 19,
+                'category_id' => 1,
             ),
             209 => 
             array (
@@ -1488,6 +1697,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence MOHAMMADIA 2',
                 'code' => 921,
                 'dre_id' => 19,
+                'category_id' => 1,
             ),
             210 => 
             array (
@@ -1495,6 +1705,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence MOSTAGANEM "C"',
                 'code' => 871,
                 'dre_id' => 19,
+                'category_id' => 1,
             ),
             211 => 
             array (
@@ -1502,6 +1713,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP MOSTAGANEM',
                 'code' => 876,
                 'dre_id' => 19,
+                'category_id' => 1,
             ),
             212 => 
             array (
@@ -1509,6 +1721,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence TIGHENIF',
                 'code' => 877,
                 'dre_id' => 19,
+                'category_id' => 1,
             ),
             213 => 
             array (
@@ -1516,6 +1729,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence MOSTAGANEM',
                 'code' => 878,
                 'dre_id' => 19,
+                'category_id' => 1,
             ),
             214 => 
             array (
@@ -1523,6 +1737,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence RELIZANE',
                 'code' => 869,
                 'dre_id' => 19,
+                'category_id' => 1,
             ),
             215 => 
             array (
@@ -1530,6 +1745,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence SAIDA',
                 'code' => 724,
                 'dre_id' => 20,
+                'category_id' => 1,
             ),
             216 => 
             array (
@@ -1537,6 +1753,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence El Bayadh',
                 'code' => 726,
                 'dre_id' => 20,
+                'category_id' => 1,
             ),
             217 => 
             array (
@@ -1544,6 +1761,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence Ain Temouchent',
                 'code' => 728,
                 'dre_id' => 20,
+                'category_id' => 1,
             ),
             218 => 
             array (
@@ -1551,6 +1769,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence EL MALLAH',
                 'code' => 771,
                 'dre_id' => 20,
+                'category_id' => 1,
             ),
             219 => 
             array (
@@ -1558,6 +1777,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'AP SIDI BEL ABBES',
                 'code' => 773,
                 'dre_id' => 20,
+                'category_id' => 1,
             ),
             220 => 
             array (
@@ -1565,6 +1785,7 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence SIDI BEL ABBES',
                 'code' => 774,
                 'dre_id' => 20,
+                'category_id' => 1,
             ),
             221 => 
             array (
@@ -1572,6 +1793,15 @@ class AgenciesTableSeeder extends Seeder
                 'name' => 'Agence MASCARA',
                 'code' => 920,
                 'dre_id' => 20,
+                'category_id' => 1,
+            ),
+            222 => 
+            array (
+                'id' => 231,
+                'name' => 'tes',
+                'code' => 136,
+                'dre_id' => 1,
+                'category_id' => 3,
             ),
         ));
         

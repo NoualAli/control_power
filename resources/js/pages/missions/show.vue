@@ -1,12 +1,12 @@
 <template>
-  <ContentBody v-can="'view_mission'">
+  <ContentBody v-if="can('view_mission')">
     <div class="d-flex justify-end align-center gap-3 my-2">
       <router-link :to="{ name: 'campaign', params: { campaignId: mission?.current.campaign.id } }" class="btn"
-        v-can="'view_control_campaign,view_page_control_campaigns'">
+        v-if="can('view_control_campaign,view_page_control_campaigns')">
         Campagne de contrôle
       </router-link>
       <router-link class="btn btn-warning" :to="{ name: 'missions-edit', params: { missionId: mission?.current.id } }"
-        v-can="'edit_mission'" v-if="mission?.current?.remaining_days_before_start > 5">
+        v-if="mission?.current?.remaining_days_before_start > 5 && can('edit_mission')">
         <i class="las la-edit icon"></i>
       </router-link>
     </div>
@@ -246,7 +246,8 @@
     <!-- Processes List -->
     <NLDatatable title="Processus de la mission" namespace="missions" stateKey="processes" :config="config" @show="show">
       <template v-slot:actions="item">
-        <button class="btn btn-info has-icon" @click.stop="details(item)" v-can="'control_agency,view_mission_detail'">
+        <button class="btn btn-info has-icon" @click.stop="details(item)"
+          v-if="can('control_agency,view_mission_detail') && mission?.current?.remaining_days_before_start <= 0">
           <i class="las la-tasks icon" v-if="item.item.progress_status < 100 && !mission?.current.opinion"></i>
           <i class="las la-list-alt icon" v-else></i>
         </button>
@@ -278,13 +279,13 @@
           </div>
         </div>
       </template>
-      <template v-slot:footer v-can="'edit_mission'">
-        <button class="btn btn-info has-icon" @click.stop="details(rowSelected)" v-can="'view_mission'"
-          v-if="rowSelected?.progress_status == 100">
+      <template v-slot:footer v-if="can('edit_mission')">
+        <button class="btn btn-info has-icon" @click.stop="details(rowSelected)"
+          v-if="rowSelected?.progress_status == 100 && can('view_mission')">
           <i class="las la-tasks icon"></i>
           Afficher
         </button>
-        <button class="btn btn-info has-icon" @click.stop="details(rowSelected)" v-can="'control_agency'" v-else>
+        <button class="btn btn-info has-icon" @click.stop="details(rowSelected)" v-else-if="can('control_agency')">
           <i class="las la-tasks icon"></i>
           Éffectuer
         </button>
@@ -323,14 +324,12 @@
       </template>
       <template #footer>
         <button class="btn btn-success has-icon" @click.prevent="validateOpinion"
-          v-if="!mission?.current.opinion?.is_validated && mission?.current.opinion && !forms.opinion.edit_mode"
-          v-can="'create_opinion'">
+          v-if="!mission?.current.opinion?.is_validated && mission?.current.opinion && !forms.opinion.edit_mode && can('create_opinion')">
           <i class="las la-check-circle icon"></i>
           Valider la mission
         </button>
         <button class="btn btn-warning has-icon" @click.prevent="enableEdition('opinion')"
-          v-if="!mission?.current.opinion?.is_validated && mission?.current.opinion && !forms.opinion.edit_mode"
-          v-can="'create_opinion'">
+          v-if="!mission?.current.opinion?.is_validated && mission?.current.opinion && !forms.opinion.edit_mode && can('create_opinion')">
           <i class="las la-edit icon"></i>
           Editer l'avis
         </button>
@@ -369,14 +368,12 @@
       </template>
       <template #footer>
         <button class="btn btn-success has-icon" @click.prevent="validateReport"
-          v-if="mission?.current.opinion?.is_validated && mission?.current.dre_report && !mission?.current.dre_report?.is_validated && !forms.report.edit_mode"
-          v-can="'validate_dre_report'">
+          v-if="mission?.current.opinion?.is_validated && mission?.current.dre_report && !mission?.current.dre_report?.is_validated && !forms.report.edit_mode && can('validate_dre_report')">
           <i class="las la-check-circle icon"></i>
           Valider la mission
         </button>
         <button class="btn btn-warning has-icon" @click.prevent="enableEdition('report')"
-          v-if="mission?.current.opinion?.is_validated && mission?.current.dre_report && !mission?.current.dre_report?.is_validated && !forms.report.edit_mode"
-          v-can="'create_dre_report'">
+          v-if="mission?.current.opinion?.is_validated && mission?.current.dre_report && !mission?.current.dre_report?.is_validated && !forms.report.edit_mode && can('create_dre_report')">
           <i class="las la-edit icon"></i>
           Editer le rapport
         </button>
@@ -480,7 +477,7 @@ export default {
           {
             label: "Date de traitement",
             field: 'processed_at',
-            hide: !(this.currentUser?.authorizations.process_mission || this.currentUser?.authorizations.assign_mission_processing || this.currentUser?.authorizations.create_control_campaign)
+            hide: !hasRole([ 'dcp', 'cdcr', 'cc' ])
           }
         ],
         actions: {
@@ -527,9 +524,6 @@ export default {
     }
   },
   computed: {
-    currentUser() {
-      return localStorage.getItem('user')
-    },
     ...mapGetters({
       mission: 'missions/current',
       processes: 'missions/processes',
@@ -686,8 +680,10 @@ export default {
      */
     initData() {
       this.close()
-      this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId })
-      this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId, onlyProcesses: true }).then(() => this.config.data = this.processes.processes)
+      this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId }).catch(error => swal.alert_error(error))
+      this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId, onlyProcesses: true }).then(() => {
+        this.config.data = this.processes?.processes
+      }).catch(error => swal.alert_error(error))
       this.forms.opinion.edit_mode = false
       this.forms.report.edit_mode = false
       this.modals.dispatch = false

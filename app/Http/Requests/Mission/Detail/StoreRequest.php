@@ -32,8 +32,8 @@ class StoreRequest extends FormRequest
                 return [
                     'process_mode' => ['required', 'boolean'],
                     'detail' => ['required', 'exists:mission_details,id'],
-                    'major_fact' => ['required', 'boolean'],
                     'score' => ['required', 'in:1,2,3,4'],
+                    'major_fact' => ['required', 'boolean'],
                 ];
             }
             // else we accept updating all data

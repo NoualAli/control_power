@@ -224,7 +224,9 @@ return [
         'major_fact_types' => 'types des faits majeur',
         'has_major_fact' => 'faits majeur',
         'regularized_at' => 'date de régularization',
-        'committed_action' => 'action engagé'
+        'committed_action' => 'action engagé',
+        'pcf_usable' => 'pcf utilisable',
+        'pcf_unusable' => 'pcf inutilisable'
     ],
 
 ];

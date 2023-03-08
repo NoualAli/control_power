@@ -23,7 +23,7 @@ api.interceptors.response.use(response => response, error => {
       })
   }
   if (status === 404) {
-    // window.location.href = '/404'
+    window.location.href = '/404'
   }
   if (status === 403 && store.getters[ 'auth/check' ]) {
     swal.alert_error(message, title)

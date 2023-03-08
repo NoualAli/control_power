@@ -23,11 +23,11 @@ Vue.mixin({
 Vue.directive('can', {
   bind: function (el, binding, vnode) {
     let can = []
-    const authorizations = JSON.parse(localStorage.getItem('authorizations')) || [];
+    const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
     const abilities = (binding.value || '').split(/\s*,\s*/);
     const vifDirective = checkVIfDire(vnode, binding)
     abilities.some(ability => {
-      can.push(!authorizations.hasOwnProperty(ability.trim()) || vifDirective)
+      can.push(!permissions.hasOwnProperty(ability.trim()) || vifDirective)
     });
     if (can.every(value => value === true)) {
       customComment(vnode, el)
@@ -36,11 +36,11 @@ Vue.directive('can', {
   },
   update: function (el, binding, vnode) {
     let can = []
-    const authorizations = JSON.parse(localStorage.getItem('authorizations')) || [];
+    const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
     const abilities = (binding.value || '').split(/\s*,\s*/);
     const vifDirective = checkVIfDire(vnode, binding)
     abilities.some(ability => {
-      can.push(!authorizations.hasOwnProperty(ability.trim()))
+      can.push(!permissions.hasOwnProperty(ability.trim()))
     });
     if (vifDirective || can.every(value => value === true)) {
       customComment(vnode, el)
@@ -51,10 +51,10 @@ Vue.directive('can', {
 
 Vue.directive('can-hide', {
   bind: function (el, binding, vnode) {
-    const authorizations = JSON.parse(localStorage.getItem('authorizations')) || [];
+    const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
     const abilities = (binding.value || '').split(/\s*,\s*/);
     abilities.forEach(ability => {
-      if (!authorizations.hasOwnProperty(ability.trim())) {
+      if (!permissions.hasOwnProperty(ability.trim())) {
         el.style.display = 'none';
       }
     });
@@ -64,11 +64,11 @@ Vue.directive('can-hide', {
 Vue.directive('can-strict', {
   bind: function (el, binding, vnode) {
     let can = []
-    const authorizations = JSON.parse(localStorage.getItem('authorizations')) || [];
+    const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
     const abilities = (binding.value || '').split(/\s*,\s*/);
     const vifDirective = checkVIfDire(vnode, binding)
     abilities.every(ability => {
-      can.push(!authorizations.hasOwnProperty(ability.trim()) && vifDirective)
+      can.push(!permissions.hasOwnProperty(ability.trim()) && vifDirective)
     });
     if (can.every(value => value === true)) {
       customComment(vnode, el)
@@ -77,11 +77,11 @@ Vue.directive('can-strict', {
   },
   update: function (el, binding, vnode) {
     let can = []
-    const authorizations = JSON.parse(localStorage.getItem('authorizations')) || [];
+    const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
     const abilities = (binding.value || '').split(/\s*,\s*/);
     const vifDirective = checkVIfDire(vnode, binding)
     abilities.every(ability => {
-      can.push(!authorizations.hasOwnProperty(ability.trim()) && vifDirective)
+      can.push(!permissions.hasOwnProperty(ability.trim()) && vifDirective)
     });
     if (can.every(value => value === true)) {
       customComment(vnode, el)

@@ -68,10 +68,14 @@ class DataController extends Controller
     {
         $missions = $this->getMissions()->withCount(['details' => fn ($query) => $query->whereAnomaly()])->get()->pluck('details_count', 'reference');
         $labels = $missions->keys();
+        extract($this->defaultColors());
         $datasets = [
             [
                 "label" => "Anomalies par mission",
                 "data" => $missions->values(),
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'borderWidth' => $borderWidth,
             ]
         ];
         return compact('labels', 'datasets');
@@ -85,10 +89,14 @@ class DataController extends Controller
     {
         $campaigns = $this->getCampaigns()->withCount(['details' => fn ($query) => $query->whereAnomaly()])->get()->pluck('details_count', 'reference');
         $labels = $campaigns->keys();
+        extract($this->defaultColors());
         $datasets = [
             [
                 "label" => "Anomalies par campagne de contrôle",
                 "data" => $campaigns->values(),
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'borderWidth' => $borderWidth,
             ]
         ];
         return compact('labels', 'datasets');
@@ -103,10 +111,14 @@ class DataController extends Controller
     {
         $details = $this->getDetails()->whereNotNull('score')->groupBy('score')->selectRaw('score, COUNT(*) as scores_count')->get()->pluck('scores_count', 'score');
         $labels = $details->keys();
+        extract($this->defaultColors());
         $datasets = [
             [
                 "label" => "Anomalies par mission",
                 "data" => $details->values(),
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'borderWidth' => $borderWidth,
             ]
         ];
         return compact('labels', 'datasets');
@@ -124,10 +136,14 @@ class DataController extends Controller
             return [$famillyName => $data->count()];
         });
         $labels = $anomalies->keys();
+        extract($this->defaultColors());
         $datasets = [
             [
                 "label" => "Anomalies par familles",
                 "data" => $anomalies->values(),
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'borderWidth' => $borderWidth,
             ]
         ];
         return compact('labels', 'datasets');
@@ -142,10 +158,14 @@ class DataController extends Controller
     {
         $anomalies = $this->getDetails()->onlyMajorFacts()->with('domain')->get()->groupBy('domain.name')->map(fn ($details) => $details->count());
         $labels = $anomalies->keys();
+        extract($this->defaultColors());
         $datasets = [
             [
                 "label" => "Anomalies par domaine",
                 "data" => $anomalies->values(),
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'borderWidth' => $borderWidth,
             ]
         ];
         return compact('labels', 'datasets');
@@ -168,10 +188,14 @@ class DataController extends Controller
                 return [$processName => $data->count()];
             });
         $labels = $anomalies->keys();
+        extract($this->defaultColors());
         $datasets = [
             [
                 "label" => "Anomalies par processus",
                 "data" => $anomalies->values(),
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'borderWidth' => $borderWidth,
             ]
         ];
         return compact('labels', 'datasets');
@@ -194,10 +218,14 @@ class DataController extends Controller
                 return [$controlPoint => $data->count()];
             });
         $labels = $anomalies->keys();
+        extract($this->defaultColors());
         $datasets = [
             [
                 "label" => "Anomalies par point de contrôle",
                 "data" => $anomalies->values(),
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'borderWidth' => $borderWidth,
             ]
         ];
         return compact('labels', 'datasets');
@@ -220,10 +248,14 @@ class DataController extends Controller
                 return [$dre => $data->count()];
             });
         $labels = $anomalies->keys();
+        extract($this->defaultColors());
         $datasets = [
             [
                 "label" => "Anomalies par DRE",
                 "data" => $anomalies->values(),
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'borderWidth' => $borderWidth,
             ]
         ];
         return compact('labels', 'datasets');
@@ -246,10 +278,14 @@ class DataController extends Controller
                 return [$agency => $data->count()];
             });
         $labels = $anomalies->keys();
+        extract($this->defaultColors());
         $datasets = [
             [
                 "label" => "Anomalies par agence",
                 "data" => $anomalies->values(),
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'borderWidth' => $borderWidth,
             ]
         ];
         return compact('labels', 'datasets');
@@ -264,10 +300,14 @@ class DataController extends Controller
     {
         $missions = $this->getMissions()->withCount(['details' => fn ($query) => $query->whereAnomaly()])->get()->pluck('details_count', 'reference');
         $labels = $missions->keys();
+        extract($this->defaultColors());
         $datasets = [
             [
                 "label" => "Faits majeur par mission",
                 "data" => $missions->values(),
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'borderWidth' => $borderWidth,
             ]
         ];
         return compact('labels', 'datasets');
@@ -281,10 +321,14 @@ class DataController extends Controller
     {
         $campaigns = $this->getCampaigns()->withCount(['details' => fn ($query) => $query->whereAnomaly()])->get()->pluck('details_count', 'reference');
         $labels = $campaigns->keys();
+        extract($this->defaultColors());
         $datasets = [
             [
                 "label" => "Faits majeur campagne de contrôle",
                 "data" => $campaigns->values(),
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'borderWidth' => $borderWidth,
             ]
         ];
         return compact('labels', 'datasets');
@@ -302,10 +346,14 @@ class DataController extends Controller
             return [$famillyName => $data->count()];
         });
         $labels = $majorFacts->keys();
+        extract($this->defaultColors());
         $datasets = [
             [
                 "label" => "Faits majeur par familles",
                 "data" => $majorFacts->values(),
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'borderWidth' => $borderWidth,
             ]
         ];
         return compact('labels', 'datasets');
@@ -320,10 +368,14 @@ class DataController extends Controller
     {
         $majorFacts = $this->getDetails()->onlyMajorFacts()->with('domain')->get()->groupBy('domain.name')->map(fn ($details) => $details->count());
         $labels = $majorFacts->keys();
+        extract($this->defaultColors());
         $datasets = [
             [
                 "label" => "Faits majeur par domaine",
                 "data" => $majorFacts->values(),
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'borderWidth' => $borderWidth,
             ]
         ];
         return compact('labels', 'datasets');
@@ -346,10 +398,14 @@ class DataController extends Controller
                 return [$processName => $data->count()];
             });
         $labels = $majorFacts->keys();
+        extract($this->defaultColors());
         $datasets = [
             [
                 "label" => "Faits majeur par processus",
                 "data" => $majorFacts->values(),
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'borderWidth' => $borderWidth,
             ]
         ];
         return compact('labels', 'datasets');
@@ -372,10 +428,14 @@ class DataController extends Controller
                 return [$controlPoint => $data->count()];
             });
         $labels = $majorFacts->keys();
+        extract($this->defaultColors());
         $datasets = [
             [
                 "label" => "Faits majeur par points de contrôle",
                 "data" => $majorFacts->values(),
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'borderWidth' => $borderWidth,
             ]
         ];
         return compact('labels', 'datasets');
@@ -398,10 +458,14 @@ class DataController extends Controller
                 return [$dre => $data->count()];
             });
         $labels = $majorFacts->keys();
+        extract($this->defaultColors());
         $datasets = [
             [
                 "label" => "Faits majeur par DRE",
                 "data" => $majorFacts->values(),
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'borderWidth' => $borderWidth,
             ]
         ];
         return compact('labels', 'datasets');
@@ -424,10 +488,14 @@ class DataController extends Controller
                 return [$agency => $data->count()];
             });
         $labels = $majorFacts->keys();
+        extract($this->defaultColors());
         $datasets = [
             [
                 "label" => "Faits majeur par Agence",
                 "data" => $majorFacts->values(),
+                'backgroundColor' => $backgroundColor,
+                'borderColor' => $borderColor,
+                'borderWidth' => $borderWidth,
             ]
         ];
         return compact('labels', 'datasets');

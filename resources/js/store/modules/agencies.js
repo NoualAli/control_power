@@ -4,6 +4,7 @@ export const state = {
   all: null,
   paginated: null,
   current: null,
+  config: null,
 }
 
 export const mutations = {
@@ -15,6 +16,9 @@ export const mutations = {
   },
   FETCH(state, data) {
     state.current = data
+  },
+  FETCH_CONFIG(state, data) {
+    state.config = data
   },
 }
 
@@ -35,10 +39,20 @@ export const actions = {
 
     }
   },
+  async fetchConfig({ commit }, id = null) {
+    try {
+      const url = id ? 'agencies/concerns/config?agency_id=' + id : 'agencies/concerns/config'
+      const { data } = await api.get(url)
+      commit('FETCH_CONFIG', { config: data })
+    } catch (error) {
+
+    }
+  },
 }
 
 export const getters = {
   all: state => state.all,
   paginated: state => state.paginated,
-  current: state => state.current
+  current: state => state.current,
+  config: state => state.config
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\DataController;
 use App\Http\Controllers\Api\AgencyController;
+use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ControlCampaignController;
 use App\Http\Controllers\Api\ControlPointController;
 use App\Http\Controllers\Api\DomainController;
@@ -192,9 +193,18 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::prefix('agencies')->controller(AgencyController::class)->group(function () {
         Route::get('/', 'index');
         Route::get('{agency}', 'show');
+        Route::get('concerns/config', 'config');
         Route::post('/', 'store');
         Route::put('{agency}', 'update');
         Route::delete('{agency}', 'destroy');
+    });
+    Route::prefix('categories')->controller(CategoryController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::get('{category}', 'show');
+        Route::get('concerns/config', 'config');
+        Route::post('/', 'store');
+        Route::put('{category}', 'update');
+        Route::delete('{category}', 'destroy');
     });
     Route::prefix('upload')->controller(MediaController::class)->group(function () {
         Route::post('/', 'store');

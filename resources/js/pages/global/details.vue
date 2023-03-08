@@ -130,8 +130,8 @@
               </button>
               <!-- Agency director -->
               <button
-                v-if="mission?.dcp_validation_at && !rowSelected?.regularization?.regularized_at && rowSelected?.score !== 1 && can('regularize_mission_detail')"
-                class="btn btn-warning has-icon" @click="edit(rowSelected)">
+                v-if="mission?.dcp_validation_at && !rowSelected?.regularization?.regularized_at && !rowSelected?.major_fact && rowSelected?.score !== 1 && can('regularize_mission_detail')"
+                class="btn btn-warning has-icon" @click="regularize(rowSelected)">
                 <i class="las la-pen icon"></i>
                 Régulariser
               </button>
@@ -256,9 +256,9 @@
           <!-- Report -->
           <div class="col-12" v-if="!forms.detail.process_mode">
             <NLTextarea :name="'report'" label="Constat" :form="forms.detail" v-model="forms.detail.report"
-              :placeholder="forms.detail.score == 1 || forms.detail.score == null && !forms.detail.major_fact ? '' : 'Ajouter votre constat'"
+              :placeholder="![2, 3, 4].includes(forms.detail.score) && !forms.detail.major_fact ? '' : 'Ajouter votre constat'"
               :labelRequired="forms.detail.score > 1 || forms.detail.major_fact"
-              :readonly="forms.detail.score == 1 || forms.detail.score == null && !forms.detail.major_fact" />
+              :readonly="![2, 3, 4].includes(forms.detail.score) && !forms.detail.major_fact" />
           </div>
           <div class="col-12" v-else>
             <span class="label">Constat: </span>
@@ -276,9 +276,9 @@
           <div class="col-12">
             <NLTextarea :name="'recovery_plan'" label="Plan de redressement" :form="forms.detail"
               v-model="forms.detail.recovery_plan"
-              :placeholder="forms.detail.score == 1 || forms.detail.score == null && !forms.detail.major_fact ? '' : 'Ajouter votre plan de redressement'"
+              :placeholder="![2, 3, 4].includes(forms.detail.score) && !forms.detail.major_fact ? '' : 'Ajouter votre plan de redressement'"
               :labelRequired="forms.detail.score > 1 || forms.detail.major_fact"
-              :readonly="forms.detail.score == 1 || forms.detail.score == null && !forms.detail.major_fact" />
+              :readonly="![2, 3, 4].includes(forms.detail.score) && !forms.detail.major_fact" />
           </div>
 
           <!-- Submit Button -->
@@ -339,7 +339,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import { Form } from 'vform';
-import { hasRole, isAbleTo } from '../../plugins/user'
+import { hasRole } from '../../plugins/user'
 import Notification from '../../components/Notification'
 export default {
   layout: 'backend',
@@ -545,6 +545,7 @@ export default {
             },
           ],
           value: null,
+          hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
         },
         major_fact: {
           label: 'Fait majeur',

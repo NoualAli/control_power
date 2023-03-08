@@ -29,6 +29,7 @@ class Mission extends Model
         'dcp_validation_by_id',
         'cdcr_validation_at',
         'dcp_validation_at',
+        'state'
     ];
 
     protected $appends = [
@@ -125,6 +126,7 @@ class Mission extends Model
     }
     public function getRealisationStateAttribute()
     {
+        return $this->states()->latest()->first()->state;
         // if (!$this->remaining_days_before_end) {
         //     return 'EN RETARD';
         // }
@@ -210,6 +212,16 @@ class Mission extends Model
     public function dcpValidator()
     {
         return $this->belongsTo(User::class, 'dcp_validation_by_id');
+    }
+
+    public function states()
+    {
+        return $this->hasMany(MissionState::class);
+    }
+
+    public function state()
+    {
+        return $this->belongsTo(MissionState::class);
     }
 
     /**

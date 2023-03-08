@@ -1,5 +1,5 @@
 <template>
-  <div v-can="'create_agency'">
+  <div v-if="can('create_agency')">
     <ContentHeader title="Ajouter une nouvelle agence" />
     <ContentBody>
       <form @submit.prevent="create" @keydown="form.onKeydown($event)">
@@ -16,6 +16,20 @@
           <div class="col-12 col-md-6">
             <NLSelect :form="form" name="dre_id" v-model="form.dre_id" label="Dre" :options="dresList" labelRequired
               :multiple="false" />
+          </div>
+          <!-- Category -->
+          <div class="col-12 col-md-6">
+            <NLSelect :form="form" name="category_id" v-model="form.category_id" label="Catégorie"
+              :options="categoriesList" labelRequired :multiple="false" />
+          </div>
+          <!-- PCF -->
+          <div class="col-12 col-md-6">
+            <NLSelect :form="form" name="pcf_usable" v-model="form.pcf_usable" label="PCF exceptionnel (à utiliser)"
+              :options="pcfList" :multiple="true" />
+          </div>
+          <div class="col-12 col-md-6">
+            <NLSelect :form="form" name="pcf_unusable" v-model="form.pcf_unusable"
+              label="PCF exceptionnel (à ne pas utiliser)" :options="pcfList" :multiple="true" />
           </div>
         </div>
         <!-- Submit Button -->
@@ -35,28 +49,29 @@ export default {
   layout: 'backend',
   computed: {
     ...mapGetters({
-      dre: 'dre/all'
+      config: 'agencies/config'
     }),
   },
   data() {
     return {
       dresList: [],
+      categoriesList: [],
+      pcfList: [],
       form: new Form({
         name: null,
         code: null,
         dre_id: null,
+        category_id: null,
+        pcf_usable: [],
+        pcf_unusable: [],
       }),
     }
   },
   created() {
-    this.$store.dispatch('dre/fetchAll').then(() => {
-      this.dre.all.forEach(dre => {
-        dre = {
-          'id': dre.id,
-          'label': dre.full_name
-        }
-        this.dresList.push(dre);
-      });
+    this.$store.dispatch('agencies/fetchConfig').then(() => {
+      this.dresList = this.config.config.dres
+      this.categoriesList = this.config.config.categories
+      this.pcfList = this.config.config.pcf
     })
   },
   methods: {

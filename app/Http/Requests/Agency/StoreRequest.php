@@ -26,7 +26,10 @@ class StoreRequest extends FormRequest
         return [
             'name' => ['required', 'unique:agencies', 'string', 'max:255'],
             'code' => ['required', 'numeric', 'unique:agencies', 'numeric'],
-            'dre_id' => ['required', 'exists:dres,id']
+            'dre_id' => ['required', 'exists:dres,id'],
+            'category_id' => ['required', 'exists:categories,id'],
+            'pcf_usable' => ['nullable', 'array'],
+            'pcf_unusable' => ['nullable', 'array'],
         ];
     }
 }

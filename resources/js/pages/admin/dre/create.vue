@@ -1,5 +1,5 @@
 <template>
-  <div v-can="'create_dre'">
+  <div v-if="can('create_dre')">
     <ContentHeader title="Ajouter une nouvelle DRE" />
     <ContentBody>
       <form @submit.prevent="create" @keydown="form.onKeydown($event)">

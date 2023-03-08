@@ -1,5 +1,5 @@
 <template>
-  <ContentBody v-can="'control_agency,create_dre_report,validate_dre_report'">
+  <ContentBody v-if="can('control_agency,create_dre_report,validate_dre_report')">
     <div class="container">
       <div class="grid">
         <div class="col-1"></div>
