@@ -1,18 +1,25 @@
 <template>
   <div class="my-6">
     <div class="table-header grid my-6">
-      <div class="col-12" v-if="filters">
-        <div class="grid gap-2" v-if="showFilters">
-          <div class="col-12 col-lg-4" :class="filter?.cols" v-for="(filter, name) in filters" :key="'filter-' + name"
-            v-if="!filter?.hide">
-            <NLSelect :name="name" :label="filter.label" :options="filter.data" :multiple="filter.multiple"
-              v-model="filter.value" />
+      <div class="col-12" v-if="filters && showFilters">
+        <div class="grid gap-2">
+          <div class="col-12" :class="filter?.cols || 'col-lg-2'" v-for="(filter, name) in filters"
+            :key="'filter-' + name" v-if="!filter?.hide">
+            <NLSelect :name="name" :label="filter.label" :options="filter?.data" :multiple="filter.multiple"
+              v-model="filter.value" v-if="!filter.type" />
+
+            <div class="grid gap-2" v-if="filter.type && filter.type == 'date-range'">
+              <div class="col-12" :class="data?.cols || 'col-lg-6'" v-for="(data, name) in filter.attributes"
+                v-if="filter.type && filter.type == 'date-range'" :key="'filter-' + name">
+                <NLInput :name="name" :label="data.label" type="date" v-model="data.value" />
+              </div>
+            </div>
           </div>
-          <div class="col-lg-12">
+          <!-- <div class="col-lg-12">
             <button class="btn btn-danger has-icon" @click="resetFilter">
               <i class="las la-backspace icon"></i>
             </button>
-          </div>
+          </div> -->
         </div>
       </div>
       <div class="col-12 col-lg-4 d-flex align-center">
@@ -26,8 +33,11 @@
             @input="search($event.target.value)" v-if="(searchable && config.data?.meta?.total) || appliedSearch !== ''">
         </div>
         <div v-if="(filters && config.data?.meta?.total)">
-          <button class="btn btn-success has-icon" @click="showFilters = !showFilters">
+          <button class="btn btn-success has-icon" @click="showFilters = !showFilters" v-if="!showFilters">
             <i class="las la-filter icon"></i>
+          </button>
+          <button class="btn btn-danger has-icon" @click="resetFilter" v-else>
+            <i class="las la-times-circle icon"></i>
           </button>
         </div>
       </div>
@@ -91,7 +101,7 @@
     </div>
     <div class="pagination my-6 grid">
       <div class="col-12 col-lg-2 d-flex align-center justify-center" v-if="config?.data?.data?.length">
-        <div class="grid gap-2">
+        <div class="grid gap-2 w-100">
           <div class="col-4">
             <NLSelect name="per_page" :options="perPageOptions" v-model="appliedPerPage" @change="showPerPage()" />
           </div>
@@ -134,7 +144,7 @@ import NoData from './NoData';
 import { saveAs } from 'file-saver';
 export default {
   name: 'NLDatatable',
-  emits: [ 'delete', 'show', 'edit' ],
+  emits: [ 'delete', 'show', 'edit', 'searchDone', 'sortDone', 'dataUpdated', 'perPageUpdated', 'filterReset' ],
   components: {
     NoData
   },
@@ -171,7 +181,7 @@ export default {
   },
   computed: {
     getUrl() {
-      return this.url ? this.url : this.config.data.meta.path
+      return this.url ? this.url : this.config?.data?.meta?.path
     },
   },
   created() {
@@ -181,47 +191,75 @@ export default {
   watch: {
     filters: {
       handler() {
-        let loadData = []
-        if (this.filters) {
-          for (const key in this.filters) {
-            if (Object.hasOwnProperty.call(this.filters, key)) {
-              loadData.push(this.filters[ key ].value !== null)
-            }
-          }
-        }
-        if (loadData.some(value => value)) {
-          this.updateState(true)
-          this.buildUrl()
-          api.get(this.url).then(response => {
-            this.updateState()
-            this.config.data = response.data
-          }).catch(error => {
-            this.updateState()
-            swal.alert_error(error)
-          })
-          // if (this.filtersQueryKey) {
-          //   api.get(this.url+'&onlyFiltersData').then(response => {
-          //     this.updateState()
-          //     this.config.data = response.data
-          //   }).catch(error => {
-          //     this.updateState()
-          //     swal.alert_error(error)
-          //   })
-          // }
-        }
+        this.handleFilter()
       },
       deep: true,
       immediate: true,
     }
   },
   methods: {
-    resetFilter() {
-      this.showFilter = false
-      for (const key in this.filters) {
-        if (Object.hasOwnProperty.call(this.filters, key)) {
-          this.filters[ key ].value = null
+    handleFilter() {
+      let loadData = []
+      if (this.filters) {
+        for (const key in this.filters) {
+          if (Object.hasOwnProperty.call(this.filters, key)) {
+            if (this.filters[ key ]?.type == 'date-range' && this.filters[ key ] !== undefined) {
+              let parent = this.filters[ key ]
+              let fields = parent.attributes
+              const values = []
+              for (const subfieldKey in fields) {
+                if (Object.hasOwnProperty.call(fields, subfieldKey)) {
+                  const element = fields[ subfieldKey ];
+                  if (element.value !== null && element.value !== undefined) {
+                    values.push(subfieldKey + '|' + element.value)
+                  }
+                }
+              }
+              if (values.length) {
+                parent.value = values.join(',')
+              }
+              loadData.push(!!(parent.value !== null && parent.value.length && parent.value !== undefined))
+            } else {
+              loadData.push(this.filters[ key ].value !== null)
+            }
+          }
         }
       }
+      if (loadData.some(value => value)) {
+        this.buildUrl()
+        this.updateState(true)
+        api.get(this.getUrl).then(response => {
+          this.updateState()
+          this.config.data = response.data
+        }).catch(error => {
+          this.updateState()
+          swal.alert_error(error)
+        })
+
+      } else {
+        this.buildUrl()
+        this.updateState(true)
+        // this.getPaginationData(this.getUrl)
+        this.updateState()
+      }
+    },
+    resetFilter() {
+      this.showFilters = false
+      for (const key in this.filters) {
+        if (Object.hasOwnProperty.call(this.filters, key)) {
+          const element = this.filters[ key ];
+          element.value = null
+          if (element.attributes) {
+            for (const key in element.attributes) {
+              if (Object.hasOwnProperty.call(element.attributes, key)) {
+                const subfield = element.attributes[ key ];
+                subfield.value = null
+              }
+            }
+          }
+        }
+      }
+      this.$emit('filterReset')
     },
     exportData() {
       this.export = true
@@ -399,14 +437,20 @@ export default {
      */
     async getPaginationData(url) {
       this.updateState()
-      let newUrl = new URL(url)
-      this.current_page = newUrl.searchParams.get('page')
+      let newUrl = '';
+      try {
+        newUrl = new URL(url)
+      } catch (error) {
+        console.log(url);
+      }
+      this.current_page = newUrl?.searchParams?.get('page')
       this.buildUrl()
       await api.get(this.url).then((res) => {
         this.current_page = res.data.meta.current_page
         this.config.data = res.data
         this.$store.state[ this.namespace ][ this.stateKey ] = res.data
         this.updateState(false)
+        this.$emit('dataUpdated', res)
       })
     },
     /**
@@ -419,6 +463,7 @@ export default {
         this.config.data = res.data
         this.$store.state[ this.namespace ][ this.stateKey ] = res.data
         this.updateState()
+        this.$emit('sortDone', res)
       })
     },
 
@@ -436,21 +481,22 @@ export default {
         this.updateState()
         this.config.data = res.data
         this.$store.state[ this.namespace ][ this.stateKey ] = res.data
+        this.$emit('searchDone', value)
       })
+
     },
     /**
      * Show more data per page
      */
     async showPerPage() {
       this.updateState(true)
-      // this.appliedSearch = value
-      // this.current_page = 1
       this.buildUrl()
 
       await api.get(this.url).then((res) => {
         this.updateState()
         this.config.data = res.data
         this.$store.state[ this.namespace ][ this.stateKey ] = res.data
+        this.$emit('perPageUpdated', res)
       })
     },
     /**
@@ -459,7 +505,7 @@ export default {
      * @param {String} column
      */
     sortData(column) {
-      if (this.appliedSort[ column ].direction == null) {
+      if (this.appliedSort[ column ].direction == 'asc') {
         this.appliedSort[ column ].direction = 'desc'
         this.appliedSort[ column ].icon = 'la-sort-down'
       } else if (this.appliedSort[ column ].step == 'desc') {

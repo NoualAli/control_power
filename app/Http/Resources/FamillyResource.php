@@ -14,6 +14,7 @@ class FamillyResource extends JsonResource
      */
     public function toArray($request)
     {
+        $this->loadCount('domains');
         return [
             'id' => $this->id,
             'name' => $this->name,

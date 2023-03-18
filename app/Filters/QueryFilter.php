@@ -14,27 +14,23 @@ abstract class QueryFilter
         $this->query = $query;
     }
 
-    protected function datesFromString($dates)
+    protected function extractDates($dates)
     {
-        return explode(' - ', $dates);
-    }
+        $dates = explode(',', $dates);
+        $start = null;
+        $end = null;
 
-    protected function formatDate(?string $date = null, bool $addDay = false, bool $subDay = false)
-    {
-        if ($date) {
-            $date = Carbon::parse($date);
-        } else {
-            $date = Carbon::today();
+        foreach ($dates as $value) {
+            if (empty($value)) {
+                continue; // skip empty values
+            }
+            [$key, $val] = explode("|", $value);
+            if ($key === "start") {
+                $start = $val;
+            } elseif ($key === "end") {
+                $end = $val;
+            }
         }
-
-        if ($addDay) {
-            $date->addDay();
-        }
-
-        if ($subDay) {
-            $date->subDay();
-        }
-
-        return $date->format('Y-m-d');
+        return compact('start', 'end');
     }
 }

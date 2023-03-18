@@ -29,7 +29,7 @@
             <div class="col-1"></div>
             <div class="col-12 col-lg-8 grid">
               <!-- Major fact -->
-              <div class="col-12" v-if="detail?.control_point.has_major_fact">
+              <div class="col-12" v-if="detail?.control_point.has_major_fact && [4, 3, 2].includes(form.rows[row].score)">
                 <NLSwitch v-model="form.rows[row].major_fact" :name="'rows.' + row + '.major_fact'" :form="form"
                   label="Fait majeur" />
               </div>

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasMedia;
+use App\Traits\HasScopes;
 use App\Traits\HasUuid;
 use App\Traits\IsFilterable;
 use App\Traits\IsSearchable;
@@ -16,7 +17,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 class MissionDetail extends Model
 {
-    use HasFactory, SoftDeletes, HasUuid, HasRelationships, BelongsToThrough, HasMedia, IsFilterable, IsSearchable;
+    use HasFactory, SoftDeletes, HasUuid, HasRelationships, BelongsToThrough, HasMedia, IsFilterable, IsSearchable, HasScopes;
 
     public $fillable = [
         'control_point_id',

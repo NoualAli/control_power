@@ -3,7 +3,7 @@
     border-radius: 6px
     box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%), 0 0 0 1px rgb(10 10 10 / 2%)
     color: #4a4a4a
-    display: block
+    // display: block
     padding: 1.25rem
     &.is-active
         background-color: $warning-dark
@@ -32,6 +32,7 @@
     @each $value in $colors-list
         &.is-#{nth($value, 1)}
             box-shadow: 0 0 3px rgba(nth($value, 2),1), 0 0 0 1px rgba(nth($value, 2), 1)
-            background-color: lighten(nth($value, 2), 33%)
-            color: darken(nth($value, 2), 25%)
+            background-color: nth($value, 2)
+            // color: darken(nth($value, 2), 25%)
+            color: darkOrWhiteFont(nth($value, 2))
             border: 1px solid darken(nth($value, 2), 25%)

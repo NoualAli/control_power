@@ -16,23 +16,34 @@ class MissionProcessesResource extends JsonResource
      */
     public function toArray($request)
     {
-        $processId = $this->id;
-        $details = MissionDetail::whereRelation('process', 'processes.id', $processId)->whereRelation('mission', 'missions.id', request()->mission->id);
-        $totalDetails = $details->count();
-        $detailsCollection = $details->get();
-        $controlPoints = $detailsCollection->pluck('controlPoint');
+        // $processId = $this->id;
+        // $details = MissionDetail::whereRelation('process', 'processes.id', $processId)->whereRelation('mission', 'missions.id', request()->mission->id);
+        // $totalDetails = $details->count();
+        // $detailsCollection = $details->get();
+        // $controlPoints = $detailsCollection->pluck('controlPoint');
+        // $data =  [
+        //     'id' => $this->id,
+        //     'familly' => $this->familly->name,
+        //     'domain' => $this->domain->name,
+        //     'name' => $this->name,
+        //     'controlPoints' => $controlPoints,
+        //     'control_points_count' => $controlPoints->count(),
+        //     'progress_status' => $this->calculateProgress($detailsCollection, $totalDetails),
+        //     'avg_score' => $this->calculateAvgScore($details),
+        //     'executed_at' => $this->executedAt($detailsCollection, $totalDetails),
+        // ];
         $data =  [
-            'id' => $this->id,
-            'familly' => $this->familly->name,
-            'domain' => $this->domain->name,
-            'name' => $this->name,
-            'controlPoints' => $controlPoints,
-            'control_points_count' => $controlPoints->count(),
-            'progress_status' => $this->calculateProgress($detailsCollection, $totalDetails),
-            'avg_score' => $this->calculateAvgScore($details),
-            'executed_at' => $this->executedAt($detailsCollection, $totalDetails),
+            'id' => $this->process_id,
+            'familly' => $this->family,
+            'domain' => $this->domain,
+            'name' => $this->process,
+            'controlPoints' => [],
+            'control_points_count' => $this->control_points_count,
+            'progress_status' => intval($this->progress_status),
+            'avg_score' => intval($this->avg_score),
+            'executed_at' => $this->executed_at,
         ];
-        if (isAbleTo(['process_mission', 'assign_mission_processing'])) $data['processed_at'] = $this->processedAt($detailsCollection, $totalDetails);
+        // if (isAbleTo(['process_mission', 'assign_mission_processing'])) $data['processed_at'] = $this->processedAt($detailsCollection, $totalDetails);
         return $data;
     }
 

@@ -340,7 +340,7 @@ export default {
         datasets: [ { label: "Total faits majeurs par campagne de contrôle", data: [], backgroundColor: [] } ]
       },
       chartOptions: {
-        rresponsive: true,
+        responsive: true,
         maintainAspectRatio: false,
         barPercentage: 0.1,
         animations: {

@@ -3,18 +3,23 @@
 namespace App\Models;
 
 use App\Traits\HasDates;
+use App\Traits\HasScopes;
 use App\Traits\HasUuid;
+use App\Traits\IsFilterable;
 use App\Traits\IsOrderable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Znck\Eloquent\Traits\BelongsToThrough;
 
 class Mission extends Model
 {
-    use HasFactory, BelongsToThrough, HasRelationships, SoftDeletes, IsSearchable, IsOrderable, HasUuid, HasDates;
+    use HasFactory, BelongsToThrough, HasRelationships, SoftDeletes, IsSearchable, IsOrderable, HasUuid, HasDates, HasScopes, IsFilterable;
+
+    protected $filter = 'App\Filters\Mission';
 
     protected $fillable = [
         'reference',
@@ -247,28 +252,32 @@ class Mission extends Model
     {
         return $query->whereNotNull('dcp_validation_at');
     }
+    public function scopeExecuted($query)
+    {
+        return $query->whereRelation('reports', 'type', 'Avis contrôleur', '!=', null)->whereRelation('reports', 'validated_at', '!=', null);
+    }
     public function scopeValidated($query)
     {
-        return $query->whereHas('reports', fn ($report) => $report->where('type', 'Rapport')->whereNotNull('validated_at'));
+        // return $query->whereHas('reports', fn ($report) => $report->where('type', 'Rapport')->whereNotNull('validated_at'));
+        return $query->whereRelation('reports', 'type', 'Rapport', '!=', null)->whereRelation('reports', 'validated_at', '!=', null);
     }
 
     public function scopeNotValidated($query)
     {
-        return $query->whereRelation('reports', 'type', 'Rapport')->whereRelation('reports', 'validated_at', null);
+        // return $query->where
+        // return $query->whereHas('states', function ($q) {
+        //     $q->where('state', 'En attente de validation')
+        //         ->whereNotExists(function ($query) {
+        //             $query->select(DB::raw(1))
+        //                 ->from('mission_states as ms2')
+        //                 ->orderBy('created_at', 'DESC')
+        //                 ->whereRaw('ms2.mission_id = mission_states.mission_id AND ms2.created_at > mission_states.created_at');
+        //         });
+        // });
     }
 
     public function scopeOnlyValidatedMajorFacts($query)
     {
         return $query->where('major_fact', true)->whereNotNull('validated_at');
     }
-
-    // public function scopeHasDetails($query)
-    // {
-    //     return $query->whereHas('details');
-    // }
-
-    // public function scopeTotalAnomalies($query)
-    // {
-    //     return $query->with('details', fn ($query) => $query->whereIn('score', [2, 3, 4]));
-    // }
 }

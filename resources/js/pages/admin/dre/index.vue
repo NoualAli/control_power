@@ -91,13 +91,13 @@ export default {
         ],
         actions: {
           show: (item) => {
-            return this.can('.view_dre')
+            return this.can('view_dre')
           },
           edit: (item) => {
-            return this.can('.edit_dre')
+            return this.can('edit_dre')
           },
           delete: (item) => {
-            return this.can('.delete_dre')
+            return this.can('delete_dre')
           }
         }
       }

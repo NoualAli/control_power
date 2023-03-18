@@ -61,7 +61,7 @@ export default {
           },
         ],
         actions: {
-          show: true,
+          show: (item) => item.url ? true : false,
         }
       }
     }

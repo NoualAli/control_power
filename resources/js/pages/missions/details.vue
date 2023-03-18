@@ -70,7 +70,7 @@
 
                   <!-- CDCR -->
                   <button class="btn btn-warning has-icon" @click="edit(detail)"
-                    v-if="!mission?.cdcr_validation_at && !detail?.major_fact_dispatched_at && can('make_first_validation,process_mission') && [2, 3, 4].includes(detail?.score) && !detail?.processed_at">
+                    v-if="!mission?.cdcr_validation_at && !detail?.major_fact_dispatched_at && can('make_first_validation,process_mission') && [2, 3, 4].includes(detail?.score)">
                     <i class="las la-pen icon"></i>
                     Traiter
                   </button>

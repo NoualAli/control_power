@@ -49,10 +49,10 @@ export default {
             return false
           },
           edit: (item) => {
-            return this.can('.edit_familly')
+            return this.can('edit_familly')
           },
           delete: (item) => {
-            return this.can('.delete_familly')
+            return this.can('delete_familly')
           }
         }
       }

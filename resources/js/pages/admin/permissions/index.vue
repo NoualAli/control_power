@@ -87,13 +87,13 @@ export default {
         ],
         actions: {
           show: (item) => {
-            return this.can('.view_permission')
+            return this.can('view_permission')
           },
           edit: (item) => {
-            return this.can('.edit_permission')
+            return this.can('edit_permission')
           },
           delete: (item) => {
-            return this.can('.delete_permission')
+            return this.can('delete_permission')
           }
         }
       }

@@ -51,6 +51,7 @@ table
                 background-color: transparent
                 padding: $cell-btn-padding
                 font-size: $cell-font-size
+                box-shadow: none !important
                 &:hover
                     border: none !important
                     background-color: none !important
@@ -118,10 +119,7 @@ table
             vertical-align: middle
             // text-align: left
             display: table-cell
-            border-left: 1px solid $table-border
-            & span svg
-                font-size: $cell-font-size !important
-                cursor: pointer
+            border-left: 1px solid $table-border !important
             &:first-child
                 border: none
             &:before

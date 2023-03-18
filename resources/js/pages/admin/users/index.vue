@@ -134,10 +134,10 @@ export default {
         actions: {
           show: true,
           edit: (item) => {
-            return !this.isCurrent(item) && this.can('.edit_user') && !item.roles.includes('root')
+            return !this.isCurrent(item) && this.can('edit_user') && !item.roles.includes('root')
           },
           delete: (item) => {
-            return !this.isCurrent(item) && this.can('.delete_user') && !item.roles.includes('root')
+            return !this.isCurrent(item) && this.can('delete_user') && !item.roles.includes('root')
           }
         }
       },

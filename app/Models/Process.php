@@ -6,11 +6,12 @@ use App\Traits\IsOrderable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Znck\Eloquent\Traits\BelongsToThrough;
 
 class Process extends Model
 {
-    use HasFactory, IsSearchable, IsOrderable, BelongsToThrough;
+    use HasFactory, IsSearchable, IsOrderable, BelongsToThrough, HasRelationships;
 
     protected $fillable = [
         'name',

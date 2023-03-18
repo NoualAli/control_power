@@ -113,6 +113,7 @@ export default {
         agency: null,
         campaign: null,
         controllers: null,
+        control_campaign_id: null,
       }),
       controllersList: [],
       cdcModalIsOpen: false,
@@ -138,6 +139,7 @@ export default {
           })
           this.form.agency = this.mission.current.agency.name
           this.form.campaign = this.mission.current.campaign.reference
+          this.form.control_campaign_id = this.mission.current.campaign.id
           this.currentCampaign = this.mission.current.campaign
           this.form.controllers = this.mission.current.agency_controllers.map((controller) => controller.id)
           this.form.start = this.mission.current.start.split('-').reverse().join('-')

@@ -24,7 +24,7 @@ class AssignToCCRequest extends FormRequest
     public function rules()
     {
         return [
-            'controllers' => ['required', 'array'],
+            'controllers' => ['nullable', 'array'],
             'controllers.*' => ['exists:users,id'],
         ];
     }

@@ -220,7 +220,8 @@
         @click.prevent="showDispatchForm">
         Assigné
       </button>
-      <button class="btn btn-info" v-if="mission?.current.dre_report?.is_validated && can('make_first_validation')"
+      <button class="btn btn-info"
+        v-if="mission?.current.dre_report?.is_validated && can('make_first_validation,process_mission')"
         @click="showReport">
         Rapport de la mission
       </button>
@@ -274,7 +275,7 @@
         <div class="grid list">
           <div class="col-12 list-item" v-for="controlPoint in rowSelected?.controlPoints" :key="controlPoint.id">
             <div class="list-item-content">
-              {{ controlPoint.name }}
+              {{ controlPoint.label }}
             </div>
           </div>
         </div>
@@ -461,24 +462,6 @@ export default {
               }
             }
           },
-          {
-            label: "Taux de progression",
-            field: "progress_status",
-            methods: {
-              showField: (item) => {
-                return item.progress_status + '%'
-              }
-            }
-          },
-          {
-            label: "Date d\'exécution",
-            field: 'executed_at',
-          },
-          {
-            label: "Date de traitement",
-            field: 'processed_at',
-            hide: !hasRole([ 'dcp', 'cdcr', 'cc' ])
-          }
         ],
         actions: {
           show: true,
@@ -527,6 +510,7 @@ export default {
     ...mapGetters({
       mission: 'missions/current',
       processes: 'missions/processes',
+      controlPoints: 'processes/controlPoints',
       users: 'users/all'
     }),
   },
@@ -726,7 +710,10 @@ export default {
      * @param {Object} item
      */
     show(item) {
-      this.rowSelected = item
+      this.$store.dispatch('processes/fetch', { id: item.id, onlyControlPoints: true }).then(() => {
+        item.controlPoints = this.controlPoints.controlPoints
+        this.rowSelected = item
+      })
     },
     /**
      * Ferme le modal

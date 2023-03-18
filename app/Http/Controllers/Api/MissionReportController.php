@@ -8,11 +8,13 @@ use App\Http\Requests\Mission\Report\StoreRequest;
 use App\Http\Requests\Mission\Report\ValidateRequest;
 use App\Models\MissionReport;
 use App\Models\User;
+use App\Notifications\Mission\Validated;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class MissionReportController extends Controller
 {
@@ -132,7 +134,7 @@ class MissionReportController extends Controller
                     $this->notifyUsers($mission, $mission->creator);
                 } elseif ($report->type == 'Rapport') {
                     // $users = User::cdcr()->merge($mission->agencyControllers);
-                    $users = User::whereRoles(['cdcr', 'dcp'])->get()->merge($mission->agencyControllers);
+                    $users = User::whereRoles(['cdcr', 'dcp', 'der', 'dre'])->get()->merge($mission->agencyControllers);
                     $this->notifyUsers($mission, $users);
                 }
             });
@@ -152,12 +154,14 @@ class MissionReportController extends Controller
     {
         try {
             if ($users instanceof Model) {
-                Artisan::call('mission:validated', ['id' => $mission->id, 'user_id' => $users->id]);
+                Notification::send($users, new Validated($mission));
+                // Artisan::call('mission:validated', ['id' => $mission->id, 'user_id' => $users->id]);
             } else {
                 foreach ($users as $user) {
-                    if ($user?->id) {
-                        Artisan::call('mission:validated', ['id' => $mission->id, 'user_id' => $user?->id]);
-                    }
+                    Notification::send($user, new Validated($mission));
+                    // if ($user?->id) {
+                    //     Artisan::call('mission:validated', ['id' => $mission->id, 'user_id' => $user?->id]);
+                    // }
                 }
             }
         } catch (\Throwable $th) {

@@ -8,7 +8,8 @@
       </div>
     </div>
     <ContentBody>
-      <NLDatatable namespace="campaigns" :config="config" @delete="destroy" @show="show" @edit="edit" :filters="filters">
+      <NLDatatable namespace="campaigns" :config="config" @delete="destroy" @show="show" @edit="edit" :filters="filters"
+        @filterReset="resetData()">
         <template v-slot:actions="item">
           <button class="btn btn-info has-icon" @click.stop="validate(item.item)"
             v-if="!item?.item?.validated_by_id && can('validate_control_campaign')">
@@ -105,7 +106,24 @@ export default {
             }
           ],
           value: null,
-        }
+        },
+        between: {
+          value: [],
+          type: 'date-range',
+          cols: 'col-lg-4',
+          attributes: {
+            start: {
+              cols: 'col-lg-6',
+              label: 'De',
+              value: null,
+            },
+            end: {
+              cols: 'col-lg-6',
+              label: 'À',
+              value: null,
+            }
+          }
+        },
       }
     }
 
@@ -116,8 +134,12 @@ export default {
     }),
   },
   methods: {
+    resetData() {
+      this.initFilters(false)
+      this.initData()
+    },
     initYearsList() {
-      let start = 2020
+      let start = 2023
       const currentYear = new Date().getFullYear()
       let years = []
       for (start; start <= currentYear; start++) {
@@ -190,11 +212,16 @@ export default {
     initData() {
       this.$store.dispatch('campaigns/fetchPaginated').then(() => {
         this.config.data = this.controlCampaigns.paginated
-        this.initYearsList()
       })
     },
+    initFilters(reloadFilters = true) {
+      if (reloadFilters) {
+        this.initYearsList()
+      }
+    }
   },
   created() {
+    this.initFilters()
     this.initData()
   }
 }

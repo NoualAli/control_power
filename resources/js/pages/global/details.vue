@@ -112,17 +112,17 @@
 
               <!-- CDCR -->
               <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
-                v-if="!mission?.cdcr_validation_at && !rowSelected?.major_fact_dispatched_at && can('make_first_validation,make_second_validation')">
+                v-if="!mission?.cdcr_validation_at && !rowSelected?.major_fact_dispatched_at && can('make_first_validation,process_mission')">
                 <i class="las la-pen icon"></i>
                 Traiter
               </button>
 
               <!-- DCP -->
-              <!-- <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
+              <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
                 v-if="!mission?.dcp_validation_at && rowSelected?.mission?.cdcr_validation_at && !rowSelected?.major_fact_dispatched_at && can('make_second_validation')">
                 <i class="las la-pen icon"></i>
                 Traiter
-              </button> -->
+              </button>
               <button class="btn btn-info has-icon" @click.prevent="notify(rowSelected)"
                 v-if="!rowSelected?.major_fact_dispatched_at && rowSelected?.major_fact && can('dispatch_major_fact')">
                 <i class="las la-bell icon"></i>
@@ -473,18 +473,28 @@ export default {
       filters: {
         campaign: {
           label: 'Campagne de contrôle',
+          cols: 'col-lg-3',
           multiple: true,
           data: null,
           value: null
         },
         mission_id: {
           label: 'Mission',
+          cols: 'col-lg-3',
+          multiple: true,
+          data: null,
+          value: null
+        },
+        dre: {
+          label: 'DRE',
+          cols: 'col-lg-3',
           multiple: true,
           data: null,
           value: null
         },
         agency: {
           label: 'Agence',
+          cols: 'col-lg-3',
           multiple: true,
           data: null,
           value: null
@@ -566,8 +576,8 @@ export default {
     }
   },
   created() {
-    this.initData()
     this.initFilters()
+    this.initData()
   },
   methods: {
     /**
@@ -577,6 +587,7 @@ export default {
       this.$store.dispatch('details/fetchFilters').then(() => {
         this.filters.campaign.data = this.filtersData.filters.campaigns
         this.filters.mission_id.data = this.filtersData.filters.missions
+        this.filters.dre.data = this.filtersData.filters.dres
         this.filters.agency.data = this.filtersData.filters.agencies
         this.filters.familly.data = this.filtersData.filters.famillies
         this.filters.domain.data = this.filtersData.filters.domains

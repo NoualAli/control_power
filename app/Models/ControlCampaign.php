@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasDates;
+use App\Traits\HasScopes;
 use App\Traits\IsFilterable;
 use App\Traits\IsOrderable;
 use App\Traits\IsSearchable;
@@ -13,7 +14,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 class ControlCampaign extends Model
 {
-    use HasFactory, SoftDeletes, IsSearchable, IsOrderable, IsFilterable, HasDates, HasRelationships;
+    use HasFactory, SoftDeletes, IsSearchable, IsOrderable, IsFilterable, HasDates, HasRelationships, HasScopes;
 
     protected $fillable = [
         'description',

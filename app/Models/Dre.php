@@ -75,4 +75,14 @@ class Dre extends Model
     {
         return $this->hasMany(Agency::class);
     }
+
+    public function missions()
+    {
+        return $this->hasManyThrough(Mission::class, Agency::class);
+    }
+
+    public function details()
+    {
+        return $this->hasManyDeep(MissionDetail::class, [Agency::class, Mission::class]);
+    }
 }

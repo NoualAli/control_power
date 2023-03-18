@@ -73,7 +73,7 @@
     </div>
 
     <!-- Processes List -->
-    <NLDatatable namespace="campaigns" stateKey="current" :config="config" @show="show" @delete="destroy"
+    <NLDatatable namespace="campaigns" stateKey="processes" :config="config" @show="show" @delete="destroy"
       title="Liste des processus de la campagne de contrôle">
       <template v-slot:actions="item">
         <button class="btn btn-danger has-icon" @click.stop="detachProcess(item.item)"

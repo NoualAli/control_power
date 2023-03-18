@@ -11,11 +11,12 @@ use App\Http\Resources\MissionResource;
 use App\Models\Agency;
 use App\Models\ControlCampaign;
 use App\Models\Mission;
+use App\Models\Process;
 use App\Models\User;
+use App\Notifications\Mission\AssignationRemoved;
 use App\Notifications\Mission\Assigned;
 use App\Notifications\Mission\Updated;
 use App\Notifications\Mission\Validated;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
@@ -59,6 +60,8 @@ class MissionController extends Controller
                 $missions = $missions->get()->flatten()('reference', 'id');
             } elseif (request()->has('export')) {
                 $missions = MissionResource::collection($missions->paginate($perPage)->onEachSide(1));
+            } elseif (request()->has('onlyFilters')) {
+                return $this->getFilters($missions);
             } else {
                 $missions = MissionResource::collection($missions->paginate($perPage)->onEachSide(1));
             }
@@ -84,6 +87,16 @@ class MissionController extends Controller
             $missions = $missions->hasDcpValidation();
         }
         return $missions;
+    }
+
+    public function getFilters($missions = null)
+    {
+        $missions = $missions ?? $this->getMissions();
+        $dre_controllers = $missions->relationUniqueData('agencyControllers', 'full_name', 'id');
+        $dres = $missions->relationUniqueData('dre', 'name', 'id', 'full_name');
+        $agencies = $missions->relationUniqueData('agency', 'name', 'id', 'full_name');
+        $campaigns = $missions->relationUniqueData('campaign', 'reference');
+        return compact('dres', 'agencies', 'campaigns', 'dre_controllers');
     }
 
     /**
@@ -123,8 +136,17 @@ class MissionController extends Controller
         }
         if (request()->has('onlyProcesses') || request()->has('page')) {
             $mission->unsetRelations();
-            // dd($mission);
-            $processes = $mission->load('details')->details->load('process')->pluck('process')->unique('id')->values()->sortBy('familly.id');
+            $processes = DB::table('processes as p')
+                ->selectRaw('p.id as process_id, p.name as process, d.name as domain, f.name as family, COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, DATE_FORMAT(MAX(md.executed_at), "%d-%m-%Y") AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(IF(md.score IS NOT NULL, md.id, NULL)) AS scored_mission_details, (COUNT(IF(md.score IS NOT NULL, md.id, NULL)) / COUNT(md.id)) * 100 AS progress_status')
+                ->join('control_points as cp', 'p.id', '=', 'cp.process_id')
+                ->join('domains as d', 'd.id', '=', 'p.domain_id')
+                ->join('famillies as f', 'f.id', '=', 'd.familly_id')
+                ->join('mission_details as md', 'cp.id', '=', 'md.control_point_id')
+                ->join('missions as m', 'm.id', '=', 'md.mission_id')
+                ->groupBy('p.id')
+                ->where('m.id', $mission->id);
+            $processes = !hasRole(['cdc', 'ci']) ? $processes->whereIn('md.score', [2, 3, 4]) : $processes;
+            $processes = $processes->orderBy('p.id')->get();
             $search = request()->has('search') ? request()->search : false;
             if ($search) {
                 $processes = $processes->filter(fn ($processe) => preg_match('/' . strtolower($search) . '/', strtolower($processe->name)));
@@ -153,7 +175,6 @@ class MissionController extends Controller
         $currentCampaign = ControlCampaign::current();
         abort_if(!$currentCampaign->validated_by_id, 403);
         $campaigns = formatForSelect(ControlCampaign::validated()->orderBy('reference', 'DESC')->get()->toArray(), 'reference');
-
         if (request()->has('campaign_id')) {
             $user = auth()->user();
             $currentCampaign = ControlCampaign::findOrFail(request()->campaign_id)->load(['missions']);
@@ -182,7 +203,6 @@ class MissionController extends Controller
     {
         $data = $request->validated();
         $data['created_by_id'] = auth()->user()->id;
-        // dd($data['start'], isWeekend($data['start']), $data['end'], isWeekend($data['end']));
         try {
             $campaign = ControlCampaign::findOrFail($data['control_campaign_id']);
             $campaign->load('processes');
@@ -200,7 +220,7 @@ class MissionController extends Controller
                         'end' => $data['end'],
                         'note' => $data['note'],
                     ]);
-                    $state = $mission->states()->create(['state' => 'À effectuer']);
+                    $state = $mission->states()->create(['state' => 'À réaliser']);
                     $mission->update(['state_id' => $state->id]);
                     $mission->agencyControllers()->attach($data['controllers']);
                     $mission->details()->createMany($controlPoints);
@@ -221,6 +241,14 @@ class MissionController extends Controller
         }
     }
 
+    /**
+     * Validate mission
+     *
+     * @param Mission $mission
+     * @param int $step
+     *
+     * @return Illuminate\Http\Response
+     */
     public function validateMission(Mission $mission, int $step)
     {
         $isAbleOrAbort = $step == 1 ? 'make_first_validation' : 'make_second_validation';
@@ -286,7 +314,6 @@ class MissionController extends Controller
     public function update(UpdateRequest $request, Mission $mission)
     {
         $data = $request->validated();
-
         try {
             DB::transaction(function () use ($mission, $data) {
                 $mission->agencyControllers()->sync($data['controllers']);
@@ -342,26 +369,35 @@ class MissionController extends Controller
         }
     }
 
+    /**
+     * Assign mission to CC
+     *
+     * @param AssignToCCRequest $request
+     * @param Mission $mission
+     *
+     * @return Illuminate\Http\Response
+     */
     public function assignToCC(AssignToCCRequest $request, Mission $mission)
     {
         try {
             DB::transaction(function () use ($request, $mission) {
+                $mission->load('dcpControllers');
+                $existingControllers = $mission->dcpControllers;
                 $mission->dcpControllers()->syncWithPivotValues($request->controllers, ['control_agency' => false]);
                 $updatedControllers = $mission->dcpControllers()->get();
 
-                $removedControllers = $updatedControllers->filter(function ($controller) use ($request) {
-                    return !in_array($controller->id, $request->controllers);
-                });
-
-                if ($removedControllers->isNotEmpty()) {
-                    // Some controllers have been removed
-                    foreach ($removedControllers as $controller) {
-                        dd($controller);
+                // Notify added controllers
+                foreach ($updatedControllers as $controller) {
+                    if (!in_array($controller->id, $existingControllers->pluck('id')->toArray())) {
+                        Notification::send($controller, new Assigned($mission));
                     }
                 }
-                $controllers = User::whereIn('id', $request->controllers)->get();
-                foreach ($controllers as $controller) {
-                    Notification::send($controller, new Assigned($mission));
+
+                // Notify removed controllers
+                $removedControllers = array_diff($existingControllers->pluck('id')->toArray(), $updatedControllers->pluck('id')->toArray());
+                $removedControllers = User::whereIn('id', $removedControllers)->get();
+                foreach ($removedControllers as $controller) {
+                    Notification::send($controller, new AssignationRemoved($mission));
                 }
             });
             return response()->json([
@@ -380,7 +416,15 @@ class MissionController extends Controller
     {
     }
 
-    private function loadControlPoints(ControlCampaign $campaign, Agency $agency)
+    /**
+     * Load all usable control points for specific agency
+     *
+     * @param ControlCampaign $campaign
+     * @param Agency $agency
+     *
+     * @return array
+     */
+    private function loadControlPoints(ControlCampaign $campaign, Agency $agency): array
     {
         $agency->load(['unusableProcesses', 'usableProcesses']);
 

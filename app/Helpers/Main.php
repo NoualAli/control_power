@@ -143,15 +143,26 @@ if (!function_exists('formatForSelect')) {
      */
     function formatForSelect(array $array = [], string $label = 'name', string $id = 'id'): array
     {
+        // if (!empty($array)) {
+        //     return Arr::map($array, function ($item) use ($label, $id) {
+        //         $id = isset($item[$id]) && !empty($item[$id]) ? $item[$id] : $item;
+        //         $label = isset($item[$label]) && !empty($item[$label]) ? $item[$label] : $item;
+        //         return [
+        //             'id' => $id,
+        //             'label' => $label,
+        //         ];
+        //     });
+        // }
+        // return $array;
         if (!empty($array)) {
-            return Arr::map($array, function ($item) use ($label, $id) {
-                $id = isset($item[$id]) && !empty($item[$id]) ? $item[$id] : $item;
-                $label = isset($item[$label]) && !empty($item[$label]) ? $item[$label] : $item;
+            $array = array_map(function ($item) use ($label, $id) {
+                $id = isset($item[$id]) ? $item[$id] : $item;
+                $label = isset($item[$label]) ? $item[$label] : $item;
                 return [
                     'id' => $id,
                     'label' => $label,
                 ];
-            });
+            }, $array, $array);
         }
         return $array;
     }

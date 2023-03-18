@@ -95,13 +95,13 @@ export default {
         ],
         actions: {
           show: (item) => {
-            return this.can('.view_role')
+            return this.can('view_role')
           },
           edit: (item) => {
-            return this.can('.edit_role')
+            return this.can('edit_role')
           },
           delete: (item) => {
-            return this.can('.delete_role') && item.code !== 'root'
+            return this.can('delete_role') && item.code !== 'root'
           }
         }
       }

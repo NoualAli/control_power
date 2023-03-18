@@ -53,7 +53,6 @@ class MissionDetailController extends Controller
                 $details = $details->filter($filter);
             }
 
-            $details->executed();
             if (request()->has('fetchAll')) {
                 $details = $details->get()->pluck('reference', 'id');
             } else {
@@ -85,7 +84,7 @@ class MissionDetailController extends Controller
         } elseif (hasRole('da')) {
             $details = $user->details()->hasDcpValidation()->onlyUnregularized();
         }
-        return $details->whereAnomaly()->with(['process', 'domain', 'controlPoint', 'familly', 'media']);
+        return $details->whereAnomaly()->executed()->with(['process', 'domain', 'controlPoint', 'familly', 'media']);
     }
     /**
      * @return Illuminate\Http\JsonResponse
@@ -212,7 +211,10 @@ class MissionDetailController extends Controller
             $mission->load(['dre', 'agency', 'campaign']);
             return compact('mission', 'detail', 'process');
         } else {
-            $details = $mission->details()->with('regularization');
+            $details = $mission->details()->orderBy('control_point_id');
+            if (request()->has('onlyAnomaly')) {
+                $details = $details->whereAnomaly()->with('regularization');
+            }
             $details = $details->whereRelation('process', 'processes.id', $process->id)->with(['controlPoint', 'domain', 'process'])->get();
             return compact('mission', 'details', 'process');
         }
@@ -317,7 +319,7 @@ class MissionDetailController extends Controller
     {
         $detail = MissionDetail::findOrFail($data['detail']);
         // Vidé les champs report et recovery_plan si la note égale 1
-        if (isset($data['score']) && $data['score'] == 1) {
+        if (isset($data['score']) && !in_array($data['score'], [4, 3, 2])) {
             $data['report'] = null;
             $data['recovery_plan'] = null;
         }
@@ -351,45 +353,15 @@ class MissionDetailController extends Controller
 
     public function filtersData()
     {
-        // $details = $this->getDetails()->with(['domain', 'process', 'agency', 'mission', 'campaign', 'controlPoint']);
-        // $scores = $details->get()->pluck('controlPoint')->map(fn ($controlPoint) => $controlPoint->scores_arr)->toArray();
-
-        // $scores = array_values(array_unique(array_reduce($scores, function ($carry, $item) {
-        //     return array_merge($carry, $item);
-        // }, [])));
-        // $scores = array_map(fn ($value) => ['id' => $value, 'label' => $value], $scores);
-
-        // $familliesId = (clone $details)->get()->pluck('familly')->map(fn ($familly) => $familly->id)->unique()->toArray();
-        // $unformatedFamillies = Familly::whereIn('id', $familliesId);
-        // $famillies = formatForSelect((clone $unformatedFamillies)->get()->toArray());
-
-        // $domainsId = (clone $details)->get()->pluck('domain')->map(fn ($domain) => $domain->id)->unique()->toArray();
-        // $unformatedDomains = Domain::whereIn('id', $domainsId)->get();
-        // $domains = formatForSelect($unformatedDomains->toArray());
-
-        // $processesId = (clone $details)->get()->pluck('process')->map(fn ($process) => $process->id)->unique()->toArray();
-        // $unformatedProcesses = Process::whereIn('id', $processesId)->get();
-        // $processes = formatForSelect($unformatedProcesses->toArray());
-
-        // $agenciesId = (clone $details)->get()->pluck('agency')->map(fn ($agency) => $agency->id)->unique()->toArray();
-        // $unformatedAgencies = Agency::whereIn('id', $agenciesId)->get();
-        // $agencies = formatForSelect($unformatedAgencies->toArray(), 'full_name');
-
-        // $missionsId = (clone $details)->get()->pluck('mission')->map(fn ($mission) => $mission->id)->unique()->toArray();
-        // $unformatedMissions = Mission::whereIn('id', $missionsId)->get();
-        // $missions = formatForSelect($unformatedMissions->toArray(), 'reference');
-
-        // $campaignsId = (clone $details)->get()->pluck('campaign')->map(fn ($campaign) => $campaign->id)->unique()->toArray();
-        // $unformatedCampaigns = ControlCampaign::whereIn('id', $campaignsId)->get();
-        // $campaigns = formatForSelect($unformatedCampaigns->toArray(), 'reference');
-        $famillies = formatForSelect(Familly::all()->pluck('name', 'id')->toArray());
-        $domains = formatForSelect(Domain::all()->pluck('name', 'id')->toArray());
-        $processes = formatForSelect(Process::all()->pluck('name', 'id')->toArray());
-        $agencies = formatForSelect(Agency::all()->pluck('full_name', 'id')->toArray());
-        $missions = !hasRole(['cc', 'cdc', 'ci']) ? formatForSelect(Mission::all()->pluck('refernce', 'id')->toArray(), 'reference') : formatForSelect(auth()->user()->missions->toArray(), 'reference');
-        $campaigns = !hasRole(['cc', 'ci']) ? formatForSelect(ControlCampaign::all()->pluck('reference', 'id')->toArray(), 'reference') : [];
-
-        return compact('missions', 'famillies', 'domains', 'processes', 'agencies', 'campaigns');
+        $details = $this->getDetails();
+        $famillies = $details->relationUniqueData('familly');
+        $domains = $details->relationUniqueData('domain');
+        $processes = $details->relationUniqueData('process');
+        $dres = $details->relationUniqueData('dre', 'full_name');
+        $agencies = $details->relationUniqueData('agency', 'full_name');
+        $missions = $details->relationUniqueData('mission', 'reference');
+        $campaigns = $details->relationUniqueData('campaign', 'reference');
+        return compact('missions', 'famillies', 'domains', 'processes', 'agencies', 'campaigns', 'dres');
     }
 
     public function majorFactsFilterData()

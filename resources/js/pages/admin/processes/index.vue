@@ -103,13 +103,13 @@ export default {
         ],
         actions: {
           show: (item) => {
-            return user().authorizations.view_process
+            return this.can('view_process')
           },
           edit: (item) => {
-            return user().authorizations.edit_process
+            return this.can('edit_process')
           },
           delete: (item) => {
-            return user().authorizations.delete_process
+            return this.can('delete_process')
           }
         }
       }

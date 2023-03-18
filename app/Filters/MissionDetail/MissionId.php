@@ -10,6 +10,6 @@ class MissionId extends QueryFilter implements FilterContract
     public function handle($value): void
     {
         $values = str_contains($value, ',') ? explode(',', $value) : [$value];
-        $this->query->whereIn('mission_id', $values);
+        $this->query->whereIn('mission_details.mission_id', $values);
     }
 }

@@ -34,6 +34,7 @@ class StoreRequest extends FormRequest
                     'detail' => ['required', 'exists:mission_details,id'],
                     'score' => ['required', 'in:1,2,3,4'],
                     'major_fact' => ['required', 'boolean'],
+                    'recovery_plan' => ['required', 'required_if:rows.*.score,2,3,4']
                 ];
             }
             // else we accept updating all data

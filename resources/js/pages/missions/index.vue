@@ -9,7 +9,8 @@
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable namespace="missions" :config="config" @show="show" @delete="destroy" @edit="edit" />
+      <NLDatatable :filters="filters" namespace="missions" :config="config" @show="show" @delete="destroy" @edit="edit"
+        @filterReset="resetData" />
     </ContentBody>
   </div>
 </template>
@@ -145,16 +146,70 @@ export default {
           },
         }
       },
+      filters: {
+        campaign: {
+          label: 'Campagne de contrôle',
+          cols: 'col-lg-3',
+          multiple: true,
+          data: null,
+          value: null
+        },
+        dre: {
+          label: 'DRE',
+          cols: 'col-lg-3',
+          multiple: true,
+          data: null,
+          value: null
+        },
+        agency: {
+          label: 'Agence',
+          cols: 'col-lg-3',
+          multiple: true,
+          data: null,
+          value: null
+        },
+        dre_controllers: {
+          label: 'Contrôleurs',
+          cols: 'col-lg-3',
+          multiple: true,
+          data: null,
+          value: null
+        },
+        between: {
+          cols: 'col-lg-3',
+          value: [],
+          type: 'date-range',
+          cols: 'col-lg-6',
+          attributes: {
+            start: {
+              cols: 'col-lg-6',
+              label: 'De',
+              value: null,
+            },
+            end: {
+              cols: 'col-lg-6',
+              label: 'À',
+              value: null,
+            }
+          }
+        },
+      },
     }
   },
   computed: mapGetters({
     missions: 'missions/paginated',
+    filtersData: 'missions/filters'
   }),
   created() {
-    this.campaignId = this.$route.params.campaignId
+    // this.campaignId = this.$route.params.campaignId
+    this.initFilters()
     this.initData()
   },
   methods: {
+    resetData() {
+      // this.initFilters(false)
+      this.initData()
+    },
     initData() {
       let missions = null
       if (this.$route.params.campaignId) {
@@ -163,6 +218,17 @@ export default {
         missions = this.$store.dispatch('missions/fetchPaginated')
       }
       missions.then(() => this.config.data = this.missions.paginated)
+    },
+    /**
+     * Initialise les filtres
+     */
+    initFilters() {
+      this.$store.dispatch('missions/fetchFilters').then(() => {
+        this.filters.campaign.data = this.filtersData.filters.campaigns
+        this.filters.dre.data = this.filtersData.filters.dres
+        this.filters.agency.data = this.filtersData.filters.agencies
+        this.filters.dre_controllers.data = this.filtersData.filters.dre_controllers
+      })
     },
     show(item) {
       this.$router.push({ name: 'mission', params: { missionId: item.id } })

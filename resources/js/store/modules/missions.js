@@ -5,6 +5,7 @@ export const state = {
   paginated: null,
   current: null,
   config: null,
+  filters: null,
   processes: null,
   // plannings: null,
   // samples: null,
@@ -27,6 +28,9 @@ export const mutations = {
   FETCH_ALL(state, data) {
     state.all = data
   },
+  FETCH_FILTERS(state, data) {
+    state.filters = data
+  },
   FETCH(state, data) {
     state.current = data
   },
@@ -43,6 +47,10 @@ export const actions = {
   async fetchAll({ commit }) {
     const { data } = await api.get('missions?fetchAll')
     commit('FETCH_ALL', { all: data })
+  },
+  async fetchFilters({ commit }) {
+    const { data } = await api.get('missions?onlyFilters')
+    commit('FETCH_FILTERS', { filters: data })
   },
   async fetchPaginated({ commit }, campaignId = null) {
     const url = campaignId ? 'missions?campaign_id=' + campaignId : 'missions'
@@ -181,6 +189,7 @@ export const getters = {
   paginated: state => state.paginated,
   current: state => state.current,
   config: state => state.config,
-  processes: state => state.processes
+  processes: state => state.processes,
+  filters: state => state.filters
 }
 
