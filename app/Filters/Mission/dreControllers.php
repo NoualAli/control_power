@@ -5,10 +5,11 @@ namespace App\Filters\Mission;
 use App\Filters\FilterContract;
 use App\Filters\QueryFilter;
 
-class dreControllers extends QueryFilter implements FilterContract
+class DreControllers extends QueryFilter implements FilterContract
 {
     public function handle($value): void
     {
-        $this->query->where('', $value);
+        $values = str_contains($value, ',') ? explode(',', $value) : [$value];
+        $this->query->whereRelation('agencyControllers', fn ($subquery) => $subquery->whereIn('users.id', $values));
     }
 }
