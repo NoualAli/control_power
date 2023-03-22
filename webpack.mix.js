@@ -1,8 +1,8 @@
 const { join, resolve } = require('path')
 const { copySync, removeSync } = require('fs-extra')
 const mix = require('laravel-mix')
-const autoprefixer = require('autoprefixer');
-console.log(autoprefixer);
+const autoprefixer = require('autoprefixer')
+console.log(autoprefixer)
 require('laravel-mix-versionhash')
 // const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 mix
@@ -12,7 +12,7 @@ mix
   .sass('resources/sass/app.sass', 'public/dist/css')
   .options({
     processCssUrls: false,
-    postCss: [ autoprefixer() ]
+    postCss: [autoprefixer()]
   })
 
   .disableNotifications()
@@ -31,7 +31,7 @@ mix.webpackConfig({
     // new BundleAnalyzerPlugin()
   ],
   resolve: {
-    extensions: [ '.js', '.json', '.vue' ],
+    extensions: ['.js', '.json', '.vue'],
     alias: {
       '~': join(__dirname, './resources/js')
     }
@@ -48,7 +48,7 @@ mix.then(() => {
   }
 })
 
-function publishAseets() {
+function publishAseets () {
   const publicDir = resolve(__dirname, './public')
 
   removeSync(join(publicDir, 'dist'))
