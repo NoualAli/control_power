@@ -207,7 +207,7 @@ class MissionDetailController extends Controller
         );
         abort_if(!$condition, 401, __('unauthorized'));
         if ($detailId) {
-            $detail->load('regularization');
+            $detail->load('regularization', 'mission');
             $mission->load(['dre', 'agency', 'campaign']);
             return compact('mission', 'detail', 'process');
         } else {
@@ -215,7 +215,11 @@ class MissionDetailController extends Controller
             if (request()->has('onlyAnomaly')) {
                 $details = $details->whereAnomaly()->with('regularization');
             }
-            $details = $details->whereRelation('process', 'processes.id', $process->id)->with(['controlPoint', 'domain', 'process'])->get();
+            $details = $details->whereRelation('process', 'processes.id', $process->id);
+            if ($mission->progress_status == 100) {
+                $details = $details->whereAnomaly();
+            }
+            $details = $details->with(['controlPoint', 'domain', 'process', 'regularization'])->get();
             return compact('mission', 'details', 'process');
         }
     }

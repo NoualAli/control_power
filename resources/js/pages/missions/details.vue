@@ -40,7 +40,7 @@
               <div class="col-4"><b>Plan de redressement:</b></div>
               <div class="col-8">{{ detail?.recovery_plan || '-' }}</div>
 
-              <div class="col-12" v-if="detail?.score > 1 && detail?.regularization?.regularized">
+              <div class="col-12" v-if="detail?.regularization?.regularized">
                 <div class="grid gap-4">
                   <div class="col-4"><b>Régularisation:</b></div>
                   <div class="col-8">{{ detail?.regularization?.regularized || '-' }}</div>
@@ -197,7 +197,8 @@
               </div>
             </div>
             <!-- Regularization -->
-            <div class="col-12 list-item" v-if="rowSelected?.score > 1 && rowSelected?.regularization?.regularized">
+            <div class="col-12 list-item box border-top border-1 border-solid border-primary-dark"
+              v-if="rowSelected?.score > 1 && rowSelected?.regularization?.regularized">
               <div class="list-item-content no-bg grid">
                 <div class="col-12">
                   <h2>Régularisation</h2>
@@ -220,8 +221,10 @@
                   {{ rowSelected?.regularization?.committed_action }}
                 </div>
 
-                <div class="col-4"><b>Date Régularisation:</b></div>
-                <div class="col-8">{{ rowSelected?.regularization?.regularized_at }}</div>
+                <div class="col-4" v-if="rowSelected?.regularization?.regularized_at"><b>Date Régularisation:</b></div>
+                <div class="col-8" v-if="rowSelected?.regularization?.regularized_at">
+                  {{ rowSelected?.regularization?.regularized_at }}
+                </div>
               </div>
             </div>
           </div>
@@ -357,7 +360,7 @@
             </div>
 
             <!-- Media (attachements) -->
-            <div class="col-12" v-if="forms.generic.media.length">
+            <div class="col-12" v-if="!forms.generic.process_mode">
               <NLFile :name="'media'" label="Pièces jointes" attachableType="App\Models\MissionDetail"
                 :attachableId="forms.generic.detail" v-model="forms.generic.media" :form="forms.generic" multiple
                 :canDelete="!rowSelected?.controller_opinion_is_validated" :readonly="forms.generic.process_mode" />

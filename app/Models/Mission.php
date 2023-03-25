@@ -112,7 +112,7 @@ class Mission extends Model
     {
         $totalDetails = $this->details->count();
         $totalFinishedDetails = $this->details->filter(fn ($detail) => $detail->score !== null)->count();
-        return number_format($totalFinishedDetails * 100 / $totalDetails);
+        return $totalFinishedDetails ? number_format($totalFinishedDetails * 100 / $totalDetails) : 0;
     }
 
     public function getOpinionAttribute()
