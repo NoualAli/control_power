@@ -141,7 +141,7 @@
 <script>
 import api from '../plugins/api';
 import NoData from './NoData';
-import { saveAs } from 'file-saver';
+// import { saveAs } from 'file-saver';
 export default {
   name: 'NLDatatable',
   emits: [ 'delete', 'show', 'edit', 'searchDone', 'sortDone', 'dataUpdated', 'perPageUpdated', 'filterReset' ],
@@ -277,7 +277,7 @@ export default {
         this.isBusy = false
         const file = response.data.file
         const fileName = response.data.fileName
-        saveAs(file, fileName)
+        // saveAs(file, fileName)
       })
 
     },
