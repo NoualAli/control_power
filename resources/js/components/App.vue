@@ -35,7 +35,7 @@ export default {
     defaultLayout: 'default'
   }),
 
-  metaInfo () {
+  metaInfo() {
     const { appName } = window.config
 
     return {
@@ -44,7 +44,7 @@ export default {
     }
   },
 
-  mounted () {
+  mounted() {
     this.$loading = this.$refs.loading
   },
 
@@ -54,7 +54,7 @@ export default {
      *
      * @param {String} layout
      */
-    setLayout (layout) {
+    setLayout(layout) {
       if (!layout || !layouts[layout]) {
         layout = this.defaultLayout
       }

@@ -53,7 +53,8 @@
 import NLSelect from './NLSelect'
 import DefaultContainer from './DefaultContainer'
 import NLInput from './NLInput'
-import Treeselect from '@riophae/vue-treeselect'
+import Treeselect from 'vue3-treeselect'
+// import Treeselect from '@riophae/vue-treeselect'
 export default {
   name: 'NLRepeater',
   components: {
@@ -74,19 +75,19 @@ export default {
     addRow() {
       const schema = []
       for (let index = 0; index < this.rowSchema.length; index++) {
-        const element = this.rowSchema[ index ];
+        const element = this.rowSchema[index];
         const name = element.name
         let defaultValue = element.default !== undefined ? element.default : null
         defaultValue = element.multiple ? [] : null
-        schema.push({ [ name ]: defaultValue, value: element.label })
+        schema.push({ [name]: defaultValue, value: element.label })
       }
-      if (this.form[ this.name ]) this.form[ this.name ].push(schema);
+      if (this.form[this.name]) this.form[this.name].push(schema);
     },
     isInput(value) {
-      return [ 'text', 'date', 'datetime', 'time', 'week', 'number', 'tel', 'email', 'month', 'url' ].includes(value)
+      return ['text', 'date', 'datetime', 'time', 'week', 'number', 'tel', 'email', 'month', 'url'].includes(value)
     },
     removeRow(index) {
-      this.form[ this.name ].splice(index, 1);
+      this.form[this.name].splice(index, 1);
     },
   }
 }

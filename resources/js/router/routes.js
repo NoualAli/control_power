@@ -50,7 +50,7 @@ export default [
   /**
    * Errors
    */
-  { path: '*', name: "404", component: page('errors/404.vue') },
+  { path: '/:pathMatch(.*)*', name: "404", component: page('errors/404.vue') },
 
 
   /**

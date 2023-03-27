@@ -9,7 +9,8 @@
 </template>
 
 <script>
-import Treeselect from '@riophae/vue-treeselect'
+import Treeselect from 'vue3-treeselect'
+// import Treeselect from '@riophae/vue-treeselect'
 export default {
   components: { Treeselect },
   name: "NLSelect",

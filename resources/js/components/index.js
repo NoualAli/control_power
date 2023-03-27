@@ -22,32 +22,34 @@ import NLRepeater from './Inputs/NLRepeater'
 import NLSwitch from './Inputs/NLSwitch'
 import NLFile from './Inputs/NLFile'
 // Components that are registered globaly.
-[
-  NLFile,
-  NLSwitch,
-  NLRepeater,
-  ContentBody,
-  ContentHeader,
-  NLSelect,
-  NLModal,
-  NLTextarea,
-  DefaultContainer,
-  NLDatatable,
-  NLCheckableContainer,
-  NLCheckbox,
-  NLRadio,
-  NLButton,
-  NLWyswyg,
-  NLInput,
-  // Card,
-  Child,
-  // Button,
-  // Checkbox,
-  HasError,
-  // AlertError,
-  // AlertSuccess,
-  Notification,
-  AlertErrors
-].forEach(Component => {
-  Vue.component(Component.name, Component)
-})
+export function useComponents(app) {
+  [
+    NLFile,
+    NLSwitch,
+    NLRepeater,
+    ContentBody,
+    ContentHeader,
+    NLSelect,
+    NLModal,
+    NLTextarea,
+    DefaultContainer,
+    NLDatatable,
+    NLCheckableContainer,
+    NLCheckbox,
+    NLRadio,
+    NLButton,
+    NLWyswyg,
+    NLInput,
+    // Card,
+    Child,
+    // Button,
+    // Checkbox,
+    HasError,
+    // AlertError,
+    // AlertSuccess,
+    Notification,
+    AlertErrors
+  ].forEach(Component => {
+    app.component(Component.name, Component)
+  })
+}

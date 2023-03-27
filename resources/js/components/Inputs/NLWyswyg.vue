@@ -12,7 +12,7 @@
 
 <script>
 import DefaultContainer from './DefaultContainer'
-import { VueEditor } from "vue2-editor";
+import { VueEditor } from "vue3-editor";
 
 export default {
   name: "NLWyswyg",

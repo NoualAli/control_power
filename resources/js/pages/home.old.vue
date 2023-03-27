@@ -181,12 +181,12 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { Bar, Doughnut, Pie } from 'vue-chartjs/legacy'
+// import { Bar, Doughnut, Pie } from 'vue-chartjs/legacy'
 import { setTitle } from '../plugins/settings'
 // import { isDcp, isDG } from '../plugins/user'
 import InProgress from '../components/InProgress'
 export default {
-  middleware: [ 'auth' ],
+  middleware: ['auth'],
   layout: 'backend',
   components: {
     Bar,
@@ -275,69 +275,69 @@ export default {
       },
       missionsPercentageChart: {
         labels: [],
-        datasets: [ { data: [], backgroundColor: [] } ]
+        datasets: [{ data: [], backgroundColor: [] }]
       },
 
       dresAnomaliseChart: {
         labels: [],
-        datasets: [ { data: [], backgroundColor: [] } ]
+        datasets: [{ data: [], backgroundColor: [] }]
       },
       agenciesAnomaliesChart: {
         labels: [],
-        datasets: [ { data: [], backgroundColor: [] } ]
+        datasets: [{ data: [], backgroundColor: [] }]
       },
       familliesAnomaliesChart: {
         labels: [],
-        datasets: [ { data: [], backgroundColor: [] } ]
+        datasets: [{ data: [], backgroundColor: [] }]
       },
       domainsAnomaliesChart: {
         labels: [],
-        datasets: [ { data: [], backgroundColor: [] } ],
+        datasets: [{ data: [], backgroundColor: [] }],
       },
       processesAnomaliesChart: {
         labels: [],
-        datasets: [ { label: "Total anomalies par processes", data: [], backgroundColor: [] } ]
+        datasets: [{ label: "Total anomalies par processes", data: [], backgroundColor: [] }]
       },
       missionsAnomaliesChart: {
         labels: [],
-        datasets: [ { label: "Total anomalies par mission", data: [], backgroundColor: [] } ]
+        datasets: [{ label: "Total anomalies par mission", data: [], backgroundColor: [] }]
       },
       campaignsAnomaliesChart: {
         labels: [],
-        datasets: [ { label: "Total anomalies par campagne de contrôle", data: [], backgroundColor: [] } ]
+        datasets: [{ label: "Total anomalies par campagne de contrôle", data: [], backgroundColor: [] }]
       },
       scoreAnomaliesChart: {
         labels: [],
-        datasets: [ { label: "", data: [], backgroundColor: [], axis: 'y', fill: false } ]
+        datasets: [{ label: "", data: [], backgroundColor: [], axis: 'y', fill: false }]
       },
 
       dresMajorFactsChart: {
         labels: [],
-        datasets: [ { label: "Total faits majeurs par DRE", data: [], backgroundColor: [] } ]
+        datasets: [{ label: "Total faits majeurs par DRE", data: [], backgroundColor: [] }]
       },
       agenciesMajorFactsChart: {
         labels: [],
-        datasets: [ { label: "Total faits majeurs par agence", data: [], backgroundColor: [] } ]
+        datasets: [{ label: "Total faits majeurs par agence", data: [], backgroundColor: [] }]
       },
       familliesMajorFactsChart: {
         labels: [],
-        datasets: [ { label: "Total faits majeurs par famille", data: [], backgroundColor: [] } ]
+        datasets: [{ label: "Total faits majeurs par famille", data: [], backgroundColor: [] }]
       },
       domainsMajorFactsChart: {
         labels: [],
-        datasets: [ { label: "Total faits majeurs par processe", data: [], backgroundColor: [] } ],
+        datasets: [{ label: "Total faits majeurs par processe", data: [], backgroundColor: [] }],
       },
       processesMajorFactsChart: {
         labels: [],
-        datasets: [ { label: "Total faits majeurs par processes", data: [], backgroundColor: [] } ]
+        datasets: [{ label: "Total faits majeurs par processes", data: [], backgroundColor: [] }]
       },
       missionsMajorFactsChart: {
         labels: [],
-        datasets: [ { label: "Total faits majeurs par mission", data: [], backgroundColor: [] } ]
+        datasets: [{ label: "Total faits majeurs par mission", data: [], backgroundColor: [] }]
       },
       campaignsMajorFactsChart: {
         labels: [],
-        datasets: [ { label: "Total faits majeurs par campagne de contrôle", data: [], backgroundColor: [] } ]
+        datasets: [{ label: "Total faits majeurs par campagne de contrôle", data: [], backgroundColor: [] }]
       },
       chartOptions: {
         responsive: true,
@@ -357,11 +357,11 @@ export default {
           }
         }
       },
-      barPlugins: [ {
+      barPlugins: [{
         legend: {
           title: false
         }
-      } ],
+      }],
       scoreChartOptions: {
         responsive: true,
         maintainAspectRatio: false,
@@ -399,13 +399,13 @@ export default {
         barPercentage: 0.1,
         borderWidth: 2,
       },
-      borderColors: [ 'rgba(244, 67, 54,1.0)', 'rgba(33, 150, 243,1.0)', 'rgba(0, 150, 136,1.0)', 'rgba(255, 235, 59,1.0)', 'rgba(103, 58, 183,1.0)', 'rgba(96, 125, 139,1.0)' ],
-      colors: [ 'rgba(244, 67, 54,.6)', 'rgba(33, 150, 243,.6)', 'rgba(0, 150, 136,.6)', 'rgba(255, 235, 59,.6)', 'rgba(103, 58, 183,.6)', 'rgba(96, 125, 139,.6)' ],
-      chartPlugins: [ {
+      borderColors: ['rgba(244, 67, 54,1.0)', 'rgba(33, 150, 243,1.0)', 'rgba(0, 150, 136,1.0)', 'rgba(255, 235, 59,1.0)', 'rgba(103, 58, 183,1.0)', 'rgba(96, 125, 139,1.0)'],
+      colors: ['rgba(244, 67, 54,.6)', 'rgba(33, 150, 243,.6)', 'rgba(0, 150, 136,.6)', 'rgba(255, 235, 59,.6)', 'rgba(103, 58, 183,.6)', 'rgba(96, 125, 139,.6)'],
+      chartPlugins: [{
         legend: {
           position: 'left',
         }
-      } ]
+      }]
 
     }
   },
@@ -464,56 +464,56 @@ export default {
     async setMissionsPercentage() {
       await this.$store.dispatch('statistics/fetchMissionsPercentage').then(() => {
         this.missionsPercentageChart.labels = Object.keys(this.missions_percentage.missions_percentage).map(key => this.$t(key))
-        this.missionsPercentageChart.datasets[ 0 ].data = Object.values(this.missions_percentage.missions_percentage)
-        this.missionsPercentageChart.datasets[ 0 ].backgroundColor = [ this.colors[ 0 ], this.colors[ 2 ] ]
+        this.missionsPercentageChart.datasets[0].data = Object.values(this.missions_percentage.missions_percentage)
+        this.missionsPercentageChart.datasets[0].backgroundColor = [this.colors[0], this.colors[2]]
       })
     },
 
     async setDresAnomalies() {
       await this.$store.dispatch('statistics/fetchDresAnomalies').then(() => {
         this.dresAnomaliseChart.labels = Object.keys(this.dres_anomalies.dres_anomalies)
-        this.dresAnomaliseChart.datasets[ 0 ].data = Object.values(this.dres_anomalies.dres_anomalies)
-        this.dresAnomaliseChart.datasets[ 0 ].backgroundColor = this.colors
-        this.scoreAnomaliesChart.datasets[ 0 ].borderColor = this.borderColors
+        this.dresAnomaliseChart.datasets[0].data = Object.values(this.dres_anomalies.dres_anomalies)
+        this.dresAnomaliseChart.datasets[0].backgroundColor = this.colors
+        this.scoreAnomaliesChart.datasets[0].borderColor = this.borderColors
       })
     },
     async setAgenciesAnomalies() {
       await this.$store.dispatch('statistics/fetchAgenciesAnomalies').then(() => {
         this.agenciesAnomaliesChart.labels = Object.keys(this.agencies_anomalies.agencies_anomalies)
-        this.agenciesAnomaliesChart.datasets[ 0 ].data = Object.values(this.agencies_anomalies.agencies_anomalies)
-        this.agenciesAnomaliesChart.datasets[ 0 ].backgroundColor = this.colors
+        this.agenciesAnomaliesChart.datasets[0].data = Object.values(this.agencies_anomalies.agencies_anomalies)
+        this.agenciesAnomaliesChart.datasets[0].backgroundColor = this.colors
       })
     },
     async setCampaignsAnomalies() {
       await this.$store.dispatch('statistics/fetchCampaignsAnomalies').then(() => {
         this.campaignsAnomaliesChart.labels = Object.keys(this.campaigns_anomalies.campaigns_anomalies)
-        this.campaignsAnomaliesChart.datasets[ 0 ].data = Object.values(this.campaigns_anomalies.campaigns_anomalies)
-        this.campaignsAnomaliesChart.datasets[ 0 ].backgroundColor = this.colors
-        this.scoreAnomaliesChart.datasets[ 0 ].borderColor = this.borderColors
+        this.campaignsAnomaliesChart.datasets[0].data = Object.values(this.campaigns_anomalies.campaigns_anomalies)
+        this.campaignsAnomaliesChart.datasets[0].backgroundColor = this.colors
+        this.scoreAnomaliesChart.datasets[0].borderColor = this.borderColors
       })
     },
     async setMissionsAnomalies() {
       await this.$store.dispatch('statistics/fetchMissionsAnomalies').then(() => {
         this.missionsAnomaliesChart.labels = Object.keys(this.missions_anomalies.missions_anomalies)
-        this.missionsAnomaliesChart.datasets[ 0 ].data = Object.values(this.missions_anomalies.missions_anomalies)
-        this.missionsAnomaliesChart.datasets[ 0 ].backgroundColor = this.colors
-        this.scoreAnomaliesChart.datasets[ 0 ].borderColor = this.borderColors
+        this.missionsAnomaliesChart.datasets[0].data = Object.values(this.missions_anomalies.missions_anomalies)
+        this.missionsAnomaliesChart.datasets[0].backgroundColor = this.colors
+        this.scoreAnomaliesChart.datasets[0].borderColor = this.borderColors
       })
     },
     async setFamilliesAnomalies() {
       await this.$store.dispatch('statistics/fetchFamilliesAnomalies').then(() => {
         this.familliesAnomaliesChart.labels = Object.keys(this.famillies_anomalies.famillies_anomalies)
-        this.familliesAnomaliesChart.datasets[ 0 ].data = Object.values(this.famillies_anomalies.famillies_anomalies)
-        this.familliesAnomaliesChart.datasets[ 0 ].backgroundColor = this.colors
-        this.scoreAnomaliesChart.datasets[ 0 ].borderColor = this.borderColors
+        this.familliesAnomaliesChart.datasets[0].data = Object.values(this.famillies_anomalies.famillies_anomalies)
+        this.familliesAnomaliesChart.datasets[0].backgroundColor = this.colors
+        this.scoreAnomaliesChart.datasets[0].borderColor = this.borderColors
       })
     },
     async setDomainsAnomalies() {
       await this.$store.dispatch('statistics/fetchDomainsAnomalies').then(() => {
         this.domainsAnomaliesChart.labels = Object.keys(this.domains_anomalies.domains_anomalies)
-        this.domainsAnomaliesChart.datasets[ 0 ].data = Object.values(this.domains_anomalies.domains_anomalies)
-        this.domainsAnomaliesChart.datasets[ 0 ].backgroundColor = this.colors
-        this.scoreAnomaliesChart.datasets[ 0 ].borderColor = this.borderColors
+        this.domainsAnomaliesChart.datasets[0].data = Object.values(this.domains_anomalies.domains_anomalies)
+        this.domainsAnomaliesChart.datasets[0].backgroundColor = this.colors
+        this.scoreAnomaliesChart.datasets[0].borderColor = this.borderColors
       })
     },
     async setProcessesAnomalies() {
@@ -522,58 +522,58 @@ export default {
     async setScoreAnomalies() {
       await this.$store.dispatch('statistics/fetchScoreAnomalies').then(() => {
         this.scoreAnomaliesChart.labels = Object.keys(this.score_anomalies.score_anomalies)
-        this.scoreAnomaliesChart.datasets[ 0 ].data = Object.values(this.score_anomalies.score_anomalies)
-        this.scoreAnomaliesChart.datasets[ 0 ].backgroundColor = this.colors
-        this.scoreAnomaliesChart.datasets[ 0 ].borderColor = this.borderColors
+        this.scoreAnomaliesChart.datasets[0].data = Object.values(this.score_anomalies.score_anomalies)
+        this.scoreAnomaliesChart.datasets[0].backgroundColor = this.colors
+        this.scoreAnomaliesChart.datasets[0].borderColor = this.borderColors
       })
     },
 
     async setDresMajorFacts() {
       await this.$store.dispatch('statistics/fetchDresMajorFacts').then(() => {
         this.dresMajorFactsChart.labels = Object.keys(this.dres_major_facts.dres_major_facts)
-        this.dresMajorFactsChart.datasets[ 0 ].data = Object.values(this.dres_major_facts.dres_major_facts)
-        this.dresMajorFactsChart.datasets[ 0 ].backgroundColor = this.colors
-        this.scoreAnomaliesChart.datasets[ 0 ].borderColor = this.borderColors
+        this.dresMajorFactsChart.datasets[0].data = Object.values(this.dres_major_facts.dres_major_facts)
+        this.dresMajorFactsChart.datasets[0].backgroundColor = this.colors
+        this.scoreAnomaliesChart.datasets[0].borderColor = this.borderColors
       })
     },
     async setAgenciesMajorFacts() {
       await this.$store.dispatch('statistics/fetchAgenciesMajorFacts').then(() => {
         this.agenciesMajorFactsChart.labels = Object.keys(this.agencies_major_facts.agencies_major_facts)
-        this.agenciesMajorFactsChart.datasets[ 0 ].data = Object.values(this.agencies_major_facts.agencies_major_facts)
-        this.agenciesMajorFactsChart.datasets[ 0 ].backgroundColor = this.colors
-        this.scoreAnomaliesChart.datasets[ 0 ].borderColor = this.borderColors
+        this.agenciesMajorFactsChart.datasets[0].data = Object.values(this.agencies_major_facts.agencies_major_facts)
+        this.agenciesMajorFactsChart.datasets[0].backgroundColor = this.colors
+        this.scoreAnomaliesChart.datasets[0].borderColor = this.borderColors
       })
     },
     async setCampaignsMajorFacts() {
       await this.$store.dispatch('statistics/fetchCampaignsMajorFacts').then(() => {
         this.campaignsMajorFactsChart.labels = Object.keys(this.campaigns_major_facts.campaigns_major_facts)
-        this.campaignsMajorFactsChart.datasets[ 0 ].data = Object.values(this.campaigns_major_facts.campaigns_major_facts)
-        this.campaignsMajorFactsChart.datasets[ 0 ].backgroundColor = this.colors
-        this.scoreAnomaliesChart.datasets[ 0 ].borderColor = this.borderColors
+        this.campaignsMajorFactsChart.datasets[0].data = Object.values(this.campaigns_major_facts.campaigns_major_facts)
+        this.campaignsMajorFactsChart.datasets[0].backgroundColor = this.colors
+        this.scoreAnomaliesChart.datasets[0].borderColor = this.borderColors
       })
     },
     async setMissionsMajorFacts() {
       await this.$store.dispatch('statistics/fetchMissionsMajorFacts').then(() => {
         this.missionsMajorFactsChart.labels = Object.keys(this.missions_major_facts.missions_major_facts)
-        this.missionsMajorFactsChart.datasets[ 0 ].data = Object.values(this.missions_major_facts.missions_major_facts)
-        this.missionsMajorFactsChart.datasets[ 0 ].backgroundColor = this.colors
-        this.scoreAnomaliesChart.datasets[ 0 ].borderColor = this.borderColors
+        this.missionsMajorFactsChart.datasets[0].data = Object.values(this.missions_major_facts.missions_major_facts)
+        this.missionsMajorFactsChart.datasets[0].backgroundColor = this.colors
+        this.scoreAnomaliesChart.datasets[0].borderColor = this.borderColors
       })
     },
     async setFamilliesMajorFacts() {
       await this.$store.dispatch('statistics/fetchFamilliesMajorFacts').then(() => {
         this.familliesMajorFactsChart.labels = Object.keys(this.famillies_major_facts.famillies_major_facts)
-        this.familliesMajorFactsChart.datasets[ 0 ].data = Object.values(this.famillies_major_facts.famillies_major_facts)
-        this.familliesMajorFactsChart.datasets[ 0 ].backgroundColor = this.colors
-        this.scoreAnomaliesChart.datasets[ 0 ].borderColor = this.borderColors
+        this.familliesMajorFactsChart.datasets[0].data = Object.values(this.famillies_major_facts.famillies_major_facts)
+        this.familliesMajorFactsChart.datasets[0].backgroundColor = this.colors
+        this.scoreAnomaliesChart.datasets[0].borderColor = this.borderColors
       })
     },
     async setDomainsMajorFacts() {
       await this.$store.dispatch('statistics/fetchDomainsMajorFacts').then(() => {
         this.domainsMajorFactsChart.labels = Object.keys(this.domains_major_facts.domains_major_facts)
-        this.domainsMajorFactsChart.datasets[ 0 ].data = Object.values(this.domains_major_facts.domains_major_facts)
-        this.domainsMajorFactsChart.datasets[ 0 ].backgroundColor = this.colors
-        this.scoreAnomaliesChart.datasets[ 0 ].borderColor = this.borderColors
+        this.domainsMajorFactsChart.datasets[0].data = Object.values(this.domains_major_facts.domains_major_facts)
+        this.domainsMajorFactsChart.datasets[0].backgroundColor = this.colors
+        this.scoreAnomaliesChart.datasets[0].borderColor = this.borderColors
       })
     },
     async setProcessesMajorFacts() {
