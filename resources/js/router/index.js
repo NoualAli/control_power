@@ -3,7 +3,7 @@ import store from '~/store'
 // import Meta from 'vue-meta'
 import routes from './routes'
 // import Router from 'vue-router'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, useRouter } from 'vue-router'
 import { sync } from 'vuex-router-sync'
 import Cookies from 'js-cookie'
 import { nextTick } from 'vue'
@@ -90,10 +90,12 @@ async function beforeEach(to, from, next) {
 
   try {
     // Get the matched components and resolve them.
-    console.log(router.)
-    components = await resolveComponents(
-      router.currentRoute.value.matched({ ...to })
-    )
+    // console.log(router.)
+    const { matched } =await  router.resolve(to)
+    components = await resolveComponents(matched.map(record => record.components.default))
+    console.log(matched)
+    console.log(components)
+
   } catch (error) {
     if (/^Loading( CSS)? chunk (\d)+ failed\./.test(error.message)) {
       window.location.reload(true)
@@ -107,7 +109,8 @@ async function beforeEach(to, from, next) {
 
   // Start the loading bar.
   if (components[components.length - 1].loading !== false) {
-    router?.app?.$nextTick()
+    
+    await nextTick(()=>useRouter?.meta?.$loading?.start())
     // router?.app?.$nextTick(() => router?.app?.$loading?.start())
   }
 

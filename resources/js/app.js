@@ -36,10 +36,10 @@ app.use(Vuex)
 app.mixin(aclMixin)
 useChartJs(app)
 useComponents(app)
-// defineDirectives(app)
+defineDirectives(app)
 app.mount('#App')
 
-router.$app = app
+// router.$app = app
 // window.$app = app
 
 

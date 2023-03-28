@@ -1,6 +1,6 @@
 // import Vue from 'vue'
 // import store from '~/store'
-import { createI18n, useI18n } from 'vue-i18n'
+import { createI18n } from 'vue-i18n'
 
 // Vue.use(VueI18n)
 

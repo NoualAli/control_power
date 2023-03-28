@@ -2,7 +2,7 @@
 import api from "./api";
 import { hasRole, isAbleTo } from './user'
 
-const app = window.$app
+// const app = window.$app
 // app.mixin() there is no longer mixin in vue 
 // gotta find a solution for such 
 export const aclMixin = {
