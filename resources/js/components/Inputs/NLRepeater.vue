@@ -50,16 +50,17 @@
 </template>
 
 <script>
+// import Treeselect from 'vue3-treeselect'
 import NLSelect from './NLSelect'
 import DefaultContainer from './DefaultContainer'
 import NLInput from './NLInput'
-import Treeselect from 'vue3-treeselect'
 // import Treeselect from '@riophae/vue-treeselect'
 export default {
   name: 'NLRepeater',
   components: {
     NLSelect,
-    DefaultContainer, NLInput, Treeselect
+    DefaultContainer, NLInput
+    // , Treeselect
   },
   props: {
     addButtonLabel: { type: String, default: "Ajouter une ligne" },

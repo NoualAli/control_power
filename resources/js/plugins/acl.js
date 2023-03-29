@@ -24,7 +24,7 @@ export const aclMixin = {
 */
 
 const directives = {
-  can: {
+  'can': {
     bind: function (el, binding, vnode) {
       let can = []
       const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
@@ -52,7 +52,7 @@ const directives = {
       return
     },
   },
-  canHide: {
+  'can-hide': {
     bind: function (el, binding, vnode) {
       const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
       const abilities = (binding.value || '').split(/\s*,\s*/);
@@ -63,7 +63,7 @@ const directives = {
       });
     }
   },
-  canStrict: {
+  'can-strict': {
     bind: function (el, binding, vnode) {
       let can = []
       const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
@@ -91,7 +91,7 @@ const directives = {
       return
     },
   },
-  hasRole: {
+  'has-role': {
     bind: function (el, binding, vnode) {
       const roles = JSON.parse(localStorage.getItem('roles')) || [];
       const data = (binding.value || '').split(/\s*,\s*/);
@@ -113,7 +113,7 @@ const directives = {
       return
     }
   },
-  isCurrentUser: {
+  'is-current-user': {
     bind: function (el, binding, vnode) {
       hide(binding, el)
       const user = binding.value;
@@ -127,7 +127,7 @@ const directives = {
       return
     }
   },
-  isNotCurrentUser: {
+  'is-not-current-user': {
     bind: function (el, binding, vnode) {
       hide(binding, el)
       const user = binding.value;

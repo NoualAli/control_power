@@ -3,12 +3,12 @@ import store from '~/store'
 import router from '~/router'
 import i18n from '~/plugins/i18n'
 import { user } from './plugins/helpers'
-import { useChartJs } from './plugins/charts'
-import * as swal from './plugins/swal'
+// import { useChartJs } from './plugins/charts'
+// import * as swal from './plugins/swal'
 import api from './plugins/api'
 import '~/plugins'
 // import loader from 'vue-ui-preloader'
-import Meta from 'vue-meta'
+import { createMetaManager as createVueMetaManager, defaultConfig, plugin as pluginVueMeta } from 'vue-meta'
 // import Router from 'vue-router'
 import Swal from 'sweetalert2'
 import Vue3Breadcrumbs from 'vue-3-breadcrumbs'
@@ -17,7 +17,6 @@ import '~/components'
 
 import { useComponents } from './components'
 import { aclMixin, defineDirectives } from './plugins/acl.js'
-import Vuex from 'vuex'
 window.Swal = Swal
 window.api = api
 window.user = user
@@ -26,22 +25,25 @@ app.use(router)
 app.use(store)
 app.use(i18n)
 // currently there is no support for vue-meta for vue 3  except alpha
-// app.use(Meta) // gotta update meta and use it differently 
+app.use(createVueMetaManager(false, { ...defaultConfig, meta: { tag: 'meta', nameless: true } })) // gotta update meta and use it differently
+app.use(pluginVueMeta) // gotta update meta and use it differently
 // app.use(Router)
 app.use(Vue3Breadcrumbs)
 // app.use(loader)
-app.use(swal)
-app.use(api)
-app.use(Vuex)
+// app.use(swal)
+app.config.globalProperties.$api = api
+// console.log(api)
+// app.use(api)
+// alert("API")
+
 app.mixin(aclMixin)
-useChartJs(app)
+// useChartJs(app)
 useComponents(app)
 defineDirectives(app)
-app.mount('#App')
+app.mount('#app')
 
 // router.$app = app
 // window.$app = app
-
 
 // Vue.use(Vue3Breadcrumbs)
 // Vue.use(loader)
@@ -58,8 +60,4 @@ app.mount('#App')
 //   ...App
 // })
 
-
-
-
-
-require('./bootstrap')
+// require('./bootstrap')

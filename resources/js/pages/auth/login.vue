@@ -42,8 +42,11 @@ import NLButton from '../../components/Inputs/NLButton.vue'
 export default {
   components: { Notification, NLInput, NLButton },
   layout: 'auth',
-  middleware: 'guest',
+  // middleware: 'guest',
 
+  beforeCreated(){
+      console.log("test")
+  },
   metaInfo() {
     return { title: this.$t('login') }
   },

@@ -181,7 +181,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-// import { Bar, Doughnut, Pie } from 'vue-chartjs/legacy'
+import { Bar, Doughnut, Pie } from 'vue-chartjs'
 import { setTitle } from '../plugins/settings'
 // import { isDcp, isDG } from '../plugins/user'
 import InProgress from '../components/InProgress'
