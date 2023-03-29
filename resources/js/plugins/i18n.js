@@ -9,14 +9,12 @@ const i18n = createI18n({
   messages: {},
   silentTranslationWarn: true,
 })
-// const localeI18n = useI18n()
 const localeI18n = i18n.global
 /**
  * @param {String} locale
  */
 
-export async function loadMessages() {
-  const locale = 'fr'
+export async function loadMessages(locale='fr') {
   if (Object.keys(localeI18n.getLocaleMessage(locale)).length === 0) {
     const messages = await import(/* webpackChunkName: '' */ `~/lang/${locale}`)
     localeI18n.setLocaleMessage(locale, messages)
@@ -27,7 +25,7 @@ export async function loadMessages() {
   }
 }
 
-; (async function () {
+(async function () {
   await loadMessages()
 })()
 

@@ -8,6 +8,7 @@ require('laravel-mix-versionhash')
 mix
   .js('resources/js/app.js', 'public/dist/js').vue({
     extractStyles: true
+
   })
   .sass('resources/sass/app.sass', 'public/dist/css')
   .options({
@@ -16,7 +17,7 @@ mix
   })
 
   .disableNotifications()
-
+  .webpackConfig({ devtool: 'source-map' })
 if (mix.inProduction()) {
   mix
     // .extract() // Disabled until resolved: https://github.com/JeffreyWay/laravel-mix/issues/1889
@@ -28,6 +29,7 @@ if (mix.inProduction()) {
 
 mix.webpackConfig({
   plugins: [
+
     // new BundleAnalyzerPlugin()
   ],
   resolve: {

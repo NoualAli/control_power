@@ -3,7 +3,7 @@
  *
  * @return {null}
  */
-function counter() {
+function counter () {
   const containerElts = document.querySelectorAll('[data-maxlength]')
 
   containerElts.forEach(containerElt => {
@@ -13,9 +13,8 @@ function counter() {
 
     containerElt.append(counterElt)
     counterUpdate(counterElt, inputElt, maxlength)
-  });
+  })
 }
-
 
 /**
  * Initialise un nouveau compteur de caractère
@@ -24,10 +23,10 @@ function counter() {
  *
  * @return {null}
  */
-function counterInit(maxlength) {
+function counterInit (maxlength) {
   const counterElt = document.createElement('div')
-  counterElt.className = "field is-size-7 has-text-right has-text-weight-bold p-1 input-counter"
-  counterElt.innerHTML = "0/" + maxlength
+  counterElt.className = 'field is-size-7 has-text-right has-text-weight-bold p-1 input-counter'
+  counterElt.innerHTML = '0/' + maxlength
   return counterElt
 }
 /**
@@ -39,7 +38,7 @@ function counterInit(maxlength) {
  *
  * @return {null}
  */
-function counterUpdate(counterElt, inputElt, maxLength) {
+function counterUpdate (counterElt, inputElt, maxLength) {
   maxLength = Number(maxLength) // convert string to number
   // Listen to input event
   inputElt.addEventListener('input', () => {
@@ -51,8 +50,8 @@ function counterUpdate(counterElt, inputElt, maxLength) {
   }
 }
 
-function setCounterValue(counterElt, inputElt, maxLength) {
-  let currentLength = inputElt.value.length
+function setCounterValue (counterElt, inputElt, maxLength) {
+  const currentLength = inputElt.value.length
   if (currentLength >= maxLength) {
     counterElt.classList.add('has-text-danger')
   } else {

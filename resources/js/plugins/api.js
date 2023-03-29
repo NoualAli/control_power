@@ -1,4 +1,3 @@
-import vue from 'vue'
 import Swal from "sweetalert2";
 import axios from 'axios'
 import store from '~/store'
@@ -10,7 +9,6 @@ const api = axios.create({
   },
   baseURL: '/api/'
 })
-
 api.interceptors.response.use(response => response, error => {
   const status = error?.response?.status
   const message = error?.response?.data?.message
@@ -31,13 +29,13 @@ api.interceptors.response.use(response => response, error => {
         store.commit('auth/LOGOUT')
         location.reload()
       })
-  }
-
-  if (status >= 500) {
-    serverError(error.response)
-  }
-  return Promise.reject(error)
-})
+    }
+    
+    if (status >= 500) {
+      serverError(error.response)
+    }
+    return Promise.reject(error)
+  })
 
 let serverErrorModalShown = false
 async function serverError(response) {
