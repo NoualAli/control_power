@@ -12,8 +12,10 @@
         </div>
         <div class="col-11">
           <Notification type="is-danger" v-if="form.errors.any()">
-            Il y a {{ formErrorsCount }}
-            {{ formErrorsCount > 1 ? 'problèmes avec vos entrées' : 'problème avec une entrée' }}.
+            <p class="text-white">
+              Il y a {{ formErrorsCount }}
+              {{ formErrorsCount > 1 ? 'problèmes avec vos entrées' : 'problème avec une entrée' }}.
+            </p>
           </Notification>
         </div>
       </div>
@@ -194,7 +196,7 @@ export default {
      * Initialise le formulaire
      */
     initForm() {
-      this.form.mission = this.$route.params.processId
+      this.form.mission = this.$route.params.missionId
       this.form.process = this.$route.params.processId
       this.details.forEach(detail => {
         this.form.rows.push({
