@@ -27,7 +27,7 @@
     </div>
     <div class="col-12 text-center d-block d-lg-none">
       <p class="">
-        &copy; 2022 - Tous droits réservés - DCP 104
+        &copy; 2023 - Tous droits réservés - BNA
       </p>
     </div>
   </div>
