@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Mission\Detail;
 
+use App\Models\Mission;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
@@ -13,9 +14,10 @@ class StoreRequest extends FormRequest
      */
     public function authorize()
     {
+        $mission = Mission::findOrFail(request()->mission);
         $processMode = request()->process_mode;
         $isAbleTo = !$processMode ? 'control_agency' : 'process_mission';
-        return isAbleTo($isAbleTo) || hasRole(['dcp', 'cdcr', 'cc']);
+        return (isAbleTo($isAbleTo) || hasRole(['dcp', 'cdcr', 'cc'])) && $mission->remaining_days_before_start <= 0;
     }
 
     /**
