@@ -10,6 +10,7 @@
         <i class="las la-edit icon"></i>
       </router-link>
     </div>
+
     <!-- Mission informations -->
     <div class="box border-primary-dark border-1 mb-10">
       <div class="grid gap-6">
@@ -166,6 +167,11 @@
           </span>
         </div>
       </div>
+    </div>
+
+    <div class="box is-info" v-if="mission?.current?.remaining_days_before_start > 0">
+      Nous vous informons que la mission débutera le <b>{{ mission?.current?.start }}</b> dans exactement <b>{{
+        mission?.current?.remaining_days_before_start_str }}</b>
     </div>
 
     <!-- Actions -->
