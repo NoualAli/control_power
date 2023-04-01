@@ -1,18 +1,30 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div>
-    <div :style="{
-      width: `${percent}%`,
-      height: height,
-      opacity: show ? 1 : 0,
-      'background-color': canSuccess ? color : failedColor
-    }" class="progress" />
-    <loader object="#0984e3" color1="#ffffff" color2="#FA0001" size="5" speed="2" bg="#343a40" objectbg="#999793"
-      opacity="80" disableScrolling="false" name="dots" v-if="show"></loader>
+    <div
+      :style="{
+        width: `${percent}%`,
+        height: height,
+        opacity: show ? 1 : 0,
+        'background-color': canSuccess ? color : failedColor
+      }" class="progress"
+    />
+    <!-- <loading v-model:active="isLoading"
+                 :can-cancel="true"
+                 :on-cancel="onCancel"
+                 :is-full-page="fullPage"/> -->
+
+    <!-- <loader
+      v-if="show" object="#0984e3" color1="#ffffff" color2="#FA0001" size="5" speed="2" bg="#343a40"
+      objectbg="#999793" opacity="80" disable-scrolling="false" name="dots"
+    /> -->
   </div>
 </template>
 
 <script>
 // https://github.com/nuxt/nuxt.js/blob/master/lib/app/components/nuxt-loading.vue
+import Loading from 'vue-loading-overlay'
+
 export default {
   data: () => ({
     percent: 0,
@@ -25,7 +37,7 @@ export default {
   }),
 
   methods: {
-    start() {
+    start () {
       this.show = true
       this.canSuccess = true
       if (this._timer) {
@@ -41,33 +53,33 @@ export default {
       }, 100)
       return this
     },
-    set(num) {
+    set (num) {
       this.show = true
       this.canSuccess = true
       this.percent = Math.floor(num)
       return this
     },
-    get() {
+    get () {
       return Math.floor(this.percent)
     },
-    increase(num) {
+    increase (num) {
       this.percent = this.percent + Math.floor(num)
       return this
     },
-    decrease(num) {
+    decrease (num) {
       this.percent = this.percent - Math.floor(num)
       return this
     },
-    finish() {
+    finish () {
       this.percent = 100
       this.hide()
       return this
     },
-    pause() {
+    pause () {
       clearInterval(this._timer)
       return this
     },
-    hide() {
+    hide () {
       clearInterval(this._timer)
       this._timer = null
       setTimeout(() => {
@@ -80,7 +92,7 @@ export default {
       }, 500)
       return this
     },
-    fail() {
+    fail () {
       this.canSuccess = false
       return this
     }

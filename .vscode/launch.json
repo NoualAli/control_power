@@ -1,14 +1,16 @@
 {
     "version": "0.2.0",
-    "configurations": [{
+    "configurations": [
+    
+    {
         "type": "chrome",
         "request": "launch",
         "name": "vuejs: chrome",
         "url": "http://localhost:8000",
         "webRoot": "${workspaceFolder}/public",
         "sourceMapPathOverrides": {
-            "webpack:///resources/assets/js/*.vue": "${workspaceFolder}/resources/js/*.vue",
-            "webpack:///./resources/assets/js/*.js": "${workspaceFolder}/resources/js/*.js",
+            "webpack:///resources/js/*.vue": "${workspaceFolder}/resources/js/*.vue",
+            "webpack:///./resources/js/*.js": "${workspaceFolder}/resources/js/*.js",
             "webpack:///./node_modules/*": "${workspaceFolder}/node_modules/*"
         }
     }]

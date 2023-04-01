@@ -1,11 +1,12 @@
-import Swal from "sweetalert2";
+/* eslint-disable camelcase */
+import Swal from 'sweetalert2'
 import axios from 'axios'
 import store from '~/store'
-
+import { alert_error } from './swal.js'
 const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
+    Accept: 'application/json'
   },
   baseURL: '/api/'
 })
@@ -13,8 +14,8 @@ api.interceptors.response.use(response => response, error => {
   const status = error?.response?.status
   const message = error?.response?.data?.message
   const title = status + ' ' + error?.response?.statusText
-  if (status === 401 && store.getters[ 'auth/check' ]) {
-    swal.alert_error(message, title)
+  if (status === 401 && store.getters['auth/check']) {
+    alert_error(message, title)
       .then(() => {
         store.commit('auth/LOGOUT')
         location.reload()
@@ -23,27 +24,27 @@ api.interceptors.response.use(response => response, error => {
   if (status === 404) {
     window.location.href = '/404'
   }
-  if (status === 403 && store.getters[ 'auth/check' ]) {
-    swal.alert_error(message, title)
+  if (status === 403 && store.getters['auth/check']) {
+    alert_error(message, title)
       .then(() => {
         store.commit('auth/LOGOUT')
         location.reload()
       })
-    }
-    
-    if (status >= 500) {
-      serverError(error.response)
-    }
-    return Promise.reject(error)
-  })
+  }
+
+  if (status >= 500) {
+    serverError(error.response)
+  }
+  return Promise.reject(error)
+})
 
 let serverErrorModalShown = false
-async function serverError(response) {
+async function serverError (response) {
   if (serverErrorModalShown) {
     return
   }
 
-  if ((response.headers[ 'content-type' ] || '').includes('text/html')) {
+  if ((response.headers['content-type'] || '').includes('text/html')) {
     const iframe = document.createElement('iframe')
 
     if (response.data instanceof Blob) {
@@ -74,18 +75,16 @@ async function serverError(response) {
   }
 }
 
-
 api.interceptors.request.use(request => {
-  const token = store.getters[ 'auth/token' ]
+  const token = store.getters['auth/token']
   if (token) {
     request.headers.common.Authorization = `Bearer ${token}`
   }
 
-  const locale = store.getters[ 'lang/locale' ]
+  const locale = store.getters['lang/locale']
   if (locale) {
-    request.headers.common[ 'Accept-Language' ] = locale
+    request.headers.common['Accept-Language'] = locale
   }
-
 
   // request.headers['X-Socket-Id'] = Echo.socketId()
 

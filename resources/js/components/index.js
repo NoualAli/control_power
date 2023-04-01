@@ -1,4 +1,3 @@
-import Vue from 'vue'
 // import Card from './Card.vue'
 import Child from './Child.vue'
 // import Button from './Button.vue'
@@ -14,7 +13,7 @@ import NLSelect from './Inputs/NLSelect'
 import NLCheckableContainer from './Inputs/NLCheckableContainer.vue'
 import NLWyswyg from './Inputs/NLWyswyg.vue'
 import NLDatatable from './NLDatatable.vue'
-import { HasError, AlertError, AlertSuccess, AlertErrors } from 'vform/components/bootstrap5'
+import { HasError, AlertErrors } from 'vform/components/bootstrap5'
 import NLModal from './NLModal'
 import ContentHeader from './ContentHeader'
 import ContentBody from './ContentBody'
@@ -22,7 +21,7 @@ import NLRepeater from './Inputs/NLRepeater'
 import NLSwitch from './Inputs/NLSwitch'
 import NLFile from './Inputs/NLFile'
 // Components that are registered globaly.
-export function useComponents(app) {
+export function useComponents (app) {
   [
     NLFile,
     NLSwitch,
