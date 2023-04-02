@@ -34,11 +34,22 @@ function createRouterWrapper () {
 
   // router.beforeEach(beforeEach)
   router.beforeEach(beforeEach)
+  router.beforeResolve(beforeResolve)
   router.afterEach(afterEach)
   // router.scrollBehavior
   return router
 }
+function beforeResolve (to, from, next) {
+  const layout = to?.matched[0]?.components?.default?.layout
+  to.meta.layout = layout || ''
 
+  console.log(to?.matched[0]?.components?.default?.layout)
+  console.log(from)
+  console.log(next)
+
+  console.log('inside beforeResolve')
+  next()
+}
 /**
  * Global router guard.
  *
@@ -75,14 +86,19 @@ async function beforeEach (to, from, next) {
   // Load async data for all the matched components.
   await asyncData(components)
   // Call each middleware.
-  callMiddleware(middleware, to, from, async (...args) => {
+  callMiddleware(middleware, to, from, (...args) => {
     // Set the application layout only if "next()" was called with no args.
     // const app= router.
     // console.log(router.app._instance)
+    // console.log('Dispatched:')
+    // console.log(components[0].layout || '')
+    // console.log(components[0])
+    // console.log(components)
+    // console.log(to)
+    // console.log('inside beforeEach')
+    console.log(...args)
     if (args.length === 0) {
-      console.log('Dispatched:')
-      // console.log(components[0].layout || '')
-      await store.dispatch('layout/setLayout', components[0].layout || '')
+      store.commit('layout/SET_LAYOUT', components[0].layout || '')
 
     //  setLayout(components[0].layout || '')
     }
@@ -145,6 +161,7 @@ async function afterEach (to, from, next) {
  * @param {Function} next
  */
 function callMiddleware (middleware, to, from, next) {
+  console.log(middleware)
   const stack = middleware.reverse()
   const _next = (...args) => {
     // Stop if "_next" was called with an argument or the stack is empty.
@@ -159,6 +176,8 @@ function callMiddleware (middleware, to, from, next) {
     }
 
     const { middleware, params } = parseMiddleware(stack.pop())
+    console.log(middleware)
+    console.log(params)
 
     if (typeof middleware === 'function') {
       middleware(to, from, _next, params)

@@ -8,6 +8,10 @@
 
 <script>
 export default {
-  name: 'Child'
+  name: 'Child',
+  mounted () {
+    console.log('im  inside a child')
+    console.log(this.$route)
+  }
 }
 </script>

@@ -6,31 +6,38 @@
       :on-cancel="onCancel"
       :is-full-page="fullPage"
     /> -->
+    <!-- <router-view v-slot="{layout}"> -->
     <transition name="page" mode="out-in">
-      <component :is="layout" v-if="layout" />
+      <template v-if="layout">
+        <component :is="layout">
+          <slot />
+        </component>
+      </template>
       <!-- <h1 class="im-here">
         I AM HERE don't FEAR
       </h1> -->
     </transition>
+    <!-- </router-view> -->
   </div>
 </template>
 
 <script>
 // import Loading from './Loading'
 import Loading from 'vue-loading-overlay'
-// import { shallowRef } from 'vue'
+import defaultLayout from '~/layouts/default.vue'
+import { shallowRef, markRaw } from 'vue'
 // Load layout components dynamically.
-// const requireContext = require.context('~/layouts', false, /.*\.vue$/)
+const requireContext = require.context('~/layouts', false, /.*\.vue$/)
 
 // const layouts = requireContext.keys()
 //   .map(file =>
 //     [file.replace(/(^.\/)|(\.vue$)/g, ''), requireContext(file)]
 //   )
 //   .reduce((components, [name, component]) => {
-//     components[name] = component.default || component
+//     components[name] = shallowRef(component.default || component)
 //     return components
 //   }, {})
-
+console.log(defaultLayout)
 export default {
   el: '#app',
 
@@ -39,17 +46,13 @@ export default {
   },
 
   data: () => ({
-    // layout: null,
-    // defaultLayout: 'default',
     layout: null,
+    defaultLayout: markRaw(defaultLayout),
     isLoading: false
-    // namespace: 'layout'
   }),
 
   metaInfo () {
-    const {
-      appName
-    } = window.config
+    const { appName } = window.config
 
     return {
       title: appName,
@@ -57,38 +60,70 @@ export default {
     }
   },
   computed: {
-    // layout () {
-    //   return this.$store.getters['layout/layout']
-    // }
+    layouts () {
+      return requireContext.keys()
+        .map(file =>
+          [file.replace(/(^.\/)|(\.vue$)/g, ''), requireContext(file)]
+        )
+        .reduce((components, [name, component]) => {
+          components[name] = component.default || component
+          console.log(components)
+          return components
+        }, {})
+    }
   },
-  beforeCreate () {
-    // this.$store.dispatch('layout/setLayout', '')
-    // this.$store.dispatch['layout/setLayout', '']
+  watch: {
+    $route: {
+      // immediate: true,
+      async handler (route) {
+        try {
+          console.log(route)
+          this.setLayout(route.meta.layout)
+
+          // const component = await import(`~/layouts/${route.meta.layout}.vue`)
+          // const tempLayout = markRaw(component?.default || defaultLayout)
+          // console.log(tempLayout.name === this.layouts[route.meta.layout].value.name)
+          //  {
+          //   console.log('m here')
+          //   this.layout = tempLayout
+          // }
+
+          // this.getLayout(route.meta.layout)
+          // console.log('between get ')
+          // console.log(this.layout)
+          // console.log(this.layouts[route.meta.layout])
+        } catch (e) {
+          this.layout = defaultLayout
+        }
+      }
+    }
   },
   mounted () {
-    console.log(this.layout)
-    console.log(this.$store.getters['layout/layout'])
-    // this.layout = 'something'
     // this.$loading = this.$refs.loading
   },
+
   methods: {
-    setLayout (v) {
-      return this.$store.dispatch('layout/setLayout', '')
+    /**
+     * Set the application layout.
+     *
+     * @param {String} layout
+     */
+    setLayout (layout) {
+      if (!layout || !this.layouts[layout]) {
+        layout = this.defaultLayout
+      }
+
+      this.layout = markRaw(this.layouts[layout])
+    },
+    getLayout (layout) {
+      if (!layout || !this.layouts[layout]) {
+        layout = this.defaultLayout
+      }
+      console.log(this.layouts[layout])
+      console.log(this.layouts)
+      console.log(layout)
+      // return layouts[layout]
     }
   }
 }
 </script>
-<!--
-import {
-    Search
-} from "@element-plus/icons-vue";
-import {
-    shallowRef
-} from "vue";
-components: {
-    Search
-}, Data() {
-    return {
-        Search: shallowRef(Search)
-    }
-} -->
