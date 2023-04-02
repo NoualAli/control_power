@@ -1,8 +1,6 @@
-// import Vue from 'vue'
+
 import store from '~/store'
-// import Meta from 'vue-meta'
 import routes from './routes'
-// import Router from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 import { sync } from 'vuex-router-sync'
 import Cookies from 'js-cookie'
@@ -43,11 +41,11 @@ function beforeResolve (to, from, next) {
   const layout = to?.matched[0]?.components?.default?.layout
   to.meta.layout = layout || ''
 
-  console.log(to?.matched[0]?.components?.default?.layout)
-  console.log(from)
-  console.log(next)
+  // console.log(to?.matched[0]?.components?.default?.layout)
+  // console.log(from)
+  // console.log(next)
 
-  console.log('inside beforeResolve')
+  // console.log('inside beforeResolve')
   next()
 }
 /**
@@ -96,7 +94,7 @@ async function beforeEach (to, from, next) {
     // console.log(components)
     // console.log(to)
     // console.log('inside beforeEach')
-    console.log(...args)
+    // console.log(...args)
     if (args.length === 0) {
       store.commit('layout/SET_LAYOUT', components[0].layout || '')
 
@@ -161,7 +159,7 @@ async function afterEach (to, from, next) {
  * @param {Function} next
  */
 function callMiddleware (middleware, to, from, next) {
-  console.log(middleware)
+  // console.log(middleware)
   const stack = middleware.reverse()
   const _next = (...args) => {
     // Stop if "_next" was called with an argument or the stack is empty.
@@ -176,8 +174,8 @@ function callMiddleware (middleware, to, from, next) {
     }
 
     const { middleware, params } = parseMiddleware(stack.pop())
-    console.log(middleware)
-    console.log(params)
+    // console.log(middleware)
+    // console.log(params)
 
     if (typeof middleware === 'function') {
       middleware(to, from, _next, params)

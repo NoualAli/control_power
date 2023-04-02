@@ -1,3 +1,4 @@
+// eslint-disable-next-line vue/first-attribute-linebreak
 <template>
   <div id="app">
     <!-- <loading
@@ -13,10 +14,10 @@
           <slot />
         </component>
       </template>
-      <!-- <h1 class="im-here">
+    </transition>
+    <!-- <h1 class="im-here">
         I AM HERE don't FEAR
       </h1> -->
-    </transition>
     <!-- </router-view> -->
   </div>
 </template>
@@ -25,7 +26,7 @@
 // import Loading from './Loading'
 import Loading from 'vue-loading-overlay'
 import defaultLayout from '~/layouts/default.vue'
-import { shallowRef, markRaw } from 'vue'
+import { markRaw } from 'vue'
 // Load layout components dynamically.
 const requireContext = require.context('~/layouts', false, /.*\.vue$/)
 
@@ -37,7 +38,6 @@ const requireContext = require.context('~/layouts', false, /.*\.vue$/)
 //     components[name] = shallowRef(component.default || component)
 //     return components
 //   }, {})
-console.log(defaultLayout)
 export default {
   el: '#app',
 
@@ -67,7 +67,6 @@ export default {
         )
         .reduce((components, [name, component]) => {
           components[name] = component.default || component
-          console.log(components)
           return components
         }, {})
     }
@@ -77,21 +76,7 @@ export default {
       // immediate: true,
       async handler (route) {
         try {
-          console.log(route)
           this.setLayout(route.meta.layout)
-
-          // const component = await import(`~/layouts/${route.meta.layout}.vue`)
-          // const tempLayout = markRaw(component?.default || defaultLayout)
-          // console.log(tempLayout.name === this.layouts[route.meta.layout].value.name)
-          //  {
-          //   console.log('m here')
-          //   this.layout = tempLayout
-          // }
-
-          // this.getLayout(route.meta.layout)
-          // console.log('between get ')
-          // console.log(this.layout)
-          // console.log(this.layouts[route.meta.layout])
         } catch (e) {
           this.layout = defaultLayout
         }
@@ -108,21 +93,10 @@ export default {
      *
      * @param {String} layout
      */
-    setLayout (layout) {
-      if (!layout || !this.layouts[layout]) {
-        layout = this.defaultLayout
-      }
-
-      this.layout = markRaw(this.layouts[layout])
-    },
-    getLayout (layout) {
-      if (!layout || !this.layouts[layout]) {
-        layout = this.defaultLayout
-      }
-      console.log(this.layouts[layout])
-      console.log(this.layouts)
-      console.log(layout)
-      // return layouts[layout]
+    async setLayout (layout) {
+      const component = await import(`~/layouts/${layout}.vue`)
+      const tempLayout = markRaw(component?.default || this.defaultLayout)
+      this.layout = markRaw(tempLayout)
     }
   }
 }

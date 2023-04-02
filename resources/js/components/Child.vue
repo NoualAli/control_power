@@ -11,7 +11,7 @@ export default {
   name: 'Child',
   mounted () {
     console.log('im  inside a child')
-    console.log(this.$route)
+    console.log(this.$route.url)
   }
 }
 </script>

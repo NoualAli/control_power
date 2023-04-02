@@ -32,7 +32,7 @@ export default {
     event: 'update'
   },
   props: {
-    form: { type: Object, required: false, default: null },
+    form: { type: Object, required: false },
     autocomplete: { type: String, default: 'off' },
     autofocus: { type: Boolean, default: false },
     type: { type: String, default: 'text' },
@@ -41,9 +41,9 @@ export default {
     label: { type: String, default: '' },
     labelRequired: { type: Boolean, default: false },
     placeholder: { type: String, default: '' },
-    value: { type: String | Number, default: '' },
+    value: { type: [String, Number], default: '' },
     readonly: { type: Boolean, default: false },
-    length: { type: Number | null, default: null },
+    length: { type: [Number, String], default: null },
     helpText: { type: String, default: null }
   },
   emits: ['update'],
