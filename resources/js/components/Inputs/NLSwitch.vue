@@ -1,9 +1,9 @@
 <template>
-  <NLCheckableContainer :name="name" :form="form" :label="label" :id="id || name" :helpText="helpText">
-    <input type="checkbox" :class="[{ 'is-danger': form?.errors.has(name) }, 'switch-input']" v-model="selected"
-      @change="updateValue" :name="name" :id="id || name">
-    <div class="switch" :class="type" :data-true-label="trueLabel" :data-false-label="falseLabel" @click="updateValue">
-    </div>
+  <NLCheckableContainer :id="id || name" :name="name" :form="form" :label="label" :help-text="helpText">
+    <input :id="id || name" v-model="selected" type="checkbox"
+           :class="[{ 'is-danger': form?.errors.has(name) }, 'switch-input']" :name="name" @change="updateValue"
+    >
+    <div class="switch" :class="type" :data-true-label="trueLabel" :data-false-label="falseLabel" @click="updateValue" />
   </NLCheckableContainer>
 </template>
 
@@ -21,19 +21,19 @@ export default {
     name: { type: String, required: true },
     label: { type: String, required: true },
     value: { type: Boolean, default: false },
-    id: { type: String | null, default: null },
-    trueLabel: { type: String | null, default: 'Oui' },
-    falseLabel: { type: String | null, default: 'Non' },
+    id: { type: [String, null], default: null },
+    trueLabel: { type: [String, null], default: 'Oui' },
+    falseLabel: { type: [String, null], default: 'Non' },
     helpText: { type: String, default: null },
     type: { type: String, default: null }
   },
-  data() {
+  data () {
     return {
-      selected: this.value,
+      selected: this.value
     }
   },
   watch: {
-    value(newVal, oldVal) {
+    value (newVal, oldVal) {
       if (newVal !== oldVal) this.selected = newVal
     }
   },
@@ -41,10 +41,10 @@ export default {
   //   this.selected = this.value;
   // },
   methods: {
-    updateValue() {
+    updateValue () {
       this.selected = !this.selected
-      this.$emit('change', this.selected);
-    },
-  },
+      this.$emit('change', this.selected)
+    }
+  }
 }
 </script>

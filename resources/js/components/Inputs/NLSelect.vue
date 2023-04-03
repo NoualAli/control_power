@@ -1,10 +1,11 @@
 <template>
-  <DefaultContainer :id="id || name" :form="form" :label="label" :name="name" :labelRequired="labelRequired"
-    :helpText="helpText">
-    <treeselect :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" v-model="selected" @input="updateValue"
-      :value="value" :name="name" :multiple="multiple" :options="options" :placeholder="placeholder"
-      :loadingText="loadingText" :noOptionsText="noOptionsText" search-nested>
-    </treeselect>
+  <DefaultContainer :id="id || name" :form="form" :label="label" :name="name" :label-required="labelRequired"
+                    :help-text="helpText"
+  >
+    <treeselect v-model="selected" :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" :value="value"
+                :name="name" :multiple="multiple" :options="options" :placeholder="placeholder" :loading-text="loadingText"
+                :no-options-text="noOptionsText" search-nested @input="updateValue"
+    />
   </DefaultContainer>
 </template>
 
@@ -12,8 +13,12 @@
 import Treeselect from 'vue3-treeselect'
 // import Treeselect from '@riophae/vue-treeselect'
 export default {
+  name: 'NLSelect',
   components: { Treeselect },
-  name: "NLSelect",
+  model: {
+    prop: 'value',
+    event: 'change'
+  },
   props: {
     form: { type: Object, required: false },
     name: { type: String, required: true },
@@ -24,26 +29,22 @@ export default {
     loadingText: { type: String, default: 'Chargement en cours...' },
     noOptionsText: { type: String, default: 'Aucune option disponible' },
     multiple: { type: Boolean, default: false },
-    value: { type: String | Array, default: () => [] },
+    value: { type: [String, Array], default: () => [] },
     options: { required: true },
-    helpText: { type: String, default: null },
+    helpText: { type: String, default: null }
   },
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
-  data() {
+  data () {
     return {
-      selected: this.value,
-    };
+      selected: this.value
+    }
   },
-  updated() {
-    this.selected = this.value;
+  updated () {
+    this.selected = this.value
   },
   methods: {
-    updateValue() {
-      this.$emit('change', this.selected);
-    },
-  },
+    updateValue () {
+      this.$emit('change', this.selected)
+    }
+  }
 }
 </script>

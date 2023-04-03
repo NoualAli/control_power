@@ -1,20 +1,26 @@
 <template>
-  <DefaultContainer :id="id || name" :form="form" :label="label" :name="name" :labelRequired="labelRequired"
-    :length="length" :currentLength="currentLength" :helpText="helpText">
-    <textarea v-on="$listeners" @input="onInput($event)" :id="id || name"
-      :class="{ 'is-danger': form?.errors.has(name) }" class="input" :name="name" :autofocus="autofocus"
-      :placeholder="placeholder || label" :value="value" :readonly="readonly" :disabled="disabled"
-      :maxlength="length"></textarea>
+  <DefaultContainer :id="id || name" :form="form" :label="label" :name="name" :label-required="labelRequired"
+                    :length="length" :current-length="currentLength" :help-text="helpText"
+  >
+    <textarea :id="id || name" :class="{ 'is-danger': form?.errors.has(name) }" class="input"
+              :name="name" :autofocus="autofocus" :placeholder="placeholder || label" :value="value"
+              :readonly="readonly" :disabled="disabled" :maxlength="length" v-on="$listeners"
+              @input="onInput($event)"
+    />
   </DefaultContainer>
 </template>
 
 <script>
 
 export default {
-  name: "NLTextarea",
+  name: 'NLTextarea',
+  model: {
+    prop: 'value',
+    event: 'update'
+  },
   props: {
     form: { type: Object, required: false },
-    autocomplete: { type: String, default: "off" },
+    autocomplete: { type: String, default: 'off' },
     autofocus: { type: Boolean, default: false },
     type: { type: String, default: 'text' },
     name: { type: String, required: true },
@@ -25,25 +31,21 @@ export default {
     value: { type: String, default: '' },
     readonly: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false },
-    length: { type: Number | String, default: null },
-    helpText: { type: String, default: null },
+    length: { type: [Number, String], default: null },
+    helpText: { type: String, default: null }
   },
-  data() {
+  data () {
     return {
-      currentLength: 0,
+      currentLength: 0
     }
   },
-  model: {
-    prop: "value",
-    event: "update"
-  },
-  created() {
+  created () {
     if (this.length && this.value) {
       this.currentLength = this.value.length
     }
   },
   methods: {
-    onInput($event) {
+    onInput ($event) {
       let value = $event.target.value
       this.currentLength = value.length
       if (this.length) {
@@ -51,6 +53,6 @@ export default {
       }
       this.$emit('update', value)
     }
-  },
+  }
 }
 </script>
