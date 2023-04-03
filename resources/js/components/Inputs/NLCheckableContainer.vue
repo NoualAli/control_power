@@ -1,11 +1,12 @@
 <template>
   <div class="form-check-container" :class="{ 'is-inline': isInline }">
-    <label class="form-label" :for="id" :class="{ 'text-danger': form?.errors.has(name), 'is-required': labelRequired }"
-      v-if="label">
+    <label v-if="label" class="form-label" :for="id"
+           :class="{ 'text-danger': form?.errors.has(name), 'is-required': labelRequired }"
+    >
       {{ $t(label) }}
     </label>
-    <slot></slot>
-    <has-error :form="form" :field="name" class="text-danger" v-if="form" />
+    <slot />
+    <has-error v-if="form" :form="form" :field="name" class="text-danger" />
   </div>
 </template>
 
@@ -13,8 +14,8 @@
 
 import DefaultContainer from './DefaultContainer'
 export default {
+  name: 'NLCheckableContainer',
   components: { DefaultContainer },
-  name: "NLCheckableContainer",
   props: {
     form: { type: Object, required: false },
     name: { type: String, required: true },
@@ -22,7 +23,7 @@ export default {
     label: { type: String, default: '' },
     labelRequired: { type: Boolean, default: false },
     isInline: { type: Boolean, default: true },
-    helpText: { type: String, default: null },
-  },
+    helpText: { type: String, default: null }
+  }
 }
 </script>

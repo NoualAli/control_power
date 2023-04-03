@@ -1,3 +1,5 @@
+<!-- eslint-disable vue/valid-model-definition -->
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="box auth-box grid gap-6">
     <div class="col-12 auth-box__header">

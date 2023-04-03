@@ -170,14 +170,14 @@ export default {
     NoData
   },
   props: {
-    title: { type: String | null, default: null },
+    title: { type: [String, null], default: null },
     searchable: { type: Boolean, default: true },
     namespace: { type: String, required: true },
     rowKey: { type: String, default: 'id' },
     stateKey: { type: String, default: 'paginated' },
-    config: { type: Object | null, required: true, defaul: { data: {}, columns: [] } },
-    filters: { type: Object | null, default: null },
-    filtersQueryKey: { type: String | null, default: 'onlyFiltersData' },
+    config: { type: [Object, null], required: true, defaul: { data: {}, columns: [] } },
+    filters: { type: [Object, null], default: null },
+    filtersQueryKey: { type: [String, null], default: 'onlyFiltersData' },
     exportable: { type: Boolean, default: true }
   },
   emits: ['delete', 'show', 'edit', 'searchDone', 'sortDone', 'dataUpdated', 'perPageUpdated', 'filterReset'],
@@ -225,7 +225,7 @@ export default {
       if (this.filters) {
         for (const key in this.filters) {
           if (Object.hasOwnProperty.call(this.filters, key)) {
-            if (this.filters[key]?.type == 'date-range' && this.filters[key] !== undefined) {
+            if (this.filters[key]?.type === 'date-range' && this.filters[key] !== undefined) {
               const parent = this.filters[key]
               const fields = parent.attributes
               const values = []
