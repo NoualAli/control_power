@@ -36,7 +36,7 @@ export default {
       immediate: true,
       async handler (route) {
         try {
-          this.setLayout(route.meta.layout)
+          if (route.meta.layout) this.setLayout(route.meta.layout)
         } catch (e) {
           this.layout = defaultLayout
         }

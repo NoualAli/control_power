@@ -8,7 +8,7 @@
         :id="id || name" :maxlength="length" :class="[{ 'is-danger': form?.errors.has(name) }, 'input', { 'is-for-auth': isForAuth }]" :type="finalType"
         :name="name" :autocomplete="autocomplete"
         :autofocus="autofocus" :placeholder="placeholder || label" :value="value" :readonly="readonly"
-        v-on="$listeners" @input="onInput($event)"
+        v-bind="$attrs" @input="onInput"
       >
 
       <div
@@ -32,7 +32,7 @@ export default {
     event: 'update'
   },
   props: {
-    form: { type: Object, required: false },
+    form: { type: Object, required: false, default: null },
     autocomplete: { type: String, default: 'off' },
     autofocus: { type: Boolean, default: false },
     type: { type: String, default: 'text' },
@@ -70,6 +70,7 @@ export default {
      * @param {Object} $event
      */
     onInput ($event) {
+      console.log($event.target.value)
       let value = $event.target.value
       this.currentLength = value.length
 
@@ -77,9 +78,9 @@ export default {
         value = this.sanitizeInput(value)
       }
 
-      if (this.length) {
-        value = value.slice(0, this.length)
-      }
+      // if (this.length) {
+      //   value = value.slice(0, this.length)
+      // }
 
       this.$emit('update', value)
     },
