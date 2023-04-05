@@ -7,7 +7,7 @@
       <input
         :id="id || name" :maxlength="length" :class="[{ 'is-danger': form?.errors.has(name) }, 'input', { 'is-for-auth': isForAuth }]" :type="finalType"
         :name="name" :autocomplete="autocomplete"
-        :autofocus="autofocus" :placeholder="placeholder || label" :value="value" :readonly="readonly"
+        :autofocus="autofocus" :placeholder="placeholder || label" :value="modelValue" :readonly="readonly"
         v-bind="$attrs" @input="onInput"
       >
 
@@ -27,10 +27,6 @@ import DefaultContainer from './DefaultContainer'
 export default {
   name: 'NLInput',
   components: { DefaultContainer },
-  model: {
-    prop: 'value',
-    event: 'update'
-  },
   props: {
     form: { type: Object, required: false, default: null },
     autocomplete: { type: String, default: 'off' },
@@ -41,12 +37,12 @@ export default {
     label: { type: String, default: '' },
     labelRequired: { type: Boolean, default: false },
     placeholder: { type: String, default: '' },
-    value: { type: [String, Number], default: '' },
+    modelValue: { type: [String, Number], default: '' },
     readonly: { type: Boolean, default: false },
     length: { type: [Number, String], default: null },
     helpText: { type: String, default: null }
   },
-  emits: ['update'],
+  emits: ['update:modelValue'],
 
   data () {
     return {
@@ -78,11 +74,11 @@ export default {
         value = this.sanitizeInput(value)
       }
 
-      // if (this.length) {
-      //   value = value.slice(0, this.length)
-      // }
+      if (this.length) {
+        value = value.slice(0, this.length)
+      }
 
-      this.$emit('update', value)
+      this.$emit('update:modelValue', value)
     },
     /**
      * Sanitize input from special chars

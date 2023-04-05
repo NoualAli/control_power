@@ -1,10 +1,4 @@
-<!-- <template>
-  <transition name="page" mode="out-in">
-    <slot>
-      <router-view :key="$route.url" />
-    </slot>
-  </transition>
-</template> -->
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <router-view :key="$route.url" v-slot="{Component}">
     <transition name="page" mode="out-in">
@@ -15,6 +9,7 @@
 
 <script>
 export default {
+  // eslint-disable-next-line vue/multi-word-component-names
   name: 'Child'
 
 }

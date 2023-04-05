@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <!-- eslint-disable vue/valid-model-definition -->
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
@@ -41,17 +42,14 @@
 
 <script>
 import NLInput from '../../components/Inputs/NLInput'
-import Form from 'vform'
 import NLButton from '../../components/Inputs/NLButton.vue'
+import Form from 'vform'
 
 export default {
   components: { NLInput, NLButton },
   layout: 'auth',
   middleware: 'guest',
 
-  beforeCreated () {
-    console.log('test')
-  },
   metaInfo () {
     return { title: this.$t('login') }
   },

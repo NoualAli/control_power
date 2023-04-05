@@ -20,15 +20,16 @@ export function getAgencies () {
 
 export function isAbleTo ($abilities = String | Array) {
   const can = []
+  console.log(`$abilities :${$abilities}`)
   const userPermissions = getPermissions()
   if (typeof $abilities === 'string') {
     $abilities = ($abilities || '').split(/\s*,\s*/)
-    $abilities.some(ability => {
+    $abilities.forEach(ability => {
       can.push(userPermissions.includes(ability.trim()))
     })
     return can.some(value => value === true)
   } else if (typeof $abilities === 'array') {
-    $abilities.foreEach($ability => {
+    $abilities.forEach($ability => {
       can.push(userPermissions.includes($ability.trim()))
     })
     return can.includes(true)
@@ -48,12 +49,12 @@ export function hasRole (roles = String | Array, status) {
   const hasRoles = []
   if (typeof roles === 'string') {
     roles = (roles || '').split(/\s*,\s*/)
-    roles.some(role => {
+    roles.forEach(role => {
       hasRoles.push(userRoles.includes(role))
     })
     return hasRoles.some(value => value === true)
   } else if (typeof roles === 'array') {
-    roles.foreEach(role => {
+    roles.forEach(role => {
       hasRoles.push(userRoles.includes(role))
     })
     return hasRoles.includes(true)
