@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 export function user () {
   return JSON.parse(localStorage.getItem('user')) || []
 }
@@ -20,26 +21,26 @@ export function getAgencies () {
 
 export function isAbleTo ($abilities = String | Array) {
   const can = []
-  console.log(`$abilities :${$abilities}`)
   const userPermissions = getPermissions()
-  if (typeof $abilities === 'string') {
+  if (typeof $abilities == 'string') {
     $abilities = ($abilities || '').split(/\s*,\s*/)
     $abilities.forEach(ability => {
       can.push(userPermissions.includes(ability.trim()))
     })
     return can.some(value => value === true)
-  } else if (typeof $abilities === 'array') {
+  } else if (Array.isArray($abilities)) {
     $abilities.forEach($ability => {
       can.push(userPermissions.includes($ability.trim()))
     })
     return can.includes(true)
-  } else if (typeof $abilities === 'object') {
+  } else if (typeof $abilities == 'object') {
     for (const key in $abilities) {
       if (Object.hasOwnProperty.call($abilities, key)) {
         const $ability = $abilities[key].trim()
         can.push(userPermissions.includes($ability))
       }
     }
+    console.log(`can :${can}`)
     return can.includes(true)
   }
 }

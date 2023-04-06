@@ -17,7 +17,7 @@
     >
       <!-- <div class="invalid-feedback d-block text-danger d-inline">
         <template v-for="error in getFieldErrors(name)">
-          {{ error }}<br>
+          {{ error }} <br>
         </template>
       </div> -->
       <has-error v-if="form" :form="form" :field="name" class="text-danger d-inline" />
@@ -47,7 +47,7 @@ export default {
     getFieldErrors (fieldName) {
       const errors = this.form?.errors.any() ? this.form.errors.errors : false
       const fieldErrors = []
-      console.log(errors)
+      // console.log(errors)
       if (errors) {
         for (const error of errors) {
           console.log(error?.field?.startsWith(fieldName), error, fieldName)

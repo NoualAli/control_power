@@ -27,7 +27,7 @@ app.use(LoadingPlugin, {
   'is-full-page': true
 }, {})
 
-app.use(Vue3Breadcrumbs)
+app.use(Vue3Breadcrumbs, { includeComponent: true })
 
 app.config.globalProperties.$api = api
 

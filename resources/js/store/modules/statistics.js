@@ -1,52 +1,53 @@
-import api from "../../plugins/api"
+import api from '../../plugins/api'
 
 export const state = {
   anomalies: null,
   majorFacts: null,
   regularizations: null,
   scores: null,
-  realisationStates: null,
+  realisationStates: null
 }
 
 export const mutations = {
-  FETCH_ANOMALIES(state, data) {
+  FETCH_ANOMALIES (state, data) {
     state.anomalies = data
   },
-  FETCH_MAJOR_FACTS(state, data) {
+  FETCH_MAJOR_FACTS (state, data) {
     state.majorFacts = data
   },
-  FETCH_REGULARIZATIONS(state, data) {
+  FETCH_REGULARIZATIONS (state, data) {
     state.regularizations = data
   },
-  FETCH_SCORES(state, data) {
+  FETCH_SCORES (state, data) {
     state.scores = data
   },
-  FETCH_REALISATION_STATES(state, data) {
+  FETCH_REALISATION_STATES (state, data) {
     state.realisationStates = data
-  },
+  }
 }
 
 export const actions = {
-  async fetchAnomalies({ commit }) {
+  async fetchAnomalies ({ commit }) {
     const { data } = await api.get('/statistics/anomalies')
-    commit('FETCH_ANOMALIES', { data: data })
+    commit('FETCH_ANOMALIES', { data })
   },
-  async fetchMajorFacts({ commit }) {
+  async fetchMajorFacts ({ commit }) {
     const { data } = await api.get('/statistics/majorFacts')
-    commit('FETCH_MAJOR_FACTS', { data: data })
+    commit('FETCH_MAJOR_FACTS', { data })
   },
-  async fetchRegularizations({ commit }) {
+  async fetchRegularizations ({ commit }) {
     const { data } = await api.get('/statistics/regularizations')
-    commit('FETCH_REGULARIZATIONS', { data: data })
+    commit('FETCH_REGULARIZATIONS', { data })
   },
-  async fetchScores({ commit }) {
+  async fetchScores ({ commit }) {
     const { data } = await api.get('/statistics/scores')
-    commit('FETCH_SCORES', { data: data })
+    commit('FETCH_SCORES', { data })
   },
-  async fetchRealisationStates({ commit }) {
+  async fetchRealisationStates ({ commit }) {
     const { data } = await api.get('/statistics/realisationStates')
-    commit('FETCH_REALISATION_STATES', { data: data })
-  },
+    console.log(data)
+    commit('FETCH_REALISATION_STATES', { data })
+  }
 }
 
 export const getters = {
@@ -54,5 +55,5 @@ export const getters = {
   majorFacts: state => state.majorFacts,
   regularizations: state => state.regularizations,
   scores: state => state.scores,
-  realisationStates: state => state.realisationStates,
+  realisationStates: state => state.realisationStates
 }

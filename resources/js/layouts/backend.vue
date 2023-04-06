@@ -7,7 +7,10 @@
       <div class="header-container">
         <div class="title-side">
           <div>
-            <app-breadcrumbs />
+            <!-- <app-breadcrumbs /> -->
+            <AmBreadcrumbs
+              :show-current-crumb="true"
+            />
           </div>
         </div>
         <div class="actions-side">
