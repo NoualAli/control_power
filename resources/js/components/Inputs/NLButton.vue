@@ -9,14 +9,14 @@
 
 <script>
 export default {
-  name: "NLButton",
+  name: 'NLButton',
   props: {
     loading: { type: Boolean, default: false },
     label: { type: String, default: 'Valider' },
     type: { type: String, default: '' }
   },
   computed: {
-    finalType() {
+    finalType () {
       return this.type ? 'btn-' + this.type : null
     }
   }

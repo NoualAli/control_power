@@ -19,6 +19,8 @@ export const getters = {
 export const mutations = {
   [types.SAVE_TOKEN] (state, { token, remember }) {
     state.token = token
+    console.log('mutation')
+    console.log(state.token)
     Cookies.set('token', token, { expires: remember ? 365 : null })
   },
 
@@ -46,12 +48,15 @@ export const mutations = {
 // actions
 export const actions = {
   saveToken ({ commit, dispatch }, payload) {
+    console.log('action')
+    console.log(payload)
     commit(types.SAVE_TOKEN, payload)
   },
 
   async fetchUser ({ commit }) {
     try {
       const { data } = await api.get('user')
+      console.log(data)
       const user = { ...data }
       delete user.roles
       delete user.roles_str
