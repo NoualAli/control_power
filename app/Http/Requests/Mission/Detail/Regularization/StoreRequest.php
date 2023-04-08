@@ -24,7 +24,7 @@ class StoreRequest extends FormRequest
      */
     public function rules()
     {
-        $isActionToBeTaken = request()->type == 'Action à engagé' && !request()->id && request()->reason == null;
+        $isActionToBeTaken = request()->type == 'Action à engagée' && !request()->id && request()->reason == null;
         $isReason = request()->type == 'Cause' && !request()->id && request()->action_to_be_taken == null;
         $regularized = boolval(request()->regularized);
         if ($regularized) {
@@ -41,7 +41,7 @@ class StoreRequest extends FormRequest
                 'regularized' => ['required', 'boolean'],
                 'type' => ['required_if:regularized,false'],
                 'reason' => ['required_if:type,Cause', 'max:1000'],
-                'action_to_be_taken' => ['required_if:type,Action à engagé', 'max:3000'],
+                'action_to_be_taken' => ['required_if:type,Action à engagée', 'max:3000'],
             ];
         }
         // dd($regularized, request()->all());
