@@ -11,7 +11,6 @@ use App\Http\Resources\MissionResource;
 use App\Models\Agency;
 use App\Models\ControlCampaign;
 use App\Models\Mission;
-use App\Models\Process;
 use App\Models\User;
 use App\Notifications\Mission\AssignationRemoved;
 use App\Notifications\Mission\Assigned;
@@ -136,14 +135,18 @@ class MissionController extends Controller
         }
         if (request()->has('onlyProcesses') || request()->has('page')) {
             $mission->unsetRelations();
-            $processes = DB::table('processes as p')
-                ->selectRaw('p.id as process_id, p.name as process, d.name as domain, f.name as family, COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, DATE_FORMAT(MAX(md.executed_at), "%d-%m-%Y") AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(IF(md.score IS NOT NULL, md.id, NULL)) AS scored_mission_details, (COUNT(IF(md.score IS NOT NULL, md.id, NULL)) / COUNT(md.id)) * 100 AS progress_status')
-                ->join('control_points as cp', 'p.id', '=', 'cp.process_id')
+            $processes = DB::table('processes as p');
+            if (env('APP_ENV') == 'windows') {
+                $processes = $processes->selectRaw("p.id as process_id, p.name as process, d.name as domain, f.name as family, COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, FORMAT(MAX(md.executed_at), 'dd-MM-yyyy') AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) AS scored_mission_details, (COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) / COUNT(md.id)) * 100 AS progress_status");
+            } else {
+                $processes = $processes->selectRaw('p.id as process_id, p.name as process, d.name as domain, f.name as family, COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, DATE_FORMAT(MAX(md.executed_at), "%d-%m-%Y") AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(IF(md.score IS NOT NULL, md.id, NULL)) AS scored_mission_details, (COUNT(IF(md.score IS NOT NULL, md.id, NULL)) / COUNT(md.id)) * 100 AS progress_status');
+            }
+            $processes = $processes->join('control_points as cp', 'p.id', '=', 'cp.process_id')
                 ->join('domains as d', 'd.id', '=', 'p.domain_id')
                 ->join('famillies as f', 'f.id', '=', 'd.familly_id')
                 ->join('mission_details as md', 'cp.id', '=', 'md.control_point_id')
                 ->join('missions as m', 'm.id', '=', 'md.mission_id')
-                ->groupBy('p.id')
+                ->groupBy('p.id', 'p.name', 'd.name', 'f.name')
                 ->where('m.id', $mission->id);
             $processes = !hasRole(['cdc', 'ci']) ? $processes->whereIn('md.score', [2, 3, 4]) : $processes;
             $processes = $processes->orderBy('p.id')->get();
