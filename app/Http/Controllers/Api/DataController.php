@@ -233,7 +233,6 @@ class DataController extends Controller
      */
     private function dresClassificationByAchievementRate(): array
     {
-        // $dres = Dre::with('missions')->whereHas('missions')->get();
         $missions = $this->getMissions()->with('dre')->get()->groupBy('dre.name');
         $achievments = [];
         foreach ($missions as $dre => $missions) {
@@ -243,15 +242,9 @@ class DataController extends Controller
             $rate = $total ? number_format(($totalAchieved * 100) / $total, 2) : 0;
             array_push($achievments, ['dre' => $dre->full_name, 'total' => $total, 'totalAchieved' => $totalAchieved, 'rate' => $rate]);
         }
-        // foreach ($dres as $dre) {
-        //     $totalAchieved = $dre->missions()->validated()->count();
-        //     $total = $dre->missions()->count();
-        //     $rate = $total ? number_format(($totalAchieved * 100) / $total, 2) : 0;
-        //     array_push($achievments, ['dre' => $dre->full_name, 'total' => $total, 'totalAchieved' => $totalAchieved, 'rate' => $rate]);
-        // }
-        // usort($achievments, function ($a, $b) {
-        //     return $b['rate'] - $a['rate'];
-        // });
+        usort($achievments, function ($a, $b) {
+            return $b['rate'] <=> $a['rate'];
+        });
 
         return $achievments;
     }
