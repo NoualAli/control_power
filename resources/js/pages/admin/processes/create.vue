@@ -61,7 +61,7 @@ export default {
   },
   methods: {
     initData() {
-      this.$store.dispatch('famillies/fetchAll').then(() => {
+      this.$store.dispatch('famillies/fetchAll', false).then(() => {
         this.familliesList = this.famillies.all
       })
     },
@@ -78,7 +78,7 @@ export default {
       this.form.post('/api/processes').then(response => {
         if (response.data.status) {
           swal.toast_success(response.data.message)
-          this.form.reset()
+          this.form.name = null
         } else {
           swal.alert_error(response.data.message)
         }

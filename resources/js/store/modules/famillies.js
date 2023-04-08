@@ -23,7 +23,7 @@ export const mutations = {
 }
 
 export const actions = {
-  async fetchAll({ commit }, { withChildren = true }) {
+  async fetchAll({ commit }, withChildren = true) {
     const url = withChildren ? 'famillies?fetchAll&withChildren' : 'famillies?fetchAll'
     const { data } = await api.get(url)
     commit('FETCH_ALL', { all: data })

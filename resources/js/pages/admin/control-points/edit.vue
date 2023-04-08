@@ -322,7 +322,7 @@ export default {
  * Récupère la liste des familles
  */
     loadFamillies() {
-      this.$store.dispatch('famillies/fetchAll', { withChildren: false }).then(() => {
+      this.$store.dispatch('famillies/fetchAll', false).then(() => {
         this.familliesList = this.famillies.all
         this.loadDomains(this.form.familly_id)
         this.loadProcesses(this.form.domain_id)
