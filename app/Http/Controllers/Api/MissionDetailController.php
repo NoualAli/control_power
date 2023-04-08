@@ -82,9 +82,9 @@ class MissionDetailController extends Controller
         } elseif (hasRole('dre')) {
             $details = auth()->user()->details()->hasDcpValidation();
         } elseif (hasRole('da')) {
-            $details = $user->details()->hasDcpValidation()->onlyUnregularized();
+            $details = $user->details()->hasDcpValidation();
         }
-        return $details->whereAnomaly()->executed()->with(['process', 'domain', 'controlPoint', 'familly', 'media']);
+        return $details->whereAnomaly()->where('major_fact', '!=', true)->executed()->with(['process', 'domain', 'controlPoint', 'familly', 'media']);
     }
     /**
      * @return Illuminate\Http\JsonResponse
