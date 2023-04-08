@@ -566,7 +566,7 @@ export default {
           label: 'Régularisation',
           multiple: false,
           value: null,
-          hide: !hasRole([ 'dcp', 'cdcr' ]),
+          hide: !hasRole([ 'dcp', 'cdcr', 'da' ]),
           data: [
             {
               id: 0,
