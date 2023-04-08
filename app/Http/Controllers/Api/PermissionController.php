@@ -54,7 +54,6 @@ class PermissionController extends Controller
 
             $permission = Permission::create([
                 'name' => $data['name'],
-                'guard_name' => Auth::getDefaultDriver()
             ]);
             if (isset($data['roles'])) {
                 $permission->roles()->sync($data['roles']);
@@ -65,12 +64,10 @@ class PermissionController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $code);
+            ], 500);
         }
     }
 
@@ -100,7 +97,6 @@ class PermissionController extends Controller
             $data = $request->validated();
             $permission->update([
                 'name' => $data['name'],
-                'guard_name' => Auth::getDefaultDriver()
             ]);
 
             if (isset($data['roles'])) {
@@ -112,12 +108,10 @@ class PermissionController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $code);
+            ], 500);
         }
     }
 
@@ -137,12 +131,10 @@ class PermissionController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $code);
+            ], 500);
         }
     }
 }
