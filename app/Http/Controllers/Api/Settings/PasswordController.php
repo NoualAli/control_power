@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Api\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UpdatePasswordRequest;
-use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class PasswordController extends Controller
@@ -27,7 +25,7 @@ class PasswordController extends Controller
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $th->getCode());
+            ], 500);
         }
     }
 }
