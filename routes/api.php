@@ -237,6 +237,6 @@ Route::group(['middleware' => 'auth:api'], function () {
 Route::group(['middleware' => 'guest:api'], function () {
     Route::post('login', [LoginController::class, 'login']);
 
-    Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail']);
-    Route::post('password/reset', [ResetPasswordController::class, 'reset']);
+    // Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+    // Route::post('password/reset', [ResetPasswordController::class, 'reset']);
 });
