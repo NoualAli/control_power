@@ -452,10 +452,29 @@ export default {
             label: 'Notation',
             field: 'score',
             hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
+            isHtml: true,
             methods: {
               style() {
                 return 'text-center'
-              }
+              },
+              showField(item) {
+                const score = item.score
+                let style = 'text-dark text-bold'
+                if (score == 1) {
+                  style = 'bg-success text-white text-bold'
+                } else if (score == 2) {
+                  style = 'bg-info text-white text-bold'
+                } else if (score == 3) {
+                  style = 'bg-warning text-bold'
+                } else if (score == 4) {
+                  style = 'bg-danger text-white text-bold'
+                } else {
+                  style = 'bg-grey text-dark text-bold'
+                }
+                return `<div class="container">
+                  <div class="has-border-radius py-1 text-center ${style}">${score}</div>
+                </div>`
+              },
             }
           },
           {
