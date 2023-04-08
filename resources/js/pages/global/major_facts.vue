@@ -323,8 +323,8 @@ export default {
           label: 'Cause',
         },
         {
-          id: 'Action à engagé',
-          label: 'Action à engagé',
+          id: 'Action à engagée',
+          label: 'Action à engagée',
         },
       ],
       tableConfig: {
@@ -363,20 +363,6 @@ export default {
             field: 'control_point_name',
           },
           {
-            label: 'Fait majeur',
-            field: 'major_fact_str',
-            isHtml: true,
-            methods: {
-              showField(item) {
-                return `
-                <div class="text-center">
-                  ${item.major_fact_str}
-                </div>
-                `
-              }
-            }
-          },
-          {
             label: 'Notation',
             field: 'score',
             hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
@@ -392,15 +378,6 @@ export default {
         }
       },
       forms: {
-        // regularization: new Form({
-        //   regularization_id: null,
-        //   detail_id: null,
-        //   regularized: false,
-        //   reason: null,
-        //   committed_action: null,
-        //   action_to_be_taken: null,
-        //   type: null
-        // }),
         detail: new Form({
           process_mode: false,
           mission: null,
@@ -457,22 +434,6 @@ export default {
           data: null,
           value: null,
         },
-        is_regularized: {
-          label: 'Régularisation',
-          multiple: false,
-          value: null,
-          hide: !hasRole([ 'dcp', 'cdcr' ]),
-          data: [
-            {
-              id: 0,
-              label: 'Non levé'
-            },
-            {
-              id: 1,
-              label: 'Levé'
-            },
-          ],
-        },
         score: {
           label: 'Notation',
           multiple: true,
@@ -495,20 +456,6 @@ export default {
             },
           ],
           value: null,
-        },
-        major_fact: {
-          label: 'Fait majeur',
-          data: [
-            {
-              id: 0,
-              label: 'Non'
-            },
-            {
-              id: 1,
-              label: 'Oui'
-            },
-          ],
-          value: null
         },
       },
       currentMetadata: {},

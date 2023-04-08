@@ -342,7 +342,7 @@
           class="grid gap-6">
           <div class="col-12">
             <NLSwitch v-model="forms.regularization.regularized" type="is-success" :name="'regularized'"
-              :form="forms.regularized" label="Levé" />
+              :form="forms.regularized" label="Levée" />
           </div>
           <div class="col-12">
             <NLSelect name="type" :options="regularizationTypes" :form="forms.regularization"
@@ -351,15 +351,15 @@
           </div>
           <!-- Recovery plan -->
           <div class="col-12" v-if="forms.regularization.regularized">
-            <NLTextarea :name="'committed_action'" label="Action engagé" :form="forms.regularization"
+            <NLTextarea :name="'committed_action'" label="Action engagée" :form="forms.regularization"
               v-model="forms.regularization.committed_action" length="3000" labelRequired />
           </div>
           <div class="col-12" v-if="!forms.regularization.regularized && forms.regularization.type == 'Cause'">
             <NLTextarea :name="'reason'" label="Cause" :form="forms.regularization" v-model="forms.regularization.reason"
               length="1000" labelRequired />
           </div>
-          <div class="col-12" v-if="!forms.regularization.regularized && forms.regularization.type == 'Action à engagé'">
-            <NLTextarea :name="'action_to_be_taken'" label="Action à engagé" :form="forms.regularization"
+          <div class="col-12" v-if="!forms.regularization.regularized && forms.regularization.type == 'Action à engagée'">
+            <NLTextarea :name="'action_to_be_taken'" label="Action à engagée" :form="forms.regularization"
               v-model="forms.regularization.action_to_be_taken" length="3000" labelRequired />
           </div>
           <div class="col-12 d-flex justify-end align-center">
@@ -409,8 +409,8 @@ export default {
           label: 'Cause',
         },
         {
-          id: 'Action à engagé',
-          label: 'Action à engagé',
+          id: 'Action à engagée',
+          label: 'Action à engagée',
         },
       ],
       tableConfig: {
@@ -449,20 +449,6 @@ export default {
             field: 'control_point_name',
           },
           {
-            label: 'Fait majeur',
-            field: 'major_fact_str',
-            isHtml: true,
-            methods: {
-              showField(item) {
-                return `
-                <div class="text-center">
-                  ${item.major_fact_str}
-                </div>
-                `
-              }
-            }
-          },
-          {
             label: 'Notation',
             field: 'score',
             hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
@@ -471,6 +457,10 @@ export default {
                 return 'text-center'
               }
             }
+          },
+          {
+            label: 'Etat',
+            field: 'is_regularized',
           },
         ],
         actions: {
@@ -561,11 +551,11 @@ export default {
           data: [
             {
               id: 0,
-              label: 'Non levé'
+              label: 'Non levée'
             },
             {
               id: 1,
-              label: 'Levé'
+              label: 'Levée'
             },
           ],
         },
@@ -588,20 +578,6 @@ export default {
           ],
           value: null,
           hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
-        },
-        major_fact: {
-          label: 'Fait majeur',
-          data: [
-            {
-              id: 0,
-              label: 'Non'
-            },
-            {
-              id: 1,
-              label: 'Oui'
-            },
-          ],
-          value: null
         },
       },
       currentMetadata: {},
@@ -675,12 +651,11 @@ export default {
       }
       this.forms.detail.reset()
       this.forms.regularization.reset()
-      this.initData()
+      if (modal !== 'show') {
+        this.initData()
+      }
       this.currentMetadata = {}
       this.rowSelected = null
-      if (modal == 'show') {
-      } else {
-      }
     },
     /**
      * Initialise le formulaire
