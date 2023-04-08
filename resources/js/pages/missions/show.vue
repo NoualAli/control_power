@@ -456,26 +456,21 @@ export default {
             isHtml: true,
             methods: {
               showField(item) {
-                let state = 'done'
-                if (item.state == 'En cours') {
-                  state = 'inProgress'
-                } else if (item.state == 'À réaliser') {
-                  state = 'todo'
-                } else if (item.state == 'Réliser') {
-                  state = 'done'
-                } else if (item.state == 'En retard') {
-                  state = 'late'
-                } else if (item.state == 'Validé et envoyé') {
-                  state = 'validated'
-                } else if (item.state == 'En attente de validation') {
-                  state = 'wating-validation'
-                } else if (item.state == '1ère validation') {
-                  state = 'first-validation'
-                } else if (item.state == '2ème validation') {
-                  state = 'second-validation'
+                const score = item.avg_score
+                let style = 'text-dark text-bold'
+                if (score == 1) {
+                  style = 'bg-success text-white text-bold'
+                } else if (score == 2) {
+                  style = 'bg-info text-white text-bold'
+                } else if (score == 3) {
+                  style = 'bg-warning text-bold'
+                } else if (score == 4) {
+                  style = 'bg-danger text-white text-bold'
+                } else {
+                  style = 'bg-grey text-dark text-bold'
                 }
-                return `<div class="container" title="${item.state}">
-                  <div class="mission-state ${state}"></div>
+                return `<div class="container">
+                  <div class="has-border-radius py-1 text-center ${style}">${score}</div>
                 </div>`
               },
             }
