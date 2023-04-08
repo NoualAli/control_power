@@ -31,7 +31,7 @@ class UpdateRequest extends FormRequest
             'controllers' => ['required', 'array', new IsAbleTo('control_agency')],
             'start' => ['required', 'date', new IncludedInsideCDCDate(request()->control_campaign_id)],
             'end' => ['required', 'date', 'after:start', new IncludedInsideCDCDate(request()->control_campaign_id)],
-            'note' => ['nullable', 'string', 'max:255']
+            'note' => ['nullable', 'string', 'max:1000']
         ];
     }
 }

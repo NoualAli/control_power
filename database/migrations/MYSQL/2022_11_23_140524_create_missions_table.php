@@ -16,7 +16,7 @@ class CreateMissionsTable extends Migration
         Schema::create('missions', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('reference')->unique();
-            $table->string('note')->nullable();
+            $table->text('note')->nullable();
 
             // Relationships
             $table->foreignId('control_campaign_id');

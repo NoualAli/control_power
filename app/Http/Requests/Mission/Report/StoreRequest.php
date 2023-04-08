@@ -27,14 +27,14 @@ class StoreRequest extends FormRequest
         $type = request()->type;
         if ($type == 'Avis contrôleur') {
             return [
-                'opinion' => ['required', 'string', 'max:1000'],
+                'opinion' => ['required', 'string', 'max:3000'],
                 'type' => ['required', 'in:Avis contrôleur'],
                 'id' => ['nullable', 'exists:mission_reports'],
                 'validated' => ['required', 'boolean']
             ];
         } else {
             return [
-                'report' => ['required', 'string', 'max:2000'],
+                'report' => ['required', 'string', 'max:3000'],
                 'type' => ['required', 'in:Rapport'],
                 'id' => ['nullable', 'exists:mission_reports'],
                 'validated' => ['required', 'boolean']
