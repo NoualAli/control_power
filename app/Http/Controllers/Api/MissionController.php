@@ -77,7 +77,7 @@ class MissionController extends Controller
     {
         $missions = new Mission();
         if (hasRole(['dcp', 'cdcr'])) {
-            $missions = $missions->validated();
+            $missions = $missions;
         } elseif (hasRole(['cdc', 'cc', 'ci'])) {
             $missions = auth()->user()->missions();
         } elseif (hasRole(['da', 'dre'])) {
