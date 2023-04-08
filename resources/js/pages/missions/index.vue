@@ -68,19 +68,26 @@ export default {
             label: 'Moyenne',
             field: 'avg_score',
             hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
+            isHtml: true,
             methods: {
-              style: (item) => {
+              showField(item) {
                 const score = item.avg_score
+                let style = 'text-dark text-bold'
                 if (score == 1) {
-                  return 'bg-success text-white text-bold'
+                  style = 'bg-success text-white text-bold'
                 } else if (score == 2) {
-                  return 'bg-info text-white text-bold'
+                  style = 'bg-info text-white text-bold'
                 } else if (score == 3) {
-                  return 'bg-warning text-bold'
+                  style = 'bg-warning text-bold'
+                } else if (score == 4) {
+                  style = 'bg-danger text-white text-bold'
                 } else {
-                  return 'bg-danger text-white text-bold'
+                  style = 'bg-grey text-dark text-bold'
                 }
-              }
+                return `<div class="container">
+                  <div class="has-border-radius py-1 text-center ${style}">${score}</div>
+                </div>`
+              },
             }
           },
           {
@@ -89,19 +96,23 @@ export default {
             isHtml: true,
             methods: {
               showField(item) {
-                let state = 'inProgress'
-                if (item.state == 'EN COURS') {
+                let state = 'done'
+                if (item.state == 'En cours') {
                   state = 'inProgress'
-                } else if (item.state == 'À RÉALISER') {
+                } else if (item.state == 'À réaliser') {
                   state = 'todo'
-                } else if (item.state == 'RÉALISÉ') {
+                } else if (item.state == 'Réliser') {
                   state = 'done'
-                } else if (item.state == 'EN RETARD') {
+                } else if (item.state == 'En retard') {
                   state = 'late'
                 } else if (item.state == 'Validé et envoyé') {
                   state = 'validated'
                 } else if (item.state == 'En attente de validation') {
                   state = 'wating-validation'
+                } else if (item.state == '1ère validation') {
+                  state = 'first-validation'
+                } else if (item.state == '2ème validation') {
+                  state = 'second-validation'
                 }
                 return `<div class="container" title="${item.state}">
                   <div class="mission-state ${state}"></div>
@@ -136,7 +147,10 @@ export default {
         ],
         actions: {
           show: (item) => {
-            return this.can('view_mission')
+            if (hasRole([ 'cdc', 'ci' ])) {
+              return this.can('view_mission')
+            }
+            return this.can('view_mission') && item.progress_status == 100
           },
           edit: (item) => {
             return this.can('edit_mission') && item.remaining_days_before_start > 5

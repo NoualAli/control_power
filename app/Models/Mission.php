@@ -131,40 +131,72 @@ class Mission extends Model
     }
     public function getRealisationStateAttribute()
     {
-        return $this->states()->latest()->first()->state;
-        // if (!$this->remaining_days_before_end) {
-        //     return 'EN RETARD';
+        // return $this->states()->latest()->first()->state;
+
+        // if ($this->remaining_days_before_start) {
+        //     return 'À réaliser';
         // }
 
-        if ($this->remaining_days_before_start) {
-            return 'À RÉALISER';
-        }
-
-        if (!$this->controller_opinion) {
-            if (!$this->remaining_days_before_end) {
-                return 'EN RETARD';
-            }
-            return 'EN COURS';
-        } elseif ($this->controller_opinion && $this->controller_opinion->is_validated && !$this->head_of_department_report) {
-            return 'En attente de validation';
-        } elseif ($this->head_of_department_report) {
-            return 'Validé et envoyé';
-        } else {
-            return 'RÉALISÉ';
-        }
-        // if ($this->validated_at) {
-        //     return 'RÉALISÉ';
-        // } else {
-        //     if ($this->remaining_days_before_end < 0) {
-        //         return 'EN RETARD';
-        //     } else {
-        //         if ($this->details()->count()) {
-        //             return 'EN COURS';
-        //         } else {
-        //             return 'À RÉALISER';
-        //         }
+        // if (!$this->controller_opinion) {
+        //     if (!$this->remaining_days_before_end) {
+        //         return 'En retard';
         //     }
+        //     return 'En cours';
+        // } elseif ($this->controller_opinion && $this->controller_opinion->is_validated && !$this->head_of_department_report) {
+        //     return 'En attente de validation';
+        // } elseif ($this->head_of_department_report) {
+        //     return 'Validé et envoyé';
+        // } else {
+        //     return 'Réaliser';
         // }
+
+        $today = now();
+        $start = $this->start;
+        $end = $this->end;
+        $report = $this->dre_report;
+        $comment = $this->opinion;
+        $cdcrValidationBy = $this->cdcr_validation_by_id;
+        $dcpValidationBy = $this->dcp_validation_by_id;
+        $progressStatus = $this->progress_status;
+        $startDiff = $today->diffInDays($start, false);
+        $endDiff = $today->diffInDays($end, false);
+        // dd($endDiff, !$comment?->is_validated, !$report?->is_validated, $progressStatus < 100);
+        if ($startDiff >= 0 && $progressStatus == 0) {
+            return 'À réaliser';
+        } else if ($startDiff < 0 && $endDiff >= 0 && $progressStatus <= 100) {
+            return 'En cours';
+        } else if ($endDiff < 0 && $progressStatus >= 100 && $comment && $comment->is_validated && (!$report || ($report && !$report->is_validated))) {
+            return 'En attente de validation';
+        } else if ($endDiff < 0 && $progressStatus >= 100 && $report?->is_validated && !$cdcrValidationBy) {
+            return 'Validé et envoyé';
+        } else if ($endDiff < 0 && $progressStatus >= 100 && $report?->is_validated && $cdcrValidationBy && !$dcpValidationBy) {
+            return '1ère validation';
+        } else if ($endDiff < 0 && $progressStatus >= 100 && $report?->is_validated && $dcpValidationBy) {
+            return '2ème validation';
+        } else if ($endDiff < 0 && $progressStatus < 100 && (!$comment?->is_validated || !$report?->id_validated)) {
+            return 'En retard';
+        } else {
+            return 'Indéterminé';
+        }
+
+        // Je voudrais que tu me construise un getter pour realisation state,
+        // Voici les variable à prendre en compte
+        // $today = now();
+        // $start = $this->start;
+        // $end = $this->end;
+        // $report = $this->dre_report;
+        // $comment = $this->opinion;
+        // $cdcrValidationBy = $this->cdcr_validation_by_id;
+        // $dcpValidationBy = $this->dcp_validation_by_id;
+
+        // $startDiff = $today->diffInDays($start, true);
+        // $endDiff = $today->diffInDays($end, true);
+        // les conditions sont les suivantes:
+        // Si start est plus petit que date aujourd'hui et rapport n'existe pas ou comment n'existe pas alors état est À réaliser
+        // Sinon si start plus grand que date aujourd'hui et end plus petit que date aujourd'hui et que ni report ni comment n'existent pas et ne sont validée alors état en cours
+        // Sinon si end plus petit que date aujourd'hui et comment existe et validé et report n'existe pas ou report existe mais pas validé alors état en attente de validation
+        // Sinon si end plus petit que date ajourd'hui et report existe et validé et cdcrValidationBy alors état 1ère validation Sinon si end plus petit que date aujourd'hui et dcpValidationBy alors état 2ème validation
+        // Sinon si end plus grand que date ajourd'hui et pas de comment ou pas de repport alors état en retard
     }
 
     /**

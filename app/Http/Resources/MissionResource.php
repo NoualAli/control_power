@@ -22,7 +22,7 @@ class MissionResource extends JsonResource
             'reference' => $this->reference,
             'dre' => $this->dre->full_name,
             'agency' => $this->agency->full_name,
-            'state' => $this->states()->latest()->first()->state,
+            'state' => $this->realisation_state,
             'end' => $this->end,
             'start' => $this->start,
             'agency_controllers_str' => $this->agency_controllers_str,

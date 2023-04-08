@@ -106,6 +106,7 @@ class MissionController extends Controller
      */
     public function show(Mission $mission)
     {
+        // dd($mission->realisation_state);
         isAbleOrAbort('view_mission');
         $currentUser = auth()->user();
         $agencyControllers = $mission->agencyControllers->pluck('id')->toArray();

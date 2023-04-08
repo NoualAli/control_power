@@ -453,19 +453,31 @@ export default {
             label: "Moyenne",
             field: "avg_score",
             hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
+            isHtml: true,
             methods: {
-              style: (item) => {
-                const score = item.avg_score
-                if (score == 1) {
-                  return 'bg-success text-white text-bold'
-                } else if (score == 2) {
-                  return 'bg-info text-white text-bold'
-                } else if (score == 3) {
-                  return 'bg-warning text-bold'
-                } else if (score == 4) {
-                  return 'bg-danger text-white text-bold'
+              showField(item) {
+                let state = 'done'
+                if (item.state == 'En cours') {
+                  state = 'inProgress'
+                } else if (item.state == 'À réaliser') {
+                  state = 'todo'
+                } else if (item.state == 'Réliser') {
+                  state = 'done'
+                } else if (item.state == 'En retard') {
+                  state = 'late'
+                } else if (item.state == 'Validé et envoyé') {
+                  state = 'validated'
+                } else if (item.state == 'En attente de validation') {
+                  state = 'wating-validation'
+                } else if (item.state == '1ère validation') {
+                  state = 'first-validation'
+                } else if (item.state == '2ème validation') {
+                  state = 'second-validation'
                 }
-              }
+                return `<div class="container" title="${item.state}">
+                  <div class="mission-state ${state}"></div>
+                </div>`
+              },
             }
           },
         ],

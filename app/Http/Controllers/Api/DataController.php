@@ -117,7 +117,7 @@ class DataController extends Controller
         $active = (clone $missions)->filter(fn ($mission) => $mission->realisation_state == 'En cours')->count();
         $todo = (clone $missions)->filter(fn ($mission) => $mission->realisation_state == 'À réaliser')->count();
         $delay = (clone $missions)->filter(fn ($mission) => $mission->realisation_state == 'En retard')->count();
-        $done = (clone $missions)->filter(fn ($mission) => $mission->realisation_state == 'Réaliser' || $mission->realisation_state == 'Validé et envoyé' || $mission->realisation_state == '2ème validation' || $mission->realisation_state == '1ère validation')->count();
+        $done = (clone $missions)->filter(fn ($mission) =>  $mission->realisation_state == 'Validé et envoyé' || $mission->realisation_state == '2ème validation' || $mission->realisation_state == '1ère validation')->count();
         return compact('delay', 'active', 'todo', 'done');
     }
 
@@ -653,7 +653,7 @@ class DataController extends Controller
         $missions = new Mission;
         $user = auth()->user();
         if (hasRole(['dcp', 'cdcr'])) {
-            $missions = $missions->validated();
+            $missions = $missions;
         } elseif (hasRole(['cdc', 'cc', 'ci'])) {
             $missions = $user->missions();
         } elseif (hasRole(['da', 'dre'])) {
