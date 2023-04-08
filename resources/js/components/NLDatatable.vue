@@ -43,7 +43,7 @@
       </div>
     </div>
     <div class="table-container">
-      <table v-if="config.data?.meta?.total">
+      <table>
         <thead>
           <tr>
             <th :colspan="column.colspan ? column.colspan : null" :align="column.align ? column.align : 'left'"
@@ -62,7 +62,7 @@
             </th>
           </tr>
         </thead>
-        <tbody :class="{ 'is-busy': isBusy }">
+        <tbody :class="{ 'is-busy': isBusy }" v-if="config.data?.meta?.total">
           <tr v-for="item in config.data?.data" :key="item[rowKey]">
             <td :colspan="column.colspan ? column.colspan : null" :align="column.align ? column.align : 'left'"
               v-for="column in config.columns" :key="column.field" v-if="!column?.hide" :data-th="column.label"
@@ -94,10 +94,17 @@
             </td>
           </tr>
         </tbody>
+        <tbody v-else>
+          <tr>
+            <td :colspan="config?.columns.length" class="text-bold text-center p-2">
+              {{ noDataText }}
+            </td>
+          </tr>
+        </tbody>
       </table>
-      <div class="no-data my-6" v-else>
+      <!-- <div class="no-data my-6" v-else>
         <NoData />
-      </div>
+      </div> -->
     </div>
     <div class="pagination my-6 grid">
       <div class="col-12 col-lg-2 d-flex align-center justify-center" v-if="config?.data?.data?.length">
@@ -157,7 +164,8 @@ export default {
     config: { type: Object | null, required: true, defaul: { data: {}, columns: [] } },
     filters: { type: Object | null, default: null },
     filtersQueryKey: { type: String | null, default: 'onlyFiltersData' },
-    exportable: { type: Boolean, default: true }
+    exportable: { type: Boolean, default: true },
+    noDataText: { type: String, default: "Aucune donnée n'a encore été ajoutée" }
   },
   data() {
     return {
