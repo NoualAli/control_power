@@ -18,8 +18,8 @@ class CreateNotificationsTable extends Migration
             $table->string('type');
             $table->morphs('notifiable');
             $table->text('data');
-            $table->timestamp('read_at', 7)->nullable();
-            $table->timestamps(7);
+            $table->timestamp('read_at')->nullable();
+            $table->timestamps();
         });
     }
 

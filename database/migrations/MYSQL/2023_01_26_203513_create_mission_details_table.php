@@ -23,12 +23,12 @@ class CreateMissionDetailsTable extends Migration
             $table->boolean('major_fact')->default(false);
             $table->json('metadata')->nullable();
 
-            $table->timestamp('executed_at', 7)->nullable();
-            $table->timestamp('processed_at', 7)->nullable();
-            $table->timestamp('validated_at', 7)->nullable();
-            $table->timestamp('major_fact_dispatched_at', 7)->nullable();
-            $table->timestamps(7);
-            $table->softDeletes('deleted_at', 7);
+            $table->timestamp('executed_at')->nullable();
+            $table->timestamp('processed_at')->nullable();
+            $table->timestamp('validated_at')->nullable();
+            $table->timestamp('major_fact_dispatched_at')->nullable();
+            $table->timestamps();
+            $table->softDeletes('deleted_at');
 
             $table->foreign('control_point_id')->on('control_points')->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('mission_id')->on('missions')->references('id')->onDelete('cascade')->onUpdate('cascade');

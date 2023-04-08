@@ -19,8 +19,8 @@ return new class extends Migration
             $table->text('committed_action')->nullable();
             $table->text('action_to_be_taken')->nullable();
             $table->foreignId('regularized_by_id')->nullable();
-            $table->timestamp('regularized_at', 7)->nullable();
-            $table->timestamps(7);
+            $table->timestamp('regularized_at')->nullable();
+            $table->timestamps();
             $table->foreign('regularized_by_id')->on('users')->references('id')->onDelete('cascade')->onUpdate('cascade');
         });
     }

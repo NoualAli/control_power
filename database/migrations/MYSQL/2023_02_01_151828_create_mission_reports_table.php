@@ -15,17 +15,16 @@ class CreateMissionReportsTable extends Migration
     {
         Schema::create('mission_reports', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            //$table->set('type', ['Avis contrôleur', 'Rapport', 'Synthèse', 'Commentaire']);
-            $table->string('type', 40);
+            $table->set('type', ['Avis contrôleur', 'Rapport', 'Synthèse', 'Commentaire']);
             $table->text('content');
             $table->foreignUuid('mission_id');
-            $table->foreignId('created_by_id')->constrained('users');
-            $table->timestamp('validated_at', 7)->nullable();
-            $table->timestamps(7);
-            $table->softDeletes('deleted_at', 7);
+            $table->foreignId('created_by_id');
+            $table->timestamp('validated_at')->nullable();
+            $table->timestamps();
+            $table->softDeletes('deleted_at');
 
             $table->foreign('mission_id')->on('missions')->references('id')->onDelete('cascade')->onUpdate('cascade');
-            //$table->foreign('created_by_id')->on('users')->references('id')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('created_by_id')->on('users')->references('id')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

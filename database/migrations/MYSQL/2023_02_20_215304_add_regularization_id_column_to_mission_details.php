@@ -13,11 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('mission_states', function (Blueprint $table) {
-            $table->uuid('id');
-            $table->foreignUuid('mission_id');
-            $table->string('state');
-            $table->timestamps(7);
+        Schema::table('mission_details', function (Blueprint $table) {
+            $table->foreignUuid('regularization_id')->nullable();
+            $table->foreign('regularization_id')->on('regularizations')->references('id')->onDelete('set null')->onUpdate('cascade');
         });
     }
 
@@ -28,6 +26,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('mission_states');
+        Schema::table('mission_details', function (Blueprint $table) {
+            //
+        });
     }
 };

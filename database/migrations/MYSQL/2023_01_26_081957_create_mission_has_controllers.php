@@ -15,10 +15,10 @@ class CreateMissionHasControllers extends Migration
     {
         Schema::create('mission_has_controllers', function (Blueprint $table) {
             $table->foreignId('user_id');
-            $table->foreignUuid('mission_id')->constrained('missions');
+            $table->foreignUuid('mission_id');
             $table->boolean('control_agency')->default(true);
             $table->foreign('user_id')->on('users')->references('id')->onDelete('cascade')->onUpdate('cascade');
-            //$table->foreign('mission_id')->on('missions')->references('id')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('mission_id')->on('missions')->references('id')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 
