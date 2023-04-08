@@ -13,7 +13,8 @@
         <div class="actions-side">
           <div class="user-profile">
             <div class="avatar">
-              <img :src="user?.avatar" alt="" />
+              <img :src="user?.avatar" v-if="user?.avatar" />
+              <i class="las la-user icon" v-else />
             </div>
             <router-link :to="{ name: 'profile' }" class="username text-bold">
               {{ user?.username }}
