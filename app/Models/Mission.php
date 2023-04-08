@@ -100,6 +100,7 @@ class Mission extends Model
 
     public function getAvgScoreAttribute()
     {
+        return addZero(intval($this->details()->whereAnomaly()->avg('score')));
         return addZero(intval($this->details->avg('score')));
     }
 
