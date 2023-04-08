@@ -108,7 +108,7 @@ export default {
                 } else if (item.state == 'Validé et envoyé') {
                   state = 'validated'
                 } else if (item.state == 'En attente de validation') {
-                  state = 'wating-validation'
+                  state = 'pending-validation'
                 } else if (item.state == '1ère validation') {
                   state = 'first-validation'
                 } else if (item.state == '2ème validation') {
