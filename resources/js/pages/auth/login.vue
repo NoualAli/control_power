@@ -71,7 +71,7 @@ export default {
       // Submit the form.
       const { data } = await this.form.post('/api/login')
       // Save the token.
-      console.log(data)
+      // console.log(data)
       this.$store.dispatch('auth/saveToken', {
         token: data.token,
         remember: this.remember
@@ -85,6 +85,9 @@ export default {
     },
 
     redirect () {
+      console.log(this)
+      console.log(this.$)
+      console.log(this.$router)
       this.$router.push({ name: 'home' })
     }
   }

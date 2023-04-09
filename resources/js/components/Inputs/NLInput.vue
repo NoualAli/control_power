@@ -66,7 +66,7 @@ export default {
      * @param {Object} $event
      */
     onInput ($event) {
-      console.log($event.target.value)
+      // console.log($event.target.value)
       let value = $event.target.value
       this.currentLength = value.length
 
