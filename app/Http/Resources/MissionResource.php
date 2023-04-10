@@ -28,7 +28,9 @@ class MissionResource extends JsonResource
             'agency_controllers_str' => $this->agency_controllers_str,
             'remaining_days_before_start' => $this->remaining_days_before_start,
             'progress_status' => $this->progress_status,
-            'avg_score' => $this->avg_score
+            'avg_score' => $this->avg_score,
+            'dcp_validation_at' => $this->dcp_validation_at,
+            'dre_report' => $this->dre_report,
         ];
     }
 }

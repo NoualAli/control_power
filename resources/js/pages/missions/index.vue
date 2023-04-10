@@ -149,8 +149,13 @@ export default {
           show: (item) => {
             if (hasRole([ 'cdc', 'ci' ])) {
               return this.can('view_mission')
+            } else if (hasRole([ 'dcp', 'cdcr' ])) {
+              return this.can('view_mission') && item.progress_status == 100 && item?.dre_report?.is_validated
+            } else if (hasRole([ 'da', 'dg', 'cdrcp', 'ig', 'der' ])) {
+              return this.can('view_mission') && item.progress_status == 100 && item?.dcp_validation_at
+            } else {
+              return this.can('view_mission') && item.progress_status == 100
             }
-            return this.can('view_mission') && item.progress_status == 100
           },
           edit: (item) => {
             return this.can('edit_mission') && item.remaining_days_before_start > 5
