@@ -19,14 +19,18 @@
 import store from '~/store'
 
 export default async (to, from, next) => {
-  // alert('alert check')
   if (!store.getters['auth/check'] && store.getters['auth/token']) {
     try {
+      // alert('alert check fetch user')
       await store.dispatch('auth/fetchUser')
     } catch (e) {
       console.error(e)
     }
   }
 
+  console.log('before check-auth next ')
+  console.log(to)
+  console.log(from)
+  console.log(next)
   next()
 }

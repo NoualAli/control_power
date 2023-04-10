@@ -85,8 +85,6 @@ export default {
     },
 
     redirect () {
-      console.log(this)
-      console.log(this.$)
       console.log(this.$router)
       this.$router.push({ name: 'home' })
     }

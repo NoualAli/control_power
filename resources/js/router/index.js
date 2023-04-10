@@ -7,6 +7,7 @@ import Cookies from 'js-cookie'
 import { nextTick } from 'vue'
 
 // The middleware for every page of the application.
+// const globalMiddleware = []
 const globalMiddleware = ['check-auth']
 
 // Load middleware modules dynamically.
@@ -79,7 +80,9 @@ async function beforeEach (to, from, next) {
   // Load async data for all the matched components.
   await asyncData(components)
   // Call each middleware.
-  callMiddleware(middleware, to, from, (...args) => {
+  await callMiddleware(middleware, to, from, (...args) => {
+    console.log('args: called inside cb')
+    console.log(args)
     return next(...args)
   })
 }
@@ -137,10 +140,12 @@ async function afterEach (to, from, next) {
  * @param {Route} from
  * @param {Function} next
  */
-function callMiddleware (middleware, to, from, next) {
-  // console.log(middleware)
+async function callMiddleware (middleware, to, from, next) {
   const stack = middleware.reverse()
-  const _next = (...args) => {
+  // console.log(stack)
+  const _next = async (...args) => {
+    console.log('args: was called')
+    console.log(args)
     // Stop if "_next" was called with an argument or the stack is empty.
     if (args.length > 0 || stack.length === 0) {
       if (args.length > 0) {
@@ -148,6 +153,7 @@ function callMiddleware (middleware, to, from, next) {
         // router.isReady()
         // router?.app?.config?.globalProperties?.$loading?.finish();    // router.isReady()
       }
+      console.log('returning next')
 
       return next(...args)
     }
@@ -155,18 +161,20 @@ function callMiddleware (middleware, to, from, next) {
     const { middleware, params } = parseMiddleware(stack.pop())
     // console.log(middleware)
     // console.log(params)
-
+    console.log(middleware)
     if (typeof middleware === 'function') {
-      middleware(to, from, _next, params)
+      await middleware(to, from, _next, params)
     } else if (routeMiddleware[middleware]) {
-      routeMiddleware[middleware](to, from, _next, params)
+      console.log(routeMiddleware)
+      await routeMiddleware[middleware](to, from, _next, params)
     } else {
       throw Error(`Undefined middleware [${middleware}]`)
     }
-    console.log(middleware)
+    console.log('out of _next')
   }
 
-  _next()
+  console.log('inside of _next')
+  await _next()
 }
 
 /**

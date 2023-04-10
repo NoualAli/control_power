@@ -5,11 +5,10 @@ import store from '~/store'
 import { alert_error } from './swal.js'
 const api = axios.create({
   headers: {
-    common: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json'
 
-    }
+    'Content-Type': 'application/json',
+    Accept: 'application/json'
+
   },
   baseURL: '/api/'
 })

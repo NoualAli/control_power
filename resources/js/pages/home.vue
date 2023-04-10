@@ -2,26 +2,34 @@
   <ContentBody>
     <div class="grid gap-4 mb-4">
       <div class="col-12 col-lg-3">
-        <button class="btn btn-info w-100" :class="{ 'is-active': currentSection == 'realisationStates' }"
-          @click="setCurrentSection('realisationStates')">
+        <button
+          class="btn btn-info w-100" :class="{ 'is-active': currentSection == 'realisationStates' }"
+          @click="setCurrentSection('realisationStates')"
+        >
           Suivi de la réalisation des missions
         </button>
       </div>
       <div class="col-12 col-lg-3">
-        <button class="btn btn-warning w-100" :class="{ 'is-active': currentSection == 'scores' }"
-          @click="setCurrentSection('scores')">
+        <button
+          class="btn btn-warning w-100" :class="{ 'is-active': currentSection == 'scores' }"
+          @click="setCurrentSection('scores')"
+        >
           Statistiques des notations
         </button>
       </div>
       <div class="col-12 col-lg-3">
-        <button class="btn btn-danger-dark w-100" :class="{ 'is-active': currentSection == 'anomalies' }"
-          @click="setCurrentSection('anomalies')">
+        <button
+          class="btn btn-danger-dark w-100" :class="{ 'is-active': currentSection == 'anomalies' }"
+          @click="setCurrentSection('anomalies')"
+        >
           Statistiques des anomalies
         </button>
       </div>
       <div class="col-12 col-lg-3">
-        <button class="btn btn-danger-dark w-100" :class="{ 'is-active': currentSection == 'majorFacts' }"
-          @click="setCurrentSection('majorFacts')">
+        <button
+          class="btn btn-danger-dark w-100" :class="{ 'is-active': currentSection == 'majorFacts' }"
+          @click="setCurrentSection('majorFacts')"
+        >
           Statistiques des faits majeur
         </button>
       </div>
@@ -33,7 +41,7 @@
       </div> -->
     </div>
 
-    <div class="grid gap-4" v-if="currentSection == 'realisationStates'">
+    <div v-if="currentSection == 'realisationStates'" class="grid gap-4">
       <!-- Suivi de la réalisation des missions -->
       <div class="col-12">
         <div class="grid gap-4">
@@ -50,19 +58,25 @@
             <div class="text-bold">
               En cours
             </div>
-            <div class="text-extra-large text-bold">{{ missionsState['active'] }}</div>
+            <div class="text-extra-large text-bold">
+              {{ missionsState['active'] }}
+            </div>
           </div>
           <div class="col-12 col-lg-3 box is-info d-flex align-center gap-4">
             <div class="text-bold">
               À réalisées
             </div>
-            <div class="text-extra-large text-bold">{{ missionsState['todo'] }}</div>
+            <div class="text-extra-large text-bold">
+              {{ missionsState['todo'] }}
+            </div>
           </div>
           <div class="col-12 col-lg-3 box is-success d-flex align-center gap-4">
             <div class="text-bold">
               Réalisées et validées
             </div>
-            <div class="text-extra-large text-bold">{{ missionsState['done'] }}</div>
+            <div class="text-extra-large text-bold">
+              {{ missionsState['done'] }}
+            </div>
           </div>
         </div>
       </div>
@@ -72,12 +86,14 @@
         <div class="d-flex align-center justify-between">
           <h2>Situation des rapports</h2>
           <button class="btn btn-info has-icon" @click.prevent="savePNG('missionsPercentage')">
-            <i class="las la-save icon"></i>
+            <i class="las la-save icon" />
           </button>
         </div>
         <div class="container d-flex align-center justify-center h-100 w-100">
-          <Pie :chartData="charts.missionsPercentage" :chartOptions="circularChartOptions" class="w-100"
-            id="missionsPercentage" data-title="situation_des_rapports" />
+          <Pie
+            id="missionsPercentage" :chart-data="charts.missionsPercentage" :chart-options="circularChartOptions"
+            class="w-100" data-title="situation_des_rapports"
+          />
         </div>
       </div>
 
@@ -108,17 +124,19 @@
     </div>
 
     <!-- Scores -->
-    <div class="grid gap-4" v-if="currentSection == 'scores'">
+    <div v-if="currentSection == 'scores'" class="grid gap-4">
       <!-- Classement des notations -->
       <div class="col-12 col-lg-6 box">
         <div class="d-flex align-center justify-between">
           <h2>Classement des notations</h2>
           <button class="btn btn-info has-icon" @click.prevent="savePNG('globalScores')">
-            <i class="las la-save icon"></i>
+            <i class="las la-save icon" />
           </button>
         </div>
-        <Bar :chartData="charts.globalScores" class="w-100" :chartOptions="horizontalBarOptions" id="globalScores"
-          data-title="classement_des_notations" />
+        <Bar
+          id="globalScores" :chart-data="charts.globalScores" class="w-100" :chart-options="horizontalBarOptions"
+          data-title="classement_des_notations"
+        />
       </div>
 
       <!-- Notations moyennes par famille -->
@@ -126,12 +144,14 @@
         <div class="d-flex align-center justify-between">
           <h2>Notations moyennes par famille</h2>
           <button class="btn btn-info has-icon" @click.prevent="savePNG('avgScoreByFamily')">
-            <i class="las la-save icon"></i>
+            <i class="las la-save icon" />
           </button>
         </div>
         <div class="container d-flex align-center justify-center h-100 w-100">
-          <Doughnut :chartData="charts.avgScoreByFamily" class="w-100" :chartOptions="circularChartOptions"
-            id="avgScoreByFamily" data-title="notations_moyennes_par_famille" />
+          <Doughnut
+            id="avgScoreByFamily" :chart-data="charts.avgScoreByFamily" class="w-100"
+            :chart-options="circularChartOptions" data-title="notations_moyennes_par_famille"
+          />
         </div>
       </div>
 
@@ -179,18 +199,20 @@
     </div>
 
     <!-- Anomalies -->
-    <div class="grid gap-4" v-if="currentSection == 'anomalies'">
+    <div v-if="currentSection == 'anomalies'" class="grid gap-4">
       <!-- Anomalies par famille -->
       <div class="col-12 col-lg-6 box">
         <div class="d-flex align-center justify-between">
           <h2>Anomalies par famille</h2>
           <button class="btn btn-info has-icon" @click.prevent="savePNG('familiesAnomalies')">
-            <i class="las la-save icon"></i>
+            <i class="las la-save icon" />
           </button>
         </div>
         <div class="container d-flex align-center justify-center h-100 w-100">
-          <Doughnut :chartData="anomaliesData.charts.families" class="w-100" :chartOptions="circularChartOptions"
-            id="familiesAnomalies" data-title="anomalies_par_familles" />
+          <Doughnut
+            id="familiesAnomalies" :chart-data="anomaliesData.charts.families" class="w-100"
+            :chart-options="circularChartOptions" data-title="anomalies_par_familles"
+          />
         </div>
       </div>
       <!-- Anomalies par DRE -->
@@ -198,11 +220,13 @@
         <div class="d-flex align-center justify-between">
           <h2>Anomalies par DRE</h2>
           <button class="btn btn-info has-icon" @click.prevent="savePNG('dresAnomalies')">
-            <i class="las la-save icon"></i>
+            <i class="las la-save icon" />
           </button>
         </div>
-        <Bar :chartData="anomaliesData.charts.dres" class="w-100" :chartOptions="chartOptions" id="dresAnomalies"
-          data-title="anomalies_par_dre" />
+        <Bar
+          id="dresAnomalies" :chart-data="anomaliesData.charts.dres" class="w-100" :chart-options="chartOptions"
+          data-title="anomalies_par_dre"
+        />
       </div>
       <!-- Anomalies par domaine -->
       <div class="col-12 col-lg-6">
@@ -287,18 +311,20 @@
     </div>
 
     <!-- Major facts -->
-    <div class="grid gap-4" v-if="currentSection == 'majorFacts'">
+    <div v-if="currentSection == 'majorFacts'" class="grid gap-4">
       <!-- Faits majeur par famille -->
       <div class="col-12 col-lg-6 box">
         <div class="d-flex align-center justify-between">
           <h2>Faits majeur par famille</h2>
           <button class="btn btn-info has-icon" @click.prevent="savePNG('familiesMajorFacts')">
-            <i class="las la-save icon"></i>
+            <i class="las la-save icon" />
           </button>
         </div>
         <div class="container d-flex align-center justify-center h-100 w-100">
-          <Doughnut :chartData="majorFactsData.charts.families" class="w-100" :chartOptions="circularChartOptions"
-            id="familiesMajorFacts" data-title="faits_majeur_par_famille" />
+          <Doughnut
+            id="familiesMajorFacts" :chart-data="majorFactsData.charts.families" class="w-100"
+            :chart-options="circularChartOptions" data-title="faits_majeur_par_famille"
+          />
         </div>
       </div>
       <!-- Faits majeur par DRE -->
@@ -306,11 +332,13 @@
         <div class="d-flex align-center justify-between">
           <h2>Faits majeur par DRE</h2>
           <button class="btn btn-info has-icon" @click.prevent="savePNG('dresMajorFacts')">
-            <i class="las la-save icon"></i>
+            <i class="las la-save icon" />
           </button>
         </div>
-        <Bar :chartData="majorFactsData.charts.dres" class="w-100" :chartOptions="chartOptions" id="dresMajorFacts"
-          data-title="faits_majeur_par_dre" />
+        <Bar
+          id="dresMajorFacts" :chart-data="majorFactsData.charts.dres" class="w-100" :chart-options="chartOptions"
+          data-title="faits_majeur_par_dre"
+        />
       </div>
       <!-- Faits majeur par domaine -->
       <div class="col-12 col-lg-6">
@@ -394,9 +422,7 @@
       </div>
     </div>
 
-    <div class="grid gap-4" v-if="currentSection == 'regularizations'">
-
-    </div>
+    <div v-if="currentSection == 'regularizations'" class="grid gap-4" />
   </ContentBody>
 </template>
 
@@ -409,62 +435,62 @@ import { Bar, Pie, Doughnut } from 'vue-chartjs'
 
 import InProgress from '../components/InProgress'
 export default {
-  middleware: [ 'auth' ],
-  layout: 'backend',
   components: {
     ContentHeader,
     ContentBody,
     Bar,
     Doughnut,
     Pie,
-    InProgress,
+    InProgress
   },
-  metaInfo() {
+  layout: 'backend',
+  middleware: ['auth'],
+  metaInfo () {
     return { title: 'Tableau de bord' }
   },
-
-  created() {
-    this.setCurrentSection('realisationStates')
-  },
-  data() {
+  data () {
     return {
       currentSection: null,
       anomaliesData: {
         charts: {
           families: null,
-          dres: null,
+          dres: null
         },
         tables: {
           domains: null,
           missions: null,
           campaigns: null,
-          agencies: null,
+          agencies: null
         }
       },
       majorFactsData: {
         charts: {
           families: null,
-          dres: null,
+          dres: null
         },
         tables: {
           missions: null,
           campaigns: null,
           domains: null,
-          agencies: null,
+          agencies: null
         }
       },
       charts: {
         missionsPercentage: null,
         globalScores: null,
-        avgScoreByFamily: null,
+        avgScoreByFamily: null
       },
       tables: {
         dresClassificationByAchievementRate: null,
         avgScoreByDre: null,
-        avgScoreByDomain: null,
+        avgScoreByDomain: null
       },
-      missionsState: null,
+      missionsState: null
     }
+  },
+
+  created () {
+    this.setCurrentSection('realisationStates')
   },
   methods: {
     /**
@@ -474,8 +500,8 @@ export default {
      *
      * @return {void}
      */
-    setCurrentSection(section) {
-      let UCFsection = section.charAt(0).toUpperCase() + section.slice(1)
+    setCurrentSection (section) {
+      const UCFsection = section.charAt(0).toUpperCase() + section.slice(1)
       if (this.currentSection !== section) {
         this.$store.dispatch('statistics/fetch' + UCFsection).then(() => {
           if (section == 'scores' && this.currentSection !== section) {
@@ -515,15 +541,15 @@ export default {
         })
       }
     },
-    savePNG(element) {
+    savePNG (element) {
       const container = document.querySelector(`#${element}`)
       const canvas = container.querySelector('canvas')
       const title = container.dataset.title
       const dataURL = canvas.toDataURL('image/jpeg')
-      const link = document.createElement("a");
-      link.download = title ? `${title}.jpg` : "canvas.jpg";
-      link.href = dataURL;
-      link.click();
+      const link = document.createElement('a')
+      link.download = title ? `${title}.jpg` : 'canvas.jpg'
+      link.href = dataURL
+      link.click()
     }
   },
   computed: {
@@ -532,23 +558,23 @@ export default {
       majorFacts: 'statistics/majorFacts',
       regularizations: 'statistics/regularizations',
       scores: 'statistics/scores',
-      realisationStates: 'statistics/realisationStates',
+      realisationStates: 'statistics/realisationStates'
     }),
     /**
      * Set default chart options
      */
-    chartOptions() {
+    chartOptions () {
       return {
         responsive: true,
         maintainAspectRatio: true,
         barPercentage: 0.5,
-        borderWidth: 2,
+        borderWidth: 2
       }
     },
     /**
      * Set circular chart options
      */
-    circularChartOptions() {
+    circularChartOptions () {
       const options = { ...this.chartOptions }
       options.maintainAspectRatio = false
       return options
@@ -556,7 +582,7 @@ export default {
     /**
      * Set horizontal bar options
      */
-    horizontalBarOptions() {
+    horizontalBarOptions () {
       const options = {
         indexAxis: 'y',
         ...this.chartOptions
