@@ -56,7 +56,7 @@ export const actions = {
   async fetchUser ({ commit }) {
     try {
       const { data } = await api.get('user')
-      console.log(data)
+      // console.log(data)
       const user = { ...data }
       delete user.roles
       delete user.roles_str
@@ -69,6 +69,7 @@ export const actions = {
       localStorage.setItem('agencies', JSON.stringify(data.dres?.map(dre => dre.agencies?.map(agency => agency.full_name))[0]))
       commit(types.FETCH_USER_SUCCESS, { user: data })
     } catch (e) {
+      console.error(e)
       commit(types.FETCH_USER_FAILURE)
     }
   },

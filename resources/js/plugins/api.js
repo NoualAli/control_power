@@ -5,8 +5,11 @@ import store from '~/store'
 import { alert_error } from './swal.js'
 const api = axios.create({
   headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json'
+    common: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+
+    }
   },
   baseURL: '/api/'
 })
@@ -78,12 +81,13 @@ async function serverError (response) {
 api.interceptors.request.use(request => {
   const token = store.getters['auth/token']
   if (token) {
-    request.headers.common.Authorization = `Bearer ${token}`
+    // eslint-disable-next-line dot-notation
+    request.headers['Authorization'] = `Bearer ${token}`
   }
 
   const locale = store.getters['lang/locale']
   if (locale) {
-    request.headers.common['Accept-Language'] = locale
+    request.headers['Accept-Language'] = locale
   }
 
   // request.headers['X-Socket-Id'] = Echo.socketId()

@@ -38,14 +38,9 @@ function createRouterWrapper () {
   return router
 }
 function beforeResolve (to, from, next) {
+  console.log('right here in resolve')
   const layout = to?.matched[0]?.components?.default?.layout
   to.meta.layout = layout || ''
-
-  // console.log(to?.matched[0]?.components?.default?.layout)
-  // console.log(from)
-  // console.log(next)
-
-  // console.log('inside beforeResolve')
   next()
 }
 /**
@@ -85,22 +80,6 @@ async function beforeEach (to, from, next) {
   await asyncData(components)
   // Call each middleware.
   callMiddleware(middleware, to, from, (...args) => {
-    // Set the application layout only if "next()" was called with no args.
-    // const app= router.
-    // console.log(router.app._instance)
-    // console.log('Dispatched:')
-    // console.log(components[0].layout || '')
-    // console.log(components[0])
-    // console.log(components)
-    // console.log(to)
-    // console.log('inside beforeEach')
-    // console.log(...args)
-    if (args.length === 0) {
-      store.commit('layout/SET_LAYOUT', components[0].layout || '')
-
-    //  setLayout(components[0].layout || '')
-    }
-
     return next(...args)
   })
 }
@@ -184,6 +163,7 @@ function callMiddleware (middleware, to, from, next) {
     } else {
       throw Error(`Undefined middleware [${middleware}]`)
     }
+    console.log(middleware)
   }
 
   _next()
