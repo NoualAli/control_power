@@ -210,29 +210,30 @@ class MissionController extends Controller
         try {
             $campaign = ControlCampaign::findOrFail($data['control_campaign_id']);
             $campaign->load('processes');
-            foreach ($data['agencies'] as $agency) {
-                $agency = Agency::findOrFail($agency);
-                DB::transaction(function () use ($data, $agency, $campaign) {
-                    $reference = 'RAP' . str_replace('-', '', str_replace('CDC-', '', $campaign->reference)) . '/' . $agency->code;
-                    $controlPoints = $this->loadControlPoints($campaign, $agency);
-                    $mission = Mission::create([
-                        'reference' => $reference,
-                        'control_campaign_id' => $campaign->id,
-                        'agency_id' => $agency->id,
-                        'created_by_id' => auth()->user()->id,
-                        'start' => $data['start'],
-                        'end' => $data['end'],
-                        'note' => $data['note'],
-                    ]);
-                    $state = $mission->states()->create(['state' => 'À réaliser']);
-                    $mission->update(['state_id' => $state->id]);
-                    $mission->agencyControllers()->attach($data['controllers']);
-                    $mission->details()->createMany($controlPoints);
-                    foreach ($mission->agencyControllers as $controller) {
-                        Notification::send($controller, new Assigned($mission));
-                    }
-                });
-            }
+            $agency = $data['agency'];
+            $agency = Agency::findOrFail($agency);
+            DB::transaction(function () use ($data, $agency, $campaign) {
+                $reference = 'RAP' . str_replace('-', '', str_replace('CDC-', '', $campaign->reference)) . '/' . $agency->code;
+                $controlPoints = $this->loadControlPoints($campaign, $agency);
+                $mission = Mission::create([
+                    'reference' => $reference,
+                    'control_campaign_id' => $campaign->id,
+                    'agency_id' => $agency->id,
+                    'created_by_id' => auth()->user()->id,
+                    'start' => $data['start'],
+                    'end' => $data['end'],
+                    'note' => $data['note'],
+                ]);
+                $state = $mission->states()->create(['state' => 'À réaliser']);
+                $mission->update(['state_id' => $state->id]);
+                $mission->agencyControllers()->attach($data['controllers']);
+                $mission->details()->createMany($controlPoints);
+                foreach ($mission->agencyControllers as $controller) {
+                    Notification::send($controller, new Assigned($mission));
+                }
+            });
+            // foreach ($data['agencies'] as $agency) {
+            // }
 
             return response()->json([
                 'message' => CREATE_SUCCESS,

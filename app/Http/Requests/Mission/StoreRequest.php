@@ -26,8 +26,9 @@ class StoreRequest extends FormRequest
      */
     public function rules()
     {
+        // dd(request()->all());
         return [
-            'agencies' => ['required', 'array', new CanBeControlled],
+            'agency' => ['required', 'exists:agencies,id', new CanBeControlled],
             'controllers' => ['required', 'array', new IsAbleTo('control_agency')],
             'start' => ['required', 'date', new IncludedInsideCDCDate(request()->control_campaign_id)],
             'end' => ['required', 'date', 'after:start', new IncludedInsideCDCDate(request()->control_campaign_id)],
