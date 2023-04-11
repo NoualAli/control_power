@@ -74,7 +74,7 @@ class UserController extends Controller
         try {
             $data = $request->validated();
             DB::transaction(function () use ($data) {
-                $data['password'] = Hash::make($data['password']);
+                $data['password'] = isset($data['password']) && !empty($data['password']) ? Hash::make($data['password'])  : Hash::make('Azerty123');
                 $user = User::create($data);
                 if (isset($data['dres'])) {
                     $dres = $data['dres'];

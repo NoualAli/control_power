@@ -137,7 +137,7 @@ class MissionController extends Controller
         if (request()->has('onlyProcesses') || request()->has('page')) {
             $mission->unsetRelations();
             $processes = DB::table('processes as p');
-            if (env('APP_ENV') == 'windows') {
+            if (env('APP_ENV') == 'windows' || env('APP_ENV') == 'testServer') {
                 $processes = $processes->selectRaw("p.id as process_id, p.name as process, d.name as domain, f.name as family, COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, FORMAT(MAX(md.executed_at), 'dd-MM-yyyy') AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) AS scored_mission_details, (COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) / COUNT(md.id)) * 100 AS progress_status");
             } else {
                 $processes = $processes->selectRaw('p.id as process_id, p.name as process, d.name as domain, f.name as family, COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, DATE_FORMAT(MAX(md.executed_at), "%d-%m-%Y") AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(IF(md.score IS NOT NULL, md.id, NULL)) AS scored_mission_details, (COUNT(IF(md.score IS NOT NULL, md.id, NULL)) / COUNT(md.id)) * 100 AS progress_status');

@@ -8,27 +8,28 @@
             <div class="grid gap-10 my-4">
               <!-- Firstname -->
               <div class="col-12 col-lg-6 col-md-6">
-                <NLInput :form="form" name="firstname" label="firstname" v-model="form.first_name" labelRequired />
+                <NLInput :form="form" name="firstname" label="Prénom" v-model="form.first_name" labelRequired />
               </div>
 
               <!-- Lastname -->
               <div class="col-12 col-lg-6 col-md-6">
-                <NLInput :form="form" name="last_name" label="lastname" v-model="form.last_name" labelRequired />
+                <NLInput :form="form" name="last_name" label="Nom de famille" v-model="form.last_name" labelRequired />
               </div>
 
               <!-- Username -->
               <div class="col-12 col-lg-6 col-md-6">
-                <NLInput :form="form" name="username" label="username" v-model="form.username" labelRequired />
+                <NLInput :form="form" name="username" label="Nom d'utilisateur" v-model="form.username" labelRequired />
               </div>
 
               <!-- Phone -->
               <div class="col-12 col-lg-6 col-md-6">
-                <NLInput :form="form" name="phone" label="phone" v-model="form.phone" type="phone" />
+                <NLInput :form="form" name="phone" label="N° de téléphone" v-model="form.phone" type="phone" />
               </div>
 
               <!-- Email -->
               <div class="col-12 col-lg-6 col-md-6">
-                <NLInput :form="form" name="email" label="email" v-model="form.email" type="email" labelRequired />
+                <NLInput :form="form" name="email" label="Adresse e-mail" v-model="form.email" type="email"
+                  labelRequired />
               </div>
 
               <!-- Dres -->

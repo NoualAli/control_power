@@ -6,27 +6,27 @@
         <div class="grid gap-10 my-4">
           <!-- Firstname -->
           <div class="col-12 col-lg-6 col-md-6">
-            <NLInput :form="form" name="firstname" label="firstname" v-model="form.first_name" />
+            <NLInput :form="form" name="firstname" label="Prénom" v-model="form.first_name" />
           </div>
 
           <!-- Lastname -->
           <div class="col-12 col-lg-6 col-md-6">
-            <NLInput :form="form" name="last_name" label="lastname" v-model="form.last_name" />
+            <NLInput :form="form" name="last_name" label="Nom de famille" v-model="form.last_name" />
           </div>
 
           <!-- Username -->
           <div class="col-12 col-lg-6 col-md-6">
-            <NLInput :form="form" name="username" label="username" v-model="form.username" labelRequired />
+            <NLInput :form="form" name="username" label="Nom d'utilisateur" v-model="form.username" labelRequired />
           </div>
 
           <!-- Email -->
           <div class="col-12 col-lg-6 col-md-6">
-            <NLInput :form="form" name="email" label="email" v-model="form.email" labelRequired type="email" />
+            <NLInput :form="form" name="email" label="Adresse e-mail" v-model="form.email" labelRequired type="email" />
           </div>
 
           <!-- Phone -->
           <div class="col-12 col-lg-6 col-md-6">
-            <NLInput :form="form" name="phone" label="phone" v-model="form.phone" type="phone" />
+            <NLInput :form="form" name="phone" label="N° de téléphone" v-model="form.phone" type="phone" />
           </div>
 
           <!-- Dres -->
@@ -34,21 +34,21 @@
             <NLSelect :form="form" name="dres" label="Dre" :options="dresList" v-model="form.dres" :multiple="true" />
           </div>
 
-          <!-- Role -->
+          <!-- Roles -->
           <div class="col-12">
-            <NLSelect :form="form" name="roles" label="Rôles" :options="rolesList" v-model="form.roles"
-              :multiple="true" />
+            <NLSelect :form="form" name="roles" label="Rôles" :options="rolesList" v-model="form.roles" :multiple="true"
+              labelRequired />
           </div>
 
           <!-- Password -->
           <div class="col-12 col-lg-4">
-            <NLInput :form="form" v-model="form.password" label="Password" name="password" type="password"
-              labelRequired />
+            <NLInput :form="form" v-model="form.password" label="Mot de passe" name="password" type="password"
+              helpText="Si aucune valeur n'est spécifié le mot de passe par défaut est: Azerty123" />
           </div>
           <!-- Password Confirmation -->
           <div class="col-12 col-lg-4">
-            <NLInput :form="form" v-model="form.password_confirmation" label="confirm_password"
-              name="password_confirmation" type="password" labelRequired />
+            <NLInput :form="form" v-model="form.password_confirmation" label="Confirmation mot de passe"
+              name="password_confirmation" type="password" />
           </div>
         </div>
         <!-- Submit Button -->
@@ -118,5 +118,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped></style>
