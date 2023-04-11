@@ -91,7 +91,7 @@
         </div>
         <div class="container d-flex align-center justify-center h-100 w-100">
           <Pie
-            id="missionsPercentage" :chart-data="charts.missionsPercentage" :chart-options="circularChartOptions"
+            id="missionsPercentage" :data="charts.missionsPercentage" :chart-options="circularChartOptions"
             class="w-100" data-title="situation_des_rapports"
           />
         </div>
@@ -111,7 +111,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, index) in tables.dresClassificationByAchievementRate">
+            <tr v-for="(row, index) in tables.dresClassificationByAchievementRate" :key="index">
               <td>{{ index + 1 }}</td>
               <td>{{ row['dre'] }}</td>
               <td>{{ row['total'] }}</td>
@@ -134,7 +134,7 @@
           </button>
         </div>
         <Bar
-          id="globalScores" :chart-data="charts.globalScores" class="w-100" :chart-options="horizontalBarOptions"
+          id="globalScores" :data="charts.globalScores" class="w-100" :chart-options="horizontalBarOptions"
           data-title="classement_des_notations"
         />
       </div>
@@ -148,10 +148,12 @@
           </button>
         </div>
         <div class="container d-flex align-center justify-center h-100 w-100">
-          <Doughnut
-            id="avgScoreByFamily" :chart-data="charts.avgScoreByFamily" class="w-100"
-            :chart-options="circularChartOptions" data-title="notations_moyennes_par_famille"
-          />
+          <div class="wrapper-doughnut-chartjs ">
+            <Doughnut
+              id="avgScoreByFamily" :data="charts.avgScoreByFamily"
+              :options="circularChartOptions" data-title="notations_moyennes_par_famille"
+            />
+          </div>
         </div>
       </div>
 
@@ -167,7 +169,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, index) in tables.avgScoreByDomain">
+            <tr v-for="(row, index) in tables.avgScoreByDomain" :key="index">
               <td>{{ index + 1 }}</td>
               <td>{{ row['domain'] }}</td>
               <td>{{ row['avg_score'] }}</td>
@@ -188,7 +190,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, index) in tables.avgScoreByDre">
+            <tr v-for="(row, index) in tables.avgScoreByDre" :key="index">
               <td>{{ index + 1 }}</td>
               <td>{{ row['dre'] }}</td>
               <td>{{ row['avg_score'] }}</td>
@@ -210,7 +212,7 @@
         </div>
         <div class="container d-flex align-center justify-center h-100 w-100">
           <Doughnut
-            id="familiesAnomalies" :chart-data="anomaliesData.charts.families" class="w-100"
+            id="familiesAnomalies" :data="anomaliesData.charts.families" class="w-100"
             :chart-options="circularChartOptions" data-title="anomalies_par_familles"
           />
         </div>
@@ -224,7 +226,7 @@
           </button>
         </div>
         <Bar
-          id="dresAnomalies" :chart-data="anomaliesData.charts.dres" class="w-100" :chart-options="chartOptions"
+          id="dresAnomalies" :data="anomaliesData.charts.dres" class="w-100" :chart-options="chartOptions"
           data-title="anomalies_par_dre"
         />
       </div>
@@ -240,7 +242,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, index) in anomaliesData.tables.domains">
+            <tr v-for="(row, index) in anomaliesData.tables.domains" :key="index">
               <td>{{ index + 1 }}</td>
               <td>{{ row['domain'] }}</td>
               <td>{{ row['total'] }}</td>
@@ -260,7 +262,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, index) in anomaliesData.tables.agencies">
+            <tr v-for="(row, index) in anomaliesData.tables.agencies" :key="index">
               <td>{{ index + 1 }}</td>
               <td>{{ row['agency'] }}</td>
               <td>{{ row['total_anomalies'] }}</td>
@@ -280,7 +282,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, index) in anomaliesData.tables.missions">
+            <tr v-for="(row, index) in anomaliesData.tables.missions" :key="index">
               <td>{{ index + 1 }}</td>
               <td>{{ row['mission'] }}</td>
               <td>{{ row['total_anomaly'] }}</td>
@@ -300,7 +302,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, index) in anomaliesData.tables.campaigns">
+            <tr v-for="(row, index) in anomaliesData.tables.campaigns" :key="index">
               <td>{{ index + 1 }}</td>
               <td>{{ row['campaign'] }}</td>
               <td>{{ row['total_anomaly'] }}</td>
@@ -322,7 +324,7 @@
         </div>
         <div class="container d-flex align-center justify-center h-100 w-100">
           <Doughnut
-            id="familiesMajorFacts" :chart-data="majorFactsData.charts.families" class="w-100"
+            id="familiesMajorFacts" :data="majorFactsData.charts.families" class="w-100"
             :chart-options="circularChartOptions" data-title="faits_majeur_par_famille"
           />
         </div>
@@ -336,7 +338,7 @@
           </button>
         </div>
         <Bar
-          id="dresMajorFacts" :chart-data="majorFactsData.charts.dres" class="w-100" :chart-options="chartOptions"
+          id="dresMajorFacts" :data="majorFactsData.charts.dres" class="w-100" :chart-options="chartOptions"
           data-title="faits_majeur_par_dre"
         />
       </div>
@@ -352,7 +354,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, index) in majorFactsData.tables.domains">
+            <tr v-for="(row, index) in majorFactsData.tables.domains" :key="index">
               <td>{{ index + 1 }}</td>
               <td>{{ row['domain'] }}</td>
               <td>{{ row['total'] }}</td>
@@ -372,7 +374,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, index) in majorFactsData.tables.agencies">
+            <tr v-for="(row, index) in majorFactsData.tables.agencies" :key="index">
               <td>{{ index + 1 }}</td>
               <td>{{ row['agency'] }}</td>
               <td>{{ row['total_major_facts'] }}</td>
@@ -392,7 +394,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, index) in majorFactsData.tables.missions">
+            <tr v-for="(row, index) in majorFactsData.tables.missions" :key="index">
               <td>{{ index + 1 }}</td>
               <td>{{ row['mission'] }}</td>
               <td>{{ row['total_major_facts'] }}</td>
@@ -412,7 +414,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, index) in majorFactsData.tables.campaigns">
+            <tr v-for="(row, index) in majorFactsData.tables.campaigns" :key="index">
               <td>{{ index + 1 }}</td>
               <td>{{ row['campaign'] }}</td>
               <td>{{ row['total_major_facts'] }}</td>
@@ -427,21 +429,21 @@
 </template>
 
 <script>
-import ContentHeader from '../components/ContentHeader'
+// import ContentHeader from '../components/ContentHeader'
 import ContentBody from '../components/ContentBody'
 import { mapGetters } from 'vuex'
 // import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
 import { Bar, Pie, Doughnut } from 'vue-chartjs'
 
-import InProgress from '../components/InProgress'
+// import InProgress from '../components/InProgress'
 export default {
   components: {
-    ContentHeader,
+    // ContentHeader,
     ContentBody,
     Bar,
     Doughnut,
-    Pie,
-    InProgress
+    Pie
+    // InProgress
   },
   layout: 'backend',
   middleware: ['auth'],
@@ -488,70 +490,6 @@ export default {
       missionsState: null
     }
   },
-
-  created () {
-    this.setCurrentSection('realisationStates')
-  },
-  methods: {
-    /**
-     * Set the current section name and fetch data from laravel api
-     *
-     * @param {string} section
-     *
-     * @return {void}
-     */
-    setCurrentSection (section) {
-      const UCFsection = section.charAt(0).toUpperCase() + section.slice(1)
-      if (this.currentSection !== section) {
-        this.$store.dispatch('statistics/fetch' + UCFsection).then(() => {
-          if (section == 'scores' && this.currentSection !== section) {
-            this.currentSection = section
-            this.charts.globalScores = this.scores.data.globalScores
-            this.charts.avgScoreByFamily = this.scores.data.avgScoreByFamily
-            this.tables.avgScoreByDre = this.scores.data.avgScoreByDre
-            this.tables.avgScoreByDomain = this.scores.data.avgScoreByDomain
-          } else if (section == 'majorFacts' && this.currentSection !== section) {
-            this.currentSection = section
-            this.majorFactsData.tables.domains = this.majorFacts.data.domainsMajorFacts
-            this.majorFactsData.tables.missions = this.majorFacts.data.missionsMajorFacts
-            this.majorFactsData.tables.campaigns = this.majorFacts.data.campaignsMajorFacts
-            this.majorFactsData.tables.agencies = this.majorFacts.data.agenciesMajorFacts
-
-            this.majorFactsData.charts.families = this.majorFacts.data.familiesMajorFacts
-            this.majorFactsData.charts.dres = this.majorFacts.data.dresMajorFacts
-          } else if (section == 'anomalies' && this.currentSection !== section) {
-            this.currentSection = section
-            this.anomaliesData.tables.campaigns = this.anomalies.data.campaignsAnomalies
-            this.anomaliesData.tables.missions = this.anomalies.data.missionsAnomalies
-            this.anomaliesData.tables.domains = this.anomalies.data.domainsAnomalies
-            this.anomaliesData.tables.agencies = this.anomalies.data.agenciesAnomalies
-
-            this.anomaliesData.charts.families = this.anomalies.data.familiesAnomalies
-            this.anomaliesData.charts.dres = this.anomalies.data.dresAnomalies
-          } else if (section == 'regularizations' && this.currentSection !== section) {
-
-          } else {
-            if (this.currentSection !== section) {
-              this.currentSection = section
-              this.charts.missionsPercentage = this.realisationStates.data.missionsPercentage
-              this.missionsState = this.realisationStates.data.missionsState
-              this.tables.dresClassificationByAchievementRate = this.realisationStates.data.dresClassificationByAchievementRate
-            }
-          }
-        })
-      }
-    },
-    savePNG (element) {
-      const container = document.querySelector(`#${element}`)
-      const canvas = container.querySelector('canvas')
-      const title = container.dataset.title
-      const dataURL = canvas.toDataURL('image/jpeg')
-      const link = document.createElement('a')
-      link.download = title ? `${title}.jpg` : 'canvas.jpg'
-      link.href = dataURL
-      link.click()
-    }
-  },
   computed: {
     ...mapGetters({
       anomalies: 'statistics/anomalies',
@@ -577,6 +515,7 @@ export default {
     circularChartOptions () {
       const options = { ...this.chartOptions }
       options.maintainAspectRatio = false
+      console.log(options)
       return options
     },
     /**
@@ -589,6 +528,69 @@ export default {
       }
       return options
     }
+  },
+  created () {
+    this.setCurrentSection('realisationStates')
+  },
+  methods: {
+    /**
+     * Set the current section name and fetch data from laravel api
+     *
+     * @param {string} section
+     *
+     * @return {void}
+     */
+    setCurrentSection (section) {
+      const UCFsection = section.charAt(0).toUpperCase() + section.slice(1)
+      if (this.currentSection !== section) {
+        this.$store.dispatch('statistics/fetch' + UCFsection).then(() => {
+          if (section === 'scores' && this.currentSection !== section) {
+            this.currentSection = section
+            this.charts.globalScores = this.scores.data.globalScores
+            this.charts.avgScoreByFamily = this.scores.data.avgScoreByFamily
+            this.tables.avgScoreByDre = this.scores.data.avgScoreByDre
+            this.tables.avgScoreByDomain = this.scores.data.avgScoreByDomain
+          } else if (section === 'majorFacts' && this.currentSection !== section) {
+            this.currentSection = section
+            this.majorFactsData.tables.domains = this.majorFacts.data.domainsMajorFacts
+            this.majorFactsData.tables.missions = this.majorFacts.data.missionsMajorFacts
+            this.majorFactsData.tables.campaigns = this.majorFacts.data.campaignsMajorFacts
+            this.majorFactsData.tables.agencies = this.majorFacts.data.agenciesMajorFacts
+
+            this.majorFactsData.charts.families = this.majorFacts.data.familiesMajorFacts
+            this.majorFactsData.charts.dres = this.majorFacts.data.dresMajorFacts
+          } else if (section === 'anomalies' && this.currentSection !== section) {
+            this.currentSection = section
+            this.anomaliesData.tables.campaigns = this.anomalies.data.campaignsAnomalies
+            this.anomaliesData.tables.missions = this.anomalies.data.missionsAnomalies
+            this.anomaliesData.tables.domains = this.anomalies.data.domainsAnomalies
+            this.anomaliesData.tables.agencies = this.anomalies.data.agenciesAnomalies
+
+            this.anomaliesData.charts.families = this.anomalies.data.familiesAnomalies
+            this.anomaliesData.charts.dres = this.anomalies.data.dresAnomalies
+          } else if (section === 'regularizations' && this.currentSection !== section) {
+          } else {
+            if (this.currentSection !== section) {
+              this.currentSection = section
+              this.charts.missionsPercentage = this.realisationStates.data.missionsPercentage
+              this.missionsState = this.realisationStates.data.missionsState
+              this.tables.dresClassificationByAchievementRate = this.realisationStates.data.dresClassificationByAchievementRate
+            }
+          }
+        })
+      }
+    },
+    savePNG (element) {
+      const container = document.querySelector(`#${element}`)
+      const canvas = container.querySelector('canvas')
+      const title = container.dataset.title
+      const dataURL = canvas.toDataURL('image/jpeg')
+      const link = document.createElement('a')
+      link.download = title ? `${title}.jpg` : 'canvas.jpg'
+      link.href = dataURL
+      link.click()
+    }
   }
+
 }
 </script>

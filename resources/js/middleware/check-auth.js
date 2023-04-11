@@ -27,10 +27,10 @@ export default async (to, from, next) => {
       console.error(e)
     }
   }
-
-  console.log('before check-auth next ')
-  console.log(to)
-  console.log(from)
-  console.log(next)
+  if (!store.getters['auth/token'] && !store.getters['auth/check']) {
+    if (to.path !== '/login') {
+      return next({ name: 'login' })
+    }
+  }
   next()
 }

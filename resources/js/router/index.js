@@ -39,7 +39,7 @@ function createRouterWrapper () {
   return router
 }
 function beforeResolve (to, from, next) {
-  console.log('right here in resolve')
+  // console.log(to)
   const layout = to?.matched[0]?.components?.default?.layout
   to.meta.layout = layout || ''
   next()
@@ -81,8 +81,6 @@ async function beforeEach (to, from, next) {
   await asyncData(components)
   // Call each middleware.
   await callMiddleware(middleware, to, from, (...args) => {
-    console.log('args: called inside cb')
-    console.log(args)
     return next(...args)
   })
 }
@@ -142,10 +140,7 @@ async function afterEach (to, from, next) {
  */
 async function callMiddleware (middleware, to, from, next) {
   const stack = middleware.reverse()
-  // console.log(stack)
   const _next = async (...args) => {
-    console.log('args: was called')
-    console.log(args)
     // Stop if "_next" was called with an argument or the stack is empty.
     if (args.length > 0 || stack.length === 0) {
       if (args.length > 0) {
@@ -153,27 +148,20 @@ async function callMiddleware (middleware, to, from, next) {
         // router.isReady()
         // router?.app?.config?.globalProperties?.$loading?.finish();    // router.isReady()
       }
-      console.log('returning next')
-
       return next(...args)
     }
 
     const { middleware, params } = parseMiddleware(stack.pop())
     // console.log(middleware)
-    // console.log(params)
-    console.log(middleware)
     if (typeof middleware === 'function') {
       await middleware(to, from, _next, params)
     } else if (routeMiddleware[middleware]) {
-      console.log(routeMiddleware)
+      // console.log(routeMiddleware)
       await routeMiddleware[middleware](to, from, _next, params)
     } else {
       throw Error(`Undefined middleware [${middleware}]`)
     }
-    console.log('out of _next')
   }
-
-  console.log('inside of _next')
   await _next()
 }
 

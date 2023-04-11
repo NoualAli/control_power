@@ -45,7 +45,7 @@ export const actions = {
   },
   async fetchRealisationStates ({ commit }) {
     const { data } = await api.get('/statistics/realisationStates')
-    console.log(data)
+    // console.log(data)
     commit('FETCH_REALISATION_STATES', { data })
   }
 }
