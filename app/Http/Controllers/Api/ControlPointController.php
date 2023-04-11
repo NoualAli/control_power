@@ -39,6 +39,16 @@ class ControlPointController extends Controller
         return $controlPoints;
     }
 
+    public function filters()
+    {
+        $controlPoints = new ControlPoint;
+        $families = $controlPoints->relationUniqueData('famillies', 'name', 'id');
+        $domains = request()->has('family') ? ControlPoint::whereRelation('familly', request()->family)->get()->relationUniqueData('domains', 'name', 'id') : [];
+        $processes = request()->has('domain') ? ControlPoint::whereRelation('domain', request()->domain)->get()->relationUniqueData('processes', 'name', 'id') : [];
+
+        return compact('families', 'domains', 'processes');
+    }
+
     /**
      * Store a newly created resource in storage.
      *
