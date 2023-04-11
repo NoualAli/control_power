@@ -19,7 +19,7 @@ class CreateControlCampaignsTable extends Migration
             $table->timestamp('start');
             $table->timestamp('end');
             $table->string('reference');
-            $table->set('state', ['En cours', 'Réaliser', 'En retard', 'À effectuer'])->default('À effectuer');
+            // $table->set('state', ['En cours', 'Réaliser', 'En retard', 'À effectuer'])->default('À effectuer');
 
             $table->foreignId('created_by_id')->nullable();
             $table->foreignId('validated_by_id')->nullable();
