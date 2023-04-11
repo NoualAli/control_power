@@ -34,6 +34,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import Notification from '../../components/Notification'
 import NLInput from '../../components/Inputs/NLInput'
 import Form from 'vform'
@@ -45,7 +46,7 @@ export default {
   middleware: 'guest',
 
   metaInfo() {
-    return { title: this.$t('login') }
+    return { title: "Connexion" }
   },
 
   data: () => ({
@@ -55,6 +56,11 @@ export default {
     }),
     remember: false
   }),
+  computed: {
+    ...mapGetters({
+      user: 'auth/user'
+    })
+  },
 
   methods: {
     getLoginName(login) {
@@ -64,21 +70,22 @@ export default {
     async login() {
       // Submit the form.
       const { data } = await this.form.post('/api/login')
-      // Save the token.
+
       this.$store.dispatch('auth/saveToken', {
         token: data.token,
         remember: this.remember
       })
 
       // Fetch the user.
-      this.$store.dispatch('auth/fetchUser')
-
-      // Redirect home.
-      this.redirect()
+      this.$store.dispatch('auth/fetchUser').then(() => this.redirect(this.user.must_change_password))
     },
 
-    redirect() {
-      this.$router.push({ name: 'home' })
+    redirect(mustChangePassword) {
+      if (mustChangePassword) {
+        this.$router.push({ name: 'password.new' })
+      } else {
+        this.$router.push({ name: 'home' })
+      }
     }
   }
 }

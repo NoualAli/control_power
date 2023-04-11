@@ -15,7 +15,11 @@ class PasswordController extends Controller
     {
         $user = auth()->user();
         try {
-            $user->update(['password' => Hash::make($request->password)]);
+            $user->password = Hash::make($request->password);
+            if (request()->has('mustChangePassword') && request()->mustChangePassword) {
+                $user->must_change_password = false;
+            }
+            $user->save();
 
             return response()->json([
                 'message' => UPDATE_PASSWORD_SUCCESS,

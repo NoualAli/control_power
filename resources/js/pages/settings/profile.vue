@@ -8,27 +8,29 @@
         <div class="grid gap-3 my-4">
           <!-- Firstname -->
           <div class="col-12 col-lg-4 col-md-6">
-            <NLInput :form="infoForm" name="firstname" label="firstname" v-model="infoForm.first_name" />
+            <NLInput :form="infoForm" name="firstname" label="Prénom" v-model="infoForm.first_name" />
           </div>
 
           <!-- Lastname -->
           <div class="col-12 col-lg-4 col-md-6">
-            <NLInput :form="infoForm" name="last_name" label="lastname" v-model="infoForm.last_name" />
+            <NLInput :form="infoForm" name="last_name" label="Nom de famille" v-model="infoForm.last_name" />
           </div>
 
           <!-- Username -->
           <div class="col-12 col-lg-4 col-md-6">
-            <NLInput :form="infoForm" name="username" label="username" v-model="infoForm.username" labelRequired />
+            <NLInput :form="infoForm" name="username" label="Nom d'utilisateur" v-model="infoForm.username"
+              labelRequired />
           </div>
 
           <!-- Phone -->
           <div class="col-12 col-lg-6 col-md-6">
-            <NLInput :form="infoForm" name="phone" label="phone" v-model="infoForm.phone" type="phone" />
+            <NLInput :form="infoForm" name="phone" label="N° de téléphone" v-model="infoForm.phone" type="phone" />
           </div>
 
           <!-- Email -->
           <div class="col-12 col-lg-6 col-md-6">
-            <NLInput :form="infoForm" name="email" label="email" v-model="infoForm.email" labelRequired type="email" />
+            <NLInput :form="infoForm" name="email" label="Adresse e-mail" v-model="infoForm.email" labelRequired
+              type="email" />
           </div>
         </div>
         <!-- Submit Button -->
@@ -44,18 +46,18 @@
         <div class="grid gap-3 my-4">
           <!-- Current password -->
           <div class="col-12 col-lg-4">
-            <NLInput :form="passwordForm" v-model="passwordForm.current_password" label="current_password"
+            <NLInput :form="passwordForm" v-model="passwordForm.current_password" label="Mot de passe actuel"
               name="current_password" type="password" labelRequired />
           </div>
 
           <!-- Password -->
           <div class="col-12 col-lg-4">
-            <NLInput :form="passwordForm" v-model="passwordForm.password" label="Password" name="password"
+            <NLInput :form="passwordForm" v-model="passwordForm.password" label="Mot de passe" name="password"
               type="password" labelRequired />
           </div>
           <!-- Password Confirmation -->
           <div class="col-12 col-lg-4">
-            <NLInput :form="passwordForm" v-model="passwordForm.password_confirmation" label="confirm_password"
+            <NLInput :form="passwordForm" v-model="passwordForm.password_confirmation" label="Confirmation mot de passe"
               name="password_confirmation" type="password" labelRequired />
           </div>
         </div>

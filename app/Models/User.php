@@ -41,6 +41,7 @@ class User extends Authenticatable implements JWTSubject
         'role_id',
         'dre_id',
         'phone',
+        'must_change_password'
     ];
 
     /**
@@ -60,6 +61,7 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'must_change_password' => 'boolean',
     ];
 
     public $searchable = ['last_name', 'first_name', 'username', 'email', 'phone'];
