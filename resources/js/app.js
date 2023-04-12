@@ -11,7 +11,7 @@ import Swal from 'sweetalert2'
 import Vue3Breadcrumbs from 'vue-3-breadcrumbs'
 import App from '~/components/App'
 import '~/components'
-import { useChartJs } from './plugins/charts'
+import './plugins/charts'
 import { useComponents } from './components'
 import { aclMixin, defineDirectives } from './plugins/acl.js'
 window.Swal = Swal

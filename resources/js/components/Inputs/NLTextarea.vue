@@ -1,11 +1,13 @@
 <template>
-  <DefaultContainer :id="id || name" :form="form" :label="label" :name="name" :label-required="labelRequired"
-                    :length="length" :current-length="currentLength" :help-text="helpText"
+  <DefaultContainer
+    :id="id || name" :form="form" :label="label" :name="name" :label-required="labelRequired"
+    :length="length" :current-length="currentLength" :help-text="helpText"
   >
-    <textarea :id="id || name" :class="{ 'is-danger': form?.errors.has(name) }" class="input"
-              :name="name" :autofocus="autofocus" :placeholder="placeholder || label" :value="value"
-              :readonly="readonly" :disabled="disabled" :maxlength="length" v-on="$listeners"
-              @input="onInput($event)"
+    <textarea
+      :id="id || name" :class="{ 'is-danger': form?.errors.has(name) }" class="input"
+      :name="name" :autofocus="autofocus" :placeholder="placeholder || label" :value="modelValue"
+      :readonly="readonly" :disabled="disabled" :maxlength="length" v-bind="$attrs"
+      @input="onInput($event)"
     />
   </DefaultContainer>
 </template>
@@ -14,10 +16,6 @@
 
 export default {
   name: 'NLTextarea',
-  model: {
-    prop: 'value',
-    event: 'update'
-  },
   props: {
     form: { type: Object, required: false },
     autocomplete: { type: String, default: 'off' },
@@ -28,7 +26,7 @@ export default {
     label: { type: String, default: '' },
     labelRequired: { type: Boolean, default: false },
     placeholder: { type: String, default: '' },
-    value: { type: String, default: '' },
+    modelValue: { type: String, default: '' },
     readonly: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false },
     length: { type: [Number, String], default: null },
@@ -51,7 +49,7 @@ export default {
       if (this.length) {
         value = value.slice(0, this.length)
       }
-      this.$emit('update', value)
+      this.$emit('update:modelValue', value)
     }
   }
 }

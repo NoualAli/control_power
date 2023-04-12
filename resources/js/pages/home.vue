@@ -89,11 +89,13 @@
             <i class="las la-save icon" />
           </button>
         </div>
-        <div class="container d-flex align-center justify-center h-100 w-100">
-          <Pie
-            id="missionsPercentage" :data="charts.missionsPercentage" :chart-options="circularChartOptions"
-            class="w-100" data-title="situation_des_rapports"
-          />
+        <div class="container d-flex align-center justify-center w-100 h-100 ">
+          <div class="wrapper-doughnut-chartjs ">
+            <Pie
+              id="missionsPercentage" :data="charts.missionsPercentage" :options="circularChartOptions"
+              data-title="situation_des_rapports"
+            />
+          </div>
         </div>
       </div>
 
@@ -133,10 +135,14 @@
             <i class="las la-save icon" />
           </button>
         </div>
-        <Bar
-          id="globalScores" :data="charts.globalScores" class="w-100" :chart-options="horizontalBarOptions"
-          data-title="classement_des_notations"
-        />
+        <div class="container d-flex align-center justify-center w-100 h-100 ">
+          <div class="wrapper-doughnut-chartjs ">
+            <Bar
+              id="globalScores" :data="charts.globalScores" :options="horizontalBarOptions"
+              data-title="classement_des_notations"
+            />
+          </div>
+        </div>
       </div>
 
       <!-- Notations moyennes par famille -->
@@ -147,7 +153,7 @@
             <i class="las la-save icon" />
           </button>
         </div>
-        <div class="container d-flex align-center justify-center h-100 w-100">
+        <div class="container d-flex align-center justify-center  w-100 h-100">
           <div class="wrapper-doughnut-chartjs ">
             <Doughnut
               id="avgScoreByFamily" :data="charts.avgScoreByFamily"
@@ -210,11 +216,13 @@
             <i class="las la-save icon" />
           </button>
         </div>
-        <div class="container d-flex align-center justify-center h-100 w-100">
-          <Doughnut
-            id="familiesAnomalies" :data="anomaliesData.charts.families" class="w-100"
-            :chart-options="circularChartOptions" data-title="anomalies_par_familles"
-          />
+        <div class="container d-flex align-center justify-center w-100 h-100">
+          <div class="wrapper-doughnut-chartjs ">
+            <Doughnut
+              id="familiesAnomalies" :data="anomaliesData.charts.families"
+              :options="circularChartOptions" data-title="anomalies_par_familles"
+            />
+          </div>
         </div>
       </div>
       <!-- Anomalies par DRE -->
@@ -225,10 +233,14 @@
             <i class="las la-save icon" />
           </button>
         </div>
-        <Bar
-          id="dresAnomalies" :data="anomaliesData.charts.dres" class="w-100" :chart-options="chartOptions"
-          data-title="anomalies_par_dre"
-        />
+        <div class="container d-flex align-center justify-center w-100 h-100 ">
+          <div class="wrapper-doughnut-chartjs ">
+            <Bar
+              id="dresAnomalies" :data="anomaliesData.charts.dres" :options="chartOptions"
+              data-title="anomalies_par_dre"
+            />
+          </div>
+        </div>
       </div>
       <!-- Anomalies par domaine -->
       <div class="col-12 col-lg-6">
@@ -322,11 +334,13 @@
             <i class="las la-save icon" />
           </button>
         </div>
-        <div class="container d-flex align-center justify-center h-100 w-100">
-          <Doughnut
-            id="familiesMajorFacts" :data="majorFactsData.charts.families" class="w-100"
-            :chart-options="circularChartOptions" data-title="faits_majeur_par_famille"
-          />
+        <div class="container d-flex align-center justify-center w-100 h-100">
+          <div class="wrapper-doughnut-chartjs ">
+            <Doughnut
+              id="familiesMajorFacts" :data="majorFactsData.charts.families"
+              :options="circularChartOptions" data-title="faits_majeur_par_famille"
+            />
+          </div>
         </div>
       </div>
       <!-- Faits majeur par DRE -->
@@ -337,10 +351,14 @@
             <i class="las la-save icon" />
           </button>
         </div>
-        <Bar
-          id="dresMajorFacts" :data="majorFactsData.charts.dres" class="w-100" :chart-options="chartOptions"
-          data-title="faits_majeur_par_dre"
-        />
+        <div class="container d-flex align-center justify-center w-100 h-100 ">
+          <div class="wrapper-doughnut-chartjs ">
+            <Bar
+              id="dresMajorFacts" :data="majorFactsData.charts.dres" :options="chartOptions"
+              data-title="faits_majeur_par_dre"
+            />
+          </div>
+        </div>
       </div>
       <!-- Faits majeur par domaine -->
       <div class="col-12 col-lg-6">
@@ -434,7 +452,6 @@ import ContentBody from '../components/ContentBody'
 import { mapGetters } from 'vuex'
 // import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
 import { Bar, Pie, Doughnut } from 'vue-chartjs'
-
 // import InProgress from '../components/InProgress'
 export default {
   components: {
