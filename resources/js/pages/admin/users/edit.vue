@@ -58,13 +58,13 @@
             <div class="grid gap-10 my-4">
               <!-- Password -->
               <div class="col-12 col-lg-4">
-                <NLInput :form="passwordForm" v-model="passwordForm.password" label="Password" name="password"
+                <NLInput :form="passwordForm" v-model="passwordForm.password" label="Mot de passe" name="password"
                   type="password" labelRequired />
               </div>
               <!-- Password Confirmation -->
               <div class="col-12 col-lg-4">
-                <NLInput :form="passwordForm" v-model="passwordForm.password_confirmation" label="confirm_password"
-                  name="password_confirmation" type="password" labelRequired />
+                <NLInput :form="passwordForm" v-model="passwordForm.password_confirmation"
+                  label="Confirmation mot de passe" name="password_confirmation" type="password" labelRequired />
               </div>
             </div>
             <!-- Submit Button -->
@@ -104,7 +104,6 @@ export default {
     this.$store.dispatch('users/fetch', this.$route.params.user).then((result) => {
       this.form.fill(this.user.current)
       this.form.roles = this.user.current.roles.map(item => item.id)
-      console.log(this.user.current);
       this.form.dres = this.user.current.agencies.map(item => item.id)
     })
   },
@@ -115,6 +114,7 @@ export default {
         email: null,
         first_name: null,
         last_name: null,
+        phone: null,
         roles: [],
         dres: [],
       }),
@@ -151,7 +151,7 @@ export default {
     updatePassword() {
       confirm_update().then((action) => {
         if (action.isConfirmed) {
-          this.form.put('/api/users/password/' + this.user.current.id).then(response => {
+          this.passwordForm.put('/api/users/password/' + this.user.current.id).then(response => {
             if (response.data.status) {
               swal.toast_success(response.data.message)
               this.passwordForm.reset()
