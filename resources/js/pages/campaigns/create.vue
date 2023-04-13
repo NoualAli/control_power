@@ -1,7 +1,7 @@
 <template>
   <div v-if="can('create_control_campaign')">
     <ContentBody>
-      <form @submit.prevent="create" @keydown="form.onKeydown($event)">
+      <form @submit.prevent="clear" @keydown="form.onKeydown($event)">
         <!-- Control campaign base informations -->
         <div class="grid">
           <div class="col-12">
@@ -46,6 +46,8 @@
 import { mapGetters } from 'vuex'
 import { Form } from 'vform'
 import { hasRole } from '../../plugins/user'
+import * as swal from '~/plugins/swal.js'
+
 export default {
   layout: 'backend',
   middleware: ['auth'],
@@ -75,6 +77,9 @@ export default {
     /**
      * Ajoute une nouvelle campagne de contrôle
      */
+    clear () {
+      this.form.reset()
+    },
     create () {
       this.form.post('/api/campaigns').then(response => {
         if (response.data.status) {

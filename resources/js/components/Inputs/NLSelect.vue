@@ -6,13 +6,15 @@
     <treeselect
       v-model="selected" :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" :value="modelValue"
       :name="name" :multiple="multiple" :options="options" :placeholder="placeholder" :loading-text="loadingText"
-      :no-options-text="noOptionsText" search-nested @input="updateValue"
+      :no-options-text="noOptionsText" search-nested v-bind="$attrs"
     />
   </DefaultContainer>
 </template>
 
 <script>
-import Treeselect from 'vue3-treeselect'
+// import Treeselect from 'vue3-treeselect'
+import Treeselect from '@veigit/vue3-treeselect'
+// @veigit/vue3-treeselect
 // import Treeselect from '@riophae/vue-treeselect'
 export default {
   name: 'NLSelect',
@@ -31,18 +33,37 @@ export default {
     options: { type: Array, required: true },
     helpText: { type: String, default: null }
   },
+  emits: ['update:modelValue'],
   data () {
     return {
-      selected: this.value
+      selected: this.modelValue,
+      count: 0
+    }
+  },
+  watch: {
+    selected (newValue, oldValue) {
+      console.log('watch selected')
+      this.count += 1
+      console.log(this.count)
+
+      console.log(newValue)
+      this.$emit('update:modelValue', newValue)
+    },
+    modelValue (newValue, oldValue) {
+      console.log('watch modelValue')
+      this.count += 1
+      console.log(this.count)
+      console.log(newValue, oldValue)
+      if (newValue !== oldValue) this.selected = newValue
     }
   },
   updated () {
-    this.selected = this.value
+    this.selected = this.modelValue
+    console.log('updated')
+    console.log(this.selected)
   },
   methods: {
-    updateValue () {
-      this.$emit('update:modelValue', this.selected)
-    }
+
   }
 }
 </script>
