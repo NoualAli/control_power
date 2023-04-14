@@ -213,12 +213,12 @@ class MissionDetailController extends Controller
         } else {
             $details = $mission->details()->orderBy('control_point_id');
             if (request()->has('onlyAnomaly')) {
-                $details = $details->whereAnomaly()->with('regularization');
-            }
-            $details = $details->whereRelation('process', 'processes.id', $process->id);
-            if ($mission->progress_status == 100) {
                 $details = $details->whereAnomaly();
             }
+            $details = $details->whereRelation('process', 'processes.id', $process->id);
+            // if ($mission->progress_status == 100) {
+            //     $details = $details;
+            // }
             $details = $details->with(['controlPoint', 'domain', 'process', 'regularization'])->get();
             return compact('mission', 'details', 'process');
         }
