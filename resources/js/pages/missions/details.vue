@@ -267,7 +267,7 @@
                   v-if="rowSelected?.mission?.dcp_validation_at && !rowSelected?.regularization?.regularized_at && !rowSelected?.major_fact && rowSelected?.score !== 1 && can('regularize_mission_detail')"
                   class="btn btn-warning has-icon" @click="regularize(rowSelected)">
                   <i class="las la-pen icon"></i>
-                  Régulariserqsdsqd
+                  Régulariser
                 </button>
               </div>
             </div>
@@ -290,18 +290,22 @@
           <form @submit.prevent="save('edit')" @keydown="forms.detail.onKeydown($event)" enctype="multipart/form-data"
             class="grid gap-2">
             <!-- Major fact -->
-            <div class="col-12" v-if="rowSelected?.control_point?.has_major_fact">
-              <NLSwitch v-model="forms.detail.major_fact" :name="'major_fact'" :form="forms.detail" label="Fait majeur" />
+            <div class="col-12"
+              v-if="rowSelected?.control_point?.has_major_fact && [2, 3, 4].includes(forms?.detail?.score)">
+              <NLSwitch v-model="forms.detail.major_fact" :name="'major_fact'" :form="forms?.detail"
+                label="Fait majeur" />
             </div>
             <!-- score -->
             <div class="col-12">
-              <NLSelect :name="'score'" label="Notation" :form="forms.detail" v-model="forms.detail.score"
-                :options="setupScores(rowSelected?.control_point.scores)" labelRequired />
+              <NLSelect name="score" label="Notation" :form="forms.detail" v-model="forms.detail.score"
+                :options="setupScores(rowSelected?.control_point.scores)" labelRequired
+                v-if="!forms.detail.process_mode" />
+              <NLInput name="score" label="Notation" :form="forms.detail" v-model="forms.detail.score" readonly v-else />
             </div>
 
             <!-- Metadata -->
             <div class="col-12"
-              v-if="rowSelected?.control_point.fields && forms.detail.score > 1 && !forms.detail.process_mode">
+              v-if="rowSelected?.control_point.fields && ![null, undefined, ''].includes(forms.detail.score) && !['object', 'array'].includes(typeof forms.detail.score) && !forms.detail.process_mode">
               <div class="repeater">
                 <h2 class="mb-6">Informations supplémentaires</h2>
                 <!-- Repeater row -->
@@ -394,9 +398,9 @@
             <!-- Report -->
             <div class="col-12">
               <NLTextarea :name="'report'" label="Constat" :form="forms.detail" v-model="forms.detail.report"
-                :placeholder="![2, 3, 4].includes(forms.detail.score) && !forms.detail.major_fact ? '' : 'Ajouter votre constat'"
-                :labelRequired="forms.detail.score > 1 || forms.detail.major_fact"
-                :disabled="(![2, 3, 4].includes(forms.detail.score) && !forms.detail.major_fact)"
+                :placeholder="[null, undefined, ''].includes(forms.detail.score) || ['object', 'array'].includes(typeof forms.detail.score) && !forms.detail.major_fact ? '' : 'Ajouter votre constat'"
+                :labelRequired="![null, undefined, ''].includes(forms.detail.score) && !['object', 'array'].includes(typeof forms.detail.score) || forms.detail.major_fact"
+                :disabled="[null, undefined, ''].includes(forms.detail.score) || ['object', 'array'].includes(typeof forms.detail.score) && !forms.detail.major_fact"
                 v-if="!forms.detail.process_mode" />
               <NLTextarea label="Constat" :form="forms.detail" v-model="forms.detail.report" placeholder="Constat"
                 name="report" readonly v-else />
@@ -413,9 +417,9 @@
             <div class="col-12">
               <NLTextarea :name="'recovery_plan'" label="Plan de redressement" :form="forms.detail"
                 v-model="forms.detail.recovery_plan"
-                :placeholder="![2, 3, 4].includes(forms.detail.score) && !forms.detail.major_fact ? '' : 'Ajouter votre plan de redressement'"
-                :labelRequired="forms.detail.score > 1 || forms.detail.major_fact"
-                :disabled="(![2, 3, 4].includes(forms.detail.score) && !forms.detail.major_fact)" />
+                :placeholder="[1, null, undefined, ''].includes(parseInt(forms.detail.score)) || ['object', 'array'].includes(typeof forms.detail.score) && !forms.detail.major_fact ? '' : 'Ajouter votre plan de redressement'"
+                :labelRequired="![1, null, undefined, ''].includes(parseInt(forms.detail.score)) && !['object', 'array'].includes(typeof forms.detail.score) || forms.detail.major_fact"
+                :disabled="[1, null, undefined, ''].includes(parseInt(forms.detail.score)) || ['object', 'array'].includes(typeof forms.detail.score) && !forms.detail.major_fact" />
             </div>
 
             <!-- Submit Button -->
@@ -537,14 +541,13 @@ export default {
           score: null,
           major_fact: null,
           metadata: [],
-          process_mode: null,
         }),
       }
     }
   },
   computed: {
     formErrorsCount() {
-      return Object.entries(this.forms.generic.errors.all()).length
+      return Object.entries(this.forms.detail.errors.all()).length
     },
     ...mapGetters({
       config: 'details/config',
@@ -619,9 +622,9 @@ export default {
      */
     initForm() {
       this.regularization_mode = hasRole('da')
-      this.regularization_mode ? this.initRegularizationForm() : this.initGenericForm()
+      this.regularization_mode ? this.initRegularizationForm() : this.initDetailForm()
     },
-    initGenericForm() {
+    initDetailForm() {
       this.$store.dispatch('details/fetchConfig', { missionId: this.$route.params.missionId, processId: this.$route.params.processId, detailId: this.rowSelected?.id }).then(() => {
         const config = this.config.config
         this.rowSelected = config.detail
@@ -633,10 +636,10 @@ export default {
         this.forms.detail.detail = config.detail.id
         this.forms.detail.report = config.detail.report
         this.forms.detail.recovery_plan = config.detail.recovery_plan
-        this.forms.detail.score = config.detail.score
+        this.forms.detail.process_mode = this.is([ 'dcp', 'cdcr', 'cc' ])
+        this.forms.detail.score = parseInt(config.detail.score)
         this.forms.detail.metadata = config.detail.metadata || []
         this.forms.detail.major_fact = config.detail.major_fact ? true : false
-        this.forms.detail.process_mode = this.is([ 'dcp', 'cdcr', 'cc' ])
       })
     },
     initRegularizationForm() {
@@ -760,7 +763,7 @@ export default {
         defaultValue = element.multiple ? [] : ''
         schema.push({ [ name ]: defaultValue, label: element.label, rules: element.rules })
       }
-      if (this.forms.generic.metadata) this.forms.generic.metadata.push(schema)
+      if (this.forms.detail.metadata) this.forms.detail.metadata.push(schema)
     },
     /**
      * Supprimer une ligne du répéteur
@@ -769,7 +772,7 @@ export default {
      * @param {Number} field
      */
     removeRow(row, field) {
-      this.forms.generic.metadata.splice(field, 1)
+      this.forms.detail.metadata.splice(field, 1)
     },
     /**
      * Vérifie que la valeur est un input valide

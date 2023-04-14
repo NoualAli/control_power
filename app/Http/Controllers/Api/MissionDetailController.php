@@ -322,10 +322,11 @@ class MissionDetailController extends Controller
     private function updateDetail(array $data, bool $processMode = false)
     {
         $detail = MissionDetail::findOrFail($data['detail']);
-        // Vidé les champs report et recovery_plan si la note égale 1
-        if (isset($data['score']) && !in_array($data['score'], [4, 3, 2])) {
+        // Vidé les champs report, recovery_plan, metadata
+        if (isset($data['score']) && !in_array($data['score'], [4, 3, 2, 1])) {
             $data['report'] = null;
             $data['recovery_plan'] = null;
+            $data['metadata'] = null;
         }
         // Mettre la note max si jamais il y'a un fait majeur
         if (isset($data['major_fact']) && !empty($data['major_fact'])) $data['score'] = max(array_keys($detail->controlPoint->scores_arr));

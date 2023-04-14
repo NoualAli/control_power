@@ -190,7 +190,8 @@
         <form @submit.prevent="save('edit')" @keydown="forms.detail.onKeydown($event)" enctype="multipart/form-data"
           class="grid gap-2">
           <!-- Major fact -->
-          <div class="col-12" v-if="rowSelected?.control_point?.has_major_fact">
+          <div class="col-12"
+            v-if="rowSelected?.control_point?.has_major_fact && [2, 3, 4].includes(forms?.detail?.score)">
             <NLSwitch v-model="forms.detail.major_fact" :name="'major_fact'" :form="forms.detail" label="Fait majeur" />
           </div>
           <!-- score -->
@@ -293,9 +294,9 @@
           <!-- Report -->
           <div class="col-12">
             <NLTextarea :name="'report'" label="Constat" :form="forms.detail" v-model="forms.detail.report"
-              :placeholder="![2, 3, 4].includes(forms.detail.score) && !forms.detail.major_fact ? '' : 'Ajouter votre constat'"
-              :labelRequired="forms.detail.score > 1 || forms.detail.major_fact"
-              :disabled="(![2, 3, 4].includes(forms.detail.score) && !forms.detail.major_fact)"
+              :placeholder="[null, undefined, ''].includes(forms.detail.score) || ['object', 'array'].includes(typeof forms.detail.score) && !forms.detail.major_fact ? '' : 'Ajouter votre constat'"
+              :labelRequired="![null, undefined, ''].includes(forms.detail.score) && !['object', 'array'].includes(typeof forms.detail.score) || forms.detail.major_fact"
+              :disabled="[null, undefined, ''].includes(forms.detail.score) || ['object', 'array'].includes(typeof forms.detail.score) && !forms.detail.major_fact"
               v-if="!forms.detail.process_mode" />
             <NLTextarea label="Constat" :form="forms.detail" v-model="forms.detail.report" placeholder="Constat"
               name="report" readonly v-else />
@@ -312,11 +313,10 @@
           <div class="col-12">
             <NLTextarea :name="'recovery_plan'" label="Plan de redressement" :form="forms.detail"
               v-model="forms.detail.recovery_plan"
-              :placeholder="![2, 3, 4].includes(forms.detail.score) && !forms.detail.major_fact ? '' : 'Ajouter votre plan de redressement'"
-              :labelRequired="forms.detail.score > 1 || forms.detail.major_fact"
-              :disabled="(![2, 3, 4].includes(forms.detail.score) && !forms.detail.major_fact)" />
+              :placeholder="[1, null, undefined, ''].includes(parseInt(forms.detail.score)) || ['object', 'array'].includes(typeof forms.detail.score) && !forms.detail.major_fact ? '' : 'Ajouter votre plan de redressement'"
+              :labelRequired="![1, null, undefined, ''].includes(parseInt(forms.detail.score)) && !['object', 'array'].includes(typeof forms.detail.score) || forms.detail.major_fact"
+              :disabled="[1, null, undefined, ''].includes(parseInt(forms.detail.score)) || ['object', 'array'].includes(typeof forms.detail.score) && !forms.detail.major_fact" />
           </div>
-
           <!-- Submit Button -->
           <div class="col-12 d-flex justify-end align-center">
             <NLButton :loading="forms.detail.busy" label="Save" class="is-radius" v-if="!forms.detail.process_mode" />
@@ -427,6 +427,7 @@ export default {
           {
             label: 'DRE',
             field: 'dre_full_name',
+            hide: hasRole([ 'cdc', 'ci', 'da', 'dre' ])
           },
           {
             label: 'Agence',
@@ -480,6 +481,7 @@ export default {
           {
             label: 'Etat',
             field: 'is_regularized',
+            hide: hasRole([ 'cdc', 'ci' ])
           },
         ],
         actions: {
@@ -535,7 +537,8 @@ export default {
           cols: 'col-lg-3',
           multiple: true,
           data: null,
-          value: null
+          value: null,
+          hide: hasRole([ 'cdc', 'ci', 'da', 'dre' ])
         },
         agency: {
           label: 'Agence',
@@ -566,7 +569,7 @@ export default {
           label: 'Régularisation',
           multiple: false,
           value: null,
-          hide: !hasRole([ 'dcp', 'cdcr', 'da' ]),
+          hide: hasRole([ 'cdc', 'ci' ]),
           data: [
             {
               id: 0,
@@ -691,7 +694,7 @@ export default {
         this.forms.detail.detail = config.detail.id
         this.forms.detail.report = config.detail.report
         this.forms.detail.recovery_plan = config.detail.recovery_plan
-        this.forms.detail.score = config.detail.score
+        this.forms.detail.score = parseInt(config.detail.score)
         this.forms.detail.major_fact = config.detail.major_fact ? true : false
         this.forms.detail.metadata = config.detail.metadata || []
       })
