@@ -220,7 +220,7 @@ return [
         'rows.*.detail' => 'détail',
         'rows.*.metadata.*.*' => 'métadonnées',
         'opinion' => 'avis du contrôleur',
-        'report' => 'rapport du chef de département',
+        'report' => 'constat',
         'major_fact_types' => 'types des faits majeur',
         'has_major_fact' => 'faits majeur',
         'regularized_at' => 'date de régularization',
