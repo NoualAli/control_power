@@ -341,6 +341,7 @@ export default {
           {
             label: 'DRE',
             field: 'dre_full_name',
+            hide: hasRole([ 'cdc', 'ci' ])
           },
           {
             label: 'Agence',

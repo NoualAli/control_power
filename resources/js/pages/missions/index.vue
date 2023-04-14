@@ -47,6 +47,7 @@ export default {
           {
             label: 'Dre',
             field: 'dre',
+            hide: hasRole([ 'cdc', 'ci' ])
           },
           {
             label: 'Agence',
@@ -55,6 +56,7 @@ export default {
           {
             label: 'Contrôle sur place par',
             field: 'agency_controllers_str',
+            hide: hasRole([ 'ci' ])
           },
           {
             label: 'Date début',
@@ -67,7 +69,7 @@ export default {
           {
             label: 'Moyenne',
             field: 'avg_score',
-            hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
+            hide: hasRole([ 'cdc', 'ci' ]),
             isHtml: true,
             methods: {
               showField(item) {
@@ -178,7 +180,8 @@ export default {
           cols: 'col-lg-3',
           multiple: true,
           data: null,
-          value: null
+          value: null,
+          hide: hasRole([ 'cdc', 'ci' ])
         },
         agency: {
           label: 'Agence',
@@ -192,7 +195,8 @@ export default {
           cols: 'col-lg-3',
           multiple: true,
           data: null,
-          value: null
+          value: null,
+          hide: hasRole([ 'ci' ])
         },
         between: {
           cols: 'col-lg-3',
