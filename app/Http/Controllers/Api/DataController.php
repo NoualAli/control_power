@@ -16,6 +16,7 @@ class DataController extends Controller
     {
         $missionsAnomalies = $this->missionsAnomalies();
         $campaignsAnomalies = $this->campaignsAnomalies();
+        // dd($campaignsAnomalies);
         $familiesAnomalies = $this->familiesAnomalies();
         $domainsAnomalies = $this->domainsAnomalies();
         $dresAnomalies = $this->dresAnomalies();
@@ -128,7 +129,11 @@ class DataController extends Controller
      */
     private function globalScores(): array
     {
-        $details = $this->getDetails()->whereNotNull('score')->groupBy('score')->selectRaw('score, COUNT(*) as scores_count')->get()->pluck('scores_count', 'score');
+        $details = $this->getDetails()->whereNotNull('score')->groupBy('score');
+        if (hasRole(['cc', 'ci'])) {
+            $details = $details->groupBy('user_id');
+        }
+        $details = $details->selectRaw('score, COUNT(*) as scores_count')->get()->pluck('scores_count', 'score');
         $labels = $details->keys();
         extract($this->defaultColors());
         $datasets = [
@@ -607,8 +612,9 @@ class DataController extends Controller
     private function getCampaigns()
     {
         $campaigns = new ControlCampaign;
-        $campaigns = hasRole(['ci', 'cc']) ? auth()->user()->campaigns() : $campaigns->validated();
-        return $campaigns->select('reference');
+        // $campaigns = hasRole(['ci', 'cc']) ? auth()->user()->campaigns() : $campaigns->validated();
+        $campaigns = $campaigns->validated();
+        return $campaigns;
     }
 
     /**
