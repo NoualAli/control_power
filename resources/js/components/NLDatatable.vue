@@ -4,20 +4,20 @@
       <div v-if="filters && showFilters" class="col-12">
         <div class="grid gap-2">
           <div
-            v-for="(filter, name) in filters" v-if="!filter?.hide" :key="'filter-' + name"
+            v-for="(filter, filterName) in isNotHideFilter" :key="'filter-' + filterName"
             class="col-12" :class="filter?.cols || 'col-lg-2'"
           >
             <NLSelect
-              v-if="!filter.type" v-model="filter.value" :name="name" :label="filter.label"
+              v-if="!filter.type" v-model="filter.value" :name="filterName" :label="filter.label"
               :options="filter?.data" :multiple="filter.multiple"
             />
 
             <div v-if="filter.type && filter.type == 'date-range'" class="grid gap-2">
               <div
-                v-for="(data, name) in filter.attributes" v-if="filter.type && filter.type == 'date-range'" :key="'filter-' + name"
+                v-for="(attrData, attrName) in attrsDataRangeFilter" :key="'filter-' + attrName "
                 class="col-12" :class="data?.cols || 'col-lg-6'"
               >
-                <NLInput v-model="data.value" :name="name" :label="data.label" type="date" />
+                <NLInput v-model="attrData.value" :name="attrName" :label="attrData.label" type="date" />
               </div>
             </div>
           </div>
@@ -54,8 +54,9 @@
       <table v-if="config.data?.meta?.total">
         <thead>
           <tr>
+            <!-- v-if becomes filter  -->
             <th
-              v-for="column in config.columns" v-if="!column.hide"
+              v-for="column in config.columns" v-if="!column?.hide"
               :key="column.field" :colspan="column.colspan ? column.colspan : null" :align="column.align ? column.align : 'left'"
             >
               <span class="d-flex justify-between align-center">
@@ -74,12 +75,15 @@
         </thead>
         <tbody :class="{ 'is-busy': isBusy }">
           <tr v-for="item in config.data?.data" :key="item[rowKey]">
+            <!-- v-if becomes filter  -->
             <td
               v-for="column in config.columns" v-if="!column?.hide"
               :key="column.field" :colspan="column.colspan ? column.colspan : null" :align="column.align ? column.align : 'left'" :data-th="column.label"
               :class="{ 'p-0': column.isHtml, [applyClass(item, column)]: !column.isHtml }"
             >
               <span v-if="column.isHtml" :class="applyClass(item, column)">
+                <!-- to be checked  about v-html and the necessity of this  -->
+
                 <span :class="applyClass(item, column)" v-html="showField(item, column)" />
               </span>
               <span v-else>
@@ -88,6 +92,8 @@
             </td>
             <td v-if="config.actions" class="cell-actions">
               <span class="d-flex justify-start align-center gap-4">
+                <!-- v-if  reconsider its necessity and its effect later on make  -->
+                <!-- <template /> -->
                 <span
                   v-for="(value, key) in config.actions" v-if="showAction(value, key, 'show', item) || showAction(value, key, 'edit', item) || showAction(value, key, 'delete', item)"
                   :key="key"
@@ -161,7 +167,8 @@
 </template>
 
 <script>
-import api from '../plugins/api'
+import api from '~/plugins/api'
+import * as swal from '~/plugins/swal'
 import NoData from './NoData'
 // import { saveAs } from 'file-saver';
 export default {
@@ -204,6 +211,12 @@ export default {
   computed: {
     getUrl () {
       return this.url ? this.url : this.config?.data?.meta?.path
+    },
+    isNotHideFilter () {
+      return this.filters.filter(filter => !filter?.hide)
+    },
+    attrsDataRangeFilter () {
+      return this.filters.filter(filter => filter.type && filter.type === 'data-range').attributes
     }
   },
   watch: {
@@ -296,8 +309,8 @@ export default {
         }
       }).then(response => {
         this.isBusy = false
-        const file = response.data.file
-        const fileName = response.data.fileName
+        // const file = response.data.file
+        // const fileName = response.data.fileName
         // saveAs(file, fileName)
       })
     },
@@ -366,10 +379,10 @@ export default {
      * @param {Object} item
      */
     showAction (value, key, action, item) {
-      if (typeof value === 'function' && key == action) {
+      if (typeof value === 'function' && key === action) {
         return this.config.actions[key](item)
       } else {
-        return key == action
+        return key === action
       }
     },
     /**
@@ -446,9 +459,7 @@ export default {
      * @param {Boolean} state
      */
     updateState (state = false) {
-      {
-        this.isBusy = state
-      }
+      this.isBusy = state
     },
     /**
      * Refresh data
@@ -485,7 +496,6 @@ export default {
         this.$emit('sortDone', res)
       })
     },
-
     /**
      * Search data
      * @param {*} value
@@ -548,7 +558,7 @@ export default {
      * @return {Boolean}
      */
     showPreviousLink (index, url) {
-      return index == 0 && url !== null && this.config.data?.meta?.links.length >= 4
+      return index === 0 && url !== null && this.config.data?.meta?.links.length >= 4
     },
     /**
      *
@@ -565,7 +575,7 @@ export default {
      * @return {Boolean}
      */
     showNextLink (index, url) {
-      return index == (this.config.data?.meta?.links.length - 1) && url !== null && this.config.data?.meta?.links.length >= 4
+      return index === (this.config.data?.meta?.links.length - 1) && url !== null && this.config.data?.meta?.links.length >= 4
     }
   }
 }

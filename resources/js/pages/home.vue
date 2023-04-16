@@ -532,7 +532,6 @@ export default {
     circularChartOptions () {
       const options = { ...this.chartOptions }
       options.maintainAspectRatio = false
-      console.log(options)
       return options
     },
     /**

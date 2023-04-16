@@ -1,7 +1,7 @@
 <template>
   <div v-if="can('create_control_campaign')">
     <ContentBody>
-      <form @submit.prevent="clear" @keydown="form.onKeydown($event)">
+      <form @submit.prevent="create" @keydown="form.onKeydown($event)">
         <!-- Control campaign base informations -->
         <div class="grid">
           <div class="col-12">
@@ -45,7 +45,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { Form } from 'vform'
-import { hasRole } from '../../plugins/user'
+import { hasRole } from '~/plugins/user'
 import * as swal from '~/plugins/swal.js'
 
 export default {

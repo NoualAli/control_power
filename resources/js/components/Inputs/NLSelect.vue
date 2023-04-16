@@ -3,10 +3,16 @@
     :id="id || name" :form="form" :label="label" :name="name" :label-required="labelRequired"
     :help-text="helpText"
   >
-    <treeselect
+    <!-- <treeselect
       v-model="selected" :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" :value="modelValue"
       :name="name" :multiple="multiple" :options="options" :placeholder="placeholder" :loading-text="loadingText"
       :no-options-text="noOptionsText" search-nested v-bind="$attrs"
+    /> -->
+
+    <treeselect
+      v-bind="$attrs" ref="treeselect"
+      v-model="selected" :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" :value="modelValue" :name="name" :multiple="multiple"
+      :options="options" :placeholder="placeholder" :loading-text="loadingText" :no-options-text="noOptionsText" search-nested
     />
   </DefaultContainer>
 </template>
@@ -36,34 +42,21 @@ export default {
   emits: ['update:modelValue'],
   data () {
     return {
-      selected: this.modelValue,
-      count: 0
+      selected: this.modelValue
     }
   },
   watch: {
     selected (newValue, oldValue) {
-      console.log('watch selected')
-      this.count += 1
-      console.log(this.count)
-
-      console.log(newValue)
       this.$emit('update:modelValue', newValue)
     },
     modelValue (newValue, oldValue) {
-      console.log('watch modelValue')
-      this.count += 1
-      console.log(this.count)
-      console.log(newValue, oldValue)
+      if (newValue.length === 0) { this.$refs.treeselect.clear() }
       if (newValue !== oldValue) this.selected = newValue
     }
   },
   updated () {
     this.selected = this.modelValue
-    console.log('updated')
-    console.log(this.selected)
-  },
-  methods: {
-
   }
+
 }
 </script>
