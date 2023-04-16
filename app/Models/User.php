@@ -66,7 +66,7 @@ class User extends Authenticatable implements JWTSubject
 
     public $searchable = ['last_name', 'first_name', 'username', 'email', 'phone'];
 
-    protected $appends = ['full_name', 'roles_str', 'dres_str', 'authorizations', 'permissions_arr'];
+    protected $appends = ['full_name', 'abbreviated_name', 'roles_str', 'dres_str', 'authorizations', 'permissions_arr'];
 
     /**
      * Getters
@@ -83,6 +83,10 @@ class User extends Authenticatable implements JWTSubject
     public function getPermissionsArrAttribute()
     {
         return $this->roles->pluck('permissions')->flatten()->pluck('name')->toArray();
+    }
+    public function getAbbreviatedNameAttribute()
+    {
+        return $this->first_name && $this->last_name ? substr(strtoupper($this->first_name), 0, 1) . '.' . strtoupper($this->last_name) : $this->full_name;
     }
     public function getFullNameAttribute()
     {

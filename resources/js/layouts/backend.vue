@@ -17,7 +17,7 @@
               <i class="las la-user icon" v-else />
             </div>
             <router-link :to="{ name: 'profile' }" class="username text-bold">
-              {{ user?.username }}
+              {{ user?.abbreviated_name }}
             </router-link>
           </div>
           <router-link :to="{ name: 'notifications' }" class="notification-link has-icon"
