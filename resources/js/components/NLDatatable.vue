@@ -4,7 +4,7 @@
       <div v-if="filters && showFilters" class="col-12">
         <div class="grid gap-2">
           <div
-            v-for="(filter, filterName) in isNotHideFilter" :key="'filter-' + filterName"
+            v-for="(filter, filterName) in isNotHiddenFilter" :key="'filter-' + filterName"
             class="col-12" :class="filter?.cols || 'col-lg-2'"
           >
             <NLSelect
@@ -56,7 +56,7 @@
           <tr>
             <!-- v-if becomes filter  -->
             <th
-              v-for="column in config.columns" v-if="!column?.hide"
+              v-for="column in isNotHiddenColumn"
               :key="column.field" :colspan="column.colspan ? column.colspan : null" :align="column.align ? column.align : 'left'"
             >
               <span class="d-flex justify-between align-center">
@@ -77,7 +77,7 @@
           <tr v-for="item in config.data?.data" :key="item[rowKey]">
             <!-- v-if becomes filter  -->
             <td
-              v-for="column in config.columns" v-if="!column?.hide"
+              v-for="column in isNotHiddenColumn"
               :key="column.field" :colspan="column.colspan ? column.colspan : null" :align="column.align ? column.align : 'left'" :data-th="column.label"
               :class="{ 'p-0': column.isHtml, [applyClass(item, column)]: !column.isHtml }"
             >
@@ -94,23 +94,22 @@
               <span class="d-flex justify-start align-center gap-4">
                 <!-- v-if  reconsider its necessity and its effect later on make  -->
                 <!-- <template /> -->
-                <span
-                  v-for="(value, key) in config.actions" v-if="showAction(value, key, 'show', item) || showAction(value, key, 'edit', item) || showAction(value, key, 'delete', item)"
-                  :key="key"
-                >
-                  <button v-if="showAction(value, key, 'show', item)" class="btn btn-success" @click.stop="show(item)">
-                    <i class="las la-eye icon" />
-                  </button>
-                  <button v-if="showAction(value, key, 'edit', item)" class="btn btn-warning" @click.stop="edit(item)">
-                    <i class="las la-edit icon" />
-                  </button>
-                  <button
-                    v-if="showAction(value, key, 'delete', item)" class="btn btn-danger"
-                    @click.stop="destroy(item)"
-                  >
-                    <i class="las la-trash icon" />
-                  </button>
-                </span>
+                <template v-for="(value, key) in config.actions">
+                  <template v-if="showAction(value, key, 'show', item) || showAction(value, key, 'edit', item) || showAction(value, key, 'delete', item)">
+                    <span :key="key">
+                      <button v-if="showAction(value, key, 'show', item)" class="btn btn-success" @click.stop="show(item)">
+                        <i class="las la-eye icon" />
+                      </button>
+                      <button v-if="showAction(value, key, 'edit', item)" class="btn btn-warning" @click.stop="edit(item)">
+                        <i class="las la-edit icon" />
+                      </button>
+                      <button v-if="showAction(value, key, 'delete', item)" class="btn btn-danger" @click.stop="destroy(item)">
+
+                        <i class="las la-trash icon" />
+                      </button>
+                    </span>
+                  </template>
+                </template>
                 <slot name="actions" :item="item" />
               </span>
             </td>
@@ -125,7 +124,7 @@
       <div v-if="config?.data?.data?.length" class="col-12 col-lg-2 d-flex align-center justify-center">
         <div class="grid gap-2 w-100">
           <div class="col-4">
-            <NLSelect v-model="appliedPerPage" name="per_page" :options="perPageOptions" @change="showPerPage()" />
+            <NLSelect v-model="appliedPerPage" name="per_page" :options="perPageOptions" @update="showPerPage()" />
           </div>
           <div class="col-8 d-flex align-center justify-center gap-2">
             <span v-if="config.data?.meta?.total || appliedSearch !== ''">
@@ -212,11 +211,14 @@ export default {
     getUrl () {
       return this.url ? this.url : this.config?.data?.meta?.path
     },
-    isNotHideFilter () {
-      return this.filters.filter(filter => !filter?.hide)
+    isNotHiddenFilter () {
+      return this.filters.filter(f => !f?.hide)
     },
     attrsDataRangeFilter () {
       return this.filters.filter(filter => filter.type && filter.type === 'data-range').attributes
+    },
+    isNotHiddenColumn () {
+      return this.config.columns.filter(column => !column?.hide)
     }
   },
   watch: {

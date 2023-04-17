@@ -35,7 +35,7 @@ export default {
     loadingText: { type: String, default: 'Chargement en cours...' },
     noOptionsText: { type: String, default: 'Aucune option disponible' },
     multiple: { type: Boolean, default: false },
-    modelValue: { type: [String, Array], default: () => [] },
+    modelValue: { type: [String, Array, Number], default: () => [] },
     options: { type: Array, required: true },
     helpText: { type: String, default: null }
   },
