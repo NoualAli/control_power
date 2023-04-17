@@ -114,7 +114,7 @@ class DataController extends Controller
      */
     private function missionsState(): array
     {
-        $missions = hasRole(['dcp', 'cdcr']) ? Mission::all() : $this->getMissions()->get();
+        $missions = hasRole(['dcp', 'cdcr', 'dg']) ? Mission::all() : $this->getMissions()->get();
         $active = (clone $missions)->filter(fn ($mission) => $mission->realisation_state == 'En cours')->count();
         $todo = (clone $missions)->filter(fn ($mission) => $mission->realisation_state == 'À réaliser')->count();
         $delay = (clone $missions)->filter(fn ($mission) => $mission->realisation_state == 'En retard')->count();
@@ -129,9 +129,12 @@ class DataController extends Controller
      */
     private function globalScores(): array
     {
-        $details = $this->getDetails()->whereNotNull('score')->groupBy('score');
+        $details = $this->getDetails()->whereNotNull('score')->whereAnomaly()->groupBy('score');
         if (hasRole(['cc', 'ci'])) {
             $details = $details->groupBy('user_id');
+        }
+        if (hasRole(['cdc'])) {
+            $details = $details->groupBy('created_by_id');
         }
         $details = $details->selectRaw('score, COUNT(*) as scores_count')->get()->pluck('scores_count', 'score');
         $labels = $details->keys();
@@ -261,7 +264,7 @@ class DataController extends Controller
      */
     private function missionsPercentage(): array
     {
-        $missions = hasRole(['dcp', 'cdcr']) ? new Mission : $this->getMissions();
+        $missions = hasRole(['dcp', 'cdcr', 'dg']) ? new Mission : $this->getMissions();
         $total = $missions->executed()->count();
         $validated = $missions->validated()->count();
         $notValidated = ($total - $validated);
@@ -626,20 +629,23 @@ class DataController extends Controller
     {
         $user = auth()->user();
         $details = MissionDetail::whereNotNull('score');
-        if (hasRole('dcp')) {
-            $details = $details->hasCdcrValidation();
-        } elseif (hasRole('cdcr')) {
-            $details = $details->dreReportValidated();
-        } elseif (hasRole(['cdc', 'cc', 'ci'])) {
+        if (hasRole(['dcp', 'dg', 'cdcr'])) {
+            $details = $details;
+            // $details = $details->hasCdcrValidation();
+        }
+        // elseif (hasRole('cdcr')) {
+        //     $details = $details->dreReportValidated();
+        // }
+        elseif (hasRole(['cdc', 'cc', 'ci'])) {
             $details = $user->details();
-        } elseif (hasRole(['dg', 'cdrcp', 'der'])) {
+        } elseif (hasRole(['cdrcp', 'der'])) {
             $details = $details->hasDcpValidation();
         } elseif (hasRole('dre')) {
             $details = auth()->user()->details()->hasDcpValidation();
         } elseif (hasRole('da')) {
             $details = $user->details()->hasDcpValidation();
         }
-        return $details->without(['process', 'domain', 'controlPoint', 'familly', 'media']);
+        return $details->whereAnomaly()->without(['process', 'domain', 'controlPoint', 'familly', 'media']);
     }
 
     /**
@@ -651,13 +657,13 @@ class DataController extends Controller
     {
         $missions = new Mission;
         $user = auth()->user();
-        if (hasRole(['dcp', 'cdcr'])) {
+        if (hasRole(['dcp', 'cdcr', 'dg'])) {
             $missions = $missions;
         } elseif (hasRole(['cdc', 'cc', 'ci'])) {
             $missions = $user->missions();
         } elseif (hasRole(['da', 'dre'])) {
             $missions = $user->missions()->hasDcpValidation();
-        } elseif (hasRole(['dg', 'cdrcp', 'der'])) {
+        } elseif (hasRole(['cdrcp', 'der'])) {
             $missions = $missions->hasDcpValidation();
         }
         return $missions;
