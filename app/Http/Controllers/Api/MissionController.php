@@ -18,6 +18,7 @@ use App\Notifications\Mission\Updated;
 use App\Notifications\Mission\Validated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class MissionController extends Controller
 {
@@ -73,16 +74,32 @@ class MissionController extends Controller
         }
     }
 
+    /**
+     * @param mixed $data
+     *
+     * @return [type]
+     */
+    public function export(Mission $mission)
+    {
+        $details = $mission->details()->whereAnomaly()->get()->groupBy('familly.name');
+        $campaign = $mission->campaign;
+        $pdf = Pdf::loadView('export.report', compact('details', 'mission', 'campaign'));
+        // $font = $pdf->getFontMetrics()->get_font("helvetica", "bold");
+        // $pdf->getCanvas()->page_text(72, 18, "Header: {PAGE_NUM} of {PAGE_COUNT}", $font, 10, array(0, 0, 0));
+        return $pdf->stream();
+        // return $pdf->download($mission->reference . '.pdf');
+    }
+
     private function getMissions()
     {
         $missions = new Mission();
-        if (hasRole(['dcp', 'cdcr'])) {
+        if (hasRole(['dcp', 'cdcr', 'dg'])) {
             $missions = $missions;
         } elseif (hasRole(['cdc', 'cc', 'ci'])) {
             $missions = auth()->user()->missions();
         } elseif (hasRole(['da', 'dre'])) {
             $missions = auth()->user()->missions()->hasDcpValidation();
-        } elseif (hasRole(['dg', 'cdrcp', 'der'])) {
+        } elseif (hasRole(['cdrcp', 'der'])) {
             $missions = $missions->hasDcpValidation();
         }
         return $missions;
