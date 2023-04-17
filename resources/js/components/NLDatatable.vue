@@ -96,7 +96,7 @@
         </tbody>
         <tbody v-else>
           <tr>
-            <td :colspan="config?.columns.length" class="text-bold text-center p-2">
+            <td :colspan="config?.columns.length + 1" class="text-bold text-center p-2">
               {{ noDataText }}
             </td>
           </tr>
