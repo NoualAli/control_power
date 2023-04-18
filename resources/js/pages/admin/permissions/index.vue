@@ -1,18 +1,22 @@
 <template>
   <div v-if="can('view_permission')">
     <ContentHeader>
-      <template v-slot:actions>
-        <router-link :to="{ name: 'permissions-create' }" class="btn btn-info" v-if="can('create_permission')">
+      <template #actions>
+        <router-link v-if="can('create_permission')" :to="{ name: 'permissions-create' }" class="btn btn-info">
           Ajouter
         </router-link>
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" title="Liste des permissions"
-        namespace="permissions" />
+      <NLDatatable
+        :config="config" title="Liste des permissions" namespace="permissions" @show="show" @delete="destroy"
+        @edit="edit"
+      />
       <NLModal :show="rowSelected" @close="rowSelected = null">
-        <template v-slot:title>Informations permission</template>
-        <template v-slot>
+        <template #title>
+          Informations permission
+        </template>
+        <template #default>
           <div class="grid list">
             <div class="col-12 col-lg-6 list-item">
               <div class="list-item-label">
@@ -32,16 +36,16 @@
             </div>
           </div>
         </template>
-        <template v-slot:footer>
-          <div class="d-flex justify-end align-center gap-5 w-100" v-if="can(['delete_permission', 'edit_permission'])">
-            <button class="btn btn-danger has-icon" @click.prevent="destroy(rowSelected)" v-if="can('delete_permission')">
-              <i class="las la-trash icon"></i>
+        <template #footer>
+          <div v-if="can(['delete_permission', 'edit_permission'])" class="d-flex justify-end align-center gap-5 w-100">
+            <button v-if="can('delete_permission')" class="btn btn-danger has-icon" @click.prevent="destroy(rowSelected)">
+              <i class="las la-trash icon" />
               <span class="icon-text">
                 Supprimer
               </span>
             </button>
-            <button @click.prevent="edit(rowSelected)" class="btn btn-warning has-icon" v-if="can('edit_permission')">
-              <i class="las la-edit icon"></i>
+            <button v-if="can('edit_permission')" class="btn btn-warning has-icon" @click.prevent="edit(rowSelected)">
+              <i class="las la-edit icon" />
               <span class="icon-text">
                 Modifier
               </span>
@@ -56,20 +60,16 @@
 <script>
 import NLDatatable from '../../../components/NLDatatable'
 import { mapGetters } from 'vuex'
+import * as swal from '~/plugins/swal'
+import api from '~/plugins/api'
 export default {
   components: { NLDatatable },
   layout: 'backend',
-  middleware: [ 'auth', 'admin' ],
-  metaInfo() {
+  middleware: ['auth', 'admin'],
+  metaInfo () {
     return { title: 'Permissions' }
   },
-  computed: {
-    ...mapGetters({
-      permissions: 'permissions/paginated',
-      permission: 'permissions/current',
-    }),
-  },
-  data() {
+  data () {
     return {
       rowSelected: null,
       config: {
@@ -78,12 +78,12 @@ export default {
           {
             label: 'Name',
             field: 'name',
-            orderable: true,
+            orderable: true
           },
           {
             label: 'Rôles',
-            field: 'roles',
-          },
+            field: 'roles'
+          }
         ],
         actions: {
           show: (item) => {
@@ -99,7 +99,13 @@ export default {
       }
     }
   },
-  created() {
+  computed: {
+    ...mapGetters({
+      permissions: 'permissions/paginated',
+      permission: 'permissions/current'
+    })
+  },
+  created () {
     this.initData()
   },
   methods: {
@@ -107,7 +113,7 @@ export default {
      * Affiche les détailles de la resource
      * @param {Object} item
      */
-    show(item) {
+    show (item) {
       // this.$store.dispatch('permissions/fetch', item.id).then(() => )
       this.rowSelected = item
     },
@@ -116,7 +122,7 @@ export default {
      * Redirige vers la page d'edition
      * @param {Object} item
      */
-    edit(item) {
+    edit (item) {
       this.$router.push({ name: 'permissions-edit', params: { permission: item.id } })
     },
 
@@ -124,7 +130,7 @@ export default {
      * Supprime la ressource
      * @param {Object} item
      */
-    destroy(item) {
+    destroy (item) {
       swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
           api.delete('permissions/' + item.id).then(response => {
@@ -138,6 +144,7 @@ export default {
           })
         }
       }).catch(error => {
+        console.error(error)
         swal.alert_error()
       })
     },
@@ -145,7 +152,7 @@ export default {
     /**
      * Initialise les données
      */
-    initData() {
+    initData () {
       this.$store.dispatch('permissions/fetchPaginated').then(() => {
         this.config.data = this.permissions.paginated
       })

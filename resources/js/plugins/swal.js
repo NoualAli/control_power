@@ -139,3 +139,15 @@ export function loading (progress, message = 'Chargement en cours...') {
     }
   })
 }
+// const swal = {
+//   confirm,
+//   alert_success,
+//   alert_error,
+//   confirm_destroy,
+//   confirm_update,
+//   toast,
+//   toast_success,
+//   toast_error,
+//   alert_status,
+//   loading
+// }
