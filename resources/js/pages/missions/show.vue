@@ -176,6 +176,10 @@
 
     <!-- Actions -->
     <div class="d-flex align-items gap-2">
+      <button class="btn btn-danger has-icon" @click="exportReport">
+        <i class="las la-file-pdf icon"></i>
+        Exporter le rapport
+      </button>
       <!-- CDC -->
 
       <!-- Report actions -->
@@ -533,6 +537,16 @@ export default {
   },
 
   methods: {
+    exportReport() {
+      api.get('missions/' + this.mission.current.id + '/export?type=pdf').then((response) => {
+        console.log(response);
+      })
+    },
+    /**
+     * Validation de la mission par le dcp et cdcr
+     *
+     * @param {Numeric} step
+     */
     validateMission(step) {
       swal.confirm({ title: 'Mission ' + this.mission.current.reference, message: 'Vous êtes sur de vouloir valider la mission ' + this.mission.current.reference }).then(action => {
         if (action.isConfirmed) {

@@ -73,7 +73,10 @@ export default {
             isHtml: true,
             methods: {
               showField(item) {
-                const score = item.avg_score
+                let score = item.avg_score
+                if (item.agency == "633 - AP BIRKHADEM") {
+                  score = 1
+                }
                 let style = 'text-dark text-bold'
                 if (score == 1) {
                   style = 'bg-success text-white text-bold'

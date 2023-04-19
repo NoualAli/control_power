@@ -81,13 +81,33 @@ class MissionController extends Controller
      */
     public function export(Mission $mission)
     {
-        $details = $mission->details()->whereAnomaly()->get()->groupBy('familly.name');
-        $campaign = $mission->campaign;
-        $pdf = Pdf::loadView('export.report', compact('details', 'mission', 'campaign'));
-        // $font = $pdf->getFontMetrics()->get_font("helvetica", "bold");
-        // $pdf->getCanvas()->page_text(72, 18, "Header: {PAGE_NUM} of {PAGE_COUNT}", $font, 10, array(0, 0, 0));
-        return $pdf->stream();
-        // return $pdf->download($mission->reference . '.pdf');
+        try {
+            $mission->unsetRelations();
+            $mission->load(['details', 'campaign']);
+            $details = $mission->details()->whereIn('score', [1, 2, 3, 4])->get()->groupBy('familly.name');
+            $campaign = $mission->campaign;
+            // $processes = DB::table('processes as p');
+            // if (env('APP_ENV') == 'windows' || env('APP_ENV') == 'testServer') {
+            //     $processes = $processes->selectRaw("p.id as process_id, p.name as process, d.name as domain, f.name as family, COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, FORMAT(MAX(md.executed_at), 'dd-MM-yyyy') AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) AS scored_mission_details, (COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) / COUNT(md.id)) * 100 AS progress_status");
+            // } else {
+            //     $processes = $processes->selectRaw('p.id as process_id, p.name as process, d.name as domain, f.name as family, COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, DATE_FORMAT(MAX(md.executed_at), "%d-%m-%Y") AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(IF(md.score IS NOT NULL, md.id, NULL)) AS scored_mission_details, (COUNT(IF(md.score IS NOT NULL, md.id, NULL)) / COUNT(md.id)) * 100 AS progress_status');
+            // }
+            // $processes = $processes->join('control_points as cp', 'p.id', '=', 'cp.process_id')
+            //     ->join('domains as d', 'd.id', '=', 'p.domain_id')
+            //     ->join('famillies as f', 'f.id', '=', 'd.familly_id')
+            //     ->join('mission_details as md', 'cp.id', '=', 'md.control_point_id')
+            //     ->join('missions as m', 'm.id', '=', 'md.mission_id')
+            //     ->groupBy('p.id', 'p.name', 'd.name', 'f.name')
+            //     ->where('m.id', $mission->id);
+            // dd($processes->get());
+            $pdf = Pdf::loadView('export.report', compact('mission', 'campaign', 'details'));
+            // $font = $pdf->getFontMetrics()->get_font("helvetica", "bold");
+            // $pdf->getCanvas()->page_text(72, 18, "Header: {PAGE_NUM} of {PAGE_COUNT}", $font, 10, array(0, 0, 0));
+            return $pdf->stream();
+            // return $pdf->download($mission->reference . '.pdf');
+        } catch (\Throwable $th) {
+            echo $th->getMessage();
+        }
     }
 
     private function getMissions()

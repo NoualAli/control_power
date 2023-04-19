@@ -101,7 +101,9 @@ class Mission extends Model
 
     public function getAvgScoreAttribute()
     {
-        return addZero(intval($this->details()->whereAnomaly()->avg('score')));
+        $details = $this->details()->whereIn('score', [1, 2, 3, 4]);
+        return round($details->sum('score') / $details->count());
+        // return addZero($this->details()->avg('score'));
     }
 
     public function getAgencyControllersStrAttribute()

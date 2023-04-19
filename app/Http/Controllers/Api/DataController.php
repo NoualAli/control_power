@@ -129,7 +129,7 @@ class DataController extends Controller
      */
     private function globalScores(): array
     {
-        $details = $this->getDetails()->whereNotNull('score')->whereAnomaly()->groupBy('score');
+        $details = $this->getDetails()->whereNotNull('score')->groupBy('score');
         if (hasRole(['cc', 'ci'])) {
             $details = $details->groupBy('user_id');
         }
@@ -645,7 +645,7 @@ class DataController extends Controller
         } elseif (hasRole('da')) {
             $details = $user->details()->hasDcpValidation();
         }
-        return $details->whereAnomaly()->without(['process', 'domain', 'controlPoint', 'familly', 'media']);
+        return $details->without(['process', 'domain', 'controlPoint', 'familly', 'media']);
     }
 
     /**

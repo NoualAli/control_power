@@ -337,7 +337,7 @@ class MissionDetailController extends Controller
         $metadata = isset($data['metadata']) && !empty($data['metadata']) ? $data['metadata'] : $detail->metadata;
         $detail->update([
             'major_fact' => $data['major_fact'],
-            'score' => $data['score'],
+            'score' => isset($data['score']) ? $data['score'] : $detail->score,
             'report' => isset($data['report']) ? $data['report'] : $detail->report,
             'recovery_plan' => isset($data['recovery_plan']) ? $data['recovery_plan'] : $detail->recovery_plan,
             'metadata' => $metadata,
