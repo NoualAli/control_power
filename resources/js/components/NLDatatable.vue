@@ -128,7 +128,7 @@
       <div v-if="configLocal?.data?.data?.length" class="col-12 col-lg-2 d-flex align-center justify-center">
         <div class="grid gap-2 w-100">
           <div class="col-4">
-            <NLSelect v-model="appliedPerPage" name="per_page" :options="perPageOptions" @update="showPerPage()" />
+            <NLSelect v-model="appliedPerPage" name="per_page" :options="perPageOptions" />
           </div>
           <div class="col-8 d-flex align-center justify-center gap-2">
             <span v-if="configLocal.data?.meta?.total || appliedSearch !== ''">
@@ -140,40 +140,38 @@
           </div>
         </div>
       </div>
-      <template v-if="showPagination()">
-        <div class="col-12 col-lg-1 d-flex justify-center align-center">
-          <template v-for="(link, index) in configLocal.data?.meta?.links">
-            <button
-              v-if="showPreviousLink(index, link.url)" :key="link.label"
-              class="btn mx-2" :class="{ 'is-active': link.active }" @click="getPaginationData(link.url)"
-            >
-              Précédent
-            </button>
-          </template>
-        </div>
+      <div v-if="showPagination()" class="col-12 col-lg-1 d-flex justify-center align-center">
+        <template v-for="(link, index) in configLocal.data?.meta?.links">
+          <button
+            v-if="showPreviousLink(index, link.url)" :key="link.label"
+            class="btn mx-2" :class="{ 'is-active': link.active }" @click="getPaginationData(link.url)"
+          >
+            Précédent
+          </button>
+        </template>
+      </div>
 
-        <div class="col-12 col-lg-8 d-flex align-center justify-center">
-          <template v-for="(link, index) in configLocal.data?.meta?.links">
-            <button
-              v-if="showPageNumberLink(index)" :key="index"
-              class="btn is-radius mx-2" :class="{ 'is-active': link.active }" :disabled="link.active"
-              @click="getPaginationData(link.url)"
-            >
-              {{ link.label }}
-            </button>
-          </template>
-        </div>
-        <div class="col-12 col-lg-1 d-flex justify-center align-center">
-          <template v-for="(link, index) in configLocal.data?.meta?.links">
-            <button
-              v-if="showNextLink(index, link.url)" :key="link.label"
-              class="btn mx-2" :class="{ 'is-active': link.active }" @click="getPaginationData(link.url)"
-            >
-              Suivant
-            </button>
-          </template>
-        </div>
-      </template>
+      <div v-if="showPagination()" class="col-12 col-lg-8 d-flex align-center justify-center">
+        <template v-for="(link, index) in configLocal.data?.meta?.links">
+          <button
+            v-if="showPageNumberLink(index)" :key="index"
+            class="btn is-radius mx-2" :class="{ 'is-active': link.active }" :disabled="link.active"
+            @click="getPaginationData(link.url)"
+          >
+            {{ link.label }}
+          </button>
+        </template>
+      </div>
+      <div v-if="showPagination()" class="col-12 col-lg-1 d-flex justify-center align-center">
+        <template v-for="(link, index) in configLocal.data?.meta?.links">
+          <button
+            v-if="showNextLink(index, link.url)" :key="link.label"
+            class="btn mx-2" :class="{ 'is-active': link.active }" @click="getPaginationData(link.url)"
+          >
+            Suivant
+          </button>
+        </template>
+      </div>
     </div>
   </div>
 </template>
@@ -230,6 +228,9 @@ export default {
     }
   },
   watch: {
+    appliedPerPage (newValue, oldValue) {
+      this.showPerPage()
+    },
     filters: {
       handler () {
         this.handleFilter()
@@ -489,6 +490,7 @@ export default {
         newUrl = new URL(url)
       } catch (error) {
         console.log(url)
+        console.error(error)
       }
       this.current_page = newUrl?.searchParams?.get('page')
       this.buildUrl()
@@ -542,7 +544,7 @@ export default {
         this.configLocal.data = res.data
         this.$store.state[this.namespace][this.stateKey] = res.data
         this.$emit('perPageUpdated', res)
-      })
+      }).catch(e => { console.error(e) })
     },
     /**
      * Apply data sorting

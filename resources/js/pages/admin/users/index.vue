@@ -171,7 +171,12 @@ export default {
      * @param {Object} item
      */
     show (item) {
-      this.$store.dispatch('users/fetch', item.id).then(() => { this.rowSelected = this.user.current })
+      this.$store.dispatch('users/fetch', item.id).then(() => {
+        this.rowSelected = this.user.current
+        console.log('inside show(item ) :')
+        console.log(this.rowSelected)
+        console.log(this.user)
+      }).catch(e => { console.error(e) })
     },
 
     /**

@@ -95,7 +95,7 @@ export default {
   },
   methods: {
     toggleSidebar () {
-      console.log(this)
+      // console.log(this)
 
       this.$store.dispatch('sidebar/toggleSidebar')
     }
