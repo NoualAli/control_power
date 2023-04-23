@@ -102,14 +102,13 @@ import { mapGetters } from 'vuex'
 import Avatar from '../../../components/Avatar.vue'
 import { user } from '../../../plugins/user'
 import api from '../../../plugins/api'
-import * as swal from '../../../plugins/swal'
 export default {
   components: { NLDatatable, NLModal, Avatar },
   layout: 'backend',
   middleware: ['auth', 'admin'],
-  metaInfo () {
-    return { title: 'Utilisateurs' }
-  },
+  // metaInfo () {
+  //   return { title: 'Utilisateurs' }
+  // },
   data () {
     return {
       rowSelected: null,
@@ -157,6 +156,7 @@ export default {
   }),
   mounted () {
     this.initData()
+    console.log(this.$route.matched)
   },
   methods: {
     /**
@@ -187,21 +187,21 @@ export default {
      * @param {Object} item
      */
     destroy (item) {
-      swal.confirm_destroy().then((action) => {
+      this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
           api.delete('users/' + item.id).then(response => {
             if (response.data.status) {
               this.rowSelected = null
               this.initData()
-              swal.toast_success(response.data.message)
+              this.$swal.toast_success(response.data.message)
             } else {
-              swal.toast_error(response.data.message)
+              this.$swal.toast_error(response.data.message)
             }
           })
         }
       }).catch(error => {
         console.error(error)
-        swal.alert_error()
+        this.$swal.alert_error()
       })
     },
 

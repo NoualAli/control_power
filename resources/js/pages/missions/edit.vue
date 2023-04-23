@@ -3,7 +3,7 @@
     <ContentHeader>
       <template #actions>
         <button class="btn btn-info has-icon" @click.prevent="cdcModalIsOpen = true">
-          <i class="las la-exclamation-circle icon"></i>
+          <i class="las la-exclamation-circle icon" />
           Campagne de contrôle
         </button>
       </template>
@@ -13,34 +13,36 @@
       <div class="grid my-2">
         <!-- Campaign -->
         <div class="col-12 col-lg-6">
-          <NLInput name="campaign" label="Campagne de contrôle" v-model="form.campaign" readonly />
+          <NLInput v-model="form.campaign" name="campaign" label="Campagne de contrôle" readonly />
         </div>
         <!-- Agency -->
         <div class="col-12 col-lg-6">
-          <NLInput name="agency" label="Agences" v-model="form.agency" readonly />
+          <NLInput v-model="form.agency" name="agency" label="Agences" readonly />
         </div>
 
         <!-- Controllers -->
         <div class="col-12">
-          <NLSelect name="controllers" label="Contrôleurs" placeholder="Veuillez choisir un ou plusieurs contrôleurs"
-            :options="controllersList" :form="form" v-model="form.controllers" labelRequired :multiple="true"
-            loadingText="Chargement de la liste des contrôleurs en cours"
-            noOptionsText="Vous n'avez aucun contrôleur de disponible pour le moment" />
+          <NLSelect
+            v-model="form.controllers" name="controllers" label="Contrôleurs"
+            placeholder="Veuillez choisir un ou plusieurs contrôleurs" :options="controllersList" :form="form" label-required :multiple="true"
+            loading-text="Chargement de la liste des contrôleurs en cours"
+            no-options-text="Vous n'avez aucun contrôleur de disponible pour le moment"
+          />
         </div>
 
         <!-- Start date -->
         <div class="col-12 col-lg-6 col-tablet-6">
-          <NLInput :form="form" v-model="form.start" name="start" label="Date début" type="date" labelRequired />
+          <NLInput v-model="form.start" :form="form" name="start" label="Date début" type="date" label-required />
         </div>
 
         <!-- End date -->
         <div class="col-12 col-lg-6 col-tablet-6">
-          <NLInput :form="form" v-model="form.end" name="end" label="Date fin" type="date" labelRequired />
+          <NLInput v-model="form.end" :form="form" name="end" label="Date fin" type="date" label-required />
         </div>
 
         <!-- Note -->
         <div class="col-12">
-          <NLTextarea :form="form" v-model="form.note" name="note" label="Note" placeholder="Ajouter une note" />
+          <NLTextarea v-model="form.note" :form="form" name="note" label="Note" placeholder="Ajouter une note" />
         </div>
       </div>
 
@@ -95,16 +97,16 @@ import Form from 'vform'
 export default {
   components: { NLSelect },
   layout: 'backend',
-  middleware: [ 'auth' ],
-  metaInfo() {
+  middleware: ['auth'],
+  metaInfo () {
     return { title: 'Edition mission de contrôle' }
   },
-  breadcrumb() {
+  breadcrumb () {
     return {
       label: 'Edition mission ' + this.currentCampaign?.reference
     }
   },
-  data() {
+  data () {
     return {
       form: new Form({
         note: null,
@@ -113,25 +115,25 @@ export default {
         agency: null,
         campaign: null,
         controllers: null,
-        control_campaign_id: null,
+        control_campaign_id: null
       }),
       controllersList: [],
       cdcModalIsOpen: false,
-      currentCampaign: null,
+      currentCampaign: null
     }
   },
   computed: mapGetters({
     config: 'missions/config',
-    mission: 'missions/current',
+    mission: 'missions/current'
   }),
-  created() {
+  created () {
     this.initData()
   },
   methods: {
     /**
      * Initialise les données
      */
-    initData() {
+    initData () {
       this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId, edit: true }).then(() => {
         if (this.mission.current.remaining_days_before_start > 5) {
           this.$store.dispatch('missions/fetchConfig', this.mission.current.campaign.id).then(() => {
@@ -148,23 +150,23 @@ export default {
         }
       }).catch(error => {
         // this.$router.push({ name: 'missions' })
-        swal.alert_error(error)
+        this.$swal.alert_error(error)
       })
     },
     /**
      * Mise à jour de la mission
      */
-    update() {
+    update () {
       this.form.put('/api/missions/' + this.mission.current.id).then(response => {
         if (response.data.status) {
-          swal.toast_success(response.data.message)
+          this.$swal.toast_success(response.data.message)
         } else {
-          swal.alert_error(response.data.message)
+          this.$swal.alert_error(response.data.message)
         }
       }).catch(error => {
-        swal.alert_status(error)
+        this.$swal.alert_status(error)
       })
     }
-  },
+  }
 }
 </script>

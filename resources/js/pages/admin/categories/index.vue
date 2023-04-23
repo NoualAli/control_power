@@ -57,7 +57,7 @@
 
 <script>
 import NLDatatable from '~/components/NLDatatable'
-import * as swal from '~/plugins/swal'
+
 import api from '~/plugins/api'
 import { mapGetters } from 'vuex'
 export default {
@@ -129,20 +129,20 @@ export default {
      * @param {Object} item
      */
     destroy (item) {
-      swal.confirm_destroy().then((action) => {
+      this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
           api.delete('categories/' + item.id).then(response => {
             if (response.data.status) {
               this.rowSelected = null
               this.initData()
-              swal.toast_success(response.data.message)
+              this.$swal.toast_success(response.data.message)
             } else {
-              swal.toast_error(response.data.message)
+              this.$swal.toast_error(response.data.message)
             }
           })
         }
       }).catch(error => {
-        swal.alert_error()
+        this.$swal.alert_error()
         console.error(error)
       })
     },

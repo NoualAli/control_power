@@ -52,7 +52,6 @@
 <script>
 import { Form } from 'vform'
 import { mapGetters } from 'vuex'
-import * as swal from '~/plugins/swal'
 
 export default {
   layout: 'backend',
@@ -88,10 +87,10 @@ export default {
     create () {
       this.form.post('/api/agencies').then(response => {
         if (response.data.status) {
-          swal.toast_success(response.data.message)
+          this.$swal.toast_success(response.data.message)
           this.form.reset()
         } else {
-          swal.alert_error(response.data.message)
+          this.$swal.alert_error(response.data.message)
         }
       }).catch(error => {
         console.log(error)

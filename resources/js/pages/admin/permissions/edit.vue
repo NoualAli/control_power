@@ -28,7 +28,6 @@
 <script>
 import { Form } from 'vform'
 import { mapGetters } from 'vuex'
-import * as swal from '~/plugins/swal'
 
 export default {
   layout: 'backend',
@@ -62,10 +61,10 @@ export default {
     update () {
       this.form.put('/api/permissions/' + this.$route.params.permission).then(response => {
         if (response.data.status) {
-          swal.toast_success(response.data.message)
+          this.$swal.toast_success(response.data.message)
           this.$router.push({ name: 'permissions-index' })
         } else {
-          swal.alert_error(response.data.message)
+          this.$swal.alert_error(response.data.message)
         }
       }).catch(error => {
         console.log(error)

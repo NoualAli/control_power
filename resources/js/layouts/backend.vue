@@ -7,10 +7,23 @@
       <div class="header-container">
         <div class="title-side">
           <div>
-            <!-- <app-breadcrumbs /> -->
-            <AmBreadcrumbs
-              :show-current-crumb="true"
-            />
+            <AmBreadcrumbs>
+              <template #crumb="{ crumb }">
+                <template v-if="crumb.link !=='/' || crumb.current && crumb.link =='/' ">
+                  <router-link
+                    v-if="!crumb.current"
+                    class="am-breadcrumbs__link"
+                    :to="crumb.link"
+                  >
+                    {{ crumb.label }}
+                    /
+                  </router-link>
+                  <span v-else class="am-breadcrumbs__link" :class="{'am-breadcrumbs__link_current': crumb.current}">{{ crumb.label }}</span>
+                </template>
+                <template v-else />
+                {{}}
+              </template>
+            </AmBreadcrumbs>
           </div>
         </div>
         <div class="actions-side">
@@ -71,16 +84,19 @@ export default {
   }),
   watch: {
     $route (to, from) {
-      this.$store.dispatch('notifications/fetchUnreadNotifications').then(() => {
-        this.totalUnreadNotifications = this.notifications.unread.totalUnread
-      })
+      if (to.path !== '/login') {
+        this.$store.dispatch('notifications/fetchUnreadNotifications').then(() => {
+          this.totalUnreadNotifications = this.notifications.unread.totalUnread
+        })
+      }
     },
     totalUnreadNotifications (newVal, oldVal) {
-      // console.log(newVal, oldVal);
     }
   },
   methods: {
     toggleSidebar () {
+      console.log(this)
+
       this.$store.dispatch('sidebar/toggleSidebar')
     }
   }

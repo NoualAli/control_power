@@ -464,9 +464,9 @@ export default {
   },
   layout: 'backend',
   middleware: ['auth'],
-  metaInfo () {
-    return { title: 'Tableau de bord' }
-  },
+  // metaInfo () {
+  //   return { title: 'Tableau de bord ssss' }
+  // },
   data () {
     return {
       currentSection: null,

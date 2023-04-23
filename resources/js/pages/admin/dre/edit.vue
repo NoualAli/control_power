@@ -5,11 +5,11 @@
         <div class="grid gap-10 my-4">
           <!-- Code -->
           <div class="col-12 col-md-6">
-            <NLInput type="number" :form="form" name="code" label="Code" v-model="form.code" labelRequired />
+            <NLInput v-model="form.code" type="number" :form="form" name="code" label="Code" label-required />
           </div>
           <!-- Name -->
           <div class="col-12 col-md-6">
-            <NLInput :form="form" name="name" label="Name" v-model="form.name" labelRequired />
+            <NLInput v-model="form.name" :form="form" name="name" label="Name" label-required />
           </div>
         </div>
         <!-- Submit Button -->
@@ -22,43 +22,42 @@
 </template>
 
 <script>
-import { Form } from 'vform';
+import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 export default {
-  middleware: [ 'auth', 'admin' ],
   layout: 'backend',
+  middleware: ['auth', 'admin'],
   computed: {
     ...mapGetters({
       dre: 'dre/current'
-    }),
+    })
   },
-  created() {
+  created () {
     this.$store.dispatch('dre/fetch', this.$route.params.dre).then(() => {
       const data = this.dre.current
       this.form.fill(data)
     })
   },
-  data() {
+  data () {
     return {
       form: new Form({
         name: '',
-        code: '',
-      }),
+        code: ''
+      })
     }
   },
   methods: {
-    update() {
+    update () {
       this.form.put('/api/dre/' + this.$route.params.dre).then(response => {
         if (response.data.status) {
-          swal.toast_success(response.data.message)
+          this.$swal.toast_success(response.data.message)
           this.$router.push({ name: 'dre-index' })
         } else {
-          swal.alert_error(response.data.message)
+          this.$swal.alert_error(response.data.message)
         }
       }).catch(error => {
-        console.log(error);
+        console.log(error)
       })
-
     }
   }
 }

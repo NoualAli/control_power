@@ -1,21 +1,29 @@
 <template>
   <ContentBody v-if="can('view_control_campaign')">
     <div class="d-flex justify-end align-center gap-3 my-2">
-      <router-link :to="{ name: 'campaign-missions', params: { campaignId: campaign?.current?.id } }" class="btn"
-        v-if="can('view_mission')">
+      <router-link
+        v-if="can('view_mission')" :to="{ name: 'campaign-missions', params: { campaignId: campaign?.current?.id } }"
+        class="btn"
+      >
         Missions
       </router-link>
-      <router-link class="btn btn-warning" :to="{ name: 'campaigns-edit', params: { campaignId: campaign?.current?.id } }"
-        v-if="campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign') && !campaign?.current.validated_by_id && is('dcp')">
-        <i class="las la-edit icon"></i>
+      <router-link
+        v-if="campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign') && !campaign?.current.validated_by_id && is('dcp')" class="btn btn-warning"
+        :to="{ name: 'campaigns-edit', params: { campaignId: campaign?.current?.id } }"
+      >
+        <i class="las la-edit icon" />
       </router-link>
-      <button class="btn btn-danger" @click.stop="destroy"
-        v-if="campaign?.current?.remaining_days_before_start > 5 && can('delete_control_campaign') && !campaign?.current.validated_by_id && is('dcp')">
-        <i class="las la-trash icon"></i>
+      <button
+        v-if="campaign?.current?.remaining_days_before_start > 5 && can('delete_control_campaign') && !campaign?.current.validated_by_id && is('dcp')" class="btn btn-danger"
+        @click.stop="destroy"
+      >
+        <i class="las la-trash icon" />
       </button>
-      <button class="btn btn-info has-icon" @click.stop="validate(campaign?.current)"
-        v-if="!campaign?.current?.validated_by_id && can('validate_control_campaign')">
-        <i class="las la-check icon"></i>
+      <button
+        v-if="!campaign?.current?.validated_by_id && can('validate_control_campaign')" class="btn btn-info has-icon"
+        @click.stop="validate(campaign?.current)"
+      >
+        <i class="las la-check icon" />
       </button>
     </div>
     <!-- Control campaign informations -->
@@ -29,7 +37,7 @@
             {{ campaign?.current?.reference }}
           </span>
         </div>
-        <div class="col-12 col-lg-4" v-has-role="'cdcr,dcp'">
+        <div v-has-role="'cdcr,dcp'" class="col-12 col-lg-4">
           <span class="text-bold">
             Etat:
           </span>
@@ -73,19 +81,23 @@
     </div>
 
     <!-- Processes List -->
-    <NLDatatable namespace="campaigns" stateKey="processes" :config="config" @show="show" @delete="destroy"
-      title="Liste des processus de la campagne de contrôle">
-      <template v-slot:actions="item">
-        <button class="btn btn-danger has-icon" @click.stop="detachProcess(item.item)"
-          v-if="campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign') && !campaign?.current.validated_by_id && config.data?.meta?.total > 1 && is('dcp')">
-          <i class="las la-unlink icon"></i>
+    <NLDatatable
+      namespace="campaigns" state-key="processes" :config="config" title="Liste des processus de la campagne de contrôle" @show="show"
+      @delete="destroy"
+    >
+      <template #actions="item">
+        <button
+          v-if="campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign') && !campaign?.current.validated_by_id && config.data?.meta?.total > 1 && is('dcp')" class="btn btn-danger has-icon"
+          @click.stop="detachProcess(item.item)"
+        >
+          <i class="las la-unlink icon" />
         </button>
       </template>
     </NLDatatable>
 
     <!-- Process details (control points) -->
     <NLModal :show="rowSelected" @close="close">
-      <template v-slot:title>
+      <template #title>
         <small class="tag is-info text-small">
           {{ rowSelected?.familly_name }}
         </small>
@@ -96,23 +108,27 @@
           {{ rowSelected?.name }}
         </small>
       </template>
-      <template v-slot>
+      <template #default>
         <p class="text-bold mb-6">
           Points de contrôle
         </p>
         <div class="grid list">
-          <div class="col-12 list-item" v-for="controlPoint in process?.controlPoints" :key="controlPoint.id">
+          <div v-for="controlPoint in process?.controlPoints" :key="controlPoint.id" class="col-12 list-item">
             <div class="list-item-content">
               {{ controlPoint.label }}
             </div>
           </div>
         </div>
       </template>
-      <template v-slot:footer
-        v-if="campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign') && config.data?.meta?.total > 1 && is('dcp')">
-        <button class="btn btn-danger has-icon"
-          @click.stop="destroy(rowSelected, campaign?.current) && config.data?.meta?.total > 1">
-          <i class="las la-unlink icon"></i>
+      <template
+        v-if="campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign') && config.data?.meta?.total > 1 && is('dcp')"
+        #footer
+      >
+        <button
+          class="btn btn-danger has-icon"
+          @click.stop="destroy(rowSelected, campaign?.current) && config.data?.meta?.total > 1"
+        >
+          <i class="las la-unlink icon" />
           Détacher
         </button>
       </template>
@@ -121,69 +137,69 @@
 </template>
 
 <script>
-import NLDatatable from '../../components/NLDatatable';
-import { mapGetters } from 'vuex';
+import NLDatatable from '../../components/NLDatatable'
+import { mapGetters } from 'vuex'
 import api from '../../plugins/api'
 export default {
-  layout: 'backend',
-  middleware: [ 'auth' ],
   components: {
     NLDatatable
   },
-  breadcrumb() {
+  layout: 'backend',
+  middleware: ['auth'],
+  breadcrumb () {
     return {
       label: 'Détails campagne ' + this.campaign?.current?.reference
     }
   },
-  data() {
+  data () {
     return {
       rowSelected: null,
       config: {
         data: null,
         columns: [
           {
-            label: "Famille",
-            field: "familly_name"
+            label: 'Famille',
+            field: 'familly_name'
           },
           {
-            label: "Domaine",
-            field: "domain_name"
+            label: 'Domaine',
+            field: 'domain_name'
           },
           {
-            label: "Processus",
-            field: "name"
+            label: 'Processus',
+            field: 'name'
           },
           {
-            label: "Total points de contrôle",
-            field: "control_points_count"
-          },
+            label: 'Total points de contrôle',
+            field: 'control_points_count'
+          }
         ],
         actions: {
-          show: true,
+          show: true
         }
-      },
+      }
     }
   },
   computed: {
     ...mapGetters({
       processes: 'campaigns/processes',
       process: 'processes/controlPoints',
-      campaign: 'campaigns/current',
-    }),
+      campaign: 'campaigns/current'
+    })
   },
 
-  created() {
+  created () {
     this.initData()
   },
 
   methods: {
-    initData() {
+    initData () {
       this.close()
       const campaignId = this.$route.params.campaignId
       this.$store.dispatch('campaigns/fetch', { campaignId })
       this.$store.dispatch('campaigns/fetchProcesses', campaignId).then(() => this.config.data = this.processes.processes)
     },
-    loadControlPoints(process) {
+    loadControlPoints (process) {
       this.$store.dispatch('processes/fetch', { id: process.id, onlyControlPoints: true }).then(() => this.control_points = this.process.controlPoints)
     },
     /**
@@ -191,37 +207,37 @@ export default {
      *
      * @param {Object} item
      */
-    validate(item) {
-      swal.confirm({ title: 'Validation', message: 'Validation de la campagne de contrôle ' + item.reference, icon: 'success' }).then(response => {
+    validate (item) {
+      this.$swal.confirm({ title: 'Validation', message: 'Validation de la campagne de contrôle ' + item.reference, icon: 'success' }).then(response => {
         if (response.isConfirmed) {
           api.put('campaigns/' + item.id + '/validate').then(response => {
             if (response.data.status) {
               this.initData()
-              swal.toast_success(response.data.message)
+              this.$swal.toast_success(response.data.message)
             } else {
-              swal.toast_error(response.data.message)
+              this.$swal.toast_error(response.data.message)
             }
           })
         }
       }).catch(error => {
-        swal.alert_error(error)
+        this.$swal.alert_error(error)
       })
     },
     /**
      * Delete campaign
      */
-    destroy() {
-      swal.confirm_destroy().then((action) => {
+    destroy () {
+      this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
           api.delete('campaigns/' + this.campaign?.current?.id).then(response => {
             if (response.data.status) {
-              swal.toast_success(response.data.message)
+              this.$swal.toast_success(response.data.message)
               this.$router.push({ name: 'campaigns' })
             } else {
-              swal.alert_error(response.data.message)
+              this.$swal.alert_error(response.data.message)
             }
           }).catch(error => {
-            console.log(error);
+            console.log(error)
           })
         }
       })
@@ -232,29 +248,29 @@ export default {
      *
      * @param {Object} process
      */
-    detachProcess(process) {
-      swal.confirm_destroy().then((action) => {
+    detachProcess (process) {
+      this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
           api.delete('campaigns/' + this.campaign?.current?.id + '/process/' + process.id).then(response => {
             if (response.data.status) {
               this.initData()
-              swal.toast_success(response.data.message)
+              this.$swal.toast_success(response.data.message)
             } else {
-              swal.alert_error(response.data.message)
+              this.$swal.alert_error(response.data.message)
             }
           }).catch(error => {
-            console.log(error);
+            console.log(error)
           })
         }
       })
     },
-    show(item) {
+    show (item) {
       this.rowSelected = item
       this.loadControlPoints(item)
     },
-    close() {
+    close () {
       this.rowSelected = null
-    },
-  },
+    }
+  }
 }
 </script>

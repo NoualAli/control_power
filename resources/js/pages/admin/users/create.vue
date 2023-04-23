@@ -6,49 +6,55 @@
         <div class="grid gap-10 my-4">
           <!-- Firstname -->
           <div class="col-12 col-lg-6 col-md-6">
-            <NLInput :form="form" name="firstname" label="firstname" v-model="form.first_name" />
+            <NLInput v-model="form.first_name" :form="form" name="firstname" label="firstname" />
           </div>
 
           <!-- Lastname -->
           <div class="col-12 col-lg-6 col-md-6">
-            <NLInput :form="form" name="last_name" label="lastname" v-model="form.last_name" />
+            <NLInput v-model="form.last_name" :form="form" name="last_name" label="lastname" />
           </div>
 
           <!-- Username -->
           <div class="col-12 col-lg-6 col-md-6">
-            <NLInput :form="form" name="username" label="username" v-model="form.username" labelRequired />
+            <NLInput v-model="form.username" :form="form" name="username" label="username" label-required />
           </div>
 
           <!-- Email -->
           <div class="col-12 col-lg-6 col-md-6">
-            <NLInput :form="form" name="email" label="email" v-model="form.email" labelRequired type="email" />
+            <NLInput v-model="form.email" :form="form" name="email" label="email" label-required type="email" />
           </div>
 
           <!-- Phone -->
           <div class="col-12 col-lg-6 col-md-6">
-            <NLInput :form="form" name="phone" label="phone" v-model="form.phone" type="phone" />
+            <NLInput v-model="form.phone" :form="form" name="phone" label="phone" type="phone" />
           </div>
 
           <!-- Dres -->
           <div class="col-12 col-lg-6 col-md-6">
-            <NLSelect :form="form" name="dres" label="Dre" :options="dresList" v-model="form.dres" :multiple="true" />
+            <NLSelect v-model="form.dres" :form="form" name="dres" label="Dre" :options="dresList" :multiple="true" />
           </div>
 
           <!-- Role -->
           <div class="col-12">
-            <NLSelect :form="form" name="roles" label="Rôles" :options="rolesList" v-model="form.roles"
-              :multiple="true" />
+            <NLSelect
+              v-model="form.roles" :form="form" name="roles" label="Rôles" :options="rolesList"
+              :multiple="true"
+            />
           </div>
 
           <!-- Password -->
           <div class="col-12 col-lg-4">
-            <NLInput :form="form" v-model="form.password" label="Password" name="password" type="password"
-              labelRequired />
+            <NLInput
+              v-model="form.password" :form="form" label="Password" name="password" type="password"
+              label-required
+            />
           </div>
           <!-- Password Confirmation -->
           <div class="col-12 col-lg-4">
-            <NLInput :form="form" v-model="form.password_confirmation" label="confirm_password"
-              name="password_confirmation" type="password" labelRequired />
+            <NLInput
+              v-model="form.password_confirmation" :form="form" label="confirm_password"
+              name="password_confirmation" type="password" label-required
+            />
           </div>
         </div>
         <!-- Submit Button -->
@@ -61,12 +67,12 @@
 </template>
 
 <script>
-import { Form } from 'vform';
-import { mapGetters } from 'vuex';
+import { Form } from 'vform'
+import { mapGetters } from 'vuex'
 export default {
-  middleware: [ 'auth', 'admin' ],
   layout: 'backend',
-  data() {
+  middleware: ['auth', 'admin'],
+  data () {
     return {
       form: new Form({
         username: null,
@@ -77,44 +83,44 @@ export default {
         password: null,
         password_confirmation: null,
         roles: [],
-        dres: [],
+        dres: []
       }),
       dresList: [],
-      rolesList: [],
+      rolesList: []
     }
   },
   computed: mapGetters({
     roles: 'roles/all',
     dres: 'dre/all'
   }),
-  created() {
+  created () {
     this.$store.dispatch('roles/fetchAll').then(() => {
-      this.rolesList = this.roles.all;
+      this.rolesList = this.roles.all
     })
     this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
-      this.dresList = this.dres.all;
+      this.dresList = this.dres.all
     })
   },
   methods: {
-    create() {
+    create () {
       this.form.post('/api/users').then(response => {
         if (response.data.status) {
-          swal.toast_success(response.data.message)
+          this.$swal.toast_success(response.data.message)
           this.form.reset()
         } else {
-          swal.alert_error(response.data.message)
+          this.$swal.alert_error(response.data.message)
         }
       }).catch(error => {
-        console.log(error);
+        console.log(error)
       })
     },
-    getPlaceholder(id) {
+    getPlaceholder (id) {
       if (id) {
         let placeholder = null
-        placeholder = this.dres?.all.filter((dre) => dre.id == id);
-        return placeholder[ 0 ] !== undefined ? placeholder[ 0 ]?.name : null;
+        placeholder = this.dres?.all.filter((dre) => dre.id == id)
+        return placeholder[0] !== undefined ? placeholder[0]?.name : null
       }
-    },
+    }
   }
 }
 </script>

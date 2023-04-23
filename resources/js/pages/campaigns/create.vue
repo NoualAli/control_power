@@ -83,11 +83,11 @@ export default {
     create () {
       this.form.post('/api/campaigns').then(response => {
         if (response.data.status) {
-          swal.toast_success(response.data.message)
+          this.$swal.toast_success(response.data.message)
           this.form.reset()
           this.fetchNextReference()
         } else {
-          swal.alert_error(response.data.message)
+          this.$swal.alert_error(response.data.message)
         }
       }).catch(error => {
         console.log(error)

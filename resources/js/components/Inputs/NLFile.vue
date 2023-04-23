@@ -1,9 +1,11 @@
 <template>
-  <DefaultContainer :id="id || name" :name="name" :form="form" :label="label" :label-required="labelRequired"
-                    :help-text="helpText"
+  <DefaultContainer
+    :id="id || name" :name="name" :form="form" :label="label" :label-required="labelRequired"
+    :help-text="helpText"
   >
-    <input v-if="!readonly" :id="id || name" type="file" :name="name" :multiple="multiple" :accept="accept"
-           class="file-input" @change="onChange($event)"
+    <input
+      v-if="!readonly" :id="id || name" type="file" :name="name" :multiple="multiple" :accept="accept"
+      class="file-input" @change="onChange($event)"
     >
     <div
       :class="[{ 'is-danger': form?.errors.has(name), 'has-files': hasFiles, 'is-readonly': readonly }, 'file-input-area']"
@@ -28,8 +30,9 @@
               <a :href="file.link" :download="file.name">
                 <i class="las la-download text-info icon" />
               </a>
-              <i v-if="canDelete && !readonly" class="las la-trash text-danger icon is-clickable"
-                 @click.stop="deleteItem(file, index)"
+              <i
+                v-if="canDelete && !readonly" class="las la-trash text-danger icon is-clickable"
+                @click.stop="deleteItem(file, index)"
               />
             </div>
           </div>
@@ -163,7 +166,7 @@ export default {
      * @param {Number} index
      */
     deleteItem (file, index) {
-      swal.confirm_destroy().then((action) => {
+      this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
           api.delete('upload/' + file.id).then(response => {
             this.files.splice(index, 1)

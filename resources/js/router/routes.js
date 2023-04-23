@@ -22,9 +22,7 @@ export default [
     name: 'admin-dashboard',
     component: page('admin_dashboard.vue'),
     meta: {
-      breadcrumb: {
-        label: 'TABLEAU DE BORD'
-      }
+      breadcrumb: false
     }
   },
 
@@ -58,6 +56,7 @@ export default [
     component: page('admin/users/index.vue'),
     meta: {
       breadcrumb: {
+        parent: '',
         label: 'Utilisateurs'
       }
     }
@@ -130,7 +129,7 @@ export default [
     component: page('admin/permissions/index.vue'),
     meta: {
       breadcrumb: {
-
+        parent: 'roles-index',
         label: 'Permissions'
       }
     }

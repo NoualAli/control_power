@@ -1,18 +1,22 @@
 <template>
   <div v-if="can('view_control_point')">
     <ContentHeader>
-      <template v-slot:actions>
-        <router-link :to="{ name: 'control-points-create' }" class="btn btn-info" v-if="can('create_control_point')">
+      <template #actions>
+        <router-link v-if="can('create_control_point')" :to="{ name: 'control-points-create' }" class="btn btn-info">
           Ajouter
         </router-link>
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" namespace="controlPoints"
-        title="Liste des Points de contrôle" />
+      <NLDatatable
+        :config="config" namespace="controlPoints" title="Liste des Points de contrôle" @show="show" @delete="destroy"
+        @edit="edit"
+      />
       <NLModal :show="rowSelected" @close="rowSelected = null">
-        <template v-slot:title>Informations point de contrôle</template>
-        <template v-slot>
+        <template #title>
+          Informations point de contrôle
+        </template>
+        <template #default>
           <div class="grid list">
             <div class="col-12 col-lg-6 list-item">
               <div class="list-item-label">
@@ -46,14 +50,13 @@
                 {{ rowSelected?.name }}
               </div>
             </div>
-            <div class="col-12 list-item" v-if="rowSelected?.scores !== '' && rowSelected?.scores !== null">
+            <div v-if="rowSelected?.scores !== '' && rowSelected?.scores !== null" class="col-12 list-item">
               <div class="list-item-label">
                 Notations
               </div>
-              <div class="tags" v-html="rowSelected?.scores_str">
-              </div>
+              <div class="tags" v-html="rowSelected?.scores_str" />
             </div>
-            <div class="col-12 list-item" v-if="rowSelected?.fields !== '' && rowSelected?.fields !== null">
+            <div v-if="rowSelected?.fields !== '' && rowSelected?.fields !== null" class="col-12 list-item">
               <div class="list-item-label">
                 Metadata
               </div>
@@ -99,20 +102,23 @@
               </div>
             </div>
           </div>
-
         </template>
-        <template v-slot:footer>
-          <div class="d-flex justify-end align-center gap-5 w-100"
-            v-if="can(['delete_control_point', 'edit_control_point'])">
-            <button class="btn btn-danger has-icon" @click.prevent="destroy(rowSelected)"
-              v-if="can('delete_control_point')">
-              <i class="las la-trash icon"></i>
+        <template #footer>
+          <div
+            v-if="can(['delete_control_point', 'edit_control_point'])"
+            class="d-flex justify-end align-center gap-5 w-100"
+          >
+            <button
+              v-if="can('delete_control_point')" class="btn btn-danger has-icon"
+              @click.prevent="destroy(rowSelected)"
+            >
+              <i class="las la-trash icon" />
               <span class="icon-text">
                 Supprimer
               </span>
             </button>
-            <button @click.prevent="edit(rowSelected)" class="btn btn-warning has-icon" v-if="can('edit_control_point')">
-              <i class="las la-edit icon"></i>
+            <button v-if="can('edit_control_point')" class="btn btn-warning has-icon" @click.prevent="edit(rowSelected)">
+              <i class="las la-edit icon" />
               <span class="icon-text">
                 Modifier
               </span>
@@ -130,17 +136,17 @@ import { mapGetters } from 'vuex'
 export default {
   components: { NLDatatable },
   layout: 'backend',
-  middleware: [ 'auth', 'admin' ],
-  metaInfo() {
+  middleware: ['auth', 'admin'],
+  metaInfo () {
     return { title: 'Points de contrôle' }
   },
   computed: {
     ...mapGetters({
       controlPoints: 'controlPoints/paginated',
-      controlPoint: 'controlPoints/current',
-    }),
+      controlPoint: 'controlPoints/current'
+    })
   },
-  data() {
+  data () {
     return {
       rowSelected: null,
       config: {
@@ -148,20 +154,20 @@ export default {
         columns: [
           {
             label: 'Famille',
-            field: 'familly_name',
+            field: 'familly_name'
           },
           {
             label: 'Domaine',
-            field: 'domain_name',
+            field: 'domain_name'
           },
           {
             label: 'Processus',
-            field: 'process_name',
+            field: 'process_name'
           },
           {
             label: 'Nom',
-            field: 'name',
-          },
+            field: 'name'
+          }
         ],
         actions: {
           show: (item) => {
@@ -177,7 +183,7 @@ export default {
       }
     }
   },
-  created() {
+  created () {
     this.initData()
   },
   methods: {
@@ -185,7 +191,7 @@ export default {
      * Affiche les détailles de la resource
      * @param {Object} item
      */
-    show(item) {
+    show (item) {
       this.$store.dispatch('controlPoints/fetch', item.id).then(() => {
         this.rowSelected = this.controlPoint.current
         // this.rowSelected.fields = this.rowSelected.fields ? JSON.parse(this.rowSelected.fields) : null
@@ -196,7 +202,7 @@ export default {
      * Redirige vers la page d'edition
      * @param {Object} item
      */
-    edit(item) {
+    edit (item) {
       this.$router.push({ name: 'control-points-edit', params: { controlPoint: item.id } })
     },
 
@@ -204,28 +210,28 @@ export default {
      * Supprime la ressource
      * @param {Object} item
      */
-    destroy(item) {
-      swal.confirm_destroy().then((action) => {
+    destroy (item) {
+      this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
           api.delete('control-points/' + item.id).then(response => {
             if (response.data.status) {
               this.rowSelected = null
               this.initData()
-              swal.toast_success(response.data.message)
+              this.$swal.toast_success(response.data.message)
             } else {
-              swal.toast_error(response.data.message)
+              this.$swal.toast_error(response.data.message)
             }
           })
         }
       }).catch(error => {
-        swal.alert_error(error.message)
+        this.$swal.alert_error(error.message)
       })
     },
 
     /**
      * Initialise les données
      */
-    initData() {
+    initData () {
       this.$store.dispatch('controlPoints/fetchPaginated').then(() => {
         this.config.data = this.controlPoints.paginated
       })

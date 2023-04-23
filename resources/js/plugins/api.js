@@ -17,7 +17,7 @@ api.interceptors.response.use(response => response, error => {
   const message = error?.response?.data?.message
   const title = status + ' ' + error?.response?.statusText
   if (status === 401 && store.getters['auth/check']) {
-    swal.alert_error(message, title)
+    this.$swal.alert_error(message, title)
       .then(() => {
         store.commit('auth/LOGOUT')
         location.reload()
@@ -27,7 +27,7 @@ api.interceptors.response.use(response => response, error => {
     window.location.href = '/404'
   }
   if (status === 403 && store.getters['auth/check']) {
-    swal.alert_error(message, title)
+    this.$swal.alert_error(message, title)
       .then(() => {
         store.commit('auth/LOGOUT')
         location.reload()

@@ -51,7 +51,6 @@
 <script>
 import { Form } from 'vform'
 import { mapGetters } from 'vuex'
-import * as swal from '~/plugins/swal'
 
 export default {
   layout: 'backend',
@@ -100,11 +99,11 @@ export default {
     update () {
       this.form.put('/api/agencies/' + this.$route.params.agency).then(response => {
         if (response.data.status) {
-          swal.toast_success(response.data.message)
+          this.$swal.toast_success(response.data.message)
           this.initData()
           // this.$router.push({ name: 'agencies-index' })
         } else {
-          swal.alert_error(response.data.message)
+          this.$swal.alert_error(response.data.message)
         }
       }).catch(error => {
         console.log(error)

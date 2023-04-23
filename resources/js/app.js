@@ -4,6 +4,7 @@ import router from '~/router'
 import i18n from '~/plugins/i18n'
 import { user } from './plugins/helpers'
 import api from './plugins/api'
+import * as swal from './plugins/swal'
 import '~/plugins'
 import { LoadingPlugin } from 'vue-loading-overlay'
 import { createMetaManager as createVueMetaManager, defaultConfig, plugin as pluginVueMeta } from 'vue-meta'
@@ -30,6 +31,7 @@ app.use(LoadingPlugin, {
 app.use(Vue3Breadcrumbs, { includeComponent: true })
 
 app.config.globalProperties.$api = api
+app.config.globalProperties.$swal = swal
 
 app.mixin(aclMixin)
 

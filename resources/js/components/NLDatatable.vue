@@ -140,45 +140,47 @@
           </div>
         </div>
       </div>
-      <div v-if="showPagination()" class="col-12 col-lg-1 d-flex justify-center align-center">
-        <template v-for="(link, index) in configLocal.data?.meta?.links">
-          <button
-            v-if="showPreviousLink(index, link.url)" :key="link.label"
-            class="btn mx-2" :class="{ 'is-active': link.active }" @click="getPaginationData(link.url)"
-          >
-            Précédent
-          </button>
-        </template>
-      </div>
+      <template v-if="showPagination()">
+        <div class="col-12 col-lg-1 d-flex justify-center align-center">
+          <template v-for="(link, index) in configLocal.data?.meta?.links">
+            <button
+              v-if="showPreviousLink(index, link.url)" :key="link.label"
+              class="btn mx-2" :class="{ 'is-active': link.active }" @click="getPaginationData(link.url)"
+            >
+              Précédent
+            </button>
+          </template>
+        </div>
 
-      <div v-if="showPagination()" class="col-12 col-lg-8 d-flex align-center justify-center">
-        <template v-for="(link, index) in configLocal.data?.meta?.links">
-          <button
-            v-if="showPageNumberLink(index)" :key="index"
-            class="btn is-radius mx-2" :class="{ 'is-active': link.active }" :disabled="link.active"
-            @click="getPaginationData(link.url)"
-          >
-            {{ link.label }}
-          </button>
-        </template>
-      </div>
-      <div v-if="showPagination()" class="col-12 col-lg-1 d-flex justify-center align-center">
-        <template v-for="(link, index) in configLocal.data?.meta?.links">
-          <button
-            v-if="showNextLink(index, link.url)" :key="link.label"
-            class="btn mx-2" :class="{ 'is-active': link.active }" @click="getPaginationData(link.url)"
-          >
-            Suivant
-          </button>
-        </template>
-      </div>
+        <div class="col-12 col-lg-8 d-flex align-center justify-center">
+          <template v-for="(link, index) in configLocal.data?.meta?.links">
+            <button
+              v-if="showPageNumberLink(index)" :key="index"
+              class="btn is-radius mx-2" :class="{ 'is-active': link.active }" :disabled="link.active"
+              @click="getPaginationData(link.url)"
+            >
+              {{ link.label }}
+            </button>
+          </template>
+        </div>
+        <div class="col-12 col-lg-1 d-flex justify-center align-center">
+          <template v-for="(link, index) in configLocal.data?.meta?.links">
+            <button
+              v-if="showNextLink(index, link.url)" :key="link.label"
+              class="btn mx-2" :class="{ 'is-active': link.active }" @click="getPaginationData(link.url)"
+            >
+              Suivant
+            </button>
+          </template>
+        </div>
+      </template>
     </div>
   </div>
 </template>
 
 <script>
 import api from '~/plugins/api'
-import * as swal from '~/plugins/swal'
+
 import NoData from './NoData'
 // import { saveAs } from 'file-saver';
 export default {
@@ -283,7 +285,7 @@ export default {
           this.configLocal.data = response.data
         }).catch(error => {
           this.updateState()
-          swal.alert_error(error)
+          this.$swal.alert_error(error)
         })
       } else {
         this.buildUrl()
@@ -320,7 +322,7 @@ export default {
           const size = progressEvent.target.getResponseHeader('Content-Length')
           const loaded = progressEvent.loaded
           const progress = Math.round((loaded / size) * 100)
-          swal.loading(progress)
+          this.$swal.loading(progress)
         }
       }).then(response => {
         this.isBusy = false

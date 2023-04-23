@@ -31,7 +31,6 @@ import NLDatatable from '../../components/NLDatatable'
 import { mapGetters } from 'vuex'
 import { hasRole } from '../../plugins/user'
 import api from '../../plugins/api'
-import * as swal from '~/plugins/swal'
 
 export default {
   components: {
@@ -178,19 +177,19 @@ export default {
      * @param {Object} item
      */
     validate (item) {
-      swal.confirm({ title: 'Validation', message: 'Validation de la campagne de contrôle ' + item.reference, icon: 'success' }).then(response => {
+      this.$swal.confirm({ title: 'Validation', message: 'Validation de la campagne de contrôle ' + item.reference, icon: 'success' }).then(response => {
         if (response.isConfirmed) {
           api.put('campaigns/' + item.id + '/validate').then(response => {
             if (response.data.status) {
               this.initData()
-              swal.toast_success(response.data.message)
+              this.$swal.toast_success(response.data.message)
             } else {
-              swal.toast_error(response.data.message)
+              this.$swal.toast_error(response.data.message)
             }
           })
         }
       }).catch(error => {
-        swal.alert_error(error)
+        this.$swal.alert_error(error)
       })
     },
     /**
@@ -199,19 +198,19 @@ export default {
      * @param {Object} item
      */
     destroy (item) {
-      swal.confirm_destroy().then(response => {
+      this.$swal.confirm_destroy().then(response => {
         if (response.isConfirmed) {
           api.delete('campaigns/' + item.id).then(response => {
             if (response.data.status) {
               this.initData()
-              swal.toast_success(response.data.message)
+              this.$swal.toast_success(response.data.message)
             } else {
-              swal.toast_error(response.data.message)
+              this.$swal.toast_error(response.data.message)
             }
           })
         }
       }).catch(error => {
-        swal.alert_error(error)
+        this.$swal.alert_error(error)
       })
     },
 

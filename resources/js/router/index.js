@@ -125,7 +125,7 @@ async function asyncData (components) {
  */
 async function afterEach (to, from, next) {
   // await useRouter()?.appContext?.app?.$nextTick()
-  await nextTick()
+  // await nextTick()
   Cookies.set('previous_url', from)
   // router.isReady()
 }
