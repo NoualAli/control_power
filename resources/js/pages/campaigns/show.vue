@@ -65,9 +65,10 @@
           <span class="text-bold">
             Description:
           </span>
-          <span>
-            {{ campaign?.current?.description }}
-          </span>
+          <br>
+          <div class="mt-2" v-html="campaign?.current?.description" v-if="campaign?.current?.description !== '-'">
+          </div>
+          <span v-else></span>
         </div>
       </div>
     </div>

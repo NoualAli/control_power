@@ -538,9 +538,11 @@ export default {
 
   methods: {
     exportReport() {
-      api.get('missions/' + this.mission.current.id + '/export?type=pdf').then((response) => {
-        console.log(response);
-      })
+      const url = '/api/missions/' + this.mission.current.id + '/export?type=pdf'
+      window.open(url)
+      // api.get('missions/' + this.mission.current.id + '/export?type=pdf').then((response) => {
+      //   console.log(response);
+      // })
     },
     /**
      * Validation de la mission par le dcp et cdcr

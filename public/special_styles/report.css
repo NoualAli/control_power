@@ -182,7 +182,7 @@ ul {
     position: absolute;
     left: 450px;
     /* top: 2950px; */
-    top: 2750px;
+    top: 2780px;
     width: auto;
     font-size: 50px;
     color: #fcfcfc;
@@ -297,31 +297,6 @@ ul {
 
     /* height: 32px; */
     height: 1.07cm;
-}
-
-.page-footer .pagenum:before {
-    display: block;
-    content: counter(page);
-    width: 30px;
-    height: 30px;
-    text-align: center;
-    line-height: 25px;
-    /* border: 1px solid #125741; */
-    /* border-radius: 50%; */
-    font-weight: bold;
-    color: #125741;
-
-    position: absolute;
-    top: 50%;
-    right: 10%;
-    transform: translateY(-50%);
-}
-
-.page-footer .page-number-container {
-    display: inline-block;
-    padding: 5px;
-    border: 1px solid #125741;
-    border-radius: 50%;
 }
 
 .page-body {
@@ -444,4 +419,8 @@ td {
 
 .text-center {
     text-align: center;
+}
+
+.report-area {
+    line-height: 1.5
 }
