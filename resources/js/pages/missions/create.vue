@@ -65,7 +65,7 @@
       <template #title>
         {{ currentCampaign?.reference }}
       </template>
-      <template>
+      <template #default>
         <div class="list grid gap-12">
           <div class="col-12 col-lg-6 list-item">
             <span class="list-item-label">
@@ -132,6 +132,9 @@ export default {
       currentCampaignReference: null
     }
   },
+  computed: mapGetters({
+    config: 'missions/config'
+  }),
   watch: {
     'form.control_campaign_id': function (newVal, oldVal) {
       if (newVal !== oldVal && newVal !== null && newVal !== undefined) this.initData()
@@ -150,9 +153,7 @@ export default {
       }
     }
   },
-  computed: mapGetters({
-    config: 'missions/config'
-  }),
+
   created () {
     this.initData()
   },
