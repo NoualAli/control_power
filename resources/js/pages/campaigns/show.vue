@@ -1,31 +1,34 @@
 <template>
   <ContentBody v-if="can('view_control_campaign')">
-    <div class="d-flex justify-end align-center gap-3 my-2">
-      <router-link
-        v-if="can('view_mission')" :to="{ name: 'campaign-missions', params: { campaignId: campaign?.current?.id } }"
-        class="btn"
-      >
-        Missions
-      </router-link>
-      <router-link
-        v-if="campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign') && !campaign?.current.validated_by_id && is('dcp')" class="btn btn-warning"
-        :to="{ name: 'campaigns-edit', params: { campaignId: campaign?.current?.id } }"
-      >
-        <i class="las la-edit icon" />
-      </router-link>
-      <button
-        v-if="campaign?.current?.remaining_days_before_start > 5 && can('delete_control_campaign') && !campaign?.current.validated_by_id && is('dcp')" class="btn btn-danger"
-        @click.stop="destroy"
-      >
-        <i class="las la-trash icon" />
-      </button>
-      <button
-        v-if="!campaign?.current?.validated_by_id && can('validate_control_campaign')" class="btn btn-info has-icon"
-        @click.stop="validate(campaign?.current)"
-      >
-        <i class="las la-check icon" />
-      </button>
+    <div :key="forcedRerenderKey" class="d-flex justify-end align-center gap-3 my-2">
+      <template v-if="forcedRerenderKey!==-1">
+        <router-link
+          v-if="can('view_mission')" :to="{ name: 'campaign-missions', params: { campaignId: campaign?.current?.id} }"
+          class="btn"
+        >
+          Missions
+        </router-link>
+        <router-link
+          v-if="campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign') && !campaign?.current.validated_by_id && is('dcp')" class="btn btn-warning"
+          :to="{ name: 'campaigns-edit', params: { campaignId: campaign?.current?.id } }"
+        >
+          <i class="las la-edit icon" />
+        </router-link>
+        <button
+          v-if="campaign?.current?.remaining_days_before_start > 5 && can('delete_control_campaign') && !campaign?.current.validated_by_id && is('dcp')" class="btn btn-danger"
+          @click.stop="destroy"
+        >
+          <i class="las la-trash icon" />
+        </button>
+        <button
+          v-if="!campaign?.current?.validated_by_id && can('validate_control_campaign')" class="btn btn-info has-icon"
+          @click.stop="validate(campaign?.current)"
+        >
+          <i class="las la-check icon" />
+        </button>
+      </template>
     </div>
+
     <!-- Control campaign informations -->
     <div class="box mb-10 border-primary-dark border-1">
       <div class="grid gap-12">
@@ -146,13 +149,14 @@ export default {
   },
   layout: 'backend',
   middleware: ['auth'],
-  breadcrumb () {
-    return {
-      label: 'Détails campagne ' + this.campaign?.current?.reference
-    }
-  },
+  // breadcrumb () {
+  //   return {
+  //     label: 'Détails campagne ' + 'lalalala' + this.campaign?.current?.reference
+  //   }
+  // },
   data () {
     return {
+      forcedRerenderKey: -1,
       rowSelected: null,
       config: {
         data: null,
@@ -187,6 +191,18 @@ export default {
       campaign: 'campaigns/current'
     })
   },
+  watch: {
+    campaign: {
+      immediate: true,
+      deep: true,
+      handler (newValue, oldValue) {
+        if (newValue) {
+          this.forcedRerenderKey = newValue.current.id
+          this.$breadcrumbs.value[this.$breadcrumbs.value.length - 1].label = 'Détails campagne ' + newValue.current?.reference
+        }
+      }
+    }
+  },
 
   created () {
     this.initData()
@@ -197,10 +213,10 @@ export default {
       this.close()
       const campaignId = this.$route.params.campaignId
       this.$store.dispatch('campaigns/fetch', { campaignId })
-      this.$store.dispatch('campaigns/fetchProcesses', campaignId).then(() => this.config.data = this.processes.processes)
+      this.$store.dispatch('campaigns/fetchProcesses', campaignId).then(() => { this.config.data = this.processes.processes })
     },
     loadControlPoints (process) {
-      this.$store.dispatch('processes/fetch', { id: process.id, onlyControlPoints: true }).then(() => this.control_points = this.process.controlPoints)
+      this.$store.dispatch('processes/fetch', { id: process.id, onlyControlPoints: true }).then(() => { this.control_points = this.process.controlPoints })
     },
     /**
      * Valide une campagne de contrôle

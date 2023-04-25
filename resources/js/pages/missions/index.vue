@@ -75,11 +75,11 @@ export default {
             methods: {
               style: (item) => {
                 const score = item.avg_score
-                if (score == 1) {
+                if (score === 1) {
                   return 'bg-success text-white text-bold'
-                } else if (score == 2) {
+                } else if (score === 2) {
                   return 'bg-info text-white text-bold'
-                } else if (score == 3) {
+                } else if (score === 3) {
                   return 'bg-warning text-bold'
                 } else {
                   return 'bg-danger text-white text-bold'
@@ -94,17 +94,17 @@ export default {
             methods: {
               showField (item) {
                 let state = 'inProgress'
-                if (item.state == 'EN COURS') {
+                if (item.state === 'EN COURS') {
                   state = 'inProgress'
-                } else if (item.state == 'À RÉALISER') {
+                } else if (item.state === 'À RÉALISER') {
                   state = 'todo'
-                } else if (item.state == 'RÉALISÉ') {
+                } else if (item.state === 'RÉALISÉ') {
                   state = 'done'
-                } else if (item.state == 'EN RETARD') {
+                } else if (item.state === 'EN RETARD') {
                   state = 'late'
-                } else if (item.state == 'Validé et envoyé') {
+                } else if (item.state === 'Validé et envoyé') {
                   state = 'validated'
-                } else if (item.state == 'En attente de validation') {
+                } else if (item.state === 'En attente de validation') {
                   state = 'wating-validation'
                 }
                 return `<div class="container" title="${item.state}">
@@ -112,17 +112,17 @@ export default {
                 </div>`
               }
               // style: (item) => {
-              //   if (item.state == 'EN COURS') {
+              //   if (item.state === 'EN COURS') {
               //     return 'mission-state bg-warning text-bold text-small'
-              //   } else if (item.state == 'À RÉALISER') {
+              //   } else if (item.state === 'À RÉALISER') {
               //     return 'mission-state bg-info text-white text-bold text-small'
-              //   } else if (item.state == 'RÉALISÉ') {
+              //   } else if (item.state === 'RÉALISÉ') {
               //     return 'mission-state bg-success text-white text-bold text-small'
-              //   } else if (item.state == 'EN RETARD') {
+              //   } else if (item.state === 'EN RETARD') {
               //     return 'mission-state bg-danger text-white text-bold text-small'
-              //   } else if (item.state == 'Validé et envoyé') {
+              //   } else if (item.state === 'Validé et envoyé') {
               //     return 'mission-state bg-success text-white text-bold text-small'
-              //   } else if (item.state == 'En attente de validation') {
+              //   } else if (item.state === 'En attente de validation') {
               //     return 'mission-state bg-danger text-white text-bold text-small'
               //   }
               // }
@@ -221,7 +221,8 @@ export default {
       } else {
         missions = this.$store.dispatch('missions/fetchPaginated')
       }
-      missions.then(() => this.config.data = this.missions.paginated)
+      missions.then((d) => { this.config.data = this.missions.paginated })
+      console.log(this.missions)
     },
     /**
      * Initialise les filtres
@@ -235,6 +236,12 @@ export default {
       })
     },
     show (item) {
+      // yet to fix breadcrumbs
+      console.log(item)
+      const compaignCrumbs = this.$breadcrumbs.value[this.$breadcrumbs.value.length - 1]
+      console.log('show item ')
+      console.log(this.$breadcrumbs)
+      // this.$router.push({ name: 'mission', params: { missionId: item.id, campaign : compaignCrumbs } })
       this.$router.push({ name: 'mission', params: { missionId: item.id } })
     },
     edit (item) {
@@ -243,7 +250,7 @@ export default {
     destroy (item) {
       this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
-          api.delete('missions/' + item.id).then(response => {
+          this.$api.delete('missions/' + item.id).then(response => {
             if (response.data.status) {
               this.initData()
               this.$swal.toast_success(response.data.message)

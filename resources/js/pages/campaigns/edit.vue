@@ -1,5 +1,5 @@
 <template>
-  <div v-if="campaign?.current.remaining_days_before_start > 5 && can('edit_control_campaign')">
+  <div v-if="forcedRerenderKey!==-1 && campaign?.current.remaining_days_before_start > 5 && can('edit_control_campaign')" :key="forcedRerenderKey">
     <ContentBody>
       <form @submit.prevent="update" @keydown="form.onKeydown($event)">
         <!-- Control campaign base informations -->
@@ -40,12 +40,13 @@
 <script>
 import { mapGetters } from 'vuex'
 import { Form } from 'vform'
-import { hasRole } from '../../plugins/user'
+// import { hasRole } from '../../plugins/user'
 export default {
   layout: 'backend',
   middleware: ['auth'],
   data () {
     return {
+      forcedRerenderKey: -1,
       pcfList: [],
       readonly: {
         start: true,
@@ -65,6 +66,18 @@ export default {
     famillies: 'famillies/all',
     campaign: 'campaigns/current'
   }),
+  watch: {
+    campaign: {
+      immediate: true,
+      deep: true,
+      handler (newValue, oldValue) {
+        if (newValue) {
+          this.forcedRerenderKey = newValue.current.id
+          this.$breadcrumbs.value[this.$breadcrumbs.value.length - 1].label = 'Détails campagne ' + newValue.current?.reference
+        }
+      }
+    }
+  },
   created () {
     this.initData()
   },

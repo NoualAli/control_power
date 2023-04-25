@@ -50,12 +50,14 @@ export const actions = {
   async fetchCurrent ({ commit }) {
     const { data } = await api.get('campaigns/current')
     commit('FETCH_CURRENT', { current: data })
+    return Promise.resolve()
   },
   async fetch ({ commit }, { campaignId, edit = false }) {
     try {
       const url = edit ? 'campaigns/' + campaignId + '?edit' : 'campaigns/' + campaignId
       const { data } = await api.get(url)
       commit('FETCH', { current: data })
+      return Promise.resolve(data)
     } catch (error) {
 
     }

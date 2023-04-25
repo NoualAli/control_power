@@ -50,7 +50,7 @@ export default {
       this.$emit('update:modelValue', newValue)
     },
     modelValue (newValue, oldValue) {
-      if (newValue.length === 0) { this.$refs.treeselect.clear() }
+      if (!newValue || newValue.length === 0) { this.$refs.treeselect.clear() }
       if (newValue !== oldValue) this.selected = newValue
     }
   },

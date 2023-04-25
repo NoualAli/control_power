@@ -1,5 +1,5 @@
 <template>
-  <ContentBody v-if="can('view_mission')">
+  <ContentBody v-if="can('view_mission') && forcedRerenderKey !==-1" :key="forcedRerenderKey">
     <div class="d-flex justify-end align-center gap-3 my-2">
       <router-link
         v-if="can('view_control_campaign,view_page_control_campaigns')" :to="{ name: 'campaign', params: { campaignId: mission?.current.campaign.id } }"
@@ -471,6 +471,7 @@ export default {
   middleware: ['auth'],
   data () {
     return {
+      forcedRerenderKey: -1,
       controllersList: [],
       rowSelected: null,
       config: {
@@ -502,13 +503,13 @@ export default {
             methods: {
               style: (item) => {
                 const score = item.avg_score
-                if (score == 1) {
+                if (score === 1) {
                   return 'bg-success text-white text-bold'
-                } else if (score == 2) {
+                } else if (score === 2) {
                   return 'bg-info text-white text-bold'
-                } else if (score == 3) {
+                } else if (score === 3) {
                   return 'bg-warning text-bold'
-                } else if (score == 4) {
+                } else if (score === 4) {
                   return 'bg-danger text-white text-bold'
                 }
               }
@@ -566,7 +567,22 @@ export default {
       users: 'users/all'
     })
   },
-
+  watch: {
+    mission: {
+      immediate: true,
+      deep: true,
+      handler (newValue, oldValue) {
+        if (newValue) {
+          this.forcedRerenderKey = newValue.current.id
+          const length = this.$breadcrumbs.value.length
+          // Array.splice(length-2,0,newValue?.current.campaign.)
+          console.log(newValue)
+          console.log(this.$breadcrumbs)
+          this.$breadcrumbs.value[length - 1].label = 'Mission ' + newValue?.current?.reference
+        }
+      }
+    }
+  },
   created () {
     this.initData()
   },
@@ -701,11 +717,11 @@ export default {
      * @param {String} type
      */
     enableEdition (type) {
-      if (type == 'opinion') {
+      if (type === 'opinion') {
         this.forms.opinion.edit_mode = true
         this.forms.opinion.opinion = this.mission.current.opinion.content
         this.forms.opinion.id = this.mission.current.opinion.id
-      } else if (type == 'report') {
+      } else if (type === 'report') {
         this.forms.report.edit_mode = true
         this.forms.report.report = this.mission.current.dre_report.content
         this.forms.report.id = this.mission.current.dre_report.id

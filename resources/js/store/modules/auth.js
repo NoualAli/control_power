@@ -52,7 +52,6 @@ export const actions = {
   async fetchUser ({ commit }) {
     try {
       const { data } = await api.get('user')
-      // console.log(data)
       const user = { ...data }
       delete user.roles
       delete user.roles_str

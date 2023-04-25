@@ -1,12 +1,14 @@
 <template>
   <div>
-    <DefaultContainer :id="id || name" :form="form" :label="label" :name="name" :label-required="labelRequired"
-                      :length="length" :current-length="currentLength"
+    <DefaultContainer
+      :id="id || name" :form="form" :label="label" :name="name" :label-required="labelRequired"
+      :length="length" :current-length="currentLength"
     >
-      <VueEditor :id="id || name" :editor-toolbar="editorSettings" :class="[{ 'is-danger': form?.errors.has(name) }]" :name="name"
-                 :autocomplete="autocomplete" :autofocus="autofocus" :max-length="length"
-                 :placeholder="placeholder || label" :value="currentValue" :help-text="helpText"
-                 @input="onInput($event)" v-on="$listeners" @ready="quill => editorQuill = quill"
+      <VueEditor
+        :id="id || name" :editor-toolbar="editorSettings" :class="[{ 'is-danger': form?.errors.has(name) }]" :name="name"
+        :autocomplete="autocomplete" :autofocus="autofocus" :max-length="length"
+        :placeholder="placeholder || label" :value="currentValue" :help-text="helpText"
+        v-bind="$attrs" @input="onInput($event)" @ready="quill => {editorQuill = quill}"
       />
     </DefaultContainer>
   </div>
