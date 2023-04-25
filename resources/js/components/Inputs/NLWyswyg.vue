@@ -23,10 +23,6 @@ export default {
   components: {
     DefaultContainer, VueEditor
   },
-  model: {
-    prop: 'value',
-    event: 'update'
-  },
   props: {
     form: { type: Object, required: false },
     autocomplete: { type: String, default: 'off' },
@@ -37,7 +33,7 @@ export default {
     label: { type: String, default: '' },
     labelRequired: { type: Boolean, default: false },
     placeholder: { type: String, default: '' },
-    value: { type: [String, Number], default: '' },
+    modelValue: { type: [String, Number], default: '' },
     readonly: { type: Boolean, default: false },
     length: { type: [Number, null], default: null },
     helpText: { type: String, default: null }
@@ -70,13 +66,13 @@ export default {
     }
   },
   created () {
-    this.currentValue = this.value
+    this.currentValue = this.modelValue
   },
   methods: {
     onInput (value) {
       this.currentValue = value
       this.currentLength = this.editorQuill.getLength() - 1
-      this.$emit('update', this.currentValue)
+      this.$emit('update:modelValue', this.currentValue)
     }
   }
 }

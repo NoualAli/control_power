@@ -575,9 +575,6 @@ export default {
         if (newValue) {
           this.forcedRerenderKey = newValue.current.id
           const length = this.$breadcrumbs.value.length
-          // Array.splice(length-2,0,newValue?.current.campaign.)
-          console.log(newValue)
-          console.log(this.$breadcrumbs)
           this.$breadcrumbs.value[length - 1].label = 'Mission ' + newValue?.current?.reference
         }
       }
@@ -586,7 +583,9 @@ export default {
   created () {
     this.initData()
   },
-
+  mounted () {
+    this.initData()
+  },
   methods: {
     validateMission (step) {
       this.$swal.confirm({ title: 'Mission ' + this.mission.current.reference, message: 'Vous êtes sur de vouloir valider la mission ' + this.mission.current.reference }).then(action => {

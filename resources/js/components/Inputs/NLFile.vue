@@ -153,7 +153,7 @@ export default {
      * @param {String} filesStr
      */
     loadFiles (filesStr) {
-      api.get('upload?media=' + filesStr).then(response => {
+      this.$api.get('upload?media=' + filesStr).then(response => {
         this.files = response.data
       }).catch(error => {
         console.error(error)
@@ -168,7 +168,7 @@ export default {
     deleteItem (file, index) {
       this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
-          api.delete('upload/' + file.id).then(response => {
+          this.$api.delete('upload/' + file.id).then(response => {
             this.files.splice(index, 1)
             this.inProgress = false
             this.$emit('change', this.files.map(file => file.id))
@@ -193,7 +193,7 @@ export default {
         data.append('accepted', this.accepted)
         data.append('attachable[id]', this.attachableId)
         data.append('attachable[type]', this.attachableType)
-        api.post('upload', data, {
+        this.$api.post('upload', data, {
           onUploadProgress: progressEvent => {
             this.progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
           }

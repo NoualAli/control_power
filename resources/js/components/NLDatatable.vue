@@ -177,8 +177,6 @@
 </template>
 
 <script>
-import api from '~/plugins/api'
-
 import NoData from './NoData'
 // import { saveAs } from 'file-saver';
 export default {
@@ -281,7 +279,7 @@ export default {
       if (loadData.some(value => value)) {
         this.buildUrl()
         this.updateState(true)
-        api.get(this.getUrl).then(response => {
+        this.$api.get(this.getUrl).then(response => {
           this.updateState()
           this.configLocal.data = response.data
         }).catch(error => {
@@ -316,7 +314,7 @@ export default {
     exportData () {
       this.export = true
       this.buildUrl()
-      api.get(this.url, {
+      this.$api.get(this.url, {
         responseType: 'blob',
         onDownloadProgress: (progressEvent) => {
           this.isBusy = true
@@ -494,7 +492,7 @@ export default {
       }
       this.current_page = newUrl?.searchParams?.get('page')
       this.buildUrl()
-      await api.get(this.url).then((res) => {
+      await this.$api.get(this.url).then((res) => {
         this.current_page = res.data.meta.current_page
         this.configLocal.data = res.data
         this.$store.state[this.namespace][this.stateKey] = res.data
@@ -508,7 +506,7 @@ export default {
     async applySort () {
       this.updateState(true)
       this.buildUrl()
-      await api.get(this.url).then((res) => {
+      await this.$api.get(this.url).then((res) => {
         this.configLocal.data = res.data
         this.$store.state[this.namespace][this.stateKey] = res.data
         this.updateState()
@@ -525,7 +523,7 @@ export default {
       this.current_page = 1
       this.buildUrl()
 
-      await api.get(this.url).then((res) => {
+      await this.$api.get(this.url).then((res) => {
         this.updateState()
         this.configLocal.data = res.data
         this.$store.state[this.namespace][this.stateKey] = res.data
@@ -539,7 +537,7 @@ export default {
       this.updateState(true)
       this.buildUrl()
 
-      await api.get(this.url).then((res) => {
+      await this.$api.get(this.url).then((res) => {
         this.updateState()
         this.configLocal.data = res.data
         this.$store.state[this.namespace][this.stateKey] = res.data

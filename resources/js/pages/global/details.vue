@@ -61,7 +61,7 @@
             <table v-if="rowSelected?.parsed_metadata">
               <thead>
                 <tr>
-                  <th v-for="heading in Object.keys(rowSelected?.parsed_metadata)" class="text-left">
+                  <th v-for="(heading,index) in Object.keys(rowSelected?.parsed_metadata)" :key="index" class="text-left">
                     {{ heading }}
                   </th>
                 </tr>
@@ -69,12 +69,14 @@
               <tbody>
                 <tr v-for="(data, row) in rowSelected?.metadata" :key="'metadata-row-' + row">
                   <td v-for="(items, index) in data" :key="'metadata-row-' + row + '-item-' + index" class="text-left">
-                    <span
-                      v-for="(item, key) in items" v-if="key !== 'label' && key !== 'rules'"
-                      :key="'metadata-row-' + row + '-item-' + index + '-content'"
-                    >
-                      {{ item }}
-                    </span>
+                    <template v-for="(item, key) in items">
+                      <span
+                        v-if="key !== 'label' && key !== 'rules'"
+                        :key="'metadata-row-' + row + '-item-' + index + key +'-content'"
+                      >
+                        {{ item }}
+                      </span>
+                    </template>
                   </td>
                 </tr>
               </tbody>
@@ -214,7 +216,7 @@
                           />
 
                           <NLTextarea
-                            v-if="input.type == 'textarea'" :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-model="forms.detail.metadata[dataRow][index][input.name]"
+                            v-if="input.type === 'textarea'" :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-model="forms.detail.metadata[dataRow][index][input.name]"
                             :form="forms.detail" :label="input.label"
                             :placeholder="input.placeholder"
                             :type="input.type"
@@ -223,7 +225,7 @@
                           />
 
                           <NLWyswyg
-                            v-if="input.type == 'wyswyg'" :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-model="forms.detail.metadata[dataRow][index][input.name]"
+                            v-if="input.type === 'wyswyg'" :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-model="forms.detail.metadata[dataRow][index][input.name]"
                             :form="forms.detail" :label="input.label"
                             :placeholder="input.placeholder"
                             :type="input.type"
@@ -232,7 +234,7 @@
                           />
 
                           <NLSelect
-                            v-if="input.type == 'select'" :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-model="forms.detail.metadata[dataRow][index][input.name]"
+                            v-if="input.type === 'select'" :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-model="forms.detail.metadata[dataRow][index][input.name]"
                             :form="forms.detail" :label="input.label"
                             :type="input.type"
                             :label-required="input.required" :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
@@ -269,7 +271,7 @@
             <table v-if="rowSelected?.parsed_metadata">
               <thead>
                 <tr>
-                  <th v-for="heading in Object.keys(rowSelected?.parsed_metadata)" class="text-left">
+                  <th v-for="(heading,index) in Object.keys(rowSelected?.parsed_metadata)" :key="index" class="text-left">
                     {{ heading }}
                   </th>
                 </tr>
@@ -277,12 +279,14 @@
               <tbody>
                 <tr v-for="(data, row) in rowSelected?.metadata" :key="'metadata-row-' + row">
                   <td v-for="(items, index) in data" :key="'metadata-row-' + row + '-item-' + index" class="text-left">
-                    <span
-                      v-for="(item, key) in items" v-if="key !== 'label' && key !== 'rules'"
-                      :key="'metadata-row-' + row + '-item-' + index + '-content'"
-                    >
-                      {{ item }}
-                    </span>
+                    <template v-for="(item, key) in items">
+                      <span
+                        v-if="key !== 'label' && key !== 'rules'"
+                        :key="'metadata-row-' + row + '-item-' + index + key +'-content'"
+                      >
+                        {{ item }}
+                      </span>
+                    </template>
                   </td>
                 </tr>
               </tbody>
@@ -369,13 +373,13 @@
               :form="forms.regularization" length="3000" label-required
             />
           </div>
-          <div v-if="!forms.regularization.regularized && forms.regularization.type == 'Cause'" class="col-12">
+          <div v-if="!forms.regularization.regularized && forms.regularization.type === 'Cause'" class="col-12">
             <NLTextarea
               v-model="forms.regularization.reason" :name="'reason'" label="Cause" :form="forms.regularization"
               length="1000" label-required
             />
           </div>
-          <div v-if="!forms.regularization.regularized && forms.regularization.type == 'Action à engagé'" class="col-12">
+          <div v-if="!forms.regularization.regularized && forms.regularization.type === 'Action à engagé'" class="col-12">
             <NLTextarea
               v-model="forms.regularization.action_to_be_taken" :name="'action_to_be_taken'" label="Action à engagé"
               :form="forms.regularization" length="3000" label-required
@@ -402,23 +406,6 @@ export default {
   components: { Notification },
   layout: 'backend',
   middleware: ['auth'],
-  computed: {
-    ...mapGetters({
-      details: 'details/global',
-      config: 'details/config',
-      filtersData: 'details/filters'
-    }),
-    formErrorsCount () {
-      if (this.modals.edit) {
-        return Object.entries(this.forms.detail.errors.all()).length
-      } else if (this.modals.regularize) {
-        return Object.entries(this.forms.regularization.errors.all()).length
-      }
-    },
-    files () {
-      return this.rowSelected.media.map(file => file.id)
-    }
-  },
   data: () => {
     return {
       rowSelected: null,
@@ -632,6 +619,24 @@ export default {
       currentMetadata: {}
     }
   },
+  computed: {
+    ...mapGetters({
+      details: 'details/global',
+      config: 'details/config',
+      filtersData: 'details/filters'
+    }),
+    formErrorsCount () {
+      if (this.modals.edit) {
+        return Object.entries(this.forms.detail.errors.all()).length
+      } else if (this.modals.regularize) {
+        return Object.entries(this.forms.regularization.errors.all()).length
+      }
+      return 0
+    },
+    files () {
+      return this.rowSelected.media.map(file => file.id)
+    }
+  },
   created () {
     this.initFilters()
     this.initData()
@@ -655,7 +660,7 @@ export default {
      * Initialise les données
      */
     initData () {
-      this.$store.dispatch('details/fetchGlobal').then(() => this.tableConfig.data = this.details.global)
+      this.$store.dispatch('details/fetchGlobal').then(() => { this.tableConfig.data = this.details.global })
     },
     /**
      * Affiche le formulaire de régularisation
@@ -695,7 +700,7 @@ export default {
      * Ferme la boite modal des détails du point de contrôle
      */
     close (modal) {
-      if (this.modals.hasOwnProperty(modal)) {
+      if (Object.prototype.hasOwnProperty.call(this.modals, modal)) {
         this.modals[modal] = false
       }
       this.forms.detail.reset()
@@ -703,9 +708,9 @@ export default {
       this.initData()
       this.currentMetadata = {}
       this.rowSelected = null
-      if (modal == 'show') {
-      } else {
-      }
+      // if (modal === 'show') {
+      // } else {
+      // }
     },
     /**
      * Initialise le formulaire
@@ -751,15 +756,15 @@ export default {
      */
     setupFields (fields) {
       return fields?.map(field => {
-        const type = field.hasOwnProperty(0) ? field[0].type : ''
-        const label = field.hasOwnProperty(1) ? field[1].label : ''
-        const name = field.hasOwnProperty(2) ? field[2].name : ''
-        const length = field.hasOwnProperty(3) ? field[3].length : null
-        const style = field.hasOwnProperty(4) ? field[4].style : ''
-        const id = field.hasOwnProperty(5) ? field[5].id : ''
-        const placeholder = field.hasOwnProperty(6) ? field[6].placeholder : ''
-        const help_text = field.hasOwnProperty(7) ? field[7].help_text : ''
-        const rules = field.hasOwnProperty(8) ? field[8].rules : []
+        const type = Object.prototype.hasOwnProperty.call(field, 0) ? field[0].type : ''
+        const label = Object.prototype.hasOwnProperty.call(field, 1) ? field[1].label : ''
+        const name = Object.prototype.hasOwnProperty.call(field, 2) ? field[2].name : ''
+        const length = Object.prototype.hasOwnProperty.call(field, 3) ? field[3].length : null
+        const style = Object.prototype.hasOwnProperty.call(field, 4) ? field[4].style : ''
+        const id = Object.prototype.hasOwnProperty.call(field, 5) ? field[5].id : ''
+        const placeholder = Object.prototype.hasOwnProperty.call(field, 6) ? field[6].placeholder : ''
+        const help_text = Object.prototype.hasOwnProperty.call(field, 7) ? field[7].help_text : ''
+        const rules = Object.prototype.hasOwnProperty.call(field, 8) ? field[8].rules : []
         return { type, label, name, length, style, id, placeholder, help_text, rules }
       })
     },
@@ -784,10 +789,10 @@ export default {
      */
     save (action) {
       let form, url
-      if (action == 'edit') {
+      if (action === 'edit') {
         form = this.forms.detail
         url = '/api/missions/details/' + this.forms.detail.mission
-      } else if (action == 'regularize') {
+      } else if (action === 'regularize') {
         form = this.forms.regularization
         url = '/api/regularize/' + this.forms.regularization.detail_id
       }
@@ -804,7 +809,7 @@ export default {
         }
       }).catch(error => {
         let message = error.message
-        if (error.response.status == 422) {
+        if (error.response.status === 422) {
           message = 'Les données fournies sont invalides.'
         }
         this.$swal.toast_error(message)
@@ -847,7 +852,7 @@ export default {
     notify () {
       this.$swal.confirm({ title: 'Dispatch notification', message: 'Voulez-vous notifier les autorités concernées?' }).then(action => {
         if (action.isConfirmed) {
-          api.post('notifications/major-fact/' + this.rowSelected.id).then(response => {
+          this.$api.post('notifications/major-fact/' + this.rowSelected.id).then(response => {
             this.$swal.toast_success(response.data.message)
             this.rowSelected = null
           }).catch(error => {
