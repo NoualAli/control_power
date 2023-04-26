@@ -6,6 +6,11 @@
         <h2>Mettez à jour vos informations</h2>
 
         <div class="grid gap-3 my-4">
+          <!-- Username -->
+          <div class="col-12 col-lg-4 col-md-6">
+            <NLInput :form="infoForm" name="username" label="Nom d'utilisateur" v-model="infoForm.username" readonly />
+          </div>
+
           <!-- Firstname -->
           <div class="col-12 col-lg-4 col-md-6">
             <NLInput :form="infoForm" name="firstname" label="Prénom" v-model="infoForm.first_name" />
@@ -16,11 +21,6 @@
             <NLInput :form="infoForm" name="last_name" label="Nom de famille" v-model="infoForm.last_name" />
           </div>
 
-          <!-- Username -->
-          <div class="col-12 col-lg-4 col-md-6">
-            <NLInput :form="infoForm" name="username" label="Nom d'utilisateur" v-model="infoForm.username"
-              labelRequired />
-          </div>
 
           <!-- Phone -->
           <div class="col-12 col-lg-6 col-md-6">
