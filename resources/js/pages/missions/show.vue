@@ -554,11 +554,11 @@ export default {
       }
     }
   },
-  breadcrumb () {
-    return {
-      label: 'Mission ' + this.mission?.current?.reference
-    }
-  },
+  // breadcrumb () {
+  //   return {
+  //     label: 'Mission ' + this.mission?.current?.reference
+  //   }
+  // },
   computed: {
     ...mapGetters({
       mission: 'missions/current',

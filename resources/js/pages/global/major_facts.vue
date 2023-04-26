@@ -439,8 +439,8 @@ export default {
           recovery_plan: null,
           score: null,
           major_fact: null,
-          metadata: [],
-          process_mode: null
+          metadata: []
+          // process_mode: null
         })
       },
       modals: {

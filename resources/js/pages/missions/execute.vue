@@ -71,7 +71,7 @@
                               />
 
                               <NLTextarea
-                                v-if="input.type == 'textarea'" :id="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name" v-model="form.rows[row].metadata[dataRow][index][input.name]"
+                                v-if="input.type === 'textarea'" :id="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name" v-model="form.rows[row].metadata[dataRow][index][input.name]"
                                 :form="form" :label="input.label"
                                 :placeholder="input.placeholder"
                                 :type="input.type"
@@ -80,7 +80,7 @@
                               />
 
                               <NLWyswyg
-                                v-if="input.type == 'wyswyg'" :id="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name" v-model="form.rows[row].metadata[dataRow][index][input.name]"
+                                v-if="input.type === 'wyswyg'" :id="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name" v-model="form.rows[row].metadata[dataRow][index][input.name]"
                                 :form="form" :label="input.label"
                                 :placeholder="input.placeholder"
                                 :type="input.type"
@@ -89,7 +89,7 @@
                               />
 
                               <NLSelect
-                                v-if="input.type == 'select'" :id="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name" v-model="form.rows[row].metadata[dataRow][index][input.name]"
+                                v-if="input.type === 'select'" :id="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name" v-model="form.rows[row].metadata[dataRow][index][input.name]"
                                 :form="form"
                                 :label="input.label"
                                 :type="input.type"
@@ -121,9 +121,9 @@
               <div class="col-12">
                 <NLTextarea
                   v-model="form.rows[row].report" :name="'rows.' + row + '.report'" label="Constat" :form="form"
-                  :placeholder="form.rows[row].score == 1 || form.rows[row].score == null && !form.rows[row].major_fact ? '' : 'Ajouter votre constat'"
+                  :placeholder="form.rows[row].score === 1 || form.rows[row].score === null && !form.rows[row].major_fact ? '' : 'Ajouter votre constat'"
                   :label-required="form.rows[row].score > 1 || form.rows[row].major_fact"
-                  :disabled="form.rows[row].score == 1 || form.rows[row].score == null && !form.rows[row].major_fact"
+                  :disabled="form.rows[row].score === 1 || form.rows[row].score === null && !form.rows[row].major_fact"
                 />
               </div>
               <!-- Recovery plan -->
@@ -131,9 +131,9 @@
                 <NLTextarea
                   v-model="form.rows[row].recovery_plan" :name="'rows.' + row + '.recovery_plan'" label="Plan de redressement"
                   :form="form"
-                  :placeholder="form.rows[row].score == 1 || form.rows[row].score == null && !form.rows[row].major_fact ? '' : 'Ajouter votre plan de redressement'"
+                  :placeholder="form.rows[row].score === 1 || form.rows[row].score === null && !form.rows[row].major_fact ? '' : 'Ajouter votre plan de redressement'"
                   :label-required="form.rows[row].score > 1 || form.rows[row].major_fact"
-                  :disabled="form.rows[row].score == 1 || form.rows[row].score == null && !form.rows[row].major_fact"
+                  :disabled="form.rows[row].score === 1 || form.rows[row].score === null && !form.rows[row].major_fact"
                 />
               </div>
             </div>
@@ -158,14 +158,14 @@
 </template>
 
 <script>
-import ContentHeader from '../../components/ContentHeader'
+// import ContentHeader from '../../components/ContentHeader'
 import ContentBody from '../../components/ContentBody'
 import { mapGetters } from 'vuex'
 import Form from 'vform'
 import Notification from '../../components/Notification'
 export default {
   components: {
-    ContentHeader,
+    // ContentHeader,
     ContentBody,
     Notification
   },
@@ -241,15 +241,15 @@ export default {
      */
     setupFields (fields) {
       return fields?.map(field => {
-        const type = field.hasOwnProperty(0) ? field[0].type : ''
-        const label = field.hasOwnProperty(1) ? field[1].label : ''
-        const name = field.hasOwnProperty(2) ? field[2].name : ''
-        const length = field.hasOwnProperty(3) ? field[3].length : null
-        const style = field.hasOwnProperty(4) ? field[4].style : ''
-        const id = field.hasOwnProperty(5) ? field[5].id : ''
-        const placeholder = field.hasOwnProperty(6) ? field[6].placeholder : ''
-        const help_text = field.hasOwnProperty(7) ? field[7].help_text : ''
-        const rules = field.hasOwnProperty(8) ? field[8].rules : []
+        const type = Object.prototype.hasOwnProperty.call(field, 0) ? field[0].type : ''
+        const label = Object.prototype.hasOwnProperty.call(field, 1) ? field[1].label : ''
+        const name = Object.prototype.hasOwnProperty.call(field, 2) ? field[2].name : ''
+        const length = Object.prototype.hasOwnProperty.call(field, 3) ? field[3].length : null
+        const style = Object.prototype.hasOwnProperty.call(field, 4) ? field[4].style : ''
+        const id = Object.prototype.hasOwnProperty.call(field, 5) ? field[5].id : ''
+        const placeholder = Object.prototype.hasOwnProperty.call(field, 6) ? field[6].placeholder : ''
+        const help_text = Object.prototype.hasOwnProperty.call(field, 7) ? field[7].help_text : ''
+        const rules = Object.prototype.hasOwnProperty.call(field, 8) ? field[8].rules : []
         return { type, label, name, length, style, id, placeholder, help_text, rules }
       })
     },
@@ -298,7 +298,7 @@ export default {
         }
       }).catch(error => {
         let message = error.message
-        if (error.response.status == 422) {
+        if (error.response.status === 422) {
           message = 'Les données fournies sont invalides.'
         }
         this.$swal.toast_error(message)

@@ -110,9 +110,6 @@ export default {
   },
   layout: 'backend',
   middleware: ['auth'],
-  metaInfo () {
-    return { title: 'Répartition des missions de contrôle' }
-  },
   data () {
     return {
       campaignId: null,
@@ -145,14 +142,6 @@ export default {
       }
     }
   },
-  breadcrumb () {
-    if (this.$route.params.campaignId) {
-      return {
-        parent: 'campaign',
-        label: 'Répartition des missions de contrôle de la campagne ' + this.currentCampaignReference
-      }
-    }
-  },
 
   created () {
     this.initData()
@@ -172,6 +161,8 @@ export default {
         this.campaignsList = this.config.config.campaigns
         this.currentCampaign = this.config.config.currentCampaign
         this.currentCampaignReference = this.config.config.currentCampaign.reference
+        this.$breadcrumbs.value[this.$breadcrumbs.value.length - 1].lable = 'Répartition des missions de contrôle de la campagne ' + this.currentCampaignReference
+        this.$breadcrumbs.value[this.$breadcrumbs.value.length - 1].parent = 'campaign'
       })
     },
     resetForm () {

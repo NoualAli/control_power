@@ -56,7 +56,7 @@
       <template #title>
         {{ currentCampaign?.reference }}
       </template>
-      <template>
+      <template #default>
         <div class="list grid gap-12">
           <div class="col-12 col-lg-6 list-item">
             <span class="list-item-label">

@@ -2,7 +2,6 @@
 import Swal from 'sweetalert2'
 import axios from 'axios'
 import store from '~/store'
-import * as swal from './swal.js'
 const api = axios.create({
   headers: {
 
@@ -10,7 +9,8 @@ const api = axios.create({
     Accept: 'application/json'
 
   },
-  baseURL: '/api/'
+  baseURL: '/api/',
+  transformRequest: formData => formData
 })
 api.interceptors.response.use(response => response, error => {
   const status = error?.response?.status

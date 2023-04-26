@@ -47,10 +47,6 @@ import DefaultContainer from './DefaultContainer'
 export default {
   name: 'NLFile',
   components: { DefaultContainer },
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
   props: {
     form: { type: Object, required: false },
     name: { type: String, required: true },
@@ -60,7 +56,7 @@ export default {
     placeholder: { type: String, default: 'Téléverser des fichiers' },
     loadingText: { type: String, default: 'Téléversement en cours... ' },
     multiple: { type: Boolean, default: false },
-    value: { type: [String, Array], default: () => [] },
+    modelValue: { type: [String, Array], default: () => [] },
     attachableType: { type: String, default: '' },
     attachableId: { type: [String, Number], default: '' },
     accepted: { type: String, default: 'jpg,jpeg,png,doc,docx,xls,xlsx,pdf' },
@@ -68,6 +64,7 @@ export default {
     canDelete: { type: Boolean, default: true },
     readonly: { type: Boolean, default: false }
   },
+  emits: ['change'],
   data () {
     return {
       isDragging: false,
@@ -96,13 +93,13 @@ export default {
     }
   },
   watch: {
-    value (newVal, oldVal) {
+    modelValue (newVal, oldVal) {
       if (newVal !== oldVal) this.loadFiles(newVal.join(','))
     }
   },
   created () {
     if (!this.files.length) {
-      this.loadFiles(this.value.join(','))
+      this.loadFiles(this.modelValue.join(','))
     }
   },
   methods: {
@@ -189,6 +186,7 @@ export default {
       for (let i = 0; i < files.length; i++) {
         data.append('media[]', files[i])
       }
+
       if (files.length) {
         data.append('accepted', this.accepted)
         data.append('attachable[id]', this.attachableId)
@@ -198,6 +196,8 @@ export default {
             this.progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
           }
         }).then(response => {
+          console.log(response)
+
           this.inProgress = false
           this.files.push(...response.data)
           const files = this.files.map((file) => file.id)

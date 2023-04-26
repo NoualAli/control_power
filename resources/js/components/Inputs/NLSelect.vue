@@ -51,7 +51,12 @@ export default {
     },
     modelValue (newValue, oldValue) {
       if (!newValue || newValue.length === 0) { this.$refs.treeselect.clear() }
-      if (newValue !== oldValue) this.selected = newValue
+      if (newValue !== oldValue) {
+        this.selected = newValue
+        // this.$refs.treeselect.select([newValue]
+        // this.$refs.treeselect.addValue(newValue)
+        // console.log()
+      }
     }
   },
   updated () {

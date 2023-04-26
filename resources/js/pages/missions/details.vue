@@ -199,31 +199,36 @@
                   <table v-if="rowSelected?.metadata">
                     <thead>
                       <tr>
-                        <th v-for="heading in currentMetadata.keys" class="text-left">
+                        <th v-for="heading in currentMetadata.keys" :key="heading" class="text-left">
                           {{ heading }}
                         </th>
                       </tr>
                     </thead>
+
                     <tbody>
                       <tr v-for="(data, row) in rowSelected?.metadata" :key="'metadata-row-' + row">
-                        <td v-for="(items, index) in data" :key="'metadata-item-' + index" class="text-left">
-                          <span
-                            v-for="(item, key) in items" v-if="key !== 'label' && key !== 'rules'"
-                            :key="'metadata-item-' + index + '-content'"
-                          >
-                            {{ item || '-' }}
-                          </span>
+                        <td v-for="(items, index) in data" :key="'metadata-row-' + row + '-item-' + index" class="text-left">
+                          <template v-for="(item, key) in items">
+                            <span
+                              v-if="key !== 'label' && key !== 'rules'"
+                              :key="'metadata-row-' + row + '-item-' + index + key +'-content'"
+                            >
+                              {{ item || '-' }}
+                            </span>
+                          </template>
                         </td>
                       </tr>
                     </tbody>
                   </table>
+
                   <span v-else>-</span>
                 </div>
               </div>
             </div>
             <!-- Media -->
             <div v-if="rowSelected?.media?.length" class="col-12 list-item">
-              <div v-for="file in rowSelected?.media" class="list-item-content" @click.stop="">
+              <!-- @click.stop -->
+              <div v-for="file in rowSelected?.media" :key="file.original_name" class="list-item-content">
                 <div class="files-list list is-visible grid gap-4 text-medium">
                   <div class="col-11 d-flex justify-between align-center">
                     <a :href="file.link" target="_blank" class="text-dark text-small">
@@ -235,10 +240,10 @@
                     <a :href="file.link" :download="file.original_name">
                       <i class="las la-download text-info icon" />
                     </a>
-                    <i
+                    <!-- <i
                       v-if="!mission?.dre_report_is_validated" class="las la-trash text-danger icon is-clickable"
                       @click.stop="deleteItem(file, index)"
-                    />
+                    /> -->
                   </div>
                 </div>
               </div>
@@ -352,7 +357,7 @@
                             />
 
                             <NLTextarea
-                              v-if="input.type == 'textarea'" :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-model="forms.generic.metadata[dataRow][index][input.name]"
+                              v-if="input.type === 'textarea'" :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-model="forms.generic.metadata[dataRow][index][input.name]"
                               :form="forms.generic" :label="input.label"
                               :placeholder="input.placeholder"
                               :type="input.type"
@@ -361,7 +366,7 @@
                             />
 
                             <NLWyswyg
-                              v-if="input.type == 'wyswyg'" :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-model="forms.generic.metadata[dataRow][index][input.name]"
+                              v-if="input.type === 'wyswyg'" :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-model="forms.generic.metadata[dataRow][index][input.name]"
                               :form="forms.generic" :label="input.label"
                               :placeholder="input.placeholder"
                               :type="input.type"
@@ -370,7 +375,7 @@
                             />
 
                             <NLSelect
-                              v-if="input.type == 'select'" :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-model="forms.generic.metadata[dataRow][index][input.name]"
+                              v-if="input.type === 'select'" :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-model="forms.generic.metadata[dataRow][index][input.name]"
                               :form="forms.generic"
                               :label="input.label"
                               :type="input.type"
@@ -408,24 +413,28 @@
                   <table v-if="rowSelected?.metadata">
                     <thead>
                       <tr>
-                        <th v-for="heading in currentMetadata.keys" class="text-left">
+                        <th v-for="heading in currentMetadata.keys" :key="heading" class="text-left">
                           {{ heading }}
                         </th>
                       </tr>
                     </thead>
+
                     <tbody>
                       <tr v-for="(data, row) in rowSelected?.metadata" :key="'metadata-row-' + row">
-                        <td v-for="(items, index) in data" :key="'metadata-item-' + index" class="text-left">
-                          <span
-                            v-for="(item, key) in items" v-if="key !== 'label' && key !== 'rules'"
-                            :key="'metadata-item-' + index + '-content'"
-                          >
-                            {{ item || '-' }}
-                          </span>
+                        <td v-for="(items, index) in data" :key="'metadata-row-' + row + '-item-' + index" class="text-left">
+                          <template v-for="(item, key) in items">
+                            <span
+                              v-if="key !== 'label' && key !== 'rules'"
+                              :key="'metadata-row-' + row + '-item-' + index + key +'-content'"
+                            >
+                              {{ item || '-' }}
+                            </span>
+                          </template>
                         </td>
                       </tr>
                     </tbody>
                   </table>
+
                   <span v-else>-</span>
                 </div>
               </div>
@@ -496,14 +505,14 @@
                 :form="forms.regularization" length="3000" label-required
               />
             </div>
-            <div v-if="!forms.regularization.regularized && forms.regularization.type == 'Cause'" class="col-12">
+            <div v-if="!forms.regularization.regularized && forms.regularization.type === 'Cause'" class="col-12">
               <NLTextarea
                 v-model="forms.regularization.reason" :name="'reason'" label="Cause"
                 :form="forms.regularization" length="1000" label-required
               />
             </div>
             <div
-              v-if="!forms.regularization.regularized && forms.regularization.type == 'Action à engagé'"
+              v-if="!forms.regularization.regularized && forms.regularization.type === 'Action à engagé'"
               class="col-12"
             >
               <NLTextarea
@@ -631,7 +640,7 @@ export default {
      */
     close (modal) {
       this.rowSelected = null
-      if (this.modals.hasOwnProperty(modal)) {
+      if (Object.prototype.hasOwnProperty.call(this.modals, modal)) {
         this.modals[modal] = false
       }
       this.forms.generic.reset()
@@ -698,15 +707,15 @@ export default {
      */
     setupFields (fields) {
       return fields?.map(field => {
-        const type = field.hasOwnProperty(0) ? field[0].type : ''
-        const label = field.hasOwnProperty(1) ? field[1].label : ''
-        const name = field.hasOwnProperty(2) ? field[2].name : ''
-        const length = field.hasOwnProperty(3) ? field[3].length : null
-        const style = field.hasOwnProperty(4) ? field[4].style : ''
-        const id = field.hasOwnProperty(5) ? field[5].id : ''
-        const placeholder = field.hasOwnProperty(6) ? field[6].placeholder : ''
-        const help_text = field.hasOwnProperty(7) ? field[7].help_text : ''
-        const rules = field.hasOwnProperty(8) ? field[8].rules : []
+        const type = Object.prototype.hasOwnProperty.call(field, 0) ? field[0].type : ''
+        const label = Object.prototype.hasOwnProperty.call(field, 1) ? field[1].label : ''
+        const name = Object.prototype.hasOwnProperty.call(field, 2) ? field[2].name : ''
+        const length = Object.prototype.hasOwnProperty.call(field, 3) ? field[3].length : null
+        const style = Object.prototype.hasOwnProperty.call(field, 4) ? field[4].style : ''
+        const id = Object.prototype.hasOwnProperty.call(field, 5) ? field[5].id : ''
+        const placeholder = Object.prototype.hasOwnProperty.call(field, 6) ? field[6].placeholder : ''
+        const help_text = Object.prototype.hasOwnProperty.call(field, 7) ? field[7].help_text : ''
+        const rules = Object.prototype.hasOwnProperty.call(field, 8) ? field[8].rules : []
         return { type, label, name, length, style, id, placeholder, help_text, rules }
       })
     },
@@ -741,7 +750,7 @@ export default {
             }
           }).catch(error => {
             let message = error.message
-            if (error.response.status == 422) {
+            if (error.response.status === 422) {
               message = 'Les données fournies sont invalides.'
             }
             this.$swal.toast_error(message)
@@ -765,7 +774,7 @@ export default {
         }
       }).catch(error => {
         let message = error.message
-        if (error.response.status == 422) {
+        if (error.response.status === 422) {
           message = 'Les données fournies sont invalides.'
         }
         this.$swal.toast_error(message)
@@ -812,7 +821,7 @@ export default {
     notify (detail) {
       this.$swal.confirm_update('Voulez-vous notifier les autorités concernées?').then(action => {
         if (action.isConfirmed) {
-          api.post('notifications/major-fact/' + detail?.id).then(response => {
+          this.$api.post('notifications/major-fact/' + detail?.id).then(response => {
             this.$swal.toast_success(response.data.message)
             this.initData()
             this.close('edit')

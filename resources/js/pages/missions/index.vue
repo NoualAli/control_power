@@ -221,8 +221,7 @@ export default {
       } else {
         missions = this.$store.dispatch('missions/fetchPaginated')
       }
-      missions.then((d) => { this.config.data = this.missions.paginated })
-      console.log(this.missions)
+      missions.then((d) => { this.config.data = this.missions.paginated; console.log(this.missions) })
     },
     /**
      * Initialise les filtres
@@ -237,10 +236,9 @@ export default {
     },
     show (item) {
       // yet to fix breadcrumbs
-      console.log(item)
-      const compaignCrumbs = this.$breadcrumbs.value[this.$breadcrumbs.value.length - 1]
-      console.log('show item ')
-      console.log(this.$breadcrumbs)
+      // const compaignCrumbs = this.$breadcrumbs.value[this.$breadcrumbs.value.length - 1]
+      // console.log('show item ')
+      // console.log(this.$breadcrumbs)
       // this.$router.push({ name: 'mission', params: { missionId: item.id, campaign : compaignCrumbs } })
       this.$router.push({ name: 'mission', params: { missionId: item.id } })
     },
