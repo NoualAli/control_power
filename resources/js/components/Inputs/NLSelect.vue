@@ -39,7 +39,7 @@ export default {
     options: { type: Array, required: true },
     helpText: { type: String, default: null }
   },
-  emits: ['update:modelValue'],
+  // emits: ['update:modelValue'],
   data () {
     return {
       selected: this.modelValue
@@ -50,8 +50,10 @@ export default {
       this.$emit('update:modelValue', newValue)
     },
     modelValue (newValue, oldValue) {
-      if (!newValue || newValue.length === 0) { this.$refs.treeselect.clear() }
-      if (newValue !== oldValue) {
+      if (!newValue || newValue.length === 0) {
+        this.$refs.treeselect.clear()
+      }
+      if (newValue && (newValue !== oldValue)) {
         this.selected = newValue
         // this.$refs.treeselect.select([newValue]
         // this.$refs.treeselect.addValue(newValue)
@@ -59,8 +61,12 @@ export default {
       }
     }
   },
+  created () {
+    console.log(this.modelValue)
+    // this.selected = this.modelValue
+  },
   updated () {
-    this.selected = this.modelValue
+    // this.selected = this.modelValue
   }
 
 }

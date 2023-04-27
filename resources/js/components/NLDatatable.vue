@@ -352,6 +352,7 @@ export default {
      * @param {Object} data
      */
     edit (data) {
+      console.log(data)
       this.$emit('edit', data)
     },
     /**

@@ -263,7 +263,7 @@
         Rapport de la mission
       </button>
 
-      <div v-has-role="'dg,cdrcp,da,cc'">
+      <div v-if="is(['dg','cdrcp','da','cc'])">
         <button v-if="mission?.current.cdcr_validation_at" class="btn btn-info" @click="showReport">
           Rapport de la mission
         </button>

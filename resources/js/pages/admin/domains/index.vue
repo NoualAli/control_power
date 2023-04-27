@@ -67,12 +67,6 @@ export default {
   metaInfo () {
     return { title: 'Domaines' }
   },
-  computed: {
-    ...mapGetters({
-      domains: 'domains/paginated',
-      domain: 'domains/current'
-    })
-  },
   data () {
     return {
       rowSelected: null,
@@ -107,6 +101,12 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapGetters({
+      domains: 'domains/paginated',
+      domain: 'domains/current'
+    })
+  },
   created () {
     this.initData()
   },
@@ -116,7 +116,7 @@ export default {
      * @param {Object} item
      */
     show (item) {
-      this.$store.dispatch('domains/fetch', { id: item.id }).then(() => this.rowSelected = this.domain.current)
+      this.$store.dispatch('domains/fetch', { id: item.id }).then(() => { this.rowSelected = this.domain.current })
     },
 
     /**
@@ -134,7 +134,7 @@ export default {
     destroy (item) {
       this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
-          api.delete('domains/' + item.id).then(response => {
+          this.$api.delete('domains/' + item.id).then(response => {
             if (response.data.status) {
               this.rowSelected = null
               this.initData()
@@ -145,6 +145,7 @@ export default {
           })
         }
       }).catch(error => {
+        console.error(error)
         this.$swal.alert_error()
       })
     },

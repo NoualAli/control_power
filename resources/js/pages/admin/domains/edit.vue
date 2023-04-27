@@ -30,6 +30,15 @@ import { mapGetters } from 'vuex'
 export default {
   layout: 'backend',
   middleware: ['auth', 'admin'],
+  data () {
+    return {
+      familliesList: [],
+      form: new Form({
+        name: null,
+        familly_id: null
+      })
+    }
+  },
   computed: {
     ...mapGetters({
       domain: 'domains/current',
@@ -42,17 +51,9 @@ export default {
     })
     this.$store.dispatch('domains/fetch', { id: this.$route.params.domain }).then(() => {
       const data = this.domain.current
+      console.log(data)
       this.form.fill(data)
     })
-  },
-  data () {
-    return {
-      familliesList: [],
-      form: new Form({
-        name: null,
-        familly_id: null
-      })
-    }
   },
   methods: {
     update () {
