@@ -554,11 +554,6 @@ export default {
       }
     }
   },
-  // breadcrumb () {
-  //   return {
-  //     label: 'Mission ' + this.mission?.current?.reference
-  //   }
-  // },
   computed: {
     ...mapGetters({
       mission: 'missions/current',
@@ -574,8 +569,6 @@ export default {
       handler (newValue, oldValue) {
         if (newValue) {
           this.forcedRerenderKey = newValue.current.id
-          const length = this.$breadcrumbs.value.length
-          this.$breadcrumbs.value[length - 1].label = 'Mission ' + newValue?.current?.reference
         }
       }
     }
@@ -729,9 +722,13 @@ export default {
     /**
      * Initialise les données
      */
+    // breadcrumb and avoiding the rerender can be achieved by using init data
     initData () {
       this.close()
-      this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId }).catch(error => this.$swal.alert_error(error))
+      this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId }).then(() => {
+        const length = this.$breadcrumbs.value.length
+        if (this.$breadcrumbs.value[length - 1].label === 'Mission') { this.$breadcrumbs.value[length - 1].label = 'Mission ' + this.mission?.current?.reference }
+      }).catch(error => this.$swal.alert_error(error))
       this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId, onlyProcesses: true }).then(() => {
         this.config.data = this.processes?.processes
       }).catch(error => this.$swal.alert_error(error))

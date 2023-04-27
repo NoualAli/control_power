@@ -149,11 +149,6 @@ export default {
   },
   layout: 'backend',
   middleware: ['auth'],
-  // breadcrumb () {
-  //   return {
-  //     label: 'Détails campagne ' + 'lalalala' + this.campaign?.current?.reference
-  //   }
-  // },
   data () {
     return {
       forcedRerenderKey: -1,
@@ -198,7 +193,6 @@ export default {
       handler (newValue, oldValue) {
         if (newValue) {
           this.forcedRerenderKey = newValue.current.id
-          this.$breadcrumbs.value[this.$breadcrumbs.value.length - 1].label = 'Détails campagne ' + newValue.current?.reference
         }
       }
     }
@@ -207,12 +201,19 @@ export default {
   created () {
     this.initData()
   },
-
+  mounted () {
+    this.initData()
+  },
   methods: {
     initData () {
       this.close()
       const campaignId = this.$route.params.campaignId
-      this.$store.dispatch('campaigns/fetch', { campaignId })
+      this.$store.dispatch('campaigns/fetch', { campaignId }).then(() => {
+        const length = this.$breadcrumbs.value.length
+        if (this.$breadcrumbs.value[length - 1].label === 'Détails campagne') {
+          this.$breadcrumbs.value[length - 1].label = 'Détails campagne ' + this.campaign.current?.reference
+        }
+      })
       this.$store.dispatch('campaigns/fetchProcesses', campaignId).then(() => { this.config.data = this.processes.processes })
     },
     loadControlPoints (process) {

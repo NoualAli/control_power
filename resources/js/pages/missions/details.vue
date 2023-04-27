@@ -199,7 +199,7 @@
                   <table v-if="rowSelected?.metadata">
                     <thead>
                       <tr>
-                        <th v-for="heading in currentMetadata.keys" :key="heading" class="text-left">
+                        <th v-for="heading in currentMetadata.keys" class="text-left">
                           {{ heading }}
                         </th>
                       </tr>
@@ -605,13 +605,10 @@ export default {
     },
     ...mapGetters({
       config: 'details/config'
+      // mission: 'missions/current'
     })
   },
-  breadcrumb () {
-    return {
-      label: this.process?.name
-    }
-  },
+
   created () {
     this.initData()
   },
@@ -650,12 +647,21 @@ export default {
      * Initialise les données
      */
     initData () {
+      const length = this.$breadcrumbs.value.length
+      // this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId }).then(() => {
+      // }).catch(error => this.$swal.alert_error(error))
       this.$store.dispatch('details/fetchConfig', { missionId: this.$route.params.missionId, processId: this.$route.params.processId }).then(() => {
         this.details = this.config.config.details
         this.mission = this.config.config.mission
         this.process = this.config.config.process
         this.modals.show = false
         this.modals.edit = false
+        if (this.$breadcrumbs.value[length - 3].label === 'Mission') { this.$breadcrumbs.value[length - 3].label = 'Mission ' + this.mission?.reference }
+        if (this.$breadcrumbs.value[length - 1].label === 'Détails de la mission') {
+          // this.$breadcrumbs.value[length - 3].label = ''
+          this.$breadcrumbs.value[length - 2].label = ''
+          this.$breadcrumbs.value[length - 1].label = this.mission?.reference + ' - ' + this.process?.name
+        }
       })
     },
     /**
@@ -668,6 +674,7 @@ export default {
     initGenericForm () {
       this.$store.dispatch('details/fetchConfig', { missionId: this.$route.params.missionId, processId: this.$route.params.processId, detailId: this.rowSelected?.id }).then(() => {
         const config = this.config.config
+        console.log(config)
         this.rowSelected = config.detail
         this.forms.generic.process_mode = config.mission.dre_report_is_validated
         this.forms.generic.mission = this.$route.params.missionId
@@ -706,6 +713,7 @@ export default {
      * @param {Array} fields
      */
     setupFields (fields) {
+      console.log(fields)
       return fields?.map(field => {
         const type = Object.prototype.hasOwnProperty.call(field, 0) ? field[0].type : ''
         const label = Object.prototype.hasOwnProperty.call(field, 1) ? field[1].label : ''

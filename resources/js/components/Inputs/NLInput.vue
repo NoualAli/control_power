@@ -8,7 +8,7 @@
         :id="id || name" :maxlength="length" :class="[{ 'is-danger': form?.errors.has(name) }, 'input', { 'is-for-auth': isForAuth }]" :type="finalType"
         :name="name" :autocomplete="autocomplete"
         :autofocus="autofocus" :placeholder="placeholder || label" :value="modelValue" :readonly="readonly"
-        v-bind="$attrs" @input="onInput"
+        v-bind="$attrs" @input="onInput" @keypresse="isNumber"
       >
 
       <div
@@ -53,8 +53,8 @@ export default {
     }
   },
   created () {
-    if (this.length && this.value) {
-      this.currentLength = this.value.length
+    if (this.length && this.modelValue) {
+      this.currentLength = this.modelValue.length
     }
     this.finalType = this.readonly ? 'text' : this.type
     this.isForAuth = window.location.pathname === '/login'
@@ -71,6 +71,7 @@ export default {
       this.currentLength = value.length
 
       if (this.type === 'number') {
+        console.log(value)
         value = this.sanitizeInput(value)
       }
 
@@ -100,6 +101,12 @@ export default {
         this.eyeIcon = 'las la-eye'
       }
     }
+  },
+  isNumber ($event) {
+    if (this.type !== 'number') return true
+    const charCode = ($event.which) ? $event.which : $event.keyCode
+    if ((!(charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 46)) return true
+    $event.preventDefault()
   }
 }
 </script>

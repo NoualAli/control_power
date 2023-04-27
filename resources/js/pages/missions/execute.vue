@@ -1,10 +1,12 @@
+<!-- eslint-disable eqeqeq -->
+<!-- eslint-disable eqeqeq -->
 <template>
   <ContentBody v-if="can('control_agency,create_dre_report,validate_dre_report')">
     <div class="container">
       <div class="grid">
         <div class="col-1" />
         <div class="col-11">
-          <h2>
+          <h2 v-if="process" :key="process">
             {{ process?.familly?.name }} / {{ process?.domain?.name }} / {{ process?.name }}
           </h2>
         </div>
@@ -71,7 +73,7 @@
                               />
 
                               <NLTextarea
-                                v-if="input.type === 'textarea'" :id="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name" v-model="form.rows[row].metadata[dataRow][index][input.name]"
+                                v-if="input.type == 'textarea'" :id="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name" v-model="form.rows[row].metadata[dataRow][index][input.name]"
                                 :form="form" :label="input.label"
                                 :placeholder="input.placeholder"
                                 :type="input.type"
@@ -80,7 +82,7 @@
                               />
 
                               <NLWyswyg
-                                v-if="input.type === 'wyswyg'" :id="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name" v-model="form.rows[row].metadata[dataRow][index][input.name]"
+                                v-if="input.type == 'wyswyg'" :id="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name" v-model="form.rows[row].metadata[dataRow][index][input.name]"
                                 :form="form" :label="input.label"
                                 :placeholder="input.placeholder"
                                 :type="input.type"
@@ -89,7 +91,7 @@
                               />
 
                               <NLSelect
-                                v-if="input.type === 'select'" :id="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name" v-model="form.rows[row].metadata[dataRow][index][input.name]"
+                                v-if="input.type == 'select'" :id="'rows.' + row + '.metadata.' + dataRow + '.' + index + '.' + input.name" v-model="form.rows[row].metadata[dataRow][index][input.name]"
                                 :form="form"
                                 :label="input.label"
                                 :type="input.type"
@@ -121,9 +123,9 @@
               <div class="col-12">
                 <NLTextarea
                   v-model="form.rows[row].report" :name="'rows.' + row + '.report'" label="Constat" :form="form"
-                  :placeholder="form.rows[row].score === 1 || form.rows[row].score === null && !form.rows[row].major_fact ? '' : 'Ajouter votre constat'"
+                  :placeholder="form.rows[row].score == 1 || form.rows[row].score == null && !form.rows[row].major_fact ? '' : 'Ajouter votre constat'"
                   :label-required="form.rows[row].score > 1 || form.rows[row].major_fact"
-                  :disabled="form.rows[row].score === 1 || form.rows[row].score === null && !form.rows[row].major_fact"
+                  :disabled="form.rows[row].score == 1 || form.rows[row].score == null && !form.rows[row].major_fact"
                 />
               </div>
               <!-- Recovery plan -->
@@ -131,9 +133,9 @@
                 <NLTextarea
                   v-model="form.rows[row].recovery_plan" :name="'rows.' + row + '.recovery_plan'" label="Plan de redressement"
                   :form="form"
-                  :placeholder="form.rows[row].score === 1 || form.rows[row].score === null && !form.rows[row].major_fact ? '' : 'Ajouter votre plan de redressement'"
+                  :placeholder="form.rows[row].score == 1 || form.rows[row].score == null && !form.rows[row].major_fact ? '' : 'Ajouter votre plan de redressement'"
                   :label-required="form.rows[row].score > 1 || form.rows[row].major_fact"
-                  :disabled="form.rows[row].score === 1 || form.rows[row].score === null && !form.rows[row].major_fact"
+                  :disabled="form.rows[row].score == 1 || form.rows[row].score == null && !form.rows[row].major_fact"
                 />
               </div>
             </div>
@@ -171,9 +173,7 @@ export default {
   },
   layout: 'backend',
   middleware: ['auth'],
-  metaInfo () {
-    return { title: 'Éxecution de la mission' }
-  },
+
   data () {
     return {
       details: [],
@@ -195,24 +195,34 @@ export default {
       config: 'details/config'
     })
   },
-  breadcrumb () {
-    return {
-      label: this.process?.name
-    }
-  },
   created () {
     this.initData()
+  },
+  mounted () {
+    // this.initData()
   },
   methods: {
     /**
      * Initialise les données
      */
     initData () {
+      const length = this.$breadcrumbs.value.length
+      // this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId }).then(() => {
+      // }).catch(error => this.$swal.alert_error(error))
       this.$store.dispatch('details/fetchConfig', { missionId: this.$route.params.missionId, processId: this.$route.params.processId }).then(() => {
         this.details = this.config.config.details
+        this.mission = this.config.config.mission
         this.process = this.config.config.process
-        this.initForm()
+        this.modals.show = false
+        this.modals.edit = false
+        if (this.$breadcrumbs.value[length - 3].label === 'Mission') { this.$breadcrumbs.value[length - 3].label = 'Mission ' + this.mission?.reference }
+        if (this.$breadcrumbs.value[length - 1].label === 'Exécution de la mission') {
+          // this.$breadcrumbs.value[length - 3].label = ''
+          this.$breadcrumbs.value[length - 2].label = ''
+          this.$breadcrumbs.value[length - 1].label = this.process?.name
+        }
       })
+      this.initForm()
     },
     /**
      * Initialise le formulaire
@@ -220,6 +230,7 @@ export default {
     initForm () {
       this.form.mission = this.$route.params.processId
       this.form.process = this.$route.params.processId
+      console.log(this.form)
       this.details.forEach(detail => {
         this.form.rows.push({
           media: detail.media.length ? detail.media.map(file => file.id) : [],
@@ -240,6 +251,8 @@ export default {
      * @param {Array} fields
      */
     setupFields (fields) {
+      console.log(fields)
+
       return fields?.map(field => {
         const type = Object.prototype.hasOwnProperty.call(field, 0) ? field[0].type : ''
         const label = Object.prototype.hasOwnProperty.call(field, 1) ? field[1].label : ''
@@ -259,7 +272,8 @@ export default {
      * @param {Array|null} scores
      */
     setupScores (scores) {
-      if (typeof scores === 'object') {
+      // eslint-disable-next-line eqeqeq
+      if (typeof scores == 'object') {
         return scores?.map(score => {
           return {
             id: score[0].score,
@@ -275,7 +289,8 @@ export default {
  * @param {Array|null} majorFactTypes
  */
     setupMajorFactTypes (majorFactTypes) {
-      if (typeof majorFactTypes === 'object') {
+      // eslint-disable-next-line eqeqeq
+      if (typeof majorFactTypes == 'object') {
         return majorFactTypes?.map(type => {
           return {
             id: type[0].type,
@@ -283,12 +298,14 @@ export default {
           }
         })
       }
+
       return []
     },
     /**
      * Création de la mission
      */
     create () {
+      console.log(this.form)
       this.form.post('/api/missions/details/' + this.$route.params.missionId).then(response => {
         if (response.data.status) {
           this.$swal.toast_success(response.data.message)
@@ -298,7 +315,7 @@ export default {
         }
       }).catch(error => {
         let message = error.message
-        if (error.response.status === 422) {
+        if (error.response.status == 422) {
           message = 'Les données fournies sont invalides.'
         }
         this.$swal.toast_error(message)
@@ -320,6 +337,7 @@ export default {
         defaultValue = element.multiple ? [] : ''
         schema.push({ [name]: defaultValue, label: element.label, rules: element.rules })
       }
+      console.log(schema)
       if (this.form.rows[row].metadata) this.form.rows[row].metadata.push(schema)
     },
     /**

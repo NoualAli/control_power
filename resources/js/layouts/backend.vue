@@ -9,7 +9,7 @@
           <div>
             <AmBreadcrumbs>
               <template #crumb="{ crumb }">
-                <template v-if="crumb.link !=='/' || crumb.current && crumb.link =='/' ">
+                <template v-if="(crumb.link !=='/' || (crumb.current && crumb.link =='/') ) && crumb.label!=='' ">
                   <router-link
                     v-if="!crumb.current"
                     class="am-breadcrumbs__link"
@@ -36,7 +36,8 @@
             </router-link>
           </div>
           <router-link
-            :to="{ name: 'notifications' }" class="notification-link has-icon"
+            :key="totalUnreadNotifications" :to="{ name: 'notifications' }"
+            class="notification-link has-icon"
             :class="{ 'notified': totalUnreadNotifications > 0 }"
           >
             <i class="las la-bell icon" :class="{ 'la-spin': totalUnreadNotifications > 0 }" />
@@ -89,14 +90,10 @@ export default {
           this.totalUnreadNotifications = this.notifications.unread.totalUnread
         })
       }
-    },
-    totalUnreadNotifications (newVal, oldVal) {
     }
   },
   methods: {
     toggleSidebar () {
-      // console.log(this)
-
       this.$store.dispatch('sidebar/toggleSidebar')
     }
   }

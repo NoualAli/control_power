@@ -146,6 +146,9 @@ export default {
   created () {
     this.initData()
   },
+  mounted () {
+    this.initData()
+  },
   methods: {
     /**
      * Initialise les données
@@ -161,8 +164,11 @@ export default {
         this.campaignsList = this.config.config.campaigns
         this.currentCampaign = this.config.config.currentCampaign
         this.currentCampaignReference = this.config.config.currentCampaign.reference
-        this.$breadcrumbs.value[this.$breadcrumbs.value.length - 1].lable = 'Répartition des missions de contrôle de la campagne ' + this.currentCampaignReference
-        this.$breadcrumbs.value[this.$breadcrumbs.value.length - 1].parent = 'campaign'
+        const length = this.$breadcrumbs.value.length
+        if (this.$breadcrumbs.value[length - 1].lable === 'Répartition des missions de contrôle de la campagne') {
+          this.$breadcrumbs.value[length - 1].lable = 'Répartition des missions de contrôle de la campagne ' + this.currentCampaignReference
+          this.$breadcrumbs.value[length - 1].parent = 'campaign'
+        }
       })
     },
     resetForm () {

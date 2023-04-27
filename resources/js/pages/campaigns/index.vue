@@ -38,9 +38,6 @@ export default {
   },
   layout: 'backend',
   middleware: ['auth'],
-  metaInfo () {
-    return { title: 'Suivi du planning annuel' }
-  },
   data () {
     return {
       rowSelected: null,

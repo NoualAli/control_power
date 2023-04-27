@@ -73,7 +73,6 @@ export default {
       handler (newValue, oldValue) {
         if (newValue) {
           this.forcedRerenderKey = newValue.current.id
-          this.$breadcrumbs.value[this.$breadcrumbs.value.length - 1].label = 'Détails campagne ' + newValue.current?.reference
         }
       }
     }
@@ -81,11 +80,16 @@ export default {
   created () {
     this.initData()
   },
+  mounted () {
+    this.initData()
+  },
   methods: {
     /**
      * Met à jour la campagne de contrôle
      */
     update () {
+      console.log(this.$route.params.campaignId)
+
       this.form.put('/api/campaigns/' + this.$route.params.campaignId).then(response => {
         if (response.data.status) {
           this.$swal.toast_success(response.data.message)
@@ -102,10 +106,12 @@ export default {
      */
     loadPFC () {
       this.$store.dispatch('famillies/fetchAll', { withChildren: true }).then(() => {
+        console.log(typeof this.famillies.all)
         this.pcfList = this.famillies.all
       })
     },
     initData () {
+      console.log(this.$route.params.campaignId)
       this.$store.dispatch('campaigns/fetch', { campaignId: this.$route.params.campaignId, edit: true }).then(() => {
         if (this.campaign.current.remaining_days_before_start <= 0) {
           this.$router.push({ name: 'campaigns' })
@@ -119,6 +125,10 @@ export default {
         this.form.start = this.campaign.current.start.split('-').reverse().join('-')
         this.form.end = this.campaign.current.end.split('-').reverse().join('-')
         this.form.pcf = this.campaign.current.processes.map((process) => process.id)
+        const length = this.$breadcrumbs.value.length
+        if (this.$breadcrumbs.value[length - 1].label === 'Détails campagne') {
+          this.$breadcrumbs.value[length - 1].label = 'Détails campagne ' + this.campaign.current?.reference
+        }
       }).catch(error => {
         this.$swal.alert_error(error)
       })

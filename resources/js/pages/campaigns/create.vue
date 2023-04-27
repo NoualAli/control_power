@@ -46,8 +46,6 @@
 import { mapGetters } from 'vuex'
 import { Form } from 'vform'
 import { hasRole } from '~/plugins/user'
-import * as swal from '~/plugins/swal.js'
-
 export default {
   layout: 'backend',
   middleware: ['auth'],

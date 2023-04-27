@@ -30,11 +30,9 @@ export default {
   },
   layout: 'backend',
   middleware: ['auth'],
-  metaInfo () {
-    return { title: 'Suivi des réalisations des missions' }
-  },
   data () {
     return {
+      // initiated: false,
       rowSelected: null,
       campaignId: null,
       config: {
@@ -183,7 +181,7 @@ export default {
           cols: 'col-lg-3',
           value: [],
           type: 'date-range',
-          cols: 'col-lg-6',
+          // cols: 'col-lg-6',
           attributes: {
             start: {
               cols: 'col-lg-6',
@@ -202,26 +200,41 @@ export default {
   },
   computed: mapGetters({
     missions: 'missions/paginated',
+    campaign: 'campaigns/current',
     filtersData: 'missions/filters'
   }),
   created () {
-    // this.campaignId = this.$route.params.campaignId
     this.initFilters()
     this.initData()
   },
+  // mounted () {
+  //   this.initFilters()
+  //   this.initData()
+  // },
+
   methods: {
     resetData () {
       // this.initFilters(false)
       this.initData()
     },
     initData () {
-      let missions = null
+      let mission = null
+      const length = this.$breadcrumbs.value.length
       if (this.$route.params.campaignId) {
-        missions = this.$store.dispatch('missions/fetchPaginated', this.$route.params.campaignId)
+        this.$store.dispatch('campaigns/fetch', { campaignId: this.$route.params.campaignId }).then((data) => {
+          if (this.$breadcrumbs.value[length - 2].label === 'Détails campagne') {
+            this.$breadcrumbs.value[length - 2].label = 'Détails campagne ' + data.reference
+          }
+        })
+        mission = this.$store.dispatch('missions/fetchPaginated', this.$route.params.campaignId)
       } else {
-        missions = this.$store.dispatch('missions/fetchPaginated')
+        mission = this.$store.dispatch('missions/fetchPaginated')
       }
-      missions.then((d) => { this.config.data = this.missions.paginated; console.log(this.missions) })
+
+      // this.$breadcrumbs.value[length - 1].label = 'Missions'
+      mission.then(() => {
+        this.config.data = this.missions.paginated
+      })
     },
     /**
      * Initialise les filtres
@@ -235,11 +248,6 @@ export default {
       })
     },
     show (item) {
-      // yet to fix breadcrumbs
-      // const compaignCrumbs = this.$breadcrumbs.value[this.$breadcrumbs.value.length - 1]
-      // console.log('show item ')
-      // console.log(this.$breadcrumbs)
-      // this.$router.push({ name: 'mission', params: { missionId: item.id, campaign : compaignCrumbs } })
       this.$router.push({ name: 'mission', params: { missionId: item.id } })
     },
     edit (item) {

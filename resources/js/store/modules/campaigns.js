@@ -90,7 +90,9 @@ export const actions = {
     try {
       const { data } = await api.get('campaigns/next-reference')
       commit('FETCH_NEXT_REFERENCE', { nextReference: data })
+      console.log(data)
     } catch (error) {
+      console.error(error)
     }
   },
   async filter ({ commit }, filters) {
