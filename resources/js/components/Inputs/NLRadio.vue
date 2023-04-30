@@ -2,8 +2,8 @@
   <div class="form-check">
     <label :class="{ 'radio-hidden': hideRadio }">
       <input
-        :id="id" class="input-checkable" type="radio" :checked="isChecked" :value="value" :name="name"
-        v-on="$listeners" @input="$emit('update', $event.target.value)"
+        :id="id" class="input-checkable" type="radio" :checked="isChecked" :value="modelValue" :name="name"
+        v-on="$listeners" @input="$emit('update:modelValue', $event.target.value)"
       >
       <div class="checkable is-radio" />
       {{ label }}
@@ -14,24 +14,20 @@
 <script>
 export default {
   name: 'NLRadio',
-  model: {
-    prop: 'checkedValue',
-    event: 'update'
-  },
   props: {
     form: { type: Object, required: false },
     name: { type: String, required: true },
     label: { type: String, required: true },
-    value: { type: [String, Number, Boolean], default: undefined },
+    modelValue: { type: [String, Number, Boolean], default: undefined },
     checkedValue: { type: String, default: '' },
     hideRadio: { type: Boolean, default: false }
   },
   computed: {
     isChecked () {
-      return this.checkedValue === this.value
+      return this.checkedValue === this.modelValue
     },
     id () {
-      return `${this.name}-${this.value}`
+      return `${this.name}-${this.modelValue}`
     }
   }
 }
