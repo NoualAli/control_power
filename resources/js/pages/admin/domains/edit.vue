@@ -46,12 +46,11 @@ export default {
     })
   },
   created () {
-    this.$store.dispatch('famillies/fetchAll').then(() => {
+    this.$store.dispatch('famillies/fetchAll', { withChildren: false }).then(() => {
       this.familliesList = this.famillies.all
     })
     this.$store.dispatch('domains/fetch', { id: this.$route.params.domain }).then(() => {
       const data = this.domain.current
-      console.log(data)
       this.form.fill(data)
     })
   },

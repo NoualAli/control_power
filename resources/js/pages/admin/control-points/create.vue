@@ -74,22 +74,6 @@ export default {
   },
   layout: 'backend',
   middleware: ['auth', 'admin'],
-  computed: {
-    ...mapGetters({
-      famillies: 'famillies/all',
-      familly: 'famillies/domains',
-      domain: 'domains/processes',
-      validationRules: 'settings/validationRules'
-    })
-  },
-  watch: {
-    'form.familly_id': function (newVal, oldVal) {
-      if (newVal !== oldVal) { this.loadDomains(newVal) }
-    },
-    'form.domain_id': function (newVal, oldVal) {
-      if (newVal !== oldVal) { this.loadProcesses(newVal) }
-    }
-  },
   data () {
     return {
       familliesList: [],
@@ -303,6 +287,22 @@ export default {
         major_fact_types: [],
         has_major_fact: false
       })
+    }
+  },
+  computed: {
+    ...mapGetters({
+      famillies: 'famillies/all',
+      familly: 'famillies/domains',
+      domain: 'domains/processes',
+      validationRules: 'settings/validationRules'
+    })
+  },
+  watch: {
+    'form.familly_id': function (newVal, oldVal) {
+      if (newVal !== oldVal) { this.loadDomains(newVal) }
+    },
+    'form.domain_id': function (newVal, oldVal) {
+      if (newVal !== oldVal) { this.loadProcesses(newVal) }
     }
   },
   created () {

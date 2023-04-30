@@ -1,7 +1,7 @@
 <template>
   <DefaultContainer
-    :id="id || name" :form="form" :label="label" :name="name" :label-required="labelRequired"
-    :help-text="helpText"
+    :id="id || name" :form="form" :label="label"
+    :name="name" :label-required="labelRequired" :help-text="helpText"
   >
     <!-- <treeselect
       v-model="selected" :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" :value="modelValue"
@@ -10,7 +10,7 @@
     /> -->
 
     <treeselect
-      v-bind="$attrs" ref="treeselect"
+      v-bind="$attrs" :key=" forcedKey " ref="treeselect"
       v-model="selected" :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" :value="modelValue" :name="name" :multiple="multiple"
       :options="options" :placeholder="placeholder" :loading-text="loadingText" :no-options-text="noOptionsText" search-nested
     />
@@ -42,31 +42,30 @@ export default {
   // emits: ['update:modelValue'],
   data () {
     return {
+      forcedKey: false,
       selected: this.modelValue
     }
   },
   watch: {
     selected (newValue, oldValue) {
+      // console.log('here in selected')
       this.$emit('update:modelValue', newValue)
     },
     modelValue (newValue, oldValue) {
       if (!newValue || newValue.length === 0) {
+        // console.log('here inside')
         this.$refs.treeselect.clear()
       }
       if (newValue && (newValue !== oldValue)) {
         this.selected = newValue
-        // this.$refs.treeselect.select([newValue]
-        // this.$refs.treeselect.addValue(newValue)
-        // console.log()
+        this.forcedKey = true
       }
     }
   },
-  created () {
-    console.log(this.modelValue)
-    // this.selected = this.modelValue
-  },
-  updated () {
-    // this.selected = this.modelValue
+  methods: {
+    justRandomFunction ($event) {
+      console.log($event)
+    }
   }
 
 }

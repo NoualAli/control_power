@@ -31,11 +31,6 @@ import { mapGetters } from 'vuex'
 export default {
   layout: 'backend',
   middleware: ['auth', 'admin'],
-  computed: {
-    ...mapGetters({
-      famillies: 'famillies/all'
-    })
-  },
   data () {
     return {
       familliesList: [],
@@ -45,8 +40,13 @@ export default {
       })
     }
   },
+  computed: {
+    ...mapGetters({
+      famillies: 'famillies/all'
+    })
+  },
   created () {
-    this.$store.dispatch('famillies/fetchAll').then(() => {
+    this.$store.dispatch('famillies/fetchAll', { withChildren: false }).then(() => {
       this.familliesList = this.famillies.all
     })
   },
