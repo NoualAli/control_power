@@ -29,10 +29,11 @@
         <div class="actions-side">
           <div class="user-profile">
             <div class="avatar">
-              <img :src="user?.avatar" alt="">
+              <img v-if="user?.avatar" :src="user?.avatar">
+              <i v-else class="las la-user icon" />
             </div>
             <router-link :to="{ name: 'profile' }" class="username text-bold">
-              {{ user?.username }}
+              {{ user?.abbreviated_name }}
             </router-link>
           </div>
           <router-link

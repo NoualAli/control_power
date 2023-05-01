@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div v-if="can('create_control_point')">
     <ContentHeader title="Ajouter une nouveau point de contrôle" />
@@ -322,7 +323,7 @@ export default {
      * Récupère la liste des familles
      */
     loadFamillies () {
-      this.$store.dispatch('famillies/fetchAll', { withChildren: false }).then(() => {
+      this.$store.dispatch('famillies/fetchAll', false).then(() => {
         this.familliesList = this.famillies.all
       })
     },
@@ -368,8 +369,16 @@ export default {
       this.form.post('/api/control-points').then(response => {
         if (response.data.status) {
           this.$swal.toast_success(response.data.message)
-          this.form.reset()
-          this.initData()
+          // this.form.reset()
+          // this.initData()
+          this.form.name = null
+          // this.form.familly_id = null
+          // this.form.domain_id = null
+          // this.form.process_id = null
+          this.form.scores = []
+          this.form.fields = []
+          this.form.major_fact_types = []
+          this.form.has_major_fact = false
         } else {
           this.$swal.alert_error(response.data.message)
         }

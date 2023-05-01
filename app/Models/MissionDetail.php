@@ -56,6 +56,11 @@ class MissionDetail extends Model
     /**
      * Getters
      */
+    public function getIsRegularizedAttribute()
+    {
+        return $this->regularization?->regularized_at ? 'Levée' : 'Non levée';
+        // return $query->whereHas('regularization', fn ($regularization) => $regularization->whereNotNull('regularized_at'));
+    }
     public function getExecutedAtAttribute($executed_at)
     {
         return $executed_at ? Carbon::parse($executed_at)->format('d-m-Y H:i') : '-';
@@ -272,6 +277,6 @@ class MissionDetail extends Model
 
     public function scopeOnlyRegularized($query)
     {
-        return $query->whereNotNull('regularization_id');
+        return $query->whereHas('regularization', fn ($regularization) => $regularization->whereNotNull('regularized_at'));
     }
 }

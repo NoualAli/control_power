@@ -19,7 +19,6 @@
 import store from '~/store'
 
 export default async (to, from, next) => {
-  // alert("alert check")
   if (!store.getters['auth/check'] && store.getters['auth/token']) {
     try {
       // alert('alert check fetch user')

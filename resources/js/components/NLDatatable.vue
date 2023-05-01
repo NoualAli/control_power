@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
   <div class="my-6">
     <div class="table-header grid my-6">
@@ -55,7 +56,7 @@
       </div>
     </div>
     <div class="table-container">
-      <table v-if="configLocal.data?.meta?.total">
+      <table>
         <thead>
           <tr>
             <!-- v-if becomes filter  -->
@@ -77,7 +78,7 @@
             </th>
           </tr>
         </thead>
-        <tbody :class="{ 'is-busy': isBusy }">
+        <tbody v-if="configLocal.data?.meta?.total" :class="{ 'is-busy': isBusy }">
           <tr v-for="item in configLocal.data?.data" :key="item[rowKey]">
             <!-- v-if becomes filter  -->
             <td
@@ -119,10 +120,17 @@
             </td>
           </tr>
         </tbody>
+        <tbody v-else>
+          <tr>
+            <td :colspan="config?.columns.length + 1" class="text-bold text-center p-2">
+              {{ noDataText }}
+            </td>
+          </tr>
+        </tbody>
       </table>
-      <div v-else class="no-data my-6">
+      <!-- <div class="no-data my-6" v-else>
         <NoData />
-      </div>
+      </div> -->
     </div>
     <div class="pagination my-6 grid">
       <div v-if="configLocal?.data?.data?.length" class="col-12 col-lg-2 d-flex align-center justify-center">
@@ -177,13 +185,13 @@
 </template>
 
 <script>
-import NoData from './NoData'
+// import NoData from './NoData'
 // import { saveAs } from 'file-saver';
 export default {
   name: 'NLDatatable',
-  components: {
-    NoData
-  },
+  // components: {
+  //   NoData
+  // },
   props: {
     title: { type: [String, null], default: null },
     searchable: { type: Boolean, default: true },
@@ -193,7 +201,8 @@ export default {
     config: { type: [Object, null], required: true, defaul: { data: {}, columns: [] } },
     filters: { type: [Object, null], default: null },
     filtersQueryKey: { type: [String, null], default: 'onlyFiltersData' },
-    exportable: { type: Boolean, default: true }
+    exportable: { type: Boolean, default: true },
+    noDataText: { type: String, default: "Aucune donnée n'a encore été ajoutée" }
   },
   emits: ['delete', 'show', 'edit', 'searchDone', 'sortDone', 'dataUpdated', 'perPageUpdated', 'filterReset'],
   data () {

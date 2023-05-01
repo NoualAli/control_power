@@ -24,7 +24,7 @@ class NotificationController extends Controller
             if (request()->has('order')) {
                 $notifications = $notifications->orderByMultiple(request()->order);
             } else {
-                $notifications = $notifications->orderBy('read_at', 'DESC')->orderBy('created_at', 'DESC');
+                $notifications = $notifications->orderBy('read_at', 'DESC');
             }
 
             $search = request()->has('search') && !empty(request()->search) ? request()->search : false;

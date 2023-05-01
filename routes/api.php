@@ -141,6 +141,7 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::post('/', 'store');
         Route::get('/', 'index');
         Route::get('/{mission}', 'show');
+        Route::get('/{mission}/export', 'export');
         Route::put('{mission}', 'update');
         Route::put('{mission}/assign', 'assignToCC');
         Route::get('/concerns/config', 'config');
@@ -237,6 +238,6 @@ Route::group(['middleware' => 'auth:api'], function () {
 Route::group(['middleware' => 'guest:api'], function () {
     Route::post('login', [LoginController::class, 'login']);
 
-    Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail']);
-    Route::post('password/reset', [ResetPasswordController::class, 'reset']);
+    // Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+    // Route::post('password/reset', [ResetPasswordController::class, 'reset']);
 });

@@ -48,7 +48,8 @@ export default {
           },
           {
             label: 'Dre',
-            field: 'dre'
+            field: 'dre',
+            hide: hasRole(['cdc', 'ci'])
           },
           {
             label: 'Agence',
@@ -56,7 +57,8 @@ export default {
           },
           {
             label: 'Contrôle sur place par',
-            field: 'agency_controllers_str'
+            field: 'agency_controllers_str',
+            hide: hasRole(['ci'])
           },
           {
             label: 'Date début',
@@ -69,19 +71,30 @@ export default {
           {
             label: 'Moyenne',
             field: 'avg_score',
-            hide: !hasRole(['dcp', 'cdcr', 'cc']),
+            hide: hasRole(['cdc', 'ci']),
+            isHtml: true,
             methods: {
-              style: (item) => {
-                const score = item.avg_score
-                if (score === 1) {
-                  return 'bg-success text-white text-bold'
-                } else if (score === 2) {
-                  return 'bg-info text-white text-bold'
-                } else if (score === 3) {
-                  return 'bg-warning text-bold'
-                } else {
-                  return 'bg-danger text-white text-bold'
+              showField (item) {
+                let score = item.avg_score
+                // weird fake?
+                if (item.agency === '633 - AP BIRKHADEM') {
+                  score = 1
                 }
+                let style = 'text-dark text-bold'
+                if (score === 1) {
+                  style = 'bg-success text-white text-bold'
+                } else if (score === 2) {
+                  style = 'bg-info text-white text-bold'
+                } else if (score === 3) {
+                  style = 'bg-warning text-bold'
+                } else if (score === 4) {
+                  style = 'bg-danger text-white text-bold'
+                } else {
+                  style = 'bg-grey text-dark text-bold'
+                }
+                return `<div class="container">
+                  <div class="has-border-radius py-1 text-center ${style}">${score}</div>
+                </div>`
               }
             }
           },
@@ -91,19 +104,23 @@ export default {
             isHtml: true,
             methods: {
               showField (item) {
-                let state = 'inProgress'
-                if (item.state === 'EN COURS') {
+                let state = 'done'
+                if (item.state === 'En cours') {
                   state = 'inProgress'
-                } else if (item.state === 'À RÉALISER') {
+                } else if (item.state === 'À réaliser') {
                   state = 'todo'
-                } else if (item.state === 'RÉALISÉ') {
+                } else if (item.state === 'Réliser') {
                   state = 'done'
-                } else if (item.state === 'EN RETARD') {
+                } else if (item.state === 'En retard') {
                   state = 'late'
                 } else if (item.state === 'Validé et envoyé') {
                   state = 'validated'
                 } else if (item.state === 'En attente de validation') {
-                  state = 'wating-validation'
+                  state = 'pending-validation'
+                } else if (item.state === '1ère validation') {
+                  state = 'first-validation'
+                } else if (item.state === '2ème validation') {
+                  state = 'second-validation'
                 }
                 return `<div class="container" title="${item.state}">
                   <div class="mission-state ${state}"></div>
@@ -138,7 +155,15 @@ export default {
         ],
         actions: {
           show: (item) => {
-            return this.can('view_mission')
+            if (hasRole(['cdc', 'ci'])) {
+              return this.can('view_mission')
+            } else if (hasRole(['dcp', 'cdcr'])) {
+              return this.can('view_mission') && item.progress_status == 100 && item?.dre_report?.is_validated
+            } else if (hasRole(['da', 'dg', 'cdrcp', 'ig', 'der'])) {
+              return this.can('view_mission') && item.progress_status == 100 && item?.dcp_validation_at
+            } else {
+              return this.can('view_mission') && item.progress_status == 100
+            }
           },
           edit: (item) => {
             return this.can('edit_mission') && item.remaining_days_before_start > 5
@@ -161,7 +186,8 @@ export default {
           cols: 'col-lg-3',
           multiple: true,
           data: null,
-          value: null
+          value: null,
+          hide: hasRole(['cdc', 'ci'])
         },
         agency: {
           label: 'Agence',
@@ -175,7 +201,8 @@ export default {
           cols: 'col-lg-3',
           multiple: true,
           data: null,
-          value: null
+          value: null,
+          hide: hasRole(['ci'])
         },
         between: {
           cols: 'col-lg-3',

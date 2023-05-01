@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div v-if="can('edit_control_point')">
     <ContentBody>
@@ -69,26 +70,6 @@ import { mapGetters } from 'vuex'
 export default {
   layout: 'backend',
   middleware: ['auth', 'admin'],
-  computed: {
-    ...mapGetters({
-      familly: 'famillies/domains',
-      domain: 'domains/processes',
-      famillies: 'famillies/all',
-      controlPoint: 'controlPoints/current',
-      validationRules: 'settings/validationRules'
-    })
-  },
-  watch: {
-    'form.familly_id': function (newVal, oldVal) {
-      if (newVal !== oldVal) { this.loadDomains(newVal) }
-    },
-    'form.domain_id': function (newVal, oldVal) {
-      if (newVal !== oldVal) { this.loadProcesses(newVal) }
-    }
-  },
-  created () {
-    this.initData()
-  },
   data () {
     return {
       familliesList: [],
@@ -311,6 +292,27 @@ export default {
       })
     }
   },
+  computed: {
+    ...mapGetters({
+      familly: 'famillies/domains',
+      domain: 'domains/processes',
+      famillies: 'famillies/all',
+      controlPoint: 'controlPoints/current',
+      validationRules: 'settings/validationRules'
+    })
+  },
+  watch: {
+    'form.familly_id': function (newVal, oldVal) {
+      if (newVal !== oldVal) { this.loadDomains(newVal) }
+    },
+    'form.domain_id': function (newVal, oldVal) {
+      if (newVal !== oldVal) { this.loadProcesses(newVal) }
+    }
+  },
+  created () {
+    this.initData()
+  },
+
   methods: {
     initData () {
       this.$store.dispatch('controlPoints/fetch', this.$route.params.controlPoint).then(() => {
@@ -330,7 +332,7 @@ export default {
  * Récupère la liste des familles
  */
     loadFamillies () {
-      this.$store.dispatch('famillies/fetchAll', { withChildren: false }).then(() => {
+      this.$store.dispatch('famillies/fetchAll', false).then(() => {
         this.familliesList = this.famillies.all
         this.loadDomains(this.form.familly_id)
         this.loadProcesses(this.form.domain_id)

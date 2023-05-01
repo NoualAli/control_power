@@ -114,7 +114,7 @@ class ControlCampaignController extends Controller
                 foreach ($processes as $process) {
                     $campaign->processes()->attach($process);
                 }
-                if ($campaign->validation_by_id) {
+                if ($campaign->validated_by_id) {
                     $roles = ['cdc', 'dg', 'cdrcp', 'der', 'dre', 'ig', 'cdcr'];
                     $users = User::whereRoles($roles)->get();
                     foreach ($users as $user) {

@@ -46,7 +46,7 @@ export default {
     })
   },
   created () {
-    this.$store.dispatch('famillies/fetchAll', { withChildren: false }).then(() => {
+    this.$store.dispatch('famillies/fetchAll', false).then(() => {
       this.familliesList = this.famillies.all
     })
   },

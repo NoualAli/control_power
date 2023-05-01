@@ -22,13 +22,15 @@ class MissionResource extends JsonResource
             'reference' => $this->reference,
             'dre' => $this->dre->full_name,
             'agency' => $this->agency->full_name,
-            'state' => $this->states()->latest()->first()->state,
+            'state' => $this->realisation_state,
             'end' => $this->end,
             'start' => $this->start,
             'agency_controllers_str' => $this->agency_controllers_str,
             'remaining_days_before_start' => $this->remaining_days_before_start,
             'progress_status' => $this->progress_status,
-            'avg_score' => $this->avg_score
+            'avg_score' => $this->avg_score,
+            'dcp_validation_at' => $this->dcp_validation_at,
+            'dre_report' => $this->dre_report,
         ];
     }
 }

@@ -24,8 +24,8 @@
         <!-- Agencies -->
         <div class="col-12 col-lg-6">
           <NLSelect
-            v-model="form.agencies" name="agencies" label="Agences"
-            placeholder="Veuillez choisir une ou plusieurs agences" :options="agenciesList" :form="form" label-required :multiple="true"
+            v-model="form.agency" name="agency" label="Agence" placeholder="Veuillez choisir une agence"
+            :options="agenciesList" :form="form" label-required
           />
         </div>
 
@@ -117,7 +117,7 @@ export default {
         note: null,
         start: null,
         end: null,
-        agencies: null,
+        agency: null,
         controllers: null,
         control_campaign_id: null
       }),
@@ -175,7 +175,7 @@ export default {
       this.form.note = null
       this.form.start = null
       this.form.end = null
-      this.form.agencies = null
+      this.form.agency = null
       this.form.controllers = null
     },
     /**

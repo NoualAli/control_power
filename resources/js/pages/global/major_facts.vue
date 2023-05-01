@@ -351,8 +351,8 @@ export default {
           label: 'Cause'
         },
         {
-          id: 'Action à engagé',
-          label: 'Action à engagé'
+          id: 'Action à engagée',
+          label: 'Action à engagée'
         }
       ],
       tableConfig: {
@@ -368,7 +368,8 @@ export default {
           },
           {
             label: 'DRE',
-            field: 'dre_full_name'
+            field: 'dre_full_name',
+            hide: hasRole(['cdc', 'ci'])
           },
           {
             label: 'Agence',
@@ -391,26 +392,31 @@ export default {
             field: 'control_point_name'
           },
           {
-            label: 'Fait majeur',
-            field: 'major_fact_str',
-            isHtml: true,
-            methods: {
-              showField (item) {
-                return `
-                <div class="text-center">
-                  ${item.major_fact_str}
-                </div>
-                `
-              }
-            }
-          },
-          {
             label: 'Notation',
             field: 'score',
             hide: !hasRole(['dcp', 'cdcr', 'cc']),
+            isHtml: true,
             methods: {
               style () {
                 return 'text-center'
+              },
+              showField (item) {
+                const score = item.score
+                let style = 'text-dark text-bold'
+                if (score === 1) {
+                  style = 'bg-success text-white text-bold'
+                } else if (score === 2) {
+                  style = 'bg-info text-white text-bold'
+                } else if (score === 3) {
+                  style = 'bg-warning text-bold'
+                } else if (score === 4) {
+                  style = 'bg-danger text-white text-bold'
+                } else {
+                  style = 'bg-grey text-dark text-bold'
+                }
+                return `<div class="container">
+                  <div class="has-border-radius py-1 text-center ${style}">${score}</div>
+                </div>`
               }
             }
           }
@@ -420,15 +426,6 @@ export default {
         }
       },
       forms: {
-        // regularization: new Form({
-        //   regularization_id: null,
-        //   detail_id: null,
-        //   regularized: false,
-        //   reason: null,
-        //   committed_action: null,
-        //   action_to_be_taken: null,
-        //   type: null
-        // }),
         detail: new Form({
           process_mode: false,
           mission: null,
@@ -485,22 +482,6 @@ export default {
           data: null,
           value: null
         },
-        is_regularized: {
-          label: 'Régularisation',
-          multiple: false,
-          value: null,
-          hide: !hasRole(['dcp', 'cdcr']),
-          data: [
-            {
-              id: 0,
-              label: 'Non levé'
-            },
-            {
-              id: 1,
-              label: 'Levé'
-            }
-          ]
-        },
         score: {
           label: 'Notation',
           multiple: true,
@@ -520,20 +501,6 @@ export default {
             {
               id: 4,
               label: 4
-            }
-          ],
-          value: null
-        },
-        major_fact: {
-          label: 'Fait majeur',
-          data: [
-            {
-              id: 0,
-              label: 'Non'
-            },
-            {
-              id: 1,
-              label: 'Oui'
             }
           ],
           value: null

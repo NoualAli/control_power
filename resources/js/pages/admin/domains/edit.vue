@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div v-if="can('edit_domain')">
     <ContentBody>
@@ -46,7 +47,7 @@ export default {
     })
   },
   created () {
-    this.$store.dispatch('famillies/fetchAll', { withChildren: false }).then(() => {
+    this.$store.dispatch('famillies/fetchAll', false).then(() => {
       this.familliesList = this.famillies.all
     })
     this.$store.dispatch('domains/fetch', { id: this.$route.params.domain }).then(() => {

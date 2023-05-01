@@ -16,6 +16,7 @@ class DataController extends Controller
     {
         $missionsAnomalies = $this->missionsAnomalies();
         $campaignsAnomalies = $this->campaignsAnomalies();
+        // dd($campaignsAnomalies);
         $familiesAnomalies = $this->familiesAnomalies();
         $domainsAnomalies = $this->domainsAnomalies();
         $dresAnomalies = $this->dresAnomalies();
@@ -113,11 +114,11 @@ class DataController extends Controller
      */
     private function missionsState(): array
     {
-        $missions = hasRole(['dcp', 'cdcr']) ? Mission::all() : $this->getMissions()->get();
+        $missions = hasRole(['dcp', 'cdcr', 'dg']) ? Mission::all() : $this->getMissions()->get();
         $active = (clone $missions)->filter(fn ($mission) => $mission->realisation_state == 'En cours')->count();
         $todo = (clone $missions)->filter(fn ($mission) => $mission->realisation_state == 'À réaliser')->count();
         $delay = (clone $missions)->filter(fn ($mission) => $mission->realisation_state == 'En retard')->count();
-        $done = (clone $missions)->filter(fn ($mission) => $mission->realisation_state == 'Réaliser' || $mission->realisation_state == 'Validé et envoyé' || $mission->realisation_state == '2ème validation' || $mission->realisation_state == '1ère validation')->count();
+        $done = (clone $missions)->filter(fn ($mission) =>  $mission->realisation_state == 'Validé et envoyé' || $mission->realisation_state == '2ème validation' || $mission->realisation_state == '1ère validation')->count();
         return compact('delay', 'active', 'todo', 'done');
     }
 
@@ -128,7 +129,14 @@ class DataController extends Controller
      */
     private function globalScores(): array
     {
-        $details = $this->getDetails()->whereNotNull('score')->groupBy('score')->selectRaw('score, COUNT(*) as scores_count')->get()->pluck('scores_count', 'score');
+        $details = $this->getDetails()->whereNotNull('score')->groupBy('score');
+        if (hasRole(['cc', 'ci'])) {
+            $details = $details->groupBy('user_id');
+        }
+        if (hasRole(['cdc'])) {
+            $details = $details->groupBy('created_by_id');
+        }
+        $details = $details->selectRaw('score, COUNT(*) as scores_count')->get()->pluck('scores_count', 'score');
         $labels = $details->keys();
         extract($this->defaultColors());
         $datasets = [
@@ -233,7 +241,6 @@ class DataController extends Controller
      */
     private function dresClassificationByAchievementRate(): array
     {
-        // $dres = Dre::with('missions')->whereHas('missions')->get();
         $missions = $this->getMissions()->with('dre')->get()->groupBy('dre.name');
         $achievments = [];
         foreach ($missions as $dre => $missions) {
@@ -243,15 +250,9 @@ class DataController extends Controller
             $rate = $total ? number_format(($totalAchieved * 100) / $total, 2) : 0;
             array_push($achievments, ['dre' => $dre->full_name, 'total' => $total, 'totalAchieved' => $totalAchieved, 'rate' => $rate]);
         }
-        // foreach ($dres as $dre) {
-        //     $totalAchieved = $dre->missions()->validated()->count();
-        //     $total = $dre->missions()->count();
-        //     $rate = $total ? number_format(($totalAchieved * 100) / $total, 2) : 0;
-        //     array_push($achievments, ['dre' => $dre->full_name, 'total' => $total, 'totalAchieved' => $totalAchieved, 'rate' => $rate]);
-        // }
-        // usort($achievments, function ($a, $b) {
-        //     return $b['rate'] - $a['rate'];
-        // });
+        usort($achievments, function ($a, $b) {
+            return $b['rate'] <=> $a['rate'];
+        });
 
         return $achievments;
     }
@@ -263,7 +264,7 @@ class DataController extends Controller
      */
     private function missionsPercentage(): array
     {
-        $missions = hasRole(['dcp', 'cdcr']) ? new Mission : $this->getMissions();
+        $missions = hasRole(['dcp', 'cdcr', 'dg']) ? new Mission : $this->getMissions();
         $total = $missions->executed()->count();
         $validated = $missions->validated()->count();
         $notValidated = ($total - $validated);
@@ -614,8 +615,9 @@ class DataController extends Controller
     private function getCampaigns()
     {
         $campaigns = new ControlCampaign;
-        $campaigns = hasRole(['ci', 'cc']) ? auth()->user()->campaigns() : $campaigns->validated();
-        return $campaigns->select('reference');
+        // $campaigns = hasRole(['ci', 'cc']) ? auth()->user()->campaigns() : $campaigns->validated();
+        $campaigns = $campaigns->validated();
+        return $campaigns;
     }
 
     /**
@@ -627,13 +629,16 @@ class DataController extends Controller
     {
         $user = auth()->user();
         $details = MissionDetail::whereNotNull('score');
-        if (hasRole('dcp')) {
-            $details = $details->hasCdcrValidation();
-        } elseif (hasRole('cdcr')) {
-            $details = $details->dreReportValidated();
-        } elseif (hasRole(['cdc', 'cc', 'ci'])) {
+        if (hasRole(['dcp', 'dg', 'cdcr'])) {
+            $details = $details;
+            // $details = $details->hasCdcrValidation();
+        }
+        // elseif (hasRole('cdcr')) {
+        //     $details = $details->dreReportValidated();
+        // }
+        elseif (hasRole(['cdc', 'cc', 'ci'])) {
             $details = $user->details();
-        } elseif (hasRole(['dg', 'cdrcp', 'der'])) {
+        } elseif (hasRole(['cdrcp', 'der'])) {
             $details = $details->hasDcpValidation();
         } elseif (hasRole('dre')) {
             $details = auth()->user()->details()->hasDcpValidation();
@@ -652,13 +657,13 @@ class DataController extends Controller
     {
         $missions = new Mission;
         $user = auth()->user();
-        if (hasRole(['dcp', 'cdcr'])) {
-            $missions = $missions->validated();
+        if (hasRole(['dcp', 'cdcr', 'dg'])) {
+            $missions = $missions;
         } elseif (hasRole(['cdc', 'cc', 'ci'])) {
             $missions = $user->missions();
         } elseif (hasRole(['da', 'dre'])) {
             $missions = $user->missions()->hasDcpValidation();
-        } elseif (hasRole(['dg', 'cdrcp', 'der'])) {
+        } elseif (hasRole(['cdrcp', 'der'])) {
             $missions = $missions->hasDcpValidation();
         }
         return $missions;

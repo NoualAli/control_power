@@ -38,6 +38,7 @@ class MissionDetailResource extends JsonResource
             'metadata' => $this->metadata,
             'media' => $this->media,
             'regularization' => $this->regularization,
+            'is_regularized' => $this->is_regularized,
             'mission_dcp_validation' => $this->mission->dcp_validation_at,
         ];
     }
