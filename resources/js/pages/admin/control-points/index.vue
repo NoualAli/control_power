@@ -1,3 +1,5 @@
+<!-- eslint-disable vue/multi-word-component-names -->
+<!-- eslint-disable vue/no-v-html -->
 <template>
   <div v-if="can('view_control_point')">
     <ContentHeader>
@@ -9,8 +11,8 @@
     </ContentHeader>
     <ContentBody>
       <NLDatatable
-        :config="config" namespace="controlPoints" title="Liste des Points de contrôle" @show="show" @delete="destroy"
-        @edit="edit"
+        :config="config" namespace="controlPoints" title="Liste des Points de contrôle" :filters="filtersData" @show="show"
+        @delete="destroy" @edit="edit" @filterReset="filterReset"
       />
       <NLModal :show="rowSelected" @close="rowSelected = null">
         <template #title>
@@ -140,12 +142,6 @@ export default {
   metaInfo () {
     return { title: 'Points de contrôle' }
   },
-  computed: {
-    ...mapGetters({
-      controlPoints: 'controlPoints/paginated',
-      controlPoint: 'controlPoints/current'
-    })
-  },
   data () {
     return {
       rowSelected: null,
@@ -180,10 +176,42 @@ export default {
             return this.can('delete_control_point')
           }
         }
+      },
+      filtersData: {
+        families: {
+          label: 'Famille',
+          cols: 'col-lg-3',
+          multiple: true,
+          data: null,
+          value: null
+        },
+        domains: {
+          label: 'Domaine',
+          cols: 'col-lg-3',
+          multiple: true,
+          data: null,
+          value: null
+        },
+        processes: {
+          label: 'Processus',
+          cols: 'col-lg-3',
+          multiple: true,
+          data: null,
+          value: null
+        }
       }
     }
   },
+  computed: {
+    ...mapGetters({
+      controlPoints: 'controlPoints/paginated',
+      filters: 'references/filters',
+      controlPoint: 'controlPoints/current'
+    })
+  },
+
   created () {
+    this.initFilters()
     this.initData()
   },
   methods: {
@@ -194,7 +222,6 @@ export default {
     show (item) {
       this.$store.dispatch('controlPoints/fetch', item.id).then(() => {
         this.rowSelected = this.controlPoint.current
-        // this.rowSelected.fields = this.rowSelected.fields ? JSON.parse(this.rowSelected.fields) : null
       })
     },
 
@@ -213,7 +240,7 @@ export default {
     destroy (item) {
       this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
-          api.delete('control-points/' + item.id).then(response => {
+          this.$api.delete('control-points/' + item.id).then(response => {
             if (response.data.status) {
               this.rowSelected = null
               this.initData()
@@ -228,12 +255,30 @@ export default {
       })
     },
 
+    filterReset () {
+      this.filtersData = {
+        families: null,
+        domains: null,
+        processes: null
+      }
+      this.initData()
+    },
+
     /**
      * Initialise les données
      */
     initData () {
       this.$store.dispatch('controlPoints/fetchPaginated').then(() => {
         this.config.data = this.controlPoints.paginated
+      })
+    },
+    initFilters () {
+      this.$store.dispatch('references/fetchPCF', true).then(() => {
+        this.filtersData.families.data = this.filters.filters.famillies
+        this.filtersData.domains.data = this.filters.filters.domains
+        this.filtersData.processes.data = this.filters.filters.processes
+
+        console.log(this.filters.famillies)
       })
     }
   }

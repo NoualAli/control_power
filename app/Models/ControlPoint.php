@@ -28,7 +28,7 @@ class ControlPoint extends Model
 
     protected $perPage = 10;
 
-    protected $searchable = ['name'];
+    protected $searchable = ['name', 'domain.name', 'familly.name', 'process.name'];
 
     protected $appends = ['scores_str'];
 

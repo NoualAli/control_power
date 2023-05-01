@@ -10,9 +10,9 @@ class IsRegularized extends QueryFilter implements FilterContract
     public function handle($value): void
     {
         if (boolval($value)) {
-            $this->query->whereHas('regularization', fn ($regularization) => $regularization->whereNull('regularized_at'))->orDoesntHave('regularization');
+            $this->query->onlyRegularized();
         } else {
-            $this->query->whereNotNull('regularization_id');
+            $this->query->onlyUnregularized();
         }
     }
 }

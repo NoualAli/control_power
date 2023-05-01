@@ -34,13 +34,14 @@
     </div>
     <div class="col-12 text-center d-block d-lg-none">
       <p class="">
-        &copy; 2022 - Tous droits réservés - DCP 104
+        &copy; 2023 - Tous droits réservés - BNA
       </p>
     </div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import NLInput from '../../components/Inputs/NLInput'
 import NLButton from '../../components/Inputs/NLButton.vue'
 import Form from 'vform'
@@ -51,7 +52,7 @@ export default {
   middleware: 'guest',
 
   metaInfo () {
-    return { title: this.$t('login') }
+    return { title: 'Connexion' }
   },
 
   data: () => ({
@@ -61,6 +62,11 @@ export default {
     }),
     remember: false
   }),
+  computed: {
+    ...mapGetters({
+      user: 'auth/user'
+    })
+  },
 
   methods: {
     getLoginName (login) {
@@ -71,22 +77,21 @@ export default {
       // Submit the form.
       const { data } = await this.form.post('/api/login')
       // Save the token.
-      // console.log(data)
       this.$store.dispatch('auth/saveToken', {
         token: data.token,
         remember: this.remember
       })
 
       // Fetch the user.
-      this.$store.dispatch('auth/fetchUser')
-
-      // Redirect home.
-      this.redirect()
+      this.$store.dispatch('auth/fetchUser').then(() => this.redirect(this.user.must_change_password))
     },
 
-    redirect () {
-      console.log(this.$router)
-      this.$router.push({ name: 'home' })
+    redirect (mustChangePassword) {
+      if (mustChangePassword) {
+        this.$router.push({ name: 'password.new' })
+      } else {
+        this.$router.push({ name: 'home' })
+      }
     }
   }
 }

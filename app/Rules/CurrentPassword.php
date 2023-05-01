@@ -37,6 +37,6 @@ class CurrentPassword implements Rule
      */
     public function message()
     {
-        return __(':attribute not match with our records.');
+        return ':attribute ne correspond à aucun de nos enregistrements.';
     }
 }

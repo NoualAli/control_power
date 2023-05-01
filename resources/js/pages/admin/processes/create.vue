@@ -38,17 +38,6 @@ import { mapGetters } from 'vuex'
 export default {
   layout: 'backend',
   middleware: ['auth', 'admin'],
-  computed: {
-    ...mapGetters({
-      famillies: 'famillies/all',
-      familly: 'famillies/domains'
-    })
-  },
-  watch: {
-    'form.familly_id': function (newVal, oldVal) {
-      if (newVal !== oldVal) { this.loadDomains(newVal) }
-    }
-  },
   data () {
     return {
       familliesList: [],
@@ -60,12 +49,24 @@ export default {
       })
     }
   },
+  computed: {
+    ...mapGetters({
+      famillies: 'famillies/all',
+      familly: 'famillies/domains'
+    })
+  },
+  watch: {
+    'form.familly_id': function (newVal, oldVal) {
+      if (newVal !== oldVal) { this.loadDomains(newVal) }
+    }
+  },
+
   created () {
     this.initData()
   },
   methods: {
     initData () {
-      this.$store.dispatch('famillies/fetchAll').then(() => {
+      this.$store.dispatch('famillies/fetchAll', false).then(() => {
         this.familliesList = this.famillies.all
       })
     },
@@ -82,7 +83,8 @@ export default {
       this.form.post('/api/processes').then(response => {
         if (response.data.status) {
           this.$swal.toast_success(response.data.message)
-          this.form.reset()
+          // this.form.reset()
+          this.form.name = null
         } else {
           this.$swal.alert_error(response.data.message)
         }

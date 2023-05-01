@@ -5,7 +5,7 @@
         <!-- Control campaign base informations -->
         <div class="grid">
           <div class="col-12">
-            <NLTextarea
+            <NLWyswyg
               v-model="form.description" :form="form" name="description" label="Description"
               placeholder="Ajouter une description" label-required
             />

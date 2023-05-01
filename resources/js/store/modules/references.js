@@ -1,6 +1,3 @@
-import axios from 'axios'
-import Swal from 'sweetalert2'
-
 export const state = {
   pcf: null,
   filters: null
@@ -17,8 +14,8 @@ export const mutations = {
 
 export const actions = {
   async fetchPCF ({ commit }, onlyFiltersData = false) {
-    const url = onlyFiltersData ? '/api/references/pcf?onlyFiltersData' : '/api/references/pcf'
-    const { data } = await axios.get(url)
+    const url = onlyFiltersData ? 'references/pcf?onlyFiltersData' : 'references/pcf'
+    const { data } = await this.$api.get(url)
     if (onlyFiltersData) {
       commit('FETCH_FILTERS_DATA', { filters: data })
     } else {

@@ -30,7 +30,7 @@ class StoreRequest extends FormRequest
             'first_name' => ['nullable', 'string', 'max:50'],
             'last_name' => ['nullable', 'string', 'max:50'],
             'phone' => ['nullable', new IsAlgerianPhoneNumber],
-            'password' => ['required', 'min:6', 'confirmed'],
+            'password' => ['nullable', 'string', 'min:6', 'confirmed'],
             'roles' => ['required', 'array'],
             'roles.*' => ['exists:roles,id'],
             'dres' => ['nullable', 'array'],

@@ -34,7 +34,7 @@
             <NLSelect v-model="form.dres" :form="form" name="dres" label="Dre" :options="dresList" :multiple="true" />
           </div>
 
-          <!-- Role -->
+          <!-- Roles -->
           <div class="col-12">
             <NLSelect
               v-model="form.roles" :form="form" name="roles" label="Rôles" :options="rolesList"
@@ -124,5 +124,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped></style>

@@ -66,7 +66,7 @@ export default {
   methods: {
     initData () {
       this.$store.dispatch('processes/fetch', { id: this.$route.params.process }).then(() => {
-        this.$store.dispatch('famillies/fetchAll').then(() => {
+        this.$store.dispatch('famillies/fetchAll', false).then(() => {
           this.familliesList = this.famillies.all
           this.loadDomains(this.form.familly_id)
         })

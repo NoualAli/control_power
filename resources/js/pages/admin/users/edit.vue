@@ -8,27 +8,30 @@
             <div class="grid gap-10 my-4">
               <!-- Firstname -->
               <div class="col-12 col-lg-6 col-md-6">
-                <NLInput v-model="form.first_name" :form="form" name="firstname" label="firstname" label-required />
+                <NLInput v-model="form.first_name" :form="form" name="firstname" label="Prénom" label-required />
               </div>
 
               <!-- Lastname -->
               <div class="col-12 col-lg-6 col-md-6">
-                <NLInput v-model="form.last_name" :form="form" name="last_name" label="lastname" label-required />
+                <NLInput v-model="form.last_name" :form="form" name="last_name" label="Nom de famille" label-required />
               </div>
 
               <!-- Username -->
               <div class="col-12 col-lg-6 col-md-6">
-                <NLInput v-model="form.username" :form="form" name="username" label="username" label-required />
+                <NLInput v-model="form.username" :form="form" name="username" label="Nom d'utilisateur" label-required />
               </div>
 
               <!-- Phone -->
               <div class="col-12 col-lg-6 col-md-6">
-                <NLInput v-model="form.phone" :form="form" name="phone" label="phone" type="phone" />
+                <NLInput v-model="form.phone" :form="form" name="phone" label="N° de téléphone" type="phone" />
               </div>
 
               <!-- Email -->
               <div class="col-12 col-lg-6 col-md-6">
-                <NLInput v-model="form.email" :form="form" name="email" label="email" type="email" label-required />
+                <NLInput
+                  v-model="form.email" :form="form" name="email" label="Adresse e-mail" type="email"
+                  label-required
+                />
               </div>
 
               <!-- Dres -->
@@ -59,15 +62,15 @@
               <!-- Password -->
               <div class="col-12 col-lg-4">
                 <NLInput
-                  v-model="passwordForm.password" :form="passwordForm" label="Password" name="password"
+                  v-model="passwordForm.password" :form="passwordForm" label="Mot de passe" name="password"
                   type="password" label-required
                 />
               </div>
               <!-- Password Confirmation -->
               <div class="col-12 col-lg-4">
                 <NLInput
-                  v-model="passwordForm.password_confirmation" :form="passwordForm" label="confirm_password"
-                  name="password_confirmation" type="password" label-required
+                  v-model="passwordForm.password_confirmation" :form="passwordForm"
+                  label="Confirmation mot de passe" name="password_confirmation" type="password" label-required
                 />
               </div>
             </div>
@@ -84,20 +87,20 @@
 
 <script>
 import NLSelect from '../../../components/Inputs/NLSelect'
-import NLCheckableContainer from '../../../components/Inputs/NLCheckableContainer'
-import NLRadio from '../../../components/Inputs/NLRadio'
-import DefaultContainer from '../../../components/Inputs/DefaultContainer'
+// import NLCheckableContainer from '../../../components/Inputs/NLCheckableContainer'
+// import NLRadio from '../../../components/Inputs/NLRadio'
+// import DefaultContainer from '../../../components/Inputs/DefaultContainer'
 import { Form } from 'vform'
-import Notification from '../../../components/Notification.vue'
+// import Notification from '../../../components/Notification.vue'
 import { mapGetters } from 'vuex'
-import { confirm_update, toast_error, toast_success } from '../../../plugins/swal'
+// eslint-disable-next-line camelcase
 export default {
   components: {
-    NLSelect,
-    NLCheckableContainer,
-    NLRadio,
-    Notification,
-    DefaultContainer
+    NLSelect
+    // NLCheckableContainer,
+    // NLRadio,
+    // Notification,
+    // DefaultContainer
   },
   layout: 'backend',
   middleware: ['auth', 'admin'],
@@ -108,6 +111,7 @@ export default {
         email: null,
         first_name: null,
         last_name: null,
+        phone: null,
         roles: [],
         dres: []
       }),
@@ -119,6 +123,11 @@ export default {
       rolesList: []
     }
   },
+  computed: mapGetters({
+    user: 'users/current',
+    dres: 'dre/all',
+    roles: 'roles/all'
+  }),
   created () {
     this.$store.dispatch('roles/fetchAll').then(() => {
       this.rolesList = this.roles.all
@@ -133,18 +142,13 @@ export default {
       this.form.dres = this.user.current.agencies.map(item => item.id)
     })
   },
-  computed: mapGetters({
-    user: 'users/current',
-    dres: 'dre/all',
-    roles: 'roles/all'
-  }),
   methods: {
     updateInfos () {
-      confirm_update().then((action) => {
+      this.$swal.confirm_update().then((action) => {
         if (action.isConfirmed) {
           this.form.put('/api/users/info/' + this.user.current.id).then(response => {
             if (response.data.status) {
-              toast_success(response.data.message)
+              this.$swal.toast_success(response.data.message)
               this.$router.push({ name: 'users-index' })
             } else {
               this.$swal.alert_error(response.data.message)
@@ -156,9 +160,9 @@ export default {
       })
     },
     updatePassword () {
-      confirm_update().then((action) => {
+      this.$swal.confirm_update().then((action) => {
         if (action.isConfirmed) {
-          this.form.put('/api/users/password/' + this.user.current.id).then(response => {
+          this.passwordForm.put('/api/users/password/' + this.user.current.id).then(response => {
             if (response.data.status) {
               this.$swal.toast_success(response.data.message)
               this.passwordForm.reset()

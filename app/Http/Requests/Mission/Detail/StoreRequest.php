@@ -32,17 +32,16 @@ class StoreRequest extends FormRequest
                 return [
                     'process_mode' => ['required', 'boolean'],
                     'detail' => ['required', 'exists:mission_details,id'],
-                    'score' => ['required', 'in:1,2,3,4'],
                     'major_fact' => ['required', 'boolean'],
-                    'recovery_plan' => ['required', 'required_if:rows.*.score,2,3,4']
+                    'recovery_plan' => ['required', 'required_if:score,2,3,4']
                 ];
             }
             // else we accept updating all data
             return [
                 'process_mode' => ['required', 'boolean'],
                 'detail' => ['required', 'exists:mission_details,id'],
-                'report' => ['required_if:rows.*.score,2,3,4'],
-                'recovery_plan' => ['required_if:rows.*.score,2,3,4'],
+                'report' => ['required_if:score,1,2,3,4'],
+                'recovery_plan' => ['required_if:score,2,3,4'],
                 'major_fact' => ['required', 'boolean'],
                 'score' => ['required', 'in:1,2,3,4'],
                 'metadata' => ['sometimes', 'array'],
@@ -54,7 +53,7 @@ class StoreRequest extends FormRequest
                 'process_mode' => ['required', 'boolean'],
                 'rows' => ['required', 'array'],
                 'rows.*.detail' => ['required', 'exists:mission_details,id'],
-                'rows.*.report' => ['required_if:rows.*.score,2,3,4'],
+                'rows.*.report' => ['required_if:rows.*.score,1,2,3,4'],
                 'rows.*.recovery_plan' => ['required_if:rows.*.score,2,3,4'],
                 'rows.*.major_fact' => ['required', 'boolean'],
                 'rows.*.score' => ['required', 'in:1,2,3,4'],

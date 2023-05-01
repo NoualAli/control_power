@@ -457,8 +457,11 @@ input[type="date"]::-webkit-inner-spin-button,
         &::before
             background-color: $danger
     &.pending-validation
-        border-color: darken($success, 10)
+        border-color: darken($warning, 10)
     &.validated
+        color: $white !important
+        border-color: darken($success, 10)
+    &.first-validation
         color: $white !important
         border-color: darken($success, 10)
         &::before
@@ -472,7 +475,20 @@ input[type="date"]::-webkit-inner-spin-button,
             left: 50%
             transform: translate(-50%, -50%)
             font-weight: 900
-
+    &.second-validation
+        color: $white !important
+        border-color: darken($success, 10)
+        &::before
+            background-color: $success
+        &::after
+            content: "\f560"
+            font-family: "Line Awesome Free"
+            font-size: 10px
+            position: absolute
+            top: 50%
+            left: 50%
+            transform: translate(-50%, -50%)
+            font-weight: 900
 .control-point
     margin: 1rem 0
     outline: none
@@ -542,3 +558,7 @@ input[type="date"]::-webkit-inner-spin-button,
         -webkit-transform: rotate(0deg)
         -ms-transform: rotate(0deg)
         transform: rotate(0deg)
+
+ul
+    margin: 0 0 0 1em
+    padding: 0

@@ -11,7 +11,6 @@ use App\Http\Resources\MissionResource;
 use App\Models\Agency;
 use App\Models\ControlCampaign;
 use App\Models\Mission;
-use App\Models\Process;
 use App\Models\User;
 use App\Notifications\Mission\AssignationRemoved;
 use App\Notifications\Mission\Assigned;
@@ -19,6 +18,7 @@ use App\Notifications\Mission\Updated;
 use App\Notifications\Mission\Validated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class MissionController extends Controller
 {
@@ -74,16 +74,67 @@ class MissionController extends Controller
         }
     }
 
+    /**
+     * @param mixed $data
+     *
+     * @return [type]
+     */
+    public function export(Mission $mission)
+    {
+        try {
+            $mission->unsetRelations();
+            $mission->load(['details', 'campaign']);
+            $details = $mission->details()->whereIn('score', [1, 2, 3, 4])->get()->groupBy('familly.name');
+            $campaign = $mission->campaign;
+
+            $stats = [
+                'avg_score' => $mission->avg_score,
+                'total_processes' => $this->loadProcesses($mission)->count(),
+                'total_anomalies' => $mission->details()->whereAnomaly()->count(),
+                'total_major_facts' => $mission->details()->onlyMajorFacts()->count(),
+            ];
+
+            $pdf = Pdf::loadView('export.report', compact('mission', 'campaign', 'details', 'stats'));
+            $pdf->render();
+
+            $canvas = $pdf->get_canvas();
+            $cpdf = $canvas->get_cpdf();
+
+            $font = $pdf->getFontMetrics()->get_font("helvetica", "bold");
+
+            $firstPageId = $cpdf->getFirstPageId();
+            $objects = $cpdf->objects;
+            $pages = array_filter($objects, function ($v) {
+                return $v['t'] == 'page';
+            });
+            $number = 1;
+            foreach ($pages as $pageId => $page) {
+                if (($pageId + 1) !== $firstPageId) {
+                    $canvas->reopen_object($pageId + 1);
+                    $canvas->text(525, 807, $number, $font, 13, [.07, .34, .25]);
+                    $canvas->close_object();
+                    $number++;
+                }
+            }
+
+            return $pdf->stream();
+        } catch (\Throwable $th) {
+            echo "<pre>";
+            echo $th->getMessage();
+            echo "</pre>";
+        }
+    }
+
     private function getMissions()
     {
         $missions = new Mission();
-        if (hasRole(['dcp', 'cdcr'])) {
-            $missions = $missions->validated();
+        if (hasRole(['dcp', 'cdcr', 'dg'])) {
+            $missions = $missions;
         } elseif (hasRole(['cdc', 'cc', 'ci'])) {
             $missions = auth()->user()->missions();
         } elseif (hasRole(['da', 'dre'])) {
             $missions = auth()->user()->missions()->hasDcpValidation();
-        } elseif (hasRole(['dg', 'cdrcp', 'der'])) {
+        } elseif (hasRole(['cdrcp', 'der'])) {
             $missions = $missions->hasDcpValidation();
         }
         return $missions;
@@ -107,6 +158,7 @@ class MissionController extends Controller
      */
     public function show(Mission $mission)
     {
+        // dd($mission->realisation_state);
         isAbleOrAbort('view_mission');
         $currentUser = auth()->user();
         $agencyControllers = $mission->agencyControllers->pluck('id')->toArray();
@@ -136,14 +188,18 @@ class MissionController extends Controller
         }
         if (request()->has('onlyProcesses') || request()->has('page')) {
             $mission->unsetRelations();
-            $processes = DB::table('processes as p')
-                ->selectRaw('p.id as process_id, p.name as process, d.name as domain, f.name as family, COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, DATE_FORMAT(MAX(md.executed_at), "%d-%m-%Y") AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(IF(md.score IS NOT NULL, md.id, NULL)) AS scored_mission_details, (COUNT(IF(md.score IS NOT NULL, md.id, NULL)) / COUNT(md.id)) * 100 AS progress_status')
-                ->join('control_points as cp', 'p.id', '=', 'cp.process_id')
+            $processes = DB::table('processes as p');
+            if (env('APP_ENV') == 'windows' || env('APP_ENV') == 'testServer') {
+                $processes = $processes->selectRaw("p.id as process_id, p.name as process, d.name as domain, f.name as family, COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, FORMAT(MAX(md.executed_at), 'dd-MM-yyyy') AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) AS scored_mission_details, (COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) / COUNT(md.id)) * 100 AS progress_status");
+            } else {
+                $processes = $processes->selectRaw('p.id as process_id, p.name as process, d.name as domain, f.name as family, COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, DATE_FORMAT(MAX(md.executed_at), "%d-%m-%Y") AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(IF(md.score IS NOT NULL, md.id, NULL)) AS scored_mission_details, (COUNT(IF(md.score IS NOT NULL, md.id, NULL)) / COUNT(md.id)) * 100 AS progress_status');
+            }
+            $processes = $processes->join('control_points as cp', 'p.id', '=', 'cp.process_id')
                 ->join('domains as d', 'd.id', '=', 'p.domain_id')
                 ->join('famillies as f', 'f.id', '=', 'd.familly_id')
                 ->join('mission_details as md', 'cp.id', '=', 'md.control_point_id')
                 ->join('missions as m', 'm.id', '=', 'md.mission_id')
-                ->groupBy('p.id')
+                ->groupBy('p.id', 'p.name', 'd.name', 'f.name')
                 ->where('m.id', $mission->id);
             $processes = !hasRole(['cdc', 'ci']) ? $processes->whereIn('md.score', [2, 3, 4]) : $processes;
             $processes = $processes->orderBy('p.id')->get();
@@ -206,29 +262,30 @@ class MissionController extends Controller
         try {
             $campaign = ControlCampaign::findOrFail($data['control_campaign_id']);
             $campaign->load('processes');
-            foreach ($data['agencies'] as $agency) {
-                $agency = Agency::findOrFail($agency);
-                DB::transaction(function () use ($data, $agency, $campaign) {
-                    $reference = 'RAP' . str_replace('-', '', str_replace('CDC-', '', $campaign->reference)) . '/' . $agency->code;
-                    $controlPoints = $this->loadControlPoints($campaign, $agency);
-                    $mission = Mission::create([
-                        'reference' => $reference,
-                        'control_campaign_id' => $campaign->id,
-                        'agency_id' => $agency->id,
-                        'created_by_id' => auth()->user()->id,
-                        'start' => $data['start'],
-                        'end' => $data['end'],
-                        'note' => $data['note'],
-                    ]);
-                    $state = $mission->states()->create(['state' => 'À réaliser']);
-                    $mission->update(['state_id' => $state->id]);
-                    $mission->agencyControllers()->attach($data['controllers']);
-                    $mission->details()->createMany($controlPoints);
-                    foreach ($mission->agencyControllers as $controller) {
-                        Notification::send($controller, new Assigned($mission));
-                    }
-                });
-            }
+            $agency = $data['agency'];
+            $agency = Agency::findOrFail($agency);
+            DB::transaction(function () use ($data, $agency, $campaign) {
+                $reference = 'RAP' . str_replace('-', '', str_replace('CDC-', '', $campaign->reference)) . '/' . $agency->code;
+                $controlPoints = $this->loadControlPoints($campaign, $agency);
+                $mission = Mission::create([
+                    'reference' => $reference,
+                    'control_campaign_id' => $campaign->id,
+                    'agency_id' => $agency->id,
+                    'created_by_id' => auth()->user()->id,
+                    'start' => $data['start'],
+                    'end' => $data['end'],
+                    'note' => $data['note'],
+                ]);
+                $state = $mission->states()->create(['state' => 'À réaliser']);
+                $mission->update(['state_id' => $state->id]);
+                $mission->agencyControllers()->attach($data['controllers']);
+                $mission->details()->createMany($controlPoints);
+                foreach ($mission->agencyControllers as $controller) {
+                    Notification::send($controller, new Assigned($mission));
+                }
+            });
+            // foreach ($data['agencies'] as $agency) {
+            // }
 
             return response()->json([
                 'message' => CREATE_SUCCESS,
@@ -446,5 +503,39 @@ class MissionController extends Controller
         return $campaignProcesses->filter(function ($process) use ($categoryProcesses) {
             return in_array($process->id, $categoryProcesses); // garder que les processus utilisés par la catégorie
         })->pluck('control_points')->flatten()->pluck('id')->map(fn ($controlPoint) => ['control_point_id' => $controlPoint])->toArray();
+    }
+
+    private function loadProcesses(Mission $mission, bool $paginated = false, bool $formated = false, bool $onlyWhereAnomaly = false)
+    {
+        $mission->unsetRelations();
+        $processes = DB::table('processes as p');
+        if (env('APP_ENV') == 'windows' || env('APP_ENV') == 'testServer') {
+            $processes = $processes->selectRaw("p.id as process_id, p.name as process, d.name as domain, f.name as family, COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, FORMAT(MAX(md.executed_at), 'dd-MM-yyyy') AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) AS scored_mission_details, (COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) / COUNT(md.id)) * 100 AS progress_status");
+        } else {
+            $processes = $processes->selectRaw('p.id as process_id, p.name as process, d.name as domain, f.name as family, COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, DATE_FORMAT(MAX(md.executed_at), "%d-%m-%Y") AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(IF(md.score IS NOT NULL, md.id, NULL)) AS scored_mission_details, (COUNT(IF(md.score IS NOT NULL, md.id, NULL)) / COUNT(md.id)) * 100 AS progress_status');
+        }
+        $processes = $processes->join('control_points as cp', 'p.id', '=', 'cp.process_id')
+            ->join('domains as d', 'd.id', '=', 'p.domain_id')
+            ->join('famillies as f', 'f.id', '=', 'd.familly_id')
+            ->join('mission_details as md', 'cp.id', '=', 'md.control_point_id')
+            ->join('missions as m', 'm.id', '=', 'md.mission_id')
+            ->groupBy('p.id', 'p.name', 'd.name', 'f.name')
+            ->where('m.id', $mission->id);
+        $processes = !hasRole(['cdc', 'ci']) && $onlyWhereAnomaly ? $processes->whereIn('md.score', [2, 3, 4]) : $processes;
+        $processes = $processes->orderBy('p.id')->get();
+        $search = request()->has('search') ? request()->search : false;
+        if ($search) {
+            $processes = $processes->filter(fn ($processe) => preg_match('/' . strtolower($search) . '/', strtolower($processe->name)));
+        }
+        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        if ($paginated) {
+            return MissionProcessesResource::collection(paginate($processes, '/api/missions/' . $mission->id, $perPage));
+        } else {
+            if ($formated) {
+                return formatForSelect($processes->toArray());
+            } else {
+                return $processes;
+            }
+        }
     }
 }

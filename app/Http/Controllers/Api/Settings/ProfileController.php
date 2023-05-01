@@ -4,9 +4,6 @@ namespace App\Http\Controllers\Api\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UpdateProfileRequest;
-use App\Models\User;
-use App\Rules\IsAlgerianPhoneNumber;
-use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
@@ -29,7 +26,7 @@ class ProfileController extends Controller
                 'message' => $th->getMessage(),
                 'status' => false,
                 'user' => $user,
-            ], $th->getCode());
+            ], 500);
         }
     }
 }
