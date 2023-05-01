@@ -10,6 +10,7 @@
         <i class="las la-edit icon"></i>
       </router-link>
     </div>
+
     <!-- Mission informations -->
     <div class="box border-primary-dark border-1 mb-10">
       <div class="grid gap-6">
@@ -168,8 +169,17 @@
       </div>
     </div>
 
+    <div class="box is-info" v-if="mission?.current?.remaining_days_before_start > 0">
+      Nous vous informons que la mission débutera le <b>{{ mission?.current?.start }}</b> dans exactement <b>{{
+        mission?.current?.remaining_days_before_start_str }}</b>
+    </div>
+
     <!-- Actions -->
     <div class="d-flex align-items gap-2">
+      <button class="btn btn-danger has-icon" @click="exportReport">
+        <i class="las la-file-pdf icon"></i>
+        Exporter le rapport
+      </button>
       <!-- CDC -->
 
       <!-- Report actions -->
@@ -447,19 +457,26 @@ export default {
             label: "Moyenne",
             field: "avg_score",
             hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
+            isHtml: true,
             methods: {
-              style: (item) => {
+              showField(item) {
                 const score = item.avg_score
+                let style = 'text-dark text-bold'
                 if (score == 1) {
-                  return 'bg-success text-white text-bold'
+                  style = 'bg-success text-white text-bold'
                 } else if (score == 2) {
-                  return 'bg-info text-white text-bold'
+                  style = 'bg-info text-white text-bold'
                 } else if (score == 3) {
-                  return 'bg-warning text-bold'
+                  style = 'bg-warning text-bold'
                 } else if (score == 4) {
-                  return 'bg-danger text-white text-bold'
+                  style = 'bg-danger text-white text-bold'
+                } else {
+                  style = 'bg-grey text-dark text-bold'
                 }
-              }
+                return `<div class="container">
+                  <div class="has-border-radius py-1 text-center ${style}">${score}</div>
+                </div>`
+              },
             }
           },
         ],
@@ -520,6 +537,18 @@ export default {
   },
 
   methods: {
+    exportReport() {
+      const url = '/api/missions/' + this.mission.current.id + '/export?type=pdf'
+      window.open(url)
+      // api.get('missions/' + this.mission.current.id + '/export?type=pdf').then((response) => {
+      //   console.log(response);
+      // })
+    },
+    /**
+     * Validation de la mission par le dcp et cdcr
+     *
+     * @param {Numeric} step
+     */
     validateMission(step) {
       swal.confirm({ title: 'Mission ' + this.mission.current.reference, message: 'Vous êtes sur de vouloir valider la mission ' + this.mission.current.reference }).then(action => {
         if (action.isConfirmed) {

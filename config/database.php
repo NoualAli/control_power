@@ -97,10 +97,8 @@ return [
             'username' => env('DB_USERNAME', 'SA'),
             'password' => env('DB_PASSWORD', 'nfc3VHYv'),
             'prefix' => '',
-            'options' => [
-                PDO::ATTR_TIMEOUT => 30,
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-            ],
+            'options' => [PDO::ATTR_EMULATE_PREPARES => false]
+
         ],
 
         'dusk' => [

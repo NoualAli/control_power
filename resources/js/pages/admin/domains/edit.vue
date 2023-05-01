@@ -35,7 +35,7 @@ export default {
     }),
   },
   created() {
-    this.$store.dispatch('famillies/fetchAll').then(() => {
+    this.$store.dispatch('famillies/fetchAll', false).then(() => {
       this.familliesList = this.famillies.all
     })
     this.$store.dispatch('domains/fetch', { id: this.$route.params.domain }).then(() => {

@@ -8,27 +8,28 @@
             <div class="grid gap-10 my-4">
               <!-- Firstname -->
               <div class="col-12 col-lg-6 col-md-6">
-                <NLInput :form="form" name="firstname" label="firstname" v-model="form.first_name" labelRequired />
+                <NLInput :form="form" name="firstname" label="Prénom" v-model="form.first_name" labelRequired />
               </div>
 
               <!-- Lastname -->
               <div class="col-12 col-lg-6 col-md-6">
-                <NLInput :form="form" name="last_name" label="lastname" v-model="form.last_name" labelRequired />
+                <NLInput :form="form" name="last_name" label="Nom de famille" v-model="form.last_name" labelRequired />
               </div>
 
               <!-- Username -->
               <div class="col-12 col-lg-6 col-md-6">
-                <NLInput :form="form" name="username" label="username" v-model="form.username" labelRequired />
+                <NLInput :form="form" name="username" label="Nom d'utilisateur" v-model="form.username" labelRequired />
               </div>
 
               <!-- Phone -->
               <div class="col-12 col-lg-6 col-md-6">
-                <NLInput :form="form" name="phone" label="phone" v-model="form.phone" type="phone" />
+                <NLInput :form="form" name="phone" label="N° de téléphone" v-model="form.phone" type="phone" />
               </div>
 
               <!-- Email -->
               <div class="col-12 col-lg-6 col-md-6">
-                <NLInput :form="form" name="email" label="email" v-model="form.email" type="email" labelRequired />
+                <NLInput :form="form" name="email" label="Adresse e-mail" v-model="form.email" type="email"
+                  labelRequired />
               </div>
 
               <!-- Dres -->
@@ -57,13 +58,13 @@
             <div class="grid gap-10 my-4">
               <!-- Password -->
               <div class="col-12 col-lg-4">
-                <NLInput :form="passwordForm" v-model="passwordForm.password" label="Password" name="password"
+                <NLInput :form="passwordForm" v-model="passwordForm.password" label="Mot de passe" name="password"
                   type="password" labelRequired />
               </div>
               <!-- Password Confirmation -->
               <div class="col-12 col-lg-4">
-                <NLInput :form="passwordForm" v-model="passwordForm.password_confirmation" label="confirm_password"
-                  name="password_confirmation" type="password" labelRequired />
+                <NLInput :form="passwordForm" v-model="passwordForm.password_confirmation"
+                  label="Confirmation mot de passe" name="password_confirmation" type="password" labelRequired />
               </div>
             </div>
             <!-- Submit Button -->
@@ -103,7 +104,6 @@ export default {
     this.$store.dispatch('users/fetch', this.$route.params.user).then((result) => {
       this.form.fill(this.user.current)
       this.form.roles = this.user.current.roles.map(item => item.id)
-      console.log(this.user.current);
       this.form.dres = this.user.current.agencies.map(item => item.id)
     })
   },
@@ -114,6 +114,7 @@ export default {
         email: null,
         first_name: null,
         last_name: null,
+        phone: null,
         roles: [],
         dres: [],
       }),
@@ -150,7 +151,7 @@ export default {
     updatePassword() {
       confirm_update().then((action) => {
         if (action.isConfirmed) {
-          this.form.put('/api/users/password/' + this.user.current.id).then(response => {
+          this.passwordForm.put('/api/users/password/' + this.user.current.id).then(response => {
             if (response.data.status) {
               swal.toast_success(response.data.message)
               this.passwordForm.reset()

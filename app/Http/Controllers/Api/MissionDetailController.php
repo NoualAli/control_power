@@ -82,9 +82,9 @@ class MissionDetailController extends Controller
         } elseif (hasRole('dre')) {
             $details = auth()->user()->details()->hasDcpValidation();
         } elseif (hasRole('da')) {
-            $details = $user->details()->hasDcpValidation()->onlyUnregularized();
+            $details = $user->details()->hasDcpValidation();
         }
-        return $details->whereAnomaly()->executed()->with(['process', 'domain', 'controlPoint', 'familly', 'media']);
+        return $details->whereAnomaly()->where('major_fact', '!=', true)->executed()->with(['process', 'domain', 'controlPoint', 'familly', 'media']);
     }
     /**
      * @return Illuminate\Http\JsonResponse
@@ -207,15 +207,19 @@ class MissionDetailController extends Controller
         );
         abort_if(!$condition, 401, __('unauthorized'));
         if ($detailId) {
-            $detail->load('regularization');
+            $detail->load('regularization', 'mission');
             $mission->load(['dre', 'agency', 'campaign']);
             return compact('mission', 'detail', 'process');
         } else {
             $details = $mission->details()->orderBy('control_point_id');
             if (request()->has('onlyAnomaly')) {
-                $details = $details->whereAnomaly()->with('regularization');
+                $details = $details->whereAnomaly();
             }
-            $details = $details->whereRelation('process', 'processes.id', $process->id)->with(['controlPoint', 'domain', 'process'])->get();
+            $details = $details->whereRelation('process', 'processes.id', $process->id);
+            // if ($mission->progress_status == 100) {
+            //     $details = $details;
+            // }
+            $details = $details->with(['controlPoint', 'domain', 'process', 'regularization'])->get();
             return compact('mission', 'details', 'process');
         }
     }
@@ -318,10 +322,11 @@ class MissionDetailController extends Controller
     private function updateDetail(array $data, bool $processMode = false)
     {
         $detail = MissionDetail::findOrFail($data['detail']);
-        // Vidé les champs report et recovery_plan si la note égale 1
-        if (isset($data['score']) && !in_array($data['score'], [4, 3, 2])) {
+        // Vidé les champs report, recovery_plan, metadata
+        if (isset($data['score']) && !in_array($data['score'], [4, 3, 2, 1])) {
             $data['report'] = null;
             $data['recovery_plan'] = null;
+            $data['metadata'] = null;
         }
         // Mettre la note max si jamais il y'a un fait majeur
         if (isset($data['major_fact']) && !empty($data['major_fact'])) $data['score'] = max(array_keys($detail->controlPoint->scores_arr));
@@ -332,7 +337,7 @@ class MissionDetailController extends Controller
         $metadata = isset($data['metadata']) && !empty($data['metadata']) ? $data['metadata'] : $detail->metadata;
         $detail->update([
             'major_fact' => $data['major_fact'],
-            'score' => $data['score'],
+            'score' => isset($data['score']) ? $data['score'] : $detail->score,
             'report' => isset($data['report']) ? $data['report'] : $detail->report,
             'recovery_plan' => isset($data['recovery_plan']) ? $data['recovery_plan'] : $detail->recovery_plan,
             'metadata' => $metadata,

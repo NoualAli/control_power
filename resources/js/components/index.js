@@ -1,8 +1,5 @@
 import Vue from 'vue'
-// import Card from './Card.vue'
 import Child from './Child.vue'
-// import Button from './Button.vue'
-// import Checkbox from './Checkbox.vue'
 import Notification from './Notification.vue'
 import DefaultContainer from './Inputs/DefaultContainer.vue'
 import NLInput from './Inputs/NLInput.vue'
@@ -39,10 +36,7 @@ import NLFile from './Inputs/NLFile'
   NLButton,
   NLWyswyg,
   NLInput,
-  // Card,
   Child,
-  // Button,
-  // Checkbox,
   HasError,
   // AlertError,
   // AlertSuccess,

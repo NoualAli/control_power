@@ -8,6 +8,7 @@ use App\Traits\HasUuid;
 use App\Traits\IsFilterable;
 use App\Traits\IsOrderable;
 use App\Traits\IsSearchable;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -100,7 +101,9 @@ class Mission extends Model
 
     public function getAvgScoreAttribute()
     {
-        return addZero(intval($this->details->avg('score')));
+        $details = $this->details()->whereIn('score', [1, 2, 3, 4]);
+        return round($details->sum('score') / $details->count());
+        // return addZero($this->details()->avg('score'));
     }
 
     public function getAgencyControllersStrAttribute()
@@ -112,7 +115,7 @@ class Mission extends Model
     {
         $totalDetails = $this->details->count();
         $totalFinishedDetails = $this->details->filter(fn ($detail) => $detail->score !== null)->count();
-        return number_format($totalFinishedDetails * 100 / $totalDetails);
+        return $totalFinishedDetails ? number_format($totalFinishedDetails * 100 / $totalDetails) : 0;
     }
 
     public function getOpinionAttribute()
@@ -125,46 +128,51 @@ class Mission extends Model
         return $this->reports->where('type', 'Rapport')->first();
     }
 
+    public function getCdcrValidationAtAttribute($cdcr_validation_at)
+    {
+        return $cdcr_validation_at ? Carbon::parse($cdcr_validation_at)->format('d-m-Y') : null;
+    }
+
+    public function getDcpValidationAtAttribute($dcp_validation_at)
+    {
+        return $dcp_validation_at ? Carbon::parse($dcp_validation_at)->format('d-m-Y') : null;
+    }
+
     public function getSynthesisAttribute()
     {
         return $this->reports->where('type', 'Synthèse')->first();
     }
     public function getRealisationStateAttribute()
     {
-        return $this->states()->latest()->first()->state;
-        // if (!$this->remaining_days_before_end) {
-        //     return 'EN RETARD';
-        // }
-
-        if ($this->remaining_days_before_start) {
-            return 'À RÉALISER';
-        }
-
-        if (!$this->controller_opinion) {
-            if (!$this->remaining_days_before_end) {
-                return 'EN RETARD';
-            }
-            return 'EN COURS';
-        } elseif ($this->controller_opinion && $this->controller_opinion->is_validated && !$this->head_of_department_report) {
+        // return $this->states()->latest()->first()->state;
+        $today = now();
+        $start = $this->start;
+        $end = $this->end;
+        $report = $this->dre_report;
+        $comment = $this->opinion;
+        $cdcrValidationBy = $this->cdcr_validation_by_id;
+        $dcpValidationBy = $this->dcp_validation_by_id;
+        $progressStatus = $this->progress_status;
+        $startDiff = $today->diffInDays($start, false);
+        $endDiff = $today->diffInDays($end, false);
+        // dd($progressStatus >= 100, $comment?->is_validated, $report?->is_validated);
+        if ($startDiff >= 0 && $progressStatus == 0) {
+            return 'À réaliser';
+        } else if ($startDiff < 0 && $endDiff >= 0 && $progressStatus <= 100) {
+            return 'En cours';
+        } else if ($progressStatus >= 100 && $comment && $comment->is_validated && (!$report || ($report && !$report->is_validated))) {
             return 'En attente de validation';
-        } elseif ($this->head_of_department_report) {
+        } else if ($progressStatus >= 100 && $report?->is_validated && !$cdcrValidationBy) {
             return 'Validé et envoyé';
+        } else if ($progressStatus >= 100 && $report?->is_validated && $cdcrValidationBy && !$dcpValidationBy) {
+            return '1ère validation';
+        } else if ($progressStatus >= 100 && $report?->is_validated && $dcpValidationBy) {
+            return '2ème validation';
+        } else if ($endDiff < 0 && $progressStatus < 100 && (!$comment?->is_validated || !$report?->id_validated)) {
+            return 'En retard';
         } else {
-            return 'RÉALISÉ';
+            return 'Indéterminé';
         }
-        // if ($this->validated_at) {
-        //     return 'RÉALISÉ';
-        // } else {
-        //     if ($this->remaining_days_before_end < 0) {
-        //         return 'EN RETARD';
-        //     } else {
-        //         if ($this->details()->count()) {
-        //             return 'EN COURS';
-        //         } else {
-        //             return 'À RÉALISER';
-        //         }
-        //     }
-        // }
     }
 
     /**

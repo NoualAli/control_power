@@ -8,7 +8,7 @@
     </main>
     <div class="footer-container">
       <p>
-        &copy; 2022 - Tous droits réservés - DCP 104
+        &copy; 2023 - Tous droits réservés - BNA
       </p>
     </div>
   </div>

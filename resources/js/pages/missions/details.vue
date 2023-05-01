@@ -40,7 +40,7 @@
               <div class="col-4"><b>Plan de redressement:</b></div>
               <div class="col-8">{{ detail?.recovery_plan || '-' }}</div>
 
-              <div class="col-12" v-if="detail?.score > 1 && detail?.regularization?.regularized">
+              <div class="col-12" v-if="detail?.regularization?.regularized">
                 <div class="grid gap-4">
                   <div class="col-4"><b>Régularisation:</b></div>
                   <div class="col-8">{{ detail?.regularization?.regularized || '-' }}</div>
@@ -90,7 +90,7 @@
                   <!-- Agency director -->
                   <button
                     v-if="mission?.dcp_validation_at && !detail?.regularization?.regularized_at && !detail?.major_fact && detail?.score !== 1 && can('regularize_mission_detail')"
-                    class="btn btn-warning has-icon" @click="edit(detail)">
+                    class="btn btn-warning has-icon" @click="regularize(detail)">
                     <i class="las la-pen icon"></i>
                     Régulariser
                   </button>
@@ -197,7 +197,8 @@
               </div>
             </div>
             <!-- Regularization -->
-            <div class="col-12 list-item" v-if="rowSelected?.score > 1 && rowSelected?.regularization?.regularized">
+            <div class="col-12 list-item box border-top border-1 border-solid border-primary-dark"
+              v-if="rowSelected?.score > 1 && rowSelected?.regularization?.regularized">
               <div class="list-item-content no-bg grid">
                 <div class="col-12">
                   <h2>Régularisation</h2>
@@ -220,8 +221,54 @@
                   {{ rowSelected?.regularization?.committed_action }}
                 </div>
 
-                <div class="col-4"><b>Date Régularisation:</b></div>
-                <div class="col-8">{{ rowSelected?.regularization?.regularized_at }}</div>
+                <div class="col-4" v-if="rowSelected?.regularization?.regularized_at"><b>Date Régularisation:</b></div>
+                <div class="col-8" v-if="rowSelected?.regularization?.regularized_at">
+                  {{ rowSelected?.regularization?.regularized_at }}
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 d-flex justify-end align-center">
+              <div class="d-flex align-center gap-2">
+                <!-- CI -->
+                <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
+                  v-if="!rowSelected?.mission?.controller_opinion_is_validated && !rowSelected?.major_fact && can('create_opinion')">
+                  <i class="las la-pen icon"></i>
+                  Modifier
+                </button>
+
+                <!-- CDC -->
+                <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
+                  v-if="!rowSelected?.mission?.dre_report_is_validated && !rowSelected?.major_fact && can('create_dre_report,validate_dre_report')">
+                  <i class="las la-pen icon"></i>
+                  Modifier
+                </button>
+
+                <!-- CDCR -->
+                <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
+                  v-if="!rowSelected?.mission?.cdcr_validation_at && !rowSelected?.major_fact_dispatched_at && can('make_first_validation,process_mission')">
+                  <i class="las la-pen icon"></i>
+                  Traiter
+                </button>
+
+                <!-- DCP -->
+                <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
+                  v-if="!rowSelected?.mission?.dcp_validation_at && rowSelected?.mission?.cdcr_validation_at && !rowSelected?.major_fact_dispatched_at && can('make_second_validation')">
+                  <i class="las la-pen icon"></i>
+                  Traiter
+                </button>
+                <button class="btn btn-info has-icon" @click.prevent="notify(rowSelected)"
+                  v-if="!rowSelected?.major_fact_dispatched_at && rowSelected?.major_fact && can('dispatch_major_fact')">
+                  <i class="las la-bell icon"></i>
+                  Notifier
+                </button>
+                <!-- Agency director -->
+                <button
+                  v-if="rowSelected?.mission?.dcp_validation_at && !rowSelected?.regularization?.regularized_at && !rowSelected?.major_fact && rowSelected?.score !== 1 && can('regularize_mission_detail')"
+                  class="btn btn-warning has-icon" @click="regularize(rowSelected)">
+                  <i class="las la-pen icon"></i>
+                  Régulariser
+                </button>
               </div>
             </div>
           </div>
@@ -236,30 +283,33 @@
           </small>
         </template>
         <template v-slot>
-          <Notification type="is-danger" v-if="forms.generic.errors.any()">
+          <Notification type="is-danger" v-if="forms.detail.errors.any()">
             Il y a {{ formErrorsCount }}
             {{ formErrorsCount > 1 ? 'problèmes avec vos entrées' : 'problème avec une entrée' }}.
           </Notification>
-          <form @submit.prevent="save" @keydown="forms.generic.onKeydown($event)" enctype="multipart/form-data"
-            class="grid gap-2" v-if="!regularization_mode">
+          <form @submit.prevent="save('edit')" @keydown="forms.detail.onKeydown($event)" enctype="multipart/form-data"
+            class="grid gap-2">
             <!-- Major fact -->
-            <div class="col-12" v-if="rowSelected?.control_point?.has_major_fact">
-              <NLSwitch v-model="forms.generic.major_fact" :name="'major_fact'" :form="forms.generic"
+            <div class="col-12"
+              v-if="rowSelected?.control_point?.has_major_fact && [2, 3, 4].includes(forms?.detail?.score)">
+              <NLSwitch v-model="forms.detail.major_fact" :name="'major_fact'" :form="forms?.detail"
                 label="Fait majeur" />
             </div>
             <!-- score -->
             <div class="col-12">
-              <NLSelect :name="'score'" label="Notation" :form="forms.generic" v-model="forms.generic.score"
-                :options="setupScores(rowSelected?.control_point.scores)" labelRequired />
+              <NLSelect name="score" label="Notation" :form="forms.detail" v-model="forms.detail.score"
+                :options="setupScores(rowSelected?.control_point.scores)" labelRequired
+                v-if="!forms.detail.process_mode" />
+              <NLInput name="score" label="Notation" :form="forms.detail" v-model="forms.detail.score" readonly v-else />
             </div>
 
             <!-- Metadata -->
             <div class="col-12"
-              v-if="rowSelected?.control_point.fields && forms.generic.score > 1 && !forms.generic.process_mode">
+              v-if="rowSelected?.control_point.fields && ![null, undefined, ''].includes(forms.detail.score) && !['object', 'array'].includes(typeof forms.detail.score) && !forms.detail.process_mode">
               <div class="repeater">
                 <h2 class="mb-6">Informations supplémentaires</h2>
                 <!-- Repeater row -->
-                <div class="grid my-6 repeater-row" v-for="(item, dataRow) in forms.generic.metadata"
+                <div class="grid my-6 repeater-row" v-for="(item, dataRow) in forms.detail.metadata"
                   :key="'metadata-' + dataRow">
                   <div class="col-12">
                     <div class="grid gap-2">
@@ -268,30 +318,30 @@
                           <div :key="'metadata-input-' + input.name + '-' + dataRow + '-id'" :class="input.style"
                             v-for="(input, index) in setupFields(rowSelected?.control_point.fields)">
                             <!-- Defining different inputs -->
-                            <NLInput :form="forms.generic" :label="input.label" :placeholder="input.placeholder"
+                            <NLInput :form="forms.detail" :label="input.label" :placeholder="input.placeholder"
                               :type="input.type" :labelRequired="input.required"
                               :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                              v-model="forms.generic.metadata[dataRow][index][input.name]"
+                              v-model="forms.detail.metadata[dataRow][index][input.name]"
                               :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-if="isInput(input.type)" />
 
-                            <NLTextarea :form="forms.generic" :label="input.label" :placeholder="input.placeholder"
+                            <NLTextarea :form="forms.detail" :label="input.label" :placeholder="input.placeholder"
                               :type="input.type" :labelRequired="input.required"
                               :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                              v-model="forms.generic.metadata[dataRow][index][input.name]"
+                              v-model="forms.detail.metadata[dataRow][index][input.name]"
                               :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-if="input.type == 'textarea'"
                               :length="input.length" />
 
-                            <NLWyswyg :form="forms.generic" :label="input.label" :placeholder="input.placeholder"
+                            <NLWyswyg :form="forms.detail" :label="input.label" :placeholder="input.placeholder"
                               :type="input.type" :labelRequired="input.required"
                               :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                              v-model="forms.generic.metadata[dataRow][index][input.name]"
+                              v-model="forms.detail.metadata[dataRow][index][input.name]"
                               :id="'metadata.' + dataRow + '.' + index + '.' + input.name" v-if="input.type == 'wyswyg'"
                               :length="input.length" />
 
-                            <NLSelect :form="forms.generic" :label="input.label" :type="input.type"
+                            <NLSelect :form="forms.detail" :label="input.label" :type="input.type"
                               :labelRequired="input.required"
                               :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                              v-model="forms.generic.metadata[dataRow][index][input.name]"
+                              v-model="forms.detail.metadata[dataRow][index][input.name]"
                               :id="'metadata.' + dataRow + '.' + index + '.' + input.name" :options="input.options"
                               :placeholder="input.placeholder || 'Choisissez une option...'" :multiple="input.multiple"
                               v-if="input.type == 'select'" />
@@ -316,7 +366,7 @@
               </div>
             </div>
 
-            <div class="col-12 list-item" v-else-if="forms.generic.process_mode && rowSelected?.metadata">
+            <div class="col-12 list-item" v-else-if="forms.detail.process_mode && rowSelected?.metadata">
               <div class="list-item-content no-bg grid">
                 <div class="col-12" :class="{ 'col-lg-4': !rowSelected?.metadata }"><b>Informations supplémentaires:</b>
                 </div>
@@ -347,42 +397,57 @@
 
             <!-- Report -->
             <div class="col-12">
-              <NLTextarea :name="'report'" label="Constat" :form="forms.generic" v-model="forms.generic.report"
-                :placeholder="![2, 3, 4].includes(forms.generic.score) && !forms.generic.major_fact ? '' : 'Ajouter votre constat'"
-                :labelRequired="forms.generic.score > 1 || forms.generic.major_fact"
-                :disabled="(![2, 3, 4].includes(forms.generic.score) && !forms.generic.major_fact)"
-                v-if="!forms.generic.process_mode" />
-              <NLTextarea label="Constat" :form="forms.generic" v-model="forms.generic.report" placeholder="Constat"
+              <NLTextarea :name="'report'" label="Constat" :form="forms.detail" v-model="forms.detail.report"
+                :placeholder="[null, undefined, ''].includes(forms.detail.score) || ['object', 'array'].includes(typeof forms.detail.score) && !forms.detail.major_fact ? '' : 'Ajouter votre constat'"
+                :labelRequired="![null, undefined, ''].includes(forms.detail.score) && !['object', 'array'].includes(typeof forms.detail.score) || forms.detail.major_fact"
+                :disabled="[null, undefined, ''].includes(forms.detail.score) || ['object', 'array'].includes(typeof forms.detail.score) && !forms.detail.major_fact"
+                v-if="!forms.detail.process_mode" />
+              <NLTextarea label="Constat" :form="forms.detail" v-model="forms.detail.report" placeholder="Constat"
                 name="report" readonly v-else />
             </div>
 
             <!-- Media (attachements) -->
-            <div class="col-12" v-if="forms.generic.media.length">
+            <div class="col-12" v-if="!forms.detail.process_mode">
               <NLFile :name="'media'" label="Pièces jointes" attachableType="App\Models\MissionDetail"
-                :attachableId="forms.generic.detail" v-model="forms.generic.media" :form="forms.generic" multiple
-                :canDelete="!rowSelected?.controller_opinion_is_validated" :readonly="forms.generic.process_mode" />
+                :attachableId="forms.detail.detail" v-model="forms.detail.media" :form="forms.detail" multiple
+                :canDelete="!rowSelected?.controller_opinion_is_validated" :readonly="forms.detail.process_mode" />
             </div>
 
             <!-- Recovery plan -->
             <div class="col-12">
-              <NLTextarea :name="'recovery_plan'" label="Plan de redressement" :form="forms.generic"
-                v-model="forms.generic.recovery_plan"
-                :placeholder="![2, 3, 4].includes(forms.generic.score) && !forms.generic.major_fact ? '' : 'Ajouter votre plan de redressement'"
-                :labelRequired="forms.generic.score > 1 || forms.generic.major_fact"
-                :disabled="(![2, 3, 4].includes(forms.generic.score) && !forms.generic.major_fact)" />
+              <NLTextarea :name="'recovery_plan'" label="Plan de redressement" :form="forms.detail"
+                v-model="forms.detail.recovery_plan"
+                :placeholder="[1, null, undefined, ''].includes(parseInt(forms.detail.score)) || ['object', 'array'].includes(typeof forms.detail.score) && !forms.detail.major_fact ? '' : 'Ajouter votre plan de redressement'"
+                :labelRequired="![1, null, undefined, ''].includes(parseInt(forms.detail.score)) && !['object', 'array'].includes(typeof forms.detail.score) || forms.detail.major_fact"
+                :disabled="[1, null, undefined, ''].includes(parseInt(forms.detail.score)) || ['object', 'array'].includes(typeof forms.detail.score) && !forms.detail.major_fact" />
             </div>
 
             <!-- Submit Button -->
             <div class="col-12 d-flex justify-end align-center">
-              <NLButton :loading="forms.generic.busy" label="Save" class="is-radius" v-if="!forms.generic.process_mode" />
-              <NLButton :loading="forms.generic.busy" label="Validate" class="is-radius" v-else />
+              <NLButton :loading="forms.detail.busy" label="Save" class="is-radius" v-if="!forms.detail.process_mode" />
+              <NLButton :loading="forms.detail.busy" label="Validate" class="is-radius" v-else />
             </div>
           </form>
-          <form @submit.prevent="regularize" @keydown="forms.detail.onKeydown($event)" enctype="multipart/form-data"
-            class="grid gap-6" v-else>
+        </template>
+      </NLModal>
+
+      <!-- Régularization du point de contrôle -->
+      <NLModal :show="modals.regularize" :defaultMode="true" @close="close('regularize')" v-if="modals.regularize">
+        <template v-slot:title>
+          <small>
+            {{ rowSelected?.control_point?.name }}
+          </small>
+        </template>
+        <template v-slot>
+          <Notification type="is-danger" v-if="forms.regularization.errors.any()">
+            Il y a {{ formErrorsCount }}
+            {{ formErrorsCount > 1 ? 'problèmes avec vos entrées' : 'problème avec une entrée' }}.
+          </Notification>
+          <form @submit.prevent="save('regularize')" @keydown="forms.detail.onKeydown($event)"
+            enctype="multipart/form-data" class="grid gap-6">
             <div class="col-12">
               <NLSwitch v-model="forms.regularization.regularized" type="is-success" :name="'regularized'"
-                :form="forms.regularized" label="Levé" />
+                :form="forms.regularized" label="Levée" />
             </div>
             <div class="col-12">
               <NLSelect name="type" :options="regularizationTypes" :form="forms.regularization"
@@ -391,7 +456,7 @@
             </div>
             <!-- Recovery plan -->
             <div class="col-12" v-if="forms.regularization.regularized">
-              <NLTextarea :name="'committed_action'" label="Action engagé" :form="forms.regularization"
+              <NLTextarea :name="'committed_action'" label="Action engagée" :form="forms.regularization"
                 v-model="forms.regularization.committed_action" length="3000" labelRequired />
             </div>
             <div class="col-12" v-if="!forms.regularization.regularized && forms.regularization.type == 'Cause'">
@@ -399,8 +464,8 @@
                 v-model="forms.regularization.reason" length="1000" labelRequired />
             </div>
             <div class="col-12"
-              v-if="!forms.regularization.regularized && forms.regularization.type == 'Action à engagé'">
-              <NLTextarea :name="'action_to_be_taken'" label="Action à engagé" :form="forms.regularization"
+              v-if="!forms.regularization.regularized && forms.regularization.type == 'Action à engagée'">
+              <NLTextarea :name="'action_to_be_taken'" label="Action à engagée" :form="forms.regularization"
                 v-model="forms.regularization.action_to_be_taken" length="3000" labelRequired />
             </div>
             <div class="col-12 d-flex justify-end align-center">
@@ -442,6 +507,7 @@ export default {
       modals: {
         show: false,
         edit: false,
+        regularize: false,
       },
       regularizationTypes: [
         {
@@ -449,8 +515,8 @@ export default {
           label: 'Cause',
         },
         {
-          id: 'Action à engagé',
-          label: 'Action à engagé',
+          id: 'Action à engagée',
+          label: 'Action à engagée',
         },
       ],
       regularization_mode: false,
@@ -464,7 +530,7 @@ export default {
           action_to_be_taken: null,
           type: null
         }),
-        generic: new Form({
+        detail: new Form({
           process_mode: false,
           mission: null,
           process: null,
@@ -473,7 +539,7 @@ export default {
           report: null,
           recovery_plan: null,
           score: null,
-          major_fact: false,
+          major_fact: null,
           metadata: [],
         }),
       }
@@ -481,7 +547,7 @@ export default {
   },
   computed: {
     formErrorsCount() {
-      return Object.entries(this.forms.generic.errors.all()).length
+      return Object.entries(this.forms.detail.errors.all()).length
     },
     ...mapGetters({
       config: 'details/config',
@@ -504,6 +570,14 @@ export default {
       this.modals.show = true
       this.currentMetadata.keys = Object.keys(item.parsed_metadata)
     },
+    regularize(item) {
+      // console.log(item);
+      this.rowSelected = item
+      this.modals.edit = false
+      this.modals.show = false
+      this.modals.regularize = true
+      this.initForm()
+    },
     /**
      * Affiche le modal pour modifer informations du point de contrôle
      *
@@ -511,6 +585,7 @@ export default {
      */
     edit(item) {
       this.rowSelected = item
+      this.modals.show = false
       this.modals.edit = true
       this.currentMetadata.keys = Object.keys(item.parsed_metadata)
       this.initForm()
@@ -519,12 +594,16 @@ export default {
      * Ferme la boite modal des détails du point de contrôle
      */
     close(modal) {
-      this.rowSelected = null
       if (this.modals.hasOwnProperty(modal)) {
         this.modals[ modal ] = false
       }
-      this.forms.generic.reset()
+      this.forms.detail.reset()
+      this.forms.regularization.reset()
+      if (modal !== 'show') {
+        this.initData()
+      }
       this.currentMetadata = {}
+      this.rowSelected = null
     },
     /**
      * Initialise les données
@@ -543,24 +622,24 @@ export default {
      */
     initForm() {
       this.regularization_mode = hasRole('da')
-      this.regularization_mode ? this.initRegularizationForm() : this.initGenericForm()
+      this.regularization_mode ? this.initRegularizationForm() : this.initDetailForm()
     },
-    initGenericForm() {
+    initDetailForm() {
       this.$store.dispatch('details/fetchConfig', { missionId: this.$route.params.missionId, processId: this.$route.params.processId, detailId: this.rowSelected?.id }).then(() => {
         const config = this.config.config
         this.rowSelected = config.detail
-        this.forms.generic.process_mode = config.mission.dre_report_is_validated
-        this.forms.generic.mission = this.$route.params.missionId
-        this.forms.generic.process = this.$route.params.processId
-        this.forms.generic.detail = config.detail.id
-        this.forms.generic.media = config.detail.media.length ? config.detail.media.map(file => file.id) : []
-        this.forms.generic.detail = config.detail.id
-        this.forms.generic.report = config.detail.report
-        this.forms.generic.recovery_plan = config.detail.recovery_plan
-        this.forms.generic.score = config.detail.score
-        this.forms.generic.metadata = config.detail.metadata || []
-        this.forms.generic.major_fact = config.detail.major_fact ? true : false
-        this.forms.generic.process_mode = this.is([ 'dcp', 'cdcr', 'cc' ])
+        this.forms.detail.process_mode = config.mission.dre_report_is_validated
+        this.forms.detail.mission = this.$route.params.missionId
+        this.forms.detail.process = this.$route.params.processId
+        this.forms.detail.detail = config.detail.id
+        this.forms.detail.media = config.detail.media.length ? config.detail.media.map(file => file.id) : []
+        this.forms.detail.detail = config.detail.id
+        this.forms.detail.report = config.detail.report
+        this.forms.detail.recovery_plan = config.detail.recovery_plan
+        this.forms.detail.process_mode = this.is([ 'dcp', 'cdcr', 'cc' ])
+        this.forms.detail.score = parseInt(config.detail.score)
+        this.forms.detail.metadata = config.detail.metadata || []
+        this.forms.detail.major_fact = config.detail.major_fact ? true : false
       })
     },
     initRegularizationForm() {
@@ -619,38 +698,23 @@ export default {
     /**
      * Enregistrement du détail de la mission
      */
-    save() {
-      swal.confirm_update().then(action => {
-        if (action.isConfirmed) {
-          this.forms.generic.post('/api/missions/details/' + this.mission.id).then(response => {
-            if (response.data.status) {
-              swal.toast_success(response.data.message)
-              this.initData()
-            } else {
-              swal.alert_error(response.data.message)
-            }
-          }).catch(error => {
-            let message = error.message
-            if (error.response.status == 422) {
-              message = 'Les données fournies sont invalides.'
-            }
-            swal.toast_error(message)
-          })
-        }
-      })
-    },
-    /**
-     * Régularisation du détail de la mission
-     */
-    regularize() {
-
-      this.forms.regularization.post('/api/regularize/' + this.forms.regularization.detail_id).then(response => {
+    save(action) {
+      let form, url
+      if (action == 'edit') {
+        form = this.forms.detail
+        url = '/api/missions/details/' + this.forms.detail.mission
+      } else if (action == 'regularize') {
+        form = this.forms.regularization
+        url = '/api/regularize/' + this.forms.regularization.detail_id
+      }
+      form.post(url).then(response => {
         if (response.data.status) {
           swal.toast_success(response.data.message)
-          this.forms.regularization.reset()
           this.initData()
+          form.reset()
           this.close('edit')
           this.close('show')
+          this.close('regularize')
         } else {
           swal.alert_error(response.data.message)
         }
@@ -662,6 +726,28 @@ export default {
         swal.toast_error(message)
       })
     },
+    /**
+     * Régularisation du détail de la mission
+     */
+    // regularize() {
+    //   this.forms.regularization.post('/api/regularize/' + this.forms.regularization.detail_id).then(response => {
+    //     if (response.data.status) {
+    //       swal.toast_success(response.data.message)
+    //       this.forms.regularization.reset()
+    //       this.initData()
+    //       this.close('edit')
+    //       this.close('show')
+    //     } else {
+    //       swal.alert_error(response.data.message)
+    //     }
+    //   }).catch(error => {
+    //     let message = error.message
+    //     if (error.response.status == 422) {
+    //       message = 'Les données fournies sont invalides.'
+    //     }
+    //     swal.toast_error(message)
+    //   })
+    // },
     /**
      * Ajouter une ligne dans le répéteur
      *
@@ -677,7 +763,7 @@ export default {
         defaultValue = element.multiple ? [] : ''
         schema.push({ [ name ]: defaultValue, label: element.label, rules: element.rules })
       }
-      if (this.forms.generic.metadata) this.forms.generic.metadata.push(schema)
+      if (this.forms.detail.metadata) this.forms.detail.metadata.push(schema)
     },
     /**
      * Supprimer une ligne du répéteur
@@ -686,7 +772,7 @@ export default {
      * @param {Number} field
      */
     removeRow(row, field) {
-      this.forms.generic.metadata.splice(field, 1)
+      this.forms.detail.metadata.splice(field, 1)
     },
     /**
      * Vérifie que la valeur est un input valide

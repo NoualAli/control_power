@@ -53,8 +53,7 @@ class RoleController extends Controller
             $data = $request->validated();
             $role = Role::create([
                 'name' => $data['name'],
-                'code' => $data['code'],
-                'guard_name' => Auth::getDefaultDriver()
+                'code' => $data['code']
             ]);
             $role->permissions()->sync($data['permissions']);
 
@@ -63,12 +62,10 @@ class RoleController extends Controller
                 'status' => true
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $code);
+            ], 500);
         }
     }
     /**
@@ -97,8 +94,7 @@ class RoleController extends Controller
             $data = $request->validated();
             $role->update([
                 'name' => $data['name'],
-                'code' => $data['code'],
-                'guard_name' => Auth::getDefaultDriver()
+                'code' => $data['code']
             ]);
 
             $role->permissions()->sync($data['permissions']);
@@ -107,12 +103,10 @@ class RoleController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $code);
+            ], 500);
         }
     }
 
@@ -132,12 +126,10 @@ class RoleController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $code);
+            ], 500);
         }
     }
 }

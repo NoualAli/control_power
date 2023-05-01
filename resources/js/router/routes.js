@@ -30,8 +30,7 @@ export default [
    * Auth
    */
   { path: '/login', name: 'login', component: page('auth/login.vue') },
-  { path: '/password/reset', name: 'password.request', component: page('auth/password/email.vue') },
-  { path: '/password/reset/:token', name: 'password.reset', component: page('auth/password/reset.vue') },
+  { path: '/password/new', name: 'password.new', component: page('auth/password/new.vue') },
 
   /**
    * Profile settings

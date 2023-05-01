@@ -44,7 +44,7 @@ export default {
     }
   },
   created() {
-    this.$store.dispatch('famillies/fetchAll').then(() => {
+    this.$store.dispatch('famillies/fetchAll', false).then(() => {
       this.familliesList = this.famillies.all
     })
   },

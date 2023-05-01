@@ -2,124 +2,159 @@
   <ContentBody>
     <NLDatatable :filters="filters" namespace="details" stateKey="global" :config="tableConfig" @show="show" />
 
-    <!-- View control point informations -->
-    <NLModal :show="modals.show" @close="close('show')" :defaultMode="true">
+    <!-- Détails du point de contrôle -->
+    <NLModal :show="modals.show" @close="close('show')">
       <template v-slot:title>
-        <div class="tags">
-          <small class="tag is-primary-dark text-small">
-            {{ mission?.campaign?.reference }}
-          </small>
-          <small class="tag is-primary-extra-light text-small mx-1">
-            {{ mission?.reference }}
-          </small>
-        </div>
+        <small>
+          {{ rowSelected?.control_point.name }}
+        </small>
       </template>
       <template v-slot>
-        <div class="grid gap-6">
-          <div class="col-12">
-            <span class="label">Fait majeur: </span>
-            <span v-html="rowSelected?.major_fact_str"></span>
+        <div class="grid list">
+          <!-- Major fact -->
+          <div class="col-12 list-item">
+            <div class="list-item-content no-bg grid">
+              <div class="col-4"><b>Fait majeur:</b></div>
+              <div class="col-8">
+                <span v-if="!rowSelected?.major_fact">
+                  <i class="las la-check-circle icon text-success"></i>
+                  Non
+                </span>
+                <span v-else>
+                  <i class="las la-times-circle icon text-danger"></i>
+                  Oui
+                </span>
+              </div>
+            </div>
           </div>
-          <div class="col-12 col-lg-6">
-            <span class="label">Dre: </span>
-            <span>{{ mission?.dre?.full_name }}</span>
+          <!-- Score -->
+          <div class="col-12 list-item">
+            <div class="list-item-content no-bg grid">
+              <div class="col-4"><b>Appréciation:</b></div>
+              <div class="col-8">{{ rowSelected?.appreciation }}</div>
+            </div>
           </div>
-          <div class="col-12 col-lg-6">
-            <span class="label">Agence: </span>
-            <span>{{ mission?.agency?.full_name }}</span>
+          <!-- Report -->
+          <div class="col-12 list-item">
+            <div class="list-item-content no-bg grid">
+              <div class="col-4"><b>Constat:</b></div>
+              <div class="col-8">{{ rowSelected?.report || '-' }}</div>
+            </div>
           </div>
-          <div class="col-12 col-lg-6">
-            <span class="label">Famille: </span>
-            <span>{{ process?.familly?.name }}</span>
+          <!-- Recovery plan -->
+          <div class="col-12 list-item">
+            <div class="list-item-content no-bg grid">
+              <div class="col-4"><b>Plan de redressement:</b></div>
+              <div class="col-8">{{ rowSelected?.recovery_plan || '-' }}</div>
+            </div>
           </div>
-          <div class="col-12 col-lg-6">
-            <span class="label">Domaine: </span>
-            <span>{{ rowSelected?.domain?.name }}</span>
+          <!-- Metadata -->
+          <div class="col-12 list-item" v-if="rowSelected?.metadata?.length">
+            <div class="list-item-content no-bg grid">
+              <div class="col-12" :class="{ 'col-lg-4': !rowSelected?.metadata }"><b>Informations supplémentaires:</b>
+              </div>
+              <div class="col-12" :class="{ 'col-lg-8': !rowSelected?.metadata }">
+                <table v-if="rowSelected?.metadata">
+                  <thead>
+                    <tr>
+                      <th class="text-left" v-for="heading in currentMetadata.keys">
+                        {{ heading }}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(data, row) in rowSelected?.metadata" :key="'metadata-row-' + row">
+                      <td class="text-left" v-for="(items, index) in data" :key="'metadata-item-' + index">
+                        <span v-for="(item, key) in items" :key="'metadata-item-' + index + '-content'"
+                          v-if="key !== 'label' && key !== 'rules'">
+                          {{ item || '-' }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <span v-else>-</span>
+              </div>
+            </div>
           </div>
-          <div class="col-12">
-            <span class="label">Processus: </span>
-            <span>{{ process?.name }}</span>
-          </div>
-          <div class="col-12">
-            <span class="label">Point de contrôle: </span>
-            <span>{{ rowSelected?.control_point?.name }}</span>
-          </div>
-          <div class="col-12 col-lg-6">
-            <span class="label">Appréciation: </span>
-            <span>{{ rowSelected?.appreciation }}</span>
-          </div>
-          <div class="col-12 col-lg-6">
-            <span class="label">Notation: </span>
-            <span>{{ rowSelected?.score }}</span>
-          </div>
-          <div class="col-12" :class="{ 'col-lg-4': !rowSelected?.metadata }" v-if="rowSelected?.metadata?.length">
-            <span class="label">
-              Informations supplémentaires:
-            </span>
-          </div>
-          <div class="col-12" :class="{ 'col-lg-8': !rowSelected?.parsed_metadata }" v-if="rowSelected?.metadata?.length">
-            <table v-if="rowSelected?.parsed_metadata">
-              <thead>
-                <tr>
-                  <th class="text-left" v-for="heading in Object.keys(rowSelected?.parsed_metadata)">
-                    {{ heading }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(data, row) in rowSelected?.metadata" :key="'metadata-row-' + row">
-                  <td class="text-left" v-for="(items, index) in data" :key="'metadata-row-' + row + '-item-' + index">
-                    <span v-for="(item, key) in items" :key="'metadata-row-' + row + '-item-' + index + '-content'"
-                      v-if="key !== 'label' && key !== 'rules'">
-                      {{ item }}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="col-12">
-            <span class="label">Constat: </span>
-            <span>{{ rowSelected?.report || '-' }}</span>
-          </div>
-          <div class="col-12">
-            <span class="label">Plan de redressement: </span>
-            <span>{{ rowSelected?.recovery_plan || '-' }}</span>
-          </div>
-          <div class="col-12" v-if="rowSelected?.regularization?.regularized_at">
-            <span class="label">Date de régularisation: </span>
-            <span>{{ rowSelected?.regularization?.regularized_at || '-' }}</span>
-          </div>
+          <!-- Media -->
           <div class="col-12 list-item" v-if="rowSelected?.media?.length">
-            <NLFile label="Pièces jointes" name="media" v-model="files" :canDelete="false" readonly />
+            <div class="list-item-content" @click.stop="" v-for="file in rowSelected?.media">
+              <div class="files-list list is-visible grid gap-4 text-medium">
+                <div class="col-11 d-flex justify-between align-center">
+                  <a :href="file.link" target="_blank" class="text-dark text-small">
+                    {{ file.original_name }}
+                  </a>
+                  <span class="text-small">{{ file.size }}</span>
+                </div>
+                <div class="col-1 d-flex justify-end align-center gap-4">
+                  <a :href="file.link" :download="file.original_name">
+                    <i class="las la-download text-info icon"></i>
+                  </a>
+                  <i class="las la-trash text-danger icon is-clickable" @click.stop="deleteItem(file, index)"
+                    v-if="!mission?.dre_report_is_validated"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Regularization -->
+          <div class="col-12 list-item box border-top border-1 border-solid border-primary-dark"
+            v-if="rowSelected?.score > 1 && rowSelected?.regularization?.regularized">
+            <div class="list-item-content no-bg grid">
+              <div class="col-12">
+                <h2>Régularisation</h2>
+              </div>
+              <div class="col-4"><b>Etat:</b></div>
+              <div class="col-8">{{ rowSelected?.regularization?.regularized }}</div>
+
+              <div class="col-4" v-if="rowSelected?.regularization?.reason"><b>Cause:</b></div>
+              <div class="col-8" v-if="rowSelected?.regularization?.reason">
+                {{ rowSelected?.regularization?.reason }}
+              </div>
+
+              <div class="col-4" v-if="rowSelected?.regularization?.action_to_be_taken"><b>Actions à engagé:</b></div>
+              <div class="col-8" v-if="rowSelected?.regularization?.action_to_be_taken">
+                {{ rowSelected?.regularization?.action_to_be_taken }}
+              </div>
+
+              <div class="col-4" v-if="rowSelected?.regularization?.committed_action"><b>Actions engagé:</b></div>
+              <div class="col-8" v-if="rowSelected?.regularization?.committed_action">
+                {{ rowSelected?.regularization?.committed_action }}
+              </div>
+
+              <div class="col-4" v-if="rowSelected?.regularization?.regularized_at"><b>Date Régularisation:</b></div>
+              <div class="col-8" v-if="rowSelected?.regularization?.regularized_at">
+                {{ rowSelected?.regularization?.regularized_at }}
+              </div>
+            </div>
           </div>
 
           <div class="col-12 d-flex justify-end align-center">
             <div class="d-flex align-center gap-2">
               <!-- CI -->
               <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
-                v-if="!mission?.controller_opinion_is_validated && !rowSelected?.major_fact && can('create_opinion')">
+                v-if="!rowSelected?.mission?.controller_opinion_is_validated && !rowSelected?.major_fact && can('create_opinion')">
                 <i class="las la-pen icon"></i>
                 Modifier
               </button>
 
               <!-- CDC -->
               <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
-                v-if="!mission?.dre_report_is_validated && !rowSelected?.major_fact && can('create_dre_report,validate_dre_report')">
+                v-if="!rowSelected?.mission?.dre_report_is_validated && !rowSelected?.major_fact && can('create_dre_report,validate_dre_report')">
                 <i class="las la-pen icon"></i>
                 Modifier
               </button>
 
               <!-- CDCR -->
               <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
-                v-if="!mission?.cdcr_validation_at && !rowSelected?.major_fact_dispatched_at && can('make_first_validation,process_mission')">
+                v-if="!rowSelected?.mission?.cdcr_validation_at && !rowSelected?.major_fact_dispatched_at && can('make_first_validation,process_mission')">
                 <i class="las la-pen icon"></i>
                 Traiter
               </button>
 
               <!-- DCP -->
               <button class="btn btn-warning has-icon" @click="edit(rowSelected)"
-                v-if="!mission?.dcp_validation_at && rowSelected?.mission?.cdcr_validation_at && !rowSelected?.major_fact_dispatched_at && can('make_second_validation')">
+                v-if="!rowSelected?.mission?.dcp_validation_at && rowSelected?.mission?.cdcr_validation_at && !rowSelected?.major_fact_dispatched_at && can('make_second_validation')">
                 <i class="las la-pen icon"></i>
                 Traiter
               </button>
@@ -130,7 +165,7 @@
               </button>
               <!-- Agency director -->
               <button
-                v-if="mission?.dcp_validation_at && !rowSelected?.regularization?.regularized_at && !rowSelected?.major_fact && rowSelected?.score !== 1 && can('regularize_mission_detail')"
+                v-if="rowSelected?.mission?.dcp_validation_at && !rowSelected?.regularization?.regularized_at && !rowSelected?.major_fact && rowSelected?.score !== 1 && can('regularize_mission_detail')"
                 class="btn btn-warning has-icon" @click="regularize(rowSelected)">
                 <i class="las la-pen icon"></i>
                 Régulariser
@@ -140,11 +175,11 @@
         </div>
       </template>
     </NLModal>
-    <!-- Traitement du point de contrôle -->
+    <!-- Edition du point de contrôle -->
     <NLModal :show="modals.edit" :defaultMode="true" @close="close('edit')" v-if="modals.edit">
       <template v-slot:title>
         <small>
-          {{ rowSelected?.control_point?.name }}
+          {{ rowSelected?.control_point.name }}
         </small>
       </template>
       <template v-slot>
@@ -153,21 +188,21 @@
           {{ formErrorsCount > 1 ? 'problèmes avec vos entrées' : 'problème avec une entrée' }}.
         </Notification>
         <form @submit.prevent="save('edit')" @keydown="forms.detail.onKeydown($event)" enctype="multipart/form-data"
-          class="grid gap-6">
-          <!-- Major Fact -->
-          <div class="col-12">
+          class="grid gap-2">
+          <!-- Major fact -->
+          <div class="col-12"
+            v-if="rowSelected?.control_point?.has_major_fact && [2, 3, 4].includes(forms?.detail?.score)">
             <NLSwitch v-model="forms.detail.major_fact" :name="'major_fact'" :form="forms.detail" label="Fait majeur" />
           </div>
-
-          <!-- Score -->
+          <!-- score -->
           <div class="col-12">
             <NLSelect :name="'score'" label="Notation" :form="forms.detail" v-model="forms.detail.score"
-              :options="setupScores(rowSelected?.control_point?.scores)" labelRequired />
+              :options="setupScores(rowSelected?.control_point.scores)" labelRequired />
           </div>
 
           <!-- Metadata -->
           <div class="col-12"
-            v-if="rowSelected?.control_point?.fields && forms.detail.score > 1 && !forms.detail.process_mode">
+            v-if="rowSelected?.control_point.fields && forms.detail.score > 1 && !forms.detail.process_mode">
             <div class="repeater">
               <h2 class="mb-6">Informations supplémentaires</h2>
               <!-- Repeater row -->
@@ -178,7 +213,7 @@
                     <div class="col-11">
                       <div class="grid">
                         <div :key="'metadata-input-' + input.name + '-' + dataRow + '-id'" :class="input.style"
-                          v-for="(input, index) in setupFields(rowSelected?.control_point?.fields)">
+                          v-for="(input, index) in setupFields(rowSelected?.control_point.fields)">
                           <!-- Defining different inputs -->
                           <NLInput :form="forms.detail" :label="input.label" :placeholder="input.placeholder"
                             :type="input.type" :labelRequired="input.required"
@@ -220,67 +255,68 @@
               </div>
               <!-- Add new row -->
               <div class="d-flex justify-start align-center">
-                <span class="btn" @click="addRow(rowSelected?.control_point?.fields)">
+                <span class="btn" @click="addRow(rowSelected?.control_point.fields)">
                   <i class="las la-plus"></i>
                 </span>
               </div>
             </div>
           </div>
-          <div class="col-12" :class="{ 'col-lg-8': !rowSelected?.parsed_metadata }"
-            v-else-if="forms.detail.process_mode && rowSelected?.parsed_metadata.length && forms.detail.score > 1">
-            <div class=" label">
-              Informations supplémentaires
+
+          <div class="col-12 list-item" v-else-if="forms.detail.process_mode && rowSelected?.metadata">
+            <div class="list-item-content no-bg grid">
+              <div class="col-12" :class="{ 'col-lg-4': !rowSelected?.metadata }"><b>Informations supplémentaires:</b>
+              </div>
+              <div class="col-12" :class="{ 'col-lg-8': !rowSelected?.metadata }">
+                <table v-if="rowSelected?.metadata">
+                  <thead>
+                    <tr>
+                      <th class="text-left" v-for="heading in currentMetadata.keys">
+                        {{ heading }}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(data, row) in rowSelected?.metadata" :key="'metadata-row-' + row">
+                      <td class="text-left" v-for="(items, index) in data" :key="'metadata-item-' + index">
+                        <span v-for="(item, key) in items" :key="'metadata-item-' + index + '-content'"
+                          v-if="key !== 'label' && key !== 'rules'">
+                          {{ item || '-' }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <span v-else>-</span>
+              </div>
             </div>
-            <table v-if="rowSelected?.parsed_metadata">
-              <thead>
-                <tr>
-                  <th class="text-left" v-for="heading in Object.keys(rowSelected?.parsed_metadata)">
-                    {{ heading }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(data, row) in rowSelected?.metadata" :key="'metadata-row-' + row">
-                  <td class="text-left" v-for="(items, index) in data" :key="'metadata-row-' + row + '-item-' + index">
-                    <span v-for="(item, key) in items" :key="'metadata-row-' + row + '-item-' + index + '-content'"
-                      v-if="key !== 'label' && key !== 'rules'">
-                      {{ item }}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <span v-else>-</span>
           </div>
 
           <!-- Report -->
-          <div class="col-12" v-if="!forms.detail.process_mode">
-            <NLTextarea :name="'report'" label="Constat" :form="forms.detail" v-model="forms.detail.report"
-              :placeholder="![2, 3, 4].includes(forms.detail.score) && !forms.detail.major_fact ? '' : 'Ajouter votre constat'"
-              :labelRequired="forms.detail.score > 1 || forms.detail.major_fact"
-              :readonly="![2, 3, 4].includes(forms.detail.score) && !forms.detail.major_fact" />
-          </div>
-          <div class="col-12" v-else>
-            <span class="label">Constat: </span>
-            <span>{{ rowSelected?.report || '-' }}</span>
-          </div>
-          <!-- Media (attachements) -->
           <div class="col-12">
+            <NLTextarea :name="'report'" label="Constat" :form="forms.detail" v-model="forms.detail.report"
+              :placeholder="[null, undefined, ''].includes(forms.detail.score) || ['object', 'array'].includes(typeof forms.detail.score) && !forms.detail.major_fact ? '' : 'Ajouter votre constat'"
+              :labelRequired="![null, undefined, ''].includes(forms.detail.score) && !['object', 'array'].includes(typeof forms.detail.score) || forms.detail.major_fact"
+              :disabled="[null, undefined, ''].includes(forms.detail.score) || ['object', 'array'].includes(typeof forms.detail.score) && !forms.detail.major_fact"
+              v-if="!forms.detail.process_mode" />
+            <NLTextarea label="Constat" :form="forms.detail" v-model="forms.detail.report" placeholder="Constat"
+              name="report" readonly v-else />
+          </div>
+
+          <!-- Media (attachements) -->
+          <div class="col-12" v-if="!forms.detail.process_mode">
             <NLFile :name="'media'" label="Pièces jointes" attachableType="App\Models\MissionDetail"
               :attachableId="forms.detail.detail" v-model="forms.detail.media" :form="forms.detail" multiple
-              :readonly="forms.detail.process_mode" />
-            {{ forms.detail.process_mode }}
+              :canDelete="!rowSelected?.controller_opinion_is_validated" :readonly="forms.detail.process_mode" />
           </div>
 
           <!-- Recovery plan -->
           <div class="col-12">
             <NLTextarea :name="'recovery_plan'" label="Plan de redressement" :form="forms.detail"
               v-model="forms.detail.recovery_plan"
-              :placeholder="![2, 3, 4].includes(forms.detail.score) && !forms.detail.major_fact ? '' : 'Ajouter votre plan de redressement'"
-              :labelRequired="forms.detail.score > 1 || forms.detail.major_fact"
-              :readonly="![2, 3, 4].includes(forms.detail.score) && !forms.detail.major_fact" />
+              :placeholder="[1, null, undefined, ''].includes(parseInt(forms.detail.score)) || ['object', 'array'].includes(typeof forms.detail.score) && !forms.detail.major_fact ? '' : 'Ajouter votre plan de redressement'"
+              :labelRequired="![1, null, undefined, ''].includes(parseInt(forms.detail.score)) && !['object', 'array'].includes(typeof forms.detail.score) || forms.detail.major_fact"
+              :disabled="[1, null, undefined, ''].includes(parseInt(forms.detail.score)) || ['object', 'array'].includes(typeof forms.detail.score) && !forms.detail.major_fact" />
           </div>
-
           <!-- Submit Button -->
           <div class="col-12 d-flex justify-end align-center">
             <NLButton :loading="forms.detail.busy" label="Save" class="is-radius" v-if="!forms.detail.process_mode" />
@@ -306,7 +342,7 @@
           class="grid gap-6">
           <div class="col-12">
             <NLSwitch v-model="forms.regularization.regularized" type="is-success" :name="'regularized'"
-              :form="forms.regularized" label="Levé" />
+              :form="forms.regularized" label="Levée" />
           </div>
           <div class="col-12">
             <NLSelect name="type" :options="regularizationTypes" :form="forms.regularization"
@@ -315,15 +351,15 @@
           </div>
           <!-- Recovery plan -->
           <div class="col-12" v-if="forms.regularization.regularized">
-            <NLTextarea :name="'committed_action'" label="Action engagé" :form="forms.regularization"
+            <NLTextarea :name="'committed_action'" label="Action engagée" :form="forms.regularization"
               v-model="forms.regularization.committed_action" length="3000" labelRequired />
           </div>
           <div class="col-12" v-if="!forms.regularization.regularized && forms.regularization.type == 'Cause'">
             <NLTextarea :name="'reason'" label="Cause" :form="forms.regularization" v-model="forms.regularization.reason"
               length="1000" labelRequired />
           </div>
-          <div class="col-12" v-if="!forms.regularization.regularized && forms.regularization.type == 'Action à engagé'">
-            <NLTextarea :name="'action_to_be_taken'" label="Action à engagé" :form="forms.regularization"
+          <div class="col-12" v-if="!forms.regularization.regularized && forms.regularization.type == 'Action à engagée'">
+            <NLTextarea :name="'action_to_be_taken'" label="Action à engagée" :form="forms.regularization"
               v-model="forms.regularization.action_to_be_taken" length="3000" labelRequired />
           </div>
           <div class="col-12 d-flex justify-end align-center">
@@ -373,8 +409,8 @@ export default {
           label: 'Cause',
         },
         {
-          id: 'Action à engagé',
-          label: 'Action à engagé',
+          id: 'Action à engagée',
+          label: 'Action à engagée',
         },
       ],
       tableConfig: {
@@ -391,6 +427,7 @@ export default {
           {
             label: 'DRE',
             field: 'dre_full_name',
+            hide: hasRole([ 'cdc', 'ci', 'da', 'dre' ])
           },
           {
             label: 'Agence',
@@ -413,28 +450,38 @@ export default {
             field: 'control_point_name',
           },
           {
-            label: 'Fait majeur',
-            field: 'major_fact_str',
-            isHtml: true,
-            methods: {
-              showField(item) {
-                return `
-                <div class="text-center">
-                  ${item.major_fact_str}
-                </div>
-                `
-              }
-            }
-          },
-          {
             label: 'Notation',
             field: 'score',
             hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
+            isHtml: true,
             methods: {
               style() {
                 return 'text-center'
-              }
+              },
+              showField(item) {
+                const score = item.score
+                let style = 'text-dark text-bold'
+                if (score == 1) {
+                  style = 'bg-success text-white text-bold'
+                } else if (score == 2) {
+                  style = 'bg-info text-white text-bold'
+                } else if (score == 3) {
+                  style = 'bg-warning text-bold'
+                } else if (score == 4) {
+                  style = 'bg-danger text-white text-bold'
+                } else {
+                  style = 'bg-grey text-dark text-bold'
+                }
+                return `<div class="container">
+                  <div class="has-border-radius py-1 text-center ${style}">${score}</div>
+                </div>`
+              },
             }
+          },
+          {
+            label: 'Etat',
+            field: 'is_regularized',
+            hide: hasRole([ 'cdc', 'ci' ])
           },
         ],
         actions: {
@@ -490,7 +537,8 @@ export default {
           cols: 'col-lg-3',
           multiple: true,
           data: null,
-          value: null
+          value: null,
+          hide: hasRole([ 'cdc', 'ci', 'da', 'dre' ])
         },
         agency: {
           label: 'Agence',
@@ -521,15 +569,15 @@ export default {
           label: 'Régularisation',
           multiple: false,
           value: null,
-          hide: !hasRole([ 'dcp', 'cdcr' ]),
+          hide: hasRole([ 'cdc', 'ci' ]),
           data: [
             {
               id: 0,
-              label: 'Non levé'
+              label: 'Non levée'
             },
             {
               id: 1,
-              label: 'Levé'
+              label: 'Levée'
             },
           ],
         },
@@ -537,10 +585,6 @@ export default {
           label: 'Notation',
           multiple: true,
           data: [
-            {
-              id: 1,
-              label: 1
-            },
             {
               id: 2,
               label: 2
@@ -556,20 +600,6 @@ export default {
           ],
           value: null,
           hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
-        },
-        major_fact: {
-          label: 'Fait majeur',
-          data: [
-            {
-              id: 0,
-              label: 'Non'
-            },
-            {
-              id: 1,
-              label: 'Oui'
-            },
-          ],
-          value: null
         },
       },
       currentMetadata: {},
@@ -643,12 +673,11 @@ export default {
       }
       this.forms.detail.reset()
       this.forms.regularization.reset()
-      this.initData()
+      if (modal !== 'show') {
+        this.initData()
+      }
       this.currentMetadata = {}
       this.rowSelected = null
-      if (modal == 'show') {
-      } else {
-      }
     },
     /**
      * Initialise le formulaire
@@ -665,7 +694,7 @@ export default {
         this.forms.detail.detail = config.detail.id
         this.forms.detail.report = config.detail.report
         this.forms.detail.recovery_plan = config.detail.recovery_plan
-        this.forms.detail.score = config.detail.score
+        this.forms.detail.score = parseInt(config.detail.score)
         this.forms.detail.major_fact = config.detail.major_fact ? true : false
         this.forms.detail.metadata = config.detail.metadata || []
       })

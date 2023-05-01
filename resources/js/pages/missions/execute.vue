@@ -12,8 +12,10 @@
         </div>
         <div class="col-11">
           <Notification type="is-danger" v-if="form.errors.any()">
-            Il y a {{ formErrorsCount }}
-            {{ formErrorsCount > 1 ? 'problèmes avec vos entrées' : 'problème avec une entrée' }}.
+            <p class="text-white">
+              Il y a {{ formErrorsCount }}
+              {{ formErrorsCount > 1 ? 'problèmes avec vos entrées' : 'problème avec une entrée' }}.
+            </p>
           </Notification>
         </div>
       </div>
@@ -39,7 +41,8 @@
               </div>
 
               <!-- Metadata -->
-              <div class="col-12" v-if="detail.control_point.fields && form.rows[row].score > 1">
+              <div class="col-12"
+                v-if="detail.control_point.fields && ![null, undefined, ''].includes(form.rows[row].score) && !['object', 'array'].includes(typeof form.rows[row].score)">
                 <div class="repeater">
                   <h2 class="mb-6">Informations supplémentaires</h2>
                   <!-- Repeater row -->
@@ -103,17 +106,17 @@
               <!-- Report -->
               <div class="col-12">
                 <NLTextarea :name="'rows.' + row + '.report'" label="Constat" :form="form" v-model="form.rows[row].report"
-                  :placeholder="form.rows[row].score == 1 || form.rows[row].score == null && !form.rows[row].major_fact ? '' : 'Ajouter votre constat'"
-                  :labelRequired="form.rows[row].score > 1 || form.rows[row].major_fact"
-                  :disabled="form.rows[row].score == 1 || form.rows[row].score == null && !form.rows[row].major_fact" />
+                  :placeholder="[null, undefined, ''].includes(form.rows[row].score) || ['object', 'array'].includes(typeof form.rows[row].score) && !form.rows[row].major_fact ? '' : 'Ajouter votre constat'"
+                  :labelRequired="![null, undefined, ''].includes(form.rows[row].score) && !['object', 'array'].includes(typeof form.rows[row].score) || form.rows[row].major_fact"
+                  :disabled="[null, undefined, ''].includes(form.rows[row].score) || ['object', 'array'].includes(typeof form.rows[row].score) && !form.rows[row].major_fact" />
               </div>
               <!-- Recovery plan -->
               <div class="col-12">
                 <NLTextarea :name="'rows.' + row + '.recovery_plan'" label="Plan de redressement" :form="form"
                   v-model="form.rows[row].recovery_plan"
-                  :placeholder="form.rows[row].score == 1 || form.rows[row].score == null && !form.rows[row].major_fact ? '' : 'Ajouter votre plan de redressement'"
+                  :placeholder="form.rows[row].score == 1 || [null, undefined, ''].includes(form.rows[row].score) || ['object', 'array'].includes(typeof form.rows[row].score) && !form.rows[row].major_fact ? '' : 'Ajouter votre plan de redressement'"
                   :labelRequired="form.rows[row].score > 1 || form.rows[row].major_fact"
-                  :disabled="form.rows[row].score == 1 || form.rows[row].score == null && !form.rows[row].major_fact" />
+                  :disabled="form.rows[row].score == 1 || [null, undefined, ''].includes(form.rows[row].score) || ['object', 'array'].includes(typeof form.rows[row].score) && !form.rows[row].major_fact" />
               </div>
             </div>
             <div class="col-12 col-lg-3">
@@ -194,7 +197,7 @@ export default {
      * Initialise le formulaire
      */
     initForm() {
-      this.form.mission = this.$route.params.processId
+      this.form.mission = this.$route.params.missionId
       this.form.process = this.$route.params.processId
       this.details.forEach(detail => {
         this.form.rows.push({

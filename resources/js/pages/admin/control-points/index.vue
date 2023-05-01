@@ -9,7 +9,7 @@
     </ContentHeader>
     <ContentBody>
       <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" namespace="controlPoints"
-        title="Liste des Points de contrôle" />
+        title="Liste des Points de contrôle" @filterReset="filterReset" :filters="filtersData" />
       <NLModal :show="rowSelected" @close="rowSelected = null">
         <template v-slot:title>Informations point de contrôle</template>
         <template v-slot>
@@ -137,6 +137,7 @@ export default {
   computed: {
     ...mapGetters({
       controlPoints: 'controlPoints/paginated',
+      filters: 'references/filters',
       controlPoint: 'controlPoints/current',
     }),
   },
@@ -174,10 +175,34 @@ export default {
             return this.can('delete_control_point')
           }
         }
-      }
+      },
+      filtersData: {
+        families: {
+          label: 'Famille',
+          cols: 'col-lg-3',
+          multiple: true,
+          data: null,
+          value: null
+        },
+        domains: {
+          label: 'Domaine',
+          cols: 'col-lg-3',
+          multiple: true,
+          data: null,
+          value: null
+        },
+        processes: {
+          label: 'Processus',
+          cols: 'col-lg-3',
+          multiple: true,
+          data: null,
+          value: null
+        },
+      },
     }
   },
   created() {
+    this.initFilters()
     this.initData()
   },
   methods: {
@@ -188,7 +213,6 @@ export default {
     show(item) {
       this.$store.dispatch('controlPoints/fetch', item.id).then(() => {
         this.rowSelected = this.controlPoint.current
-        // this.rowSelected.fields = this.rowSelected.fields ? JSON.parse(this.rowSelected.fields) : null
       })
     },
 
@@ -222,12 +246,30 @@ export default {
       })
     },
 
+    filterReset() {
+      this.filtersData = {
+        families: null,
+        domains: null,
+        processes: null
+      }
+      this.initData()
+    },
+
     /**
      * Initialise les données
      */
     initData() {
       this.$store.dispatch('controlPoints/fetchPaginated').then(() => {
         this.config.data = this.controlPoints.paginated
+      })
+    },
+    initFilters() {
+      this.$store.dispatch('references/fetchPCF', true).then(() => {
+        this.filtersData.families.data = this.filters.filters.famillies
+        this.filtersData.domains.data = this.filters.filters.domains
+        this.filtersData.processes.data = this.filters.filters.processes
+
+        console.log(this.filters.famillies);
       })
     }
   }

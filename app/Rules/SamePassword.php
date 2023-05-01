@@ -38,6 +38,6 @@ class SamePassword implements Rule
      */
     public function message()
     {
-        return __('You can\'t use the same password as current.');
+        return 'Vous ne pouvez pas utiliser le même mot de passe que celui utilise actuellement.';
     }
 }
