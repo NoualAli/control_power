@@ -5,7 +5,7 @@
         <div class="grid gap-10 my-4">
           <!-- Name -->
           <div class="col-12 col-md-6">
-            <NLInput :form="form" name="name" label="Name" v-model="form.name" labelRequired />
+            <NLInput v-model="form.name" :form="form" name="name" label="Name" label-required />
           </div>
         </div>
         <!-- Submit Button -->
@@ -18,43 +18,42 @@
 </template>
 
 <script>
-import { Form } from 'vform';
+import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 export default {
-  middleware: [ 'auth', 'admin' ],
   layout: 'backend',
+  middleware: ['auth', 'admin'],
   computed: {
     ...mapGetters({
       familly: 'famillies/current'
-    }),
+    })
   },
-  created() {
+  created () {
     this.$store.dispatch('famillies/fetch', { id: this.$route.params.familly }).then(() => {
       const data = this.familly.current
       this.form.fill(data)
     })
   },
-  data() {
+  data () {
     return {
       form: new Form({
         name: '',
-        code: '',
-      }),
+        code: ''
+      })
     }
   },
   methods: {
-    update() {
+    update () {
       this.form.put('/api/famillies/' + this.$route.params.familly).then(response => {
         if (response.data.status) {
-          swal.toast_success(response.data.message)
+          this.$swal.toast_success(response.data.message)
           this.$router.push({ name: 'famillies-index' })
         } else {
-          swal.alert_error(response.data.message)
+          this.$swal.alert_error(response.data.message)
         }
       }).catch(error => {
-        console.log(error);
+        console.log(error)
       })
-
     }
   }
 }

@@ -3,29 +3,33 @@
     <div class="table-header grid my-6">
       <div v-if="filters && showFilters" class="col-12">
         <div class="grid gap-2">
-          <div
-            v-for="(filter, name) in filters" v-if="!filter?.hide" :key="'filter-' + name"
-            class="col-12" :class="filter?.cols || 'col-lg-2'"
-          >
-            <NLSelect
-              v-if="!filter.type" v-model="filter.value" :name="name" :label="filter.label"
-              :options="filter?.data" :multiple="filter.multiple"
-            />
-
-            <div v-if="filter.type && filter.type == 'date-range'" class="grid gap-2">
-              <div
-                v-for="(data, name) in filter.attributes" v-if="filter.type && filter.type == 'date-range'" :key="'filter-' + name"
-                class="col-12" :class="data?.cols || 'col-lg-6'"
-              >
-                <NLInput v-model="data.value" :name="name" :label="data.label" type="date" />
-              </div>
-            </div>
-          </div>
           <!-- <div class="col-lg-12">
             <button class="btn btn-danger has-icon" @click="resetFilter">
               <i class="las la-backspace icon"></i>
             </button>
           </div> -->
+          <template v-for="(filter, filterName) in filters">
+            <div
+              v-if="!filter?.hide" :key="'filter-' + filterName"
+              class="col-12" :class="filter?.cols || 'col-lg-2'"
+            >
+              <NLSelect
+                v-if="!filter.type" v-model="filter.value" :name="filterName" :label="filter.label"
+                :options="filter?.data" :multiple="filter.multiple"
+              />
+
+              <div v-if="filter.type && filter.type == 'date-range'" class="grid gap-2">
+                <template v-for="(attrData, attrName) in filter.attributes">
+                  <div
+                    v-if="filter.type && filter.type === 'data-range'" :key="'filter-' + attrName "
+                    class="col-12" :class="data?.cols || 'col-lg-6'"
+                  >
+                    <NLInput v-model="attrData.value" :name="attrName" :label="attrData.label" type="date" />
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
         </div>
       </div>
       <div class="col-12 col-lg-4 d-flex align-center">
@@ -36,11 +40,11 @@
       <div class="col-12 col-lg-8 d-flex justify-end alin-center gap-2">
         <div class="d-flex align-center">
           <input
-            v-if="(searchable && config.data?.meta?.total) || appliedSearch !== ''" type="search" class="input m-0"
+            v-if="(searchable && configLocal.data?.meta?.total) || appliedSearch !== ''" type="search" class="input m-0"
             placeholder="Faite votre recherche..." @input="search($event.target.value)"
           >
         </div>
-        <div v-if="(filters && config.data?.meta?.total)">
+        <div v-if="(filters && configLocal.data?.meta?.total)">
           <button v-if="!showFilters" class="btn btn-success has-icon" @click="showFilters = !showFilters">
             <i class="las la-filter icon" />
           </button>
@@ -51,60 +55,65 @@
       </div>
     </div>
     <div class="table-container">
-      <table v-if="config.data?.meta?.total">
+      <table v-if="configLocal.data?.meta?.total">
         <thead>
           <tr>
+            <!-- v-if becomes filter  -->
             <th
-              v-for="column in config.columns" v-if="!column.hide"
+              v-for="column in isNotHiddenColumn"
               :key="column.field" :colspan="column.colspan ? column.colspan : null" :align="column.align ? column.align : 'left'"
             >
               <span class="d-flex justify-between align-center">
                 <span>
                   {{ column.label }}
                 </span>
-                <span v-if="column.orderable || config.orderAll" @click="sortData(column.field)">
+                <span v-if="column.orderable || configLocal.orderAll" @click="sortData(column.field)">
                   <i class="icon las" :class="appliedSort[column.field].icon" />
                 </span>
               </span>
             </th>
-            <th v-if="config.actions" class="cell-actions">
+            <th v-if="configLocal.actions" class="cell-actions">
               Actions
             </th>
           </tr>
         </thead>
         <tbody :class="{ 'is-busy': isBusy }">
-          <tr v-for="item in config.data?.data" :key="item[rowKey]">
+          <tr v-for="item in configLocal.data?.data" :key="item[rowKey]">
+            <!-- v-if becomes filter  -->
             <td
-              v-for="column in config.columns" v-if="!column?.hide"
+              v-for="column in isNotHiddenColumn"
               :key="column.field" :colspan="column.colspan ? column.colspan : null" :align="column.align ? column.align : 'left'" :data-th="column.label"
               :class="{ 'p-0': column.isHtml, [applyClass(item, column)]: !column.isHtml }"
             >
               <span v-if="column.isHtml" :class="applyClass(item, column)">
+                <!-- to be checked  about v-html and the necessity of this  -->
+
                 <span :class="applyClass(item, column)" v-html="showField(item, column)" />
               </span>
               <span v-else>
                 {{ showField(item, column) }}
               </span>
             </td>
-            <td v-if="config.actions" class="cell-actions">
+            <td v-if="configLocal.actions" class="cell-actions">
               <span class="d-flex justify-start align-center gap-4">
-                <span
-                  v-for="(value, key) in config.actions" v-if="showAction(value, key, 'show', item) || showAction(value, key, 'edit', item) || showAction(value, key, 'delete', item)"
-                  :key="key"
-                >
-                  <button v-if="showAction(value, key, 'show', item)" class="btn btn-success" @click.stop="show(item)">
-                    <i class="las la-eye icon" />
-                  </button>
-                  <button v-if="showAction(value, key, 'edit', item)" class="btn btn-warning" @click.stop="edit(item)">
-                    <i class="las la-edit icon" />
-                  </button>
-                  <button
-                    v-if="showAction(value, key, 'delete', item)" class="btn btn-danger"
-                    @click.stop="destroy(item)"
-                  >
-                    <i class="las la-trash icon" />
-                  </button>
-                </span>
+                <!-- v-if  reconsider its necessity and its effect later on make  -->
+                <!-- <template /> -->
+                <template v-for="(value, key) in configLocal.actions">
+                  <template v-if="showAction(value, key, 'show', item) || showAction(value, key, 'edit', item) || showAction(value, key, 'delete', item)">
+                    <span :key="key">
+                      <button v-if="showAction(value, key, 'show', item)" class="btn btn-success" @click.stop="show(item)">
+                        <i class="las la-eye icon" />
+                      </button>
+                      <button v-if="showAction(value, key, 'edit', item)" class="btn btn-warning" @click.stop="edit(item)">
+                        <i class="las la-edit icon" />
+                      </button>
+                      <button v-if="showAction(value, key, 'delete', item)" class="btn btn-danger" @click.stop="destroy(item)">
+
+                        <i class="las la-trash icon" />
+                      </button>
+                    </span>
+                  </template>
+                </template>
                 <slot name="actions" :item="item" />
               </span>
             </td>
@@ -116,52 +125,58 @@
       </div>
     </div>
     <div class="pagination my-6 grid">
-      <div v-if="config?.data?.data?.length" class="col-12 col-lg-2 d-flex align-center justify-center">
+      <div v-if="configLocal?.data?.data?.length" class="col-12 col-lg-2 d-flex align-center justify-center">
         <div class="grid gap-2 w-100">
           <div class="col-4">
-            <NLSelect v-model="appliedPerPage" name="per_page" :options="perPageOptions" @change="showPerPage()" />
+            <NLSelect v-model="appliedPerPage" name="per_page" :options="perPageOptions" />
           </div>
           <div class="col-8 d-flex align-center justify-center gap-2">
-            <span v-if="config.data?.meta?.total || appliedSearch !== ''">
-              {{ config.data?.meta?.total }}
+            <span v-if="configLocal.data?.meta?.total || appliedSearch !== ''">
+              {{ configLocal.data?.meta?.total }}
             </span>
             <span>
-              de {{ config.data?.meta.from }} à {{ config.data?.meta.to }}
+              de {{ configLocal.data?.meta.from }} à {{ configLocal.data?.meta.to }}
             </span>
           </div>
         </div>
       </div>
       <div v-if="showPagination()" class="col-12 col-lg-1 d-flex justify-center align-center">
-        <button
-          v-for="(link, index) in config.data?.meta?.links" v-if="showPreviousLink(index, link.url)" :key="link.label"
-          class="btn mx-2" :class="{ 'is-active': link.active }" @click="getPaginationData(link.url)"
-        >
-          Précédent
-        </button>
+        <template v-for="(link, index) in configLocal.data?.meta?.links">
+          <button
+            v-if="showPreviousLink(index, link.url)" :key="link.label"
+            class="btn mx-2" :class="{ 'is-active': link.active }" @click="getPaginationData(link.url)"
+          >
+            Précédent
+          </button>
+        </template>
       </div>
+
       <div v-if="showPagination()" class="col-12 col-lg-8 d-flex align-center justify-center">
-        <button
-          v-for="(link, index) in config.data?.meta?.links" v-if="showPageNumberLink(index)" :key="index"
-          class="btn is-radius mx-2" :class="{ 'is-active': link.active }" :disabled="link.active"
-          @click="getPaginationData(link.url)"
-        >
-          {{ link.label }}
-        </button>
+        <template v-for="(link, index) in configLocal.data?.meta?.links">
+          <button
+            v-if="showPageNumberLink(index)" :key="index"
+            class="btn is-radius mx-2" :class="{ 'is-active': link.active }" :disabled="link.active"
+            @click="getPaginationData(link.url)"
+          >
+            {{ link.label }}
+          </button>
+        </template>
       </div>
       <div v-if="showPagination()" class="col-12 col-lg-1 d-flex justify-center align-center">
-        <button
-          v-for="(link, index) in config.data?.meta?.links" v-if="showNextLink(index, link.url)" :key="link.label"
-          class="btn mx-2" :class="{ 'is-active': link.active }" @click="getPaginationData(link.url)"
-        >
-          Suivant
-        </button>
+        <template v-for="(link, index) in configLocal.data?.meta?.links">
+          <button
+            v-if="showNextLink(index, link.url)" :key="link.label"
+            class="btn mx-2" :class="{ 'is-active': link.active }" @click="getPaginationData(link.url)"
+          >
+            Suivant
+          </button>
+        </template>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import api from '../plugins/api'
 import NoData from './NoData'
 // import { saveAs } from 'file-saver';
 export default {
@@ -170,14 +185,14 @@ export default {
     NoData
   },
   props: {
-    title: { type: String | null, default: null },
+    title: { type: [String, null], default: null },
     searchable: { type: Boolean, default: true },
     namespace: { type: String, required: true },
     rowKey: { type: String, default: 'id' },
     stateKey: { type: String, default: 'paginated' },
-    config: { type: Object | null, required: true, defaul: { data: {}, columns: [] } },
-    filters: { type: Object | null, default: null },
-    filtersQueryKey: { type: String | null, default: 'onlyFiltersData' },
+    config: { type: [Object, null], required: true, defaul: { data: {}, columns: [] } },
+    filters: { type: [Object, null], default: null },
+    filtersQueryKey: { type: [String, null], default: 'onlyFiltersData' },
     exportable: { type: Boolean, default: true }
   },
   emits: ['delete', 'show', 'edit', 'searchDone', 'sortDone', 'dataUpdated', 'perPageUpdated', 'filterReset'],
@@ -198,18 +213,32 @@ export default {
       ],
       current_page: 1,
       url: null,
-      isBusy: false
+      isBusy: false,
+      configLocal: this.config
     }
   },
   computed: {
     getUrl () {
-      return this.url ? this.url : this.config?.data?.meta?.path
+      return this.url ? this.url : this.configLocal?.data?.meta?.path
+    },
+    isNotHiddenColumn () {
+      return this.configLocal.columns.filter(column => !column?.hide)
     }
   },
   watch: {
+    appliedPerPage (newValue, oldValue) {
+      this.showPerPage()
+    },
     filters: {
       handler () {
         this.handleFilter()
+      },
+      deep: true,
+      immediate: true
+    },
+    config: {
+      handler () {
+        this.configLocal = this.config
       },
       deep: true,
       immediate: true
@@ -225,7 +254,7 @@ export default {
       if (this.filters) {
         for (const key in this.filters) {
           if (Object.hasOwnProperty.call(this.filters, key)) {
-            if (this.filters[key]?.type == 'date-range' && this.filters[key] !== undefined) {
+            if (this.filters[key]?.type === 'date-range' && this.filters[key] !== undefined) {
               const parent = this.filters[key]
               const fields = parent.attributes
               const values = []
@@ -250,12 +279,12 @@ export default {
       if (loadData.some(value => value)) {
         this.buildUrl()
         this.updateState(true)
-        api.get(this.getUrl).then(response => {
+        this.$api.get(this.getUrl).then(response => {
           this.updateState()
-          this.config.data = response.data
+          this.configLocal.data = response.data
         }).catch(error => {
           this.updateState()
-          swal.alert_error(error)
+          this.$swal.alert_error(error)
         })
       } else {
         this.buildUrl()
@@ -285,19 +314,19 @@ export default {
     exportData () {
       this.export = true
       this.buildUrl()
-      api.get(this.url, {
+      this.$api.get(this.url, {
         responseType: 'blob',
         onDownloadProgress: (progressEvent) => {
           this.isBusy = true
           const size = progressEvent.target.getResponseHeader('Content-Length')
           const loaded = progressEvent.loaded
           const progress = Math.round((loaded / size) * 100)
-          swal.loading(progress)
+          this.$swal.loading(progress)
         }
       }).then(response => {
         this.isBusy = false
-        const file = response.data.file
-        const fileName = response.data.fileName
+        // const file = response.data.file
+        // const fileName = response.data.fileName
         // saveAs(file, fileName)
       })
     },
@@ -323,13 +352,14 @@ export default {
      * @param {Object} data
      */
     edit (data) {
+      console.log(data)
       this.$emit('edit', data)
     },
     /**
      * Initialize sortable columns
      */
     initSortable () {
-      Object.values(this.config.columns).forEach(column => {
+      Object.values(this.configLocal.columns).forEach(column => {
         if (column.orderable) {
           this.appliedSort[column.field] = {}
           this.appliedSort[column.field].direction = null
@@ -366,10 +396,10 @@ export default {
      * @param {Object} item
      */
     showAction (value, key, action, item) {
-      if (typeof value === 'function' && key == action) {
-        return this.config.actions[key](item)
+      if (typeof value === 'function' && key === action) {
+        return this.configLocal.actions[key](item)
       } else {
-        return key == action
+        return key === action
       }
     },
     /**
@@ -403,7 +433,7 @@ export default {
      * Build url with params
      */
     buildUrl () {
-      this.url = this.config.data?.meta?.path + '?'
+      this.url = this.configLocal.data?.meta?.path + '?'
       const currentPage = this.current_page
       this.url += 'page=' + currentPage
       this.url += '&search=' + this.appliedSearch
@@ -446,9 +476,7 @@ export default {
      * @param {Boolean} state
      */
     updateState (state = false) {
-      {
-        this.isBusy = state
-      }
+      this.isBusy = state
     },
     /**
      * Refresh data
@@ -461,12 +489,13 @@ export default {
         newUrl = new URL(url)
       } catch (error) {
         console.log(url)
+        console.error(error)
       }
       this.current_page = newUrl?.searchParams?.get('page')
       this.buildUrl()
-      await api.get(this.url).then((res) => {
+      await this.$api.get(this.url).then((res) => {
         this.current_page = res.data.meta.current_page
-        this.config.data = res.data
+        this.configLocal.data = res.data
         this.$store.state[this.namespace][this.stateKey] = res.data
         this.updateState(false)
         this.$emit('dataUpdated', res)
@@ -478,14 +507,13 @@ export default {
     async applySort () {
       this.updateState(true)
       this.buildUrl()
-      await api.get(this.url).then((res) => {
-        this.config.data = res.data
+      await this.$api.get(this.url).then((res) => {
+        this.configLocal.data = res.data
         this.$store.state[this.namespace][this.stateKey] = res.data
         this.updateState()
         this.$emit('sortDone', res)
       })
     },
-
     /**
      * Search data
      * @param {*} value
@@ -496,9 +524,9 @@ export default {
       this.current_page = 1
       this.buildUrl()
 
-      await api.get(this.url).then((res) => {
+      await this.$api.get(this.url).then((res) => {
         this.updateState()
-        this.config.data = res.data
+        this.configLocal.data = res.data
         this.$store.state[this.namespace][this.stateKey] = res.data
         this.$emit('searchDone', value)
       })
@@ -510,12 +538,12 @@ export default {
       this.updateState(true)
       this.buildUrl()
 
-      await api.get(this.url).then((res) => {
+      await this.$api.get(this.url).then((res) => {
         this.updateState()
-        this.config.data = res.data
+        this.configLocal.data = res.data
         this.$store.state[this.namespace][this.stateKey] = res.data
         this.$emit('perPageUpdated', res)
-      })
+      }).catch(e => { console.error(e) })
     },
     /**
      * Apply data sorting
@@ -523,10 +551,10 @@ export default {
      * @param {String} column
      */
     sortData (column) {
-      if (this.appliedSort[column].direction == 'asc') {
+      if (this.appliedSort[column].direction === 'asc') {
         this.appliedSort[column].direction = 'desc'
         this.appliedSort[column].icon = 'la-sort-down'
-      } else if (this.appliedSort[column].step == 'desc') {
+      } else if (this.appliedSort[column].step === 'desc') {
         this.appliedSort[column].direction = 'asc'
         this.appliedSort[column].icon = 'la-sort-up'
       } else {
@@ -540,7 +568,7 @@ export default {
      * @return {Boolean}
      */
     showPagination () {
-      return this.config.data?.meta?.links.length >= 4
+      return this.configLocal.data?.meta?.links.length >= 4
     },
     /**
      * @param {Number} index
@@ -548,7 +576,7 @@ export default {
      * @return {Boolean}
      */
     showPreviousLink (index, url) {
-      return index == 0 && url !== null && this.config.data?.meta?.links.length >= 4
+      return index === 0 && url !== null && this.configLocal.data?.meta?.links.length >= 4
     },
     /**
      *
@@ -556,7 +584,7 @@ export default {
      * @return {Boolean}
      */
     showPageNumberLink (index) {
-      return index > 0 && index < (this.config.data?.meta?.links.length - 1) && this.config.data?.meta?.links.length >= 4
+      return index > 0 && index < (this.configLocal.data?.meta?.links.length - 1) && this.configLocal.data?.meta?.links.length >= 4
     },
     /**
      *
@@ -565,7 +593,7 @@ export default {
      * @return {Boolean}
      */
     showNextLink (index, url) {
-      return index == (this.config.data?.meta?.links.length - 1) && url !== null && this.config.data?.meta?.links.length >= 4
+      return index === (this.configLocal.data?.meta?.links.length - 1) && url !== null && this.configLocal.data?.meta?.links.length >= 4
     }
   }
 }

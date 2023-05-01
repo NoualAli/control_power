@@ -1,4 +1,4 @@
-import api from "../../plugins/api"
+import api from '../../plugins/api'
 
 export const state = {
   paginated: null,
@@ -7,31 +7,31 @@ export const state = {
 }
 
 export const mutations = {
-  FETCH_PAGINATED(state, roles) {
+  FETCH_PAGINATED (state, roles) {
     state.paginated = roles
   },
-  FETCH_ALL(state, roles) {
+  FETCH_ALL (state, roles) {
     state.all = roles
   },
-  FETCH(state, role) {
+  FETCH (state, role) {
     state.current = role
-  },
+  }
 }
 
 export const actions = {
-  async fetchPaginated({ commit }) {
+  async fetchPaginated ({ commit }) {
     const { data } = await api.get('roles')
     commit('FETCH_PAGINATED', { paginated: data })
   },
 
-  async fetchAll({ commit }) {
+  async fetchAll ({ commit }) {
     const { data } = await api.get('roles?fetchAll')
     commit('FETCH_ALL', { all: data })
   },
-  async fetch({ commit }, id) {
+  async fetch ({ commit }, id) {
     const { data } = await api.get('roles/' + id)
     commit('FETCH', { current: data })
-  },
+  }
 }
 
 export const getters = {
@@ -39,4 +39,3 @@ export const getters = {
   paginated: state => state.paginated,
   current: state => state.current
 }
-

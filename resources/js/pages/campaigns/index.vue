@@ -2,18 +2,22 @@
   <div v-if="can('view_control_campaign')">
     <div class="d-flex justify-between align-center">
       <div class="w-100 d-flex justify-end align-center">
-        <router-link class="btn btn-info" :to="{ name: 'campaigns-create' }" v-if="can('create_control_campaign')">
+        <router-link v-if="can('create_control_campaign')" class="btn btn-info" :to="{ name: 'campaigns-create' }">
           Ajouter
         </router-link>
       </div>
     </div>
     <ContentBody>
-      <NLDatatable namespace="campaigns" :config="config" @delete="destroy" @show="show" @edit="edit" :filters="filters"
-        @filterReset="resetData()">
-        <template v-slot:actions="item">
-          <button class="btn btn-info has-icon" @click.stop="validate(item.item)"
-            v-if="!item?.item?.validated_by_id && can('validate_control_campaign')">
-            <i class="las la-check icon"></i>
+      <NLDatatable
+        namespace="campaigns" :config="config" :filters="filters" @delete="destroy" @show="show" @edit="edit"
+        @filterReset="resetData()"
+      >
+        <template #actions="item">
+          <button
+            v-if="!item?.item?.validated_by_id && can('validate_control_campaign')" class="btn btn-info has-icon"
+            @click.stop="validate(item.item)"
+          >
+            <i class="las la-check icon" />
           </button>
         </template>
       </NLDatatable>
@@ -27,16 +31,14 @@ import NLDatatable from '../../components/NLDatatable'
 import { mapGetters } from 'vuex'
 import { hasRole } from '../../plugins/user'
 import api from '../../plugins/api'
+
 export default {
   components: {
     ContentBody, NLDatatable
   },
   layout: 'backend',
-  middleware: [ 'auth' ],
-  metaInfo() {
-    return { title: 'Suivi du planning annuel' }
-  },
-  data() {
+  middleware: ['auth'],
+  data () {
     return {
       rowSelected: null,
       config: {
@@ -59,22 +61,22 @@ export default {
           },
           {
             label: 'Début',
-            field: 'remaining_days_before_start_str',
+            field: 'remaining_days_before_start_str'
           },
           {
             label: 'Fin',
-            field: 'remaining_days_before_end_str',
+            field: 'remaining_days_before_end_str'
           },
           {
             label: 'Etat',
             field: 'validated_by_id',
-            hide: !hasRole([ 'dcp', 'cdcr' ]),
+            hide: !hasRole(['dcp', 'cdcr']),
             methods: {
-              showField(item) {
+              showField (item) {
                 return item.validated_by_id ? 'Validé' : 'En attente de validation'
               }
             }
-          },
+          }
         ],
         actions: {
           show: true,
@@ -83,18 +85,18 @@ export default {
           },
           delete: (item) => {
             return this.can('delete_control_campaign') && item.remaining_days_before_start > 5 && !item.validated_by_id && this.is('dcp')
-          },
+          }
         }
       },
       filters: {
         reference: {
           label: 'Année',
           data: null,
-          value: null,
+          value: null
         },
         validated: {
           label: 'Etat',
-          hide: !hasRole([ 'dcp', 'cdcr' ]),
+          hide: !hasRole(['dcp', 'cdcr']),
           data: [
             {
               id: 0,
@@ -105,7 +107,7 @@ export default {
               label: 'Validé'
             }
           ],
-          value: null,
+          value: null
         },
         between: {
           value: [],
@@ -115,33 +117,36 @@ export default {
             start: {
               cols: 'col-lg-6',
               label: 'De',
-              value: null,
+              value: null
             },
             end: {
               cols: 'col-lg-6',
               label: 'À',
-              value: null,
+              value: null
             }
           }
-        },
+        }
       }
     }
-
   },
   computed: {
     ...mapGetters({
-      controlCampaigns: 'campaigns/paginated',
-    }),
+      controlCampaigns: 'campaigns/paginated'
+    })
+  },
+  created () {
+    this.initFilters()
+    this.initData()
   },
   methods: {
-    resetData() {
+    resetData () {
       this.initFilters(false)
       this.initData()
     },
-    initYearsList() {
+    initYearsList () {
       let start = 2023
       const currentYear = new Date().getFullYear()
-      let years = []
+      const years = []
       for (start; start <= currentYear; start++) {
         years.push({ id: start, label: start })
       }
@@ -152,7 +157,7 @@ export default {
      *
      * @param {Object} item
      */
-    show(item) {
+    show (item) {
       this.$router.push({ name: 'campaign', params: { campaignId: item.id } })
     },
 
@@ -160,7 +165,7 @@ export default {
      *
      * @param {Object} item
      */
-    edit(item) {
+    edit (item) {
       this.$router.push({ name: 'campaigns-edit', params: { campaignId: item.id } })
     },
     /**
@@ -168,20 +173,20 @@ export default {
      *
      * @param {Object} item
      */
-    validate(item) {
-      swal.confirm({ title: 'Validation', message: 'Validation de la campagne de contrôle ' + item.reference, icon: 'success' }).then(response => {
+    validate (item) {
+      this.$swal.confirm({ title: 'Validation', message: 'Validation de la campagne de contrôle ' + item.reference, icon: 'success' }).then(response => {
         if (response.isConfirmed) {
           api.put('campaigns/' + item.id + '/validate').then(response => {
             if (response.data.status) {
               this.initData()
-              swal.toast_success(response.data.message)
+              this.$swal.toast_success(response.data.message)
             } else {
-              swal.toast_error(response.data.message)
+              this.$swal.toast_error(response.data.message)
             }
           })
         }
       }).catch(error => {
-        swal.alert_error(error)
+        this.$swal.alert_error(error)
       })
     },
     /**
@@ -189,40 +194,36 @@ export default {
      *
      * @param {Object} item
      */
-    destroy(item) {
-      swal.confirm_destroy().then(response => {
+    destroy (item) {
+      this.$swal.confirm_destroy().then(response => {
         if (response.isConfirmed) {
           api.delete('campaigns/' + item.id).then(response => {
             if (response.data.status) {
               this.initData()
-              swal.toast_success(response.data.message)
+              this.$swal.toast_success(response.data.message)
             } else {
-              swal.toast_error(response.data.message)
+              this.$swal.toast_error(response.data.message)
             }
           })
         }
       }).catch(error => {
-        swal.alert_error(error)
+        this.$swal.alert_error(error)
       })
     },
 
     /**
      * Initialise les données
      */
-    initData() {
+    initData () {
       this.$store.dispatch('campaigns/fetchPaginated').then(() => {
         this.config.data = this.controlCampaigns.paginated
       })
     },
-    initFilters(reloadFilters = true) {
+    initFilters (reloadFilters = true) {
       if (reloadFilters) {
         this.initYearsList()
       }
     }
-  },
-  created() {
-    this.initFilters()
-    this.initData()
   }
 }
 </script>

@@ -41,7 +41,11 @@ mix.webpackConfig({
   output: {
     chunkFilename: 'dist/js/[chunkhash].js',
     path: resolve(__dirname, mix.inProduction() ? './public/build' : './public')
+  },
+  stats: {
+    children: true
   }
+
 })
 
 mix.then(() => {

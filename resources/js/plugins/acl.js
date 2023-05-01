@@ -1,22 +1,22 @@
 // import { define } from "vue";
-import api from "./api";
+import api from './api'
 import { hasRole, isAbleTo } from './user'
 
 // const app = window.$app
-// app.mixin() there is no longer mixin in vue 
-// gotta find a solution for such 
+// app.mixin() there is no longer mixin in vue
+// gotta find a solution for such
 export const aclMixin = {
   computed: {
-    can() {
+    can () {
       return (permissions) => {
         return isAbleTo(permissions)
-      };
+      }
     },
-    is() {
+    is () {
       return (roles) => {
         return hasRole(roles)
-      };
-    },
+      }
+    }
   }
 }
 /**
@@ -26,97 +26,91 @@ export const aclMixin = {
 const directives = {
   'can': {
     bind: function (el, binding, vnode) {
-      let can = []
-      const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
-      const abilities = (binding.value || '').split(/\s*,\s*/);
+      const can = []
+      const permissions = JSON.parse(localStorage.getItem('permissions')) || []
+      const abilities = (binding.value || '').split(/\s*,\s*/)
       const vifDirective = checkVIfDire(vnode, binding)
-      abilities.some(ability => {
-        can.push(!permissions.hasOwnProperty(ability.trim()) || vifDirective)
-      });
+      abilities.forEacg(ability => {
+        can.push(!Object.prototype.hasOwnProperty.call(permissions, ability.trim()) || vifDirective)
+      })
       if (can.every(value => value === true)) {
         customComment(vnode, el)
       }
-      return
     },
     update: function (el, binding, vnode) {
-      let can = []
-      const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
-      const abilities = (binding.value || '').split(/\s*,\s*/);
+      const can = []
+      const permissions = JSON.parse(localStorage.getItem('permissions')) || []
+      const abilities = (binding.value || '').split(/\s*,\s*/)
       const vifDirective = checkVIfDire(vnode, binding)
-      abilities.some(ability => {
-        can.push(!permissions.hasOwnProperty(ability.trim()))
-      });
+      abilities.forEacg(ability => {
+        can.push(!Object.prototype.hasOwnProperty.call(permissions, ability.trim()))
+      })
       if (vifDirective || can.every(value => value === true)) {
         customComment(vnode, el)
       }
-      return
-    },
+    }
   },
   'can-hide': {
     bind: function (el, binding, vnode) {
-      const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
-      const abilities = (binding.value || '').split(/\s*,\s*/);
+      const permissions = JSON.parse(localStorage.getItem('permissions')) || []
+      const abilities = (binding.value || '').split(/\s*,\s*/)
       abilities.forEach(ability => {
-        if (!permissions.hasOwnProperty(ability.trim())) {
-          el.style.display = 'none';
+        if (!Object.prototype.hasOwnProperty.call(permissions, ability.trim())) {
+          el.style.display = 'none'
         }
-      });
+      })
     }
   },
   'can-strict': {
     bind: function (el, binding, vnode) {
-      let can = []
-      const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
-      const abilities = (binding.value || '').split(/\s*,\s*/);
+      const can = []
+      const permissions = JSON.parse(localStorage.getItem('permissions')) || []
+      const abilities = (binding.value || '').split(/\s*,\s*/)
       const vifDirective = checkVIfDire(vnode, binding)
-      abilities.every(ability => {
-        can.push(!permissions.hasOwnProperty(ability.trim()) && vifDirective)
-      });
+      abilities.forEach(ability => {
+        can.push(!Object.prototype.hasOwnProperty.call(permissions, ability.trim()) && vifDirective)
+      })
       if (can.every(value => value === true)) {
         customComment(vnode, el)
       }
-      return
     },
     update: function (el, binding, vnode) {
-      let can = []
-      const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
-      const abilities = (binding.value || '').split(/\s*,\s*/);
+      const can = []
+      const permissions = JSON.parse(localStorage.getItem('permissions')) || []
+      const abilities = (binding.value || '').split(/\s*,\s*/)
       const vifDirective = checkVIfDire(vnode, binding)
-      abilities.every(ability => {
-        can.push(!permissions.hasOwnProperty(ability.trim()) && vifDirective)
-      });
+      abilities.forEach(ability => {
+        can.push(!Object.prototype.hasOwnProperty.call(permissions, ability.trim()) && vifDirective)
+      })
       if (can.every(value => value === true)) {
         customComment(vnode, el)
       }
-      return
-    },
+    }
   },
   'has-role': {
     bind: function (el, binding, vnode) {
-      const roles = JSON.parse(localStorage.getItem('roles')) || [];
-      const data = (binding.value || '').split(/\s*,\s*/);
+      const roles = JSON.parse(localStorage.getItem('roles')) || []
+      const data = (binding.value || '').split(/\s*,\s*/)
       const vifDirective = checkVIfDire(vnode, binding)
-      const hasRole = data.some(item => roles.some(role => role.code === item.trim()));
+      const hasRole = data.some(item => roles.some(role => role.code === item.trim()))
       if (!hasRole && !vifDirective) {
         customComment(vnode, el)
       }
-      return
     },
     update: function (el, binding, vnode) {
-      const roles = JSON.parse(localStorage.getItem('roles')) || [];
-      const data = (binding.value || '').split(/\s*,\s*/);
-      const hasRole = data.some(item => roles.some(role => role.code === item.trim()));
+      const roles = JSON.parse(localStorage.getItem('roles')) || []
+      const data = (binding.value || '').split(/\s*,\s*/)
+      const hasRole = data.some(item => roles.some(role => role.code === item.trim()))
       const vifDirective = checkVIfDire(vnode, binding)
       if (!hasRole && !vifDirective) {
         customComment(vnode, el)
       }
-      return
     }
   },
   'is-current-user': {
     bind: function (el, binding, vnode) {
       hide(binding, el)
-      const user = binding.value;
+      const user = binding.value
       api.get('user').then((response) => {
         if (response.data.id !== user) {
           customComment(vnode, el)
@@ -124,21 +118,19 @@ const directives = {
           show(binding, el)
         }
       })
-      return
     }
   },
   'is-not-current-user': {
     bind: function (el, binding, vnode) {
       hide(binding, el)
-      const user = binding.value;
+      const user = binding.value
       api.get('user').then((response) => {
-        if (response.data.id == user) {
+        if (response.data.id === user) {
           customComment(vnode, el)
         } else {
           show(binding, el)
         }
       })
-      return
     }
   }
 }
@@ -150,7 +142,7 @@ const directives = {
 //     const abilities = (binding.value || '').split(/\s*,\s*/);
 //     const vifDirective = checkVIfDire(vnode, binding)
 //     abilities.some(ability => {
-//       can.push(!permissions.hasOwnProperty(ability.trim()) || vifDirective)
+//       can.push(!Object.prototype.hasOwnProperty.call(permissions, ability.trim()) || vifDirective)
 //     });
 //     if (can.every(value => value === true)) {
 //       customComment(vnode, el)
@@ -163,7 +155,7 @@ const directives = {
 //     const abilities = (binding.value || '').split(/\s*,\s*/);
 //     const vifDirective = checkVIfDire(vnode, binding)
 //     abilities.some(ability => {
-//       can.push(!permissions.hasOwnProperty(ability.trim()))
+//       can.push(!Object.prototype.hasOwnProperty.call(permissions, ability.trim()))
 //     });
 //     if (vifDirective || can.every(value => value === true)) {
 //       customComment(vnode, el)
@@ -177,7 +169,7 @@ const directives = {
 //     const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
 //     const abilities = (binding.value || '').split(/\s*,\s*/);
 //     abilities.forEach(ability => {
-//       if (!permissions.hasOwnProperty(ability.trim())) {
+//       if (!Object.prototype.hasOwnProperty.call(permissions, ability.trim())) {
 //         el.style.display = 'none';
 //       }
 //     });
@@ -191,7 +183,7 @@ const directives = {
 //     const abilities = (binding.value || '').split(/\s*,\s*/);
 //     const vifDirective = checkVIfDire(vnode, binding)
 //     abilities.every(ability => {
-//       can.push(!permissions.hasOwnProperty(ability.trim()) && vifDirective)
+//       can.push(!Object.prototype.hasOwnProperty.call(permissions, ability.trim()) && vifDirective)
 //     });
 //     if (can.every(value => value === true)) {
 //       customComment(vnode, el)
@@ -204,7 +196,7 @@ const directives = {
 //     const abilities = (binding.value || '').split(/\s*,\s*/);
 //     const vifDirective = checkVIfDire(vnode, binding)
 //     abilities.every(ability => {
-//       can.push(!permissions.hasOwnProperty(ability.trim()) && vifDirective)
+//       can.push(!Object.prototype.hasOwnProperty.call(permissions, ability.trim()) && vifDirective)
 //     });
 //     if (can.every(value => value === true)) {
 //       customComment(vnode, el)
@@ -212,7 +204,6 @@ const directives = {
 //     return
 //   },
 // })
-
 
 // /**
 //  * v-has-role: Check user roles to determine if he can perform or not some action
@@ -270,7 +261,7 @@ const directives = {
 //   }
 // })
 
-function getVIfDireRes(binding) {
+function getVIfDireRes (binding) {
   return !!binding.value
 }
 
@@ -282,8 +273,8 @@ function getVIfDireRes(binding) {
  *
  * @return {Boolean}
  */
-function checkVIfDire(vnode, binding) {
-  return getVIfDireRes(binding) ? vnode.data.directives.some((directive) => directive.name === 'if') : false;
+function checkVIfDire (vnode, binding) {
+  return getVIfDireRes(binding) ? vnode.data.directives.some((directive) => directive.name === 'if') : false
 }
 /**
  * Create a custom comment
@@ -293,26 +284,26 @@ function checkVIfDire(vnode, binding) {
  *
  * @return {void}
  */
-function customComment(vnode, el) {
-  const comment = document.createComment(' ');
+function customComment (vnode, el) {
+  const comment = document.createComment(' ')
   Object.defineProperty(comment, 'setAttribute', {
     value: () => undefined
-  });
-  vnode.elm = comment;
-  vnode.text = ' ';
-  vnode.isComment = true;
-  vnode.context = undefined;
-  vnode.tag = undefined;
-  vnode.data.directives = undefined;
+  })
+  vnode.elm = comment
+  vnode.text = ' '
+  vnode.isComment = true
+  vnode.context = undefined
+  vnode.tag = undefined
+  vnode.data.directives = undefined
 
   if (vnode.componentInstance) {
     vnode.componentInstance.$el.classList.add('d-none')
     vnode.componentInstance.$el.style = 'display:none !important'
-    vnode.componentInstance.$el = comment;
+    vnode.componentInstance.$el = comment
   }
 
   if (el.parentNode) {
-    el.parentNode.replaceChild(comment, el);
+    el.parentNode.replaceChild(comment, el)
   }
 }
 
@@ -323,8 +314,8 @@ function customComment(vnode, el) {
  *
  * @return {void}
  */
-function hide(binding, el) {
-  const element = el.nodeType == 1 ? el : null
+function hide (binding, el) {
+  const element = el.nodeType === 1 ? el : null
   if (element) {
     element.classList.add('d-none')
     element.style = 'display:none !important'
@@ -338,19 +329,19 @@ function hide(binding, el) {
  *
  * @return {void}
  */
-function show(binding, el) {
-  const element = el.nodeType == 1 ? el : null
+function show (binding, el) {
+  const element = el.nodeType === 1 ? el : null
   if (element) {
     element.classList.remove('d-none')
     element.style = ''
   }
 }
 
-function isHtmlTag(element) {
-  return /^<([a-zA-Z0-9]+)(\s[^>]*|\/>|>)/i.test(element)
-}
+// function isHtmlTag (element) {
+//   return /^<([a-zA-Z0-9]+)(\s[^>]*|\/>|>)/i.test(element)
+// }
 
-export function defineDirectives(app) {
+export function defineDirectives (app) {
   for (const directive in directives) {
     app.directive(directive, directives[directive])
   }

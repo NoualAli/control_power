@@ -5,26 +5,32 @@
         <!-- Control campaign base informations -->
         <div class="grid">
           <div class="col-12">
-            <NLTextarea :form="form" v-model="form.description" name="description" label="Description"
-              placeholder="Ajouter une description" labelRequired />
+            <NLTextarea
+              v-model="form.description" :form="form" name="description" label="Description"
+              placeholder="Ajouter une description" label-required
+            />
           </div>
           <div class="col-12 col-lg-4">
-            <NLInput name="reference" :value="nextReference?.nextReference" :form="form" label="Référence" readonly
-              labelRequired />
+            <NLInput
+              name="reference" :value="nextReference?.nextReference" :form="form" label="Référence" readonly
+              label-required
+            />
           </div>
           <div class="col-12 col-lg-4 col-tablet-6">
-            <NLInput :form="form" v-model="form.start" name="start" label="Date début" type="date" labelRequired />
+            <NLInput v-model="form.start" :form="form" name="start" label="Date début" type="date" label-required />
           </div>
           <div class="col-12 col-lg-4 col-tablet-6">
-            <NLInput :form="form" v-model="form.end" name="end" label="Date fin" type="date" labelRequired />
+            <NLInput v-model="form.end" :form="form" name="end" label="Date fin" type="date" label-required />
           </div>
           <div class="col-12">
-            <NLSelect :form="form" v-model="form.pcf" name="pcf" :options="pcfList" label="PCF" :multiple="true"
-              placeholder="Choisissez un ou plusieurs PCF" noOptionsText="Aucun PCF disponible"
-              loadingText="Chargement des PCF en cours..." labelRequired />
+            <NLSelect
+              v-model="form.pcf" :form="form" name="pcf" :options="pcfList" label="PCF" :multiple="true"
+              placeholder="Choisissez un ou plusieurs PCF" no-options-text="Aucun PCF disponible"
+              loading-text="Chargement des PCF en cours..." label-required
+            />
           </div>
         </div>
-        <div class="col-12" v-if="showValidation">
+        <div v-if="showValidation" class="col-12">
           <NLSwitch v-model="form.validate" name="validate" :form="form" label="Validé" type="is-success" />
         </div>
         <!-- Submit Button -->
@@ -38,12 +44,12 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { Form } from 'vform';
-import { hasRole } from '../../plugins/user';
+import { Form } from 'vform'
+import { hasRole } from '~/plugins/user'
 export default {
-  middleware: [ 'auth' ],
   layout: 'backend',
-  data() {
+  middleware: ['auth'],
+  data () {
     return {
       pcfList: [],
       showValidation: false,
@@ -52,50 +58,53 @@ export default {
         start: null,
         end: null,
         validate: false,
-        pcf: [],
-      }),
+        pcf: []
+      })
     }
   },
   computed: mapGetters({
     famillies: 'famillies/all',
     nextReference: 'campaigns/nextReference'
   }),
+  created () {
+    this.fetchNextReference()
+    this.loadPFC()
+    this.showValidation = hasRole('dcp')
+  },
   methods: {
     /**
      * Ajoute une nouvelle campagne de contrôle
      */
-    create() {
+    clear () {
+      this.form.reset()
+    },
+    create () {
       this.form.post('/api/campaigns').then(response => {
         if (response.data.status) {
-          swal.toast_success(response.data.message)
+          this.$swal.toast_success(response.data.message)
           this.form.reset()
           this.fetchNextReference()
         } else {
-          swal.alert_error(response.data.message)
+          this.$swal.alert_error(response.data.message)
         }
       }).catch(error => {
-        console.log(error);
+        console.log(error)
       })
     },
     /**
      * Récupère la prochaine référence
      */
-    fetchNextReference() {
+    fetchNextReference () {
       this.$store.dispatch('campaigns/fetchNextReference')
     },
     /**
      * Récupère la liste des familles -> domaines -> processus
      */
-    loadPFC() {
+    loadPFC () {
       this.$store.dispatch('famillies/fetchAll', { withChildren: true }).then(() => {
         this.pcfList = this.famillies.all
-      });
-    },
-  },
-  created() {
-    this.fetchNextReference()
-    this.loadPFC()
-    this.showValidation = hasRole('dcp')
-  },
+      })
+    }
+  }
 }
 </script>

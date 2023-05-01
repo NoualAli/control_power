@@ -6,7 +6,7 @@
         <div class="grid gap-10 my-4">
           <!-- Name -->
           <div class="col-12 col-md-6">
-            <NLInput :form="form" name="name" label="Name" v-model="form.name" labelRequired />
+            <NLInput v-model="form.name" :form="form" name="name" label="Name" label-required />
           </div>
         </div>
         <!-- Submit Button -->
@@ -19,30 +19,29 @@
 </template>
 
 <script>
-import { Form } from 'vform';
+import { Form } from 'vform'
 export default {
-  middleware: [ 'auth', 'admin' ],
   layout: 'backend',
-  data() {
+  middleware: ['auth', 'admin'],
+  data () {
     return {
       form: new Form({
-        name: '',
-      }),
+        name: ''
+      })
     }
   },
   methods: {
-    create() {
+    create () {
       this.form.post('/api/famillies').then(response => {
         if (response.data.status) {
-          swal.toast_success(response.data.message)
+          this.$swal.toast_success(response.data.message)
           this.form.reset()
         } else {
-          swal.alert_error(response.data.message)
+          this.$swal.alert_error(response.data.message)
         }
       }).catch(error => {
-        console.log(error);
+        console.log(error)
       })
-
     }
   }
 }

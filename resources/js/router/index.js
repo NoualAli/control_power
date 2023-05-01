@@ -1,16 +1,13 @@
-// import Vue from 'vue'
+
 import store from '~/store'
-// import Meta from 'vue-meta'
 import routes from './routes'
-// import Router from 'vue-router'
-import { createRouter, createWebHistory, useRouter } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import { sync } from 'vuex-router-sync'
 import Cookies from 'js-cookie'
 import { nextTick } from 'vue'
-// Vue.use(Meta) // gotta update meta and use it differently 
-// Vue.use(Router)
 
 // The middleware for every page of the application.
+// const globalMiddleware = []
 const globalMiddleware = ['check-auth']
 
 // Load middleware modules dynamically.
@@ -22,25 +19,31 @@ const router = createRouterWrapper()
 
 sync(store, router)
 
-
 /**
  * Create a new router instance.
  *
  * @return {Router}
  */
-function createRouterWrapper() {
+function createRouterWrapper () {
   const router = createRouter({
     history: createWebHistory(),
-    scrollBehavior,
+    // scrollBehavior,
     routes
   })
 
+  // router.beforeEach(beforeEach)
   router.beforeEach(beforeEach)
+  router.beforeResolve(beforeResolve)
   router.afterEach(afterEach)
-  router.scrollBehavior
+  // router.scrollBehavior
   return router
 }
-
+function beforeResolve (to, from, next) {
+  // console.log(to)
+  const layout = to?.matched[0]?.components?.default?.layout
+  to.meta.layout = layout || ''
+  next()
+}
 /**
  * Global router guard.
  *
@@ -48,17 +51,12 @@ function createRouterWrapper() {
  * @param {Route} from
  * @param {Function} next
  */
-async function beforeEach(to, from, next) {
+async function beforeEach (to, from, next) {
   let components = []
   try {
     // Get the matched components and resolve them.
-    const { matched } =await  router.resolve(to)
-    components =  await resolveComponents(matched.map(record => record.components.default))
-
-
-    
-
-
+    const { matched } = await router.resolve(to)
+    components = await resolveComponents(matched.map(record => record.components.default))
   } catch (error) {
     if (/^Loading( CSS)? chunk (\d)+ failed\./.test(error.message)) {
       window.location.reload(true)
@@ -72,7 +70,6 @@ async function beforeEach(to, from, next) {
   //   console.log(components[components.length - 1].loading)
   // Start the loading bar.
   if (components[components.length - 1]?.loading !== false) {
-    
     await nextTick()
     // await useRouter()?.appContext?.app?.$nextTick()
   }
@@ -83,14 +80,8 @@ async function beforeEach(to, from, next) {
   // Load async data for all the matched components.
   await asyncData(components)
   // Call each middleware.
-  callMiddleware(middleware, to, from, (...args) => {
-    // Set the application layout only if "next()" was called with no args.
-    if (args.length === 0) {
-      router?.appContext?.app?.setLayout(components[0].layout || '')
-    
-    }
-
-    next(...args)
+  await callMiddleware(middleware, to, from, (...args) => {
+    return next(...args)
   })
 }
 
@@ -98,7 +89,7 @@ async function beforeEach(to, from, next) {
  * @param  {Array} components
  * @return {Promise<void>}
  */
-async function asyncData(components) {
+async function asyncData (components) {
   for (let i = 0; i < components.length; i++) {
     const component = components[i]
 
@@ -132,11 +123,11 @@ async function asyncData(components) {
  * @param {Route} from
  * @param {Function} next
  */
-async function afterEach(to, from, next) {
+async function afterEach (to, from, next) {
   // await useRouter()?.appContext?.app?.$nextTick()
-  await nextTick()
+  // await nextTick()
   Cookies.set('previous_url', from)
-  router.isReady()
+  // router.isReady()
 }
 
 /**
@@ -147,41 +138,38 @@ async function afterEach(to, from, next) {
  * @param {Route} from
  * @param {Function} next
  */
-function callMiddleware(middleware, to, from, next) {
+async function callMiddleware (middleware, to, from, next) {
   const stack = middleware.reverse()
-  const _next = (...args) => {
+  const _next = async (...args) => {
     // Stop if "_next" was called with an argument or the stack is empty.
     if (args.length > 0 || stack.length === 0) {
       if (args.length > 0) {
-        // router.app.$loading.finish()
-        next(false)
-
-// router?.app?.config?.globalProperties?.$loading?.finish();    // router.isReady()
-
+        // router.app.$loading.finish() stop loading mechanique we are invokking a stop methode
+        // router.isReady()
+        // router?.app?.config?.globalProperties?.$loading?.finish();    // router.isReady()
       }
-
       return next(...args)
     }
 
     const { middleware, params } = parseMiddleware(stack.pop())
-
+    // console.log(middleware)
     if (typeof middleware === 'function') {
-      middleware(to, from, _next, params)
+      await middleware(to, from, _next, params)
     } else if (routeMiddleware[middleware]) {
-      routeMiddleware[middleware](to, from, _next, params)
+      // console.log(routeMiddleware)
+      await routeMiddleware[middleware](to, from, _next, params)
     } else {
       throw Error(`Undefined middleware [${middleware}]`)
     }
   }
-
-  _next()
+  await _next()
 }
 
 /**
  * @param  {String|Function} middleware
  * @return {Object}
  */
-function parseMiddleware(middleware) {
+function parseMiddleware (middleware) {
   if (typeof middleware === 'function') {
     return { middleware }
   }
@@ -197,7 +185,7 @@ function parseMiddleware(middleware) {
  * @param  {Array} components
  * @return {Array}
  */
-function resolveComponents(components) {
+function resolveComponents (components) {
   return Promise.all(components.map(component => {
     return typeof component === 'function' ? component() : component
   }))
@@ -209,9 +197,8 @@ function resolveComponents(components) {
  * @param  {Array} components
  * @return {Array}
  */
-function getMiddleware(components) {
+function getMiddleware (components) {
   const middleware = [...globalMiddleware]
-  console.log(components)
   components.filter(c => c.middleware).forEach(component => {
     if (Array.isArray(component.middleware)) {
       middleware.push(...component.middleware)
@@ -232,39 +219,12 @@ function getMiddleware(components) {
  * @param  {Object|undefined} savedPosition
  * @return {Object}
  */
-function scrollBehavior(to, from, savedPosition) {
-  
-  if (savedPosition) 
-    return savedPosition
-  
 
-  if (to.hash) 
-    return { selector: to.hash }
-  
-  
-
-    const { matched } =  router.resolve(to)
-    const [component] = matched.map(record => record.components.default).slice(-1)
-
-    // const [component] = router.getMatchedComponents({ ...to }).slice(-1)
-    
-    if (component && component.scrollToTop === false) {
-      return {}
-    }
-    
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve({ x: 0, y: 0 })
-      }, 190)
-    })
-  }
-  
 /**
  * @param  {Object} requireContext
  * @return {Object}
  */
-function resolveMiddleware(requireContext) {
-
+function resolveMiddleware (requireContext) {
   return requireContext.keys()
     .map(file =>
       [file.replace(/(^.\/)|(\.js$)/g, ''), requireContext(file)]
@@ -273,6 +233,5 @@ function resolveMiddleware(requireContext) {
       { ...guards, [name]: guard.default }
     ), {})
 }
-
 
 export default router

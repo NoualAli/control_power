@@ -1,27 +1,31 @@
 <template>
   <div>
-    <DefaultContainer :id="id || name" :form="form" :label="label" :name="name" :labelRequired="labelRequired"
-      :length="length" :currentLength="currentLength">
-      <VueEditor :editor-toolbar="editorSettings" @input="onInput($event)" v-on="$listeners" :id="id || name"
-        :class="[{ 'is-danger': form?.errors.has(name) }]" :name="name" :autocomplete="autocomplete"
-        :autofocus="autofocus" @ready="quill => editorQuill = quill" :max-length="length"
-        :placeholder="placeholder || label" :value="currentValue" :helpText="helpText" />
+    <DefaultContainer
+      :id="id || name" :form="form" :label="label" :name="name" :label-required="labelRequired"
+      :length="length" :current-length="currentLength"
+    >
+      <VueEditor
+        :id="id || name" :editor-toolbar="editorSettings" :class="[{ 'is-danger': form?.errors.has(name) }]" :name="name"
+        :autocomplete="autocomplete" :autofocus="autofocus" :max-length="length"
+        :placeholder="placeholder || label" :value="currentValue" :help-text="helpText"
+        v-bind="$attrs" @input="onInput($event)" @ready="quill => {editorQuill = quill}"
+      />
     </DefaultContainer>
   </div>
 </template>
 
 <script>
 import DefaultContainer from './DefaultContainer'
-import { VueEditor } from "vue3-editor";
+import { VueEditor } from 'vue3-editor'
 
 export default {
-  name: "NLWyswyg",
+  name: 'NLWyswyg',
   components: {
     DefaultContainer, VueEditor
   },
   props: {
     form: { type: Object, required: false },
-    autocomplete: { type: String, default: "off" },
+    autocomplete: { type: String, default: 'off' },
     autofocus: { type: Boolean, default: false },
     type: { type: String, default: 'text' },
     name: { type: String, required: true },
@@ -29,50 +33,46 @@ export default {
     label: { type: String, default: '' },
     labelRequired: { type: Boolean, default: false },
     placeholder: { type: String, default: '' },
-    value: { type: String | Number, default: '' },
+    modelValue: { type: [String, Number], default: '' },
     readonly: { type: Boolean, default: false },
-    length: { type: Number | null, default: null },
-    helpText: { type: String, default: null },
+    length: { type: [Number, null], default: null },
+    helpText: { type: String, default: null }
   },
-  watch: {
-    currentValue: function (currentValue) {
-      if (!!this.length && this.editorQuill.getLength() >= this.length) {
-        this.editorQuill.deleteText(this.length, this.editorQuill.getLength());
-      }
-    }
-  },
-  data() {
+  data () {
     return {
       editorQuill: null,
       currentLength: 0,
       currentValue: null,
       editorSettings: [
-        [ { 'header': [ 1, 2, 3, 4, 5, 6, false ] } ],
+        [{ header: [1, 2, 3, 4, 5, 6, false] }],
         // [ { 'font': [] } ],
-        [ { 'size': [ 'small', 'medium', 'large' ] } ],
-        [ { 'align': [] } ],
-        [ { 'list': 'ordered' }, { 'list': 'bullet' } ],
-        [ 'bold', 'italic', 'underline', 'strike' ],
-        [ 'blockquote' ],
-        [ { 'script': 'sub' }, { 'script': 'super' } ],
-        [ { 'indent': '-1' }, { 'indent': '+1' } ],
-        [ { 'direction': 'ltr' }, { 'direction': 'rtl' } ],
-        [ { 'color': [] }, { 'background': [] } ],
+        [{ size: ['small', 'medium', 'large'] }],
+        [{ align: [] }],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['bold', 'italic', 'underline', 'strike'],
+        ['blockquote'],
+        [{ script: 'sub' }, { script: 'super' }],
+        [{ indent: '-1' }, { indent: '+1' }],
+        [{ direction: 'ltr' }, { direction: 'rtl' }],
+        [{ color: [] }, { background: [] }]
       ]
     }
   },
-  created() {
-    this.currentValue = this.value
+  watch: {
+    currentValue: function (currentValue) {
+      if (!!this.length && this.editorQuill.getLength() >= this.length) {
+        this.editorQuill.deleteText(this.length, this.editorQuill.getLength())
+      }
+    }
   },
-  model: {
-    prop: "value",
-    event: "update"
+  created () {
+    this.currentValue = this.modelValue
   },
   methods: {
-    onInput(value) {
+    onInput (value) {
       this.currentValue = value
       this.currentLength = this.editorQuill.getLength() - 1
-      this.$emit('update', this.currentValue)
+      this.$emit('update:modelValue', this.currentValue)
     }
   }
 }

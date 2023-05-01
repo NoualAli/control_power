@@ -1,16 +1,20 @@
 <template>
   <div v-if="can('view_mission')">
     <ContentHeader v-if="campaignId">
-      <template v-slot:actions>
-        <router-link :to="{ name: 'missions-create', params: { campaignId } }" class="btn btn-info"
-          v-if="can('create_mission')">
+      <template #actions>
+        <router-link
+          v-if="can('create_mission')" :to="{ name: 'missions-create', params: { campaignId } }"
+          class="btn btn-info"
+        >
           Ajouter
         </router-link>
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable :filters="filters" namespace="missions" :config="config" @show="show" @delete="destroy" @edit="edit"
-        @filterReset="resetData" />
+      <NLDatatable
+        :filters="filters" namespace="missions" :config="config" @show="show" @delete="destroy" @edit="edit"
+        @filterReset="resetData"
+      />
     </ContentBody>
   </div>
 </template>
@@ -25,12 +29,10 @@ export default {
     ContentHeader, ContentBody
   },
   layout: 'backend',
-  middleware: [ 'auth' ],
-  metaInfo() {
-    return { title: 'Suivi des réalisations des missions' }
-  },
-  data() {
+  middleware: ['auth'],
+  data () {
     return {
+      // initiated: false,
       rowSelected: null,
       campaignId: null,
       config: {
@@ -38,44 +40,44 @@ export default {
         columns: [
           {
             label: 'CDC-ID',
-            field: 'campaign',
+            field: 'campaign'
           },
           {
             label: 'Référence',
-            field: 'reference',
+            field: 'reference'
           },
           {
             label: 'Dre',
-            field: 'dre',
+            field: 'dre'
           },
           {
             label: 'Agence',
-            field: 'agency',
+            field: 'agency'
           },
           {
             label: 'Contrôle sur place par',
-            field: 'agency_controllers_str',
+            field: 'agency_controllers_str'
           },
           {
             label: 'Date début',
-            field: 'start',
+            field: 'start'
           },
           {
             label: 'Date fin',
-            field: 'end',
+            field: 'end'
           },
           {
             label: 'Moyenne',
             field: 'avg_score',
-            hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
+            hide: !hasRole(['dcp', 'cdcr', 'cc']),
             methods: {
               style: (item) => {
                 const score = item.avg_score
-                if (score == 1) {
+                if (score === 1) {
                   return 'bg-success text-white text-bold'
-                } else if (score == 2) {
+                } else if (score === 2) {
                   return 'bg-info text-white text-bold'
-                } else if (score == 3) {
+                } else if (score === 3) {
                   return 'bg-warning text-bold'
                 } else {
                   return 'bg-danger text-white text-bold'
@@ -88,37 +90,37 @@ export default {
             field: 'state',
             isHtml: true,
             methods: {
-              showField(item) {
+              showField (item) {
                 let state = 'inProgress'
-                if (item.state == 'EN COURS') {
+                if (item.state === 'EN COURS') {
                   state = 'inProgress'
-                } else if (item.state == 'À RÉALISER') {
+                } else if (item.state === 'À RÉALISER') {
                   state = 'todo'
-                } else if (item.state == 'RÉALISÉ') {
+                } else if (item.state === 'RÉALISÉ') {
                   state = 'done'
-                } else if (item.state == 'EN RETARD') {
+                } else if (item.state === 'EN RETARD') {
                   state = 'late'
-                } else if (item.state == 'Validé et envoyé') {
+                } else if (item.state === 'Validé et envoyé') {
                   state = 'validated'
-                } else if (item.state == 'En attente de validation') {
+                } else if (item.state === 'En attente de validation') {
                   state = 'wating-validation'
                 }
                 return `<div class="container" title="${item.state}">
                   <div class="mission-state ${state}"></div>
                 </div>`
-              },
+              }
               // style: (item) => {
-              //   if (item.state == 'EN COURS') {
+              //   if (item.state === 'EN COURS') {
               //     return 'mission-state bg-warning text-bold text-small'
-              //   } else if (item.state == 'À RÉALISER') {
+              //   } else if (item.state === 'À RÉALISER') {
               //     return 'mission-state bg-info text-white text-bold text-small'
-              //   } else if (item.state == 'RÉALISÉ') {
+              //   } else if (item.state === 'RÉALISÉ') {
               //     return 'mission-state bg-success text-white text-bold text-small'
-              //   } else if (item.state == 'EN RETARD') {
+              //   } else if (item.state === 'EN RETARD') {
               //     return 'mission-state bg-danger text-white text-bold text-small'
-              //   } else if (item.state == 'Validé et envoyé') {
+              //   } else if (item.state === 'Validé et envoyé') {
               //     return 'mission-state bg-success text-white text-bold text-small'
-              //   } else if (item.state == 'En attente de validation') {
+              //   } else if (item.state === 'En attente de validation') {
               //     return 'mission-state bg-danger text-white text-bold text-small'
               //   }
               // }
@@ -128,7 +130,7 @@ export default {
             label: 'Taux de progression',
             field: 'progress_status',
             methods: {
-              showField(item) {
+              showField (item) {
                 return item.progress_status + '%'
               }
             }
@@ -143,7 +145,7 @@ export default {
           },
           delete: (item) => {
             return this.can('delete_mission') && item.remaining_days_before_start > 5
-          },
+          }
         }
       },
       filters: {
@@ -179,50 +181,65 @@ export default {
           cols: 'col-lg-3',
           value: [],
           type: 'date-range',
-          cols: 'col-lg-6',
+          // cols: 'col-lg-6',
           attributes: {
             start: {
               cols: 'col-lg-6',
               label: 'De',
-              value: null,
+              value: null
             },
             end: {
               cols: 'col-lg-6',
               label: 'À',
-              value: null,
+              value: null
             }
           }
-        },
-      },
+        }
+      }
     }
   },
   computed: mapGetters({
     missions: 'missions/paginated',
+    campaign: 'campaigns/current',
     filtersData: 'missions/filters'
   }),
-  created() {
-    // this.campaignId = this.$route.params.campaignId
+  created () {
     this.initFilters()
     this.initData()
   },
+  // mounted () {
+  //   this.initFilters()
+  //   this.initData()
+  // },
+
   methods: {
-    resetData() {
+    resetData () {
       // this.initFilters(false)
       this.initData()
     },
-    initData() {
-      let missions = null
+    initData () {
+      let mission = null
+      const length = this.$breadcrumbs.value.length
       if (this.$route.params.campaignId) {
-        missions = this.$store.dispatch('missions/fetchPaginated', this.$route.params.campaignId)
+        this.$store.dispatch('campaigns/fetch', { campaignId: this.$route.params.campaignId }).then((data) => {
+          if (this.$breadcrumbs.value[length - 2].label === 'Détails campagne') {
+            this.$breadcrumbs.value[length - 2].label = 'Détails campagne ' + data.reference
+          }
+        })
+        mission = this.$store.dispatch('missions/fetchPaginated', this.$route.params.campaignId)
       } else {
-        missions = this.$store.dispatch('missions/fetchPaginated')
+        mission = this.$store.dispatch('missions/fetchPaginated')
       }
-      missions.then(() => this.config.data = this.missions.paginated)
+
+      // this.$breadcrumbs.value[length - 1].label = 'Missions'
+      mission.then(() => {
+        this.config.data = this.missions.paginated
+      })
     },
     /**
      * Initialise les filtres
      */
-    initFilters() {
+    initFilters () {
       this.$store.dispatch('missions/fetchFilters').then(() => {
         this.filters.campaign.data = this.filtersData.filters.campaigns
         this.filters.dre.data = this.filtersData.filters.dres
@@ -230,24 +247,24 @@ export default {
         this.filters.dre_controllers.data = this.filtersData.filters.dre_controllers
       })
     },
-    show(item) {
+    show (item) {
       this.$router.push({ name: 'mission', params: { missionId: item.id } })
     },
-    edit(item) {
+    edit (item) {
       this.$router.push({ name: 'missions-edit', params: { missionId: item.id } })
     },
-    destroy(item) {
-      swal.confirm_destroy().then((action) => {
+    destroy (item) {
+      this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
-          api.delete('missions/' + item.id).then(response => {
+          this.$api.delete('missions/' + item.id).then(response => {
             if (response.data.status) {
               this.initData()
-              swal.toast_success(response.data.message)
+              this.$swal.toast_success(response.data.message)
             } else {
-              swal.alert_error(response.data.message)
+              this.$swal.alert_error(response.data.message)
             }
           }).catch(error => {
-            console.log(error);
+            console.log(error)
           })
         }
       })

@@ -5,17 +5,21 @@
         <div class="grid gap-10 my-4">
           <!-- Familliies -->
           <div class="col-12 col-md-6">
-            <NLSelect :form="form" name="familly_id" v-model="form.familly_id" label="Famille" :options="familliesList"
-              labelRequired :multiple="false" />
+            <NLSelect
+              v-model="form.familly_id" :form="form" name="familly_id" label="Famille" :options="familliesList"
+              label-required :multiple="false"
+            />
           </div>
           <!-- Domains -->
           <div class="col-12 col-md-6">
-            <NLSelect :form="form" name="domain_id" v-model="form.domain_id" label="Domaine" :options="domainsList"
-              labelRequired :multiple="false" />
+            <NLSelect
+              v-model="form.domain_id" :form="form" name="domain_id" label="Domaine" :options="domainsList"
+              label-required :multiple="false"
+            />
           </div>
           <!-- Name -->
           <div class="col-12 col-md-6">
-            <NLInput :form="form" name="name" label="Name" v-model="form.name" labelRequired />
+            <NLInput v-model="form.name" :form="form" name="name" label="Name" label-required />
           </div>
         </div>
         <!-- Submit Button -->
@@ -28,39 +32,39 @@
 </template>
 
 <script>
-import { Form } from 'vform';
+import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 export default {
-  middleware: [ 'auth', 'admin' ],
   layout: 'backend',
+  middleware: ['auth', 'admin'],
   computed: {
     ...mapGetters({
       process: 'processes/current',
       familly: 'famillies/domains',
-      famillies: 'famillies/all',
-    }),
+      famillies: 'famillies/all'
+    })
   },
   watch: {
-    "form.familly_id": function (newVal, oldVal) {
+    'form.familly_id': function (newVal, oldVal) {
       if (newVal !== oldVal) { this.loadDomains(newVal) }
-    },
+    }
   },
-  created() {
+  created () {
     this.initData()
   },
-  data() {
+  data () {
     return {
       familliesList: [],
       domainsList: [],
       form: new Form({
         name: null,
         familly_id: null,
-        domain_id: null,
-      }),
+        domain_id: null
+      })
     }
   },
   methods: {
-    initData() {
+    initData () {
       this.$store.dispatch('processes/fetch', { id: this.$route.params.process }).then(() => {
         this.$store.dispatch('famillies/fetchAll').then(() => {
           this.familliesList = this.famillies.all
@@ -71,7 +75,7 @@ export default {
         this.form.domain_id = this.process.current.domain_id
       })
     },
-    loadDomains(value) {
+    loadDomains (value) {
       if (value) {
         this.$store.dispatch('famillies/fetch', { id: value, onlyDomains: true }).then(() => {
           this.domainsList = this.familly.domains
@@ -80,18 +84,17 @@ export default {
         this.domainsList = []
       }
     },
-    update() {
+    update () {
       this.form.put('/api/processes/' + this.$route.params.process).then(response => {
         if (response.data.status) {
-          swal.toast_success(response.data.message)
+          this.$swal.toast_success(response.data.message)
           this.$router.push({ name: 'processes-index' })
         } else {
-          swal.alert_error(response.data.message)
+          this.$swal.alert_error(response.data.message)
         }
       }).catch(error => {
-        console.log(error);
+        console.log(error)
       })
-
     }
   }
 }

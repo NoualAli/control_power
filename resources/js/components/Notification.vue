@@ -1,17 +1,16 @@
 <template>
   <div class="notification my-8">
     <div class="box" :class="type">
-      <slot></slot>
+      <slot />
     </div>
   </div>
 </template>
-
 <script>
 export default {
-  name: 'notification',
+  name: 'Notification',
   props: {
     type: {
-      type: String,
+      type: String, default: ''
     }
   }
 }

@@ -1,9 +1,11 @@
 <template>
   <div class="form-check">
     <label :class="{ 'radio-hidden': hideRadio }">
-      <input v-on="$listeners" class="input-checkable" type="radio" :checked="isChecked" :value="value" :name="name"
-        :id="id" @input="$emit('update', $event.target.value)">
-      <div class="checkable is-radio"></div>
+      <input
+        :id="id" class="input-checkable" type="radio" :checked="isChecked" :value="modelValue" :name="name"
+        v-on="$listeners" @input="$emit('update:modelValue', $event.target.value)"
+      >
+      <div class="checkable is-radio" />
       {{ label }}
     </label>
   </div>
@@ -11,27 +13,23 @@
 
 <script>
 export default {
-  name: "NLRadio",
+  name: 'NLRadio',
   props: {
     form: { type: Object, required: false },
     name: { type: String, required: true },
     label: { type: String, required: true },
-    value: { type: String | Number | Boolean, default: undefined },
-    checkedValue: { default: "" },
+    modelValue: { type: [String, Number, Boolean], default: undefined },
+    checkedValue: { type: String, default: '' },
     hideRadio: { type: Boolean, default: false }
   },
-  model: {
-    prop: "checkedValue",
-    event: "update"
-  },
   computed: {
-    isChecked() {
-      return this.checkedValue == this.value
+    isChecked () {
+      return this.checkedValue === this.modelValue
     },
-    id() {
-      return `${this.name}-${this.value}`
+    id () {
+      return `${this.name}-${this.modelValue}`
     }
-  },
+  }
 }
 </script>
 

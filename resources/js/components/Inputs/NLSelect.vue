@@ -1,19 +1,30 @@
 <template>
-  <DefaultContainer :id="id || name" :form="form" :label="label" :name="name" :labelRequired="labelRequired"
-    :helpText="helpText">
-    <treeselect :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" v-model="selected" @input="updateValue"
-      :value="value" :name="name" :multiple="multiple" :options="options" :placeholder="placeholder"
-      :loadingText="loadingText" :noOptionsText="noOptionsText" search-nested>
-    </treeselect>
+  <DefaultContainer
+    :id="id || name" :form="form" :label="label"
+    :name="name" :label-required="labelRequired" :help-text="helpText"
+  >
+    <!-- <treeselect
+      v-model="selected" :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" :value="modelValue"
+      :name="name" :multiple="multiple" :options="options" :placeholder="placeholder" :loading-text="loadingText"
+      :no-options-text="noOptionsText" search-nested v-bind="$attrs"
+    /> -->
+
+    <treeselect
+      v-bind="$attrs" :key=" forcedKey " ref="treeselect"
+      v-model="selected" :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" :value="modelValue" :name="name" :multiple="multiple"
+      :options="options" :placeholder="placeholder" :loading-text="loadingText" :no-options-text="noOptionsText" search-nested
+    />
   </DefaultContainer>
 </template>
 
 <script>
-import Treeselect from 'vue3-treeselect'
+// import Treeselect from 'vue3-treeselect'
+import Treeselect from '@veigit/vue3-treeselect'
+// @veigit/vue3-treeselect
 // import Treeselect from '@riophae/vue-treeselect'
 export default {
+  name: 'NLSelect',
   components: { Treeselect },
-  name: "NLSelect",
   props: {
     form: { type: Object, required: false },
     name: { type: String, required: true },
@@ -24,26 +35,38 @@ export default {
     loadingText: { type: String, default: 'Chargement en cours...' },
     noOptionsText: { type: String, default: 'Aucune option disponible' },
     multiple: { type: Boolean, default: false },
-    value: { type: String | Array, default: () => [] },
-    options: { required: true },
-    helpText: { type: String, default: null },
+    modelValue: { type: [String, Array, Number], default: () => [] },
+    options: { type: Array, required: true },
+    helpText: { type: String, default: null }
   },
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
-  data() {
+  // emits: ['update:modelValue'],
+  data () {
     return {
-      selected: this.value,
-    };
+      forcedKey: false,
+      selected: this.modelValue
+    }
   },
-  updated() {
-    this.selected = this.value;
+  watch: {
+    selected (newValue, oldValue) {
+      // console.log('here in selected')
+      this.$emit('update:modelValue', newValue)
+    },
+    modelValue (newValue, oldValue) {
+      if (!newValue || newValue.length === 0) {
+        // console.log('here inside')
+        this.$refs.treeselect.clear()
+      }
+      if (newValue && (newValue !== oldValue)) {
+        this.selected = newValue
+        this.forcedKey = true
+      }
+    }
   },
   methods: {
-    updateValue() {
-      this.$emit('change', this.selected);
-    },
-  },
+    justRandomFunction ($event) {
+      console.log($event)
+    }
+  }
+
 }
 </script>

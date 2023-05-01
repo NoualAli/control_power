@@ -1,19 +1,24 @@
 <template>
-  <DefaultContainer :name="name" :id="id || name" :form="form" :label="label" :labelRequired="labelRequired"
-    :helpText="helpText">
-    <input type="file" :name="name" :id="id || name" :multiple="multiple" :accept="accept" class="file-input"
-      @change="onChange($event)" v-if="!readonly">
+  <DefaultContainer
+    :id="id || name" :name="name" :form="form" :label="label" :label-required="labelRequired"
+    :help-text="helpText"
+  >
+    <input
+      v-if="!readonly" :id="id || name" type="file" :name="name" :multiple="multiple" :accept="accept"
+      class="file-input" @change="onChange($event)"
+    >
     <div
       :class="[{ 'is-danger': form?.errors.has(name), 'has-files': hasFiles, 'is-readonly': readonly }, 'file-input-area']"
-      :draggable="true" @dragover="dragover" @dragleave="dragleave" @drop="drop">
-      <p class="text-medium file-uploader" @click.stop="openFileBrowser($event)" v-if="!inProgress && !readonly">
-        {{ placeholder }} <i class="las la-cloud-upload-alt text-large"></i>
+      :draggable="true" @dragover="dragover" @dragleave="dragleave" @drop="drop"
+    >
+      <p v-if="!inProgress && !readonly" class="text-medium file-uploader" @click.stop="openFileBrowser($event)">
+        {{ placeholder }} <i class="las la-cloud-upload-alt text-large" />
       </p>
-      <p class="text-medium file-uploader" v-else-if="inProgress && !readonly">
-        <i class="las la-spinner la-spin text-large"></i> {{ loadingText }}{{ progress }} %
+      <p v-else-if="inProgress && !readonly" class="text-medium file-uploader">
+        <i class="las la-spinner la-spin text-large" /> {{ loadingText }}{{ progress }} %
       </p>
       <div class="files-list list text-medium">
-        <div class="list-item my-1" v-for="(file, index) in getFilesList" :key="name + '-' + index">
+        <div v-for="(file, index) in getFilesList" :key="name + '-' + index" class="list-item my-1">
           <div class="grid gap-4 list-item-content" @click.stop="">
             <div class="col-11 d-flex justify-between align-center">
               <a :href="file.link" target="_blank" class="text-dark">
@@ -23,10 +28,12 @@
             </div>
             <div class="col-1 d-flex justify-end align-center gap-4">
               <a :href="file.link" :download="file.name">
-                <i class="las la-download text-info icon"></i>
+                <i class="las la-download text-info icon" />
               </a>
-              <i class="las la-trash text-danger icon is-clickable" @click.stop="deleteItem(file, index)"
-                v-if="canDelete && !readonly"></i>
+              <i
+                v-if="canDelete && !readonly" class="las la-trash text-danger icon is-clickable"
+                @click.stop="deleteItem(file, index)"
+              />
             </div>
           </div>
         </div>
@@ -38,8 +45,8 @@
 <script>
 import DefaultContainer from './DefaultContainer'
 export default {
-  components: { DefaultContainer },
   name: 'NLFile',
+  components: { DefaultContainer },
   props: {
     form: { type: Object, required: false },
     name: { type: String, required: true },
@@ -49,34 +56,50 @@ export default {
     placeholder: { type: String, default: 'Téléverser des fichiers' },
     loadingText: { type: String, default: 'Téléversement en cours... ' },
     multiple: { type: Boolean, default: false },
-    value: { type: String | Array, default: () => [] },
+    modelValue: { type: [String, Array], default: () => [] },
     attachableType: { type: String, default: '' },
-    attachableId: { type: String | Number, default: '' },
+    attachableId: { type: [String, Number], default: '' },
     accepted: { type: String, default: 'jpg,jpeg,png,doc,docx,xls,xlsx,pdf' },
     helpText: { type: String, default: null },
     canDelete: { type: Boolean, default: true },
-    readonly: { type: Boolean, default: false },
+    readonly: { type: Boolean, default: false }
   },
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
-  data() {
+  emits: ['change'],
+  data () {
     return {
       isDragging: false,
       inProgress: false,
       progress: 0,
-      files: [],
-    };
+      files: []
+    }
+  },
+  computed: {
+    hasFiles () {
+      return this.files.length
+    },
+    accept () {
+      return this.accepted.split(',').map(accept => '.' + accept).join(',')
+    },
+    getFilesList () {
+      return [...this.files].map((file) => {
+        return {
+          id: file.id,
+          name: file.original_name,
+          size: file.size,
+          type: file.type,
+          link: file.link
+        }
+      })
+    }
   },
   watch: {
-    value(newVal, oldVal) {
+    modelValue (newVal, oldVal) {
       if (newVal !== oldVal) this.loadFiles(newVal.join(','))
     }
   },
-  created() {
+  created () {
     if (!this.files.length) {
-      this.loadFiles(this.value.join(','))
+      this.loadFiles(this.modelValue.join(','))
     }
   },
   methods: {
@@ -85,7 +108,7 @@ export default {
      *
      * @param {*} $event
      */
-    onChange($event) {
+    onChange ($event) {
       this.inProgress = true
       this.upload($event.target.files)
     },
@@ -93,23 +116,23 @@ export default {
      * Handle dragover event
      * @param {*} e
      */
-    dragover(e) {
-      e.preventDefault();
-      this.isDragging = true;
+    dragover (e) {
+      e.preventDefault()
+      this.isDragging = true
     },
     /**
      * Handle drop leave event
      */
-    dragleave() {
-      this.isDragging = false;
+    dragleave () {
+      this.isDragging = false
     },
     /**
      * Handle drop event
      *
      * @param {*} $event
      */
-    drop($event) {
-      this.isDragging = false;
+    drop ($event) {
+      this.isDragging = false
       $event.preventDefault()
       this.upload($event.dataTransfer.files)
     },
@@ -118,19 +141,19 @@ export default {
      *
      * @param {*} $event
      */
-    openFileBrowser($event) {
-      $event.target.parentNode.parentNode.children[ 1 ].click();
+    openFileBrowser ($event) {
+      $event.target.parentNode.parentNode.children[1].click()
     },
     /**
      * Fetch exesting files
      *
      * @param {String} filesStr
      */
-    loadFiles(filesStr) {
-      api.get('upload?media=' + filesStr).then(response => {
+    loadFiles (filesStr) {
+      this.$api.get('upload?media=' + filesStr).then(response => {
         this.files = response.data
       }).catch(error => {
-        console.error(error);
+        console.error(error)
       })
     },
     /**
@@ -139,10 +162,10 @@ export default {
      * @param {Object} file
      * @param {Number} index
      */
-    deleteItem(file, index) {
-      swal.confirm_destroy().then((action) => {
+    deleteItem (file, index) {
+      this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
-          api.delete('upload/' + file.id).then(response => {
+          this.$api.delete('upload/' + file.id).then(response => {
             this.files.splice(index, 1)
             this.inProgress = false
             this.$emit('change', this.files.map(file => file.id))
@@ -158,20 +181,23 @@ export default {
      *
      * @param {Array} files
      */
-    upload(files) {
-      let data = new FormData()
+    upload (files) {
+      const data = new FormData()
       for (let i = 0; i < files.length; i++) {
-        data.append("media[]", files[ i ]);
+        data.append('media[]', files[i])
       }
+
       if (files.length) {
         data.append('accepted', this.accepted)
         data.append('attachable[id]', this.attachableId)
         data.append('attachable[type]', this.attachableType)
-        api.post('upload', data, {
+        this.$api.post('upload', data, {
           onUploadProgress: progressEvent => {
-            this.progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            this.progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
           }
         }).then(response => {
+          console.log(response)
+
           this.inProgress = false
           this.files.push(...response.data)
           const files = this.files.map((file) => file.id)
@@ -181,27 +207,7 @@ export default {
           console.error(error)
         })
       }
-
     }
-  },
-  computed: {
-    hasFiles() {
-      return this.files.length
-    },
-    accept() {
-      return this.accepted.split(',').map(accept => '.' + accept).join(',')
-    },
-    getFilesList() {
-      return [ ...this.files ].map((file) => {
-        return {
-          id: file.id,
-          name: file.original_name,
-          size: file.size,
-          type: file.type,
-          link: file.link
-        }
-      })
-    },
-  },
+  }
 }
 </script>
