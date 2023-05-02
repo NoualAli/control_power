@@ -159,11 +159,11 @@ export default {
         this.campaignId = this.$route.params.campaignId
       }
       this.$store.dispatch('missions/fetchConfig', this.form.control_campaign_id).then(() => {
-        this.agenciesList = this.config.config.agencies
-        this.controllersList = this.config.config.controllers
-        this.campaignsList = this.config.config.campaigns
-        this.currentCampaign = this.config.config.currentCampaign
-        this.currentCampaignReference = this.config.config.currentCampaign.reference
+        this.agenciesList = this.config?.config.agencies
+        this.controllersList = this.config?.config.controllers
+        this.campaignsList = this.config?.config.campaigns
+        this.currentCampaign = this.config?.config.currentCampaign
+        this.currentCampaignReference = this.config?.config.currentCampaign.reference
         const length = this.$breadcrumbs.value.length
         if (this.$breadcrumbs.value[length - 1].lable === 'Répartition des missions de contrôle de la campagne') {
           this.$breadcrumbs.value[length - 1].lable = 'Répartition des missions de contrôle de la campagne ' + this.currentCampaignReference

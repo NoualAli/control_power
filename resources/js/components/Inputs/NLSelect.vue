@@ -1,16 +1,10 @@
 <template>
   <DefaultContainer
-    :id="id || name" :form="form" :label="label"
+    :id="id || name" :key=" forcedKey " :form="form" :label="label"
     :name="name" :label-required="labelRequired" :help-text="helpText"
   >
-    <!-- <treeselect
-      v-model="selected" :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" :value="modelValue"
-      :name="name" :multiple="multiple" :options="options" :placeholder="placeholder" :loading-text="loadingText"
-      :no-options-text="noOptionsText" search-nested v-bind="$attrs"
-    /> -->
-
     <treeselect
-      v-bind="$attrs" :key=" forcedKey " ref="treeselect"
+      v-bind="$attrs" ref="treeselect"
       v-model="selected" :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" :value="modelValue" :name="name" :multiple="multiple"
       :options="options" :placeholder="placeholder" :loading-text="loadingText" :no-options-text="noOptionsText" search-nested
     />
@@ -42,31 +36,40 @@ export default {
   // emits: ['update:modelValue'],
   data () {
     return {
-      forcedKey: false,
+      forcedKey: -1,
       selected: this.modelValue
     }
   },
   watch: {
-    selected (newValue, oldValue) {
-      // console.log('here in selected')
-      this.$emit('update:modelValue', newValue)
-    },
-    modelValue (newValue, oldValue) {
-      if (!newValue || newValue.length === 0) {
-        // console.log('here inside')
-        this.$refs.treeselect.clear()
+    selected: {
+      immediate: true,
+      deep: true,
+      handler (newValue, oldValue) {
+        this.$emit('update:modelValue', newValue)
       }
-      if (newValue && (newValue !== oldValue)) {
-        this.selected = newValue
-        this.forcedKey = true
+    },
+    modelValue: {
+      immediate: true,
+      deep: true,
+      handler (newValue, oldValue) {
+        if (!newValue || newValue.length === 0) {
+          this?.$refs?.treeselect?.clear()
+          this.forcedKey = -1
+        }
+        if (newValue && (newValue !== oldValue)) {
+          this.selected = newValue
+          this.forcedKey = 1
+        }
       }
     }
   },
-  methods: {
-    justRandomFunction ($event) {
-      console.log($event)
-    }
-  }
+  // mounted () {
+  //   this.$watch(this.selected =>{
 
+  //   })
+  // },
+  methods: {
+
+  }
 }
 </script>

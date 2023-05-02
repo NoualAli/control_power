@@ -32,7 +32,7 @@ app.use(Vue3Breadcrumbs, { includeComponent: true })
 
 app.config.globalProperties.$api = api
 app.config.globalProperties.$swal = swal
-
+console.log(api)
 app.mixin(aclMixin)
 
 useComponents(app)

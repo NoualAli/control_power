@@ -277,8 +277,6 @@ export default {
         this.filtersData.families.data = this.filters.filters.famillies
         this.filtersData.domains.data = this.filters.filters.domains
         this.filtersData.processes.data = this.filters.filters.processes
-
-        console.log(this.filters.famillies)
       })
     }
   }

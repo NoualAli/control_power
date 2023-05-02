@@ -75,12 +75,6 @@ export default {
   metaInfo () {
     return { title: 'Processus' }
   },
-  computed: {
-    ...mapGetters({
-      processes: 'processes/paginated',
-      process: 'processes/current'
-    })
-  },
   data () {
     return {
       rowSelected: null,
@@ -119,6 +113,12 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapGetters({
+      processes: 'processes/paginated',
+      process: 'processes/current'
+    })
+  },
   created () {
     this.initData()
   },
@@ -128,7 +128,7 @@ export default {
      * @param {Object} item
      */
     show (item) {
-      this.$store.dispatch('processes/fetch', item.id).then(() => this.rowSelected = this.process.current)
+      this.$store.dispatch('processes/fetch', { id: item.id }).then(() => { console.log(this.process); this.rowSelected = this.process.current })
     },
 
     /**
@@ -146,7 +146,7 @@ export default {
     destroy (item) {
       this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
-          api.delete('processes/' + item.id).then(response => {
+          this.$api.delete('processes/' + item.id).then(response => {
             if (response.data.status) {
               this.rowSelected = null
               this.initData()
@@ -157,6 +157,7 @@ export default {
           })
         }
       }).catch(error => {
+        console.log(error)
         this.$swal.alert_error()
       })
     },

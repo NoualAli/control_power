@@ -1,3 +1,5 @@
+import api from '../../plugins/api'
+
 export const state = {
   pcf: null,
   filters: null
@@ -15,7 +17,7 @@ export const mutations = {
 export const actions = {
   async fetchPCF ({ commit }, onlyFiltersData = false) {
     const url = onlyFiltersData ? 'references/pcf?onlyFiltersData' : 'references/pcf'
-    const { data } = await this.$api.get(url)
+    const { data } = await api.get(url)
     if (onlyFiltersData) {
       commit('FETCH_FILTERS_DATA', { filters: data })
     } else {
