@@ -1,13 +1,14 @@
 <template>
   <div>
     <DefaultContainer
-      :id="id || name" :form="form" :label="label" :name="name" :label-required="labelRequired"
-      :length="length" :current-length="currentLength"
+      :id="id || name" :form="form" :label="label" :name="name"
+      :label-required="labelRequired" :length="length" :current-length="currentLength"
     >
       <VueEditor
-        :id="id || name" :editor-toolbar="editorSettings" :class="[{ 'is-danger': form?.errors.has(name) }]" :name="name"
-        :autocomplete="autocomplete" :autofocus="autofocus" :max-length="length"
-        :placeholder="placeholder || label" :value="currentValue" :help-text="helpText"
+        :id="id || name"
+        :key="forcedKey" v-model="currentValue" :editor-toolbar="editorSettings" :class="[{ 'is-danger': form?.errors.has(name) }]"
+        :name="name" :autocomplete="autocomplete" :autofocus="autofocus" :max-length="length"
+        :placeholder="placeholder || label" :value="modelValue" :help-text="helpText"
         v-bind="$attrs" @input="onInput($event)" @ready="quill => {editorQuill = quill}"
       />
     </DefaultContainer>
@@ -41,8 +42,9 @@ export default {
   data () {
     return {
       editorQuill: null,
+      forcedKey: -1,
       currentLength: 0,
-      currentValue: null,
+      currentValue: this.modelValue,
       editorSettings: [
         [{ header: [1, 2, 3, 4, 5, 6, false] }],
         // [ { 'font': [] } ],
@@ -59,9 +61,28 @@ export default {
     }
   },
   watch: {
-    currentValue: function (currentValue) {
-      if (!!this.length && this.editorQuill.getLength() >= this.length) {
-        this.editorQuill.deleteText(this.length, this.editorQuill.getLength())
+    currentValue: {
+      immediate: true,
+      deep: true,
+      handler (newValue, oldValue) {
+        if (!!this.length && this.editorQuill.getLength() >= this.length) {
+          this.editorQuill.deleteText(this.length, this.editorQuill.getLength())
+        }
+        this.$emit('update:modelValue', newValue)
+      }
+    },
+    modelValue: {
+      immediate: true,
+      deep: true,
+      handler (newValue, oldValue) {
+        if (!newValue || newValue.length === 0) {
+          this.currentValue = newValue
+          this.forcedKey = -1
+        }
+        if (newValue && (newValue !== oldValue)) {
+          this.currentValue = newValue
+          this.forcedKey = 1
+        }
       }
     }
   },

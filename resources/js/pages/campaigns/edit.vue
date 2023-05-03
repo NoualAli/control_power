@@ -79,20 +79,20 @@ export default {
   created () {
     this.initData()
   },
-  mounted () {
-    this.initData()
-  },
+  // mounted () {
+  //   this.initData()
+  // },
   methods: {
     /**
      * Met à jour la campagne de contrôle
      */
     update () {
-      console.log(this.$route.params.campaignId)
+      // console.log(this.$route.params.campaignId)
 
       this.form.put('/api/campaigns/' + this.$route.params.campaignId).then(response => {
         if (response.data.status) {
           this.$swal.toast_success(response.data.message)
-          this.initData()
+          this.$router.push({ name: 'campaign', params: { campaignId: this.$route.params.campaignId } })
         } else {
           this.$swal.alert_error(response.data.message)
         }
@@ -105,12 +105,12 @@ export default {
      */
     loadPFC () {
       this.$store.dispatch('famillies/fetchAll', { withChildren: true }).then(() => {
-        console.log(typeof this.famillies.all)
+        // console.log(typeof this.famillies.all)
         this.pcfList = this.famillies.all
       })
     },
     initData () {
-      console.log(this.$route.params.campaignId)
+      // console.log(this.$route.params.campaignId)
       this.$store.dispatch('campaigns/fetch', { campaignId: this.$route.params.campaignId, edit: true }).then(() => {
         if (this.campaign.current.remaining_days_before_start <= 0) {
           this.$router.push({ name: 'campaigns' })
