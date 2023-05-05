@@ -1,7 +1,7 @@
 <template>
   <div class="box auth-box grid gap-6">
     <div class="col-12 auth-box__header">
-      <img src="/images/brand.svg" class="auth-brand" />
+      <img src="/storage/images/brand.svg" class="auth-brand" />
       <span class="auth-box__title">
         S'identifier
         <br>

@@ -172,6 +172,11 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(User::class);
     }
+
+    public function logins()
+    {
+        return $this->hasMany(Login::class);
+    }
     /**
      * Scopes
      */

@@ -28,6 +28,11 @@ class Familly extends Model
      * Getters
      */
 
+    public function getNameAttribute($name)
+    {
+        return ucfirst(strtolower($name));
+    }
+
     /**
      * Relationships
      */

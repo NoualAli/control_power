@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Mission;
+use Illuminate\Support\Facades\Cache;
 
 class MissionObserver
 {
@@ -14,7 +15,7 @@ class MissionObserver
      */
     public function created(Mission $mission)
     {
-        //
+        $this->clearAll();
     }
 
     /**
@@ -25,7 +26,7 @@ class MissionObserver
      */
     public function updated(Mission $mission)
     {
-        //
+        $this->clear($mission);
     }
 
     /**
@@ -39,6 +40,9 @@ class MissionObserver
         foreach ($mission->details as $detail) {
             $detail->delete();
         }
+
+        $this->clear($mission);
+        $this->clearAll();
     }
 
     /**
@@ -62,6 +66,16 @@ class MissionObserver
      */
     public function forceDeleted(Mission $mission)
     {
-        //
+        $this->clear($mission);
+    }
+
+    private function clearAll()
+    {
+        Cache::forget('missions');
+    }
+
+    private function clear(Mission $mission)
+    {
+        Cache::forget('mission-' . $mission->reference);
     }
 }

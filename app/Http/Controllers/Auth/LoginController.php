@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Exceptions\VerifyEmailException;
 use App\Http\Controllers\Controller;
+use App\Models\Login;
+use App\Models\User;
 use Exception;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -51,12 +53,14 @@ class LoginController extends Controller
 
         $token = (string) $this->guard()->getToken();
         $expiration = $this->guard()->getPayload()->get('exp');
+        $loginInformations = $this->storeLoginInformations($request, auth()->user());
 
         return response()->json([
             'user' => auth()->user(),
             'token' => $token,
             'token_type' => 'bearer',
             'expires_in' => $expiration - time(),
+            'login_informations' => $loginInformations,
         ]);
     }
 
@@ -81,6 +85,7 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
+        $this->updateLastLoginInformations($request, auth()->user());
         $this->guard()->logout();
 
         return response()->json(null, 204);
@@ -124,5 +129,49 @@ class LoginController extends Controller
         $data[$this->username()] = $data['authLogin'];
         unset($data['authLogin']);
         return $data;
+    }
+
+    /**
+     * Store login informations
+     *
+     * @param Request $request
+     * @param User $user
+     *
+     * @return \App\Models\Login
+     */
+    protected function storeLoginInformations(Request $request, User $user)
+    {
+        try {
+            return Login::firstOrCreate([
+                'user_id' => $user->id,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+    }
+
+    /**
+     * Update last login informations
+     *
+     * @param Request $request
+     * @param User $user
+     *
+     * @return bool
+     */
+    protected function updateLastLoginInformations(Request $request, User $user)
+    {
+        try {
+            return Login::where('user_id', $user->id)
+                ->where('ip_address', $request->ip())
+                ->where('user_agent', $request->userAgent())
+                ->orderBy('created_at', 'DESC')
+                ->firstOrFail()->update([
+                    'last_activity' => now(),
+                ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
     }
 }

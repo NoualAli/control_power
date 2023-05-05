@@ -34,10 +34,11 @@
             </div>
             <div class="col-12">
               <span class="text-bold">
-                Agence:
+                Début:
               </span>
               <span>
-                {{ mission?.current?.agency.full_name }}
+                {{ mission?.current?.start + ' / ' +
+                  mission?.current?.remaining_days_before_start_str }}
               </span>
             </div>
           </div>
@@ -54,11 +55,10 @@
             </div>
             <div class="col-12">
               <span class="text-bold">
-                Début:
+                Agence:
               </span>
               <span>
-                {{ mission?.current?.start + ' / ' +
-                  mission?.current?.remaining_days_before_start_str }}
+                {{ mission?.current?.agency.full_name }}
               </span>
             </div>
             <div class="col-12">
@@ -76,11 +76,11 @@
           <div class="grid gap-6">
             <div class="col-12">
               <span class="text-bold">
-                Contrôleurs dre:
+                Contrôleurs dcp:
               </span>
               <span>
                 <ul class="d-inline-block ml-6">
-                  <li v-for="controller in mission?.current?.agency_controllers" :key="'dre_controller-' + controller.id">
+                  <li v-for="controller in mission?.current?.dcp_controllers" :key="'dcp-controller-' + controller.id">
                     {{ controller.full_name }}
                   </li>
                 </ul>
@@ -88,11 +88,11 @@
             </div>
             <div class="col-12">
               <span class="text-bold">
-                Contrôleurs dcp:
+                Contrôleurs dre:
               </span>
               <span>
                 <ul class="d-inline-block ml-6">
-                  <li v-for="controller in mission?.current?.dcp_controllers" :key="'dcp-controller-' + controller.id">
+                  <li v-for="controller in mission?.current?.agency_controllers" :key="'dre_controller-' + controller.id">
                     {{ controller.full_name }}
                   </li>
                 </ul>
@@ -116,7 +116,7 @@
             {{ mission?.current?.realisation_state }}
           </span>
         </div>
-        <div class="col-12 col-lg-4" v-has-role="'cdc,cdcr,cc'">
+        <div class="col-12 col-lg-4">
           <span class="text-bold">
             Moyenne:
           </span>
@@ -124,7 +124,6 @@
             {{ mission?.current?.avg_score }}
           </span>
         </div>
-        <!-- <div class="col-12 col-lg-4 d-none d-lg-block"></div> -->
         <div class="col-12 col-lg-4" v-if="mission?.current?.cdcr_validation_at">
           <span class="text-bold">
             1<sup>ère</sup> validation
@@ -176,9 +175,14 @@
 
     <!-- Actions -->
     <div class="d-flex align-items gap-2">
-      <button class="btn btn-danger has-icon" @click="exportReport">
+      <button class="btn btn-danger has-icon" @click="exportReport(false)">
         <i class="las la-file-pdf icon"></i>
-        Exporter le rapport
+        Télécharger le rapport
+      </button>
+
+      <button class="btn btn-danger has-icon" @click="exportReport(true)">
+        <i class="las la-eye icon"></i>
+        Aperçu du rapport
       </button>
       <!-- CDC -->
 
@@ -194,11 +198,6 @@
         Valider la mission
       </button>
 
-      <!-- Read actions -->
-      <button class="btn btn-info" v-if="mission?.current.dre_report && can('create_dre_report')" @click="showReport">
-        Rapport de la mission
-      </button>
-
       <!-- CI -->
       <button class="btn btn-success"
         v-if="mission?.current.progress_status == 100 && !mission?.current.controller_opinion_is_validated && mission?.current?.controller_opinion_exist && can('validate_opinion')"
@@ -211,16 +210,6 @@
         Ajouter votre avis
       </button>
 
-      <button class="btn btn-info" v-if="mission?.current.opinion?.is_validated && can('view_opinion')"
-        @click="showOpinion">
-        Avis sur la mission
-      </button>
-      <button class="btn btn-info"
-        v-if="mission?.current?.controller_opinion_exist && !mission?.current.opinion?.is_validated && can('create_opinion')"
-        @click="showOpinion">
-        Avis sur la mission
-      </button>
-
       <!-- CDCR -->
       <button class="btn btn-success" v-if="!mission?.current.cdcr_validation_at && can('make_first_validation')"
         @click.prevent="validateMission(1)">
@@ -230,11 +219,6 @@
         @click.prevent="showDispatchForm">
         Assigné
       </button>
-      <button class="btn btn-info"
-        v-if="mission?.current.dre_report?.is_validated && can('make_first_validation,process_mission')"
-        @click="showReport">
-        Rapport de la mission
-      </button>
 
       <!-- DCP -->
       <button class="btn btn-success"
@@ -242,20 +226,37 @@
         @click.prevent="validateMission(2)">
         Valider la mission
       </button>
-      <button class="btn btn-info" v-if="mission?.current.dre_report?.is_validated && can('make_second_validation')"
+
+      <!-- View ci comment -->
+      <button class="btn btn-info" v-if="mission?.current.opinion?.is_validated && is('cdc')" @click="showOpinion">
+        Avis sur la mission
+      </button>
+      <button class="btn btn-info" v-if="mission?.current?.controller_opinion_exist && is('ci')" @click="showOpinion">
+        Avis sur la mission
+      </button>
+
+      <!-- View report -->
+      <button class="btn btn-info" v-if="mission?.current.dre_report && is('cdc')" @click="showReport">
+        Rapport de la mission
+      </button>
+      <button class="btn btn-info" v-if="mission?.current.dre_report?.is_validated && is(['dcp', 'cdcr', 'cc'])"
         @click="showReport">
         Rapport de la mission
       </button>
-
-      <div v-has-role="'dg,cdrcp,da,cc'">
-        <button class="btn btn-info" v-if="mission?.current.cdcr_validation_at" @click="showReport">
-          Rapport de la mission
-        </button>
-      </div>
+      <button class="btn btn-info" v-if="mission?.current.dcp_validation_at && is(['dg', 'cdrcp', 'da', 'cc'])"
+        @click="showReport">
+        Rapport de la mission
+      </button>
+      <!-- <button class="btn btn-info"
+    v-if="mission?.current.dre_report?.is_validated && can('make_first_validation,process_mission')"
+    @click="showReport">
+    Rapport de la mission
+  </button> -->
     </div>
 
     <!-- Processes List -->
-    <NLDatatable title="Processus de la mission" namespace="missions" stateKey="processes" :config="config" @show="show">
+    <NLDatatable :filters="filters" title="Processus de la mission" namespace="missions" stateKey="processes"
+      :config="config" @dataUpdated="(e) => loadFilters(e)" @show="show">
       <template v-slot:actions="item">
         <button class="btn btn-info has-icon" @click.stop="details(item)"
           v-if="can('control_agency,view_mission_detail') && mission?.current?.remaining_days_before_start <= 0">
@@ -515,6 +516,31 @@ export default {
             type: 'Rapport'
           }),
         }
+      },
+      filters: {
+        family_id: {
+          label: 'Famille',
+          name: 'family',
+          multiple: true,
+          data: null,
+          value: null,
+          cols: 'col-lg-4'
+        },
+        domain_id: {
+          label: 'Domaine',
+          name: 'domain',
+          multiple: true,
+          data: null,
+          value: null,
+          cols: 'col-lg-5'
+        },
+        // process_id: {
+        //   label: 'Processus',
+        //   name: 'process',
+        //   multiple: true,
+        //   data: null,
+        //   value: null
+        // },
       }
     }
   },
@@ -526,6 +552,7 @@ export default {
   computed: {
     ...mapGetters({
       mission: 'missions/current',
+      missionFilters: 'missions/filters',
       processes: 'missions/processes',
       controlPoints: 'processes/controlPoints',
       users: 'users/all'
@@ -537,8 +564,18 @@ export default {
   },
 
   methods: {
-    exportReport() {
-      const url = '/api/missions/' + this.mission.current.id + '/export?type=pdf'
+    /**
+     * Export or Preview a report
+     *
+     * @param {Boolean} preview
+     */
+    exportReport(preview) {
+      let url = '/api/missions/' + this.mission.current.id + '/export?type=pdf'
+      if (preview) {
+        url += '&mode=preview'
+      } else {
+        url += '&mode=download'
+      }
       window.open(url)
       // api.get('missions/' + this.mission.current.id + '/export?type=pdf').then((response) => {
       //   console.log(response);
@@ -691,7 +728,13 @@ export default {
     /**
      * Initialise les données
      */
-    initData() {
+    initData(reset = false) {
+      // if (reset) {
+      //   this.resetFilters()
+      // } else {
+      //   this.loadFilters()
+      // }
+      this.loadFilters()
       this.close()
       this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId }).catch(error => swal.alert_error(error))
       this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId, onlyProcesses: true }).then(() => {
@@ -750,6 +793,43 @@ export default {
     close() {
       this.rowSelected = null
     },
+    resetFilters(e) {
+      let isFiltering = e?.isFiltering !== undefined ? e.isFiltering : true
+      if (!isFiltering) {
+        if (!this.filters.family_id?.value) {
+          // this.filters.domain_id.data = []
+          this.initData()
+        }
+      }
+      // this.loadData()
+      if (!isFiltering) {
+        this.initData()
+      }
+      console.log('reset', e);
+    },
+    loadFilters(e) {
+      // let isFiltering = e?.isFiltering !== undefined ? e.isFiltering : true
+      let appliedFilters = e?.appliedFilters ?? null
+      this.$store.dispatch('missions/fetchFilters', { missionId: this.$route.params.missionId, filters: this.filters }).then(() => {
+
+        // this.filters.domain_id.data = null
+        let familiesLength = this.filters.family_id.data?.length ?? 0
+        if (!familiesLength && !this.filters.family_id.value) {
+          this.filters.family_id.data = this.missionFilters.filters.families
+        }
+
+        // if (!this.filters.domain_id?.data?.length && this.filters.family_id.value) {
+        //   this.filters.domain_id.data = this.missionFilters.filters.domains
+        // }
+        if (!this.filters.domain_id.data) {
+          this.filters.domain_id.data = this.missionFilters.filters.domains
+        }
+      })
+      if (!appliedFilters?.family_id?.length) {
+        this.filters.domain_id.data = null
+        this.filters.domain_id.value = null
+      }
+    }
   },
 }
 </script>
