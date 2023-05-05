@@ -85,53 +85,51 @@ class MissionController extends Controller
      */
     public function export(Mission $mission)
     {
-        $start = now();
-        $mission->unsetRelations();
-        $mission->load(['details', 'campaign']);
-        $details = $mission->details()->whereIn('score', [1, 2, 3, 4])->get()->groupBy('familly.name');
-        $end = now();
-        $difference = $end->diffInRealMilliseconds($start);
-        // dd($details, $difference);
-        $campaign = $mission->campaign;
-        $stats = [
-            'avg_score' => $mission->avg_score,
-            'total_processes' => $this->loadProcesses($mission)->count(),
-            'total_anomalies' => $mission->details()->whereAnomaly()->count(),
-            'total_major_facts' => $mission->details()->onlyMajorFacts()->count(),
-        ];
-
-        $pdf = Pdf::loadView('export.report', compact('mission', 'campaign', 'details', 'stats'));
-        $pdf->render();
-
-        $canvas = $pdf->get_canvas();
-        $cpdf = $canvas->get_cpdf();
-
-        $font = $pdf->getFontMetrics()->get_font("helvetica", "bold");
-
-        $firstPageId = $cpdf->getFirstPageId();
-        $objects = $cpdf->objects;
-        $pages = array_filter($objects, function ($v) {
-            return $v['t'] == 'page';
-        });
-        $number = 1;
-        foreach ($pages as $pageId => $page) {
-            if (($pageId + 1) !== $firstPageId) {
-                $canvas->reopen_object($pageId + 1);
-                $canvas->text(525, 807, $number, $font, 13, [.07, .34, .25]);
-                $canvas->close_object();
-                $number++;
-            }
-        }
-        $filename = strtolower('rapport_mission-' . $mission->reference . '-' . str_replace(' ', '', $mission->agency->name) . '.pdf');
-        if (request()->has('mode') && request()->mode == "preview") {
-            dd('test');
-            return $pdf->stream($filename);
-        } else {
-            return $pdf->download($filename);
-        }
         try {
-        } catch (\Throwable $th) {
+            $start = now();
+            $mission->unsetRelations();
+            $mission->load(['details', 'campaign']);
+            $details = $mission->details()->whereIn('score', [1, 2, 3, 4])->get()->groupBy('familly.name');
+            $end = now();
+            $difference = $end->diffInRealMilliseconds($start);
+            // dd($details, $difference);
+            $campaign = $mission->campaign;
+            $stats = [
+                'avg_score' => $mission->avg_score,
+                'total_processes' => $this->loadProcesses($mission)->count(),
+                'total_anomalies' => $mission->details()->whereAnomaly()->count(),
+                'total_major_facts' => $mission->details()->onlyMajorFacts()->count(),
+            ];
 
+            $pdf = Pdf::loadView('export.report', compact('mission', 'campaign', 'details', 'stats'));
+            $pdf->render();
+
+            $canvas = $pdf->get_canvas();
+            $cpdf = $canvas->get_cpdf();
+
+            $font = $pdf->getFontMetrics()->get_font("helvetica", "bold");
+
+            $firstPageId = $cpdf->getFirstPageId();
+            $objects = $cpdf->objects;
+            $pages = array_filter($objects, function ($v) {
+                return $v['t'] == 'page';
+            });
+            $number = 1;
+            foreach ($pages as $pageId => $page) {
+                if (($pageId + 1) !== $firstPageId) {
+                    $canvas->reopen_object($pageId + 1);
+                    $canvas->text(525, 807, $number, $font, 13, [.07, .34, .25]);
+                    $canvas->close_object();
+                    $number++;
+                }
+            }
+            $filename = strtolower('rapport_mission-' . $mission->reference . '-' . str_replace(' ', '', $mission->agency->name) . '.pdf');
+            if (request()->has('mode') && request()->mode == "preview") {
+                return $pdf->stream($filename);
+            } else {
+                return $pdf->download($filename);
+            }
+        } catch (\Throwable $th) {
             echo "<pre>";
             echo $th->getMessage();
             echo "</pre>";
