@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('mission_details', function (Blueprint $table) {
-            $table->foreignUuid('regularization_id')->nullable()->constrained('regularizations');
+            $table->foreignUuid('regularization_id')->constrained('regularizations');
             //$table->foreign('regularization_id')->on('regularizations')->references('id')->onDelete('set null')->onUpdate('cascade');
         });
     }

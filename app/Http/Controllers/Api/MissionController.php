@@ -19,6 +19,8 @@ use App\Notifications\Mission\Validated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Cache;
 
 class MissionController extends Controller
 {
@@ -57,11 +59,11 @@ class MissionController extends Controller
 
             $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
             if (request()->has('fetchAll')) {
-                $missions = $missions->get()->flatten()('reference', 'id');
+                $missions = formatForSelect($missions->get()->toArray(), 'reference');
             } elseif (request()->has('export')) {
                 $missions = MissionResource::collection($missions->paginate($perPage)->onEachSide(1));
             } elseif (request()->has('onlyFilters')) {
-                return $this->getFilters($missions);
+                $missions = $this->getFilters($missions);
             } else {
                 $missions = MissionResource::collection($missions->paginate($perPage)->onEachSide(1));
             }
@@ -75,18 +77,23 @@ class MissionController extends Controller
     }
 
     /**
-     * @param mixed $data
+     * Generate mission report in PDF format
      *
-     * @return [type]
+     * @param \App\Models\Mission $mission
+     *
+     * @return \Illuminate\Http\Response
      */
     public function export(Mission $mission)
     {
         try {
+            $start = now();
             $mission->unsetRelations();
             $mission->load(['details', 'campaign']);
             $details = $mission->details()->whereIn('score', [1, 2, 3, 4])->get()->groupBy('familly.name');
+            $end = now();
+            $difference = $end->diffInRealMilliseconds($start);
+            // dd($details, $difference);
             $campaign = $mission->campaign;
-
             $stats = [
                 'avg_score' => $mission->avg_score,
                 'total_processes' => $this->loadProcesses($mission)->count(),
@@ -116,8 +123,12 @@ class MissionController extends Controller
                     $number++;
                 }
             }
-
-            return $pdf->stream();
+            $filename = strtolower('rapport_mission-' . $mission->reference . '-' . str_replace(' ', '', $mission->agency->name) . '.pdf');
+            if (request()->has('mode') && request()->mode == "preview") {
+                return $pdf->stream($filename);
+            } else {
+                return $pdf->download($filename);
+            }
         } catch (\Throwable $th) {
             echo "<pre>";
             echo $th->getMessage();
@@ -125,6 +136,11 @@ class MissionController extends Controller
         }
     }
 
+    /**
+     * Fetch user mission
+     *
+     * @return Illuminate\Database\Eloquent\Builder
+     */
     private function getMissions()
     {
         $missions = new Mission();
@@ -137,10 +153,18 @@ class MissionController extends Controller
         } elseif (hasRole(['cdrcp', 'der'])) {
             $missions = $missions->hasDcpValidation();
         }
+
         return $missions;
     }
 
-    public function getFilters($missions = null)
+    /**
+     * Fetch missions filters
+     *
+     * @param Illuminate\Database\Eloquent\Builder|null $missions
+     *
+     * @return array
+     */
+    public function getFilters(Builder $missions = null)
     {
         $missions = $missions ?? $this->getMissions();
         $dre_controllers = $missions->relationUniqueData('agencyControllers', 'full_name', 'id');
@@ -187,35 +211,58 @@ class MissionController extends Controller
             abort_if(!$condition, 401, __('unauthorized'));
         }
         if (request()->has('onlyProcesses') || request()->has('page')) {
-            $mission->unsetRelations();
-            $processes = DB::table('processes as p');
-            if (env('APP_ENV') == 'windows' || env('APP_ENV') == 'testServer') {
-                $processes = $processes->selectRaw("p.id as process_id, p.name as process, d.name as domain, f.name as family, COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, FORMAT(MAX(md.executed_at), 'dd-MM-yyyy') AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) AS scored_mission_details, (COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) / COUNT(md.id)) * 100 AS progress_status");
-            } else {
-                $processes = $processes->selectRaw('p.id as process_id, p.name as process, d.name as domain, f.name as family, COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, DATE_FORMAT(MAX(md.executed_at), "%d-%m-%Y") AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(IF(md.score IS NOT NULL, md.id, NULL)) AS scored_mission_details, (COUNT(IF(md.score IS NOT NULL, md.id, NULL)) / COUNT(md.id)) * 100 AS progress_status');
+            $processes = $this->loadProcesses($mission);
+            if (request()->has('withFilters')) {
+                return $this->loadFilters($processes);
             }
-            $processes = $processes->join('control_points as cp', 'p.id', '=', 'cp.process_id')
-                ->join('domains as d', 'd.id', '=', 'p.domain_id')
-                ->join('famillies as f', 'f.id', '=', 'd.familly_id')
-                ->join('mission_details as md', 'cp.id', '=', 'md.control_point_id')
-                ->join('missions as m', 'm.id', '=', 'md.mission_id')
-                ->groupBy('p.id', 'p.name', 'd.name', 'f.name')
-                ->where('m.id', $mission->id);
-            $processes = !hasRole(['cdc', 'ci']) ? $processes->whereIn('md.score', [2, 3, 4]) : $processes;
-            $processes = $processes->orderBy('p.id')->get();
-            $search = request()->has('search') ? request()->search : false;
-            if ($search) {
-                $processes = $processes->filter(fn ($processe) => preg_match('/' . strtolower($search) . '/', strtolower($processe->name)));
-            }
+            $processes = $this->filterData($processes);
             $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
             return MissionProcessesResource::collection(paginate($processes, '/api/missions/' . $mission->id, $perPage));
         }
+
+        // if (request()->has('onlyFilters')) {
+        //     $processes = $this->loadProcesses($mission);
+        //     return $this->loadFilters($processes);
+        // }
+
 
         $mission = $mission->load(['agency', 'dre', 'agencyControllers', 'dcpControllers', 'cdcrValidator', 'dcpValidator', 'campaign' => fn ($campaign) => $campaign->without('processes')])->unsetRelation('details');
 
         return $mission;
     }
 
+    private function loadFilters($data)
+    {
+        $filters = request()->filter;
+        $familyValues = isset(request()->filter['family_id']) && !empty(request()->filter['family_id']) ? explode(',', request()->filter['family_id']) : null;
+
+        $domains = null;
+        $families = formatForSelect((clone $data)->uniqueStrict('family')->map(fn ($item) => (array) $item)->toArray(), 'family', 'family_id');
+
+        if ($familyValues) {
+            $domains = formatForSelect((clone $data)->whereIn('family_id', $familyValues)->uniqueStrict('domain')->map(fn ($item) => (array) $item)->toArray(), 'domain', 'domain_id');
+        }
+        return  compact('families', 'domains');
+    }
+
+    private function filterData($data)
+    {
+        if (request()->has('filter') && !empty(request()->filter)) {
+            foreach (request()->filter as $key => $value) {
+                if (!empty($value)) {
+                    $values = explode(',', $value);
+                    if (!empty($values)) {
+                        $data = $data->whereIn($key, $values);
+                    }
+                }
+            }
+        }
+
+        if (request()->has('search') && !empty(request()->search)) {
+            $data = $data->filter(fn ($process) => preg_match('/' . strtolower(request()->search) . '/', strtolower($process->process)));
+        }
+        return $data;
+    }
     /**
      * Display config.
      *
@@ -509,33 +556,23 @@ class MissionController extends Controller
     {
         $mission->unsetRelations();
         $processes = DB::table('processes as p');
-        if (env('APP_ENV') == 'windows' || env('APP_ENV') == 'testServer') {
-            $processes = $processes->selectRaw("p.id as process_id, p.name as process, d.name as domain, f.name as family, COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, FORMAT(MAX(md.executed_at), 'dd-MM-yyyy') AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) AS scored_mission_details, (COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) / COUNT(md.id)) * 100 AS progress_status");
-        } else {
-            $processes = $processes->selectRaw('p.id as process_id, p.name as process, d.name as domain, f.name as family, COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, DATE_FORMAT(MAX(md.executed_at), "%d-%m-%Y") AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(IF(md.score IS NOT NULL, md.id, NULL)) AS scored_mission_details, (COUNT(IF(md.score IS NOT NULL, md.id, NULL)) / COUNT(md.id)) * 100 AS progress_status');
-        }
+        $processes = $processes->selectRaw("p.id as process_id, p.name as process, d.name as domain, f.name as family, f.id as family_id, d.id as domain_id,COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, FORMAT(MAX(md.executed_at), 'dd-MM-yyyy') AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) AS scored_mission_details, (COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) / COUNT(md.id)) * 100 AS progress_status");
         $processes = $processes->join('control_points as cp', 'p.id', '=', 'cp.process_id')
             ->join('domains as d', 'd.id', '=', 'p.domain_id')
             ->join('famillies as f', 'f.id', '=', 'd.familly_id')
             ->join('mission_details as md', 'cp.id', '=', 'md.control_point_id')
             ->join('missions as m', 'm.id', '=', 'md.mission_id')
-            ->groupBy('p.id', 'p.name', 'd.name', 'f.name')
+            ->groupBy('f.id', 'd.id', 'p.id', 'p.name', 'd.name', 'f.name')
             ->where('m.id', $mission->id);
         $processes = !hasRole(['cdc', 'ci']) && $onlyWhereAnomaly ? $processes->whereIn('md.score', [2, 3, 4]) : $processes;
-        $processes = $processes->orderBy('p.id')->get();
+        $processes = $processes->orderBy('f.id')->orderBy('p.id')->get();
         $search = request()->has('search') ? request()->search : false;
         if ($search) {
-            $processes = $processes->filter(fn ($processe) => preg_match('/' . strtolower($search) . '/', strtolower($processe->name)));
+            $processes = $processes->filter(fn ($processe) => preg_match('/' . strtolower($search) . '/', strtolower($processe->process)));
         }
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
-        if ($paginated) {
-            return MissionProcessesResource::collection(paginate($processes, '/api/missions/' . $mission->id, $perPage));
-        } else {
-            if ($formated) {
-                return formatForSelect($processes->toArray());
-            } else {
-                return $processes;
-            }
+        if ($formated) {
+            $processes = formatForSelect($processes->toArray());
         }
+        return $processes;
     }
 }

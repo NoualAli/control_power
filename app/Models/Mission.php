@@ -12,7 +12,6 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Znck\Eloquent\Traits\BelongsToThrough;
 
@@ -102,8 +101,10 @@ class Mission extends Model
     public function getAvgScoreAttribute()
     {
         $details = $this->details()->whereIn('score', [1, 2, 3, 4]);
-        return round($details->sum('score') / $details->count());
-        // return addZero($this->details()->avg('score'));
+        $sum = round($details->sum('score'));
+        $count = $details->count();
+        return $sum > 0 && $count > 0 ? addZero(round($sum / $count)) : 0;
+        // return addZero($details->avg('score'));
     }
 
     public function getAgencyControllersStrAttribute()

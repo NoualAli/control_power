@@ -1,9 +1,10 @@
 @php
     $appCss = env('APP_URL') . '/special_styles/report.css';
     $qlCss = env('APP_URL') . '/special_styles/ql.css';
-    $appBrand = public_path('images\brand.png');
-    $bnaLogo = public_path('images\report_logo.svg');
-    $coverPageImg = public_path('images\cover_page.png');
+    $appBrand = public_path('storage\images\brand.png');
+    $bnaLogo = public_path('storage\images\report_logo.svg');
+    $coverPageImg = public_path('storage\images\cover_page.png');
+    // $coverPageImg = '';
     $appBrandMonochrome = public_path('images\brand_monochrome.png');
 @endphp
 <!DOCTYPE html>
@@ -102,9 +103,9 @@
                 Ci-après les familles, domaines et processus à contrôler:
             </p>
             <br>
-            <ul>
+            <ul class="table-of-content">
                 @foreach ($details as $family => $familyData)
-                    <li>Famille: {!! $family !!}</li>
+                    <li><a href="#{{ $family }}">Famille: {!! ucfirst(strtolower($family)) !!}</a></li>
                     <ul>
                         @php
                             $domains = $familyData->groupBy('domain');
@@ -113,7 +114,7 @@
                             @php
                                 $domain = json_decode($domain);
                             @endphp
-                            <li>Domaine: {{ $domain->name }}</li>
+                            <li><a href="#{{ $family . '-' . $domain->id }}">Domaine: {{ $domain->name }}</a></li>
                             <ul>
                                 @php
                                     $processes = $domainData->groupBy('process');
@@ -122,7 +123,8 @@
                                     @php
                                         $process = json_decode($process);
                                     @endphp
-                                    <li>Processus: {{ $process->name }}</li>
+                                    <li><a href="#{{ $family . '-' . $domain->id . '-' . $process->id }}">Processus:
+                                            {{ $process->name }}</a></li>
                                 @endforeach
                             </ul>
                         @endforeach
@@ -199,7 +201,7 @@
             </div>
             <div class="page-break-before-always"></div>
             @foreach ($details as $family => $familyData)
-                <h2>Famille: {!! $family !!}</h2>
+                <h2 id="{{ $family }}">Famille: {!! $family !!}</h2>
                 @php
                     $domains = $familyData->groupBy('domain');
                 @endphp
@@ -207,7 +209,7 @@
                     @php
                         $domain = json_decode($domain);
                     @endphp
-                    <h3>Domaine: {{ $domain->name }}</h3>
+                    <h3 id="{{ $family . '-' . $domain->id }}">Domaine: {{ $domain->name }}</h3>
                     @php
                         $processes = $domainData->groupBy('process');
                     @endphp
@@ -215,7 +217,9 @@
                         @php
                             $process = json_decode($process);
                         @endphp
-                        <h4>Processus: {{ $process->name }}</h4>
+                        <h4 id="{{ $family . '-' . $domain->id . '-' . $process->id }}">Processus:
+                            {{ $process->name }}
+                        </h4>
                         @foreach ($processData as $controlPoint => $item)
                             @php
                                 if (in_array($item->score, [2, 3, 4]) && !$item->major_fact) {
@@ -307,7 +311,7 @@
                 <div class="page-break-after-always"></div>
             @endforeach
 
-            <h2>Rapport chef de département</h2>
+            <h2>Rapport du chef de département</h2>
             {!! $mission->dre_report->content !!}
         </div>
     </main>

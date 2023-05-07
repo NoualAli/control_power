@@ -75,11 +75,10 @@ export default {
             isHtml: true,
             methods: {
               showField (item) {
-                let score = item.avg_score
-                // weird fake?
-                if (item.agency === '633 - AP BIRKHADEM') {
-                  score = 1
-                }
+                const score = item.avg_score
+                // if (item.agency == "633 - AP BIRKHADEM") {
+                //   score = 1
+                // }
                 let style = 'text-dark text-bold'
                 if (score === 1) {
                   style = 'bg-success text-white text-bold'
@@ -158,11 +157,11 @@ export default {
             if (hasRole(['cdc', 'ci'])) {
               return this.can('view_mission')
             } else if (hasRole(['dcp', 'cdcr'])) {
-              return this.can('view_mission') && item.progress_status == 100 && item?.dre_report?.is_validated
+              return this.can('view_mission') && item.progress_status === 100 && item?.dre_report?.is_validated
             } else if (hasRole(['da', 'dg', 'cdrcp', 'ig', 'der'])) {
-              return this.can('view_mission') && item.progress_status == 100 && item?.dcp_validation_at
+              return this.can('view_mission') && item.progress_status === 100 && item?.dcp_validation_at
             } else {
-              return this.can('view_mission') && item.progress_status == 100
+              return this.can('view_mission') && item.progress_status === 100
             }
           },
           edit: (item) => {

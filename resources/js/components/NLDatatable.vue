@@ -210,6 +210,7 @@ export default {
       appliedSort: {},
       appliedSearch: '',
       appliedPerPage: 10,
+      appliedFilters: {},
       filterData: {},
       export: false,
       showFilters: false,
@@ -272,6 +273,7 @@ export default {
                   const element = fields[subfieldKey]
                   if (element.value !== null && element.value !== undefined) {
                     values.push(subfieldKey + '|' + element.value)
+                    this.appliedFilters[subfieldKey] = values
                   }
                 }
               }
@@ -281,26 +283,34 @@ export default {
               loadData.push(!!(parent.value !== null && parent.value.length && parent.value !== undefined))
             } else {
               loadData.push(this.filters[key].value !== null)
+              if (this.filters[key].value) {
+                this.appliedFilters[key] = this.filters[key].value
+              }
             }
           }
         }
       }
       if (loadData.some(value => value)) {
-        this.buildUrl()
-        this.updateState(true)
-        this.$api.get(this.getUrl).then(response => {
-          this.updateState()
-          this.configLocal.data = response.data
-        }).catch(error => {
-          this.updateState()
-          this.$swal.alert_error(error)
-        })
+        this.fetchData()
       } else {
-        this.buildUrl()
-        this.updateState(true)
-        // this.getPaginationData(this.getUrl)
-        this.updateState()
+        // this.buildUrl()
+        // this.updateState(true)
+        // // this.getPaginationData(this.getUrl)
+        // this.updateState()
+        // this.fetchData()
       }
+    },
+    fetchData () {
+      this.buildUrl()
+      this.updateState(true)
+      this.$api.get(this.getUrl).then(response => {
+        this.updateState()
+        this.config.data = response.data // we will see about it
+        this.$emit('dataUpdated', { data: response.data, appliedFilters: this.appliedFilters })
+      }).catch(error => {
+        this.updateState()
+        this.$swal.alert_error(error)
+      })
     },
     resetFilter () {
       this.showFilters = false
@@ -319,25 +329,6 @@ export default {
         }
       }
       this.$emit('filterReset')
-    },
-    exportData () {
-      this.export = true
-      this.buildUrl()
-      this.$api.get(this.url, {
-        responseType: 'blob',
-        onDownloadProgress: (progressEvent) => {
-          this.isBusy = true
-          const size = progressEvent.target.getResponseHeader('Content-Length')
-          const loaded = progressEvent.loaded
-          const progress = Math.round((loaded / size) * 100)
-          this.$swal.loading(progress)
-        }
-      }).then(response => {
-        this.isBusy = false
-        // const file = response.data.file
-        // const fileName = response.data.fileName
-        // saveAs(file, fileName)
-      })
     },
     /**
      * Emit delete event

@@ -73,6 +73,10 @@
         </div>
       </form>
     </div>
+
+    <div class="col-12">
+      <NLDatatable :config="config" title="Historique de connexion" namespace="users" />
+    </div>
   </div>
 </template>
 
@@ -88,25 +92,63 @@ export default {
     return { title: 'Profil' }
   },
 
-  data: () => ({
-    infoForm: new Form({
-      username: '',
-      email: '',
-      first_name: '',
-      last_name: ''
-    }),
-    passwordForm: new Form({
-      password: '',
-      current_password: '',
-      password_confirmation: ''
-    })
-  }),
+  data () {
+    return {
+      infoForm: new Form({
+        username: '',
+        email: '',
+        first_name: '',
+        last_name: ''
+      }),
+      passwordForm: new Form({
+        password: '',
+        current_password: '',
+        password_confirmation: ''
+      }),
+
+      config: {
+        data: null,
+        columns: [
+          {
+            label: 'Appareil',
+            field: 'device'
+          },
+          {
+            label: 'Navigateur',
+            field: 'browser'
+          },
+          {
+            label: 'Version',
+            field: 'browser_version'
+          },
+          {
+            label: "Système d'exploitation",
+            field: 'platform'
+          },
+          {
+            label: 'Version',
+            field: 'platform_version'
+          },
+          {
+            label: 'Adresse IP',
+            field: 'ip_address'
+          },
+          {
+            label: 'Dernière connexion',
+            field: 'last_activity'
+          }
+        ]
+      }
+    }
+  },
 
   computed: mapGetters({
-    user: 'auth/user'
+    user: 'auth/user',
+    logins: 'auth/logins'
   }),
 
   created () {
+    this.$store.dispatch('auth/fetchCurrentUserLogins').then(() => { this.config.data = this.logins })
     this.infoForm.keys().forEach(key => {
       this.infoForm[key] = this.user[key]
     })

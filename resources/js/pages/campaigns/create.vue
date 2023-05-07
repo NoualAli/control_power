@@ -101,7 +101,7 @@ export default {
      * Récupère la liste des familles -> domaines -> processus
      */
     loadPFC () {
-      this.$store.dispatch('famillies/fetchAll', { withChildren: true }).then(() => {
+      this.$store.dispatch('famillies/fetchAll', true).then(() => {
         this.pcfList = this.famillies.all
       })
     }

@@ -424,3 +424,9 @@ td {
 .report-area {
     line-height: 1.5
 }
+
+
+.table-of-content a {
+    color: #000000;
+    text-decoration: none;
+}

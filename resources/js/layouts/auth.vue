@@ -1,7 +1,7 @@
 <template>
   <div class="auth-container">
     <header class="header-container">
-      <img src="/images/logo.svg" class="brand">
+      <img src="/storage/images/logo.svg" class="brand">
     </header>
     <main class="main-container">
       <child />

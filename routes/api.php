@@ -69,6 +69,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::prefix('users')->controller(UserController::class)->group(function () {
         Route::get('/', 'index');
         Route::get('{user}', 'show');
+        Route::get('/logins/history', 'loginsHistory');
         Route::post('/', 'store');
         Route::put('info/{user}', 'updateInfo');
         Route::put('password/{user}', 'updatePassword');

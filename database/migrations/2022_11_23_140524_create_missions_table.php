@@ -23,8 +23,8 @@ class CreateMissionsTable extends Migration
             $table->foreignId('control_campaign_id');
             $table->foreignId('agency_id');
             $table->foreignId('created_by_id');
-            $table->foreignId('cdcr_validation_by_id')->nullable()->constrained('users');
-            $table->foreignId('dcp_validation_by_id')->nullable()->constrained('users');
+            $table->foreignId('cdcr_validation_by_id')->constrained('users');
+            $table->foreignId('dcp_validation_by_id')->constrained('users');
 
             // Dates
             $table->timestamp('start', 7);

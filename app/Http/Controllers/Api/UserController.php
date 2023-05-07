@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreRequest;
 use App\Http\Requests\User\UpdateUserInfoRequest;
 use App\Http\Requests\User\UpdateUserPasswordRequest;
+use App\Http\Resources\LoginHistoryResource;
 use App\Http\Resources\UserResource;
 use App\Models\Dre;
 use App\Models\User;
@@ -22,6 +23,11 @@ class UserController extends Controller
     public function current()
     {
         return response()->json(auth()->user());
+    }
+
+    public function loginsHistory()
+    {
+        return LoginHistoryResource::collection(paginate(auth()->user()->logins()->orderBy('created_at', 'DESC')->orderBy('last_activity', 'DESC')->get(), '/api/logins/history'));
     }
 
     /**
