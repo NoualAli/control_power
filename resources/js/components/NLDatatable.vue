@@ -305,7 +305,7 @@ export default {
       this.updateState(true)
       this.$api.get(this.getUrl).then(response => {
         this.updateState()
-        this.config.data = response.data // we will see about it
+        this.configLocal.data = response.data // we will see about it
         this.$emit('dataUpdated', { data: response.data, appliedFilters: this.appliedFilters })
       }).catch(error => {
         this.updateState()
