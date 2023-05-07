@@ -2,6 +2,7 @@
 import Swal from 'sweetalert2'
 import axios from 'axios'
 import store from '~/store'
+import * as swal from '../plugins/swal'
 const api = axios.create({
   headers: {
 
@@ -17,7 +18,7 @@ api.interceptors.response.use(response => response, error => {
   const message = error?.response?.data?.message
   const title = status + ' ' + error?.response?.statusText
   if (status === 401 && store.getters['auth/check']) {
-    this.$swal.alert_error(message, title)
+    swal.alert_error(message, title)
       .then(() => {
         store.commit('auth/LOGOUT')
         location.reload()
@@ -27,18 +28,18 @@ api.interceptors.response.use(response => response, error => {
     window.location.href = '/404'
   }
   if (status === 403 && store.getters['auth/check']) {
-    this.$swal.alert_error(message, title)
+    swal.alert_error(message, title)
       .then(() => {
         store.commit('auth/LOGOUT')
         location.reload()
       })
-    }
-    
-    if (status >= 500) {
-      serverError(error.response)
-    }
-    return Promise.reject(error)
-  })
+  }
+
+  if (status >= 500) {
+    serverError(error.response)
+  }
+  return Promise.reject(error)
+})
 
 let serverErrorModalShown = false
 async function serverError (response) {

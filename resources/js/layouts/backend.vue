@@ -16,7 +16,7 @@
                     :to="crumb.link"
                   >
                     {{ crumb.label }}
-                    /
+                    -
                   </router-link>
                   <span v-else class="am-breadcrumbs__link" :class="{'am-breadcrumbs__link_current': crumb.current}">{{ crumb.label }}</span>
                 </template>

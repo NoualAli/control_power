@@ -1,26 +1,32 @@
 <template>
   <div class="box auth-box grid gap-6">
     <div class="col-12 auth-box__header">
-      <img src="/images/brand.svg" class="auth-brand" />
+      <img src="/images/brand.svg" class="auth-brand">
       <span class="auth-box__title">
         1<sup>ère</sup> Connexion <br>
         Nouveau mot de passe
       </span>
     </div>
     <div class="col-12 form-container container">
-      <form @submit.prevent="renew" @keydown="form.onKeydown($event)" method="POST">
+      <form method="POST" @submit.prevent="renew" @keydown="form.onKeydown($event)">
         <div class="grid gap-2 my-2">
           <div class="col-12">
-            <NLInput name="current_password" class="is-for-auth" placeholder="Mot de passe actuel"
-              v-model="form.current_password" :form="form" type="password" />
+            <NLInput
+              v-model="form.current_password" name="current_password" class="is-for-auth"
+              placeholder="Mot de passe actuel" :form="form" type="password"
+            />
           </div>
           <div class="col-12">
-            <NLInput name="password" class="is-for-auth" placeholder="Mot de passe" v-model="form.password" :form="form"
-              type="password" />
+            <NLInput
+              v-model="form.password" name="password" class="is-for-auth" placeholder="Mot de passe" :form="form"
+              type="password"
+            />
           </div>
           <div class="col-12">
-            <NLInput name="password_confirmation" class="is-for-auth" placeholder="Confirmation mot de passe" :form="form"
-              v-model="form.password_confirmation" type="password" />
+            <NLInput
+              v-model="form.password_confirmation" name="password_confirmation" class="is-for-auth" placeholder="Confirmation mot de passe"
+              :form="form" type="password"
+            />
           </div>
         </div>
         <div class="d-flex justify-center align-center">
@@ -42,36 +48,36 @@ import { mapGetters } from 'vuex'
 export default {
   layout: 'auth',
   // middleware: 'auth',
-  metaInfo() {
+  metaInfo () {
     return { title: 'Réinitialisation du mot de passe' }
   },
   computed: {
     ...mapGetters({
       user: 'auth/user'
-    }),
+    })
   },
   data: () => ({
     form: new Form({
       current_password: null,
       password: null,
       password_confirmation: null,
-      mustChangePassword: true,
+      mustChangePassword: true
     })
   }),
 
   methods: {
-    renew() {
+    renew () {
       const user = JSON.parse(localStorage.getItem('user'))
       this.form.patch('/api/settings/password/' + user?.id).then(response => {
         if (response.data.status) {
-          swal.toast_success(response.data.message)
+          this.$swal.toast_success(response.data.message)
           this.form.reset()
           this.$store.dispatch('auth/fetchUser').then(() => this.$router.push({ name: 'home' }))
         } else {
-          swal.alert_error(response.data.message)
+          this.$swal.alert_error(response.data.message)
         }
       }).catch(error => {
-        console.log(error);
+        console.log(error)
       })
       // this.status = data.status
     }

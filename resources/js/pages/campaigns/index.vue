@@ -81,10 +81,10 @@ export default {
         actions: {
           show: true,
           edit: (item) => {
-            return this.can('edit_control_campaign') && item.remaining_days_before_start > 5 && !item.validated_by_id && this.is('dcp')
+            return (this.can('edit_control_campaign') && item.remaining_days_before_start > 5) || !item.validated_by_id
           },
           delete: (item) => {
-            return this.can('delete_control_campaign') && item.remaining_days_before_start > 5 && !item.validated_by_id && this.is('dcp')
+            return (this.can('delete_control_campaign') && item.remaining_days_before_start > 5) || !item.validated_by_id
           }
         }
       },

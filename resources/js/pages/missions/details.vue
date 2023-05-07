@@ -91,7 +91,7 @@
 
                   <!-- CDCR -->
                   <button
-                    v-if="!mission?.cdcr_validation_at && !detail?.major_fact_dispatched_at && can('make_first_validation,process_mission') && [2, 3, 4].includes(detail?.score)" class="btn btn-warning has-icon"
+                    v-if="!detail?.major_fact_dispatched_at && !mission?.cdcr_validation_at && can(['make_first_validation', 'process_mission']) && [1,2, 3, 4].includes(Number(detail?.score))" class="btn btn-warning has-icon"
                     @click="edit(detail)"
                   >
                     <i class="las la-pen icon" />
@@ -100,7 +100,7 @@
 
                   <!-- DCP -->
                   <button
-                    v-if="!mission?.dcp_validation_at && mission.cdcr_validation_at && !detail?.major_fact_dispatched_at && can('make_second_validation') && [2, 3, 4].includes(detail?.score)" class="btn btn-warning has-icon"
+                    v-if="!mission?.dcp_validation_at && mission.cdcr_validation_at && !detail?.major_fact_dispatched_at && can('make_second_validation') && [1,2, 3, 4].includes(Number(detail?.score))" class="btn btn-warning has-icon"
                     @click="edit(detail)"
                   >
                     <i class="las la-pen icon" />
@@ -523,7 +523,7 @@
               <NLFile
                 v-model="forms.detail.media" :name="'media'" label="Pièces jointes"
                 attachable-type="App\Models\MissionDetail" :attachable-id="forms.detail.detail" :form="forms.detail" multiple
-                :can-delete="!rowSelected?.controller_opinion_is_validated" :readonly="forms.detail.process_mode"
+                :can-delete="!rowSelected?.dre_report_is_validated" :readonly="forms.detail.process_mode"
               />
             </div>
 
@@ -849,8 +849,8 @@ export default {
         url = '/api/regularize/' + this.forms.regularization.detail_id
       }
       form.post(url).then(response => {
-        if (response.data.status) {
-          this.$swal.swal.toast_success(response.data.message)
+        if (response?.data?.status) {
+          this.$swal.toast_success(response.data.message)
           this.initData()
           form.reset()
           this.close('edit')
@@ -861,7 +861,7 @@ export default {
         }
       }).catch(error => {
         let message = error.message
-        if (error.response.status === 422) {
+        if (error?.response?.status === 422) {
           message = 'Les données fournies sont invalides.'
         }
         this.$swal.toast_error(message)

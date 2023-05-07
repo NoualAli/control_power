@@ -165,9 +165,8 @@
           <span class="text-bold">
             Note:
           </span>
-          <span>
-            {{ mission?.current?.note || '-' }}
-          </span>
+          <div v-if="mission?.current?.note" class="mt-2" v-html="mission?.current?.note" />
+          <span v-else>-</span>
         </div>
       </div>
     </div>
@@ -179,12 +178,12 @@
 
     <!-- Actions -->
     <div class="d-flex align-items gap-2">
-      <button class="btn btn-danger has-icon" @click="exportReport(false)">
+      <button v-if="mission?.current?.dcp_validation_at" class="btn btn-danger has-icon" @click="exportReport(false)">
         <i class="las la-file-pdf icon" />
         Télécharger le rapport
       </button>
 
-      <button class="btn btn-danger has-icon" @click="exportReport(true)">
+      <button v-if="mission?.current?.dcp_validation_at" class="btn btn-danger has-icon" @click="exportReport(true)">
         <i class="las la-eye icon" />
         Aperçu du rapport
       </button>
@@ -512,7 +511,7 @@ export default {
             isHtml: true,
             methods: {
               showField (item) {
-                const score = item.avg_score
+                const score = Number(item.avg_score)
                 let style = 'text-dark text-bold'
                 if (score === 1) {
                   style = 'bg-success text-white text-bold'

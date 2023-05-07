@@ -13,7 +13,7 @@ class UpdateRequest extends FormRequest
      */
     public function authorize()
     {
-        return isAbleTo('edit_control_campaign') && request()->campaign->remaining_days_before_start > 5 && !request()->campaign->validated_by_id && hasRole('dcp');
+        return isAbleTo('edit_control_campaign') && (request()->campaign->remaining_days_before_start > 5 || !request()->campaign->validated_by_id);
     }
 
     /**

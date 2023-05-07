@@ -75,7 +75,8 @@ class ProcessController extends Controller
     {
         $processes = explode(',', $process);
         $onlyControlPoints = request()->has('onlyControlPoints');
-        $data = $onlyControlPoints ? formatForSelect(ControlPoint::whereIn('process_id', $processes)->get()->toArray()) : Process::findOrFail($process)->load('familly');
+        $data = $onlyControlPoints ? formatForSelect(ControlPoint::whereIn('process_id', $processes)->get()->toArray()) : Process::findOrFail($process)->load(['familly', 'domain']);
+        // dd($data);
         return response()->json($data);
     }
 

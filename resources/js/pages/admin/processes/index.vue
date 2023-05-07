@@ -23,7 +23,7 @@
                 Famille
               </div>
               <div class="list-item-content">
-                {{ rowSelected?.familly?.name }}
+                {{ rowSelected?.familly_name }}
               </div>
             </div>
             <div class="col-12 col-lg-6 list-item">
@@ -31,7 +31,7 @@
                 Domaine
               </div>
               <div class="list-item-content">
-                {{ rowSelected?.domain?.name }}
+                {{ rowSelected?.domain_name }}
               </div>
             </div>
             <div class="col-12 col-lg-6 list-item">
@@ -128,7 +128,8 @@ export default {
      * @param {Object} item
      */
     show (item) {
-      this.$store.dispatch('processes/fetch', { id: item.id }).then(() => { console.log(this.process); this.rowSelected = this.process.current })
+      this.rowSelected = item
+      // this.$store.dispatch('processes/fetch', { id: item.id }).then(() => { console.log(this.process); this.rowSelected = this.process.current })
     },
 
     /**

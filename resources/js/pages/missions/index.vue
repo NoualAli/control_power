@@ -75,10 +75,7 @@ export default {
             isHtml: true,
             methods: {
               showField (item) {
-                const score = item.avg_score
-                // if (item.agency == "633 - AP BIRKHADEM") {
-                //   score = 1
-                // }
+                const score = Number(item.avg_score)
                 let style = 'text-dark text-bold'
                 if (score === 1) {
                   style = 'bg-success text-white text-bold'
@@ -154,14 +151,15 @@ export default {
         ],
         actions: {
           show: (item) => {
+            // console.log(this.can('view_mission'), item.progress_status.toString, item?.dre_report?.is_validated)
             if (hasRole(['cdc', 'ci'])) {
               return this.can('view_mission')
             } else if (hasRole(['dcp', 'cdcr'])) {
-              return this.can('view_mission') && item.progress_status === 100 && item?.dre_report?.is_validated
+              return this.can('view_mission') && item.progress_status.toString() === '100' && item?.dre_report?.is_validated
             } else if (hasRole(['da', 'dg', 'cdrcp', 'ig', 'der'])) {
-              return this.can('view_mission') && item.progress_status === 100 && item?.dcp_validation_at
+              return this.can('view_mission') && item.progress_status.toString() === '100' && item?.dcp_validation_at
             } else {
-              return this.can('view_mission') && item.progress_status === 100
+              return this.can('view_mission') && item.progress_status.toString() === '100'
             }
           },
           edit: (item) => {

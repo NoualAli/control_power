@@ -305,21 +305,21 @@ input[type="date"]::-webkit-inner-spin-button,
                 stroke: currentColor
                 fill: currentColor
 
-.breadcrumbs-container
+.am-breadcrumbs
     display: flex
     align-items: center
     flex-wrap: wrap
     gap: 10px 20px
     list-style: none
     color: $dark
-    text-transform: uppercase !important
-    & .parent-breadcrumb
+    // text-transform: uppercase !important
+    & .am-breadcrumbs__link
         position: relative
         & a
             display: block
             color: $dark-grey
-        &::after
-            content: '/'
+        &::before
+            // content: '-'
             position: absolute
             right: -10px
             top: 50%

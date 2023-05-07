@@ -51,7 +51,7 @@
 
         <!-- Note -->
         <div class="col-12">
-          <NLTextarea v-model="form.note" :form="form" name="note" label="Note" placeholder="Ajouter une note" />
+          <NLWyswyg v-model="form.note" :form="form" name="note" label="Note" placeholder="Ajouter une note" />
         </div>
       </div>
 

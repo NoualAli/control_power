@@ -218,16 +218,16 @@ export default {
         this.details = this.config.config.details
         this.mission = this.config.config.mission
         this.process = this.config.config.process
-        this.modals.show = false
-        this.modals.edit = false
+        // this.modals.show = false
+        // this.modals.edit = false
         if (this.$breadcrumbs.value[length - 3].label === 'Mission') { this.$breadcrumbs.value[length - 3].label = 'Mission ' + this.mission?.reference }
         if (this.$breadcrumbs.value[length - 1].label === 'Exécution de la mission') {
           // this.$breadcrumbs.value[length - 3].label = ''
           this.$breadcrumbs.value[length - 2].label = ''
           this.$breadcrumbs.value[length - 1].label = this.process?.name
         }
+        this.initForm()
       })
-      this.initForm()
     },
     /**
      * Initialise le formulaire

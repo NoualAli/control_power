@@ -1,5 +1,5 @@
 <template>
-  <div v-if="forcedRerenderKey!==-1 && campaign?.current.remaining_days_before_start > 5 && can('edit_control_campaign')" :key="forcedRerenderKey">
+  <div v-if="forcedRerenderKey!==-1 && ((campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign')) || !campaign?.current?.validated_by_id)" :key="forcedRerenderKey">
     <ContentBody>
       <form @submit.prevent="update" @keydown="form.onKeydown($event)">
         <!-- Control campaign base informations -->
@@ -110,20 +110,19 @@ export default {
       })
     },
     initData () {
-      // console.log(this.$route.params.campaignId)
       this.$store.dispatch('campaigns/fetch', { campaignId: this.$route.params.campaignId, edit: true }).then(() => {
-        if (this.campaign.current.remaining_days_before_start <= 0) {
+        if (this.campaign?.current?.validated_by_id) {
           this.$router.push({ name: 'campaigns' })
         }
-        this.readonly.start = this.campaign.current.remaining_days_before_start <= 5
-        this.readonly.end = this.campaign.current.remaining_days_before_start <= 5
-        this.readonly.pcf = this.campaign.current.remaining_days_before_start <= 5
+        this.readonly.start = this.campaign?.current?.remaining_days_before_start <= 5
+        this.readonly.end = this.campaign?.current?.remaining_days_before_start <= 5
+        this.readonly.pcf = this.campaign?.current?.remaining_days_before_start <= 5
         this.loadPFC()
-        this.form.description = this.campaign.current.description
-        this.form.reference = this.campaign.current.reference
-        this.form.start = this.campaign.current.start.split('-').reverse().join('-')
-        this.form.end = this.campaign.current.end.split('-').reverse().join('-')
-        this.form.pcf = this.campaign.current.processes.map((process) => process.id)
+        this.form.description = this.campaign?.current?.description
+        this.form.reference = this.campaign?.current?.reference
+        this.form.start = this.campaign?.current?.start.split('-').reverse().join('-')
+        this.form.end = this.campaign?.current?.end.split('-').reverse().join('-')
+        this.form.pcf = this.campaign?.current?.processes.map((process) => process.id)
         const length = this.$breadcrumbs.value.length
         if (this.$breadcrumbs.value[length - 1].label === 'Détails campagne') {
           this.$breadcrumbs.value[length - 1].label = 'Détails campagne ' + this.campaign.current?.reference

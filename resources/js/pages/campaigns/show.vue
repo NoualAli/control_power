@@ -9,13 +9,13 @@
           Missions
         </router-link>
         <router-link
-          v-if="campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign') && !campaign?.current.validated_by_id && is('dcp')" class="btn btn-warning"
+          v-if="(campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign')) || !campaign?.current.validated_by_id" class="btn btn-warning"
           :to="{ name: 'campaigns-edit', params: { campaignId: campaign?.current?.id } }"
         >
           <i class="las la-edit icon" />
         </router-link>
         <button
-          v-if="campaign?.current?.remaining_days_before_start > 5 && can('delete_control_campaign') && !campaign?.current.validated_by_id && is('dcp')" class="btn btn-danger"
+          v-if="(campaign?.current?.remaining_days_before_start > 5 && can('delete_control_campaign')) || !campaign?.current.validated_by_id" class="btn btn-danger"
           @click.stop="destroy"
         >
           <i class="las la-trash icon" />
@@ -77,9 +77,8 @@
             Description:
           </span>
           <br>
-          <div class="mt-2" v-html="campaign?.current?.description" v-if="campaign?.current?.description !== '-'">
-          </div>
-          <span v-else></span>
+          <div v-if="campaign?.current?.description !== '-'" class="mt-2" v-html="campaign?.current?.description" />
+          <span v-else />
         </div>
       </div>
     </div>

@@ -537,7 +537,7 @@ export default {
                 return 'text-center'
               },
               showField (item) {
-                const score = item.score
+                const score = Number(item.score)
                 let style = 'text-dark text-bold'
                 if (score === 1) {
                   style = 'bg-success text-white text-bold'
