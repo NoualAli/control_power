@@ -4,7 +4,7 @@ $table-shadows: 0px 0px 0.7px -2px rgba(0, 0, 0, 0.024), 0px 0px 2px -2px rgba(0
 $table-align: center
 $table-radius: 4px
 $table-border: $grey
-$link-active-bg: $primary-dark
+$link-active-bg: $primary
 $link-active-color: $white
 $link-active-opacity: .5
 $cell-font-size: 1rem
@@ -95,14 +95,14 @@ table
             &:nth-child(odd)
                 background-color: transparent
             &:hover
-                background-color: rgba($primary,.2)
+                background-color: rgba($secondary,.2)
                 color: $brown
 .pagination
     maring: 0 1rem
     width: 100%
     & .btn
         &.is-active
-            background-color: $primary-dark
+            background-color: $primary
             cursor: not-allowed
             color: $primary-extra-light
 
@@ -129,7 +129,7 @@ table
             position: sticky !important
             top: 0 !important
             z-index: 1
-            background-color: $primary-dark
+            background-color: $primary
             color: $white
             padding: $th-padding
             box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4)

@@ -1,11 +1,10 @@
 @php
     $appCss = env('APP_URL') . '/special_styles/report.css';
     $qlCss = env('APP_URL') . '/special_styles/ql.css';
-    $appBrand = public_path('storage\images\brand.png');
-    $bnaLogo = public_path('storage\images\report_logo.svg');
-    $coverPageImg = public_path('storage\images\cover_page.png');
-    // $coverPageImg = '';
-    $appBrandMonochrome = public_path('images\brand_monochrome.png');
+    $appBrand = public_path('app\images\brand.svg');
+    $bnaLogo = public_path('app\images\bna_logo.svg');
+    $coverPageImg = public_path('app\images\report_cover_page.png');
+    $appBrandMonochrome = public_path('app\images\brand_monochrome.png');
 @endphp
 <!DOCTYPE html>
 <html lang="en">
