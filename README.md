@@ -15,6 +15,11 @@
         <li><a href="./README.md#migration-des-tables-de-la-base-de-données">Migration des tables de la base de données</a></li>
         <li><a href="./README.md#lancement-du-serveur-interne-de-php">Lancement du serveur interne de php</a></li>
     </ul>
+    <li><a href="./README.md#modifier-le-fichier-phpini">Modifier le fichier php.ini</a></li>
+    <ul>
+        <li><a href="./README.md#activer-le-support-de-microsoft-sql-server">Activer le support de Microsoft SQL Server</a></li>
+        <li><a href="./README.md#augmenter-la-capacité-de-memory_limit-et-max_execution_time">Augmenter la capacité de memory_limit et max_execution_time</a></li>
+    </ul>
 </ul>
 
 ## Prérequis
@@ -35,7 +40,7 @@
 </ul>
 
 <p>
-    Puis placez les dans le dossier <b>C:\< path_to_php_installation >\ext
+    Puis placez les dans le dossier <b>C:\< path_to_php_installation >\ext</b>
 </p>
 
     
