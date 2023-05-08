@@ -64,33 +64,33 @@
     
 ## Installation de l'application
 
-### Clonage du repo
+#### Clonage du repo
 ```batch
 git clone https://github.com/NoualAli/power_control
 ```
 
-### Installation des dépendences laravel
+#### Installation des dépendences laravel
 ```batch
 composer install
 ```
 
-### Installtion et compilation des dépendences javascript et css
-- ##### Mode développement
+#### Installtion et compilation des dépendences javascript et css
+- **Mode développement**
 ```batch
 npm install | npm run dev
 ```
-- ##### Mode production
+- **Mode production**
 ```batch
 npm install | npm run build
 ```
 
-### Migration des tables de la base de données
+#### Migration des tables de la base de données
 ```batch
 php artisan migrate
 ```
 **Note: la documentation assume que vous avez déjà une base de données créée et fonctionnelle**
 
-### Lancement du serveur interne de php
+#### Lancement du serveur interne de php
 ```batch
 php artisan serve
 ```
