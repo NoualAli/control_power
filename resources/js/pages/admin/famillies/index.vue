@@ -1,14 +1,14 @@
 <template>
   <div v-if="can('view_familly')">
     <ContentHeader>
-      <template v-slot:actions>
-        <router-link :to="{ name: 'famillies-create' }" class="btn btn-info" v-if="can('create_familly')">
+      <template #actions>
+        <router-link v-if="can('create_familly')" :to="{ name: 'famillies-create' }" class="btn btn-info">
           Ajouter
         </router-link>
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable :config="config" @delete="destroy" @edit="edit" title="Liste des familles" namespace="famillies" />
+      <NLDatatable :config="config" title="Liste des familles" namespace="famillies" @delete="destroy" @edit="edit" />
     </ContentBody>
   </div>
 </template>
@@ -19,16 +19,16 @@ import { mapGetters } from 'vuex'
 export default {
   components: { NLDatatable },
   layout: 'backend',
-  middleware: [ 'auth', 'admin' ],
-  metaInfo() {
+  middleware: ['auth', 'admin'],
+  metaInfo () {
     return { title: 'Famille' }
   },
   computed: {
     ...mapGetters({
-      famillies: 'famillies/paginated',
-    }),
+      famillies: 'famillies/paginated'
+    })
   },
-  data() {
+  data () {
     return {
       rowSelected: null,
       config: {
@@ -37,12 +37,12 @@ export default {
           {
             label: 'Nom',
             field: 'name',
-            orderable: true,
+            orderable: true
           },
           {
             label: 'Nombre de domaines',
-            field: 'domains_count',
-          },
+            field: 'domains_count'
+          }
         ],
         actions: {
           show: (item) => {
@@ -58,7 +58,7 @@ export default {
       }
     }
   },
-  created() {
+  created () {
     this.initData()
   },
   methods: {
@@ -66,7 +66,7 @@ export default {
      * Affiche les détailles de la resource
      * @param {Object} item
      */
-    show(item) {
+    show (item) {
       this.$store.dispatch('famillies/fetch', item.id).then(() => this.rowSelected = this.familly.current)
     },
 
@@ -74,7 +74,7 @@ export default {
      * Redirige vers la page d'edition
      * @param {Object} item
      */
-    edit(item) {
+    edit (item) {
       this.$router.push({ name: 'famillies-edit', params: { familly: item.id } })
     },
 
@@ -82,28 +82,28 @@ export default {
      * Supprime la ressource
      * @param {Object} item
      */
-    destroy(item) {
-      swal.confirm_destroy().then((action) => {
+    destroy (item) {
+      this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
           api.delete('famillies/' + item.id).then(response => {
             if (response.data.status) {
               this.rowSelected = null
               this.initData()
-              swal.toast_success(response.data.message)
+              this.$swal.toast_success(response.data.message)
             } else {
-              swal.toast_error(response.data.message)
+              this.$swal.toast_error(response.data.message)
             }
           })
         }
       }).catch(error => {
-        swal.alert_error()
+        this.$swal.alert_error()
       })
     },
 
     /**
      * Initialise les données
      */
-    initData() {
+    initData () {
       this.$store.dispatch('famillies/fetchPaginated').then(() => {
         this.config.data = this.famillies.paginated
       })

@@ -1,4 +1,4 @@
-import api from "../../plugins/api"
+import api from '../../plugins/api'
 
 export const state = {
   all: null,
@@ -8,33 +8,34 @@ export const state = {
 }
 
 export const mutations = {
-  FETCH_ALL(state, data) {
+  FETCH_ALL (state, data) {
     state.all = data
   },
-  FETCH_PAGINATED(state, data) {
+  FETCH_PAGINATED (state, data) {
     state.paginated = data
   },
-  FETCH(state, data) {
+  FETCH (state, data) {
     state.current = data
   },
-  FETCH_CONTROL_POINTS(state, data) {
+  FETCH_CONTROL_POINTS (state, data) {
     state.controlPoints = data
-  },
+  }
 }
 
 export const actions = {
-  async fetchAll({ commit }) {
+  async fetchAll ({ commit }) {
     const { data } = await api.get('processes?fetchAll')
     commit('FETCH_ALL', { all: data })
   },
-  async fetchPaginated({ commit }) {
+  async fetchPaginated ({ commit }) {
     const { data } = await api.get('processes')
     commit('FETCH_PAGINATED', { paginated: data })
   },
 
-  async fetch({ commit }, { id, onlyControlPoints = false }) {
+  async fetch ({ commit }, { id, onlyControlPoints = false } = {}) {
     const url = !onlyControlPoints ? `processes/${id}` : `processes/${id}?onlyControlPoints`
     const { data } = await api.get(url)
+    console.log(data)
     try {
       if (onlyControlPoints) {
         commit('FETCH_CONTROL_POINTS', { controlPoints: data })
@@ -43,7 +44,7 @@ export const actions = {
       }
     } catch (error) {
     }
-  },
+  }
 }
 
 export const getters = {

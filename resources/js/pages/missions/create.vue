@@ -3,7 +3,7 @@
     <ContentHeader>
       <template #actions>
         <button class="btn btn-info has-icon" @click.prevent="cdcModalIsOpen = true">
-          <i class="las la-exclamation-circle icon"></i>
+          <i class="las la-exclamation-circle icon" />
           Campagne de contrôle
         </button>
       </template>
@@ -11,41 +11,47 @@
     <form @submit.prevent="create" @keydown="form.onKeydown($event)">
       <div class="grid my-2">
         <!-- Control campaigns -->
-        <div class="col-12 col-lg-6" v-if="!this.campaignId">
-          <NLSelect name="control_campaign_id" label="Campagne de contrôle"
-            placeholder="Veuillez choisir une campagne de contrôle" :options="campaignsList" :form="form"
-            v-model="form.control_campaign_id" labelRequired />
+        <div v-if="!campaignId" class="col-12 col-lg-6">
+          <NLSelect
+            v-model="form.control_campaign_id" name="control_campaign_id"
+            label="Campagne de contrôle" placeholder="Veuillez choisir une campagne de contrôle" :options="campaignsList"
+            :form="form" label-required
+          />
         </div>
-        <div class="col-12 col-lg-6" v-else>
-          <NLInput name="campaign" label="Campagne de contrôle" v-model="currentCampaignReference" readonly />
+        <div v-else class="col-12 col-lg-6">
+          <NLInput v-model="currentCampaignReference" name="campaign" label="Campagne de contrôle" readonly />
         </div>
         <!-- Agencies -->
         <div class="col-12 col-lg-6">
-          <NLSelect name="agency" label="Agence" placeholder="Veuillez choisir une agence" :options="agenciesList"
-            :form="form" v-model="form.agency" labelRequired />
+          <NLSelect
+            v-model="form.agency" name="agency" label="Agence" placeholder="Veuillez choisir une agence"
+            :options="agenciesList" :form="form" label-required
+          />
         </div>
 
         <!-- Controllers -->
         <div class="col-12">
-          <NLSelect name="controllers" label="Contrôleurs" placeholder="Veuillez choisir un ou plusieurs contrôleurs"
-            :options="controllersList" :form="form" v-model="form.controllers" labelRequired :multiple="true"
-            loadingText="Chargement de la liste des contrôleurs en cours"
-            noOptionsText="Vous n'avez aucun contrôleur de disponible pour le moment" />
+          <NLSelect
+            v-model="form.controllers" name="controllers" label="Contrôleurs"
+            placeholder="Veuillez choisir un ou plusieurs contrôleurs" :options="controllersList" :form="form" label-required :multiple="true"
+            loading-text="Chargement de la liste des contrôleurs en cours"
+            no-options-text="Vous n'avez aucun contrôleur de disponible pour le moment"
+          />
         </div>
 
         <!-- Start date -->
         <div class="col-12 col-lg-6 col-tablet-6">
-          <NLInput :form="form" v-model="form.start" name="start" label="Date début" type="date" labelRequired />
+          <NLInput v-model="form.start" :form="form" name="start" label="Date début" type="date" label-required />
         </div>
 
         <!-- End date -->
         <div class="col-12 col-lg-6 col-tablet-6">
-          <NLInput :form="form" v-model="form.end" name="end" label="Date fin" type="date" labelRequired />
+          <NLInput v-model="form.end" :form="form" name="end" label="Date fin" type="date" label-required />
         </div>
 
         <!-- Note -->
         <div class="col-12">
-          <NLTextarea :form="form" v-model="form.note" name="note" label="Note" placeholder="Ajouter une note" />
+          <NLWyswyg v-model="form.note" :form="form" name="note" label="Note" placeholder="Ajouter une note" />
         </div>
       </div>
 
@@ -59,7 +65,7 @@
       <template #title>
         {{ currentCampaign?.reference }}
       </template>
-      <template>
+      <template #default>
         <div class="list grid gap-12">
           <div class="col-12 col-lg-6 list-item">
             <span class="list-item-label">
@@ -103,11 +109,8 @@ export default {
     ContentHeader, NLSelect
   },
   layout: 'backend',
-  middleware: [ 'auth' ],
-  metaInfo() {
-    return { title: 'Répartition des missions de contrôle' }
-  },
-  data() {
+  middleware: ['auth'],
+  data () {
     return {
       campaignId: null,
       form: new Form({
@@ -116,18 +119,21 @@ export default {
         end: null,
         agency: null,
         controllers: null,
-        control_campaign_id: null,
+        control_campaign_id: null
       }),
       currentCampaign: null,
       campaignsList: [],
       controllersList: [],
       agenciesList: [],
       cdcModalIsOpen: false,
-      currentCampaignReference: null,
+      currentCampaignReference: null
     }
   },
+  computed: mapGetters({
+    config: 'missions/config'
+  }),
   watch: {
-    "form.control_campaign_id": function (newVal, oldVal) {
+    'form.control_campaign_id': function (newVal, oldVal) {
       if (newVal !== oldVal && newVal !== null && newVal !== undefined) this.initData()
     },
     currentCampaignReference: function (newVal, oldVal) {
@@ -136,38 +142,36 @@ export default {
       }
     }
   },
-  breadcrumb() {
-    if (this.$route.params.campaignId) {
-      return {
-        parent: 'campaign',
-        label: 'Répartition des missions de contrôle de la campagne ' + this.currentCampaignReference
-      }
-    }
+
+  created () {
+    this.initData()
   },
-  computed: mapGetters({
-    config: 'missions/config',
-  }),
-  created() {
+  mounted () {
     this.initData()
   },
   methods: {
     /**
      * Initialise les données
      */
-    initData() {
+    initData () {
       if (this.$route.params.campaignId) {
         this.form.control_campaign_id = this.$route.params.campaignId
         this.campaignId = this.$route.params.campaignId
       }
       this.$store.dispatch('missions/fetchConfig', this.form.control_campaign_id).then(() => {
-        this.agenciesList = this.config.config.agencies
-        this.controllersList = this.config.config.controllers
-        this.campaignsList = this.config.config.campaigns
-        this.currentCampaign = this.config.config.currentCampaign
-        this.currentCampaignReference = this.config.config.currentCampaign.reference
+        this.agenciesList = this.config?.config.agencies
+        this.controllersList = this.config?.config.controllers
+        this.campaignsList = this.config?.config.campaigns
+        this.currentCampaign = this.config?.config.currentCampaign
+        this.currentCampaignReference = this.config?.config.currentCampaign.reference
+        const length = this.$breadcrumbs.value.length
+        if (this.$breadcrumbs.value[length - 1].lable === 'Répartition des missions de contrôle de la campagne') {
+          this.$breadcrumbs.value[length - 1].lable = 'Répartition des missions de contrôle de la campagne ' + this.currentCampaignReference
+          this.$breadcrumbs.value[length - 1].parent = 'campaign'
+        }
       })
     },
-    resetForm() {
+    resetForm () {
       this.form.note = null
       this.form.start = null
       this.form.end = null
@@ -177,19 +181,19 @@ export default {
     /**
      * Création de la mission
      */
-    create() {
+    create () {
       this.form.post('/api/missions').then(response => {
         if (response.data.status) {
-          swal.toast_success(response.data.message)
+          this.$swal.toast_success(response.data.message)
           this.initData()
           this.resetForm()
         } else {
-          swal.alert_error(response.data.message)
+          this.$swal.alert_error(response.data.message)
         }
       }).catch(error => {
-        console.log(error);
+        console.log(error)
       })
     }
-  },
+  }
 }
 </script>

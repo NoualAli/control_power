@@ -1,9 +1,11 @@
 <template>
-  <NLCheckableContainer :name="name" :form="form" :label="label" :id="id || name" :helpText="helpText">
-    <input type="checkbox" :class="[{ 'is-danger': form?.errors.has(name) }, 'switch-input']" v-model="selected"
-      @change="updateValue" :name="name" :id="id || name">
-    <div class="switch" :class="type" :data-true-label="trueLabel" :data-false-label="falseLabel" @click="updateValue">
-    </div>
+  <NLCheckableContainer :id="id || name" :name="name" :form="form" :label="label" :help-text="helpText">
+    <input
+      :id="id || name"
+      :key="forcedKey" v-model="selected" type="checkbox"
+      :class="[{ 'is-danger': form?.errors.has(name) }, 'switch-input']" :name="name" @change="updateValue"
+    >
+    <div class="switch" :class="type" :data-true-label="trueLabel" :data-false-label="falseLabel" @click="updateValue" />
   </NLCheckableContainer>
 </template>
 
@@ -12,39 +14,42 @@ import NLCheckableContainer from './NLCheckableContainer'
 export default {
   name: 'NLSwitch',
   components: { NLCheckableContainer },
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
   props: {
     form: { type: Object, required: false },
     name: { type: String, required: true },
     label: { type: String, required: true },
-    value: { type: Boolean, default: false },
-    id: { type: String | null, default: null },
-    trueLabel: { type: String | null, default: 'Oui' },
-    falseLabel: { type: String | null, default: 'Non' },
+    modelValue: { type: Boolean, default: false },
+    id: { type: [String, null], default: null },
+    trueLabel: { type: [String, null], default: 'Oui' },
+    falseLabel: { type: [String, null], default: 'Non' },
     helpText: { type: String, default: null },
     type: { type: String, default: null }
   },
-  data() {
+  emits: ['update:modelValue'],
+  data () {
     return {
-      selected: this.value,
+      forcedKey: false,
+      selected: this.modelValue
     }
   },
   watch: {
-    value(newVal, oldVal) {
-      if (newVal !== oldVal) this.selected = newVal
+    modelValue (newValue, oldValue) {
+      if (newValue !== oldValue) {
+        this.selected = newValue
+        this.forcedKey = true
+      }
+    },
+    selected (newValue, oldValue) {
+      this.$emit('update:modelValue', this.selected)
     }
   },
   // updated() {
   //   this.selected = this.value;
   // },
   methods: {
-    updateValue() {
+    updateValue () {
       this.selected = !this.selected
-      this.$emit('change', this.selected);
-    },
-  },
+    }
+  }
 }
 </script>

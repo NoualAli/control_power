@@ -13,7 +13,7 @@ $sidebar-container-h: 100vh
 $sidebar-header-h: $navbar-height
 $sidebar-footer-h: $navbar-height
 $sidebar-body-h: calc($sidebar-container-h - ($sidebar-header-h + $sidebar-footer-h))
-$sidebar-bg: $primary-dark
+$sidebar-bg: $primary
 
 $sidebar-links-color: $white
 $sidebar-links-active-color: $dark
@@ -79,6 +79,11 @@ footer
     margin: 0
     padding: 1rem
 
+.wrapper-doughnut-chartjs
+    position: relative
+    overflow: hidden
+    width: 100%
+
 a
     text-decoration: none
     &.has-icon
@@ -108,7 +113,7 @@ input[type="date"]::-webkit-inner-spin-button,
         height: 1px
         width: 75%
         transform: translateX(-50%)
-        background-color: $primary-dark
+        background-color: $primary
 
 .icon
     height: 1.5rem
@@ -162,7 +167,7 @@ input[type="date"]::-webkit-inner-spin-button,
                 color: $dark
             & ::selection
                 color: $white
-                background-color: $primary-dark
+                background-color: $primary
             & .title-side, & .actions-side
                 padding: 5px 10px
                 height: $navbar-height
@@ -190,7 +195,7 @@ input[type="date"]::-webkit-inner-spin-button,
             overflow: auto
             & ::selection
                 color: $white
-                background-color: $primary-dark
+                background-color: $primary
     & .sidebar-container
         height: $sidebar-container-h
         width: $sidebar-container-w
@@ -212,7 +217,7 @@ input[type="date"]::-webkit-inner-spin-button,
                 & .icon-text
                     display: block !important
             & .sidebar-header
-                background-image: url('/storage/images/logo.svg')
+                background-image: url('/app/images/bna_logo_monochrome.svg')
                 background-size: 80%
         & .sidebar-footer
             height: $sidebar-footer-h
@@ -226,7 +231,7 @@ input[type="date"]::-webkit-inner-spin-button,
                 width: 100%
                 height: 100%
                 transition: .2s ease-in-out
-                // background-color: $primary-dark
+                // background-color: $primary
                 font-size: 1rem
                 &:hover
                     background-color: $danger !important
@@ -245,7 +250,7 @@ input[type="date"]::-webkit-inner-spin-button,
             display: flex
             justify-content: space-between
             align-items: center
-            background-image: url('/storage/images/logo_p.svg')
+            background-image: url('/app/images/bna_logo_acronym_monochrome.svg')
             background-size: 40%
             background-repeat: no-repeat
             background-position: center
@@ -300,21 +305,21 @@ input[type="date"]::-webkit-inner-spin-button,
                 stroke: currentColor
                 fill: currentColor
 
-.breadcrumbs-container
+.am-breadcrumbs
     display: flex
     align-items: center
     flex-wrap: wrap
     gap: 10px 20px
     list-style: none
     color: $dark
-    text-transform: uppercase !important
-    & .parent-breadcrumb
+    // text-transform: uppercase !important
+    & .am-breadcrumbs__link
         position: relative
         & a
             display: block
             color: $dark-grey
-        &::after
-            content: '/'
+        &::before
+            // content: '-'
             position: absolute
             right: -10px
             top: 50%
@@ -339,7 +344,7 @@ input[type="date"]::-webkit-inner-spin-button,
 //     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3)
 
 ::-webkit-scrollbar-thumb
-    background-image: linear-gradient(180deg, $primary-dark 0%, $primary 99%)
+    background-image: linear-gradient(180deg, $primary 0%, $secondary 99%)
     box-shadow: inset 2px 2px 5px 0 rgba(#fff, 0.5)
     border-radius: 100px
 
@@ -493,7 +498,7 @@ input[type="date"]::-webkit-inner-spin-button,
     border-radius: $input-border-radius
     font-size: 1.1rem
     box-shadow: $input-inset-shadow, $input-shadow
-    background-color: $primary-dark
+    background-color: $primary
     color: $white !important
     font-weight: 700
     transition: .1s ease

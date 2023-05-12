@@ -1,10 +1,11 @@
 <template>
-  <NLCheckableContainer :id="getId" :form="form" :name="name" :labelRequired="labelRequired">
+  <NLCheckableContainer :id="getId" :form="form" :name="name" :label-required="labelRequired">
     <div class="form-check">
       <label :for="getId">
-        <input type="checkbox" :class="[{ 'is-danger': form?.errors.has(name) }, 'input-checkable']" :id="getId"
-          :value="selected" @input="updateValue" :name="name">
-        <div class="checkable is-checkbox"></div>
+        <input :id="getId" type="checkbox" :class="[{ 'is-danger': form?.errors.has(name) }, 'input-checkable']"
+               :value="selected" :name="name" @input="updateValue"
+        >
+        <div class="checkable is-checkbox" />
         {{ label }}
       </label>
     </div>
@@ -14,32 +15,32 @@
 <script>
 import NLCheckableContainer from './NLCheckableContainer'
 export default {
+  name: 'NLCheckbox',
   components: { NLCheckableContainer },
-  name: "NLCheckbox",
+  model: {
+    prop: 'value',
+    event: 'change'
+  },
   props: {
     form: { type: Object, required: false },
     name: { type: String, required: true },
     id: { type: String, default: null },
     label: { type: String, default: '' },
     labelRequired: { type: Boolean, default: false },
-    value: { type: String | Number | Boolean, default: false },
+    value: { type: [String, Number, Boolean], default: false }
   },
-  model: {
-    prop: 'value',
-    event: 'change'
-  },
-  data() {
+  data () {
     return {
-      selected: this.value,
-    };
+      selected: this.value
+    }
   },
   computed: {
-    getId() {
+    getId () {
       return this.id ? this.id : this.name
     }
   },
   methods: {
-    updateValue(event) {
+    updateValue (event) {
       this.selected = event.target.checked
       this.$emit('change', this.selected)
     }

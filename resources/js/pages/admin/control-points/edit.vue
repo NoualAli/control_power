@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div v-if="can('edit_control_point')">
     <ContentBody>
@@ -5,44 +6,53 @@
         <div class="grid gap-10 my-4">
           <!-- Familliies -->
           <div class="col-12 col-md-6">
-            <NLSelect :form="form" name="familly_id" v-model="form.familly_id" label="Famille" :options="familliesList"
-              labelRequired :multiple="false" />
+            <NLSelect
+              v-model="form.familly_id" :form="form" name="familly_id" label="Famille" :options="familliesList"
+              label-required :multiple="false"
+            />
           </div>
           <!-- Domains -->
           <div class="col-12 col-md-6">
-            <NLSelect :form="form" name="domain_id" v-model="form.domain_id" label="Domaine" :options="domainsList"
-              labelRequired :multiple="false" />
+            <NLSelect
+              v-model="form.domain_id" :form="form" name="domain_id" label="Domaine" :options="domainsList"
+              label-required :multiple="false"
+            />
           </div>
           <!-- Processes -->
           <div class="col-12 col-md-6">
-            <NLSelect :form="form" name="process_id" v-model="form.process_id" label="Processus" :options="processesList"
-              labelRequired :multiple="false" />
+            <NLSelect
+              v-model="form.process_id" :form="form" name="process_id" label="Processus" :options="processesList"
+              label-required :multiple="false"
+            />
           </div>
           <!-- Name -->
           <div class="col-12 col-md-6">
-            <NLInput :form="form" name="name" label="Name" v-model="form.name" labelRequired />
+            <NLInput v-model="form.name" :form="form" name="name" label="Name" label-required />
           </div>
           <!-- Major fact -->
           <div class="col-12">
             <NLSwitch v-model="form.has_major_fact" name="has_major_fact" :form="form" label="Fait majeur" />
           </div>
           <!-- Major fact types -->
-          <div class="col-12" v-if="form.has_major_fact">
-            <NLRepeater name="major_fact_types" :rowSchema="majorFactTypesSchema" :form="form"
-              title="Types des faits majeur" addButtonLabel="Ajouter un type">
-            </NLRepeater>
+          <div v-if="form.has_major_fact" class="col-12">
+            <NLRepeater
+              name="major_fact_types" :row-schema="majorFactTypesSchema" :form="form"
+              title="Types des faits majeur" add-button-label="Ajouter un type"
+            />
           </div>
           <!-- Scores -->
           <div class="col-12">
-            <NLRepeater name="scores" :rowSchema="scoresSchema" :form="form" title="Notation"
-              addButtonLabel="Ajouter une notation">
-            </NLRepeater>
+            <NLRepeater
+              name="scores" :row-schema="scoresSchema" :form="form" title="Notation"
+              add-button-label="Ajouter une notation"
+            />
           </div>
           <!-- Fields -->
           <div class="col-12">
-            <NLRepeater name="fields" :rowSchema="fieldsSchema" :form="form" title="Metadata"
-              addButtonLabel="Ajouter un champs">
-            </NLRepeater>
+            <NLRepeater
+              name="fields" :row-schema="fieldsSchema" :form="form" title="Metadata"
+              add-button-label="Ajouter un champs"
+            />
           </div>
         </div>
         <!-- Submit Button -->
@@ -55,32 +65,12 @@
 </template>
 
 <script>
-import { Form } from 'vform';
+import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 export default {
-  middleware: [ 'auth', 'admin' ],
   layout: 'backend',
-  computed: {
-    ...mapGetters({
-      familly: 'famillies/domains',
-      domain: 'domains/processes',
-      famillies: 'famillies/all',
-      controlPoint: 'controlPoints/current',
-      validationRules: 'settings/validationRules'
-    }),
-  },
-  watch: {
-    "form.familly_id": function (newVal, oldVal) {
-      if (newVal !== oldVal) { this.loadDomains(newVal) }
-    },
-    "form.domain_id": function (newVal, oldVal) {
-      if (newVal !== oldVal) { this.loadProcesses(newVal) }
-    },
-  },
-  created() {
-    this.initData()
-  },
-  data() {
+  middleware: ['auth', 'admin'],
+  data () {
     return {
       familliesList: [],
       domainsList: [],
@@ -94,7 +84,7 @@ export default {
           placeholder: 'Veuillez saisir le type',
           required: true,
           style: 'col-12'
-        },
+        }
       ],
       scoresSchema: [
         {
@@ -112,7 +102,7 @@ export default {
           placeholder: 'Veuillez saisir le label à afficher',
           required: true,
           style: 'col-12 col-lg-6'
-        },
+        }
       ],
       fieldsSchema: [
         {
@@ -165,7 +155,7 @@ export default {
             {
               id: 'tel',
               label: 'Tel'
-            },
+            }
           ]
         },
         {
@@ -247,7 +237,7 @@ export default {
             {
               id: 'col-12 col-lg-12',
               label: '12'
-            },
+            }
           ]
         },
         {
@@ -278,7 +268,7 @@ export default {
           required: true,
           style: 'col-12',
           multiple: true,
-          placeholder: "Veuillez choisir une ou plusieurs règles de validation",
+          placeholder: 'Veuillez choisir une ou plusieurs règles de validation',
           options: [
             { id: 'nullable', label: 'Facultatif' },
             { id: 'required', label: 'Obligatoire' },
@@ -286,9 +276,9 @@ export default {
             { id: 'email', label: 'Adresse e-mail' },
             { id: 'integer', label: 'Nombre entier' },
             { id: 'float', label: 'Nombre flottant' },
-            { id: 'boolean', label: 'Booléen' },
+            { id: 'boolean', label: 'Booléen' }
           ]
-        },
+        }
       ],
       form: new Form({
         name: null,
@@ -298,12 +288,33 @@ export default {
         major_fact_types: [],
         has_major_fact: false,
         scores: [],
-        fields: [],
-      }),
+        fields: []
+      })
     }
   },
+  computed: {
+    ...mapGetters({
+      familly: 'famillies/domains',
+      domain: 'domains/processes',
+      famillies: 'famillies/all',
+      controlPoint: 'controlPoints/current',
+      validationRules: 'settings/validationRules'
+    })
+  },
+  watch: {
+    'form.familly_id': function (newVal, oldVal) {
+      if (newVal !== oldVal) { this.loadDomains(newVal) }
+    },
+    'form.domain_id': function (newVal, oldVal) {
+      if (newVal !== oldVal) { this.loadProcesses(newVal) }
+    }
+  },
+  created () {
+    this.initData()
+  },
+
   methods: {
-    initData() {
+    initData () {
       this.$store.dispatch('controlPoints/fetch', this.$route.params.controlPoint).then(() => {
         this.loadFamillies()
         this.loadValidationRules()
@@ -315,13 +326,12 @@ export default {
         this.form.scores = this.controlPoint.current.scores ? this.controlPoint.current.scores : []
         this.form.fields = this.controlPoint.current.fields ? this.controlPoint.current.fields : []
         this.form.major_fact_types = this.controlPoint.current.major_fact_types ? this.controlPoint.current.major_fact_types : []
-
       })
     },
     /**
  * Récupère la liste des familles
  */
-    loadFamillies() {
+    loadFamillies () {
       this.$store.dispatch('famillies/fetchAll', false).then(() => {
         this.familliesList = this.famillies.all
         this.loadDomains(this.form.familly_id)
@@ -332,7 +342,7 @@ export default {
      * Récupère la liste des domains
      * @param {*} value
      */
-    loadDomains(value) {
+    loadDomains (value) {
       if (value) {
         this.$store.dispatch('famillies/fetch', { id: value, onlyDomains: true }).then(() => {
           this.domainsList = this.familly.domains
@@ -345,7 +355,7 @@ export default {
      * Récupère la liste des processus
      * @param {*} value
      */
-    loadProcesses(value) {
+    loadProcesses (value) {
       if (value) {
         this.$store.dispatch('domains/fetch', { id: value, onlyProcesses: true }).then(() => {
           this.processesList = this.domain.processes
@@ -357,7 +367,7 @@ export default {
     /**
    * Récupère la liste des règles de validation
    */
-    loadValidationRules() {
+    loadValidationRules () {
       // this.$store.dispatch('settings/fetchValidationRules').then(() => {
       //   this.validationRulesList = this.validationRules.validationRules
       //   this.fieldsSchema[ this.fieldsSchema.length - 1 ].options = this.validationRulesList
@@ -369,21 +379,20 @@ export default {
         { id: 'email', label: 'Adresse e-mail' },
         { id: 'integer', label: 'Nombre entier' },
         { id: 'float', label: 'Nombre flottant' },
-        { id: 'boolean', label: 'Booléen' },
+        { id: 'boolean', label: 'Booléen' }
       ]
     },
-    update() {
+    update () {
       this.form.put('/api/control-points/' + this.$route.params.controlPoint).then(response => {
         if (response.data.status) {
-          swal.toast_success(response.data.message)
+          this.$swal.toast_success(response.data.message)
           this.$router.push({ name: 'control-points-index' })
         } else {
-          swal.alert_error(response.data.message)
+          this.$swal.alert_error(response.data.message)
         }
       }).catch(error => {
-        console.log(error);
+        console.log(error)
       })
-
     }
   }
 }

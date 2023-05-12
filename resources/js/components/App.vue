@@ -1,38 +1,26 @@
 <template>
-  <div id="app">
-    <loading ref="loading" />
-
-    <transition name="page" mode="out-in">
-      <component :is="layout" v-if="layout" />
-    </transition>
-  </div>
+  <transition name="page" mode="out-in">
+    <component :is="layout" v-if="layout" />
+  </transition>
 </template>
 
 <script>
-import Loading from './Loading'
-
-// Load layout components dynamically.
-const requireContext = require.context('~/layouts', false, /.*\.vue$/)
-
-const layouts = requireContext.keys()
-  .map(file =>
-    [file.replace(/(^.\/)|(\.vue$)/g, ''), requireContext(file)]
-  )
-  .reduce((components, [name, component]) => {
-    components[name] = component.default || component
-    return components
-  }, {})
+// import Loading from './Loading'
+import Loading from 'vue-loading-overlay'
+import defaultLayout from '~/layouts/default.vue'
+import { markRaw } from 'vue'
 
 export default {
   el: '#app',
 
   components: {
-    Loading
+    // Loading
   },
 
   data: () => ({
     layout: null,
-    defaultLayout: 'default'
+    defaultLayout: markRaw(defaultLayout),
+    isLoading: false
   }),
 
   metaInfo () {
@@ -43,9 +31,17 @@ export default {
       titleTemplate: `%s · ${appName}`
     }
   },
-
-  mounted () {
-    this.$loading = this.$refs.loading
+  watch: {
+    $route: {
+      immediate: true,
+      async handler (route) {
+        try {
+          if (route.meta.layout) this.setLayout(route.meta.layout)
+        } catch (e) {
+          this.layout = defaultLayout
+        }
+      }
+    }
   },
 
   methods: {
@@ -54,12 +50,9 @@ export default {
      *
      * @param {String} layout
      */
-    setLayout (layout) {
-      if (!layout || !layouts[layout]) {
-        layout = this.defaultLayout
-      }
-
-      this.layout = layouts[layout]
+    async setLayout (layout) {
+      const component = await import(`~/layouts/${layout}.vue`)
+      this.layout = markRaw(component?.default || this.defaultLayout)
     }
   }
 }

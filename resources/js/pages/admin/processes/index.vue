@@ -1,25 +1,29 @@
 <template>
   <div v-if="can('view_process')">
     <ContentHeader>
-      <template v-slot:actions>
-        <router-link :to="{ name: 'processes-create' }" class="btn btn-info" v-if="can('create_process')">
+      <template #actions>
+        <router-link v-if="can('create_process')" :to="{ name: 'processes-create' }" class="btn btn-info">
           Ajouter
         </router-link>
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable :config="config" @show="show" @delete="destroy" @edit="edit" title="Liste des processus"
-        namespace="processes" />
+      <NLDatatable
+        :config="config" title="Liste des processus" namespace="processes" @show="show" @delete="destroy"
+        @edit="edit"
+      />
       <NLModal :show="rowSelected" @close="rowSelected = null">
-        <template v-slot:title>Informations processus</template>
-        <template v-slot>
+        <template #title>
+          Informations processus
+        </template>
+        <template #default>
           <div class="grid list">
             <div class="col-12 col-lg-6 list-item">
               <div class="list-item-label">
                 Famille
               </div>
               <div class="list-item-content">
-                {{ rowSelected?.familly?.name }}
+                {{ rowSelected?.familly_name }}
               </div>
             </div>
             <div class="col-12 col-lg-6 list-item">
@@ -27,7 +31,7 @@
                 Domaine
               </div>
               <div class="list-item-content">
-                {{ rowSelected?.domain?.name }}
+                {{ rowSelected?.domain_name }}
               </div>
             </div>
             <div class="col-12 col-lg-6 list-item">
@@ -40,16 +44,16 @@
             </div>
           </div>
         </template>
-        <template v-slot:footer>
-          <div class="d-flex justify-end align-center gap-5 w-100" v-if="can(['delete_process', 'edit_process'])">
-            <button class="btn btn-danger has-icon" @click.prevent="destroy(rowSelected)" v-if="can('delete_process')">
-              <i class="las la-trash icon"></i>
+        <template #footer>
+          <div v-if="can(['delete_process', 'edit_process'])" class="d-flex justify-end align-center gap-5 w-100">
+            <button v-if="can('delete_process')" class="btn btn-danger has-icon" @click.prevent="destroy(rowSelected)">
+              <i class="las la-trash icon" />
               <span class="icon-text">
                 Supprimer
               </span>
             </button>
-            <button @click.prevent="edit(rowSelected)" class="btn btn-warning has-icon" v-if="can('edit_process')">
-              <i class="las la-edit icon"></i>
+            <button v-if="can('edit_process')" class="btn btn-warning has-icon" @click.prevent="edit(rowSelected)">
+              <i class="las la-edit icon" />
               <span class="icon-text">
                 Modifier
               </span>
@@ -67,17 +71,11 @@ import { mapGetters } from 'vuex'
 export default {
   components: { NLDatatable },
   layout: 'backend',
-  middleware: [ 'auth', 'admin' ],
-  metaInfo() {
+  middleware: ['auth', 'admin'],
+  metaInfo () {
     return { title: 'Processus' }
   },
-  computed: {
-    ...mapGetters({
-      processes: 'processes/paginated',
-      process: 'processes/current',
-    }),
-  },
-  data() {
+  data () {
     return {
       rowSelected: null,
       config: {
@@ -85,21 +83,21 @@ export default {
         columns: [
           {
             label: 'Famille',
-            field: 'familly_name',
+            field: 'familly_name'
           },
           {
             label: 'Domaine',
-            field: 'domain_name',
+            field: 'domain_name'
           },
           {
             label: 'Nom',
             field: 'name',
-            orderable: true,
+            orderable: true
           },
           {
             label: 'Nombres de points de contrôle',
-            field: 'control_points_count',
-          },
+            field: 'control_points_count'
+          }
         ],
         actions: {
           show: (item) => {
@@ -115,7 +113,13 @@ export default {
       }
     }
   },
-  created() {
+  computed: {
+    ...mapGetters({
+      processes: 'processes/paginated',
+      process: 'processes/current'
+    })
+  },
+  created () {
     this.initData()
   },
   methods: {
@@ -123,15 +127,16 @@ export default {
      * Affiche les détailles de la resource
      * @param {Object} item
      */
-    show(item) {
-      this.$store.dispatch('processes/fetch', item.id).then(() => this.rowSelected = this.process.current)
+    show (item) {
+      this.rowSelected = item
+      // this.$store.dispatch('processes/fetch', { id: item.id }).then(() => { console.log(this.process); this.rowSelected = this.process.current })
     },
 
     /**
      * Redirige vers la page d'edition
      * @param {Object} item
      */
-    edit(item) {
+    edit (item) {
       this.$router.push({ name: 'processes-edit', params: { process: item.id } })
     },
 
@@ -139,28 +144,29 @@ export default {
      * Supprime la ressource
      * @param {Object} item
      */
-    destroy(item) {
-      swal.confirm_destroy().then((action) => {
+    destroy (item) {
+      this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
-          api.delete('processes/' + item.id).then(response => {
+          this.$api.delete('processes/' + item.id).then(response => {
             if (response.data.status) {
               this.rowSelected = null
               this.initData()
-              swal.toast_success(response.data.message)
+              this.$swal.toast_success(response.data.message)
             } else {
-              swal.toast_error(response.data.message)
+              this.$swal.toast_error(response.data.message)
             }
           })
         }
       }).catch(error => {
-        swal.alert_error()
+        console.log(error)
+        this.$swal.alert_error()
       })
     },
 
     /**
      * Initialise les données
      */
-    initData() {
+    initData () {
       this.$store.dispatch('processes/fetchPaginated').then(() => {
         this.config.data = this.processes.paginated
       })

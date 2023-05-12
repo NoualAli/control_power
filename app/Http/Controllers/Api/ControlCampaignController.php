@@ -76,7 +76,7 @@ class ControlCampaignController extends Controller
         abort_if(!($campaign->validated_by_id || hasRole(['dcp', 'cdcr'])), 401, __('unauthorized'));
 
         if (request()->has('edit')) {
-            $condition = $campaign->remaining_days_before_start > 5;
+            $condition = $campaign->remaining_days_before_start > 5 || !$campaign->validated_by_id;
             abort_if(!$condition, 401, __('unauthorized'));
             $campaign->load('processes');
         }

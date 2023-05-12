@@ -1,19 +1,21 @@
+import api from '../../plugins/api'
+
 export const state = {
   pcf: null,
-  filters: null,
+  filters: null
 }
 
 export const mutations = {
-  FETCH_PCF(state, data) {
+  FETCH_PCF (state, data) {
     state.pcf = data
   },
-  FETCH_FILTERS_DATA(state, data) {
+  FETCH_FILTERS_DATA (state, data) {
     state.filters = data
-  },
+  }
 }
 
 export const actions = {
-  async fetchPCF({ commit }, onlyFiltersData = false) {
+  async fetchPCF ({ commit }, onlyFiltersData = false) {
     const url = onlyFiltersData ? 'references/pcf?onlyFiltersData' : 'references/pcf'
     const { data } = await api.get(url)
     if (onlyFiltersData) {
@@ -21,11 +23,10 @@ export const actions = {
     } else {
       commit('FETCH_PCF', { pcf: data })
     }
-  },
+  }
 }
 
 export const getters = {
   pcf: state => state.pcf,
   filters: state => state.filters
 }
-

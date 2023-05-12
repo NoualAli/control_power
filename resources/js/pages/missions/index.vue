@@ -1,16 +1,20 @@
 <template>
   <div v-if="can('view_mission')">
     <ContentHeader v-if="campaignId">
-      <template v-slot:actions>
-        <router-link :to="{ name: 'missions-create', params: { campaignId } }" class="btn btn-info"
-          v-if="can('create_mission')">
+      <template #actions>
+        <router-link
+          v-if="can('create_mission')" :to="{ name: 'missions-create', params: { campaignId } }"
+          class="btn btn-info"
+        >
           Ajouter
         </router-link>
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable :filters="filters" namespace="missions" :config="config" @show="show" @delete="destroy" @edit="edit"
-        @filterReset="resetData" />
+      <NLDatatable
+        :filters="filters" namespace="missions" :config="config" @show="show" @delete="destroy" @edit="edit"
+        @filterReset="resetData"
+      />
     </ContentBody>
   </div>
 </template>
@@ -25,12 +29,10 @@ export default {
     ContentHeader, ContentBody
   },
   layout: 'backend',
-  middleware: [ 'auth' ],
-  metaInfo() {
-    return { title: 'Suivi des réalisations des missions' }
-  },
-  data() {
+  middleware: ['auth'],
+  data () {
     return {
+      // initiated: false,
       rowSelected: null,
       campaignId: null,
       config: {
@@ -38,53 +40,50 @@ export default {
         columns: [
           {
             label: 'CDC-ID',
-            field: 'campaign',
+            field: 'campaign'
           },
           {
             label: 'Référence',
-            field: 'reference',
+            field: 'reference'
           },
           {
             label: 'Dre',
             field: 'dre',
-            hide: hasRole([ 'cdc', 'ci' ])
+            hide: hasRole(['cdc', 'ci'])
           },
           {
             label: 'Agence',
-            field: 'agency',
+            field: 'agency'
           },
           {
             label: 'Contrôle sur place par',
             field: 'agency_controllers_str',
-            hide: hasRole([ 'ci' ])
+            hide: hasRole(['ci'])
           },
           {
             label: 'Date début',
-            field: 'start',
+            field: 'start'
           },
           {
             label: 'Date fin',
-            field: 'end',
+            field: 'end'
           },
           {
             label: 'Moyenne',
             field: 'avg_score',
-            hide: hasRole([ 'cdc', 'ci' ]),
+            hide: hasRole(['cdc', 'ci']),
             isHtml: true,
             methods: {
-              showField(item) {
-                let score = item.avg_score
-                // if (item.agency == "633 - AP BIRKHADEM") {
-                //   score = 1
-                // }
+              showField (item) {
+                const score = Number(item.avg_score)
                 let style = 'text-dark text-bold'
-                if (score == 1) {
+                if (score === 1) {
                   style = 'bg-success text-white text-bold'
-                } else if (score == 2) {
+                } else if (score === 2) {
                   style = 'bg-info text-white text-bold'
-                } else if (score == 3) {
+                } else if (score === 3) {
                   style = 'bg-warning text-bold'
-                } else if (score == 4) {
+                } else if (score === 4) {
                   style = 'bg-danger text-white text-bold'
                 } else {
                   style = 'bg-grey text-dark text-bold'
@@ -92,7 +91,7 @@ export default {
                 return `<div class="container">
                   <div class="has-border-radius py-1 text-center ${style}">${score}</div>
                 </div>`
-              },
+              }
             }
           },
           {
@@ -100,41 +99,41 @@ export default {
             field: 'state',
             isHtml: true,
             methods: {
-              showField(item) {
+              showField (item) {
                 let state = 'done'
-                if (item.state == 'En cours') {
+                if (item.state === 'En cours') {
                   state = 'inProgress'
-                } else if (item.state == 'À réaliser') {
+                } else if (item.state === 'À réaliser') {
                   state = 'todo'
-                } else if (item.state == 'Réliser') {
+                } else if (item.state === 'Réliser') {
                   state = 'done'
-                } else if (item.state == 'En retard') {
+                } else if (item.state === 'En retard') {
                   state = 'late'
-                } else if (item.state == 'Validé et envoyé') {
+                } else if (item.state === 'Validé et envoyé') {
                   state = 'validated'
-                } else if (item.state == 'En attente de validation') {
+                } else if (item.state === 'En attente de validation') {
                   state = 'pending-validation'
-                } else if (item.state == '1ère validation') {
+                } else if (item.state === '1ère validation') {
                   state = 'first-validation'
-                } else if (item.state == '2ème validation') {
+                } else if (item.state === '2ème validation') {
                   state = 'second-validation'
                 }
                 return `<div class="container" title="${item.state}">
                   <div class="mission-state ${state}"></div>
                 </div>`
-              },
+              }
               // style: (item) => {
-              //   if (item.state == 'EN COURS') {
+              //   if (item.state === 'EN COURS') {
               //     return 'mission-state bg-warning text-bold text-small'
-              //   } else if (item.state == 'À RÉALISER') {
+              //   } else if (item.state === 'À RÉALISER') {
               //     return 'mission-state bg-info text-white text-bold text-small'
-              //   } else if (item.state == 'RÉALISÉ') {
+              //   } else if (item.state === 'RÉALISÉ') {
               //     return 'mission-state bg-success text-white text-bold text-small'
-              //   } else if (item.state == 'EN RETARD') {
+              //   } else if (item.state === 'EN RETARD') {
               //     return 'mission-state bg-danger text-white text-bold text-small'
-              //   } else if (item.state == 'Validé et envoyé') {
+              //   } else if (item.state === 'Validé et envoyé') {
               //     return 'mission-state bg-success text-white text-bold text-small'
-              //   } else if (item.state == 'En attente de validation') {
+              //   } else if (item.state === 'En attente de validation') {
               //     return 'mission-state bg-danger text-white text-bold text-small'
               //   }
               // }
@@ -144,7 +143,7 @@ export default {
             label: 'Taux de progression',
             field: 'progress_status',
             methods: {
-              showField(item) {
+              showField (item) {
                 return item.progress_status + '%'
               }
             }
@@ -152,14 +151,15 @@ export default {
         ],
         actions: {
           show: (item) => {
-            if (hasRole([ 'cdc', 'ci' ])) {
+            // console.log(this.can('view_mission'), item.progress_status.toString, item?.dre_report?.is_validated)
+            if (hasRole(['cdc', 'ci'])) {
               return this.can('view_mission')
-            } else if (hasRole([ 'dcp', 'cdcr' ])) {
-              return this.can('view_mission') && item.progress_status == 100 && item?.dre_report?.is_validated
-            } else if (hasRole([ 'da', 'dg', 'cdrcp', 'ig', 'der' ])) {
-              return this.can('view_mission') && item.progress_status == 100 && item?.dcp_validation_at
+            } else if (hasRole(['dcp', 'cdcr'])) {
+              return this.can('view_mission') && item.progress_status.toString() === '100' && item?.dre_report?.is_validated
+            } else if (hasRole(['da', 'dg', 'cdrcp', 'ig', 'der'])) {
+              return this.can('view_mission') && item.progress_status.toString() === '100' && item?.dcp_validation_at
             } else {
-              return this.can('view_mission') && item.progress_status == 100
+              return this.can('view_mission') && item.progress_status.toString() === '100'
             }
           },
           edit: (item) => {
@@ -167,7 +167,7 @@ export default {
           },
           delete: (item) => {
             return this.can('delete_mission') && item.remaining_days_before_start > 5
-          },
+          }
         }
       },
       filters: {
@@ -184,7 +184,7 @@ export default {
           multiple: true,
           data: null,
           value: null,
-          hide: hasRole([ 'cdc', 'ci' ])
+          hide: hasRole(['cdc', 'ci'])
         },
         agency: {
           label: 'Agence',
@@ -199,56 +199,71 @@ export default {
           multiple: true,
           data: null,
           value: null,
-          hide: hasRole([ 'ci' ])
+          hide: hasRole(['ci'])
         },
         between: {
           cols: 'col-lg-3',
           value: [],
           type: 'date-range',
-          cols: 'col-lg-6',
+          // cols: 'col-lg-6',
           attributes: {
             start: {
               cols: 'col-lg-6',
               label: 'De',
-              value: null,
+              value: null
             },
             end: {
               cols: 'col-lg-6',
               label: 'À',
-              value: null,
+              value: null
             }
           }
-        },
-      },
+        }
+      }
     }
   },
   computed: mapGetters({
     missions: 'missions/paginated',
+    campaign: 'campaigns/current',
     filtersData: 'missions/filters'
   }),
-  created() {
-    // this.campaignId = this.$route.params.campaignId
+  created () {
     this.initFilters()
     this.initData()
   },
+  // mounted () {
+  //   this.initFilters()
+  //   this.initData()
+  // },
+
   methods: {
-    resetData() {
+    resetData () {
       // this.initFilters(false)
       this.initData()
     },
-    initData() {
-      let missions = null
+    initData () {
+      let mission = null
+      const length = this.$breadcrumbs.value.length
       if (this.$route.params.campaignId) {
-        missions = this.$store.dispatch('missions/fetchPaginated', this.$route.params.campaignId)
+        this.$store.dispatch('campaigns/fetch', { campaignId: this.$route.params.campaignId }).then((data) => {
+          if (this.$breadcrumbs.value[length - 2].label === 'Détails campagne') {
+            this.$breadcrumbs.value[length - 2].label = 'Détails campagne ' + data.reference
+          }
+        })
+        mission = this.$store.dispatch('missions/fetchPaginated', this.$route.params.campaignId)
       } else {
-        missions = this.$store.dispatch('missions/fetchPaginated')
+        mission = this.$store.dispatch('missions/fetchPaginated')
       }
-      missions.then(() => this.config.data = this.missions.paginated)
+
+      // this.$breadcrumbs.value[length - 1].label = 'Missions'
+      mission.then(() => {
+        this.config.data = this.missions.paginated
+      })
     },
     /**
      * Initialise les filtres
      */
-    initFilters() {
+    initFilters () {
       this.$store.dispatch('missions/fetchFilters').then(() => {
         this.filters.campaign.data = this.filtersData.filters.campaigns
         this.filters.dre.data = this.filtersData.filters.dres
@@ -256,24 +271,24 @@ export default {
         this.filters.dre_controllers.data = this.filtersData.filters.dre_controllers
       })
     },
-    show(item) {
+    show (item) {
       this.$router.push({ name: 'mission', params: { missionId: item.id } })
     },
-    edit(item) {
+    edit (item) {
       this.$router.push({ name: 'missions-edit', params: { missionId: item.id } })
     },
-    destroy(item) {
-      swal.confirm_destroy().then((action) => {
+    destroy (item) {
+      this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
-          api.delete('missions/' + item.id).then(response => {
+          this.$api.delete('missions/' + item.id).then(response => {
             if (response.data.status) {
               this.initData()
-              swal.toast_success(response.data.message)
+              this.$swal.toast_success(response.data.message)
             } else {
-              swal.alert_error(response.data.message)
+              this.$swal.alert_error(response.data.message)
             }
           }).catch(error => {
-            console.log(error);
+            console.log(error)
           })
         }
       })

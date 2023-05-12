@@ -3,7 +3,7 @@ $form-radius: 5px
 // Inputs
 $input-padding: 10px
 $input-border-radius: 4px
-$input-border: 2px solid $primary-dark
+$input-border: 2px solid $primary
 $input-bgc: $white
 $input-font-size: 12px
 $input-inset-shadow: inset 0 0.0625em 0.125em rgb(10 10 10 / 5%)
@@ -15,7 +15,7 @@ $textarea-min-height: 137px
 $input-hover-border: $dracula
 
 // Focus & Active
-$input-focus-border: $primary-dark
+$input-focus-border: $primary
 $input-focus-shadow: 0 0 0 0.125em rgb(72 95 199 / 25%)
 
 form
@@ -58,7 +58,7 @@ form
     transition: .1s ease
     color: $input-color
     &:focus
-        background-color: $primary-dark
+        background-color: $primary
         color: $white
         & option
             background-color: $input-bgc
@@ -98,13 +98,13 @@ form
     &.is-for-auth
         border-radius: 0 !important
         border: none
-        border-left: 3px solid $primary-dark
+        border-left: 3px solid $primary
         & + .show-password-btn
             border: none !important
     &:is(textarea)
         min-height: $textarea-min-height
     &:read-only
-        background-color: $primary-dark
+        background-color: $primary
         color: $white
         &::placeholder
             color: $white
@@ -168,7 +168,7 @@ form
             &:not(.radio-hidden)
                 &:hover
                     & .checkable
-                        border-color: $primary-dark
+                        border-color: $primary
                 & .input-checkable:checked + .checkable
                     border-color: $dark
                     &::before, &::after
@@ -183,7 +183,7 @@ form
                     &::before
                         opacity: 0
                         content: ''
-                        background-color: $primary-dark
+                        background-color: $primary
                         position: absolute
                         top: 50%
                         left: 50%
@@ -192,7 +192,7 @@ form
                         transform: translate(-50%, -50%)
                         overflow: hidden
                     &:hover
-                        border-color: $primary-dark
+                        border-color: $primary
                     &.is-radio
                         border-radius: 50%
                         &::before
@@ -259,7 +259,7 @@ form
         transform: translateX(-90%)
         height: 2px
         width: 90%
-        background-color: $primary-dark
+        background-color: $primary
     &:last-child::after
         display: none !important
 
@@ -274,7 +274,7 @@ form
     border-radius: 5px
     background-color: $white
     box-shadow: 0.5px 1px 2.2px rgba(0, 0, 0, 0.008),1.1px 2.4px 5.3px rgba(0, 0, 0, 0.012),2.1px 4.5px 10px rgba(0, 0, 0, 0.015),3.8px 8px 17.9px rgba(0, 0, 0, 0.018),7.1px 15px 33.4px rgba(0, 0, 0, 0.022),17px 36px 80px rgba(0, 0, 0, 0.03)
-    border: 1px solid $primary-dark
+    border: 1px solid $primary
     cursor: pointer
     transition: .2s ease-in-out
     &::after
@@ -288,7 +288,7 @@ form
         border-radius: 5px
         background-color: $white
         box-shadow: 0.5px 1px 2.2px rgba(0, 0, 0, 0.034),1.1px 2.4px 5.3px rgba(0, 0, 0, 0.048),2.1px 4.5px 10px rgba(0, 0, 0, 0.06),3.8px 8px 17.9px rgba(0, 0, 0, 0.072),7.1px 15px 33.4px rgba(0, 0, 0, 0.086), 17px 36px 80px rgba(0, 0, 0, 0.12)
-        border: 1px solid $primary-dark
+        border: 1px solid $primary
         display: flex
         justify-content: center
         align-items: center
@@ -339,7 +339,7 @@ form
     color: $input-color
     overflow-y: auto
     &:hover
-        background-color: lighten($primary-dark, 80)
+        background-color: lighten($primary, 80)
     @each $color in $colors-list
         &.is-#{nth($color, 1)}
             border-color: lighten(nth($color, 2), 10%)

@@ -99,7 +99,10 @@ class User extends Authenticatable implements JWTSubject
 
     public function getAvatarAttribute($avatar)
     {
-        return $avatar;
+        if ($avatar) {
+            return !str_contains($avatar, '/app/') ? '/app' . $avatar : $avatar;
+        }
+        return null;
     }
 
     /**

@@ -2,35 +2,35 @@
   <div class="grid">
     <div class="col-12">
       <form @submit.prevent="updateProfile" @keydown="infoForm.onKeydown($event)">
-
         <h2>Mettez à jour vos informations</h2>
 
         <div class="grid gap-3 my-4">
           <!-- Username -->
           <div class="col-12 col-lg-4 col-md-6">
-            <NLInput :form="infoForm" name="username" label="Nom d'utilisateur" v-model="infoForm.username" readonly />
+            <NLInput v-model="infoForm.username" :form="infoForm" name="username" label="Nom d'utilisateur" readonly />
           </div>
 
           <!-- Firstname -->
           <div class="col-12 col-lg-4 col-md-6">
-            <NLInput :form="infoForm" name="firstname" label="Prénom" v-model="infoForm.first_name" />
+            <NLInput v-model="infoForm.first_name" :form="infoForm" name="firstname" label="Prénom" />
           </div>
 
           <!-- Lastname -->
           <div class="col-12 col-lg-4 col-md-6">
-            <NLInput :form="infoForm" name="last_name" label="Nom de famille" v-model="infoForm.last_name" />
+            <NLInput v-model="infoForm.last_name" :form="infoForm" name="last_name" label="Nom de famille" />
           </div>
-
 
           <!-- Phone -->
           <div class="col-12 col-lg-6 col-md-6">
-            <NLInput :form="infoForm" name="phone" label="N° de téléphone" v-model="infoForm.phone" type="phone" />
+            <NLInput v-model="infoForm.phone" :form="infoForm" name="phone" label="N° de téléphone" type="phone" />
           </div>
 
           <!-- Email -->
           <div class="col-12 col-lg-6 col-md-6">
-            <NLInput :form="infoForm" name="email" label="Adresse e-mail" v-model="infoForm.email" labelRequired
-              type="email" />
+            <NLInput
+              v-model="infoForm.email" :form="infoForm" name="email" label="Adresse e-mail" label-required
+              type="email"
+            />
           </div>
         </div>
         <!-- Submit Button -->
@@ -46,19 +46,25 @@
         <div class="grid gap-3 my-4">
           <!-- Current password -->
           <div class="col-12 col-lg-4">
-            <NLInput :form="passwordForm" v-model="passwordForm.current_password" label="Mot de passe actuel"
-              name="current_password" type="password" labelRequired />
+            <NLInput
+              v-model="passwordForm.current_password" :form="passwordForm" label="Mot de passe actuel"
+              name="current_password" type="password" label-required
+            />
           </div>
 
           <!-- Password -->
           <div class="col-12 col-lg-4">
-            <NLInput :form="passwordForm" v-model="passwordForm.password" label="Mot de passe" name="password"
-              type="password" labelRequired />
+            <NLInput
+              v-model="passwordForm.password" :form="passwordForm" label="Mot de passe" name="password"
+              type="password" label-required
+            />
           </div>
           <!-- Password Confirmation -->
           <div class="col-12 col-lg-4">
-            <NLInput :form="passwordForm" v-model="passwordForm.password_confirmation" label="Confirmation mot de passe"
-              name="password_confirmation" type="password" labelRequired />
+            <NLInput
+              v-model="passwordForm.password_confirmation" :form="passwordForm" label="Confirmation mot de passe"
+              name="password_confirmation" type="password" label-required
+            />
           </div>
         </div>
         <!-- Submit Button -->
@@ -82,17 +88,17 @@ import { user } from '../../plugins/user'
 export default {
   layout: 'backend',
 
-  metaInfo() {
+  metaInfo () {
     return { title: 'Profil' }
   },
 
-  data() {
+  data () {
     return {
       infoForm: new Form({
         username: '',
         email: '',
         first_name: '',
-        last_name: '',
+        last_name: ''
       }),
       passwordForm: new Form({
         password: '',
@@ -104,35 +110,35 @@ export default {
         data: null,
         columns: [
           {
-            label: "Appareil",
-            field: 'device',
+            label: 'Appareil',
+            field: 'device'
           },
           {
-            label: "Navigateur",
-            field: 'browser',
+            label: 'Navigateur',
+            field: 'browser'
           },
           {
-            label: "Version",
-            field: 'browser_version',
+            label: 'Version',
+            field: 'browser_version'
           },
           {
             label: "Système d'exploitation",
-            field: 'platform',
+            field: 'platform'
           },
           {
-            label: "Version",
-            field: 'platform_version',
+            label: 'Version',
+            field: 'platform_version'
           },
           {
-            label: "Adresse IP",
-            field: 'ip_address',
+            label: 'Adresse IP',
+            field: 'ip_address'
           },
           {
-            label: "Dernière connexion",
+            label: 'Dernière connexion',
             field: 'last_activity'
           }
-        ],
-      },
+        ]
+      }
     }
   },
 
@@ -141,35 +147,35 @@ export default {
     logins: 'auth/logins'
   }),
 
-  created() {
-    this.$store.dispatch('auth/fetchCurrentUserLogins').then(() => this.config.data = this.logins)
+  created () {
+    this.$store.dispatch('auth/fetchCurrentUserLogins').then(() => { this.config.data = this.logins })
     this.infoForm.keys().forEach(key => {
-      this.infoForm[ key ] = this.user[ key ]
+      this.infoForm[key] = this.user[key]
     })
   },
 
   methods: {
-    updateProfile() {
+    updateProfile () {
       this.infoForm.patch('/api/settings/profile/' + user().id).then(response => {
         if (response.data.status) {
-          swal.toast_success(response.data.message)
+          this.$swal.toast_success(response.data.message)
         } else {
-          swal.alert_error(response.data.message)
+          this.$swal.alert_error(response.data.message)
         }
       }).catch(error => {
-        console.log(error);
+        console.log(error)
       })
     },
-    updatePassword() {
+    updatePassword () {
       this.passwordForm.patch('/api/settings/password/' + user().id).then(response => {
         if (response.data.status) {
-          swal.toast_success(response.data.message)
+          this.$swal.toast_success(response.data.message)
           this.passwordForm.reset()
         } else {
-          swal.alert_error(response.data.message)
+          this.$swal.alert_error(response.data.message)
         }
       }).catch(error => {
-        console.log(error);
+        console.log(error)
       })
     }
   }

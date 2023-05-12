@@ -1,34 +1,50 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import store from '~/store'
 import router from '~/router'
 import i18n from '~/plugins/i18n'
-import loader from "vue-ui-preloader";
-import Swal from 'sweetalert2'
-import * as swal from './plugins/swal'
-import Vue2Crumbs from 'vue-2-crumbs'
+import { helpersMixin, user } from './plugins/helpers'
 import api from './plugins/api'
-import { user } from './plugins/helpers'
-import App from '~/components/App'
+import * as swal from './plugins/swal'
 import '~/plugins'
+import { LoadingPlugin } from 'vue-loading-overlay'
+import { createMetaManager as createVueMetaManager, defaultConfig, plugin as pluginVueMeta } from 'vue-meta'
+import Swal from 'sweetalert2'
+import Vue3Breadcrumbs from 'vue-3-breadcrumbs'
+import App from '~/components/App'
 import '~/components'
+import './plugins/charts'
+import { useComponents } from './components'
+import { aclMixin, defineDirectives } from './plugins/acl.js'
 window.Swal = Swal
-window.swal = swal
 window.api = api
 window.user = user
+const app = createApp(App)
+app.use(store)
+app.use(router)
+app.use(i18n)
+app.use(createVueMetaManager(false, { ...defaultConfig, meta: { tag: 'meta', nameless: true } })) // gotta update meta and use it differently
+app.use(pluginVueMeta) // gotta update meta and use it differently
+app.use(LoadingPlugin, {
+    'is-full-page': true
+}, {})
 
-Vue.use(Vue2Crumbs)
-Vue.use(loader);
-Vue.use(swal)
-Vue.use(api)
+app.use(Vue3Breadcrumbs, { includeComponent: true })
 
-Vue.config.productionTip = false
+app.config.globalProperties.$api = api
+app.config.globalProperties.$swal = swal
+// console.log(api)
+app.mixin(aclMixin)
+app.mixin(helpersMixin)
 
-/* eslint-disable no-new */
-new Vue({
-  i18n,
-  store,
-  router,
-  ...App
-})
+useComponents(app)
+defineDirectives(app)
+app.config.performance = true
+app.config.errorHandler = (err, vm, info) => {
+    // handle error
+    console.error(err)
+    console.log(vm)
+    console.log(info)
+}
+app.mount('#app')
 
 require('./bootstrap')

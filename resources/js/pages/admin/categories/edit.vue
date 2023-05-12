@@ -6,13 +6,15 @@
         <div class="grid gap-10 my-4">
           <!-- Name -->
           <div class="col-12 col-md-6">
-            <NLInput :form="form" name="name" label="Name" v-model="form.name" labelRequired />
+            <NLInput v-model="form.name" :form="form" name="name" label="Name" label-required />
           </div>
           <!-- Processus -->
           <div class="col-12 col-md-6">
-            <NLSelect :form="form" v-model="form.pcf" name="pcf" :options="pcfList" label="PCF" :multiple="true"
-              placeholder="Choisissez un ou plusieurs PCF" noOptionsText="Aucune PCF disponible"
-              loadingText="Chargement des PCF en cours..." labelRequired />
+            <NLSelect
+              v-model="form.pcf" :form="form" name="pcf" :options="pcfList" label="PCF" :multiple="true"
+              placeholder="Choisissez un ou plusieurs PCF" no-options-text="Aucune PCF disponible"
+              loading-text="Chargement des PCF en cours..." label-required
+            />
           </div>
         </div>
         <!-- Submit Button -->
@@ -25,48 +27,47 @@
 </template>
 
 <script>
-import { Form } from 'vform';
+import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 export default {
-  middleware: [ 'auth', 'admin' ],
   layout: 'backend',
+  middleware: ['auth', 'admin'],
   computed: {
     ...mapGetters({
-      config: 'categories/config',
-    }),
+      config: 'categories/config'
+    })
   },
-  data() {
+  data () {
     return {
       pcfList: [],
       form: new Form({
         name: null,
-        pcf: [],
-      }),
+        pcf: []
+      })
     }
   },
-  created() {
+  created () {
     this.initData()
   },
   methods: {
-    initData() {
+    initData () {
       this.$store.dispatch('categories/fetchConfig', this.$route.params.category).then(() => {
         this.pcfList = this.config.config.pcf
         this.form.name = this.config.config.category.name
         this.form.pcf = this.config.config.category.processes.map(process => process.id)
       })
     },
-    create() {
+    create () {
       this.form.put('/api/categories/' + this.$route.params.category).then(response => {
         if (response.data.status) {
-          swal.toast_success(response.data.message)
+          this.$swal.toast_success(response.data.message)
           this.initData()
         } else {
-          swal.alert_error(response.data.message)
+          this.$swal.alert_error(response.data.message)
         }
       }).catch(error => {
-        console.log(error);
+        console.log(error)
       })
-
     }
   }
 }

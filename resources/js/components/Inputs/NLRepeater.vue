@@ -1,43 +1,53 @@
 <template>
   <div class="repeater">
-    <h2 class="mb-6" v-if="title">{{ title }}</h2>
+    <h2 v-if="title" class="mb-6">
+      {{ title }}
+    </h2>
     <!-- Repeater row -->
-    <div class="grid my-6 form-row" v-for="(item, index) in form[name]" :key="name + '-row-' + index">
+    <div v-for="(item, index) in form[name]" :key="name + '-row-' + index" class="grid my-6 form-row">
       <div class="col-11">
         <div class="grid">
-          <div v-for="(input, id) in rowSchema" :key="name + '-input-' + input.name + '-' + index + '-id'" class="col-12"
-            :class="input.style">
-
+          <div
+            v-for="(input, id) in rowSchema" :key="name + '-input-' + input.name + '-' + index + '-id'" class="col-12"
+            :class="input.style"
+          >
             <!-- Defining different inputs -->
-            <NLInput :form="form" :label="input.label" :placeholder="input.placeholder" :type="input.type"
-              :labelRequired="input.required" :name="name + '.' + index + '.' + id + '.' + input.name"
-              v-model="form[name][index][id][input.name]" :id="name + '-row-' + index + '-' + input.name"
-              v-if="isInput(input.type)" />
+            <NLInput
+              v-if="isInput(input.type)" :id="name + '-row-' + index + '-' + input.name" v-model="form[name][index][id][input.name]" :form="form"
+              :label="input.label" :placeholder="input.placeholder"
+              :type="input.type" :label-required="input.required"
+              :name="name + '.' + index + '.' + id + '.' + input.name"
+            />
 
-            <NLTextarea :form="form" :label="input.label" :placeholder="input.placeholder" :labelRequired="input.required"
-              :name="name + '.' + index + '.' + id + '.' + input.name" v-model="form[name][index][id][input.name]"
-              :id="name + '-row-' + index + '-' + input.name" v-if="input.type == 'textarea'" />
+            <NLTextarea
+              v-if="input.type == 'textarea'" :id="name + '-row-' + index + '-' + input.name" v-model="form[name][index][id][input.name]" :form="form"
+              :label="input.label" :placeholder="input.placeholder"
+              :label-required="input.required" :name="name + '.' + index + '.' + id + '.' + input.name"
+            />
 
-            <NLWyswyg :form="form" :label="input.label" :placeholder="input.placeholder" :labelRequired="input.required"
-              :name="name + '.' + index + '.' + id + '.' + input.name" v-model="form[name][index][id][input.name]"
-              :id="name + '-row-' + index + '-' + input.name" v-if="input.type == 'wyswyg'" />
+            <NLWyswyg
+              v-if="input.type == 'wyswyg'" :id="name + '-row-' + index + '-' + input.name" v-model="form[name][index][id][input.name]" :form="form"
+              :label="input.label" :placeholder="input.placeholder"
+              :label-required="input.required" :name="name + '.' + index + '.' + id + '.' + input.name"
+            />
 
-            <NLSelect :labelRequired="input.required" :form="form" :label="input.label"
-              v-model="form[name][index][id][input.name]" :name="name + '.' + index + '.' + id + '.' + input.name"
-              :options="input.options" :id="name + '.' + index + '.' + id + '.' + input.name"
-              :placeholder="input.placeholder || 'Choisissez une option...'" :multiple="input.multiple"
-              v-if="input.type == 'select'" />
+            <NLSelect
+              v-if="input.type == 'select'" :id="name + '.' + index + '.' + id + '.' + input.name" v-model="form[name][index][id][input.name]"
+              :label-required="input.required" :form="form"
+              :label="input.label" :name="name + '.' + index + '.' + id + '.' + input.name"
+              :options="input.options" :placeholder="input.placeholder || 'Choisissez une option...'"
+              :multiple="input.multiple"
+            />
           </div>
         </div>
       </div>
       <!-- Remove current row -->
-      <div class="col-1 p-0 d-flex justify-start align-center" v-if="index >= 0">
+      <div v-if="index >= 0" class="col-1 p-0 d-flex justify-start align-center">
         <div class="btn btn-danger" :class="{ removeButtonStyle }" @click="removeRow(index)">
           {{ removeButtonLabel }}
         </div>
       </div>
     </div>
-
 
     <!-- Add new row -->
     <div class="d-flex justify-start align-center">
@@ -45,25 +55,28 @@
         {{ addButtonLabel }}
       </span>
     </div>
-    <has-error :form="form" :field="name" class="text-danger mt-5" v-if="form" />
+    <has-error v-if="form" :form="form" :field="name" class="text-danger mt-5" />
   </div>
 </template>
 
 <script>
+// import Treeselect from 'vue3-treeselect'
 import NLSelect from './NLSelect'
 import DefaultContainer from './DefaultContainer'
 import NLInput from './NLInput'
-import Treeselect from '@riophae/vue-treeselect'
+// import Treeselect from '@riophae/vue-treeselect'
 export default {
   name: 'NLRepeater',
   components: {
     NLSelect,
-    DefaultContainer, NLInput, Treeselect
+    DefaultContainer,
+    NLInput
+    // , Treeselect
   },
   props: {
-    addButtonLabel: { type: String, default: "Ajouter une ligne" },
+    addButtonLabel: { type: String, default: 'Ajouter une ligne' },
     addButtonStyle: { type: String, default: null },
-    removeButtonLabel: { type: String, default: "Supprimer" },
+    removeButtonLabel: { type: String, default: 'Supprimer' },
     removeButtonStyle: { type: String, default: null },
     name: { type: String, required: true },
     title: { type: String, default: null },
@@ -71,23 +84,23 @@ export default {
     rowSchema: { type: Array, required: true }
   },
   methods: {
-    addRow() {
+    addRow () {
       const schema = []
       for (let index = 0; index < this.rowSchema.length; index++) {
-        const element = this.rowSchema[ index ];
+        const element = this.rowSchema[index]
         const name = element.name
         let defaultValue = element.default !== undefined ? element.default : null
         defaultValue = element.multiple ? [] : null
-        schema.push({ [ name ]: defaultValue, value: element.label })
+        schema.push({ [name]: defaultValue, value: element.label })
       }
-      if (this.form[ this.name ]) this.form[ this.name ].push(schema);
+      if (this.form[this.name]) this.form[this.name].push(schema)
     },
-    isInput(value) {
-      return [ 'text', 'date', 'datetime', 'time', 'week', 'number', 'tel', 'email', 'month', 'url' ].includes(value)
+    isInput (value) {
+      return ['text', 'date', 'datetime', 'time', 'week', 'number', 'tel', 'email', 'month', 'url'].includes(value)
     },
-    removeRow(index) {
-      this.form[ this.name ].splice(index, 1);
-    },
+    removeRow (index) {
+      this.form[this.name].splice(index, 1)
+    }
   }
 }
 </script>

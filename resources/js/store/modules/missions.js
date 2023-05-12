@@ -1,4 +1,4 @@
-import api from "../../plugins/api"
+import api from '../../plugins/api'
 
 export const state = {
   all: null,
@@ -6,43 +6,43 @@ export const state = {
   current: null,
   config: null,
   filters: null,
-  processes: null,
+  processes: null
 }
 
 export const mutations = {
-  FETCH_PAGINATED(state, data) {
+  FETCH_PAGINATED (state, data) {
     state.paginated = data
   },
-  FETCH_ALL(state, data) {
+  FETCH_ALL (state, data) {
     state.all = data
   },
-  FETCH_FILTERS(state, data) {
+  FETCH_FILTERS (state, data) {
     state.filters = data
   },
-  FETCH(state, data) {
+  FETCH (state, data) {
     state.current = data
   },
-  FETCH_PROCESSES(state, data) {
+  FETCH_PROCESSES (state, data) {
     state.processes = data
   },
-  FETCH_CONFIG(state, data) {
+  FETCH_CONFIG (state, data) {
     state.config = data
-  },
+  }
 }
 
 export const actions = {
 
-  async fetchAll({ commit }) {
+  async fetchAll ({ commit }) {
     const { data } = await api.get('missions?fetchAll')
     commit('FETCH_ALL', { all: data })
   },
-  async fetchFilters({ commit }, { missionId = null, filters = null } = {}) {
+  async fetchFilters ({ commit }, { missionId = null, filters = null } = {}) {
     let url = missionId ? 'missions/' + missionId + '?onlyProcesses&withFilters' : 'missions?onlyProcesses&withFilters'
     if (!missionId) {
       url = 'missions?onlyFilters'
     }
-    let family = filters?.family_id?.value ?? ''
-    let domain = filters?.domain_id?.value ?? ''
+    const family = filters?.family_id?.value ?? ''
+    const domain = filters?.domain_id?.value ?? ''
     url += '&filter[family_id]=' + family
     url += '&filter[domain_id]=' + domain
     if (filters?.family_id.value) {
@@ -55,12 +55,12 @@ export const actions = {
     const { data } = await api.get(url)
     commit('FETCH_FILTERS', { filters: data })
   },
-  async fetchPaginated({ commit }, campaignId = null) {
+  async fetchPaginated ({ commit }, campaignId = null) {
     const url = campaignId ? 'missions?campaign_id=' + campaignId : 'missions'
     const { data } = await api.get(url)
     commit('FETCH_PAGINATED', { paginated: data })
   },
-  async fetch({ commit }, { missionId, onlyProcesses = false, edit = false }) {
+  async fetch ({ commit }, { missionId, onlyProcesses = false, edit = false }) {
     try {
       let url = onlyProcesses ? 'missions/' + missionId + '?onlyProcesses' : 'missions/' + missionId
       url += edit ? '?edit' : ''
@@ -74,7 +74,7 @@ export const actions = {
 
     }
   },
-  async fetchConfig({ commit }, campaignId = null) {
+  async fetchConfig ({ commit }, campaignId = null) {
     try {
       const url = campaignId !== null && campaignId !== undefined && campaignId !== '' ? 'missions/concerns/config?campaign_id=' + campaignId : 'missions/concerns/config'
       const { data } = await api.get(url)
@@ -84,7 +84,7 @@ export const actions = {
     }
   },
 
-  buildFilterUrl(filters, url) {
+  buildFilterUrl (filters, url) {
     if (filters.family_id.value) {
       url += '&filter[family_id]=' + filters.family_id.value
       if (filters.domain_id.value) {
@@ -106,4 +106,3 @@ export const getters = {
   processes: state => state.processes,
   filters: state => state.filters
 }
-

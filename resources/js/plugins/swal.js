@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+import Swal from 'sweetalert2'
 /**
  * @param string icon
  * @param string title
@@ -5,7 +7,7 @@
  *
  * @return {any}
  */
-export function confirm({ icon = "question", title = "", message = "", showConfirmButton = true, showCancelButton = true }) {
+export function confirm ({ icon = 'question', title = '', message = '', showConfirmButton = true, showCancelButton = true }) {
   return Swal.fire({
     icon,
     title,
@@ -14,8 +16,8 @@ export function confirm({ icon = "question", title = "", message = "", showConfi
     cancelButtonColor: '#CC0000',
     showConfirmButton,
     showCancelButton,
-    cancelButtonText: "Annuler",
-    text: message,
+    cancelButtonText: 'Annuler',
+    text: message
   })
 }
 
@@ -26,7 +28,7 @@ export function confirm({ icon = "question", title = "", message = "", showConfi
  *
  * @return {any}
  */
-export function alert_success(message = "", title = "Succès") {
+export function alert_success (message = '', title = 'Succès') {
   return confirm({ icon: 'success', title, message, showCancelButton: false })
 }
 
@@ -37,11 +39,10 @@ export function alert_success(message = "", title = "Succès") {
  *
  * @return {any}
  */
-export function alert_error(message = "Une erreur est survenue", title = "Erreur") {
+export function alert_error (message = 'Une erreur est survenue', title = 'Erreur') {
   return confirm({ icon: 'error', title, message, showCancelButton: false })
 }
 
-
 /**
  * @param string icon
  * @param string title
@@ -49,8 +50,8 @@ export function alert_error(message = "Une erreur est survenue", title = "Erreur
  *
  * @return {any}
  */
-export function confirm_destroy(message = "Voulez-vous vraiment supprimer cette ressource ?") {
-  return confirm({ icon: "question", title: "Confirmation", message })
+export function confirm_destroy (message = 'Voulez-vous vraiment supprimer cette ressource ?') {
+  return confirm({ icon: 'question', title: 'Confirmation', message })
 }
 
 /**
@@ -60,8 +61,8 @@ export function confirm_destroy(message = "Voulez-vous vraiment supprimer cette 
  *
  * @return {any}
  */
-export function confirm_update(message = "Voulez-vous enregistrer vos modifications ?") {
-  return confirm({ icon: "question", title: "Confirmation", message })
+export function confirm_update (message = 'Voulez-vous enregistrer vos modifications ?') {
+  return confirm({ icon: 'question', title: 'Confirmation', message })
 }
 
 /**
@@ -71,7 +72,7 @@ export function confirm_update(message = "Voulez-vous enregistrer vos modificati
  *
  * @return {any}
  */
-export function toast({ icon = 'question', title = "", message = "" }) {
+export function toast ({ icon = 'question', title = '', message = '' }) {
   Swal.fire({
     toast: true,
     icon,
@@ -95,7 +96,7 @@ export function toast({ icon = 'question', title = "", message = "" }) {
  *
  * @return {any}
  */
-export function toast_success(message = "") {
+export function toast_success (message = '') {
   return toast({ icon: 'success', title: 'Succès', message })
 }
 
@@ -106,20 +107,19 @@ export function toast_success(message = "") {
  *
  * @return {any}
  */
-export function toast_error(message = "Une erreur est survenue") {
+export function toast_error (message = 'Une erreur est survenue') {
   return toast({ icon: 'error', title: 'Erreur', message })
 }
 
-export function alert_status(error) {
+export function alert_status (error) {
   const code = error.response.status
   const statusText = error.response.statusText
   const title = code + ' ' + statusText
-  const message = code != 422 ? error.response.data.message : 'Les données fournies sont invalides.'
+  const message = code !== 422 ? error.response.data.message : 'Les données fournies sont invalides.'
   confirm({ icon: 'error', title, message, showCancelButton: false })
 }
 
-export function loading(progress, message = "Chargement en cours...") {
-  let timerInterval
+export function loading (progress, message = 'Chargement en cours...') {
   Swal.fire({
     // title: 'Auto close alert!',
     html: message + ' <b></b>',
@@ -128,10 +128,10 @@ export function loading(progress, message = "Chargement en cours...") {
     didOpen: () => {
       Swal.showLoading()
       const b = Swal.getHtmlContainer().querySelector('b')
-      timerInterval = setInterval(() => {
+      setInterval(() => {
         b.textContent = progress + ' %'
       }, 100)
-    },
+    }
   }).then((result) => {
     /* Read more about handling dismissals below */
     if (result.dismiss === Swal.DismissReason.timer) {
@@ -139,3 +139,15 @@ export function loading(progress, message = "Chargement en cours...") {
     }
   })
 }
+// const swal = {
+//   confirm,
+//   alert_success,
+//   alert_error,
+//   confirm_destroy,
+//   confirm_update,
+//   toast,
+//   toast_success,
+//   toast_error,
+//   alert_status,
+//   loading
+// }

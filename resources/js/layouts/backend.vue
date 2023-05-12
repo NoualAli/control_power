@@ -1,33 +1,54 @@
 <template>
   <div class="main-layout">
     <div class="sidebar-container" :class="{ 'is-active': !showSidebar }">
-      <Sidebar :showSidebar="showSidebar" />
+      <Sidebar :show-sidebar="showSidebar" />
     </div>
     <div class="main-container">
       <div class="header-container">
         <div class="title-side">
           <div>
-            <app-breadcrumbs></app-breadcrumbs>
+            <AmBreadcrumbs>
+              <template #crumb="{ crumb }">
+                <template v-if="(crumb.link !=='/' || (crumb.current && crumb.link =='/') ) && crumb.label!=='' ">
+                  <router-link
+                    v-if="!crumb.current"
+                    class="am-breadcrumbs__link"
+                    :to="crumb.link"
+                  >
+                    {{ crumb.label }}
+                    -
+                  </router-link>
+                  <span v-else class="am-breadcrumbs__link" :class="{'am-breadcrumbs__link_current': crumb.current}">{{ crumb.label }}</span>
+                </template>
+                <template v-else />
+                {{}}
+              </template>
+            </AmBreadcrumbs>
           </div>
         </div>
         <div class="actions-side">
           <div class="user-profile">
             <div class="avatar">
-              <img :src="user?.avatar" v-if="user?.avatar" />
-              <i class="las la-user icon" v-else />
+              <img v-if="user?.avatar" :src="user?.avatar">
+              <i v-else class="las la-user icon" />
             </div>
             <router-link :to="{ name: 'profile' }" class="username text-bold">
               {{ user?.abbreviated_name }}
             </router-link>
           </div>
-          <router-link :to="{ name: 'notifications' }" class="notification-link has-icon"
-            :class="{ 'notified': totalUnreadNotifications > 0 }">
-            <i class="las la-bell icon" :class="{ 'la-spin': totalUnreadNotifications > 0 }"></i>
+          <router-link
+            :key="totalUnreadNotifications" :to="{ name: 'notifications' }"
+            class="notification-link has-icon"
+            :class="{ 'notified': totalUnreadNotifications > 0 }"
+          >
+            <i class="las la-bell icon" :class="{ 'la-spin': totalUnreadNotifications > 0 }" />
           </router-link>
-          <button class="hamburger hamburger--elastic" :class="{ 'is-active': !showSidebar }" type="button"
-            @click="toggleSidebar">
+          <button
+            class="hamburger hamburger--elastic" :class="{ 'is-active': !showSidebar }" type="button"
+            @click="toggleSidebar"
+          >
             <span class="hamburger-box">
-              <span class="hamburger-inner"></span>
+              <span class="hamburger-inner" />
             </span>
           </button>
         </div>
@@ -48,35 +69,34 @@ import { mapGetters } from 'vuex'
 
 export default {
   name: 'MainLayout',
-  middleware: [ 'auth', 'admin' ],
   components: {
     Sidebar,
     Child
+  },
+  middleware: ['auth', 'admin'],
+  data () {
+    return {
+      totalUnreadNotifications: 0
+    }
   },
   computed: mapGetters({
     showSidebar: 'sidebar/showSidebar',
     user: 'auth/user',
     notifications: 'notifications/unread'
   }),
-  data() {
-    return {
-      totalUnreadNotifications: 0
-    }
-  },
   watch: {
-    $route(to, from) {
-      this.$store.dispatch('notifications/fetchUnreadNotifications').then(() => {
-        this.totalUnreadNotifications = this.notifications.unread.totalUnread
-      })
-    },
-    totalUnreadNotifications(newVal, oldVal) {
-      // console.log(newVal, oldVal);
+    $route (to, from) {
+      if (to.path !== '/login') {
+        this.$store.dispatch('notifications/fetchUnreadNotifications').then(() => {
+          this.totalUnreadNotifications = this.notifications.unread.totalUnread
+        })
+      }
     }
   },
   methods: {
-    toggleSidebar() {
+    toggleSidebar () {
       this.$store.dispatch('sidebar/toggleSidebar')
-    },
+    }
   }
 }
 </script>

@@ -1,4 +1,3 @@
-import Vue from 'vue'
 import Child from './Child.vue'
 import Notification from './Notification.vue'
 import DefaultContainer from './Inputs/DefaultContainer.vue'
@@ -11,7 +10,7 @@ import NLSelect from './Inputs/NLSelect'
 import NLCheckableContainer from './Inputs/NLCheckableContainer.vue'
 import NLWyswyg from './Inputs/NLWyswyg.vue'
 import NLDatatable from './NLDatatable.vue'
-import { HasError, AlertError, AlertSuccess, AlertErrors } from 'vform/components/bootstrap5'
+import { HasError, AlertErrors } from 'vform/components/bootstrap5'
 import NLModal from './NLModal'
 import ContentHeader from './ContentHeader'
 import ContentBody from './ContentBody'
@@ -19,29 +18,34 @@ import NLRepeater from './Inputs/NLRepeater'
 import NLSwitch from './Inputs/NLSwitch'
 import NLFile from './Inputs/NLFile'
 // Components that are registered globaly.
-[
-  NLFile,
-  NLSwitch,
-  NLRepeater,
-  ContentBody,
-  ContentHeader,
-  NLSelect,
-  NLModal,
-  NLTextarea,
-  DefaultContainer,
-  NLDatatable,
-  NLCheckableContainer,
-  NLCheckbox,
-  NLRadio,
-  NLButton,
-  NLWyswyg,
-  NLInput,
-  Child,
-  HasError,
-  // AlertError,
-  // AlertSuccess,
-  Notification,
-  AlertErrors
-].forEach(Component => {
-  Vue.component(Component.name, Component)
-})
+export function useComponents (app) {
+  [
+    NLFile,
+    NLSwitch,
+    NLRepeater,
+    ContentBody,
+    ContentHeader,
+    NLSelect,
+    NLModal,
+    NLTextarea,
+    DefaultContainer,
+    NLDatatable,
+    NLCheckableContainer,
+    NLCheckbox,
+    NLRadio,
+    NLButton,
+    NLWyswyg,
+    NLInput,
+    // Card,
+    Child,
+    // Button,
+    // Checkbox,
+    HasError,
+    // AlertError,
+    // AlertSuccess,
+    Notification,
+    AlertErrors
+  ].forEach(Component => {
+    app.component(Component.name, Component)
+  })
+}

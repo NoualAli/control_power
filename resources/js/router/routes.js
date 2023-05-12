@@ -1,5 +1,5 @@
-function page(path) {
-  return () => import(/* webpackChunkName: '' */ `~/pages/${path}`).then(m => m.default || m)
+function page (path) {
+  return () => import(`~/pages/${path}`).then(m => m.default || m)
 }
 
 export default [
@@ -8,21 +8,21 @@ export default [
    */
   {
     path: '/',
-    name: 'home', component: page('home.vue'),
+    name: 'home',
+    component: page('home.vue'),
     meta: {
       breadcrumb: {
-        label: "TABLEAU DE BORD"
+        label: 'TABLEAU DE BORD'
       }
     }
   },
 
   {
     path: '/admin',
-    name: 'admin-dashboard', component: page('admin_dashboard.vue'),
+    name: 'admin-dashboard',
+    component: page('admin_dashboard.vue'),
     meta: {
-      breadcrumb: {
-        label: "TABLEAU DE BORD"
-      }
+      breadcrumb: false
     }
   },
 
@@ -41,16 +41,10 @@ export default [
     component: page('settings/profile.vue'),
     meta: {
       breadcrumb: {
-        label: "Profil"
+        label: 'Profil'
       }
     }
   },
-
-  /**
-   * Errors
-   */
-  { path: '*', name: "404", component: page('errors/404.vue') },
-
 
   /**
    * Users
@@ -61,7 +55,8 @@ export default [
     component: page('admin/users/index.vue'),
     meta: {
       breadcrumb: {
-        label: "Utilisateurs",
+        parent: '',
+        label: 'Utilisateurs'
       }
     }
   },
@@ -71,8 +66,8 @@ export default [
     component: page('admin/users/create.vue'),
     meta: {
       breadcrumb: {
-        label: "Nouvel utilisateur",
-        parent: "users-index",
+        label: 'Nouvel utilisateur',
+        parent: 'users-index'
       }
     }
   },
@@ -82,8 +77,8 @@ export default [
     component: page('admin/users/edit.vue'),
     meta: {
       breadcrumb: {
-        label: "Edition utilisateur",
-        parent: "users-index",
+        label: 'Edition utilisateur',
+        parent: 'users-index'
       }
     }
   },
@@ -98,7 +93,7 @@ export default [
     meta: {
       breadcrumb: {
 
-        label: "Rôles",
+        label: 'Rôles'
       }
     }
   },
@@ -108,8 +103,8 @@ export default [
     component: page('admin/roles/create.vue'),
     meta: {
       breadcrumb: {
-        label: "Nouveau rôle",
-        parent: "roles-index",
+        label: 'Nouveau rôle',
+        parent: 'roles-index'
       }
     }
   },
@@ -119,8 +114,8 @@ export default [
     component: page('admin/roles/edit.vue'),
     meta: {
       breadcrumb: {
-        label: "Edition rôle",
-        parent: "roles-index",
+        label: 'Edition rôle',
+        parent: 'roles-index'
       }
     }
   },
@@ -133,8 +128,8 @@ export default [
     component: page('admin/permissions/index.vue'),
     meta: {
       breadcrumb: {
-
-        label: "Permissions",
+        parent: 'roles-index',
+        label: 'Permissions'
       }
     }
   },
@@ -144,8 +139,8 @@ export default [
     component: page('admin/permissions/create.vue'),
     meta: {
       breadcrumb: {
-        label: "Nouvelle permission",
-        parent: "permissions-index",
+        label: 'Nouvelle permission',
+        parent: 'permissions-index'
       }
     }
   },
@@ -155,8 +150,8 @@ export default [
     component: page('admin/permissions/edit.vue'),
     meta: {
       breadcrumb: {
-        label: "Edition permission",
-        parent: "permissions-index",
+        label: 'Edition permission',
+        parent: 'permissions-index'
       }
     }
   },
@@ -170,7 +165,7 @@ export default [
     meta: {
       breadcrumb: {
 
-        label: "DRE",
+        label: 'DRE'
       }
     }
   },
@@ -180,8 +175,8 @@ export default [
     component: page('admin/dre/create.vue'),
     meta: {
       breadcrumb: {
-        label: "Nouvelle DRE",
-        parent: "dre-index",
+        label: 'Nouvelle DRE',
+        parent: 'dre-index'
       }
     }
   },
@@ -191,8 +186,8 @@ export default [
     component: page('admin/dre/edit.vue'),
     meta: {
       breadcrumb: {
-        label: "Edition DRE",
-        parent: "dre-index",
+        label: 'Edition DRE',
+        parent: 'dre-index'
       }
     }
   },
@@ -205,7 +200,7 @@ export default [
     component: page('admin/agencies/index.vue'),
     meta: {
       breadcrumb: {
-        label: "Agence",
+        label: 'Agence'
 
       }
     }
@@ -216,8 +211,8 @@ export default [
     component: page('admin/agencies/create.vue'),
     meta: {
       breadcrumb: {
-        label: "Nouvelle agence",
-        parent: "agencies-index",
+        label: 'Nouvelle agence',
+        parent: 'agencies-index'
       }
     }
   },
@@ -227,8 +222,8 @@ export default [
     component: page('admin/agencies/edit.vue'),
     meta: {
       breadcrumb: {
-        label: "Edition agence",
-        parent: "agencies-index",
+        label: 'Edition agence',
+        parent: 'agencies-index'
       }
     }
   },
@@ -241,7 +236,7 @@ export default [
     component: page('admin/categories/index.vue'),
     meta: {
       breadcrumb: {
-        label: "Catégorie",
+        label: 'Catégorie'
 
       }
     }
@@ -252,8 +247,8 @@ export default [
     component: page('admin/categories/create.vue'),
     meta: {
       breadcrumb: {
-        label: "Nouvelle catégorie",
-        parent: "categories-index",
+        label: 'Nouvelle catégorie',
+        parent: 'categories-index'
       }
     }
   },
@@ -263,8 +258,8 @@ export default [
     component: page('admin/categories/edit.vue'),
     meta: {
       breadcrumb: {
-        label: "Edition catégorie",
-        parent: "categories-index",
+        label: 'Edition catégorie',
+        parent: 'categories-index'
       }
     }
   },
@@ -277,7 +272,7 @@ export default [
     component: page('admin/famillies/index.vue'),
     meta: {
       breadcrumb: {
-        label: "Familles",
+        label: 'Familles'
 
       }
     }
@@ -288,8 +283,8 @@ export default [
     component: page('admin/famillies/create.vue'),
     meta: {
       breadcrumb: {
-        label: "Nouvelle famille",
-        parent: "famillies-index",
+        label: 'Nouvelle famille',
+        parent: 'famillies-index'
       }
     }
   },
@@ -299,8 +294,8 @@ export default [
     component: page('admin/famillies/edit.vue'),
     meta: {
       breadcrumb: {
-        label: "Edition famille",
-        parent: "famillies-index",
+        label: 'Edition famille',
+        parent: 'famillies-index'
       }
     }
   },
@@ -313,7 +308,7 @@ export default [
     component: page('admin/domains/index.vue'),
     meta: {
       breadcrumb: {
-        label: "Domaines",
+        label: 'Domaines'
 
       }
     }
@@ -324,8 +319,8 @@ export default [
     component: page('admin/domains/create.vue'),
     meta: {
       breadcrumb: {
-        label: "Nouveau domaine",
-        parent: "domains-index",
+        label: 'Nouveau domaine',
+        parent: 'domains-index'
       }
     }
   },
@@ -335,8 +330,8 @@ export default [
     component: page('admin/domains/edit.vue'),
     meta: {
       breadcrumb: {
-        label: "Edition domaine",
-        parent: "domains-index",
+        label: 'Edition domaine',
+        parent: 'domains-index'
       }
     }
   },
@@ -349,7 +344,7 @@ export default [
     component: page('admin/processes/index.vue'),
     meta: {
       breadcrumb: {
-        label: "Processus",
+        label: 'Processus'
 
       }
     }
@@ -360,8 +355,8 @@ export default [
     component: page('admin/processes/create.vue'),
     meta: {
       breadcrumb: {
-        label: "Nouveau processus",
-        parent: "processes-index",
+        label: 'Nouveau processus',
+        parent: 'processes-index'
       }
     }
   },
@@ -371,8 +366,8 @@ export default [
     component: page('admin/processes/edit.vue'),
     meta: {
       breadcrumb: {
-        label: "Edition processus",
-        parent: "processes-index",
+        label: 'Edition processus',
+        parent: 'processes-index'
       }
     }
   },
@@ -385,7 +380,7 @@ export default [
     component: page('admin/control-points/index.vue'),
     meta: {
       breadcrumb: {
-        label: "Points de contrôle",
+        label: 'Points de contrôle'
 
       }
     }
@@ -396,8 +391,8 @@ export default [
     component: page('admin/control-points/create.vue'),
     meta: {
       breadcrumb: {
-        label: "Nouveau point de contrôle",
-        parent: "control-points-index",
+        label: 'Nouveau point de contrôle',
+        parent: 'control-points-index'
       }
     }
   },
@@ -407,8 +402,8 @@ export default [
     component: page('admin/control-points/edit.vue'),
     meta: {
       breadcrumb: {
-        label: "Edition point de contrôle",
-        parent: "control-points-index",
+        label: 'Edition point de contrôle',
+        parent: 'control-points-index'
       }
     }
   },
@@ -421,7 +416,7 @@ export default [
     component: page('campaigns/index.vue'),
     meta: {
       breadcrumb: {
-        label: "Suivi du planning annuel"
+        label: 'Suivi du planning annuel'
       }
     }
   },
@@ -442,9 +437,9 @@ export default [
     component: page('campaigns/show.vue'),
     meta: {
       breadcrumb: {
-        label: "Détails campagne",
-        parent: "campaigns",
-      },
+        label: 'Détails campagne',
+        parent: 'campaigns'
+      }
     }
   },
   {
@@ -453,9 +448,9 @@ export default [
     component: page('campaigns/edit.vue'),
     meta: {
       breadcrumb: {
-        label: "Edition campagne de contrôle",
-        parent: "campaign",
-      },
+        label: 'Edition campagne de contrôle',
+        parent: 'campaign'
+      }
     }
   },
   {
@@ -464,9 +459,9 @@ export default [
     component: page('missions/index.vue'),
     meta: {
       breadcrumb: {
-        parent: "campaign",
-        label: "Missions",
-      },
+        parent: 'campaign',
+        label: 'Missions'
+      }
     }
   },
   /**
@@ -478,7 +473,7 @@ export default [
     component: page('missions/index.vue'),
     meta: {
       breadcrumb: {
-        label: "Missions"
+        label: 'Missions'
       }
     }
   },
@@ -489,7 +484,7 @@ export default [
     meta: {
       breadcrumb: {
         parent: 'missions',
-        label: "Répartition des missions de contrôle"
+        label: 'Répartition des missions de contrôle'
       }
     }
   },
@@ -500,7 +495,7 @@ export default [
     meta: {
       breadcrumb: {
         parent: 'missions',
-        label: "Mission"
+        label: 'Mission'
       }
     }
   },
@@ -511,7 +506,7 @@ export default [
     meta: {
       breadcrumb: {
         parent: 'missions',
-        label: "Edition mission de contrôle"
+        label: 'Edition mission de contrôle'
       }
     }
   },
@@ -522,7 +517,7 @@ export default [
     meta: {
       breadcrumb: {
         parent: 'mission',
-        label: "Détails de la mission"
+        label: 'Détails de la mission'
       }
     }
   },
@@ -533,7 +528,7 @@ export default [
     meta: {
       breadcrumb: {
         parent: 'mission',
-        label: "Exécution de la mission"
+        label: 'Exécution de la mission'
       }
     }
   },
@@ -543,7 +538,7 @@ export default [
     component: page('missions_state.vue'),
     meta: {
       breadcrumb: {
-        label: "Suivi des réalisations des missions"
+        label: 'Suivi des réalisations des missions'
       }
     }
   },
@@ -554,7 +549,7 @@ export default [
     component: page('missions/index.not_validated.vue'),
     meta: {
       breadcrumb: {
-        label: "Validation des rapports reçus"
+        label: 'Validation des rapports reçus'
       }
     }
   },
@@ -565,7 +560,7 @@ export default [
     component: page('missions/index.validated.vue'),
     meta: {
       breadcrumb: {
-        label: "Consultation des rapports"
+        label: 'Consultation des rapports'
       }
     }
   },
@@ -580,7 +575,7 @@ export default [
     meta: {
       breadcrumb: {
         label: 'Consultation des rapports',
-        parent: '',
+        parent: ''
       }
     }
   },
@@ -591,7 +586,7 @@ export default [
     meta: {
       breadcrumb: {
         label: 'Anomalie • Notation • Plan de redressement',
-        parent: '',
+        parent: ''
       }
     }
   },
@@ -602,7 +597,7 @@ export default [
     meta: {
       breadcrumb: {
         label: 'Faits majeurs',
-        parent: '',
+        parent: ''
       }
     }
 
@@ -617,7 +612,7 @@ export default [
     component: page('reference/pcf.vue'),
     meta: {
       breadcrumb: {
-        label: "Références PCF"
+        label: 'Références PCF'
       }
     }
   },
@@ -631,8 +626,13 @@ export default [
     component: page('notifications/index'),
     meta: {
       breadcrumb: {
-        label: "Centre de notification"
+        label: 'Centre de notification'
       }
     }
-  }
+  },
+  /**
+   * Errors
+   */
+  { path: '/:pathMatch(.*)*', name: '404', component: page('errors/404.vue') }
+
 ]

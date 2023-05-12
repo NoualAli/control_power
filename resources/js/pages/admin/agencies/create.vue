@@ -6,30 +6,38 @@
         <div class="grid gap-10 my-4">
           <!-- Code -->
           <div class="col-12 col-md-6">
-            <NLInput type="number" :form="form" name="code" label="Code" v-model="form.code" labelRequired />
+            <NLInput v-model="form.code" type="number" :form="form" name="code" label="Code" label-required />
           </div>
           <!-- Name -->
           <div class="col-12 col-md-6">
-            <NLInput :form="form" name="name" label="Name" v-model="form.name" labelRequired />
+            <NLInput v-model="form.name" :form="form" name="name" label="Name" label-required />
           </div>
           <!-- Dre -->
           <div class="col-12 col-md-6">
-            <NLSelect :form="form" name="dre_id" v-model="form.dre_id" label="Dre" :options="dresList" labelRequired
-              :multiple="false" />
+            <NLSelect
+              v-model="form.dre_id" :form="form" name="dre_id" label="Dre" :options="dresList" label-required
+              :multiple="false"
+            />
           </div>
           <!-- Category -->
           <div class="col-12 col-md-6">
-            <NLSelect :form="form" name="category_id" v-model="form.category_id" label="Catégorie"
-              :options="categoriesList" labelRequired :multiple="false" />
+            <NLSelect
+              v-model="form.category_id" :form="form" name="category_id" label="Catégorie"
+              :options="categoriesList" label-required :multiple="false"
+            />
           </div>
           <!-- PCF -->
           <div class="col-12 col-md-6">
-            <NLSelect :form="form" name="pcf_usable" v-model="form.pcf_usable" label="PCF exceptionnel (à utiliser)"
-              :options="pcfList" :multiple="true" />
+            <NLSelect
+              v-model="form.pcf_usable" :form="form" name="pcf_usable" label="PCF exceptionnel (à utiliser)"
+              :options="pcfList" :multiple="true"
+            />
           </div>
           <div class="col-12 col-md-6">
-            <NLSelect :form="form" name="pcf_unusable" v-model="form.pcf_unusable"
-              label="PCF exceptionnel (à ne pas utiliser)" :options="pcfList" :multiple="true" />
+            <NLSelect
+              v-model="form.pcf_unusable" :form="form" name="pcf_unusable"
+              label="PCF exceptionnel (à ne pas utiliser)" :options="pcfList" :multiple="true"
+            />
           </div>
         </div>
         <!-- Submit Button -->
@@ -42,17 +50,13 @@
 </template>
 
 <script>
-import { Form } from 'vform';
+import { Form } from 'vform'
 import { mapGetters } from 'vuex'
+
 export default {
-  middleware: [ 'auth', 'admin' ],
   layout: 'backend',
-  computed: {
-    ...mapGetters({
-      config: 'agencies/config'
-    }),
-  },
-  data() {
+  middleware: ['auth', 'admin'],
+  data () {
     return {
       dresList: [],
       categoriesList: [],
@@ -63,11 +67,16 @@ export default {
         dre_id: null,
         category_id: null,
         pcf_usable: [],
-        pcf_unusable: [],
-      }),
+        pcf_unusable: []
+      })
     }
   },
-  created() {
+  computed: {
+    ...mapGetters({
+      config: 'agencies/config'
+    })
+  },
+  created () {
     this.$store.dispatch('agencies/fetchConfig').then(() => {
       this.dresList = this.config.config.dres
       this.categoriesList = this.config.config.categories
@@ -75,18 +84,17 @@ export default {
     })
   },
   methods: {
-    create() {
+    create () {
       this.form.post('/api/agencies').then(response => {
         if (response.data.status) {
-          swal.toast_success(response.data.message)
+          this.$swal.toast_success(response.data.message)
           this.form.reset()
         } else {
-          swal.alert_error(response.data.message)
+          this.$swal.alert_error(response.data.message)
         }
       }).catch(error => {
-        console.log(error);
+        console.log(error)
       })
-
     }
   }
 }

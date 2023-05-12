@@ -1,22 +1,23 @@
 const { join, resolve } = require('path')
 const { copySync, removeSync } = require('fs-extra')
 const mix = require('laravel-mix')
-const autoprefixer = require('autoprefixer');
-console.log(autoprefixer);
+const autoprefixer = require('autoprefixer')
+console.log(autoprefixer)
 require('laravel-mix-versionhash')
 // const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 mix
   .js('resources/js/app.js', 'public/dist/js').vue({
     extractStyles: true
+
   })
   .sass('resources/sass/app.sass', 'public/dist/css')
   .options({
     processCssUrls: false,
-    postCss: [ autoprefixer() ]
+    postCss: [autoprefixer()]
   })
 
   .disableNotifications()
-
+  .webpackConfig({ devtool: 'source-map' })
 if (mix.inProduction()) {
   mix
     // .extract() // Disabled until resolved: https://github.com/JeffreyWay/laravel-mix/issues/1889
@@ -28,10 +29,11 @@ if (mix.inProduction()) {
 
 mix.webpackConfig({
   plugins: [
+
     // new BundleAnalyzerPlugin()
   ],
   resolve: {
-    extensions: [ '.js', '.json', '.vue' ],
+    extensions: ['.js', '.json', '.vue'],
     alias: {
       '~': join(__dirname, './resources/js')
     }
@@ -39,7 +41,11 @@ mix.webpackConfig({
   output: {
     chunkFilename: 'dist/js/[chunkhash].js',
     path: resolve(__dirname, mix.inProduction() ? './public/build' : './public')
+  },
+  stats: {
+    children: true
   }
+
 })
 
 mix.then(() => {
@@ -48,7 +54,7 @@ mix.then(() => {
   }
 })
 
-function publishAseets() {
+function publishAseets () {
   const publicDir = resolve(__dirname, './public')
 
   removeSync(join(publicDir, 'dist'))
