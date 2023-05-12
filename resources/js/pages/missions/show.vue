@@ -349,7 +349,7 @@
               />
             </div>
             <div class="col-12">
-              <NLCheckbox
+              <NLSwitch
                 v-model="forms.opinion.validated" name="validated" :form="forms.opinion"
                 label="Validé la mission"
               />
@@ -403,7 +403,7 @@
               />
             </div>
             <div class="col-12">
-              <NLCheckbox
+              <NLSwitch
                 v-model="forms.report.validated" name="validated" :form="forms.report"
                 label="Validé la mission"
               />
