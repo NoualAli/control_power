@@ -161,7 +161,7 @@ class Mission extends Model
             return 'À réaliser';
         } else if ($startDiff < 0 && $endDiff >= 0 && $progressStatus <= 100) {
             return 'En cours';
-        } else if ($progressStatus >= 100 && $comment && $comment->is_validated && (!$report || ($report && !$report->is_validated))) {
+        } else if ($progressStatus >= 100 && ($comment && $comment->is_validated && (!$report || ($report && !$report->is_validated)) || !$comment)) {
             return 'En attente de validation';
         } else if ($progressStatus >= 100 && $report?->is_validated && !$cdcrValidationBy) {
             return 'Validé et envoyé';
