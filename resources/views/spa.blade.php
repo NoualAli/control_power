@@ -3,6 +3,7 @@
         'appName' => config('app.name'),
         'locale' => ($locale = app()->getLocale()),
         'locales' => config('app.locales'),
+        'csrfToken' => csrf_token(),
     ];
     $appJs = mix('dist/js/app.js');
     $appCss = mix('dist/css/app.css');
@@ -13,17 +14,29 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="shortcut icon" href="{{ asset('images/logo_p.png') }}" type="image/x-icon">
+
+    {{-- Favicon --}}
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('app/images/favicons/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('app/images/favicons/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('app/images/favicons/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ asset('app/images/favicons/site.webmanifest') }}">
+    <link rel="mask-icon" href="{{ asset('app/images/favicons/safari-pinned-tab.svg') }}" color="#313131">
+    <link rel="shortcut icon" href="{{ asset('app/images/favicons/favicon.ico') }}">
+    <meta name="apple-mobile-web-app-title" content="PowerControl">
+    <meta name="application-name" content="PowerControl">
+    <meta name="msapplication-TileColor" content="#fcfcfc">
+    <meta name="msapplication-config" content="{{ asset('app/images/favicons/browserconfig.xml') }}">
+    <meta name="theme-color" content="#ffffff">
+
     <title>{{ $config['appName'] }}</title>
+
+    {{-- Laravel config --}}
     <script type="text/javascript">
         window.Laravel = {
-            csrfToken: "{{ csrf_token() }}",
             appName: "{{ $config['appName'] }}",
             locale: "{{ $config['locale'] }}",
+            csrfToken: "{{ csrf_token() }}",
         }
-        // window.config = {
-        //     appName: "{{ $config['appName'] }}"
-        // }
     </script>
     <link rel="stylesheet" href="{{ $appCss }}">
 </head>
@@ -41,10 +54,6 @@
         </script>
     @endif
     <script src="{{ $appJs }}"></script>
-    <script>
-        window.config = @json($config);
-    </script>
-    {{-- <script src="chartjs-plugin-colorschemes.js"></script> --}}
 </body>
 
 </html>
