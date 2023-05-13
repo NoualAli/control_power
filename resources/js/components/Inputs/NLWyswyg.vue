@@ -61,7 +61,7 @@ export default {
                 if (!!this.length && this.editorQuill.getLength() >= this.length) {
                     this.editorQuill.deleteText(this.length, this.editorQuill.getLength())
                 }
-                this.$emit('update:modelValue', newValue)
+                this.$emit('update:modelValue', this.trim(newValue))
             }
         },
         modelValue: {
@@ -85,6 +85,26 @@ export default {
             this.currentValue = value
             this.currentLength = this.editorQuill.getLength() - 1
             this.$emit('update:modelValue', this.currentValue)
+        },
+        trim(html) {
+            const tmp = document.createElement("div");
+            tmp.innerHTML = html.trim();
+
+            // Remove empty tags
+            const emptyTags = tmp.querySelectorAll(":empty");
+            emptyTags.forEach((tag) => {
+                tag.parentNode.removeChild(tag);
+            });
+
+            // Trim non-empty tags
+            const nonEmptyTags = tmp.querySelectorAll("*:not(:empty)");
+            nonEmptyTags.forEach((tag) => {
+                tag.textContent = tag.textContent.trim();
+            });
+
+            // Return the updated HTML
+            return tmp.innerHTML;
+
         }
     }
 }
