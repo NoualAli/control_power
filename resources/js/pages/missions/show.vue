@@ -163,7 +163,7 @@
                     <span class="text-bold">
                         Note:
                     </span>
-                    <div v-if="mission?.current?.note" class="mt-2" v-html="mission?.current?.note" />
+                    <div v-if="mission?.current?.note" class="mt-2 content" v-html="mission?.current?.note" />
                     <span v-else>-</span>
                 </div>
             </div>
@@ -330,7 +330,7 @@
                     </div>
                 </form>
                 <div v-else class="grid">
-                    <div class="col-12" v-html="mission?.current.opinion.content" />
+                    <div class="col-12 content" v-html="mission?.current.opinion.content" />
                     <div v-if="mission?.current.opinion?.is_validated" class="col-12">
                         <b>Validé le:</b> <time>{{ mission?.current.opinion.validated_at }}</time>
                     </div>
@@ -376,7 +376,7 @@
                     </div>
                 </form>
                 <div v-else class="grid">
-                    <div class="col-12" v-html="mission?.current.dre_report.content" />
+                    <div class="col-12 content" v-html="mission?.current.dre_report.content" />
                     <div v-if="mission?.current.dre_report?.is_validated" class="col-12">
                         <b>Validé le:</b> <time>{{ mission?.current.dre_report.validated_at }}</time>
                     </div>
