@@ -2,18 +2,16 @@
     <div>
         <DefaultContainer :id="id || name" :form="form" :label="label" :name="name" :label-required="labelRequired"
             :length="length" :current-length="currentLength">
-            <VueEditor :id="id || name" v-model.trim="currentValue" :editor-toolbar="editorSettings"
+            <VueEditor :id="id || name" v-model="currentValue" :editor-toolbar="editorSettings"
                 :class="[{ 'is-danger': form?.errors.has(name) }]" :name="name" :autocomplete="autocomplete"
-                :autofocus="autofocus" :max-length="length" :placeholder="placeholder || label" :value="modelValue"
+                :autofocus="autofocus" :max-length="length" :placeholder="placeholder || label" :value="currentValue"
                 :help-text="helpText" v-bind="$attrs" @input="onInput($event)" @ready="quill => { editorQuill = quill }" />
         </DefaultContainer>
     </div>
 </template>
-
 <script>
 import DefaultContainer from './DefaultContainer'
 import { VueEditor } from 'vue3-editor'
-
 export default {
     name: 'NLWyswyg',
     components: {
@@ -37,10 +35,12 @@ export default {
     data() {
         return {
             editorQuill: null,
+            forcedKey: -1,
             currentLength: 0,
-            currentValue: '',
+            currentValue: this.modelValue,
             editorSettings: [
                 [ { header: [ 1, 2, 3, 4, 5, 6, false ] } ],
+                // [ { 'font': [] } ],
                 [ { size: [ 'small', 'medium', 'large' ] } ],
                 [ { align: [] } ],
                 [ { list: 'ordered' }, { list: 'bullet' } ],
@@ -61,6 +61,7 @@ export default {
                 if (!!this.length && this.editorQuill.getLength() >= this.length) {
                     this.editorQuill.deleteText(this.length, this.editorQuill.getLength())
                 }
+
                 this.$emit('update:modelValue', this.trim(newValue))
             }
         },
@@ -70,25 +71,33 @@ export default {
             handler(newValue, oldValue) {
                 if (!newValue || newValue.length === 0) {
                     this.currentValue = newValue
+                    this.forcedKey = -1
                 }
                 if (newValue && (newValue !== oldValue)) {
                     this.currentValue = newValue
+                    this.forcedKey = 1
                 }
             }
         }
     },
     created() {
-        this.currentValue = this.modelValue !== null ? this.modelValue : ''
+        this.currentValue = this.modelValue
     },
     methods: {
         onInput(value) {
+            // Should review this part
+            // cause it's not being called at any moment
             this.currentValue = value
             this.currentLength = this.editorQuill.getLength() - 1
-            this.$emit('update:modelValue', this.currentValue)
+            this.$emit('update:modelValue', this.trim(this.currentValue))
         },
+        /**
+         *
+         * @param {HTMLDOMElement} html
+         */
         trim(html) {
             const tmp = document.createElement("div");
-            tmp.innerHTML = html.trim();
+            tmp.innerHTML = html?.trim();
 
             // Remove empty tags
             const emptyTags = tmp.querySelectorAll(":empty");
@@ -96,15 +105,27 @@ export default {
                 tag.parentNode.removeChild(tag);
             });
 
+            // Remove <br> tag if it's the first child of the first tag
+            const firstChild = tmp.firstChild;
+            if (firstChild && firstChild.tagName) {
+                const firstChildFirstTag = firstChild.querySelector("*");
+                if (firstChildFirstTag && firstChildFirstTag.tagName === "BR") {
+                    firstChild.removeChild(firstChildFirstTag);
+                }
+            }
+
             // Trim non-empty tags
-            const nonEmptyTags = tmp.querySelectorAll("*:not(:empty)");
+            const nonEmptyTags = tmp.querySelectorAll("*");
             nonEmptyTags.forEach((tag) => {
-                tag.textContent = tag.textContent.trim();
+                if (tag.innerHTML.trim() === "") {
+                    tag.parentNode.removeChild(tag);
+                } else {
+                    tag.innerHTML = tag.innerHTML.trim();
+                }
             });
 
             // Return the updated HTML
-            return tmp.innerHTML;
-
+            return tmp.innerHTML !== undefined ? tmp.innerHTML : null;
         }
     }
 }
