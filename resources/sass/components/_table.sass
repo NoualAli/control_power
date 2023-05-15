@@ -2,7 +2,7 @@ $td-padding: .5rem 1rem
 $th-padding: 1rem
 $table-shadows: 0px 0px 0.7px -2px rgba(0, 0, 0, 0.024), 0px 0px 2px -2px rgba(0, 0, 0, 0.035), 0px 0px 4.8px -2px rgba(0, 0, 0, 0.046),0px 0px 16px -2px rgba(0, 0, 0, 0.07)
 $table-align: center
-$table-radius: 4px
+$table-radius: 6px
 $table-border: $grey
 $link-active-bg: $primary
 $link-active-color: $white
@@ -15,6 +15,7 @@ $cell-max-width: 500px
 .table-container
     position: relative
     width: 100% !important
+    min-height: 200px
     margin: 1em 0
     color: $dark
     overflow: auto
@@ -22,7 +23,7 @@ $cell-max-width: 500px
 table
     table-layout: auto
     width: 100%
-    margin: 1em 0
+    // margin: 1em 0
     min-width: $mobile
     color: $dark
     border-collapse: collapse
@@ -46,6 +47,7 @@ table
         max-width: $cell-max-width
         &.cell-actions
             max-width: 200px
+            padding: $td-padding
             & .btn
                 border: none transparent
                 background-color: transparent
@@ -67,36 +69,14 @@ table
                         color: darken(nth($color, 2), 20%)
                         box-shadow: none
     & tbody
-        &.is-busy
-            position: relative
-            &::after
-                content: 'Chargement en cours...'
-                position: absolute
-                top: 50%
-                left: 50%
-                transform: translate(-50%, -50%)
-                color: $white
-                font-weight: 700
-                z-index: 2
-            &::before
-                content: ''
-                position: absolute
-                top: 0
-                left: 0
-                height: 100%
-                width: 100%
-                background-color: rgba($dark, .4)
-                z-index: 1
-            & tr
-                user-select: none
         & tr
             background-color: $white
             border-bottom: 1px solid $table-border
             &:nth-child(odd)
                 background-color: transparent
             &:hover
-                background-color: rgba($secondary,.2)
-                color: $brown
+                background-color: rgba($primary-extra-light,.4)
+                color: $dracula
 .pagination
     maring: 0 1rem
     width: 100%
@@ -104,20 +84,55 @@ table
         &.is-active
             background-color: $primary
             cursor: not-allowed
-            color: $primary-extra-light
+            color: $light
+
+.table-loader-container
+    position: absolute
+    top: 0
+    left: 0
+    display: flex
+    justify-content: center
+    align-items: center
+    gap: 1rem
+    width: 100%
+    min-height: 200px
+    height: 100%
+    background-color: rgba($primary,.4)
+    border-top-left-radius: $table-radius
+    border-top-right-radius: $table-radius
+    user-select: none
+    z-index: 4
+
+.table-loader
+    animation: spinAround .5s infinite linear
+    position: relative
+    height: 3rem
+    width: 3rem
+    border-radius: 50%
+    border: .25rem solid $light
+    border-right-color: transparent
+    border-top-color: transparent
+
+.table-loader-text
+    color: $light
+    font-weight: bold
+    letter-spacing: 1px
+
+@keyframes spinAround
+    from
+        rotate: 0
+    to
+        rotate: 360deg
 
 /* Responsive media */
 
 @media (min-width: $tablet)
     table
-        // table-layout: auto
-        // width: 100%
         position: relative
         border-radius: $table-radius
         box-shadow: $table-shadows
         & td, & th
             vertical-align: middle
-            // text-align: left
             display: table-cell
             border-left: 1px solid $table-border !important
             &:first-child
@@ -125,7 +140,6 @@ table
             &:before
                 display: none
         & th
-            letter-spacing: 2px
             position: sticky !important
             top: 0 !important
             z-index: 1
@@ -136,20 +150,16 @@ table
             font-weight: bolder
             &:first-child
                 border-top-left-radius: $table-radius
+                border: none !important
             &:last-child
                 border-top-right-radius: $table-radius
         & td
             padding: $td-padding
-            // min-width: 110px
-            // width: auto !important
-            // white-space: nowrap !important
-            &:hover
-                // color: $white
-                // background-color: rgba($dark, .5)
+            &:last-child
+                border: 1px solid $table-border
         & tbody
             overflow: hidden
         & tr
-            border: 1px solid $table-border
             padding: .6em !important
     .pagination
         flex-direction: row
