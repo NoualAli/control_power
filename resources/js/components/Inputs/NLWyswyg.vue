@@ -92,41 +92,51 @@ export default {
             this.$emit('update:modelValue', this.trim(this.currentValue))
         },
         /**
-         *
-         * @param {HTMLDOMElement} html
-         */
+  * @param {HTMLDOMElement} html
+  */
         trim(html) {
-            const tmp = document.createElement("div");
-            tmp.innerHTML = html?.trim();
-
-            // Remove empty tags
-            const emptyTags = tmp.querySelectorAll(":empty");
-            emptyTags.forEach((tag) => {
-                tag.parentNode.removeChild(tag);
-            });
-
-            // Remove <br> tag if it's the first child of the first tag
-            const firstChild = tmp.firstChild;
-            if (firstChild && firstChild.tagName) {
-                const firstChildFirstTag = firstChild.querySelector("*");
-                if (firstChildFirstTag && firstChildFirstTag.tagName === "BR") {
-                    firstChild.removeChild(firstChildFirstTag);
+            if (html) {
+                const tmp = document.createElement("div");
+                tmp.innerHTML = html?.trim();
+                // Remove <br> tag if it's the first or last child of the first tag
+                const firstChild = tmp.firstChild;
+                if (firstChild && firstChild.tagName) {
+                    const firstChildFirstTag = firstChild.firstChild;
+                    // console.log(firstChildFirstTag?.tagName);
+                    const firstChildLastTag = firstChild.querySelector(":last-child");
+                    if (firstChildFirstTag && firstChildFirstTag?.tagName === "BR") {
+                        // console.log(firstChildFirstTag);
+                        firstChildFirstTag.parentElement.removeChild(firstChildFirstTag)
+                        // firstChild.removeChild();
+                    }
+                    if (firstChildLastTag && firstChildLastTag.tagName === "BR") {
+                        // firstChild.removeChild(firstChildLastTag);
+                    }
                 }
-            }
 
-            // Trim non-empty tags
-            const nonEmptyTags = tmp.querySelectorAll("*");
-            nonEmptyTags.forEach((tag) => {
-                if (tag.innerHTML.trim() === "") {
+                // Remove empty tags
+                const emptyTags = tmp.querySelectorAll(":empty");
+                emptyTags.forEach((tag) => {
                     tag.parentNode.removeChild(tag);
-                } else {
-                    tag.innerHTML = tag.innerHTML.trim();
-                }
-            });
+                });
 
-            // Return the updated HTML
-            return tmp.innerHTML !== undefined ? tmp.innerHTML : null;
+                // Trim non-empty tags
+                const nonEmptyTags = tmp.querySelectorAll("*");
+                nonEmptyTags.forEach((tag) => {
+                    if (tag.innerHTML.trim() === "") {
+                        tag.parentNode.removeChild(tag);
+                    } else {
+                        tag.innerHTML = tag.innerHTML.trim();
+                    }
+                });
+
+                // Return the updated HTML
+                return tmp.innerHTML !== undefined ? tmp.innerHTML : null;
+            }
+            return html
         }
+
+
     }
 }
 </script>

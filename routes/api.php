@@ -152,7 +152,8 @@ Route::group(['middleware' => 'auth:api'], function () {
          * Details
          */
         Route::prefix('details')->controller(MissionDetailController::class)->group(function () {
-            Route::get('/concerns/config', 'show');
+            Route::get('{detail}', 'show');
+            Route::get('/concerns/config', 'config');
             Route::post('/{mission}', 'store');
         });
         /**

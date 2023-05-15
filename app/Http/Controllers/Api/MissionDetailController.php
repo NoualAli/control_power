@@ -176,18 +176,24 @@ class MissionDetailController extends Controller
         }
     }
 
+    public function show(MissionDetail $detail)
+    {
+        $detail->unsetRelations();
+        $detail->load('regularization', 'mission');
+        return $detail;
+    }
+
     /**
      * Display config.
      *
      * @return \Illuminate\Http\Response
      */
-    public function show()
+    public function config()
     {
         isAbleOrAbort(['view_mission', 'control_agency']);
         $detailId = request()->has('detail_id') && !empty(request()->detail_id) && request()->detail_id !== 'null' ? request()->detail_id : false;
         $missionId = request()->has('mission_id') && !empty(request()->mission_id) && request()->mission_id !== 'null' ? request()->mission_id : false;
         $processId = request()->has('process_id') && !empty(request()->process_id) && request()->process_id !== 'null' ? request()->process_id : false;
-
         $detail = $detailId ? MissionDetail::findOrFail($detailId)->load(['controlPoint', 'domain', 'process']) : false;
         $mission = $missionId ? Mission::findOrFail($missionId) : $detail->mission;
         $process = $processId ? Process::findOrFail($processId)->load(['familly', 'domain']) : $detail->process->load(['familly', 'domain']);
