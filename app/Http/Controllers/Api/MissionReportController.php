@@ -12,7 +12,6 @@ use App\Notifications\Mission\Validated;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
@@ -57,23 +56,19 @@ class MissionReportController extends Controller
                         'validated_at' => $validatedAt,
                     ]);
 
-                    if ($data['type'] == 'Avis contrôleur') {
-                        $state = today()->diffInDays($mission->end) > 0 ? 'En attente de validation' : 'En attente de validation (en retard)';
-                        $mission->states()->create(['state' => $state]);
-                    }
-                    if ($data['type'] == 'Rapport') {
-                        $state = today()->diffInDays($mission->end) > 0 ? 'Validé et envoyé' : 'Validé et envoyé (en retard)';
-                        $mission->states()->create(['state' => $state]);
-                    }
+                    // if ($data['type'] == 'Avis contrôleur') {
+                    //     $state = today()->diffInDays($mission->end) > 0 ? 'En attente de validation' : 'En attente de validation (en retard)';
+                    //     $mission->states()->create(['state' => $state]);
+                    // }
+                    // if ($data['type'] == 'Rapport') {
+                    //     $state = today()->diffInDays($mission->end) > 0 ? 'Validé et envoyé' : 'Validé et envoyé (en retard)';
+                    //     $mission->states()->create(['state' => $state]);
+                    // }
                 }
 
                 if ($report->is_validated) {
-                    if ($report->type == 'Avis contrôleur') {
-                        $this->notifyUsers($mission, $mission->creator);
-                    } elseif ($report->type == 'Rapport') {
-                        $users = $mission->controllers->push(User::dcp());
-                        $this->notifyUsers($mission, $users);
-                    }
+                    $users = $this->getUsers($mission, $report);
+                    $this->notifyUsers($mission, $users);
                 }
             });
             $message = $hasId ? UPDATE_SUCCESS : CREATE_SUCCESS;
@@ -121,22 +116,17 @@ class MissionReportController extends Controller
                     $detail->update([$column => now()]);
                 }
 
-                if ($data['type'] == 'Avis contrôleur') {
-                    $state = today()->diffInDays($mission->end) > 0 ? 'En attente de validation' : 'En attente de validation (en retard)';
-                    $mission->states()->create(['state' => $state]);
-                }
-                if ($data['type'] == 'Rapport') {
-                    $state = today()->diffInDays($mission->end) > 0 ? 'Validé et envoyé' : 'Validé et envoyé (en retard)';
-                    $mission->states()->create(['state' => $state]);
-                }
+                // if ($data['type'] == 'Avis contrôleur') {
+                //     $state = today()->diffInDays($mission->end) > 0 ? 'En attente de validation' : 'En attente de validation (en retard)';
+                //     $mission->states()->create(['state' => $state]);
+                // }
+                // if ($data['type'] == 'Rapport') {
+                //     $state = today()->diffInDays($mission->end) > 0 ? 'Validé et envoyé' : 'Validé et envoyé (en retard)';
+                //     $mission->states()->create(['state' => $state]);
+                // }
 
-                if ($report->type == 'Avis contrôleur') {
-                    $this->notifyUsers($mission, $mission->creator);
-                } elseif ($report->type == 'Rapport') {
-                    // $users = User::cdcr()->merge($mission->agencyControllers);
-                    $users = User::whereRoles(['cdcr', 'dcp', 'der', 'dre'])->get()->merge($mission->agencyControllers);
-                    $this->notifyUsers($mission, $users);
-                }
+                $users = $this->getUsers($mission, $report);
+                $this->notifyUsers($mission, $users);
             });
             return response()->json([
                 'message' => UPDATE_SUCCESS,
@@ -150,18 +140,37 @@ class MissionReportController extends Controller
         }
     }
 
+    private function getUsers($mission, $report)
+    {
+        if ($report->type == 'Rapport') {
+            $dre = User::whereRoles(['dre'])
+                ->whereAgencies([$mission->agency->id])
+                ->first();
+
+            $agencyControllers = $mission->agencyControllers;
+
+            $users = User::whereRoles(['cdcr', 'dcp', 'der'])
+                ->without(['missions', 'campaigns', 'details', 'regularization', 'logins'])
+                ->get()
+                ->merge($agencyControllers);
+
+            if ($dre) {
+                $users = $users->push($dre);
+            }
+        } elseif ($report->type == 'Avis contrôleur') {
+            $users = $mission->creator;
+        }
+        return $users;
+    }
+
     private function notifyUsers(Mission $mission, Collection|User $users)
     {
         try {
             if ($users instanceof Model) {
                 Notification::send($users, new Validated($mission));
-                // Artisan::call('mission:validated', ['id' => $mission->id, 'user_id' => $users->id]);
             } else {
                 foreach ($users as $user) {
                     Notification::send($user, new Validated($mission));
-                    // if ($user?->id) {
-                    //     Artisan::call('mission:validated', ['id' => $mission->id, 'user_id' => $user?->id]);
-                    // }
                 }
             }
         } catch (\Throwable $th) {
