@@ -164,7 +164,7 @@ export default {
         ContentBody,
         Notification
     },
-    layout: 'backend',
+    layout: 'MainLayout',
     middleware: [ 'auth' ],
 
     data() {

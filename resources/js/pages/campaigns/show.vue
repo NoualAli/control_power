@@ -136,7 +136,7 @@ export default {
     components: {
         NLDatatable
     },
-    layout: 'backend',
+    layout: 'MainLayout',
     middleware: [ 'auth' ],
     data() {
         return {

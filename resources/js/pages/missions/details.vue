@@ -578,7 +578,7 @@ export default {
         ContentBody,
         Notification
     },
-    layout: 'backend',
+    layout: 'MainLayout',
     middleware: [ 'auth' ],
     metaInfo() {
         return { title: this.mission?.reference + ' - ' + this.process?.name }

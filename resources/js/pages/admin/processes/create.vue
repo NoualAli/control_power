@@ -6,17 +6,13 @@
         <div class="grid gap-10 my-4">
           <!-- Familliies -->
           <div class="col-12 col-md-6">
-            <NLSelect
-              v-model="form.familly_id" :form="form" name="familly_id" label="Famille" :options="familliesList"
-              label-required :multiple="false"
-            />
+            <NLSelect v-model="form.familly_id" :form="form" name="familly_id" label="Famille" :options="familliesList"
+              label-required :multiple="false" />
           </div>
           <!-- Domains -->
           <div class="col-12 col-md-6">
-            <NLSelect
-              v-model="form.domain_id" :form="form" name="domain_id" label="Domaine" :options="domainsList"
-              label-required :multiple="false"
-            />
+            <NLSelect v-model="form.domain_id" :form="form" name="domain_id" label="Domaine" :options="domainsList"
+              label-required :multiple="false" />
           </div>
           <!-- Name -->
           <div class="col-12 col-md-6">
@@ -36,9 +32,9 @@
 import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 export default {
-  layout: 'backend',
-  middleware: ['auth', 'admin'],
-  data () {
+  layout: 'MainLayout',
+  middleware: [ 'auth', 'admin' ],
+  data() {
     return {
       familliesList: [],
       domainsList: [],
@@ -61,16 +57,16 @@ export default {
     }
   },
 
-  created () {
+  created() {
     this.initData()
   },
   methods: {
-    initData () {
+    initData() {
       this.$store.dispatch('famillies/fetchAll', false).then(() => {
         this.familliesList = this.famillies.all
       })
     },
-    loadDomains (value) {
+    loadDomains(value) {
       if (value) {
         this.$store.dispatch('famillies/fetch', { id: value, onlyDomains: true }).then(() => {
           this.domainsList = this.familly.domains
@@ -79,7 +75,7 @@ export default {
         this.domainsList = []
       }
     },
-    create () {
+    create() {
       this.form.post('/api/processes').then(response => {
         if (response.data.status) {
           this.$swal.toast_success(response.data.message)

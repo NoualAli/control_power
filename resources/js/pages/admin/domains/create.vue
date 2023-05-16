@@ -6,10 +6,8 @@
         <div class="grid gap-10 my-4">
           <!-- Familliies -->
           <div class="col-12 col-md-6">
-            <NLSelect
-              v-model="form.familly_id" :form="form" name="familly_id" label="Famille" :options="familliesList"
-              label-required :multiple="false"
-            />
+            <NLSelect v-model="form.familly_id" :form="form" name="familly_id" label="Famille" :options="familliesList"
+              label-required :multiple="false" />
           </div>
           <!-- Name -->
           <div class="col-12 col-md-6">
@@ -29,9 +27,9 @@
 import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 export default {
-  layout: 'backend',
-  middleware: ['auth', 'admin'],
-  data () {
+  layout: 'MainLayout',
+  middleware: [ 'auth', 'admin' ],
+  data() {
     return {
       familliesList: [],
       form: new Form({
@@ -45,13 +43,13 @@ export default {
       famillies: 'famillies/all'
     })
   },
-  created () {
+  created() {
     this.$store.dispatch('famillies/fetchAll', false).then(() => {
       this.familliesList = this.famillies.all
     })
   },
   methods: {
-    create () {
+    create() {
       this.form.post('/api/domains').then(response => {
         if (response.data.status) {
           this.$swal.toast_success(response.data.message)

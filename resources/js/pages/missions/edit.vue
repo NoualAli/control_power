@@ -22,12 +22,10 @@
 
         <!-- Controllers -->
         <div class="col-12">
-          <NLSelect
-            v-model="form.controllers" name="controllers" label="Contrôleurs"
-            placeholder="Veuillez choisir un ou plusieurs contrôleurs" :options="controllersList" :form="form" label-required :multiple="true"
-            loading-text="Chargement de la liste des contrôleurs en cours"
-            no-options-text="Vous n'avez aucun contrôleur de disponible pour le moment"
-          />
+          <NLSelect v-model="form.controllers" name="controllers" label="Contrôleurs"
+            placeholder="Veuillez choisir un ou plusieurs contrôleurs" :options="controllersList" :form="form"
+            label-required :multiple="true" loading-text="Chargement de la liste des contrôleurs en cours"
+            no-options-text="Vous n'avez aucun contrôleur de disponible pour le moment" />
         </div>
 
         <!-- Start date -->
@@ -96,17 +94,17 @@ import { mapGetters } from 'vuex'
 import Form from 'vform'
 export default {
   components: { NLSelect },
-  layout: 'backend',
-  middleware: ['auth'],
-  metaInfo () {
+  layout: 'MainLayout',
+  middleware: [ 'auth' ],
+  metaInfo() {
     return { title: 'Edition mission de contrôle' }
   },
-  breadcrumb () {
+  breadcrumb() {
     return {
       label: 'Edition mission ' + this.currentCampaign?.reference
     }
   },
-  data () {
+  data() {
     return {
       form: new Form({
         note: null,
@@ -126,14 +124,14 @@ export default {
     config: 'missions/config',
     mission: 'missions/current'
   }),
-  created () {
+  created() {
     this.initData()
   },
   methods: {
     /**
      * Initialise les données
      */
-    initData () {
+    initData() {
       this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId, edit: true }).then(() => {
         if (this.mission.current.remaining_days_before_start > 5) {
           this.$store.dispatch('missions/fetchConfig', this.mission.current.campaign.id).then(() => {
@@ -156,7 +154,7 @@ export default {
     /**
      * Mise à jour de la mission
      */
-    update () {
+    update() {
       this.form.put('/api/missions/' + this.mission.current.id).then(response => {
         if (response.data.status) {
           this.$swal.toast_success(response.data.message)

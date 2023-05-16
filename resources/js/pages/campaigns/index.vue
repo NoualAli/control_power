@@ -8,15 +8,11 @@
       </div>
     </div>
     <ContentBody>
-      <NLDatatable
-        namespace="campaigns" :config="config" :filters="filters" @delete="destroy" @show="show" @edit="edit"
-        @filterReset="resetData()"
-      >
+      <NLDatatable namespace="campaigns" :config="config" :filters="filters" @delete="destroy" @show="show" @edit="edit"
+        @filterReset="resetData()">
         <template #actions="item">
-          <button
-            v-if="!item?.item?.validated_by_id && can('validate_control_campaign')" class="btn btn-info has-icon"
-            @click.stop="validate(item.item)"
-          >
+          <button v-if="!item?.item?.validated_by_id && can('validate_control_campaign')" class="btn btn-info has-icon"
+            @click.stop="validate(item.item)">
             <i class="las la-check icon" />
           </button>
         </template>
@@ -36,9 +32,9 @@ export default {
   components: {
     ContentBody, NLDatatable
   },
-  layout: 'backend',
-  middleware: ['auth'],
-  data () {
+  layout: 'MainLayout',
+  middleware: [ 'auth' ],
+  data() {
     return {
       rowSelected: null,
       config: {
@@ -70,9 +66,9 @@ export default {
           {
             label: 'Etat',
             field: 'validated_by_id',
-            hide: !hasRole(['dcp', 'cdcr']),
+            hide: !hasRole([ 'dcp', 'cdcr' ]),
             methods: {
-              showField (item) {
+              showField(item) {
                 return item.validated_by_id ? 'Validé' : 'En attente de validation'
               }
             }
@@ -96,7 +92,7 @@ export default {
         },
         validated: {
           label: 'Etat',
-          hide: !hasRole(['dcp', 'cdcr']),
+          hide: !hasRole([ 'dcp', 'cdcr' ]),
           data: [
             {
               id: 0,
@@ -134,16 +130,16 @@ export default {
       controlCampaigns: 'campaigns/paginated'
     })
   },
-  created () {
+  created() {
     this.initFilters()
     this.initData()
   },
   methods: {
-    resetData () {
+    resetData() {
       this.initFilters(false)
       this.initData()
     },
-    initYearsList () {
+    initYearsList() {
       let start = 2023
       const currentYear = new Date().getFullYear()
       const years = []
@@ -157,7 +153,7 @@ export default {
      *
      * @param {Object} item
      */
-    show (item) {
+    show(item) {
       this.$router.push({ name: 'campaign', params: { campaignId: item.id } })
     },
 
@@ -165,7 +161,7 @@ export default {
      *
      * @param {Object} item
      */
-    edit (item) {
+    edit(item) {
       this.$router.push({ name: 'campaigns-edit', params: { campaignId: item.id } })
     },
     /**
@@ -173,7 +169,7 @@ export default {
      *
      * @param {Object} item
      */
-    validate (item) {
+    validate(item) {
       this.$swal.confirm({ title: 'Validation', message: 'Validation de la campagne de contrôle ' + item.reference, icon: 'success' }).then(response => {
         if (response.isConfirmed) {
           api.put('campaigns/' + item.id + '/validate').then(response => {
@@ -194,7 +190,7 @@ export default {
      *
      * @param {Object} item
      */
-    destroy (item) {
+    destroy(item) {
       this.$swal.confirm_destroy().then(response => {
         if (response.isConfirmed) {
           api.delete('campaigns/' + item.id).then(response => {
@@ -214,12 +210,12 @@ export default {
     /**
      * Initialise les données
      */
-    initData () {
+    initData() {
       this.$store.dispatch('campaigns/fetchPaginated').then(() => {
         this.config.data = this.controlCampaigns.paginated
       })
     },
-    initFilters (reloadFilters = true) {
+    initFilters(reloadFilters = true) {
       if (reloadFilters) {
         this.initYearsList()
       }

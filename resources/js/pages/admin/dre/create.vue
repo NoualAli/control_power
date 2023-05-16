@@ -25,9 +25,9 @@
 <script>
 import { Form } from 'vform'
 export default {
-  layout: 'backend',
-  middleware: ['auth', 'admin'],
-  data () {
+  layout: 'MainLayout',
+  middleware: [ 'auth', 'admin' ],
+  data() {
     return {
       form: new Form({
         name: '',
@@ -36,7 +36,7 @@ export default {
     }
   },
   methods: {
-    create () {
+    create() {
       this.form.post('/api/dre').then(response => {
         if (response.data.status) {
           this.$swal.toast_success(response.data.message)

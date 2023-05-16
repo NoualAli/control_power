@@ -25,20 +25,20 @@
 import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 export default {
-  layout: 'backend',
-  middleware: ['auth', 'admin'],
+  layout: 'MainLayout',
+  middleware: [ 'auth', 'admin' ],
   computed: {
     ...mapGetters({
       dre: 'dre/current'
     })
   },
-  created () {
+  created() {
     this.$store.dispatch('dre/fetch', this.$route.params.dre).then(() => {
       const data = this.dre.current
       this.form.fill(data)
     })
   },
-  data () {
+  data() {
     return {
       form: new Form({
         name: '',
@@ -47,7 +47,7 @@ export default {
     }
   },
   methods: {
-    update () {
+    update() {
       this.form.put('/api/dre/' + this.$route.params.dre).then(response => {
         if (response.data.status) {
           this.$swal.toast_success(response.data.message)

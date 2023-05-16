@@ -2,19 +2,15 @@
   <div v-if="can('view_mission')">
     <ContentHeader v-if="campaignId">
       <template #actions>
-        <router-link
-          v-if="can('create_mission')" :to="{ name: 'missions-create', params: { campaignId } }"
-          class="btn btn-info"
-        >
+        <router-link v-if="can('create_mission')" :to="{ name: 'missions-create', params: { campaignId } }"
+          class="btn btn-info">
           Ajouter
         </router-link>
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable
-        :filters="filters" namespace="missions" :config="config" @show="show" @delete="destroy" @edit="edit"
-        @filterReset="resetData"
-      />
+      <NLDatatable :filters="filters" namespace="missions" :config="config" @show="show" @delete="destroy" @edit="edit"
+        @filterReset="resetData" />
     </ContentBody>
   </div>
 </template>
@@ -28,9 +24,9 @@ export default {
   components: {
     ContentHeader, ContentBody
   },
-  layout: 'backend',
-  middleware: ['auth'],
-  data () {
+  layout: 'MainLayout',
+  middleware: [ 'auth' ],
+  data() {
     return {
       // initiated: false,
       rowSelected: null,
@@ -49,7 +45,7 @@ export default {
           {
             label: 'Dre',
             field: 'dre',
-            hide: hasRole(['cdc', 'ci'])
+            hide: hasRole([ 'cdc', 'ci' ])
           },
           {
             label: 'Agence',
@@ -58,7 +54,7 @@ export default {
           {
             label: 'Contrôle sur place par',
             field: 'agency_controllers_str',
-            hide: hasRole(['ci'])
+            hide: hasRole([ 'ci' ])
           },
           {
             label: 'Date début',
@@ -71,10 +67,10 @@ export default {
           {
             label: 'Moyenne',
             field: 'avg_score',
-            hide: hasRole(['cdc', 'ci']),
+            hide: hasRole([ 'cdc', 'ci' ]),
             isHtml: true,
             methods: {
-              showField (item) {
+              showField(item) {
                 const score = Number(item.avg_score)
                 let style = 'text-dark text-bold'
                 if (score === 1) {
@@ -99,7 +95,7 @@ export default {
             field: 'state',
             isHtml: true,
             methods: {
-              showField (item) {
+              showField(item) {
                 let state = 'done'
                 if (item.state === 'En cours') {
                   state = 'inProgress'
@@ -143,7 +139,7 @@ export default {
             label: 'Taux de progression',
             field: 'progress_status',
             methods: {
-              showField (item) {
+              showField(item) {
                 return item.progress_status + '%'
               }
             }
@@ -152,11 +148,11 @@ export default {
         actions: {
           show: (item) => {
             // console.log(this.can('view_mission'), item.progress_status.toString, item?.dre_report?.is_validated)
-            if (hasRole(['cdc', 'ci'])) {
+            if (hasRole([ 'cdc', 'ci' ])) {
               return this.can('view_mission')
-            } else if (hasRole(['dcp', 'cdcr'])) {
+            } else if (hasRole([ 'dcp', 'cdcr' ])) {
               return this.can('view_mission') && item.progress_status.toString() === '100' && item?.dre_report?.is_validated
-            } else if (hasRole(['da', 'dg', 'cdrcp', 'ig', 'der'])) {
+            } else if (hasRole([ 'da', 'dg', 'cdrcp', 'ig', 'der' ])) {
               return this.can('view_mission') && item.progress_status.toString() === '100' && item?.dcp_validation_at
             } else {
               return this.can('view_mission') && item.progress_status.toString() === '100'
@@ -184,7 +180,7 @@ export default {
           multiple: true,
           data: null,
           value: null,
-          hide: hasRole(['cdc', 'ci'])
+          hide: hasRole([ 'cdc', 'ci' ])
         },
         agency: {
           label: 'Agence',
@@ -199,7 +195,7 @@ export default {
           multiple: true,
           data: null,
           value: null,
-          hide: hasRole(['ci'])
+          hide: hasRole([ 'ci' ])
         },
         between: {
           cols: 'col-lg-3',
@@ -227,7 +223,7 @@ export default {
     campaign: 'campaigns/current',
     filtersData: 'missions/filters'
   }),
-  created () {
+  created() {
     this.initFilters()
     this.initData()
   },
@@ -237,17 +233,17 @@ export default {
   // },
 
   methods: {
-    resetData () {
+    resetData() {
       // this.initFilters(false)
       this.initData()
     },
-    initData () {
+    initData() {
       let mission = null
       const length = this.$breadcrumbs.value.length
       if (this.$route.params.campaignId) {
         this.$store.dispatch('campaigns/fetch', { campaignId: this.$route.params.campaignId }).then((data) => {
-          if (this.$breadcrumbs.value[length - 2].label === 'Détails campagne') {
-            this.$breadcrumbs.value[length - 2].label = 'Détails campagne ' + data.reference
+          if (this.$breadcrumbs.value[ length - 2 ].label === 'Détails campagne') {
+            this.$breadcrumbs.value[ length - 2 ].label = 'Détails campagne ' + data.reference
           }
         })
         mission = this.$store.dispatch('missions/fetchPaginated', this.$route.params.campaignId)
@@ -263,7 +259,7 @@ export default {
     /**
      * Initialise les filtres
      */
-    initFilters () {
+    initFilters() {
       this.$store.dispatch('missions/fetchFilters').then(() => {
         this.filters.campaign.data = this.filtersData.filters.campaigns
         this.filters.dre.data = this.filtersData.filters.dres
@@ -271,13 +267,13 @@ export default {
         this.filters.dre_controllers.data = this.filtersData.filters.dre_controllers
       })
     },
-    show (item) {
+    show(item) {
       this.$router.push({ name: 'mission', params: { missionId: item.id } })
     },
-    edit (item) {
+    edit(item) {
       this.$router.push({ name: 'missions-edit', params: { missionId: item.id } })
     },
-    destroy (item) {
+    destroy(item) {
       this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
           this.$api.delete('missions/' + item.id).then(response => {

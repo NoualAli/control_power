@@ -15,10 +15,8 @@
 
           <!-- Permissions -->
           <div class="col-12 col-md-6">
-            <NLSelect
-              v-model="form.permissions" :form="form" name="permissions" label="Permissions"
-              :options="permissionsList" :multiple="true" label-required
-            />
+            <NLSelect v-model="form.permissions" :form="form" name="permissions" label="Permissions"
+              :options="permissionsList" :multiple="true" label-required />
           </div>
         </div>
         <!-- Submit Button -->
@@ -34,9 +32,9 @@
 import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 export default {
-  layout: 'backend',
-  middleware: ['auth', 'admin'],
-  data () {
+  layout: 'MainLayout',
+  middleware: [ 'auth', 'admin' ],
+  data() {
     return {
       permissionsList: [],
       form: new Form({
@@ -51,7 +49,7 @@ export default {
       permissions: 'permissions/all'
     })
   },
-  created () {
+  created() {
     this.$store.dispatch('permissions/fetchAll').then(() => {
       this.permissions.all.forEach(permission => {
         permission = {
@@ -64,7 +62,7 @@ export default {
   },
 
   methods: {
-    create () {
+    create() {
       this.form.post('/api/roles').then(response => {
         if (response.data.status) {
           this.$swal.toast_success(response.data.message)

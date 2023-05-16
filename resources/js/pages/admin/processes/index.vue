@@ -8,10 +8,8 @@
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable
-        :config="config" title="Liste des processus" namespace="processes" @show="show" @delete="destroy"
-        @edit="edit"
-      />
+      <NLDatatable :config="config" title="Liste des processus" namespace="processes" @show="show" @delete="destroy"
+        @edit="edit" />
       <NLModal :show="rowSelected" @close="rowSelected = null">
         <template #title>
           Informations processus
@@ -70,12 +68,12 @@ import NLDatatable from '../../../components/NLDatatable'
 import { mapGetters } from 'vuex'
 export default {
   components: { NLDatatable },
-  layout: 'backend',
-  middleware: ['auth', 'admin'],
-  metaInfo () {
+  layout: 'MainLayout',
+  middleware: [ 'auth', 'admin' ],
+  metaInfo() {
     return { title: 'Processus' }
   },
-  data () {
+  data() {
     return {
       rowSelected: null,
       config: {
@@ -119,7 +117,7 @@ export default {
       process: 'processes/current'
     })
   },
-  created () {
+  created() {
     this.initData()
   },
   methods: {
@@ -127,7 +125,7 @@ export default {
      * Affiche les détailles de la resource
      * @param {Object} item
      */
-    show (item) {
+    show(item) {
       this.rowSelected = item
       // this.$store.dispatch('processes/fetch', { id: item.id }).then(() => { console.log(this.process); this.rowSelected = this.process.current })
     },
@@ -136,7 +134,7 @@ export default {
      * Redirige vers la page d'edition
      * @param {Object} item
      */
-    edit (item) {
+    edit(item) {
       this.$router.push({ name: 'processes-edit', params: { process: item.id } })
     },
 
@@ -144,7 +142,7 @@ export default {
      * Supprime la ressource
      * @param {Object} item
      */
-    destroy (item) {
+    destroy(item) {
       this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
           this.$api.delete('processes/' + item.id).then(response => {
@@ -166,7 +164,7 @@ export default {
     /**
      * Initialise les données
      */
-    initData () {
+    initData() {
       this.$store.dispatch('processes/fetchPaginated').then(() => {
         this.config.data = this.processes.paginated
       })

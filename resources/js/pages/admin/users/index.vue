@@ -101,7 +101,7 @@ import { user } from '../../../plugins/user'
 import api from '../../../plugins/api'
 export default {
     components: { NLDatatable, NLModal, Avatar },
-    layout: 'backend',
+    layout: 'MainLayout',
     middleware: [ 'auth', 'admin' ],
     // metaInfo () {
     //   return { title: 'Utilisateurs' }

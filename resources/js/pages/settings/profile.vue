@@ -27,10 +27,8 @@
 
           <!-- Email -->
           <div class="col-12 col-lg-6 col-md-6">
-            <NLInput
-              v-model="infoForm.email" :form="infoForm" name="email" label="Adresse e-mail" label-required
-              type="email"
-            />
+            <NLInput v-model="infoForm.email" :form="infoForm" name="email" label="Adresse e-mail" label-required
+              type="email" />
           </div>
         </div>
         <!-- Submit Button -->
@@ -46,25 +44,19 @@
         <div class="grid gap-3 my-4">
           <!-- Current password -->
           <div class="col-12 col-lg-4">
-            <NLInput
-              v-model="passwordForm.current_password" :form="passwordForm" label="Mot de passe actuel"
-              name="current_password" type="password" label-required
-            />
+            <NLInput v-model="passwordForm.current_password" :form="passwordForm" label="Mot de passe actuel"
+              name="current_password" type="password" label-required />
           </div>
 
           <!-- Password -->
           <div class="col-12 col-lg-4">
-            <NLInput
-              v-model="passwordForm.password" :form="passwordForm" label="Mot de passe" name="password"
-              type="password" label-required
-            />
+            <NLInput v-model="passwordForm.password" :form="passwordForm" label="Mot de passe" name="password"
+              type="password" label-required />
           </div>
           <!-- Password Confirmation -->
           <div class="col-12 col-lg-4">
-            <NLInput
-              v-model="passwordForm.password_confirmation" :form="passwordForm" label="Confirmation mot de passe"
-              name="password_confirmation" type="password" label-required
-            />
+            <NLInput v-model="passwordForm.password_confirmation" :form="passwordForm" label="Confirmation mot de passe"
+              name="password_confirmation" type="password" label-required />
           </div>
         </div>
         <!-- Submit Button -->
@@ -86,13 +78,13 @@ import { mapGetters } from 'vuex'
 import { user } from '../../plugins/user'
 
 export default {
-  layout: 'backend',
+  layout: 'MainLayout',
 
-  metaInfo () {
+  metaInfo() {
     return { title: 'Profil' }
   },
 
-  data () {
+  data() {
     return {
       infoForm: new Form({
         username: '',
@@ -147,15 +139,15 @@ export default {
     logins: 'auth/logins'
   }),
 
-  created () {
+  created() {
     this.$store.dispatch('auth/fetchCurrentUserLogins').then(() => { this.config.data = this.logins })
     this.infoForm.keys().forEach(key => {
-      this.infoForm[key] = this.user[key]
+      this.infoForm[ key ] = this.user[ key ]
     })
   },
 
   methods: {
-    updateProfile () {
+    updateProfile() {
       this.infoForm.patch('/api/settings/profile/' + user().id).then(response => {
         if (response.data.status) {
           this.$swal.toast_success(response.data.message)
@@ -166,7 +158,7 @@ export default {
         console.log(error)
       })
     },
-    updatePassword () {
+    updatePassword() {
       this.passwordForm.patch('/api/settings/password/' + user().id).then(response => {
         if (response.data.status) {
           this.$swal.toast_success(response.data.message)

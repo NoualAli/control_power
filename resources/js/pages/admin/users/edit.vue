@@ -28,10 +28,8 @@
 
               <!-- Email -->
               <div class="col-12 col-lg-6 col-md-6">
-                <NLInput
-                  v-model="form.email" :form="form" name="email" label="Adresse e-mail" type="email"
-                  label-required
-                />
+                <NLInput v-model="form.email" :form="form" name="email" label="Adresse e-mail" type="email"
+                  label-required />
               </div>
 
               <!-- Dres -->
@@ -41,10 +39,8 @@
 
               <!-- Role -->
               <div class="col-12">
-                <NLSelect
-                  v-model="form.roles" :form="form" name="roles" label="Rôles" :options="rolesList"
-                  :multiple="true"
-                />
+                <NLSelect v-model="form.roles" :form="form" name="roles" label="Rôles" :options="rolesList"
+                  :multiple="true" />
               </div>
             </div>
 
@@ -61,17 +57,13 @@
             <div class="grid gap-10 my-4">
               <!-- Password -->
               <div class="col-12 col-lg-4">
-                <NLInput
-                  v-model="passwordForm.password" :form="passwordForm" label="Mot de passe" name="password"
-                  type="password" label-required
-                />
+                <NLInput v-model="passwordForm.password" :form="passwordForm" label="Mot de passe" name="password"
+                  type="password" label-required />
               </div>
               <!-- Password Confirmation -->
               <div class="col-12 col-lg-4">
-                <NLInput
-                  v-model="passwordForm.password_confirmation" :form="passwordForm"
-                  label="Confirmation mot de passe" name="password_confirmation" type="password" label-required
-                />
+                <NLInput v-model="passwordForm.password_confirmation" :form="passwordForm"
+                  label="Confirmation mot de passe" name="password_confirmation" type="password" label-required />
               </div>
             </div>
             <!-- Submit Button -->
@@ -102,9 +94,9 @@ export default {
     // Notification,
     // DefaultContainer
   },
-  layout: 'backend',
-  middleware: ['auth', 'admin'],
-  data () {
+  layout: 'MainLayout',
+  middleware: [ 'auth', 'admin' ],
+  data() {
     return {
       form: new Form({
         username: null,
@@ -128,7 +120,7 @@ export default {
     dres: 'dre/all',
     roles: 'roles/all'
   }),
-  created () {
+  created() {
     this.$store.dispatch('roles/fetchAll').then(() => {
       this.rolesList = this.roles.all
     })
@@ -143,7 +135,7 @@ export default {
     })
   },
   methods: {
-    updateInfos () {
+    updateInfos() {
       this.$swal.confirm_update().then((action) => {
         if (action.isConfirmed) {
           this.form.put('/api/users/info/' + this.user.current.id).then(response => {
@@ -159,7 +151,7 @@ export default {
         }
       })
     },
-    updatePassword () {
+    updatePassword() {
       this.$swal.confirm_update().then((action) => {
         if (action.isConfirmed) {
           this.passwordForm.put('/api/users/password/' + this.user.current.id).then(response => {

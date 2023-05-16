@@ -12,31 +12,25 @@
       <div class="grid my-2">
         <!-- Control campaigns -->
         <div v-if="!campaignId" class="col-12 col-lg-6">
-          <NLSelect
-            v-model="form.control_campaign_id" name="control_campaign_id"
-            label="Campagne de contrôle" placeholder="Veuillez choisir une campagne de contrôle" :options="campaignsList"
-            :form="form" label-required
-          />
+          <NLSelect v-model="form.control_campaign_id" name="control_campaign_id" label="Campagne de contrôle"
+            placeholder="Veuillez choisir une campagne de contrôle" :options="campaignsList" :form="form"
+            label-required />
         </div>
         <div v-else class="col-12 col-lg-6">
           <NLInput v-model="currentCampaignReference" name="campaign" label="Campagne de contrôle" readonly />
         </div>
         <!-- Agencies -->
         <div class="col-12 col-lg-6">
-          <NLSelect
-            v-model="form.agency" name="agency" label="Agence" placeholder="Veuillez choisir une agence"
-            :options="agenciesList" :form="form" label-required
-          />
+          <NLSelect v-model="form.agency" name="agency" label="Agence" placeholder="Veuillez choisir une agence"
+            :options="agenciesList" :form="form" label-required />
         </div>
 
         <!-- Controllers -->
         <div class="col-12">
-          <NLSelect
-            v-model="form.controllers" name="controllers" label="Contrôleurs"
-            placeholder="Veuillez choisir un ou plusieurs contrôleurs" :options="controllersList" :form="form" label-required :multiple="true"
-            loading-text="Chargement de la liste des contrôleurs en cours"
-            no-options-text="Vous n'avez aucun contrôleur de disponible pour le moment"
-          />
+          <NLSelect v-model="form.controllers" name="controllers" label="Contrôleurs"
+            placeholder="Veuillez choisir un ou plusieurs contrôleurs" :options="controllersList" :form="form"
+            label-required :multiple="true" loading-text="Chargement de la liste des contrôleurs en cours"
+            no-options-text="Vous n'avez aucun contrôleur de disponible pour le moment" />
         </div>
 
         <!-- Start date -->
@@ -108,9 +102,9 @@ export default {
   components: {
     ContentHeader, NLSelect
   },
-  layout: 'backend',
-  middleware: ['auth'],
-  data () {
+  layout: 'MainLayout',
+  middleware: [ 'auth' ],
+  data() {
     return {
       campaignId: null,
       form: new Form({
@@ -143,17 +137,17 @@ export default {
     }
   },
 
-  created () {
+  created() {
     this.initData()
   },
-  mounted () {
+  mounted() {
     this.initData()
   },
   methods: {
     /**
      * Initialise les données
      */
-    initData () {
+    initData() {
       if (this.$route.params.campaignId) {
         this.form.control_campaign_id = this.$route.params.campaignId
         this.campaignId = this.$route.params.campaignId
@@ -165,13 +159,13 @@ export default {
         this.currentCampaign = this.config?.config.currentCampaign
         this.currentCampaignReference = this.config?.config.currentCampaign.reference
         const length = this.$breadcrumbs.value.length
-        if (this.$breadcrumbs.value[length - 1].lable === 'Répartition des missions de contrôle de la campagne') {
-          this.$breadcrumbs.value[length - 1].lable = 'Répartition des missions de contrôle de la campagne ' + this.currentCampaignReference
-          this.$breadcrumbs.value[length - 1].parent = 'campaign'
+        if (this.$breadcrumbs.value[ length - 1 ].lable === 'Répartition des missions de contrôle de la campagne') {
+          this.$breadcrumbs.value[ length - 1 ].lable = 'Répartition des missions de contrôle de la campagne ' + this.currentCampaignReference
+          this.$breadcrumbs.value[ length - 1 ].parent = 'campaign'
         }
       })
     },
-    resetForm () {
+    resetForm() {
       this.form.note = null
       this.form.start = null
       this.form.end = null
@@ -181,7 +175,7 @@ export default {
     /**
      * Création de la mission
      */
-    create () {
+    create() {
       this.form.post('/api/missions').then(response => {
         if (response.data.status) {
           this.$swal.toast_success(response.data.message)

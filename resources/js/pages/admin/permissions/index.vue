@@ -8,10 +8,8 @@
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable
-        :config="config" title="Liste des permissions" namespace="permissions" @show="show" @delete="destroy"
-        @edit="edit"
-      />
+      <NLDatatable :config="config" title="Liste des permissions" namespace="permissions" @show="show" @delete="destroy"
+        @edit="edit" />
       <NLModal :show="rowSelected" @close="rowSelected = null">
         <template #title>
           Informations permission
@@ -64,12 +62,12 @@ import { mapGetters } from 'vuex'
 import api from '~/plugins/api'
 export default {
   components: { NLDatatable },
-  layout: 'backend',
-  middleware: ['auth', 'admin'],
-  metaInfo () {
+  layout: 'MainLayout',
+  middleware: [ 'auth', 'admin' ],
+  metaInfo() {
     return { title: 'Permissions' }
   },
-  data () {
+  data() {
     return {
       rowSelected: null,
       config: {
@@ -105,7 +103,7 @@ export default {
       permission: 'permissions/current'
     })
   },
-  created () {
+  created() {
     this.initData()
   },
   methods: {
@@ -113,7 +111,7 @@ export default {
      * Affiche les détailles de la resource
      * @param {Object} item
      */
-    show (item) {
+    show(item) {
       // this.$store.dispatch('permissions/fetch', item.id).then(() => )
       this.rowSelected = item
     },
@@ -122,7 +120,7 @@ export default {
      * Redirige vers la page d'edition
      * @param {Object} item
      */
-    edit (item) {
+    edit(item) {
       this.$router.push({ name: 'permissions-edit', params: { permission: item.id } })
     },
 
@@ -130,7 +128,7 @@ export default {
      * Supprime la ressource
      * @param {Object} item
      */
-    destroy (item) {
+    destroy(item) {
       this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
           api.delete('permissions/' + item.id).then(response => {
@@ -152,7 +150,7 @@ export default {
     /**
      * Initialise les données
      */
-    initData () {
+    initData() {
       this.$store.dispatch('permissions/fetchPaginated').then(() => {
         this.config.data = this.permissions.paginated
       })

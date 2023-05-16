@@ -5,16 +5,12 @@
         <!-- Control campaign base informations -->
         <div class="grid">
           <div class="col-12">
-            <NLWyswyg
-              v-model="form.description" :form="form" name="description" label="Description"
-              placeholder="Ajouter une description" label-required
-            />
+            <NLWyswyg v-model="form.description" :form="form" name="description" label="Description"
+              placeholder="Ajouter une description" label-required />
           </div>
           <div class="col-12 col-lg-4">
-            <NLInput
-              name="reference" :value="nextReference?.nextReference" :form="form" label="Référence" readonly
-              label-required
-            />
+            <NLInput name="reference" :value="nextReference?.nextReference" :form="form" label="Référence" readonly
+              label-required />
           </div>
           <div class="col-12 col-lg-4 col-tablet-6">
             <NLInput v-model="form.start" :form="form" name="start" label="Date début" type="date" label-required />
@@ -23,11 +19,9 @@
             <NLInput v-model="form.end" :form="form" name="end" label="Date fin" type="date" label-required />
           </div>
           <div class="col-12">
-            <NLSelect
-              v-model="form.pcf" :form="form" name="pcf" :options="pcfList" label="PCF" :multiple="true"
+            <NLSelect v-model="form.pcf" :form="form" name="pcf" :options="pcfList" label="PCF" :multiple="true"
               placeholder="Choisissez un ou plusieurs PCF" no-options-text="Aucun PCF disponible"
-              loading-text="Chargement des PCF en cours..." label-required
-            />
+              loading-text="Chargement des PCF en cours..." label-required />
           </div>
         </div>
         <div v-if="showValidation" class="col-12">
@@ -47,9 +41,9 @@ import { mapGetters } from 'vuex'
 import { Form } from 'vform'
 import { hasRole } from '~/plugins/user'
 export default {
-  layout: 'backend',
-  middleware: ['auth'],
-  data () {
+  layout: 'MainLayout',
+  middleware: [ 'auth' ],
+  data() {
     return {
       pcfList: [],
       showValidation: false,
@@ -66,7 +60,7 @@ export default {
     famillies: 'famillies/all',
     nextReference: 'campaigns/nextReference'
   }),
-  created () {
+  created() {
     this.fetchNextReference()
     this.loadPFC()
     this.showValidation = hasRole('dcp')
@@ -75,10 +69,10 @@ export default {
     /**
      * Ajoute une nouvelle campagne de contrôle
      */
-    clear () {
+    clear() {
       this.form.reset()
     },
-    create () {
+    create() {
       this.form.post('/api/campaigns').then(response => {
         if (response.data.status) {
           this.$swal.toast_success(response.data.message)
@@ -94,13 +88,13 @@ export default {
     /**
      * Récupère la prochaine référence
      */
-    fetchNextReference () {
+    fetchNextReference() {
       this.$store.dispatch('campaigns/fetchNextReference')
     },
     /**
      * Récupère la liste des familles -> domaines -> processus
      */
-    loadPFC () {
+    loadPFC() {
       this.$store.dispatch('famillies/fetchAll', true).then(() => {
         this.pcfList = this.famillies.all
       })

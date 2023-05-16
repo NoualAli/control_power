@@ -8,12 +8,12 @@ import NLDatatable from '../../components/NLDatatable'
 import { mapGetters } from 'vuex'
 export default {
   components: { NLDatatable },
-  layout: 'backend',
-  middleware: ['auth'],
+  layout: 'MainLayout',
+  middleware: [ 'auth' ],
   // metaInfo() {
   //   return { title: 'Références PCF' }
   // },
-  data () {
+  data() {
     return {
       config: {
         data: null,
@@ -71,11 +71,11 @@ export default {
       filtersData: 'references/filters'
     })
   },
-  created () {
+  created() {
     this.initData()
   },
   methods: {
-    initData () {
+    initData() {
       this.$store.dispatch('references/fetchPCF').then(() => {
         this.config.data = this.pcf.pcf
         this.initFilters()
@@ -84,7 +84,7 @@ export default {
     /**
      * Initialise les filtres
      */
-    initFilters () {
+    initFilters() {
       this.$store.dispatch('references/fetchPCF', true).then(() => {
         this.filters.familly.data = this.filtersData.filters.famillies
         this.filters.domain.data = this.filtersData.filters.domains

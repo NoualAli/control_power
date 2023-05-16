@@ -2,34 +2,26 @@
   <ContentBody>
     <div class="grid gap-4 mb-4">
       <div class="col-12 col-lg-3">
-        <button
-          class="btn btn-info w-100" :class="{ 'is-active': currentSection == 'realisationStates' }"
-          @click="setCurrentSection('realisationStates')"
-        >
+        <button class="btn btn-info w-100" :class="{ 'is-active': currentSection == 'realisationStates' }"
+          @click="setCurrentSection('realisationStates')">
           Suivi de la réalisation des missions
         </button>
       </div>
       <div class="col-12 col-lg-3">
-        <button
-          class="btn btn-warning w-100" :class="{ 'is-active': currentSection == 'scores' }"
-          @click="setCurrentSection('scores')"
-        >
+        <button class="btn btn-warning w-100" :class="{ 'is-active': currentSection == 'scores' }"
+          @click="setCurrentSection('scores')">
           Statistiques des notations
         </button>
       </div>
       <div class="col-12 col-lg-3">
-        <button
-          class="btn btn-danger-dark w-100" :class="{ 'is-active': currentSection == 'anomalies' }"
-          @click="setCurrentSection('anomalies')"
-        >
+        <button class="btn btn-danger-dark w-100" :class="{ 'is-active': currentSection == 'anomalies' }"
+          @click="setCurrentSection('anomalies')">
           Statistiques des anomalies
         </button>
       </div>
       <div class="col-12 col-lg-3">
-        <button
-          class="btn btn-danger-dark w-100" :class="{ 'is-active': currentSection == 'majorFacts' }"
-          @click="setCurrentSection('majorFacts')"
-        >
+        <button class="btn btn-danger-dark w-100" :class="{ 'is-active': currentSection == 'majorFacts' }"
+          @click="setCurrentSection('majorFacts')">
           Statistiques des faits majeur
         </button>
       </div>
@@ -91,10 +83,8 @@
         </div>
         <div class="container d-flex align-center justify-center w-100 h-100 ">
           <div class="wrapper-doughnut-chartjs ">
-            <Pie
-              id="missionsPercentage" :data="charts.missionsPercentage" :options="circularChartOptions"
-              data-title="situation_des_rapports"
-            />
+            <Pie id="missionsPercentage" :data="charts.missionsPercentage" :options="circularChartOptions"
+              data-title="situation_des_rapports" />
           </div>
         </div>
       </div>
@@ -137,10 +127,8 @@
         </div>
         <div class="container d-flex align-center justify-center w-100 h-100 ">
           <div class="wrapper-doughnut-chartjs ">
-            <Bar
-              id="globalScores" :data="charts.globalScores" :options="horizontalBarOptions"
-              data-title="classement_des_notations"
-            />
+            <Bar id="globalScores" :data="charts.globalScores" :options="horizontalBarOptions"
+              data-title="classement_des_notations" />
           </div>
         </div>
       </div>
@@ -155,10 +143,8 @@
         </div>
         <div class="container d-flex align-center justify-center  w-100 h-100">
           <div class="wrapper-doughnut-chartjs ">
-            <Doughnut
-              id="avgScoreByFamily" :data="charts.avgScoreByFamily"
-              :options="circularChartOptions" data-title="notations_moyennes_par_famille"
-            />
+            <Doughnut id="avgScoreByFamily" :data="charts.avgScoreByFamily" :options="circularChartOptions"
+              data-title="notations_moyennes_par_famille" />
           </div>
         </div>
       </div>
@@ -218,10 +204,8 @@
         </div>
         <div class="container d-flex align-center justify-center w-100 h-100">
           <div class="wrapper-doughnut-chartjs ">
-            <Doughnut
-              id="familiesAnomalies" :data="anomaliesData.charts.families"
-              :options="circularChartOptions" data-title="anomalies_par_familles"
-            />
+            <Doughnut id="familiesAnomalies" :data="anomaliesData.charts.families" :options="circularChartOptions"
+              data-title="anomalies_par_familles" />
           </div>
         </div>
       </div>
@@ -235,10 +219,8 @@
         </div>
         <div class="container d-flex align-center justify-center w-100 h-100 ">
           <div class="wrapper-doughnut-chartjs ">
-            <Bar
-              id="dresAnomalies" :data="anomaliesData.charts.dres" :options="chartOptions"
-              data-title="anomalies_par_dre"
-            />
+            <Bar id="dresAnomalies" :data="anomaliesData.charts.dres" :options="chartOptions"
+              data-title="anomalies_par_dre" />
           </div>
         </div>
       </div>
@@ -336,10 +318,8 @@
         </div>
         <div class="container d-flex align-center justify-center w-100 h-100">
           <div class="wrapper-doughnut-chartjs ">
-            <Doughnut
-              id="familiesMajorFacts" :data="majorFactsData.charts.families"
-              :options="circularChartOptions" data-title="faits_majeur_par_famille"
-            />
+            <Doughnut id="familiesMajorFacts" :data="majorFactsData.charts.families" :options="circularChartOptions"
+              data-title="faits_majeur_par_famille" />
           </div>
         </div>
       </div>
@@ -353,10 +333,8 @@
         </div>
         <div class="container d-flex align-center justify-center w-100 h-100 ">
           <div class="wrapper-doughnut-chartjs ">
-            <Bar
-              id="dresMajorFacts" :data="majorFactsData.charts.dres" :options="chartOptions"
-              data-title="faits_majeur_par_dre"
-            />
+            <Bar id="dresMajorFacts" :data="majorFactsData.charts.dres" :options="chartOptions"
+              data-title="faits_majeur_par_dre" />
           </div>
         </div>
       </div>
@@ -462,12 +440,12 @@ export default {
     Pie
     // InProgress
   },
-  layout: 'backend',
-  middleware: ['auth'],
+  layout: 'MainLayout',
+  middleware: [ 'auth' ],
   // metaInfo () {
   //   return { title: 'Tableau de bord ssss' }
   // },
-  data () {
+  data() {
     return {
       currentSection: null,
       anomaliesData: {
@@ -518,7 +496,7 @@ export default {
     /**
      * Set default chart options
      */
-    chartOptions () {
+    chartOptions() {
       return {
         responsive: true,
         maintainAspectRatio: true,
@@ -529,7 +507,7 @@ export default {
     /**
      * Set circular chart options
      */
-    circularChartOptions () {
+    circularChartOptions() {
       const options = { ...this.chartOptions }
       options.maintainAspectRatio = false
       return options
@@ -537,7 +515,7 @@ export default {
     /**
      * Set horizontal bar options
      */
-    horizontalBarOptions () {
+    horizontalBarOptions() {
       const options = {
         indexAxis: 'y',
         ...this.chartOptions
@@ -545,7 +523,7 @@ export default {
       return options
     }
   },
-  created () {
+  created() {
     this.setCurrentSection('realisationStates')
   },
   methods: {
@@ -556,7 +534,7 @@ export default {
      *
      * @return {void}
      */
-    setCurrentSection (section) {
+    setCurrentSection(section) {
       const UCFsection = section.charAt(0).toUpperCase() + section.slice(1)
       if (this.currentSection !== section) {
         this.$store.dispatch('statistics/fetch' + UCFsection).then(() => {
@@ -596,7 +574,7 @@ export default {
         })
       }
     },
-    savePNG (element) {
+    savePNG(element) {
       const canvas = document.querySelector(`#${element}`)
       const title = canvas.dataset.title
       const dataURL = canvas.toDataURL('image/jpeg')

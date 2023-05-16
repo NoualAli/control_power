@@ -21,20 +21,20 @@
 import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 export default {
-  layout: 'backend',
-  middleware: ['auth', 'admin'],
+  layout: 'MainLayout',
+  middleware: [ 'auth', 'admin' ],
   computed: {
     ...mapGetters({
       familly: 'famillies/current'
     })
   },
-  created () {
+  created() {
     this.$store.dispatch('famillies/fetch', { id: this.$route.params.familly }).then(() => {
       const data = this.familly.current
       this.form.fill(data)
     })
   },
-  data () {
+  data() {
     return {
       form: new Form({
         name: '',
@@ -43,7 +43,7 @@ export default {
     }
   },
   methods: {
-    update () {
+    update() {
       this.form.put('/api/famillies/' + this.$route.params.familly).then(response => {
         if (response.data.status) {
           this.$swal.toast_success(response.data.message)

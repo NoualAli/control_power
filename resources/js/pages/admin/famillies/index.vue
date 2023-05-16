@@ -18,9 +18,9 @@ import NLDatatable from '../../../components/NLDatatable'
 import { mapGetters } from 'vuex'
 export default {
   components: { NLDatatable },
-  layout: 'backend',
-  middleware: ['auth', 'admin'],
-  metaInfo () {
+  layout: 'MainLayout',
+  middleware: [ 'auth', 'admin' ],
+  metaInfo() {
     return { title: 'Famille' }
   },
   computed: {
@@ -28,7 +28,7 @@ export default {
       famillies: 'famillies/paginated'
     })
   },
-  data () {
+  data() {
     return {
       rowSelected: null,
       config: {
@@ -58,7 +58,7 @@ export default {
       }
     }
   },
-  created () {
+  created() {
     this.initData()
   },
   methods: {
@@ -66,7 +66,7 @@ export default {
      * Affiche les détailles de la resource
      * @param {Object} item
      */
-    show (item) {
+    show(item) {
       this.$store.dispatch('famillies/fetch', item.id).then(() => this.rowSelected = this.familly.current)
     },
 
@@ -74,7 +74,7 @@ export default {
      * Redirige vers la page d'edition
      * @param {Object} item
      */
-    edit (item) {
+    edit(item) {
       this.$router.push({ name: 'famillies-edit', params: { familly: item.id } })
     },
 
@@ -82,7 +82,7 @@ export default {
      * Supprime la ressource
      * @param {Object} item
      */
-    destroy (item) {
+    destroy(item) {
       this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
           api.delete('famillies/' + item.id).then(response => {
@@ -103,7 +103,7 @@ export default {
     /**
      * Initialise les données
      */
-    initData () {
+    initData() {
       this.$store.dispatch('famillies/fetchPaginated').then(() => {
         this.config.data = this.famillies.paginated
       })

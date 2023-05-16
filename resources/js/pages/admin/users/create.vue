@@ -36,25 +36,19 @@
 
           <!-- Roles -->
           <div class="col-12">
-            <NLSelect
-              v-model="form.roles" :form="form" name="roles" label="Rôles" :options="rolesList"
-              :multiple="true"
-            />
+            <NLSelect v-model="form.roles" :form="form" name="roles" label="Rôles" :options="rolesList"
+              :multiple="true" />
           </div>
 
           <!-- Password -->
           <div class="col-12 col-lg-4">
-            <NLInput
-              v-model="form.password" :form="form" label="Password" name="password" type="password"
-              label-required
-            />
+            <NLInput v-model="form.password" :form="form" label="Password" name="password" type="password"
+              label-required />
           </div>
           <!-- Password Confirmation -->
           <div class="col-12 col-lg-4">
-            <NLInput
-              v-model="form.password_confirmation" :form="form" label="confirm_password"
-              name="password_confirmation" type="password" label-required
-            />
+            <NLInput v-model="form.password_confirmation" :form="form" label="confirm_password"
+              name="password_confirmation" type="password" label-required />
           </div>
         </div>
         <!-- Submit Button -->
@@ -70,9 +64,9 @@
 import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 export default {
-  layout: 'backend',
-  middleware: ['auth', 'admin'],
-  data () {
+  layout: 'MainLayout',
+  middleware: [ 'auth', 'admin' ],
+  data() {
     return {
       form: new Form({
         username: null,
@@ -93,7 +87,7 @@ export default {
     roles: 'roles/all',
     dres: 'dre/all'
   }),
-  created () {
+  created() {
     this.$store.dispatch('roles/fetchAll').then(() => {
       this.rolesList = this.roles.all
     })
@@ -102,7 +96,7 @@ export default {
     })
   },
   methods: {
-    create () {
+    create() {
       this.form.post('/api/users').then(response => {
         if (response.data.status) {
           this.$swal.toast_success(response.data.message)
@@ -114,11 +108,11 @@ export default {
         console.log(error)
       })
     },
-    getPlaceholder (id) {
+    getPlaceholder(id) {
       if (id) {
         let placeholder = null
         placeholder = this.dres?.all.filter((dre) => dre.id == id)
-        return placeholder[0] !== undefined ? placeholder[0]?.name : null
+        return placeholder[ 0 ] !== undefined ? placeholder[ 0 ]?.name : null
       }
     }
   }

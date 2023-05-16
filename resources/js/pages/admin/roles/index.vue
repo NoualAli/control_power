@@ -8,10 +8,8 @@
       </template>
     </ContentHeader>
     <ContentBody>
-      <NLDatatable
-        :config="config" title="Liste des rôles" namespace="roles" @show="show" @delete="destroy"
-        @edit="edit"
-      />
+      <NLDatatable :config="config" title="Liste des rôles" namespace="roles" @show="show" @delete="destroy"
+        @edit="edit" />
       <NLModal :show="rowSelected" @close="rowSelected = null">
         <template #title>
           Informations rôle
@@ -68,9 +66,9 @@ import NLDatatable from '../../../components/NLDatatable'
 import { mapGetters } from 'vuex'
 export default {
   components: { NLDatatable },
-  layout: 'backend',
-  middleware: ['auth', 'admin'],
-  metaInfo () {
+  layout: 'MainLayout',
+  middleware: [ 'auth', 'admin' ],
+  metaInfo() {
     return { title: 'Rôles' }
   },
   computed: {
@@ -80,7 +78,7 @@ export default {
       roles: 'roles/paginated'
     })
   },
-  data () {
+  data() {
     return {
       rowSelected: null,
       config: {
@@ -111,7 +109,7 @@ export default {
       }
     }
   },
-  created () {
+  created() {
     this.initData()
   },
   methods: {
@@ -119,7 +117,7 @@ export default {
      * Affiche les détailles de la resource
      * @param {Object} item
      */
-    show (item) {
+    show(item) {
       this.$store.dispatch('roles/fetch', item.id).then(() => this.rowSelected = this.role.current)
     },
 
@@ -127,7 +125,7 @@ export default {
      * Redirige vers la page d'edition
      * @param {Object} item
      */
-    edit (item) {
+    edit(item) {
       this.$router.push({ name: 'roles-edit', params: { role: item.id } })
     },
 
@@ -135,7 +133,7 @@ export default {
      * Supprime la ressource
      * @param {Object} item
      */
-    destroy (item) {
+    destroy(item) {
       this.$swal.confirm_destroy().then((action) => {
         if (action.isConfirmed) {
           api.delete('roles/' + item.id).then(response => {
@@ -156,7 +154,7 @@ export default {
     /**
      * Initialise les données
      */
-    initData () {
+    initData() {
       this.$store.dispatch('roles/fetchPaginated').then(() => {
         this.config.data = this.roles.paginated
       })
