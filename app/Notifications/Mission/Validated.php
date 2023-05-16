@@ -64,7 +64,10 @@ class Validated extends Notification
      */
     public function via($notifiable)
     {
-        return !app()->environment('hostinger') ? ['mail', 'database'] : ['database'];
+        if (app()->environment('production')) {
+            return ['mail', 'database'];
+        }
+        return ['database'];
     }
 
     /**
