@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import NLSidebar from '../components/NLSidebar'
+import NLSidebar from '../components/Sidebar/NLSidebar'
 import Child from '../components/Child'
 import { mapGetters } from 'vuex'
 
