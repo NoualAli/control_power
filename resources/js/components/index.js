@@ -17,35 +17,39 @@ import ContentBody from './ContentBody'
 import NLRepeater from './Inputs/NLRepeater'
 import NLSwitch from './Inputs/NLSwitch'
 import NLFile from './Inputs/NLFile'
+import NLContainer from './NLContainer'
+import NLHeading from './NLHeading'
 // Components that are registered globaly.
-export function useComponents (app) {
-  [
-    NLFile,
-    NLSwitch,
-    NLRepeater,
-    ContentBody,
-    ContentHeader,
-    NLSelect,
-    NLModal,
-    NLTextarea,
-    DefaultContainer,
-    NLDatatable,
-    NLCheckableContainer,
-    NLCheckbox,
-    NLRadio,
-    NLButton,
-    NLWyswyg,
-    NLInput,
-    // Card,
-    Child,
-    // Button,
-    // Checkbox,
-    HasError,
-    // AlertError,
-    // AlertSuccess,
-    Notification,
-    AlertErrors
-  ].forEach(Component => {
-    app.component(Component.name, Component)
-  })
+export function useComponents(app) {
+    [
+        NLContainer,
+        NLHeading,
+        NLFile,
+        NLSwitch,
+        NLRepeater,
+        ContentBody,
+        ContentHeader,
+        NLSelect,
+        NLModal,
+        NLTextarea,
+        DefaultContainer,
+        NLDatatable,
+        NLCheckableContainer,
+        NLCheckbox,
+        NLRadio,
+        NLButton,
+        NLWyswyg,
+        NLInput,
+        // Card,
+        Child,
+        // Button,
+        // Checkbox,
+        HasError,
+        // AlertError,
+        // AlertSuccess,
+        Notification,
+        AlertErrors
+    ].forEach(Component => {
+        app.component(Component.name, Component)
+    })
 }

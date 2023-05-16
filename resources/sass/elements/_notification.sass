@@ -1,0 +1,64 @@
+// .notification
+//     background-color: $light
+//     border-radius: 0.375em
+//     position: relative
+//     padding: 1.25rem 2.5rem 1.25rem 1.5rem
+//     &.is-primary
+//         background-color: $primary
+//     &.is-secondary
+//         background-color: $secondary
+//     &.is-success
+//         background-color: $success
+//     &.is-info
+//         background-color: $info
+//     &.is-warning
+//         background-color: $warning
+//     &.is-danger
+//         background-color: $danger
+//     &.is-light
+//         background-color: $light
+//         color: #333
+//     &.is-dark
+//         background-color: $dark
+
+// @import "../utilities/mixins"
+
+$notification-background-color: $light !default
+$notification-radius: 0.375em !default
+$notification-padding: 1.25rem 2.5rem 1.25rem 1.5rem !default
+$notification-padding-ltr: 1.25rem 2.5rem 1.25rem 1.5rem !default
+$notification-padding-rtl: 1.25rem 1.5rem 1.25rem 2.5rem !default
+
+$notification-colors: $colors-list !default
+
+.notification
+    background-color: $notification-background-color
+    border-radius: $notification-radius
+    padding: $notification-padding
+    position: relative
+    &.ltr
+        padding: $notification-padding-ltr
+    &.rtl
+        padding: $notification-padding-rtl
+    a:not(.button):not(.dropdown-item)
+        color: currentColor
+        text-decoration: underline
+    strong
+        color: currentColor
+    pre code
+        background: transparent
+    .title,
+    .subtitle,
+    .content
+        color: currentColor
+    @each $value in $colors-list
+        $color: nth($value, 2)
+        $color-invert: darkOrWhiteFont(nth($value, 2))
+        $color-light: lighten(nth($value, 2), 30%)
+        $color-dark: darken(nth($value, 2), 30%)
+        &.is-#{nth($value, 1)}
+            background-color: $color
+            color: $color-invert
+            &.v-light
+                background-color: $color-light
+                color: $color-dark
