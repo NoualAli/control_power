@@ -51,6 +51,16 @@ trait HasDres
     {
         return $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->dre())->distinct();
     }
+
+    /**
+     * Scopes
+     */
+    public function scopeWhereAgencies($query, array $agencies)
+    {
+        return $query->whereHas('agencies', function ($query) use ($agencies) {
+            $query->whereIn('agencies.id', $agencies);
+        });
+    }
 }
 // levé / non levé
 // Action engagé / Action à engagé - Cause
