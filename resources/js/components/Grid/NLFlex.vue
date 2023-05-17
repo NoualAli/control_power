@@ -194,8 +194,5 @@ export default {
             return this.isFullCentered ? 'full-center' : null
         },
     },
-    created() {
-        console.log(this.extraClass);
-    }
 }
 </script>
