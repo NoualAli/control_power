@@ -23,8 +23,8 @@
             &.justify-#{nth($justify, 1)}
                 justify-content: nth($justify, 2)
         @each $align in $flex-align
-            &.align-#{$align}
-                align-items: $align
+            &.align-#{nth($align, 1)}
+                align-items: nth($align, 2)
         @each $direction in $flex-directions
             &.is-#{$direction}
                 flex-direction: $direction

@@ -46,9 +46,9 @@
                 </div>
             </div>
             <div class="content-container">
-                <div class="container py-6">
+                <NLContainer extraClass="py-6">
                     <Child />
-                </div>
+                </NLContainer>
             </div>
         </div>
     </div>

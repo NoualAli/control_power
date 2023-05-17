@@ -19,9 +19,15 @@ import NLSwitch from './Inputs/NLSwitch'
 import NLFile from './Inputs/NLFile'
 import NLContainer from './NLContainer'
 import NLHeading from './NLHeading'
+import NLGrid from './Grid/NLGrid'
+import NLColumn from './Grid/NLColumn'
+import NLFlex from './Grid/NLFlex'
 // Components that are registered globaly.
 export function useComponents(app) {
     [
+        NLGrid,
+        NLColumn,
+        NLFlex,
         NLContainer,
         NLHeading,
         NLFile,
