@@ -1,9 +1,8 @@
 <template>
   <div class="form-check-container" :class="{ 'is-inline': isInline }">
     <label v-if="label" class="form-label" :for="id"
-           :class="{ 'text-danger': form?.errors.has(name), 'is-required': labelRequired }"
-    >
-      {{ $t(label) }}
+      :class="{ 'text-danger': form?.errors.has(name), 'is-required': labelRequired }">
+      {{ label }}
     </label>
     <slot />
     <has-error v-if="form" :form="form" :field="name" class="text-danger" />

@@ -55,7 +55,7 @@
             <a href="logout" @click.prevent="logout" class="sidebar-item logout-btn">
                 <i class="las la-sign-out-alt sidebar-icon"></i>
                 <span class="sidebar-icon_text">
-                    {{ $t('logout') }}
+                    Déconnexion
                 </span>
             </a>
         </div>

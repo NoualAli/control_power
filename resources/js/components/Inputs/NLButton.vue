@@ -2,7 +2,7 @@
   <button class="btn my-2" :class="[{ 'is-loading': loading }, finalType]" :disabled="loading">
     <span class="btn-loader">Envoie en cours</span>
     <span class="btn-text">
-      {{ $t(label) }}
+      {{ label }}
     </span>
   </button>
 </template>
@@ -16,7 +16,7 @@ export default {
     type: { type: String, default: '' }
   },
   computed: {
-    finalType () {
+    finalType() {
       return this.type ? 'btn-' + this.type : null
     }
   }
