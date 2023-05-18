@@ -36,6 +36,7 @@
             appName: "{{ $config['appName'] }}",
             locale: "{{ $config['locale'] }}",
             csrfToken: "{{ csrf_token() }}",
+            baseUrl: "{{ env('APP_URL') }}"
         }
     </script>
     <link rel="stylesheet" href="{{ $appCss }}">
