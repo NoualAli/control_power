@@ -53,7 +53,7 @@ class ControlCampaignController extends Controller
         if ($fetchAll) {
             $campaigns = $campaigns->get()->pluck('reference', 'id');
         } else {
-            $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+            $perPage = request('perPage', false) ? request()->perPage : 10;
             $campaigns = ControlCampaignResource::collection($campaigns->paginate($perPage)->onEachSide(1));
         }
         return $campaigns;
@@ -293,7 +293,7 @@ class ControlCampaignController extends Controller
         if ($search) {
             $processes = $processes->filter(fn ($process) => preg_match('/' . strtolower($search) . '/', strtolower($process->name)));
         }
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $perPage = request('perPage', false) ? request()->perPage : 10;
         return ProcessResource::collection(paginate($processes, '/api/campaigns/processes/' . $campaign->id, $perPage));
     }
 }

@@ -36,7 +36,7 @@ class RoleController extends Controller
         if ($search) {
             $roles = $roles->search($search);
         }
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $perPage = request('perPage', false) ? request()->perPage : 10;
         $roles = request()->has('fetchAll') ? formatForSelect($roles->get()->toArray(), 'full_name') : RoleResource::collection($roles->paginate($perPage)->onEachSide(1));
         return $roles;
     }

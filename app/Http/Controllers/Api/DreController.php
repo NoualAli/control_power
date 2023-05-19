@@ -36,7 +36,7 @@ class DreController extends Controller
             $dres = $dres->search($search);
         }
 
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $perPage = request('perPage', false) ? request()->perPage : 10;
         $dres = request()->has('fetchAll') ? $dres->get()->toJson() : DreResource::collection($dres->paginate($perPage)->onEachSide(1));
         if (request()->has('withAgencies')) {
             $dres = $this->loadWithAgencies();

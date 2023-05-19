@@ -13,11 +13,12 @@ class ReferenceController extends Controller
 {
     public function pcf()
     {
-        $controlPoints = ControlPoint::with(['familly', 'process', 'domain']);
+        $controlPoints = ControlPoint::with(['familly', 'process', 'domain'])->withRowNumber();
+
         $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
-        $onlyFiltersData = request()->has('onlyFiltersData');
+        $onlyFiltersData = request('onlyFiltersData', false);
 
         if ($filter) {
             $controlPoints = $controlPoints->filter($filter);
@@ -30,9 +31,9 @@ class ReferenceController extends Controller
         if ($sort) {
             $controlPoints = $controlPoints->sortByMultiple($sort);
         }
-        // dd($controlPoints->toSql());
+
         if (!$onlyFiltersData) {
-            $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+            $perPage = request('perPage', false) ? request()->perPage : 10;
             return PCFResource::collection($controlPoints->paginate($perPage)->onEachSide(1));
         }
         return $this->filtersData();

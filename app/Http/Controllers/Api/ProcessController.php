@@ -35,7 +35,7 @@ class ProcessController extends Controller
         if ($search) {
             $processes = $processes->search($search);
         }
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $perPage = request('perPage', false) ? request()->perPage : 10;
         $processes = request()->has('fetchAll') ? $processes->get()->toJson() : ProcessResource::collection($processes->paginate($perPage)->onEachSide(1));
         return $processes;
     }

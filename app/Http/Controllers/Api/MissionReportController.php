@@ -10,7 +10,7 @@ use App\Models\MissionReport;
 use App\Models\User;
 use App\Notifications\Mission\Validated;
 use Exception;
-use Illuminate\Database\Eloquent\Model;
+
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;

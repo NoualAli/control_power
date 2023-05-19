@@ -37,7 +37,7 @@ class DomainController extends Controller
         if ($search) {
             $domains = $domains->search($search);
         }
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $perPage = request('perPage', false) ? request()->perPage : 10;
         $domains = request()->has('fetchAll') ? $domains->get()->toJson() : DomainResource::collection($domains->paginate($perPage)->onEachSide(1));
         return $domains;
     }

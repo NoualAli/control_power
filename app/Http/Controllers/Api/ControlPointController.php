@@ -34,7 +34,7 @@ class ControlPointController extends Controller
         if ($search) {
             $controlPoints = $controlPoints->search($search);
         }
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $perPage = request('perPage', false) ? request()->perPage : 10;
         $controlPoints = request()->has('fetchAll') ? $controlPoints->get()->toJson() : ControlPointResource::collection($controlPoints->paginate($perPage)->onEachSide(1));
         return $controlPoints;
     }

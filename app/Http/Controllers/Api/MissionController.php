@@ -57,7 +57,7 @@ class MissionController extends Controller
                 $missions = $missions->filter($filter);
             }
 
-            $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+            $perPage = request('perPage', false) ? request()->perPage : 10;
             $fetchAll = request('fetchAll', null);
             if ($fetchAll) {
                 $missions = formatForSelect($missions->get()->toArray(), 'reference');
@@ -217,7 +217,7 @@ class MissionController extends Controller
                 return $this->loadFilters($processes);
             }
             $processes = $this->filterData($processes);
-            $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+            $perPage = request('perPage', false) ? request()->perPage : 10;
             return MissionProcessesResource::collection(paginate($processes, '/api/missions/' . $mission->id, $perPage));
         }
 

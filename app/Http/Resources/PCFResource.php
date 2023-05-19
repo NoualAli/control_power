@@ -15,6 +15,7 @@ class PCFResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'row_number' => $this->row_number,
             'familly_name' => $this->familly->name,
             'domain_name' => $this->domain->name,
             'process_name' => $this->process->name,

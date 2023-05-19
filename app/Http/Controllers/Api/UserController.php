@@ -63,7 +63,7 @@ class UserController extends Controller
         } elseif (request()->has('dre_id')) {
             $users = $users->where('dre_id', request()->dre_id)->get();
         } else {
-            $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+            $perPage = request('perPage', false) ? request()->perPage : 10;
             $users = UserResource::collection($users->paginate($perPage)->onEachSide(1));
         }
 

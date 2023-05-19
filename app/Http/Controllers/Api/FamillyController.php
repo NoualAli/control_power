@@ -60,7 +60,7 @@ class FamillyController extends Controller
         } elseif (request()->has('fetchAll') && !request()->has('withChildren')) {
             $famillies = formatForSelect($famillies->get()->toArray());
         }
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $perPage = request('perPage', false) ? request()->perPage : 10;
         $famillies = request()->has('fetchAll') ? $famillies : FamillyResource::collection($famillies->paginate($perPage)->onEachSide(1));
         return $famillies;
     }

@@ -41,7 +41,7 @@ class AgencyController extends Controller
         if ($search) {
             $agencies = $agencies->search($search);
         }
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $perPage = request('perPage', false) ? request()->perPage : 10;
         $agencies = request()->has('fetchAll') ? $agencies->get()->toJson() : AgencyResource::collection($agencies->paginate($perPage)->onEachSide(1));
         return $agencies;
     }

@@ -36,7 +36,7 @@ class CategoryController extends Controller
         if ($search) {
             $categories = $categories->search($search);
         }
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $perPage = request('perPage', false) ? request()->perPage : 10;
         $categories = request()->has('fetchAll') ? $categories->get()->toJson() : CategoryResource::collection($categories->paginate($perPage)->onEachSide(1));
         return $categories;
     }

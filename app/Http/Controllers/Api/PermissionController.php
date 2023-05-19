@@ -34,7 +34,7 @@ class PermissionController extends Controller
         if ($search) {
             $permissions = $permissions->search($search);
         }
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $perPage = request('perPage', false) ? request()->perPage : 10;
 
         $permissions = request()->has('fetchAll') ? $permissions->get()->toJson() : PermissionResource::collection($permissions->paginate($perPage)->onEachSide(1));
 
