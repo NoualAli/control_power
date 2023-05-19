@@ -417,79 +417,6 @@
 //     color: $dracula
 //     font-weight: 700
 
-// .mission-state
-//     position: relative
-//     display: block
-//     height: 20px
-//     width: 20px
-//     border-radius: 50%
-//     border: 3px solid $success
-//     overflow: hidden
-//     background-color: $white
-//     &::before
-//         content: ''
-//         position: absolute
-//         left: 0
-//         top: 0
-//         width: 100%
-//         height: 100%
-//         background-color: $white
-//     &.todo
-//         border-color: darken($info, 10)
-//     &.todo-late
-//         border-color: darken($danger, 10)
-//     &.inProgress
-//         border-color: darken($info, 10)
-//         &::before
-//             background-color: $info
-//             width: 50%
-//     &.inProgress-late
-//         border-color: darken($danger, 10)
-//         &::before
-//             background-color: $danger
-//             width: 50%
-//     &.done
-//         border-color: darken($info, 10)
-//         &::before
-//             background-color: $info
-//     &.late
-//         border-color: darken($danger, 10)
-//         &::before
-//             background-color: $danger
-//     &.pending-validation
-//         border-color: darken($warning, 10)
-//     &.validated
-//         color: $white !important
-//         border-color: darken($success, 10)
-//     &.first-validation
-//         color: $white !important
-//         border-color: darken($success, 10)
-//         &::before
-//             background-color: $success
-//         &::after
-//             content: "\f00c"
-//             font-family: "Line Awesome Free"
-//             font-size: 10px
-//             position: absolute
-//             top: 50%
-//             left: 50%
-//             transform: translate(-50%, -50%)
-//             font-weight: 900
-//     &.second-validation
-//         color: $white !important
-//         border-color: darken($success, 10)
-//         &::before
-//             background-color: $success
-//         &::after
-//             content: "\f560"
-//             font-family: "Line Awesome Free"
-//             font-size: 10px
-//             position: absolute
-//             top: 50%
-//             left: 50%
-//             transform: translate(-50%, -50%)
-//             font-weight: 900
-
 // @keyframes ring
 //     0%
 //         -webkit-transform: rotate(-15deg)
@@ -925,3 +852,89 @@ ul
     color: $white !important
     font-weight: 700
     transition: .1s ease
+
+.mission-state
+    position: relative
+    display: block
+    height: 20px
+    width: 20px
+    border-radius: 50%
+    border: 3px solid $success
+    overflow: hidden
+    background-color: $white
+    &::before
+        content: ''
+        position: absolute
+        left: 0
+        top: 0
+        width: 100%
+        height: 100%
+        background-color: $white
+    &.todo
+        border-color: darken($info, 10)
+    &.todo-late
+        border-color: darken($danger, 10)
+    &.inProgress
+        border-color: darken($info, 10)
+        &::before
+            background-color: $info
+            width: 50%
+    &.inProgress-late
+        border-color: darken($danger, 10)
+        &::before
+            background-color: $danger
+            width: 50%
+    &.done
+        border-color: darken($info, 10)
+        &::before
+            background-color: $info
+    &.late
+        border-color: darken($danger, 10)
+        &::before
+            background-color: $danger
+    &.pending-validation
+        border-color: darken($warning, 10)
+    &.validated
+        color: $white !important
+        border-color: darken($success, 10)
+    &.first-validation
+        color: $white !important
+        border-color: darken($success, 10)
+        &::before
+            background-color: $success
+        &::after
+            content: "\f00c"
+            font-family: "Line Awesome Free"
+            font-size: 10px
+            position: absolute
+            top: 50%
+            left: 50%
+            transform: translate(-50%, -50%)
+            font-weight: 900
+    &.second-validation
+        color: $white !important
+        border-color: darken($success, 10)
+        &::before
+            background-color: $success
+        &::after
+            content: "\f560"
+            font-family: "Line Awesome Free"
+            font-size: 10px
+            position: absolute
+            top: 50%
+            left: 50%
+            transform: translate(-50%, -50%)
+            font-weight: 900
+
+.pcf-component
+    position: relative
+    margin-bottom: 3rem
+    &::after
+        content: ''
+        position: absolute
+        bottom: -10px
+        left: 50%
+        height: 1px
+        width: 75%
+        transform: translateX(-50%)
+        background-color: $primary
