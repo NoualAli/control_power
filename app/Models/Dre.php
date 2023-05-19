@@ -5,10 +5,10 @@ namespace App\Models;
 use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
-class Dre extends Model
+class Dre extends BaseModel
 {
     use HasFactory, HasRelationships, IsSearchable, IsSortable;
 

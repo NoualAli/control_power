@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -15,9 +16,9 @@ trait UploadFiles
      * @param array|Illuminate\Http\UploadedFile $files
      * @param string $folder
      *
-     * @return [type]
+     * @return void
      */
-    public function upload(Model $attachable, array|UploadedFile $files, string $folder = 'media')
+    public function upload(BaseModel | Model $attachable, array|UploadedFile $files, string $folder = 'media')
     {
         try {
             if (is_array($files)) {

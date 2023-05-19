@@ -8,11 +8,11 @@ use App\Traits\IsFilterable;
 use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
-class ControlCampaign extends Model
+class ControlCampaign extends BaseModel
 {
     use HasFactory, SoftDeletes, IsSearchable, IsSortable, IsFilterable, HasDates, HasRelationships, HasScopes;
 

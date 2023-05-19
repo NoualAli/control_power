@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class UserHasAgency extends Model
+
+class UserHasAgency extends BaseModel
 {
     // Define the table name and primary key
     protected $table = 'user_has_agencies';

@@ -5,9 +5,9 @@ namespace App\Models;
 use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class Role extends Model
+
+class Role extends BaseModel
 {
     use HasFactory, IsSearchable, IsSortable;
 

@@ -6,10 +6,9 @@ use App\Traits\IsFilterable;
 use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use \Znck\Eloquent\Traits\BelongsToThrough;
 
-class ControlPoint extends Model
+class ControlPoint extends BaseModel
 {
     use HasFactory, IsFilterable, BelongsToThrough, IsSearchable, IsSortable;
 
