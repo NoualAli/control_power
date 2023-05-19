@@ -30,7 +30,7 @@ class DreController extends Controller
         }
 
         if ($order) {
-            $dres = $dres->orderByMultiple($order);
+            $dres = $dres->sortByMultiple($order);
         }
         if ($search) {
             $dres = $dres->search($search);

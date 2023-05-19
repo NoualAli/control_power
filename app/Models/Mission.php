@@ -6,7 +6,7 @@ use App\Traits\HasDates;
 use App\Traits\HasScopes;
 use App\Traits\HasUuid;
 use App\Traits\IsFilterable;
-use App\Traits\IsOrderable;
+use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,7 +17,7 @@ use Znck\Eloquent\Traits\BelongsToThrough;
 
 class Mission extends Model
 {
-    use HasFactory, BelongsToThrough, HasRelationships, SoftDeletes, IsSearchable, IsOrderable, HasUuid, HasDates, HasScopes, IsFilterable;
+    use HasFactory, BelongsToThrough, HasRelationships, SoftDeletes, IsSearchable, IsSortable, HasUuid, HasDates, HasScopes, IsFilterable;
 
     protected $filter = 'App\Filters\Mission';
 

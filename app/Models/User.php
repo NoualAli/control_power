@@ -6,7 +6,7 @@ use App\Notifications\ResetPassword;
 use App\Traits\HasDres;
 use App\Traits\HasRoles;
 use App\Traits\IsFilterable;
-use App\Traits\IsOrderable;
+use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,7 +20,7 @@ class User extends Authenticatable implements JWTSubject
         HasFactory,
         HasRoles,
         HasDres,
-        IsOrderable,
+        IsSortable,
         IsSearchable,
         IsFilterable;
 

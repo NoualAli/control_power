@@ -36,7 +36,7 @@ class AgencyController extends Controller
         }
 
         if ($order) {
-            $agencies = $agencies->orderByMultiple($order);
+            $agencies = $agencies->sortByMultiple($order);
         }
         if ($search) {
             $agencies = $agencies->search($search);

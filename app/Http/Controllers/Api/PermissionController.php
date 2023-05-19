@@ -29,7 +29,7 @@ class PermissionController extends Controller
         }
 
         if ($order) {
-            $permissions = $permissions->orderByMultiple($order);
+            $permissions = $permissions->sortByMultiple($order);
         }
         if ($search) {
             $permissions = $permissions->search($search);

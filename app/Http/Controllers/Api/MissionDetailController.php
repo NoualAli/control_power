@@ -37,7 +37,7 @@ class MissionDetailController extends Controller
                 $details = $details->where('control_campaign_id', request()->campaign_id);
             }
             if (request()->has('order')) {
-                $details = $details->orderByMultiple(request()->order);
+                $details = $details->sortByMultiple(request()->order);
             } else {
                 $details = $details->orderBy('created_at', 'DESC');
             }
@@ -100,7 +100,7 @@ class MissionDetailController extends Controller
                 $details = $details->where('control_campaign_id', request()->campaign_id);
             }
             if (request()->has('order')) {
-                $details = $details->orderByMultiple(request()->order);
+                $details = $details->sortByMultiple(request()->order);
             } else {
                 $details = $details->orderBy('created_at', 'DESC');
             }

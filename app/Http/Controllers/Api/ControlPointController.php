@@ -29,7 +29,7 @@ class ControlPointController extends Controller
         }
 
         if ($order) {
-            $controlPoints = $controlPoints->orderByMultiple($order);
+            $controlPoints = $controlPoints->sortByMultiple($order);
         }
         if ($search) {
             $controlPoints = $controlPoints->search($search);

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Traits\IsOrderable;
+use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +12,7 @@ use Znck\Eloquent\Traits\BelongsToThrough;
 
 class Familly extends Model
 {
-    use HasFactory, IsOrderable, IsSearchable, BelongsToThrough, HasRelationships;
+    use HasFactory, IsSortable, IsSearchable, BelongsToThrough, HasRelationships;
 
     protected $fillable = [
         'name',

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Traits\IsOrderable;
+use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +10,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 class Dre extends Model
 {
-    use HasFactory, HasRelationships, IsSearchable, IsOrderable;
+    use HasFactory, HasRelationships, IsSearchable, IsSortable;
 
     protected $fillable = [
         'name',

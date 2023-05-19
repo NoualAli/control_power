@@ -31,7 +31,7 @@ class FamillyController extends Controller
         }
 
         if ($order) {
-            $famillies = $famillies->orderByMultiple($order);
+            $famillies = $famillies->sortByMultiple($order);
         }
         if ($search) {
             $famillies = $famillies->search($search);

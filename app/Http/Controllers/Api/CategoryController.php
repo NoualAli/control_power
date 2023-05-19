@@ -31,7 +31,7 @@ class CategoryController extends Controller
         }
 
         if ($order) {
-            $categories = $categories->orderByMultiple($order);
+            $categories = $categories->sortByMultiple($order);
         }
         if ($search) {
             $categories = $categories->search($search);

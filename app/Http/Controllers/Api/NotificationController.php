@@ -22,7 +22,7 @@ class NotificationController extends Controller
             $notifications = auth()->user()->notifications();
 
             if (request()->has('order')) {
-                $notifications = $notifications->orderByMultiple(request()->order);
+                $notifications = $notifications->sortByMultiple(request()->order);
             } else {
                 $notifications = $notifications->orderBy('read_at', 'DESC');
             }

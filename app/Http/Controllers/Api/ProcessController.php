@@ -30,7 +30,7 @@ class ProcessController extends Controller
         }
 
         if ($order) {
-            $processes = $processes->orderByMultiple($order);
+            $processes = $processes->sortByMultiple($order);
         }
         if ($search) {
             $processes = $processes->search($search);

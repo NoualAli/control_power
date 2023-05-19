@@ -48,7 +48,7 @@ class UserController extends Controller
         }
 
         if ($order) {
-            $users = $users->orderByMultiple($order);
+            $users = $users->sortByMultiple($order);
         }
         if ($search) {
             $users = $users->search($search);

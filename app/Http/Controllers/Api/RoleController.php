@@ -31,7 +31,7 @@ class RoleController extends Controller
         }
 
         if ($order) {
-            $roles = $roles->orderByMultiple($order);
+            $roles = $roles->sortByMultiple($order);
         }
         if ($search) {
             $roles = $roles->search($search);

@@ -42,7 +42,7 @@ class MissionController extends Controller
             }
 
             if (request()->has('order')) {
-                $missions = $missions->orderByMultiple(request()->order);
+                $missions = $missions->sortByMultiple(request()->order);
             } else {
                 $missions = $missions->orderBy('created_at', 'DESC');
             }

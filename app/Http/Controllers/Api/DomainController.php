@@ -32,7 +32,7 @@ class DomainController extends Controller
         }
 
         if ($order) {
-            $domains = $domains->orderByMultiple($order);
+            $domains = $domains->sortByMultiple($order);
         }
         if ($search) {
             $domains = $domains->search($search);

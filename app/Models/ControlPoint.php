@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Traits\IsFilterable;
-use App\Traits\IsOrderable;
+use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +11,7 @@ use \Znck\Eloquent\Traits\BelongsToThrough;
 
 class ControlPoint extends Model
 {
-    use HasFactory, IsFilterable, BelongsToThrough, IsSearchable, IsOrderable;
+    use HasFactory, IsFilterable, BelongsToThrough, IsSearchable, IsSortable;
 
     protected $filter = 'App\Filters\PCF';
 
