@@ -22,16 +22,16 @@ class RoleController extends Controller
         isAbleOrAbort(['view_role', 'create_user', 'update_user']);
         $roles = new Role();
 
-        $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
-        $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
-        $filter = request()->has('filter') ? request()->filter : null;
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $filter = request('filter', null);
 
         if ($filter) {
             $roles = $roles->filter($filter);
         }
 
-        if ($order) {
-            $roles = $roles->sortByMultiple($order);
+        if ($sort) {
+            $roles = $roles->sortByMultiple($sort);
         }
         if ($search) {
             $roles = $roles->search($search);

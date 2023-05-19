@@ -21,16 +21,16 @@ class ProcessController extends Controller
     {
         $processes = new Process();
 
-        $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
-        $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
-        $filter = request()->has('filter') ? request()->filter : null;
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $filter = request('filter', null);
 
         if ($filter) {
             $processes = $processes->filter($filter);
         }
 
-        if ($order) {
-            $processes = $processes->sortByMultiple($order);
+        if ($sort) {
+            $processes = $processes->sortByMultiple($sort);
         }
         if ($search) {
             $processes = $processes->search($search);

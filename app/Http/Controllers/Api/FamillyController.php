@@ -22,16 +22,16 @@ class FamillyController extends Controller
     {
         $famillies = new Familly();
 
-        $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
-        $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
-        $filter = request()->has('filter') ? request()->filter : null;
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $filter = request('filter', null);
 
         if ($filter) {
             $famillies = $famillies->filter($filter);
         }
 
-        if ($order) {
-            $famillies = $famillies->sortByMultiple($order);
+        if ($sort) {
+            $famillies = $famillies->sortByMultiple($sort);
         }
         if ($search) {
             $famillies = $famillies->search($search);

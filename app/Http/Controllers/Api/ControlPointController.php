@@ -20,16 +20,16 @@ class ControlPointController extends Controller
     {
         $controlPoints = new ControlPoint();
 
-        $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
-        $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
-        $filter = request()->has('filter') ? request()->filter : null;
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $filter = request('filter', null);
 
         if ($filter) {
             $controlPoints = $controlPoints->filter($filter);
         }
 
-        if ($order) {
-            $controlPoints = $controlPoints->sortByMultiple($order);
+        if ($sort) {
+            $controlPoints = $controlPoints->sortByMultiple($sort);
         }
         if ($search) {
             $controlPoints = $controlPoints->search($search);

@@ -40,7 +40,7 @@ class UserController extends Controller
         isAbleOrAbort('view_user');
         $users = new User;
 
-        $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
+        $search = request('search', null);
         $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
         $filter = request()->has('filter') ? request()->filter : null;
         if ($filter) {
@@ -57,7 +57,8 @@ class UserController extends Controller
         // // $users = [];
         // $dre = Dre::findOrFail(1);
         // dd($users->agencies, $users->dres);
-        if (request()->has('fetchAll')) {
+        $fetchAll = request('fetchAll', null);
+        if ($fetchAll) {
             $users = formatForSelect($users->get()->toArray(), 'full_name');
         } elseif (request()->has('dre_id')) {
             $users = $users->where('dre_id', request()->dre_id)->get();

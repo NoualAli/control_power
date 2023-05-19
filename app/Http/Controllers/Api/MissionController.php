@@ -52,13 +52,14 @@ class MissionController extends Controller
                 $missions = $missions->search($search);
             }
 
-            $filter = request()->has('filter') ? request()->filter : null;
+            $filter = request('filter', null);
             if ($filter) {
                 $missions = $missions->filter($filter);
             }
 
             $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
-            if (request()->has('fetchAll')) {
+            $fetchAll = request('fetchAll', null);
+            if ($fetchAll) {
                 $missions = formatForSelect($missions->get()->toArray(), 'reference');
             } elseif (request()->has('export')) {
                 $missions = MissionResource::collection($missions->paginate($perPage)->onEachSide(1));

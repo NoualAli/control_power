@@ -32,11 +32,12 @@ class NotificationController extends Controller
                 $notifications = $notifications->search($search);
             }
 
-            $filter = request()->has('filter') ? request()->filter : null;
+            $filter = request('filter', null);
             if ($filter) {
                 $notifications = $notifications->filter($filter);
             }
-            if (request()->has('fetchAll')) {
+            $fetchAll = request('fetchAll', null);
+            if ($fetchAll) {
                 $notifications = $notifications->get()->pluck('reference', 'id');
             } else {
                 $notifications = NotificationResource::collection($notifications->paginate(10)->onEachSide(1));

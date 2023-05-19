@@ -44,12 +44,13 @@ class ControlCampaignController extends Controller
             $campaigns = $campaigns->search($search);
         }
 
-        $filter = request()->has('filter') ? request()->filter : null;
+        $filter = request('filter', null);
         if ($filter) {
             $campaigns = $campaigns->filter($filter);
         }
 
-        if (request()->has('fetchAll')) {
+        $fetchAll = request('fetchAll', null);
+        if ($fetchAll) {
             $campaigns = $campaigns->get()->pluck('reference', 'id');
         } else {
             $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;

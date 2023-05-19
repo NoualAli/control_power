@@ -23,16 +23,16 @@ class DomainController extends Controller
     {
         $domains = new Domain();
 
-        $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
-        $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
-        $filter = request()->has('filter') ? request()->filter : null;
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $filter = request('filter', null);
 
         if ($filter) {
             $domains = $domains->filter($filter);
         }
 
-        if ($order) {
-            $domains = $domains->sortByMultiple($order);
+        if ($sort) {
+            $domains = $domains->sortByMultiple($sort);
         }
         if ($search) {
             $domains = $domains->search($search);

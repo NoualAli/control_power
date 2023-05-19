@@ -20,16 +20,16 @@ class PermissionController extends Controller
     {
         $permissions = new Permission();
 
-        $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
-        $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
-        $filter = request()->has('filter') ? request()->filter : null;
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $filter = request('filter', null);
 
         if ($filter) {
             $permissions = $permissions->filter($filter);
         }
 
-        if ($order) {
-            $permissions = $permissions->sortByMultiple($order);
+        if ($sort) {
+            $permissions = $permissions->sortByMultiple($sort);
         }
         if ($search) {
             $permissions = $permissions->search($search);

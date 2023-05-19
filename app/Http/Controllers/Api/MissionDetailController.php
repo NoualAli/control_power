@@ -47,13 +47,14 @@ class MissionDetailController extends Controller
                 $details = $details->search($search);
             }
 
-            $filter = request()->has('filter') ? request()->filter : null;
+            $filter = request('filter', null);
 
             if ($filter) {
                 $details = $details->filter($filter);
             }
 
-            if (request()->has('fetchAll')) {
+            $fetchAll = request('fetchAll', null);
+            if ($fetchAll) {
                 $details = $details->get()->pluck('reference', 'id');
             } else {
                 $details = MissionDetailResource::collection($details->paginate(10)->onEachSide(1));
@@ -110,12 +111,13 @@ class MissionDetailController extends Controller
                 $details = $details->search($search);
             }
 
-            $filter = request()->has('filter') ? request()->filter : null;
+            $filter = request('filter', null);
             if ($filter) {
                 $details = $details->filter($filter);
             }
             $details = $details->onlyMajorFacts();
-            if (request()->has('fetchAll')) {
+            $fetchAll = request('fetchAll', null);
+            if ($fetchAll) {
                 $details = $details->get()->pluck('reference', 'id');
             } else {
                 $details = MissionDetailResource::collection($details->paginate(10)->onEachSide(1));
