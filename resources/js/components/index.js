@@ -27,6 +27,11 @@ import NLFlex from './Grid/NLFlex'
 // Components that are registered globaly.
 export function useComponents(app) {
     [
+        NLRadios,
+        NLCheckboxes,
+        NLGrid,
+        NLColumn,
+        NLFlex,
         NLContainer,
         NLHeading,
         NLFile,
