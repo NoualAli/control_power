@@ -15,11 +15,12 @@ class PCFResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'row_number' => $this->row_number,
+            'id' => $this->id,
             'familly_name' => $this->familly->name,
             'domain_name' => $this->domain->name,
             'process_name' => $this->process->name,
             'control_point_name' => $this->name,
+            'scores_str' => $this->scores_str
         ];
     }
 }
