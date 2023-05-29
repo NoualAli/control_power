@@ -79,57 +79,21 @@
         </div>
 
         <!-- Processes List -->
-        <NLDatatable namespace="campaigns" state-key="processes" :config="config"
-            title="Liste des processus de la campagne de contrôle" @show="show" @delete="destroy">
-            <template #actions="item">
-                <button
-                    v-if="campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign') && !campaign?.current.validated_by_id && config.data?.meta?.total > 1 && is('dcp')"
-                    class="btn btn-danger has-icon" @click.stop="detachProcess(item.item)">
+        <NLDatatable v-if="campaign?.current?.id" :columns="columns" :details="details" :filters="filters"
+            title="Liste des processus de la campagne de contrôle"
+            :urlPrefix="'campaigns/processes/' + campaign?.current?.id" detailsUrlPrefix="processes">
+            <template #actions-before="{ item, callback }"
+                v-if="can('edit_control_campaign') && !campaign?.current.validated_by_id && is(['dcp'])">
+                <button class="btn btn-danger has-icon" @click.stop="callback(detachProcess, item)">
                     <i class="las la-unlink icon" />
                 </button>
             </template>
         </NLDatatable>
-
-        <!-- Process details (control points) -->
-        <NLModal :show="rowSelected" @close="close">
-            <template #title>
-                <small class="tag is-info text-small">
-                    {{ rowSelected?.familly_name }}
-                </small>
-                <small class="tag is-primary-dark text-small mx-1">
-                    {{ rowSelected?.domain_name }}
-                </small>
-                <small class="tag is-warning text-small">
-                    {{ rowSelected?.name }}
-                </small>
-            </template>
-            <template #default>
-                <p class="text-bold mb-6">
-                    Points de contrôle
-                </p>
-                <div class="grid list">
-                    <div v-for="controlPoint in process?.controlPoints" :key="controlPoint.id" class="col-12 list-item">
-                        <div class="list-item-content">
-                            {{ controlPoint.label }}
-                        </div>
-                    </div>
-                </div>
-            </template>
-            <template
-                v-if="campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign') && config.data?.meta?.total > 1 && is('dcp')"
-                #footer>
-                <button class="btn btn-danger has-icon"
-                    @click.stop="destroy(rowSelected, campaign?.current) && config.data?.meta?.total > 1">
-                    <i class="las la-unlink icon" />
-                    Détacher
-                </button>
-            </template>
-        </NLModal>
     </ContentBody>
 </template>
 
 <script>
-import NLDatatable from '../../components/NLDatatable'
+import NLDatatable from '../../components/Datatable/NLDatatable'
 import { mapGetters } from 'vuex'
 import api from '../../plugins/api'
 export default {
@@ -141,37 +105,52 @@ export default {
     data() {
         return {
             forcedRerenderKey: -1,
-            rowSelected: null,
-            config: {
-                data: null,
-                columns: [
-                    {
-                        label: 'Famille',
-                        field: 'familly_name'
-                    },
-                    {
-                        label: 'Domaine',
-                        field: 'domain_name'
-                    },
-                    {
-                        label: 'Processus',
-                        field: 'name'
-                    },
-                    {
-                        label: 'Total points de contrôle',
-                        field: 'control_points_count'
-                    }
-                ],
-                actions: {
-                    show: true
+            columns: [
+                {
+                    label: 'Famille',
+                    field: 'familly_name'
+                },
+                {
+                    label: 'Domaine',
+                    field: 'domain_name'
+                },
+                {
+                    label: 'Processus',
+                    field: 'name'
+                },
+                {
+                    label: 'Total points de contrôle',
+                    field: 'control_points_count'
                 }
-            }
+            ],
+            details: [
+                {
+                    label: 'Points de contrôle',
+                    field: 'control_points.name',
+                    hasMany: true
+                }
+            ],
+            filters: {
+                family: {
+                    label: 'Famille',
+                    name: 'family',
+                    multiple: true,
+                    data: null,
+                    value: null
+                },
+                domain: {
+                    label: 'Domaine',
+                    name: 'domain',
+                    multiple: true,
+                    data: null,
+                    value: null,
+                    dependsOn: 'familly'
+                },
+            },
         }
     },
     computed: {
         ...mapGetters({
-            processes: 'campaigns/processes',
-            process: 'processes/controlPoints',
             campaign: 'campaigns/current'
         })
     },
@@ -190,9 +169,6 @@ export default {
     created() {
         this.initData()
     },
-    mounted() {
-        this.initData()
-    },
     methods: {
         initData() {
             this.close()
@@ -203,7 +179,7 @@ export default {
                     this.$breadcrumbs.value[ length - 1 ].label = 'Détails campagne ' + this.campaign.current?.reference
                 }
             })
-            this.$store.dispatch('campaigns/fetchProcesses', campaignId).then(() => { this.config.data = this.processes.processes })
+            // this.$store.dispatch('campaigns/fetchProcesses', campaignId).then(() => { this.config.data = this.processes.processes })
         },
         loadControlPoints(process) {
             this.$store.dispatch('processes/fetch', { id: process.id, onlyControlPoints: true }).then(() => { this.control_points = this.process.controlPoints })
@@ -232,7 +208,7 @@ export default {
         /**
          * Delete campaign
          */
-        destroy() {
+        destroy(e) {
             this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
                     api.delete('campaigns/' + this.campaign?.current?.id).then(response => {
@@ -254,19 +230,10 @@ export default {
          *
          * @param {Object} process
          */
-        detachProcess(process) {
-            this.$swal.confirm_destroy().then((action) => {
+        detachProcess(item) {
+            return this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
-                    api.delete('campaigns/' + this.campaign?.current?.id + '/process/' + process.id).then(response => {
-                        if (response.data.status) {
-                            this.initData()
-                            this.$swal.toast_success(response.data.message)
-                        } else {
-                            this.$swal.alert_error(response.data.message)
-                        }
-                    }).catch(error => {
-                        console.log(error)
-                    })
+                    return api.delete('campaigns/' + this.campaign?.current?.id + '/process/' + item.id)
                 }
             })
         },
