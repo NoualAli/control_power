@@ -7,6 +7,8 @@
     ];
     $appJs = mix('dist/js/app.js');
     $appCss = mix('dist/css/app.css');
+    // $appJs = env('APP_URL') . mix('dist/js/app.js');
+    // $appCss = env('APP_URL') . mix('dist/css/app.css');
 @endphp
 <!DOCTYPE html>
 <html lang="{{ $config['locale'] }}">
