@@ -5,7 +5,7 @@ namespace App\Filters\PCF;
 use App\Filters\FilterContract;
 use App\Filters\QueryFilter;
 
-class Familly extends QueryFilter implements FilterContract
+class Family extends QueryFilter implements FilterContract
 {
     public function handle($value): void
     {
