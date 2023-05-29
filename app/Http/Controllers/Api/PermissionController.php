@@ -20,23 +20,26 @@ class PermissionController extends Controller
     {
         $permissions = new Permission();
 
-        $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
-        $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
-        $filter = request()->has('filter') ? request()->filter : null;
+        $filter = request('filter', null);
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
 
         if ($filter) {
             $permissions = $permissions->filter($filter);
         }
 
-        if ($order) {
-            $permissions = $permissions->orderByMultiple($order);
+        if ($sort) {
+            $permissions = $permissions->sortByMultiple($sort);
         }
         if ($search) {
             $permissions = $permissions->search($search);
         }
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $perPage = request('perPage', 10);
 
-        $permissions = request()->has('fetchAll') ? $permissions->get()->toJson() : PermissionResource::collection($permissions->paginate($perPage)->onEachSide(1));
+        $permissions = $fetchAll ? $permissions->get()->toJson() : PermissionResource::collection($permissions->paginate($perPage)->onEachSide(1));
 
         return $permissions;
     }

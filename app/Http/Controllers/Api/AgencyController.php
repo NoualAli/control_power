@@ -9,10 +9,7 @@ use App\Http\Resources\AgencyResource;
 use App\Models\Agency;
 use App\Models\Category;
 use App\Models\Dre;
-use App\Models\Familly;
-use App\Models\Process;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AgencyController extends Controller
@@ -27,32 +24,38 @@ class AgencyController extends Controller
         isAbleOrAbort(['view_agency', 'create_dre', 'update_dre']);
         $agencies = Agency::with(['category', 'dre']);
 
-        $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
-        $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
-        $filter = request()->has('filter') ? request()->filter : null;
+        $filter = request('filter', null);
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
 
         if ($filter) {
             $agencies = $agencies->filter($filter);
         }
 
-        if ($order) {
-            $agencies = $agencies->orderByMultiple($order);
+        if ($sort) {
+            $agencies = $agencies->sortByMultiple($sort);
+        } else {
+            $agencies = $agencies->orderBy('code');
         }
+
         if ($search) {
             $agencies = $agencies->search($search);
         }
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
-        $agencies = request()->has('fetchAll') ? $agencies->get()->toJson() : AgencyResource::collection($agencies->paginate($perPage)->onEachSide(1));
+
+        $agencies = $fetchAll ? formatForSelect($agencies->get()->toArray(), 'full_name') : AgencyResource::collection($agencies->paginate($perPage)->onEachSide(1));
         return $agencies;
     }
 
     public function config()
     {
-        $categories = formatForSelect(Category::select(['id', 'name'])->get()->toArray());
-        $dres = Dre::all()->makeHidden('agencies');
-        $dres = formatForSelect($dres->toArray(), 'full_name');
+        $categories = formatForSelect(Category::without('processes')->select(['id', 'name'])->get()->toArray());
+        $dres = formatForSelect(Dre::without('agencies')->get()->toArray(), 'full_name');
+        // $dres = Dre::without('agencies')->get()->toArray();
         $pcf = getPCF();
-        $agency = request()->has('agency_id') && !empty(request()->agency_id) ? Agency::findOrFail(intval(request()->agency_id))->load(['usableProcesses', 'unusableProcesses'])->only('id', 'name', 'code', 'category_id', 'dre_id', 'usableProcesses', 'unusableProcesses') : null;
+        $agency = request('agency_id', null) ? Agency::findOrFail(intval(request()->agency_id))->load(['usableProcesses', 'unusableProcesses'])->only('id', 'name', 'code', 'category_id', 'dre_id', 'usableProcesses', 'unusableProcesses') : null;
         return $agency ? compact('dres', 'categories', 'agency', 'pcf') : compact('dres', 'categories', 'pcf');
     }
 
@@ -164,19 +167,5 @@ class AgencyController extends Controller
                 'status' => false
             ], 500);
         }
-    }
-
-    /**
-     * Sanitize PCF array to extract and load only processes ids
-     *
-     * @param array $data
-     *
-     * @return array
-     */
-    private function loadProcesses($families)
-    {
-        return Process::whereHas('familly', function ($query) use ($families) {
-            return $query->whereIn('famillies.id', $families);
-        })->get();
     }
 }

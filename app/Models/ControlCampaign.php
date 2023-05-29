@@ -5,16 +5,16 @@ namespace App\Models;
 use App\Traits\HasDates;
 use App\Traits\HasScopes;
 use App\Traits\IsFilterable;
-use App\Traits\IsOrderable;
+use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
-class ControlCampaign extends Model
+class ControlCampaign extends BaseModel
 {
-    use HasFactory, SoftDeletes, IsSearchable, IsOrderable, IsFilterable, HasDates, HasRelationships, HasScopes;
+    use HasFactory, SoftDeletes, IsSearchable, IsSortable, IsFilterable, HasDates, HasRelationships, HasScopes;
 
     protected $fillable = [
         'description',
@@ -40,17 +40,6 @@ class ControlCampaign extends Model
     protected $filter = 'App\Filters\Campaign';
     protected $filterable = ['reference'];
 
-    /**
-     * Setters
-     */
-    public static function boot()
-    {
-        parent::boot();
-
-        // static::creating(function ($model) {
-        //     $model->reference = generateCDCRef(false, $model->created_at);
-        // });
-    }
 
     /**
      * Relationships
@@ -90,7 +79,7 @@ class ControlCampaign extends Model
      */
     public function scopeCurrent($query)
     {
-        return $query->orderBy('created_at', 'ASC')->get()->last();
+        return $query->validated()->orderBy('created_at', 'ASC')->get()->last();
     }
 
     public function scopeValidated($query)

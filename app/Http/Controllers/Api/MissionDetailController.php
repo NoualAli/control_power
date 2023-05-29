@@ -30,33 +30,39 @@ class MissionDetailController extends Controller
     public function index()
     {
         isAbleOrAbort(['view_mission_detail']);
-        $details = $this->getDetails();
+        $filter = request('filter', null);
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
 
         try {
+            if ($fetchFilters) {
+                return $this->detailFilters();
+            }
+            $details = $this->getDetails();
             if (request()->has('campaign_id')) {
                 $details = $details->where('control_campaign_id', request()->campaign_id);
             }
-            if (request()->has('order')) {
-                $details = $details->orderByMultiple(request()->order);
+            if ($sort) {
+                $details = $details->sortByMultiple($sort);
             } else {
                 $details = $details->orderBy('created_at', 'DESC');
             }
 
-            $search = request()->has('search') && !empty(request()->search) ? request()->search : false;
             if ($search) {
                 $details = $details->search($search);
             }
-
-            $filter = request()->has('filter') ? request()->filter : null;
 
             if ($filter) {
                 $details = $details->filter($filter);
             }
 
-            if (request()->has('fetchAll')) {
+            if ($fetchAll) {
                 $details = $details->get()->pluck('reference', 'id');
             } else {
-                $details = MissionDetailResource::collection($details->paginate(10)->onEachSide(1));
+                $details = MissionDetailResource::collection($details->paginate($perPage)->onEachSide(1));
             }
             return $details;
         } catch (\Throwable $th) {
@@ -92,33 +98,42 @@ class MissionDetailController extends Controller
     public function majorFacts()
     {
         isAbleOrAbort(['view_major_fact']);
+        $filter = request('filter', null);
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
+
         try {
+            if ($fetchFilters) {
+                return $this->majorFactsFilters();
+            }
 
             $details = $this->getMajorFacts();
 
             if (request()->has('campaign_id')) {
                 $details = $details->where('control_campaign_id', request()->campaign_id);
             }
-            if (request()->has('order')) {
-                $details = $details->orderByMultiple(request()->order);
+            if ($sort) {
+                $details = $details->sortByMultiple($sort);
             } else {
                 $details = $details->orderBy('created_at', 'DESC');
             }
 
-            $search = request()->has('search') && !empty(request()->search) ? request()->search : false;
             if ($search) {
                 $details = $details->search($search);
             }
 
-            $filter = request()->has('filter') ? request()->filter : null;
             if ($filter) {
                 $details = $details->filter($filter);
             }
             $details = $details->onlyMajorFacts();
-            if (request()->has('fetchAll')) {
+
+            if ($fetchAll) {
                 $details = $details->get()->pluck('reference', 'id');
             } else {
-                $details = MissionDetailResource::collection($details->paginate(10)->onEachSide(1));
+                $details = MissionDetailResource::collection($details->paginate($perPage)->onEachSide(1));
             }
             return $details;
         } catch (\Throwable $th) {
@@ -179,7 +194,7 @@ class MissionDetailController extends Controller
     public function show(MissionDetail $detail)
     {
         $detail->unsetRelations();
-        $detail->load('regularization', 'mission');
+        $detail->load('regularization', 'mission', 'media');
         return $detail;
     }
 
@@ -207,7 +222,7 @@ class MissionDetailController extends Controller
             || in_array($currentUser->id, $dcpControllers)
             || $mission->created_by_id == $currentUser->id
             || (hasRole(['dcp', 'cdcr']) && $mission->dre_report?->is_validated)
-            || (hasRole(['da', 'dg', 'cdrcp', 'ig', 'der']) && $mission->dcp_validation_at)
+            || (hasRole(['da', 'dg', 'cdrcp', 'ig', 'der', 'sg']) && ($mission->dcp_validation_at || $detail->major_fact_dispatched_at))
             || hasRole('dre') && in_array($mission->agency->id, $agencies)
             || hasRole(['dcp', 'cdcr']) && $detail->major_fact
         );
@@ -350,32 +365,23 @@ class MissionDetailController extends Controller
             'executed_at' => $executedAt,
             'processed_at' => $processedAt
         ]);
-        if ($processMode) {
-            if ($detail->mission->realisation_state !== 'En cours de validation') {
-                $detail->mission->states()->create(['state' => 'En cours de validation']);
-            }
-        } else {
-            if ($detail->mission->realisation_state !== 'En cours') {
-                $detail->mission->states()->create(['state' => 'En cours']);
-            }
-        }
         return $detail;
     }
 
-    public function filtersData()
+    public function detailFilters()
     {
         $details = $this->getDetails();
-        $famillies = $details->relationUniqueData('familly');
-        $domains = $details->relationUniqueData('domain');
-        $processes = $details->relationUniqueData('process');
-        $dres = $details->relationUniqueData('dre', 'full_name');
-        $agencies = $details->relationUniqueData('agency', 'full_name');
-        $missions = $details->relationUniqueData('mission', 'reference');
-        $campaigns = $details->relationUniqueData('campaign', 'reference');
-        return compact('missions', 'famillies', 'domains', 'processes', 'agencies', 'campaigns', 'dres');
+        $family = $details->relationUniqueData('familly');
+        $domain = $details->relationUniqueData('domain');
+        $process = $details->relationUniqueData('process');
+        $dre = $details->relationUniqueData('dre', 'full_name');
+        $agency = $details->relationUniqueData('agency', 'full_name');
+        $mission = $details->relationUniqueData('mission', 'reference');
+        $campaign = $details->relationUniqueData('campaign', 'reference');
+        return compact('mission', 'family', 'domain', 'process', 'agency', 'campaign', 'dre');
     }
 
-    public function majorFactsFilterData()
+    public function majorFactsFilters()
     {
         // $details = $this->getMajorFacts()->with(['domain', 'process', 'agency', 'mission', 'campaign']);
 

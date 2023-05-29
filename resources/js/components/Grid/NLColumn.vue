@@ -1,5 +1,5 @@
 <template>
-    <div :class="[smPrefixed, mdPrefixed, lgPrefixed, extraClass]">
+    <div :class="finalStyle">
         <slot></slot>
     </div>
 </template>
@@ -14,19 +14,31 @@ export default {
             default: null,
         },
         sm: {
-            type: String,
+            type: [ String, Number ],
             required: false,
             default: '12',
+            validator: (value) => {
+                value = Number(value)
+                return value <= 12 || value >= 1
+            }
         },
         md: {
-            type: String,
+            type: [ String, Number ],
             required: false,
             default: '12',
+            validator: (value) => {
+                value = Number(value)
+                return value <= 12 || value >= 1
+            }
         },
         lg: {
-            type: String,
+            type: [ String, Number ],
             required: false,
             default: '12',
+            validator: (value) => {
+                value = Number(value)
+                return value <= 12 || value >= 1
+            }
         }
     },
     computed: {
@@ -38,6 +50,9 @@ export default {
         },
         lgPrefixed() {
             return 'col-lg-' + this.lg
+        },
+        finalStyle() {
+            return `${this.smPrefixed} ${this.mdPrefixed} ${this.lgPrefixed} ${this.extraClass}`
         }
     }
 }

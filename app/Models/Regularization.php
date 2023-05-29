@@ -5,9 +5,9 @@ namespace App\Models;
 use App\Traits\HasUuid;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class Regularization extends Model
+
+class Regularization extends BaseModel
 {
     use HasFactory, HasUuid;
 

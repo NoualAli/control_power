@@ -20,6 +20,8 @@ class ControlPointResource extends JsonResource
             'familly_name' => $this->familly->name,
             'domain_name' => $this->domain->name,
             'process_name' => $this->process->name,
+            'major_fact' => $this->major_fact_str,
+            'scores_str' => $this->scores_str
         ];
     }
 }

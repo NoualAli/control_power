@@ -5,6 +5,8 @@ import NLInput from './Inputs/NLInput.vue'
 import NLTextarea from './Inputs/NLTextarea.vue'
 import NLButton from './Inputs/NLButton.vue'
 import NLRadio from './Inputs/NLRadio.vue'
+import NLRadios from './Inputs/NLRadios.vue'
+import NLCheckboxes from './Inputs/NLCheckboxes.vue'
 import NLCheckbox from './Inputs/NLCheckbox.vue'
 import NLSelect from './Inputs/NLSelect'
 import NLCheckableContainer from './Inputs/NLCheckableContainer.vue'
@@ -25,9 +27,6 @@ import NLFlex from './Grid/NLFlex'
 // Components that are registered globaly.
 export function useComponents(app) {
     [
-        NLGrid,
-        NLColumn,
-        NLFlex,
         NLContainer,
         NLHeading,
         NLFile,

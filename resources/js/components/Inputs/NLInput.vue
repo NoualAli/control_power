@@ -1,8 +1,8 @@
 <template>
-    <DefaultContainer :id="id || name" :form="form" :label="label" :name="name" :label-required="labelRequired"
-        :length="length" :current-length="currentLength" :help-text="helpText">
+    <DefaultContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired" :length="length"
+        :current-length="currentLength" :help-text="helpText">
         <div class="input-container" :class="{ 'is-password-input': type == 'password' }">
-            <input :id="id || name" :maxlength="length"
+            <input :id="getId" :maxlength="length"
                 :class="[{ 'is-danger': form?.errors.has(name) }, 'input', { 'is-for-auth': isForAuth }]" :type="finalType"
                 :name="name" :autocomplete="autocomplete" :autofocus="autofocus" :placeholder="placeholder || label"
                 :value="modelValue" :readonly="readonly" v-bind="$attrs" @input="onInput" @keypresse="isNumber">
@@ -26,8 +26,8 @@ export default {
         autocomplete: { type: String, default: 'off' },
         autofocus: { type: Boolean, default: false },
         type: { type: String, default: 'text' },
-        name: { type: String, required: true },
-        id: { type: String, default: null },
+        name: { type: String },
+        id: { type: String },
         label: { type: String, default: '' },
         labelRequired: { type: Boolean, default: false },
         placeholder: { type: String, default: '' },
@@ -52,6 +52,17 @@ export default {
         }
         this.finalType = this.readonly ? 'text' : this.type
         this.isForAuth = window.location.pathname === '/login'
+    },
+    computed: {
+        getId() {
+            if (this.id) {
+                return this.id
+            } else if (!this.id && this.name) {
+                return this.name
+            } else {
+                return ''
+            }
+        }
     },
     methods: {
         /**
@@ -94,13 +105,13 @@ export default {
                 this.finalType = 'password'
                 this.eyeIcon = 'las la-eye'
             }
+        },
+        isNumber($event) {
+            if (this.type !== 'number') return true
+            const charCode = ($event.which) ? $event.which : $event.keyCode
+            if ((!(charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 46)) return true
+            $event.preventDefault()
         }
     },
-    isNumber($event) {
-        if (this.type !== 'number') return true
-        const charCode = ($event.which) ? $event.which : $event.keyCode
-        if ((!(charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 46)) return true
-        $event.preventDefault()
-    }
 }
 </script>

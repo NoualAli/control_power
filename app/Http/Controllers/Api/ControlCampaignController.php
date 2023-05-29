@@ -12,8 +12,6 @@ use App\Models\Process;
 use App\Models\User;
 use App\Notifications\ControlCampaign\Created;
 use App\Notifications\ControlCampaign\Deleted;
-// use App\Notifications\ControlCampaign\Reminder;
-// use App\Notifications\ControlCampaign\Updated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
@@ -27,32 +25,35 @@ class ControlCampaignController extends Controller
     public function index()
     {
         isAbleOrAbort(['view_control_campaign', 'view_page_control_campaigns', 'create_mission', 'edit_mission']);
+        $filter = request('filter', null);
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
         $campaigns = new ControlCampaign();
+
         if (!hasRole(['dcp', 'cdcr'])) {
             $campaigns = hasRole(['ci', 'cc']) ? auth()->user()->campaigns() : $campaigns->validated();
         }
-        // $campaigns = !hasRole(['ci', 'cc']) ? new ControlCampaign() : auth()->user()->campaigns();
-        if (request()->has('order')) {
-            foreach (request()->order as $key => $value) {
-                $campaigns = $campaigns->orderBy($key, $value);
-            }
+
+        if ($sort) {
+            $campaigns = $campaigns->sortByMultiple($sort);
         } else {
             $campaigns = $campaigns->orderBy('created_at', 'DESC');
         }
-        $search = request()->has('search') && !empty(request()->search) ? request()->search : false;
+
         if ($search) {
             $campaigns = $campaigns->search($search);
         }
 
-        $filter = request()->has('filter') ? request()->filter : null;
         if ($filter) {
             $campaigns = $campaigns->filter($filter);
         }
 
-        if (request()->has('fetchAll')) {
+        if ($fetchAll) {
             $campaigns = $campaigns->get()->pluck('reference', 'id');
         } else {
-            $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
             $campaigns = ControlCampaignResource::collection($campaigns->paginate($perPage)->onEachSide(1));
         }
         return $campaigns;
@@ -287,12 +288,27 @@ class ControlCampaignController extends Controller
 
         abort_if(!($campaign->validated_by_id || hasRole(['dcp', 'cdcr'])), 401, __('unauthorized'));
         $campaign->load(['processes' => fn ($query) => $query->with(['familly', 'domain'])]);
-        $processes = $campaign->processes;
-        $search = request()->has('search') ? request()->search : false;
+        $processes = $campaign->processes();
+        $search = request('search', false);
+        $fetchFilters = request()->has('fetchFilters');
+        if ($fetchFilters) {
+            return $this->processesFilters($processes);
+        } else {
+            $processes = $processes->get();
+        }
         if ($search) {
             $processes = $processes->filter(fn ($process) => preg_match('/' . strtolower($search) . '/', strtolower($process->name)));
         }
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
+        $perPage = request('perPage', 10);
         return ProcessResource::collection(paginate($processes, '/api/campaigns/processes/' . $campaign->id, $perPage));
+    }
+
+    private function processesFilters($processes)
+    {
+        // dd($processes);
+        $family = $processes->relationUniqueData('familly');
+        $domain = $processes->relationUniqueData('domain');
+        // dd(compact('family', 'domain'));
+        return compact('family', 'domain');
     }
 }

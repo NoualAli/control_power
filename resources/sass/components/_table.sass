@@ -1,29 +1,61 @@
-$td-padding: .5rem 1rem
+$container-bg: $white
+$container-mw: 100%
+$container-mh: 200px
+$container-m: 1rem 0
+$container-p: 1.25rem
+$container-color: $dark
+$container-br: 6px
+// $container-shadows: 0 .5em 1em -0.125rem rgb(10 10 10 / 10%), 0 0 0 1px rgb(10 10 10 / 2%)
+$container-shadows: 0 0 .5em -0.125rem rgb(10 10 10 / 10%), 0 0 0 1px rgb(10 10 10 / 2%)
+
+$td-padding: 1rem 1rem
 $th-padding: 1rem
-$table-shadows: 0px 0px 0.7px -2px rgba(0, 0, 0, 0.024), 0px 0px 2px -2px rgba(0, 0, 0, 0.035), 0px 0px 4.8px -2px rgba(0, 0, 0, 0.046),0px 0px 16px -2px rgba(0, 0, 0, 0.07)
 $table-align: center
 $table-radius: 6px
-$table-border: $grey
+$table-border: none
+
+$tr-border: 1px solid $grey
+
 $link-active-bg: $primary
 $link-active-color: $white
 $link-active-opacity: .5
+
 $cell-font-size: 1rem
 $cell-btn-padding: 0 .3rem
 $cell-min-width: 100px
 $cell-max-width: 500px
+$cell-border: transparent
+$last-cell-border: none
+
+$tr-bg: $white
+$tr-hover-color: $dark
+$tr-hover-bg: rgba($primary-extra-light,.4)
+
+$th-bg: $container-bg
+$th-color: $dark
+$th-fw: bolder
+
+$sortable-th-hover-bg: transparent
+$sortable-th-hover-border: rgba($primary, .9)
+$sortable-th-hover-color: $dark
 
 .table-container
     position: relative
-    width: 100% !important
-    min-height: 200px
-    margin: 1em 0
-    color: $dark
-    overflow: auto
+    min-width: $container-mw
+    width: auto
+    min-height: $container-mh
+    margin: $container-m
+    padding: $container-p
+    color: $container-color
+    background-color: $container-bg
+    border-radius: $container-br
+    box-shadow: $container-shadows
 
 table
+    position: relative
     table-layout: auto
-    width: 100%
-    // margin: 1em 0
+    width: $container-mw
+    margin: 1em 0
     min-width: $mobile
     color: $dark
     border-collapse: collapse
@@ -45,6 +77,7 @@ table
         width: auto
         min-width: $cell-min-width
         max-width: $cell-max-width
+        // white-space: nowrap
         &.cell-actions
             max-width: 200px
             padding: $td-padding
@@ -70,23 +103,24 @@ table
                         box-shadow: none
     & tbody
         & tr
-            background-color: $white
-            border-bottom: 1px solid $table-border
+            background-color: $tr-bg
+            border-bottom: $tr-border
             &:nth-child(odd)
                 background-color: transparent
             &:hover
-                background-color: rgba($primary-extra-light,.4)
-                color: $dracula
+                background-color: $tr-hover-bg
+                color: $tr-hover-color
 .pagination
     maring: 0 1rem
     width: 100%
     & .btn
+        border-radius: 5px
+        &:disabled,
         &.is-active
             background-color: $primary
             cursor: not-allowed
             color: $light
-
-.table-loader-container
+.details-row-loader-container
     position: absolute
     top: 0
     left: 0
@@ -95,28 +129,27 @@ table
     align-items: center
     gap: 1rem
     width: 100%
-    min-height: 200px
     height: 100%
-    background-color: rgba($primary,.4)
-    border-top-left-radius: $table-radius
-    border-top-right-radius: $table-radius
     user-select: none
     z-index: 4
 
-.table-loader
+.details-row-loader
     animation: spinAround .5s infinite linear
     position: relative
-    height: 3rem
-    width: 3rem
+    height: 2rem
+    width: 2rem
     border-radius: 50%
-    border: .25rem solid $light
+    border: .25rem solid $dark
     border-right-color: transparent
     border-top-color: transparent
 
-.table-loader-text
-    color: $light
+.details-row-loader-text
+    color: $dark
     font-weight: bold
     letter-spacing: 1px
+
+.search-bar
+    width: 100%
 
 @keyframes spinAround
     from
@@ -126,15 +159,15 @@ table
 
 /* Responsive media */
 
-@media (min-width: $tablet)
+@media (min-width: $desktop)
     table
         position: relative
-        border-radius: $table-radius
-        box-shadow: $table-shadows
+        // border-radius: $table-radius
+        // box-shadow: $table-shadows
         & td, & th
             vertical-align: middle
             display: table-cell
-            border-left: 1px solid $table-border !important
+            border-left: $cell-border !important
             &:first-child
                 border: none
             &:before
@@ -143,23 +176,58 @@ table
             position: sticky !important
             top: 0 !important
             z-index: 1
-            background-color: $primary
-            color: $white
+            background-color: $th-bg
+            color: $th-color
             padding: $th-padding
             box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4)
-            font-weight: bolder
+            font-weight: $th-fw
             &:first-child
                 border-top-left-radius: $table-radius
                 border: none !important
             &:last-child
                 border-top-right-radius: $table-radius
+            &.details_row-th,&.bulk-delete-th, &.bulck-delete-th > & .container
+                width: 30px !important
+                max-width: 30px !important
+                padding: 0 !important
+                margin: 0 !important
+                height: 10px !important
+                text-align: center
+            &.is-sortable
+                cursor: pointer !important
+                &:hover, &.is-active
+                    background-color: $sortable-th-hover-bg
+                    color: $sortable-th-hover-color
+                    &:after
+                        scale: 1
+                &:after
+                    content: ''
+                    position: absolute
+                    bottom: -1px
+                    left: 0
+                    width: 100%
+                    scale: 0
+                    height: 2px
+                    border-radius: 2px
+                    background-color: $sortable-th-hover-border
+                    transition: .2s ease
         & td
             padding: $td-padding
+            &.details_row-td
+                cursor: pointer
+                text-align: center
+                &:hover
+                    font-weight: bolder
             &:last-child
-                border: 1px solid $table-border
+                border: $last-cell-border
         & tbody
             overflow: hidden
         & tr
-            padding: .6em !important
+            position: relative
+            border-bottom: $tr-border
+            &.details-row
+                background-color: $white !important
     .pagination
         flex-direction: row
+    .search-bar
+        width: 200px

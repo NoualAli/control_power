@@ -144,8 +144,8 @@
 
                 <!-- Submit Button -->
                 <div class="d-flex justify-end align-center">
-                    <NLButton v-if="!form.process_mode" :loading="form.busy" label="Save" class="is-radius" />
-                    <NLButton v-else :loading="form.busy" label="Validate" class="is-radius" />
+                    <NLButton v-if="!form.process_mode" :loading="form.busy" label="Enregistrer" class="is-radius" />
+                    <NLButton v-else :loading="form.busy" label="Valider" class="is-radius" />
                 </div>
             </form>
         </div>

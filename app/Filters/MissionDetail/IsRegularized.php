@@ -9,7 +9,7 @@ class IsRegularized extends QueryFilter implements FilterContract
 {
     public function handle($value): void
     {
-        if (boolval($value)) {
+        if ($value == 'Levée') {
             $this->query->onlyRegularized();
         } else {
             $this->query->onlyUnregularized();

@@ -8,7 +8,6 @@ use App\Http\Requests\Role\UpdateRequest;
 use App\Http\Resources\RoleResource;
 use App\Models\Role;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 
 class RoleController extends Controller
 {
@@ -22,22 +21,25 @@ class RoleController extends Controller
         isAbleOrAbort(['view_role', 'create_user', 'update_user']);
         $roles = new Role();
 
-        $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
-        $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
-        $filter = request()->has('filter') ? request()->filter : null;
+        $filter = request('filter', null);
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
 
         if ($filter) {
             $roles = $roles->filter($filter);
         }
 
-        if ($order) {
-            $roles = $roles->orderByMultiple($order);
+        if ($sort) {
+            $roles = $roles->sortByMultiple($sort);
         }
         if ($search) {
             $roles = $roles->search($search);
         }
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
-        $roles = request()->has('fetchAll') ? formatForSelect($roles->get()->toArray(), 'full_name') : RoleResource::collection($roles->paginate($perPage)->onEachSide(1));
+
+        $roles = $fetchAll ? formatForSelect($roles->get()->toArray(), 'full_name') : RoleResource::collection($roles->paginate($perPage)->onEachSide(1));
         return $roles;
     }
 

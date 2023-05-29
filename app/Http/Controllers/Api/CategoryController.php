@@ -20,24 +20,28 @@ class CategoryController extends Controller
     public function index()
     {
         isAbleOrAbort(['view_category']);
+        $filter = request('filter', null);
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
+
         $categories = Category::withCount('processes');
 
-        $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
-        $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
-        $filter = request()->has('filter') ? request()->filter : null;
 
         if ($filter) {
             $categories = $categories->filter($filter);
         }
 
-        if ($order) {
-            $categories = $categories->orderByMultiple($order);
+        if ($sort) {
+            $categories = $categories->sortByMultiple($sort);
         }
         if ($search) {
             $categories = $categories->search($search);
         }
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
-        $categories = request()->has('fetchAll') ? $categories->get()->toJson() : CategoryResource::collection($categories->paginate($perPage)->onEachSide(1));
+
+        $categories = $fetchAll ? $categories->get()->toJson() : CategoryResource::collection($categories->paginate($perPage)->onEachSide(1));
         return $categories;
     }
 

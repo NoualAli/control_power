@@ -109,7 +109,7 @@ class Created extends Notification
             'url' => $this->getUrl(),
             'content' => $this->getContent($notifiable),
             'title' => $this->getTitle($notifiable),
-            'transmitter' => auth()->user()->id
+            'emitted_by' => auth()->user()->full_name
         ];
     }
 }

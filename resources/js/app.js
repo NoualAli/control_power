@@ -1,7 +1,6 @@
 import { createApp } from 'vue'
 import store from '~/store'
 import router from '~/router'
-import i18n from '~/plugins/i18n'
 import { helpersMixin, user } from './plugins/helpers'
 import api from './plugins/api'
 import * as swal from './plugins/swal'
@@ -21,7 +20,6 @@ window.user = user
 const app = createApp(App)
 app.use(store)
 app.use(router)
-app.use(i18n)
 app.use(createVueMetaManager(false, { ...defaultConfig, meta: { tag: 'meta', nameless: true } })) // gotta update meta and use it differently
 app.use(pluginVueMeta) // gotta update meta and use it differently
 app.use(LoadingPlugin, {
@@ -41,9 +39,9 @@ defineDirectives(app)
 app.config.performance = true
 app.config.errorHandler = (err, vm, info) => {
     // handle error
-    console.error(err)
+    // console.error(err)
     // console.log(vm)
-    console.log(info)
+    // console.log(info)
 }
 app.mount('#app')
 

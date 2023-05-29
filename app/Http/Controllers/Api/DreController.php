@@ -21,23 +21,28 @@ class DreController extends Controller
         isAbleOrAbort(['view_dre', 'create_user', 'update_user']);
         $dres = Dre::withCount('agencies');
 
-        $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
-        $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
-        $filter = request()->has('filter') ? request()->filter : null;
+        $filter = request('filter', null);
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
 
         if ($filter) {
             $dres = $dres->filter($filter);
         }
 
-        if ($order) {
-            $dres = $dres->orderByMultiple($order);
+        if ($sort) {
+            $dres = $dres->sortByMultiple($sort);
+        } else {
+            $dres = $dres->orderBy('code');
         }
+
         if ($search) {
             $dres = $dres->search($search);
         }
 
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
-        $dres = request()->has('fetchAll') ? $dres->get()->toJson() : DreResource::collection($dres->paginate($perPage)->onEachSide(1));
+        $dres = $fetchAll ? $dres->get()->toJson() : DreResource::collection($dres->paginate($perPage)->onEachSide(1));
         if (request()->has('withAgencies')) {
             $dres = $this->loadWithAgencies();
         }

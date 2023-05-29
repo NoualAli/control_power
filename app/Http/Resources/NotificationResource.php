@@ -23,6 +23,7 @@ class NotificationResource extends JsonResource
         $paramNames = isset($this->data['paramNames']) ? $this->data['paramNames'] : '-';
         $modelId = isset($this->data['id']) ? $this->data['id'] : '-';
         $url = isset($this->data['url']) ? $this->data['url'] : '-';
+        $emitted_by = isset($this->data['emitted_by']) ? $this->data['emitted_by'] : '-';
         return [
             'id' => $this->id,
             'content' => $content,
@@ -33,6 +34,7 @@ class NotificationResource extends JsonResource
             'paramNames' => $paramNames,
             'modelId' => $modelId,
             'url' => $url,
+            'emitted_by' => $emitted_by,
         ];
     }
 }

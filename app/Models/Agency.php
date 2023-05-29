@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use App\Traits\IsOrderable;
+use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class Agency extends Model
+
+class Agency extends BaseModel
 {
-    use HasFactory, IsSearchable, IsOrderable;
+    use HasFactory, IsSearchable, IsSortable;
 
     protected $fillable = [
         'name',

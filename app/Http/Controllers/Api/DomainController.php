@@ -6,10 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Domains\StoreRequest;
 use App\Http\Requests\Domains\UpdateRequest;
 use App\Http\Resources\DomainResource;
-use App\Http\Resources\ProcessResource;
 use App\Models\Domain;
 use App\Models\Process;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 
 class DomainController extends Controller
@@ -23,22 +21,25 @@ class DomainController extends Controller
     {
         $domains = new Domain();
 
-        $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
-        $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
-        $filter = request()->has('filter') ? request()->filter : null;
+        $filter = request('filter', null);
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
 
         if ($filter) {
             $domains = $domains->filter($filter);
         }
 
-        if ($order) {
-            $domains = $domains->orderByMultiple($order);
+        if ($sort) {
+            $domains = $domains->sortByMultiple($sort);
         }
         if ($search) {
             $domains = $domains->search($search);
         }
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
-        $domains = request()->has('fetchAll') ? $domains->get()->toJson() : DomainResource::collection($domains->paginate($perPage)->onEachSide(1));
+
+        $domains = $fetchAll ? $domains->get()->toJson() : DomainResource::collection($domains->paginate($perPage)->onEachSide(1));
         return $domains;
     }
 

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Familly\StoreRequest;
 use App\Http\Requests\Familly\UpdateRequest;
-use App\Http\Resources\DomainResource;
 use App\Http\Resources\FamillyResource;
 use App\Models\Domain;
 use App\Models\Familly;
@@ -22,46 +21,31 @@ class FamillyController extends Controller
     {
         $famillies = new Familly();
 
-        $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
-        $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
-        $filter = request()->has('filter') ? request()->filter : null;
+        $filter = request('filter', null);
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
+        $withChildren = boolVal(request('withChildren', false));
 
         if ($filter) {
             $famillies = $famillies->filter($filter);
         }
 
-        if ($order) {
-            $famillies = $famillies->orderByMultiple($order);
+        if ($sort) {
+            $famillies = $famillies->sortByMultiple($sort);
         }
         if ($search) {
             $famillies = $famillies->search($search);
         }
 
-        if (request()->has('fetchAll') && request()->has('withChildren')) {
-            $famillies = $famillies->orderBy('id', 'ASC')->with(['domains' => fn ($domain) => $domain->with(['processes' => fn ($process) => $process->without('control_points')])])->get()->toArray();
-            $famillies = array_map(function ($familly) {
-                return [
-                    'id' => 'f-' . $familly['id'] . '-' . $familly['name'],
-                    'label' => $familly['name'],
-                    'children' => array_map(function ($domain) {
-                        return [
-                            'id' => 'd-' . $domain['id'] . '-' . $domain['name'],
-                            'label' => $domain['name'],
-                            'children' => array_map(function ($process) {
-                                return [
-                                    'id' => $process['id'],
-                                    'label' => $process['name'],
-                                ];
-                            }, $domain['processes'])
-                        ];
-                    }, $familly['domains'])
-                ];
-            }, $famillies);
-        } elseif (request()->has('fetchAll') && !request()->has('withChildren')) {
+        if ($fetchAll && $withChildren) {
+            $famillies = getPCF();
+        } elseif ($fetchAll && !$withChildren) {
             $famillies = formatForSelect($famillies->get()->toArray());
         }
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
-        $famillies = request()->has('fetchAll') ? $famillies : FamillyResource::collection($famillies->paginate($perPage)->onEachSide(1));
+        $famillies = $fetchAll ? $famillies : FamillyResource::collection($famillies->paginate($perPage)->onEachSide(1));
         return $famillies;
     }
 

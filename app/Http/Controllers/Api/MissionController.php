@@ -8,6 +8,7 @@ use App\Http\Requests\Mission\StoreRequest;
 use App\Http\Requests\Mission\UpdateRequest;
 use App\Http\Resources\MissionProcessesResource;
 use App\Http\Resources\MissionResource;
+use App\Jobs\GenerateMissionReportPdf;
 use App\Models\Agency;
 use App\Models\ControlCampaign;
 use App\Models\Mission;
@@ -20,6 +21,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
 
 class MissionController extends Controller
@@ -32,38 +35,41 @@ class MissionController extends Controller
     public function index()
     {
         isAbleOrAbort(['view_mission']);
+        $filter = request('filter', null);
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request('fetchAll', false);
+
         try {
             $missions = $this->getMissions();
 
-            $campaignId = request()->has('campaign_id') ? request()->campaign_id : null;
-            $campaignId = request()->has('campaignId') ? request()->campaignId : $campaignId;
+            $campaignId = request('campaign_id', null);
+            $campaignId = request('campaignId', $campaignId);
             if ($campaignId) {
                 $missions = $missions->where('control_campaign_id', $campaignId);
             }
+            if ($fetchFilters) {
+                return $this->getFilters($missions);
+            }
 
-            if (request()->has('order')) {
-                $missions = $missions->orderByMultiple(request()->order);
+            if ($sort) {
+                $missions = $missions->sortByMultiple($sort);
             } else {
                 $missions = $missions->orderBy('created_at', 'DESC');
             }
 
-            $search = request()->has('search') && !empty(request()->search) ? request()->search : false;
             if ($search) {
                 $missions = $missions->search($search);
             }
 
-            $filter = request()->has('filter') ? request()->filter : null;
             if ($filter) {
                 $missions = $missions->filter($filter);
             }
 
-            $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
-            if (request()->has('fetchAll')) {
+            if ($fetchAll) {
                 $missions = formatForSelect($missions->get()->toArray(), 'reference');
-            } elseif (request()->has('export')) {
-                $missions = MissionResource::collection($missions->paginate($perPage)->onEachSide(1));
-            } elseif (request()->has('onlyFilters')) {
-                $missions = $this->getFilters($missions);
             } else {
                 $missions = MissionResource::collection($missions->paginate($perPage)->onEachSide(1));
             }
@@ -85,6 +91,22 @@ class MissionController extends Controller
      */
     public function export(Mission $mission)
     {
+        // Dispatch the job and retrieve the returned filepath
+        $job = new GenerateMissionReportPdf($mission);
+        $filepath = Bus::dispatchNow($job);
+
+        // Access the filepath and perform further actions
+        if ($filepath) {
+            // Process the filepath, such as downloading the file or displaying a success message
+            return redirect($filepath);
+        } else {
+            // Handle the case where the filepath is empty or not available
+            return back()->with('error', 'Failed to generate the mission report.');
+        }
+    }
+
+    public function exportSnappy(Mission $mission)
+    {
         try {
             $start = now();
             $mission->unsetRelations();
@@ -92,7 +114,6 @@ class MissionController extends Controller
             $details = $mission->details()->whereIn('score', [1, 2, 3, 4])->get()->groupBy('familly.name');
             $end = now();
             $difference = $end->diffInRealMilliseconds($start);
-            // dd($details, $difference);
             $campaign = $mission->campaign;
             $stats = [
                 'avg_score' => $mission->avg_score,
@@ -101,28 +122,15 @@ class MissionController extends Controller
                 'total_major_facts' => $mission->details()->onlyMajorFacts()->count(),
             ];
 
-            $pdf = Pdf::loadView('export.report', compact('mission', 'campaign', 'details', 'stats'));
-            $pdf->render();
-
-            $canvas = $pdf->get_canvas();
-            $cpdf = $canvas->get_cpdf();
-
-            $font = $pdf->getFontMetrics()->get_font("helvetica", "bold");
-
-            $firstPageId = $cpdf->getFirstPageId();
-            $objects = $cpdf->objects;
-            $pages = array_filter($objects, function ($v) {
-                return $v['t'] == 'page';
-            });
-            $number = 1;
-            foreach ($pages as $pageId => $page) {
-                if (($pageId + 1) !== $firstPageId) {
-                    $canvas->reopen_object($pageId + 1);
-                    $canvas->text(525, 807, $number, $font, 13, [.07, .34, .25]);
-                    $canvas->close_object();
-                    $number++;
-                }
-            }
+            // $snappy = App::make('snappy.pdf');
+            // $html = '<h1>Bill</h1><p>You owe me money, dude.</p>';
+            // return $snappy->generateFromHtml($html, 'bill-123.pdf');
+            $title = 'mission';
+            $pdf = \SnappyPDF::loadView('export.mission', compact('mission', 'campaign', 'details', 'stats', 'title'));
+            // $pdf->setOption('header-html', view('export.mission.header'));
+            // $pdf->setOption('footer-html', view('export.mission.footer'));
+            $filename = strtolower('rapport_mission-' . $mission->reference . '-' . str_replace(' ', '', $mission->agency->name) . '.pdf');
+            return $pdf->stream($filename);
             $filename = strtolower('rapport_mission-' . $mission->reference . '-' . str_replace(' ', '', $mission->agency->name) . '.pdf');
             if (request()->has('mode') && request()->mode == "preview") {
                 return $pdf->stream($filename);
@@ -168,10 +176,10 @@ class MissionController extends Controller
     {
         $missions = $missions ?? $this->getMissions();
         $dre_controllers = $missions->relationUniqueData('agencyControllers', 'full_name', 'id');
-        $dres = $missions->relationUniqueData('dre', 'name', 'id', 'full_name');
-        $agencies = $missions->relationUniqueData('agency', 'name', 'id', 'full_name');
-        $campaigns = $missions->relationUniqueData('campaign', 'reference');
-        return compact('dres', 'agencies', 'campaigns', 'dre_controllers');
+        $dre = $missions->relationUniqueData('dre', 'name', 'id', 'full_name');
+        $agency = $missions->relationUniqueData('agency', 'name', 'id', 'full_name');
+        $campaign = $missions->relationUniqueData('campaign', 'reference');
+        return compact('dre', 'agency', 'campaign', 'dre_controllers');
     }
 
     /**
@@ -182,7 +190,6 @@ class MissionController extends Controller
      */
     public function show(Mission $mission)
     {
-        // dd($mission->realisation_state);
         isAbleOrAbort('view_mission');
         $currentUser = auth()->user();
         $agencyControllers = $mission->agencyControllers->pluck('id')->toArray();
@@ -210,15 +217,6 @@ class MissionController extends Controller
             $condition = $mission->remaining_days_before_start > 5;
             abort_if(!$condition, 401, __('unauthorized'));
         }
-        if (request()->has('onlyProcesses') || request()->has('page')) {
-            $processes = $this->loadProcesses($mission);
-            if (request()->has('withFilters')) {
-                return $this->loadFilters($processes);
-            }
-            $processes = $this->filterData($processes);
-            $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
-            return MissionProcessesResource::collection(paginate($processes, '/api/missions/' . $mission->id, $perPage));
-        }
 
         // if (request()->has('onlyFilters')) {
         //     $processes = $this->loadProcesses($mission);
@@ -231,18 +229,24 @@ class MissionController extends Controller
         return $mission;
     }
 
+    public function processes(Mission $mission)
+    {
+        $processes = $this->loadProcesses($mission);
+        $fetchFilters = request()->has('fetchFilters');
+        if ($fetchFilters) {
+            return $this->loadFilters($processes);
+        }
+        $processes = $this->filterData($processes);
+        $perPage = request('perPage', 10);
+        return MissionProcessesResource::collection(paginate($processes, '/api/missions/' . $mission->id, $perPage));
+    }
+
     private function loadFilters($data)
     {
-        $filters = request()->filter;
-        $familyValues = isset(request()->filter['family_id']) && !empty(request()->filter['family_id']) ? explode(',', request()->filter['family_id']) : null;
+        $family = formatForSelect((clone $data)->uniqueStrict('family')->map(fn ($item) => (array) $item)->toArray(), 'family', 'family');
+        $domain = formatForSelect((clone $data)->uniqueStrict('domain')->map(fn ($item) => (array) $item)->toArray(), 'domain', 'domain');
 
-        $domains = null;
-        $families = formatForSelect((clone $data)->uniqueStrict('family')->map(fn ($item) => (array) $item)->toArray(), 'family', 'family_id');
-
-        if ($familyValues) {
-            $domains = formatForSelect((clone $data)->whereIn('family_id', $familyValues)->uniqueStrict('domain')->map(fn ($item) => (array) $item)->toArray(), 'domain', 'domain_id');
-        }
-        return  compact('families', 'domains');
+        return  compact('family', 'domain');
     }
 
     private function filterData($data)
@@ -323,8 +327,6 @@ class MissionController extends Controller
                     'end' => $data['end'],
                     'note' => $data['note'],
                 ]);
-                $state = $mission->states()->create(['state' => 'À réaliser']);
-                $mission->update(['state_id' => $state->id]);
                 $mission->agencyControllers()->attach($data['controllers']);
                 $mission->details()->createMany($controlPoints);
                 foreach ($mission->agencyControllers as $controller) {
@@ -364,7 +366,7 @@ class MissionController extends Controller
             $res = DB::transaction(function () use ($mission, $step) {
                 $validatedByIdColumn = 'dcp_validation_by_id';
                 $validationAtColumn = 'dcp_validation_at';
-                $users = User::whereRoles(['cdcr', 'dg', 'cdrcp']);
+                $users = User::whereRoles(['cdcr', 'dg', 'cdrcp', 'ig', 'sg', 'der']);
                 $users = User::whereRoles(['da'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($users->get());
                 if ($step == 1) {
                     $validatedByIdColumn = 'cdcr_validation_by_id';
@@ -378,11 +380,6 @@ class MissionController extends Controller
                     $validatedByIdColumn => auth()->user()->id,
                     $validationAtColumn => now()
                 ]);
-                if ($step == 1) {
-                    $mission->states()->create(['state' => '1ère validation']);
-                } else {
-                    $mission->states()->create(['state' => '2ème validation']);
-                }
                 if ($res) {
                     foreach ($users as $user) {
                         Notification::send($user, new Validated($mission));

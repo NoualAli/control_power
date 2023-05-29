@@ -176,14 +176,10 @@
 
         <!-- Actions -->
         <div class="d-flex align-items gap-2">
-            <button v-if="mission?.current?.dcp_validation_at" class="btn btn-danger has-icon" @click="exportReport(false)">
+            <button v-if="mission?.current?.dcp_validation_at && is(['dcp', 'dg', 'ig', 'sg', 'cdrcp', 'der'])"
+                class="btn btn-danger has-icon" @click="exportReport(false)">
                 <i class="las la-file-pdf icon" />
-                Télécharger le rapport
-            </button>
-
-            <button v-if="mission?.current?.dcp_validation_at" class="btn btn-danger has-icon" @click="exportReport(true)">
-                <i class="las la-eye icon" />
-                Aperçu du rapport
+                Exporter le rapport
             </button>
             <!-- CDC -->
 
@@ -205,8 +201,9 @@
                 class="btn btn-success" @click.prevent="validateOpinion">
                 Valider la mission
             </button>
+
             <button
-                v-if="!mission?.current.controller_opinion_exist && !mission?.current?.dre_report_exist && mission?.current.progress_status == 100 && can('create_opinion')"
+                v-if="!mission?.current?.controller_opinion_exist && !mission?.current?.dre_report_exist && mission?.current?.progress_status == 100 && can('create_opinion')"
                 class="btn btn-info" @click="showOpinion">
                 Ajouter votre avis
             </button>
@@ -227,14 +224,6 @@
                 class="btn btn-success" @click.prevent="validateMission(2)">
                 Valider la mission
             </button>
-            <!-- can't these two buttons be made into one  -->
-            <!-- View ci comment -->
-            <button v-if="mission?.current.opinion?.is_validated && is('cdc')" class="btn btn-info" @click="showOpinion">
-                Avis sur la mission
-            </button>
-            <button v-if="mission?.current?.controller_opinion_exist && is('ci')" class="btn btn-info" @click="showOpinion">
-                Avis sur la mission
-            </button>
 
             <!-- View report -->
             <button v-if="mission?.current.dre_report && is('cdc')" class="btn btn-info" @click="showReport">
@@ -244,30 +233,32 @@
                 @click="showReport">
                 Rapport de la mission
             </button>
-            <button v-if="mission?.current.dcp_validation_at && is(['dg', 'cdrcp', 'da', 'cc'])" class="btn btn-info"
+            <button v-if="mission?.current.dcp_validation_at && is(['dg', 'cdrcp', 'da', 'ig', 'der'])" class="btn btn-info"
                 @click="showReport">
                 Rapport de la mission
             </button>
-            <!-- <button class="btn btn-info"
-    v-if="mission?.current.dre_report?.is_validated && can('make_first_validation,process_mission')"
-    @click="showReport">
-    Rapport de la mission
-  </button> -->
+
+            <!-- View ci comment -->
+            <button v-if="mission?.current.opinion?.is_validated && is('cdc')" class="btn btn-info" @click="showOpinion">
+                Avis sur la mission
+            </button>
+            <button v-if="mission?.current?.controller_opinion_exist && is('ci')" class="btn btn-info" @click="showOpinion">
+                Avis sur la mission
+            </button>
         </div>
 
-        <!-- Processes List -->
-        <NLDatatable :filters="filters" title="Processus de la mission" namespace="missions" state-key="processes"
-            :config="config" @dataUpdated="(e) => loadFilters(e)" @show="show">
-            <template #actions="item">
+        <NLDatatable v-if="mission?.current?.id" :columns="columns" :details="details" :filters="filters"
+            title="Processus de la mission" :urlPrefix="'missions/' + mission?.current?.id + '/processes'"
+            detailsUrlPrefix="processes">
+            <template #actions-after="{ item }">
                 <button
                     v-if="can('control_agency,view_mission_detail') && mission?.current?.remaining_days_before_start <= 0"
-                    class="btn btn-info has-icon" @click.stop="details(item)">
-                    <i v-if="item.item.progress_status < 100 && !mission?.current.opinion" class="las la-tasks icon" />
+                    class="btn btn-info has-icon" @click.stop="show(item)">
+                    <i v-if="item.progress_status < 100 && !mission?.current.opinion" class="las la-tasks icon" />
                     <i v-else class="las la-list-alt icon" />
                 </button>
             </template>
         </NLDatatable>
-
         <!-- Process details (control points) -->
         <NLModal :show="rowSelected" @close="close">
             <template #title>
@@ -286,7 +277,8 @@
                     Points de contrôle
                 </p>
                 <div class="grid list">
-                    <div v-for="controlPoint in rowSelected?.controlPoints" :key="controlPoint.id" class="col-12 list-item">
+                    <div v-for=" controlPoint  in  rowSelected?.controlPoints " :key="controlPoint.id"
+                        class="col-12 list-item">
                         <div class="list-item-content">
                             {{ controlPoint.label }}
                         </div>
@@ -295,11 +287,11 @@
             </template>
             <template v-if="can('edit_mission')" #footer>
                 <button v-if="rowSelected?.progress_status == 100 && can('view_mission')" class="btn btn-info has-icon"
-                    @click.stop="details(rowSelected)">
+                    @click.stop="show(rowSelected)">
                     <i class="las la-tasks icon" />
                     Afficher
                 </button>
-                <button v-else-if="can('control_agency')" class="btn btn-info has-icon" @click.stop="details(rowSelected)">
+                <button v-else-if="can('control_agency')" class="btn btn-info has-icon" @click.stop="show(rowSelected)">
                     <i class="las la-tasks icon" />
                     Éffectuer
                 </button>
@@ -326,7 +318,7 @@
                     </div>
                     <!-- Submit Button -->
                     <div class="d-flex justify-end align-center">
-                        <NLButton :loading="forms.opinion.busy" label="Save" />
+                        <NLButton :loading="forms.opinion.busy" label="Enregistrer" />
                     </div>
                 </form>
                 <div v-else class="grid">
@@ -372,7 +364,7 @@
                     </div>
                     <!-- Submit Button -->
                     <div class="d-flex justify-end align-center">
-                        <NLButton :loading="forms.report.busy" label="Save" />
+                        <NLButton :loading="forms.report.busy" label="Enregistrer" />
                     </div>
                 </form>
                 <div v-else class="grid">
@@ -414,7 +406,7 @@
                     </div>
                     <!-- Submit Button -->
                     <div class="d-flex justify-end align-center">
-                        <NLButton :loading="forms.dispatch.busy" label="Save" />
+                        <NLButton :loading="forms.dispatch.busy" label="Enregistrer" />
                     </div>
                 </form>
             </template>
@@ -423,7 +415,7 @@
 </template>
 
 <script>
-import NLDatatable from '../../components/NLDatatable'
+import NLDatatable from '../../components/Datatable/NLDatatable'
 import { mapGetters } from 'vuex'
 import api from '../../plugins/api'
 import { Form } from 'vform'
@@ -438,59 +430,81 @@ export default {
         return {
             forcedRerenderKey: -1,
             controllersList: [],
-            rowSelected: null,
-            config: {
-                data: null,
-                namespace: 'missions',
-                state_key: 'processes',
-                rowKey: 'id',
-                columns: [
-                    {
-                        label: 'Famille',
-                        field: 'familly'
-                    },
-                    {
-                        label: 'Domaine',
-                        field: 'domain'
-                    },
-                    {
-                        label: 'Processus',
-                        field: 'name'
-                    },
-                    {
-                        label: 'Total points de contrôle',
-                        field: 'control_points_count'
-                    },
-                    {
-                        label: 'Moyenne',
-                        field: 'avg_score',
-                        hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
-                        isHtml: true,
-                        methods: {
-                            showField(item) {
-                                const score = Number(item.avg_score)
-                                let style = 'text-dark text-bold'
-                                if (score === 1) {
-                                    style = 'bg-success text-white text-bold'
-                                } else if (score === 2) {
-                                    style = 'bg-info text-white text-bold'
-                                } else if (score === 3) {
-                                    style = 'bg-warning text-bold'
-                                } else if (score === 4) {
-                                    style = 'bg-danger text-white text-bold'
-                                } else {
-                                    style = 'bg-grey text-dark text-bold'
-                                }
-                                return `<div class="container">
-                  <div class="has-border-radius py-1 text-center ${style}">${score}</div>
-                </div>`
+            columns: [
+                {
+                    label: 'Famille',
+                    field: 'familly'
+                },
+                {
+                    label: 'Domaine',
+                    field: 'domain'
+                },
+                {
+                    label: 'Processus',
+                    field: 'name'
+                },
+                {
+                    label: 'Total points de contrôle',
+                    field: 'control_points_count',
+                    align: 'center',
+                },
+                {
+                    label: 'Moyenne',
+                    field: 'avg_score',
+                    hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
+                    isHtml: true,
+                    align: 'center',
+                    methods: {
+                        showField(item) {
+                            const score = Number(item.avg_score)
+                            let style = 'text-dark text-bold'
+                            if (score === 1) {
+                                style = 'bg-success text-white text-bold'
+                            } else if (score === 2) {
+                                style = 'bg-info text-white text-bold'
+                            } else if (score === 3) {
+                                style = 'bg-warning text-bold'
+                            } else if (score === 4) {
+                                style = 'bg-danger text-white text-bold'
+                            } else {
+                                style = 'bg-grey text-dark text-bold'
                             }
+                            return `<div class="has-border-radius py-2 px-4 text-center d-inline-block ${style}">${score}</div>`
                         }
                     }
-                ],
-                actions: {
-                    show: true
                 }
+            ],
+            details: [
+                {
+                    label: 'Points de contrôle',
+                    field: 'control_points.name',
+                    hasMany: true
+                }
+            ],
+            filters: {
+                family: {
+                    label: 'Famille',
+                    name: 'family',
+                    multiple: true,
+                    data: null,
+                    value: null,
+                    cols: 4
+                },
+                domain: {
+                    label: 'Domaine',
+                    name: 'domain',
+                    multiple: true,
+                    data: null,
+                    value: null,
+                    cols: 5
+                }
+                // process_id: {
+                //   label: 'Processus',
+                //   name: 'process',
+                //   multiple: true,
+                //   data: null,
+                //   value: null
+                // },
             },
             modals: {
                 opinion: false,
@@ -513,7 +527,7 @@ export default {
                     edit_mode: true
                 }),
                 dispatch: new Form({
-                    controllers: null
+                    controllers: []
                 }),
                 validations: {
                     opinion: new Form({
@@ -524,39 +538,11 @@ export default {
                     })
                 }
             },
-            filters: {
-                family_id: {
-                    label: 'Famille',
-                    name: 'family',
-                    multiple: true,
-                    data: null,
-                    value: null,
-                    cols: 'col-lg-4'
-                },
-                domain_id: {
-                    label: 'Domaine',
-                    name: 'domain',
-                    multiple: true,
-                    data: null,
-                    value: null,
-                    cols: 'col-lg-5'
-                }
-                // process_id: {
-                //   label: 'Processus',
-                //   name: 'process',
-                //   multiple: true,
-                //   data: null,
-                //   value: null
-                // },
-            }
         }
     },
     computed: {
         ...mapGetters({
             mission: 'missions/current',
-            missionFilters: 'missions/filters',
-            processes: 'missions/processes',
-            controlPoints: 'processes/controlPoints',
             users: 'users/all'
         })
     },
@@ -574,9 +560,6 @@ export default {
     created() {
         this.initData()
     },
-    mounted() {
-        this.initData()
-    },
     methods: {
         /**
          * Export or Preview a report
@@ -591,9 +574,6 @@ export default {
                 url += '&mode=download'
             }
             window.open(url)
-            // api.get('missions/' + this.mission.current.id + '/export?type=pdf').then((response) => {
-            //   console.log(response);
-            // })
         },
 
         validateMission(step) {
@@ -737,19 +717,10 @@ export default {
          * Initialise les données
          */
         initData(reset = false) {
-            // if (reset) {
-            //   this.resetFilters()
-            // } else {
-            //   this.loadFilters()
-            // }
-            this.loadFilters()
             this.close()
             this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId }).then(() => {
                 const length = this.$breadcrumbs.value.length
                 if (this.$breadcrumbs.value[ length - 1 ].label === 'Mission') { this.$breadcrumbs.value[ length - 1 ].label = 'Mission ' + this.mission?.current?.reference }
-            }).catch(error => this.$swal.alert_error(error))
-            this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId, onlyProcesses: true }).then(() => {
-                this.config.data = this.processes?.processes
             }).catch(error => this.$swal.alert_error(error))
             this.forms.opinion.edit_mode = false
             this.forms.report.edit_mode = false
@@ -760,13 +731,13 @@ export default {
          *
          * @param {Object} item
          */
-        details(item) {
+        show(item) {
             item = item?.item?.id ? item.item : item
             let name = 'mission-details'
             if (item.progress_status < 100 && !this.mission?.current.opinion) {
                 name = 'mission-details-execute'
             }
-            this.$router.push({ name, params: { missionId: this.mission.current.id, processId: item.id } })
+            return this.$router.push({ name, params: { missionId: this.mission.current.id, processId: item.id } })
         },
         /**
          * Supprime la mission
@@ -787,59 +758,12 @@ export default {
                 }
             })
         },
-
-        /**
-         * Affiche le processus sélectionné dans son modal
-         * @param {Object} item
-         */
-        show(item) {
-            this.$store.dispatch('processes/fetch', { id: item.id, onlyControlPoints: true }).then(() => {
-                item.controlPoints = this.controlPoints.controlPoints
-                this.rowSelected = item
-            })
-        },
         /**
          * Ferme le modal
          */
         close() {
             this.rowSelected = null
         },
-        resetFilters(e) {
-            const isFiltering = e?.isFiltering !== undefined ? e.isFiltering : true
-            if (!isFiltering) {
-                if (!this.filters.family_id?.value) {
-                    // this.filters.domain_id.data = []
-                    this.initData()
-                }
-            }
-            // this.loadData()
-            if (!isFiltering) {
-                this.initData()
-            }
-            console.log('reset', e)
-        },
-        loadFilters(e) {
-            // let isFiltering = e?.isFiltering !== undefined ? e.isFiltering : true
-            const appliedFilters = e?.appliedFilters ?? null
-            this.$store.dispatch('missions/fetchFilters', { missionId: this.$route.params.missionId, filters: this.filters }).then(() => {
-                // this.filters.domain_id.data = null
-                const familiesLength = this.filters.family_id.data?.length ?? 0
-                if (!familiesLength && !this.filters.family_id.value) {
-                    this.filters.family_id.data = this.missionFilters.filters.families
-                }
-
-                // if (!this.filters.domain_id?.data?.length && this.filters.family_id.value) {
-                //   this.filters.domain_id.data = this.missionFilters.filters.domains
-                // }
-                if (!this.filters.domain_id.data) {
-                    this.filters.domain_id.data = this.missionFilters.filters.domains
-                }
-            })
-            if (!appliedFilters?.family_id?.length) {
-                this.filters.domain_id.data = null
-                this.filters.domain_id.value = null
-            }
-        }
     }
 }
 </script>

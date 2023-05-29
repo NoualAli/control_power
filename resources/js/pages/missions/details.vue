@@ -89,7 +89,7 @@
 
                                     <!-- CDCR -->
                                     <button
-                                        v-if="!detail?.major_fact_dispatched_at && !mission?.cdcr_validation_at && can(['make_first_validation', 'process_mission']) && [1, 2, 3, 4].includes(Number(detail?.score))"
+                                        v-if="!detail?.major_fact_dispatched_at && !mission?.cdcr_validation_at && can(['make_first_validation', 'process_mission']) && [2, 3, 4].includes(Number(detail?.score))"
                                         class="btn btn-warning has-icon" @click="edit(detail)">
                                         <i class="las la-pen icon" />
                                         Traiter
@@ -97,7 +97,7 @@
 
                                     <!-- DCP -->
                                     <button
-                                        v-if="!mission?.dcp_validation_at && mission.cdcr_validation_at && !detail?.major_fact_dispatched_at && can('make_second_validation') && [1, 2, 3, 4].includes(Number(detail?.score))"
+                                        v-if="!mission?.dcp_validation_at && mission.cdcr_validation_at && !detail?.major_fact_dispatched_at && can('make_second_validation') && [2, 3, 4].includes(Number(detail?.score))"
                                         class="btn btn-warning has-icon" @click="edit(detail)">
                                         <i class="las la-pen icon" />
                                         Traiter
@@ -190,39 +190,41 @@
                                     <b>Informations supplémentaires:</b>
                                 </div>
                                 <div class="col-12" :class="{ 'col-lg-8': !rowSelected?.metadata }">
-                                    <table v-if="rowSelected?.metadata">
-                                        <thead>
-                                            <tr>
-                                                <th v-for="(heading, indexHeading) in currentMetadata.keys"
-                                                    :key="indexHeading" class="text-left">
-                                                    {{ heading }}
-                                                </th>
-                                            </tr>
-                                        </thead>
+                                    <div class="table-container" v-if="rowSelected?.metadata">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th v-for="heading in currentMetadata.keys" :key="heading"
+                                                        class="text-left">
+                                                        {{ heading }}
+                                                    </th>
+                                                </tr>
+                                            </thead>
 
-                                        <tbody>
-                                            <tr v-for="(data, row) in rowSelected?.metadata" :key="'metadata-row-' + row">
-                                                <td v-for="(items, index) in data"
-                                                    :key="'metadata-row-' + row + '-item-' + index" class="text-left">
-                                                    <template v-for="(item, key) in items">
-                                                        <span v-if="key !== 'label' && key !== 'rules'"
-                                                            :key="'metadata-row-' + row + '-item-' + index + key + '-content'">
-                                                            {{ item || '-' }}
-                                                        </span>
-                                                    </template>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-
+                                            <tbody>
+                                                <tr v-for="(data, row) in rowSelected?.metadata"
+                                                    :key="'metadata-row-' + row">
+                                                    <td v-for="(items, index) in data"
+                                                        :key="'metadata-row-' + row + '-item-' + index" class="text-left">
+                                                        <template v-for="(item, key) in items">
+                                                            <span v-if="key !== 'label' && key !== 'rules'"
+                                                                :key="'metadata-row-' + row + '-item-' + index + key + '-content'">
+                                                                {{ item || '-' }}
+                                                            </span>
+                                                        </template>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                     <span v-else>-</span>
                                 </div>
                             </div>
                         </div>
                         <!-- Media -->
                         <div v-if="rowSelected?.media?.length" class="col-12 list-item">
-                            <!-- @click.stop -->
-                            <div v-for="file in rowSelected?.media" :key="file.original_name" class="list-item-content">
+                            <div v-for="( file, indexFile ) in  rowSelected?.media " :key="indexFile"
+                                class="list-item-content" @click.stop=" ">
                                 <div class="files-list list is-visible grid gap-4 text-medium">
                                     <div class="col-11 d-flex justify-between align-center">
                                         <a :href="file.link" target="_blank" class="text-dark text-small">
@@ -234,14 +236,14 @@
                                         <a :href="file.link" :download="file.original_name">
                                             <i class="las la-download text-info icon" />
                                         </a>
-                                        <!-- <i
-                      v-if="!mission?.dre_report_is_validated" class="las la-trash text-danger icon is-clickable"
-                      @click.stop="deleteItem(file, index)"
-                    /> -->
+                                        <i v-if="!mission?.dre_report_is_validated"
+                                            class="las la-trash text-danger icon is-clickable"
+                                            @click.stop="deleteItem(file, index)" />
                                     </div>
                                 </div>
                             </div>
                         </div>
+
                         <!-- Regularization -->
                         <div v-if="rowSelected?.score > 1 && rowSelected?.regularization?.regularized"
                             class="col-12 list-item box border-top border-1 border-solid border-primary-dark">
@@ -285,54 +287,55 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </template>
+                <template #footer>
+                    <div class="col-12 d-flex justify-end align-center">
+                        <div class="d-flex align-center gap-2">
+                            <!-- CI -->
+                            <button
+                                v-if="!rowSelected?.mission?.controller_opinion_is_validated && !rowSelected?.major_fact && can('create_opinion')"
+                                class="btn btn-warning has-icon" @click="edit(rowSelected)">
+                                <i class="las la-pen icon" />
+                                Modifier
+                            </button>
 
-                        <div class="col-12 d-flex justify-end align-center">
-                            <div class="d-flex align-center gap-2">
-                                <!-- CI -->
-                                <button
-                                    v-if="!rowSelected?.mission?.controller_opinion_is_validated && !rowSelected?.major_fact && can('create_opinion')"
-                                    class="btn btn-warning has-icon" @click="edit(rowSelected)">
-                                    <i class="las la-pen icon" />
-                                    Modifier
-                                </button>
+                            <!-- CDC -->
+                            <button
+                                v-if="!rowSelected?.mission?.dre_report_is_validated && !rowSelected?.major_fact && can('create_dre_report,validate_dre_report')"
+                                class="btn btn-warning has-icon" @click="edit(rowSelected)">
+                                <i class="las la-pen icon" />
+                                Modifier
+                            </button>
 
-                                <!-- CDC -->
-                                <button
-                                    v-if="!rowSelected?.mission?.dre_report_is_validated && !rowSelected?.major_fact && can('create_dre_report,validate_dre_report')"
-                                    class="btn btn-warning has-icon" @click="edit(rowSelected)">
-                                    <i class="las la-pen icon" />
-                                    Modifier
-                                </button>
+                            <!-- CDCR -->
+                            <button
+                                v-if="!rowSelected?.mission?.cdcr_validation_at && !rowSelected?.major_fact_dispatched_at && can('make_first_validation,process_mission') && [2, 3, 4].includes(Number(rowSelected?.score))"
+                                class="btn btn-warning has-icon" @click="edit(rowSelected)">
+                                <i class="las la-pen icon" />
+                                Traiter
+                            </button>
 
-                                <!-- CDCR -->
-                                <button
-                                    v-if="!rowSelected?.mission?.cdcr_validation_at && !rowSelected?.major_fact_dispatched_at && can('make_first_validation,process_mission')"
-                                    class="btn btn-warning has-icon" @click="edit(rowSelected)">
-                                    <i class="las la-pen icon" />
-                                    Traiter
-                                </button>
-
-                                <!-- DCP -->
-                                <button
-                                    v-if="!rowSelected?.mission?.dcp_validation_at && rowSelected?.mission?.cdcr_validation_at && !rowSelected?.major_fact_dispatched_at && can('make_second_validation')"
-                                    class="btn btn-warning has-icon" @click="edit(rowSelected)">
-                                    <i class="las la-pen icon" />
-                                    Traiter
-                                </button>
-                                <button
-                                    v-if="!rowSelected?.major_fact_dispatched_at && rowSelected?.major_fact && can('dispatch_major_fact')"
-                                    class="btn btn-info has-icon" @click.prevent="notify(rowSelected)">
-                                    <i class="las la-bell icon" />
-                                    Notifier
-                                </button>
-                                <!-- Agency director -->
-                                <button
-                                    v-if="rowSelected?.mission?.dcp_validation_at && !rowSelected?.regularization?.regularized_at && !rowSelected?.major_fact && rowSelected?.score !== 1 && can('regularize_mission_detail')"
-                                    class="btn btn-warning has-icon" @click="regularize(rowSelected)">
-                                    <i class="las la-pen icon" />
-                                    Régulariser
-                                </button>
-                            </div>
+                            <!-- DCP -->
+                            <button
+                                v-if="!rowSelected?.mission?.dcp_validation_at && rowSelected?.mission?.cdcr_validation_at && !rowSelected?.major_fact_dispatched_at && can('make_second_validation') && [2, 3, 4].includes(Number(rowSelected?.score))"
+                                class="btn btn-warning has-icon" @click="edit(rowSelected)">
+                                <i class="las la-pen icon" />
+                                Traiter
+                            </button>
+                            <button
+                                v-if="!rowSelected?.major_fact_dispatched_at && rowSelected?.major_fact && can('dispatch_major_fact')"
+                                class="btn btn-info has-icon" @click.prevent="notify(rowSelected)">
+                                <i class="las la-bell icon" />
+                                Notifier
+                            </button>
+                            <!-- Agency director -->
+                            <button
+                                v-if="rowSelected?.mission?.dcp_validation_at && !rowSelected?.regularization?.regularized_at && !rowSelected?.major_fact && rowSelected?.score !== 1 && can('regularize_mission_detail')"
+                                class="btn btn-warning has-icon" @click="regularize(rowSelected)">
+                                <i class="las la-pen icon" />
+                                Régulariser
+                            </button>
                         </div>
                     </div>
                 </template>
@@ -447,31 +450,33 @@
                                     <b>Informations supplémentaires:</b>
                                 </div>
                                 <div class="col-12" :class="{ 'col-lg-8': !rowSelected?.metadata }">
-                                    <table v-if="rowSelected?.metadata">
-                                        <thead>
-                                            <tr>
-                                                <th v-for="heading in currentMetadata.keys" :key="heading"
-                                                    class="text-left">
-                                                    {{ heading }}
-                                                </th>
-                                            </tr>
-                                        </thead>
+                                    <div class="table-container" v-if="rowSelected?.metadata">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th v-for="heading in currentMetadata.keys" :key="heading"
+                                                        class="text-left">
+                                                        {{ heading }}
+                                                    </th>
+                                                </tr>
+                                            </thead>
 
-                                        <tbody>
-                                            <tr v-for="(data, row) in rowSelected?.metadata" :key="'metadata-row-' + row">
-                                                <td v-for="(items, index) in data"
-                                                    :key="'metadata-row-' + row + '-item-' + index" class="text-left">
-                                                    <template v-for="(item, key) in items">
-                                                        <span v-if="key !== 'label' && key !== 'rules'"
-                                                            :key="'metadata-row-' + row + '-item-' + index + key + '-content'">
-                                                            {{ item || '-' }}
-                                                        </span>
-                                                    </template>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-
+                                            <tbody>
+                                                <tr v-for="(data, row) in rowSelected?.metadata"
+                                                    :key="'metadata-row-' + row">
+                                                    <td v-for="(items, index) in data"
+                                                        :key="'metadata-row-' + row + '-item-' + index" class="text-left">
+                                                        <template v-for="(item, key) in items">
+                                                            <span v-if="key !== 'label' && key !== 'rules'"
+                                                                :key="'metadata-row-' + row + '-item-' + index + key + '-content'">
+                                                                {{ item || '-' }}
+                                                            </span>
+                                                        </template>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                     <span v-else>-</span>
                                 </div>
                             </div>
@@ -507,9 +512,9 @@
 
                         <!-- Submit Button -->
                         <div class="col-12 d-flex justify-end align-center">
-                            <NLButton v-if="!forms.detail.process_mode" :loading="forms.detail.busy" label="Save"
+                            <NLButton v-if="!forms.detail.process_mode" :loading="forms.detail.busy" label="Enregistrer"
                                 class="is-radius" />
-                            <NLButton v-else :loading="forms.detail.busy" label="Validate" class="is-radius" />
+                            <NLButton v-else :loading="forms.detail.busy" label="Valider" class="is-radius" />
                         </div>
                     </form>
                 </template>
@@ -554,9 +559,9 @@
                                 label="Action à engagée" :form="forms.regularization" length="3000" label-required />
                         </div>
                         <div class="col-12 d-flex justify-end align-center">
-                            <NLButton v-if="!forms.regularization.id" :loading="forms.regularization.busy" label="Save"
-                                class="is-radius" />
-                            <NLButton v-else :loading="forms.regularization.busy" label="Validate" class="is-radius" />
+                            <NLButton v-if="!forms.regularization.id" :loading="forms.regularization.busy"
+                                label="Enregistrer" class="is-radius" />
+                            <NLButton v-else :loading="forms.regularization.busy" label="Valider" class="is-radius" />
                         </div>
                     </form>
                 </template>
@@ -581,7 +586,7 @@ export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     metaInfo() {
-        return { title: this.mission?.reference + ' - ' + this.process?.name }
+        return { title: this.process?.name }
     },
     data() {
         return {
@@ -652,7 +657,7 @@ export default {
             this.$store.dispatch('details/fetch', item.id).then(() => {
                 this.rowSelected = this.detail.current
                 this.modals.show = true
-                this.currentMetadata.keys = Object.keys(this.detail.current)
+                this.currentMetadata.keys = Object.keys(item.parsed_metadata)
             })
         },
         regularize(item) {
@@ -696,8 +701,6 @@ export default {
          */
         initData() {
             const length = this.$breadcrumbs.value.length
-            // this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId }).then(() => {
-            // }).catch(error => this.$swal.alert_error(error))
             this.$store.dispatch('details/fetchConfig', { missionId: this.$route.params.missionId, processId: this.$route.params.processId }).then(() => {
                 this.details = this.config.config.details
                 this.mission = this.config.config.mission
@@ -706,9 +709,8 @@ export default {
                 this.modals.edit = false
                 if (this.$breadcrumbs.value[ length - 3 ].label === 'Mission') { this.$breadcrumbs.value[ length - 3 ].label = 'Mission ' + this.mission?.reference }
                 if (this.$breadcrumbs.value[ length - 1 ].label === 'Détails de la mission') {
-                    // this.$breadcrumbs.value[length - 3].label = ''
                     this.$breadcrumbs.value[ length - 2 ].label = ''
-                    this.$breadcrumbs.value[ length - 1 ].label = this.mission?.reference + ' - ' + this.process?.name
+                    this.$breadcrumbs.value[ length - 1 ].label = this.process?.name
                 }
             })
         },

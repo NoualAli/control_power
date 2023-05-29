@@ -10,12 +10,12 @@ use App\Traits\IsSearchable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Znck\Eloquent\Traits\BelongsToThrough;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
-class MissionDetail extends Model
+class MissionDetail extends BaseModel
 {
     use HasFactory, SoftDeletes, HasUuid, HasRelationships, BelongsToThrough, HasMedia, IsFilterable, IsSearchable, HasScopes;
 

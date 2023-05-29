@@ -21,22 +21,25 @@ class ProcessController extends Controller
     {
         $processes = new Process();
 
-        $search = request()->has('search') && !empty(request()->search) ? request()->search : null;
-        $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
-        $filter = request()->has('filter') ? request()->filter : null;
+        $filter = request('filter', null);
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
 
         if ($filter) {
             $processes = $processes->filter($filter);
         }
 
-        if ($order) {
-            $processes = $processes->orderByMultiple($order);
+        if ($sort) {
+            $processes = $processes->sortByMultiple($sort);
         }
         if ($search) {
             $processes = $processes->search($search);
         }
-        $perPage = request()->has('perPage') && !empty(request()->perPage) && request()->perPage !== 'undefined' ? request()->perPage : 10;
-        $processes = request()->has('fetchAll') ? $processes->get()->toJson() : ProcessResource::collection($processes->paginate($perPage)->onEachSide(1));
+
+        $processes = $fetchAll ? $processes->get()->toJson() : ProcessResource::collection($processes->paginate($perPage)->onEachSide(1));
         return $processes;
     }
 
@@ -75,8 +78,7 @@ class ProcessController extends Controller
     {
         $processes = explode(',', $process);
         $onlyControlPoints = request()->has('onlyControlPoints');
-        $data = $onlyControlPoints ? formatForSelect(ControlPoint::whereIn('process_id', $processes)->get()->toArray()) : Process::findOrFail($process)->load(['familly', 'domain']);
-        // dd($data);
+        $data = $onlyControlPoints ? formatForSelect(ControlPoint::whereIn('process_id', $processes)->get()->toArray()) : Process::findOrFail($process)->load(['familly', 'domain', 'control_points']);
         return response()->json($data);
     }
 

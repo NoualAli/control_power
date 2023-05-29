@@ -6,7 +6,7 @@ use App\Notifications\ResetPassword;
 use App\Traits\HasDres;
 use App\Traits\HasRoles;
 use App\Traits\IsFilterable;
-use App\Traits\IsOrderable;
+use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,7 +20,7 @@ class User extends Authenticatable implements JWTSubject
         HasFactory,
         HasRoles,
         HasDres,
-        IsOrderable,
+        IsSortable,
         IsSearchable,
         IsFilterable;
 
@@ -157,7 +157,7 @@ class User extends Authenticatable implements JWTSubject
                     ->join('missions', 'missions.control_campaign_id', '=', 'control_campaigns.id')
                     ->join('mission_has_controllers', 'mission_has_controllers.mission_id', '=', 'missions.id')
                     ->where('mission_has_controllers.user_id', '=', $this->id);
-            })->groupBy('control_campaigns.id')->distinct();
+            })->groupBy('control_campaigns.id', 'control_campaigns.description', 'control_campaigns.start', 'control_campaigns.end', 'control_campaigns.reference', 'control_campaigns.created_by_id', 'control_campaigns.validated_by_id', 'control_campaigns.validated_at', 'control_campaigns.created_at', 'control_campaigns.updated_at', 'control_campaigns.deleted_at')->distinct();
         }
     }
 

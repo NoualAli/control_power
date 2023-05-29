@@ -6,18 +6,18 @@ use App\Traits\HasDates;
 use App\Traits\HasScopes;
 use App\Traits\HasUuid;
 use App\Traits\IsFilterable;
-use App\Traits\IsOrderable;
+use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Znck\Eloquent\Traits\BelongsToThrough;
 
-class Mission extends Model
+class Mission extends BaseModel
 {
-    use HasFactory, BelongsToThrough, HasRelationships, SoftDeletes, IsSearchable, IsOrderable, HasUuid, HasDates, HasScopes, IsFilterable;
+    use HasFactory, BelongsToThrough, HasRelationships, SoftDeletes, IsSearchable, IsSortable, HasUuid, HasDates, HasScopes, IsFilterable;
 
     protected $filter = 'App\Filters\Mission';
 
@@ -52,6 +52,10 @@ class Mission extends Model
         'dre_report_exist',
         'controller_opinion_is_validated',
         'dre_report_is_validated',
+    ];
+
+    protected $casts = [
+        'progress_status' => 'int'
     ];
 
     protected $searchable = ['reference', 'campaign.reference'];
@@ -145,7 +149,6 @@ class Mission extends Model
     }
     public function getRealisationStateAttribute()
     {
-        // return $this->states()->latest()->first()->state;
         $today = now();
         $start = $this->start;
         $end = $this->end;
@@ -228,16 +231,6 @@ class Mission extends Model
         return $this->belongsTo(User::class, 'dcp_validation_by_id');
     }
 
-    public function states()
-    {
-        return $this->hasMany(MissionState::class);
-    }
-
-    public function state()
-    {
-        return $this->belongsTo(MissionState::class);
-    }
-
     /**
      * Scopes
      */
@@ -269,20 +262,6 @@ class Mission extends Model
     {
         // return $query->whereHas('reports', fn ($report) => $report->where('type', 'Rapport')->whereNotNull('validated_at'));
         return $query->whereRelation('reports', 'type', 'Rapport', '!=', null)->whereRelation('reports', 'validated_at', '!=', null);
-    }
-
-    public function scopeNotValidated($query)
-    {
-        // return $query->where
-        // return $query->whereHas('states', function ($q) {
-        //     $q->where('state', 'En attente de validation')
-        //         ->whereNotExists(function ($query) {
-        //             $query->select(DB::raw(1))
-        //                 ->from('mission_states as ms2')
-        //                 ->orderBy('created_at', 'DESC')
-        //                 ->whereRaw('ms2.mission_id = mission_states.mission_id AND ms2.created_at > mission_states.created_at');
-        //         });
-        // });
     }
 
     public function scopeOnlyValidatedMajorFacts($query)

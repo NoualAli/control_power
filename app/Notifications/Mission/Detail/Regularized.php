@@ -109,6 +109,7 @@ class Regularized extends Notification
             'url' => $this->getUrl(),
             'content' => $this->getContent(true),
             'title' => $this->getTitle(),
+            'emitted_by' => auth()->user()->full_name,
         ];
     }
 }

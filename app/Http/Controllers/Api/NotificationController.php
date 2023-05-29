@@ -18,28 +18,33 @@ class NotificationController extends Controller
      */
     public function index()
     {
+        $filter = request('filter', null);
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
         try {
             $notifications = auth()->user()->notifications();
 
             if (request()->has('order')) {
-                $notifications = $notifications->orderByMultiple(request()->order);
+                $notifications = $notifications->sortByMultiple(request()->order);
             } else {
                 $notifications = $notifications->orderBy('read_at', 'DESC');
             }
 
-            $search = request()->has('search') && !empty(request()->search) ? request()->search : false;
             if ($search) {
                 $notifications = $notifications->search($search);
             }
 
-            $filter = request()->has('filter') ? request()->filter : null;
             if ($filter) {
                 $notifications = $notifications->filter($filter);
             }
-            if (request()->has('fetchAll')) {
+
+            if ($fetchAll) {
                 $notifications = $notifications->get()->pluck('reference', 'id');
             } else {
-                $notifications = NotificationResource::collection($notifications->paginate(10)->onEachSide(1));
+                $notifications = NotificationResource::collection($notifications->paginate($perPage)->onEachSide(1));
             }
             if (request()->has('withCount')) {
                 $totalUnread = auth()->user()->unreadNotifications()->count();

@@ -104,6 +104,7 @@ class Assigned extends Notification
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
             'title' => $this->getTitle(),
+            'emitted_by' => auth()->user()->full_name,
         ];
     }
 }

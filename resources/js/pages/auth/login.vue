@@ -15,16 +15,16 @@
             <form method="POST" @submit.prevent="login" @keydown="form.onKeydown($event)">
                 <div class="grid gap-2 my-2">
                     <div class="col-12">
-                        <NLInput v-model="form.authLogin" name="authLogin" placeholder="Email / Username" :form="form"
+                        <NLInput v-model="form.authLogin" name="authLogin" placeholder="Identifiant" :form="form"
                             class="is-for-auth" />
                     </div>
                     <div class="col-12">
-                        <NLInput v-model="form.password" name="password" class="is-for-auth" placeholder="Password"
+                        <NLInput v-model="form.password" name="password" class="is-for-auth" placeholder="Mot de passe"
                             :form="form" type="password" />
                     </div>
                 </div>
                 <div class="d-flex justify-center align-center">
-                    <NLButton :loading="form.busy" label="login" class="is-radius d-block w-100" />
+                    <NLButton :loading="form.busy" label="Connexion" class="is-radius d-block w-100" />
                 </div>
             </form>
         </div>

@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
-use App\Traits\IsOrderable;
+use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Znck\Eloquent\Traits\BelongsToThrough;
 
-class Process extends Model
+class Process extends BaseModel
 {
-    use HasFactory, IsSearchable, IsOrderable, BelongsToThrough, HasRelationships;
+    use HasFactory, IsSearchable, IsSortable, BelongsToThrough, HasRelationships;
 
     protected $fillable = [
         'name',
@@ -29,6 +29,10 @@ class Process extends Model
     /**
      * Getters
      */
+    public function getTagAttribute()
+    {
+        return '<span class="tag">' . $this->name . '</span>';
+    }
 
     /**
      * Relationships
