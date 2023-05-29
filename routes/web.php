@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\ControlCompaignController;
+use App\Http\Controllers\ExcelReaderController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::get('/excel-reader', ExcelReaderController::class);
 
 Route::get('/artisan', function () {
     Artisan::call('optimize:clear');
