@@ -89,26 +89,28 @@
             <!-- Classement des DRE par taux de réalisation des missions -->
             <NLColumn lg="8">
                 <h2>Classement des DRE par taux de réalisation des missions</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>DRE</th>
-                            <th>Missions programmées</th>
-                            <th>Missions réalisées</th>
-                            <th>Taux de réalisation</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(row, index) in tables.dresClassificationByAchievementRate" :key="index">
-                            <td>{{ index + 1 }}</td>
-                            <td>{{ row['dre'] }}</td>
-                            <td>{{ row['total'] }}</td>
-                            <td>{{ row['totalAchieved'] }}</td>
-                            <td>{{ row['rate'] }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>DRE</th>
+                                <th>Missions programmées</th>
+                                <th>Missions réalisées</th>
+                                <th>Taux de réalisation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, index) in tables.dresClassificationByAchievementRate" :key="index">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ row['dre'] }}</td>
+                                <td>{{ row['total'] }}</td>
+                                <td>{{ row['totalAchieved'] }}</td>
+                                <td>{{ row['rate'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </NLColumn>
         </NLGrid>
 
@@ -155,43 +157,47 @@
             <!-- Notations par domaine -->
             <NLColumn lg="6">
                 <h2>Notations moyennes par domaine</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Domaine</th>
-                            <th>Nombre</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(row, index) in tables.avgScoreByDomain" :key="index">
-                            <td>{{ index + 1 }}</td>
-                            <td>{{ row['domain'] }}</td>
-                            <td>{{ row['avg_score'] }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Domaine</th>
+                                <th>Nombre</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, index) in tables.avgScoreByDomain" :key="index">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ row['domain'] }}</td>
+                                <td>{{ row['avg_score'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </NLColumn>
 
             <!-- Notations moyennes par DRE -->
             <NLColumn lg="6">
                 <h2>Notations moyennes par DRE</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>DRE</th>
-                            <th>Notation moyenne</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(row, index) in tables.avgScoreByDre" :key="index">
-                            <td>{{ index + 1 }}</td>
-                            <td>{{ row['dre'] }}</td>
-                            <td>{{ row['avg_score'] }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>DRE</th>
+                                <th>Notation moyenne</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, index) in tables.avgScoreByDre" :key="index">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ row['dre'] }}</td>
+                                <td>{{ row['avg_score'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </NLColumn>
         </NLGrid>
 
@@ -236,82 +242,90 @@
             <!-- Anomalies par domaine -->
             <NLColumn lg="6">
                 <h2>Anomalies par domaine</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Domaine</th>
-                            <th>Nombre</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(row, index) in anomaliesData.tables.domains" :key="index">
-                            <td>{{ index + 1 }}</td>
-                            <td>{{ row['domain'] }}</td>
-                            <td>{{ row['total'] }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Domaine</th>
+                                <th>Nombre</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, index) in anomaliesData.tables.domains" :key="index">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ row['domain'] }}</td>
+                                <td>{{ row['total'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </NLColumn>
             <!-- 10 agences contenant un nombre d'anomalies élevé -->
             <NLColumn lg="6">
                 <h2>Les 10 agences contenant un nombre d'anomalies élevé</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Agence</th>
-                            <th>Nombre d'anomalies</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(row, index) in anomaliesData.tables.agencies" :key="index">
-                            <td>{{ index + 1 }}</td>
-                            <td>{{ row['agency'] }}</td>
-                            <td>{{ row['total_anomalies'] }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Agence</th>
+                                <th>Nombre d'anomalies</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, index) in anomaliesData.tables.agencies" :key="index">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ row['agency'] }}</td>
+                                <td>{{ row['total_anomalies'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </NLColumn>
             <!-- 10 missions contenant un nombre des anomalies élevé -->
             <NLColumn lg="6">
                 <h2>Les 10 missions contenant un nombre des anomalies élevé</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Mission</th>
-                            <th>Nombre d'anomalies</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(row, index) in anomaliesData.tables.missions" :key="index">
-                            <td>{{ index + 1 }}</td>
-                            <td>{{ row['mission'] }}</td>
-                            <td>{{ row['total_anomaly'] }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Mission</th>
+                                <th>Nombre d'anomalies</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, index) in anomaliesData.tables.missions" :key="index">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ row['mission'] }}</td>
+                                <td>{{ row['total_anomaly'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </NLColumn>
             <!-- 10 missions contenant un nombre des anomalies élevé -->
             <NLColumn lg="6">
                 <h2>Les 10 campagnes de contrôle contenant un nombre des anomalies élevé</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Campagne</th>
-                            <th>Nombre d'anomalies</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(row, index) in anomaliesData.tables.campaigns" :key="index">
-                            <td>{{ index + 1 }}</td>
-                            <td>{{ row['campaign'] }}</td>
-                            <td>{{ row['total_anomaly'] }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Campagne</th>
+                                <th>Nombre d'anomalies</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, index) in anomaliesData.tables.campaigns" :key="index">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ row['campaign'] }}</td>
+                                <td>{{ row['total_anomaly'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </NLColumn>
         </NLGrid>
 
@@ -356,82 +370,92 @@
             <!-- Faits majeur par domaine -->
             <NLColumn lg="6">
                 <h2>Faits majeur par domaine</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Domaine</th>
-                            <th>Nombre Faits majeur</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(row, index) in majorFactsData.tables.domains" :key="index">
-                            <td>{{ index + 1 }}</td>
-                            <td>{{ row['domain'] }}</td>
-                            <td>{{ row['total'] }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Domaine</th>
+                                <th>Nombre Faits majeur</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, index) in majorFactsData.tables.domains" :key="index">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ row['domain'] }}</td>
+                                <td>{{ row['total'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
             </NLColumn>
             <!-- 10 agences contenant un nombre des faits majeur élevé -->
             <NLColumn lg="6">
                 <h2>Les 10 agences contenant un nombre des faits majeur élevé</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Agence</th>
-                            <th>Nombre Faits majeur</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(row, index) in majorFactsData.tables.agencies" :key="index">
-                            <td>{{ index + 1 }}</td>
-                            <td>{{ row['agency'] }}</td>
-                            <td>{{ row['total_major_facts'] }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Agence</th>
+                                <th>Nombre Faits majeur</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, index) in majorFactsData.tables.agencies" :key="index">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ row['agency'] }}</td>
+                                <td>{{ row['total_major_facts'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </NLColumn>
             <!-- 10 missions contenant un nombre des faits majeur élevé -->
             <NLColumn lg="6">
                 <h2>Les 10 missions contenant un nombre des faits majeur élevé</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Mission</th>
-                            <th>Nombre Faits majeur</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(row, index) in majorFactsData.tables.missions" :key="index">
-                            <td>{{ index + 1 }}</td>
-                            <td>{{ row['mission'] }}</td>
-                            <td>{{ row['total_major_facts'] }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Mission</th>
+                                <th>Nombre Faits majeur</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, index) in majorFactsData.tables.missions" :key="index">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ row['mission'] }}</td>
+                                <td>{{ row['total_major_facts'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
             </NLColumn>
             <!-- 10 missions contenant un nombre des faits majeur élevé -->
             <NLColumn lg="6">
                 <h2>Les 10 campagnes de contrôle contenant un nombre des faits majeur élevé</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Campagne</th>
-                            <th>Nombre de Faits majeur</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(row, index) in majorFactsData.tables.campaigns" :key="index">
-                            <td>{{ index + 1 }}</td>
-                            <td>{{ row['campaign'] }}</td>
-                            <td>{{ row['total_major_facts'] }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Campagne</th>
+                                <th>Nombre de Faits majeur</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, index) in majorFactsData.tables.campaigns" :key="index">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ row['campaign'] }}</td>
+                                <td>{{ row['total_major_facts'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </NLColumn>
         </NLGrid>
 
@@ -447,8 +471,10 @@ import { mapGetters } from 'vuex'
 // import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
 import { Bar, Pie, Doughnut } from 'vue-chartjs'
 // import InProgress from '../components/InProgress'
+import NLDatatable from '../components/Datatable/NLDatatable.vue'
 export default {
     components: {
+        NLDatatable,
         NLFlex,
         // ContentHeader,
         ContentBody,
