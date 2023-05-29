@@ -1,13 +1,11 @@
 <template>
-    <div>
-        <DefaultContainer :id="id || name" :form="form" :label="label" :name="name" :label-required="labelRequired"
-            :length="length" :current-length="currentLength">
-            <VueEditor :id="id || name" v-model="currentValue" :editor-toolbar="editorSettings"
-                :class="[{ 'is-danger': form?.errors.has(name) }]" :name="name" :autocomplete="autocomplete"
-                :autofocus="autofocus" :max-length="length" :placeholder="placeholder || label" :value="currentValue"
-                :help-text="helpText" v-bind="$attrs" @input="onInput($event)" @ready="quill => { editorQuill = quill }" />
-        </DefaultContainer>
-    </div>
+    <DefaultContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired" :length="length"
+        :current-length="currentLength">
+        <VueEditor :id="getId" v-model="currentValue" :editor-toolbar="editorSettings"
+            :class="[{ 'is-danger': form?.errors.has(name) }]" :name="name" :autocomplete="autocomplete"
+            :autofocus="autofocus" :max-length="length" :placeholder="placeholder || label" :value="currentValue"
+            :help-text="helpText" v-bind="$attrs" @input="onInput($event)" @ready="quill => { editorQuill = quill }" />
+    </DefaultContainer>
 </template>
 <script>
 import DefaultContainer from './DefaultContainer'
@@ -22,8 +20,8 @@ export default {
         autocomplete: { type: String, default: 'off' },
         autofocus: { type: Boolean, default: false },
         type: { type: String, default: 'text' },
-        name: { type: String, required: true },
-        id: { type: String, default: null },
+        name: { type: String },
+        id: { type: String },
         label: { type: String, default: '' },
         labelRequired: { type: Boolean, default: false },
         placeholder: { type: String, default: '' },
@@ -83,6 +81,17 @@ export default {
     created() {
         this.currentValue = this.modelValue
     },
+    computed: {
+        getId() {
+            if (this.id) {
+                return this.id
+            } else if (!this.id && this.name) {
+                return this.name
+            } else {
+                return ''
+            }
+        }
+    },
     methods: {
         onInput(value) {
             // Should review this part
@@ -92,8 +101,8 @@ export default {
             this.$emit('update:modelValue', this.trim(this.currentValue))
         },
         /**
-  * @param {HTMLDOMElement} html
-  */
+         * @param {HTMLDOMElement} html
+         */
         trim(html) {
             if (html) {
                 const tmp = document.createElement("div");

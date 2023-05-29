@@ -17,7 +17,7 @@ export default {
   components: { DefaultContainer },
   props: {
     form: { type: Object, required: false },
-    name: { type: String, required: true },
+    name: { type: String },
     id: { type: String, required: true },
     label: { type: String, default: '' },
     labelRequired: { type: Boolean, default: false },

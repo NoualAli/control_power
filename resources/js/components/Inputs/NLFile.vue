@@ -1,7 +1,7 @@
 <template>
-    <DefaultContainer :id="id || name" :name="name" :form="form" :label="label" :label-required="labelRequired"
+    <DefaultContainer :id="getId" :name="name" :form="form" :label="label" :label-required="labelRequired"
         :help-text="helpText">
-        <input v-if="!readonly" :id="id || name" type="file" :name="name" :multiple="multiple" :accept="accept"
+        <input v-if="!readonly" :id="getId" type="file" :name="name" :multiple="multiple" :accept="accept"
             class="file-input" @change="onChange($event)">
         <div :class="[{ 'is-danger': form?.errors.has(name), 'has-files': hasFiles, 'is-readonly': readonly }, 'file-input-area']"
             :draggable="true" @dragover="dragover" @dragleave="dragleave" @drop="drop">
@@ -41,8 +41,8 @@ export default {
     components: { DefaultContainer },
     props: {
         form: { type: Object, required: false },
-        name: { type: String, required: true },
-        id: { type: String, default: null },
+        name: { type: String },
+        id: { type: String },
         label: { type: String, default: '' },
         labelRequired: { type: Boolean, default: false },
         placeholder: { type: String, default: 'Téléverser des fichiers' },
@@ -82,6 +82,15 @@ export default {
                     link: file.link
                 }
             })
+        },
+        getId() {
+            if (this.id) {
+                return this.id
+            } else if (!this.id && this.name) {
+                return this.name
+            } else {
+                return ''
+            }
         }
     },
     watch: {

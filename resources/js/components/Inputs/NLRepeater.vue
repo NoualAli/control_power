@@ -7,37 +7,28 @@
     <div v-for="(item, index) in form[name]" :key="name + '-row-' + index" class="grid my-6 form-row">
       <div class="col-11">
         <div class="grid">
-          <div
-            v-for="(input, id) in rowSchema" :key="name + '-input-' + input.name + '-' + index + '-id'" class="col-12"
-            :class="input.style"
-          >
+          <div v-for="(input, id) in rowSchema" :key="name + '-input-' + input.name + '-' + index + '-id'" class="col-12"
+            :class="input.style">
             <!-- Defining different inputs -->
-            <NLInput
-              v-if="isInput(input.type)" :id="name + '-row-' + index + '-' + input.name" v-model="form[name][index][id][input.name]" :form="form"
-              :label="input.label" :placeholder="input.placeholder"
-              :type="input.type" :label-required="input.required"
-              :name="name + '.' + index + '.' + id + '.' + input.name"
-            />
+            <NLInput v-if="isInput(input.type)" :id="name + '-row-' + index + '-' + input.name"
+              v-model="form[name][index][id][input.name]" :form="form" :label="input.label"
+              :placeholder="input.placeholder" :type="input.type" :label-required="input.required"
+              :name="name + '.' + index + '.' + id + '.' + input.name" />
 
-            <NLTextarea
-              v-if="input.type == 'textarea'" :id="name + '-row-' + index + '-' + input.name" v-model="form[name][index][id][input.name]" :form="form"
-              :label="input.label" :placeholder="input.placeholder"
-              :label-required="input.required" :name="name + '.' + index + '.' + id + '.' + input.name"
-            />
+            <NLTextarea v-if="input.type == 'textarea'" :id="name + '-row-' + index + '-' + input.name"
+              v-model="form[name][index][id][input.name]" :form="form" :label="input.label"
+              :placeholder="input.placeholder" :label-required="input.required"
+              :name="name + '.' + index + '.' + id + '.' + input.name" />
 
-            <NLWyswyg
-              v-if="input.type == 'wyswyg'" :id="name + '-row-' + index + '-' + input.name" v-model="form[name][index][id][input.name]" :form="form"
-              :label="input.label" :placeholder="input.placeholder"
-              :label-required="input.required" :name="name + '.' + index + '.' + id + '.' + input.name"
-            />
+            <NLWyswyg v-if="input.type == 'wyswyg'" :id="name + '-row-' + index + '-' + input.name"
+              v-model="form[name][index][id][input.name]" :form="form" :label="input.label"
+              :placeholder="input.placeholder" :label-required="input.required"
+              :name="name + '.' + index + '.' + id + '.' + input.name" />
 
-            <NLSelect
-              v-if="input.type == 'select'" :id="name + '.' + index + '.' + id + '.' + input.name" v-model="form[name][index][id][input.name]"
-              :label-required="input.required" :form="form"
-              :label="input.label" :name="name + '.' + index + '.' + id + '.' + input.name"
-              :options="input.options" :placeholder="input.placeholder || 'Choisissez une option...'"
-              :multiple="input.multiple"
-            />
+            <NLSelect v-if="input.type == 'select'" :id="name + '.' + index + '.' + id + '.' + input.name"
+              v-model="form[name][index][id][input.name]" :label-required="input.required" :form="form"
+              :label="input.label" :name="name + '.' + index + '.' + id + '.' + input.name" :options="input.options"
+              :placeholder="input.placeholder || 'Choisissez une option...'" :multiple="input.multiple" />
           </div>
         </div>
       </div>
@@ -78,28 +69,28 @@ export default {
     addButtonStyle: { type: String, default: null },
     removeButtonLabel: { type: String, default: 'Supprimer' },
     removeButtonStyle: { type: String, default: null },
-    name: { type: String, required: true },
+    name: { type: String },
     title: { type: String, default: null },
     form: { type: Object, required: false },
     rowSchema: { type: Array, required: true }
   },
   methods: {
-    addRow () {
+    addRow() {
       const schema = []
       for (let index = 0; index < this.rowSchema.length; index++) {
-        const element = this.rowSchema[index]
+        const element = this.rowSchema[ index ]
         const name = element.name
         let defaultValue = element.default !== undefined ? element.default : null
         defaultValue = element.multiple ? [] : null
-        schema.push({ [name]: defaultValue, value: element.label })
+        schema.push({ [ name ]: defaultValue, value: element.label })
       }
-      if (this.form[this.name]) this.form[this.name].push(schema)
+      if (this.form[ this.name ]) this.form[ this.name ].push(schema)
     },
-    isInput (value) {
-      return ['text', 'date', 'datetime', 'time', 'week', 'number', 'tel', 'email', 'month', 'url'].includes(value)
+    isInput(value) {
+      return [ 'text', 'date', 'datetime', 'time', 'week', 'number', 'tel', 'email', 'month', 'url' ].includes(value)
     },
-    removeRow (index) {
-      this.form[this.name].splice(index, 1)
+    removeRow(index) {
+      this.form[ this.name ].splice(index, 1)
     }
   }
 }

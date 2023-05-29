@@ -24,7 +24,7 @@
             <NLSidebarItem label="Points de contrôle" route="control-points-index" iconName="la-list-alt"
                 v-if="can('view_page_control_points')" />
             <NLSidebarItem label="Répartition des missions de contrôle" route="missions-create" iconName="la-calendar-day"
-                v-if="can('create_missions')" />
+                v-if="can('create_mission')" />
             <NLSidebarItem label="Ajouter une campagne de contrôle" route="campaigns-create" iconName="la-calendar-plus"
                 v-if="can('create_control_campaign')" />
             <NLSidebarItem label="Suivi du planning annuel" route="campaigns" iconName="la-calendar"
