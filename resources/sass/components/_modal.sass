@@ -90,8 +90,7 @@ $modal-footer-height: 3rem
             display: flex
             justify-content: space-between
             align-items: center
-            padding: 1rem 0
-            border-bottom: 1px solid $grey
+            padding: 1rem
             & .modal-action-icon
                 &:hover
                     cursor: pointer
@@ -102,16 +101,34 @@ $modal-footer-height: 3rem
                         fill: $danger
         & .modal-body
             min-height: calc( 200px - ($modal-footer-height + $modal-header-height) )
+            max-height: calc(100vh - ($modal-footer-height + $modal-header-height))
             height: auto
+            overflow: auto
             width: 100%
-            padding: 1rem 0
+            padding: 1rem
         & .modal-footer
             min-height: $modal-footer-height
             width: 100%
-            padding: 1rem 0
-            border-top: 1px solid $grey
+            padding: 1rem
+            // border-top: 1px solid $grey
             background-color: $modal-card-bg
             display: flex
             justify-content: flex-end
             align-items: center
             gap: 1rem
+        & .modal-header, & .modal-footer
+            // background-color: red
+            position: relative
+            &::after
+                content: ''
+                position: absolute
+                left: 1rem
+                width: 98%
+                height: 1px
+                background-color: $grey
+        & .modal-header
+            &::after
+                bottom: 0
+        & .modal-footer
+            &::after
+                top: 0
