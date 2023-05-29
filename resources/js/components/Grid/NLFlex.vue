@@ -1,8 +1,11 @@
 <template>
-    <div class="d-flex"
+    <<<<<<< HEAD <div class="d-flex"
         :class="[gapPrefixed, fullCenter, getFormatedJustifyContent, getFormatedAlignItems, getFormatedDirection, extraClass]">
-        <slot></slot>
-    </div>
+        =======
+        <div class="d-flex" :class="[gapPrefixed, fullCenter, justifyContent, alignItems, extraClass]">
+            >>>>>>> master
+            <slot></slot>
+        </div>
 </template >
 
 <script>
