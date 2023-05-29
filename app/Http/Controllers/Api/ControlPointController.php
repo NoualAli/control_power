@@ -23,7 +23,11 @@ class ControlPointController extends Controller
         $search = request('search', null);
         $sort = request('sort', null);
         $filter = request('filter', null);
-
+        $fetchFilters = request()->has('fetchFilters');
+        $fetchAll = request('fetchAll', false);
+        if ($fetchFilters) {
+            return $this->filters();
+        }
         if ($filter) {
             $controlPoints = $controlPoints->filter($filter);
         }
@@ -34,19 +38,20 @@ class ControlPointController extends Controller
         if ($search) {
             $controlPoints = $controlPoints->search($search);
         }
-        $perPage = request('perPage', false) ? request()->perPage : 10;
-        $controlPoints = request()->has('fetchAll') ? $controlPoints->get()->toJson() : ControlPointResource::collection($controlPoints->paginate($perPage)->onEachSide(1));
+
+        $perPage = request('perPage', 10);
+        $controlPoints = $fetchAll ? $controlPoints->get()->toJson() : ControlPointResource::collection($controlPoints->paginate($perPage)->onEachSide(1));
         return $controlPoints;
     }
 
     public function filters()
     {
         $controlPoints = new ControlPoint;
-        $families = $controlPoints->relationUniqueData('famillies', 'name', 'id');
-        $domains = request()->has('family') ? ControlPoint::whereRelation('familly', request()->family)->get()->relationUniqueData('domains', 'name', 'id') : [];
-        $processes = request()->has('domain') ? ControlPoint::whereRelation('domain', request()->domain)->get()->relationUniqueData('processes', 'name', 'id') : [];
+        $family = $controlPoints->relationUniqueData('familly', 'name', 'id');
+        $domain = $controlPoints->relationUniqueData('domain', 'name', 'id');
+        $process = $controlPoints->relationUniqueData('process', 'name', 'id');
 
-        return compact('families', 'domains', 'processes');
+        return compact('family', 'domain', 'process');
     }
 
     /**

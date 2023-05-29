@@ -21,9 +21,12 @@ class ProcessController extends Controller
     {
         $processes = new Process();
 
+        $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
-        $filter = request('filter', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
 
         if ($filter) {
             $processes = $processes->filter($filter);
@@ -35,8 +38,8 @@ class ProcessController extends Controller
         if ($search) {
             $processes = $processes->search($search);
         }
-        $perPage = request('perPage', false) ? request()->perPage : 10;
-        $processes = request()->has('fetchAll') ? $processes->get()->toJson() : ProcessResource::collection($processes->paginate($perPage)->onEachSide(1));
+
+        $processes = $fetchAll ? $processes->get()->toJson() : ProcessResource::collection($processes->paginate($perPage)->onEachSide(1));
         return $processes;
     }
 
@@ -75,8 +78,7 @@ class ProcessController extends Controller
     {
         $processes = explode(',', $process);
         $onlyControlPoints = request()->has('onlyControlPoints');
-        $data = $onlyControlPoints ? formatForSelect(ControlPoint::whereIn('process_id', $processes)->get()->toArray()) : Process::findOrFail($process)->load(['familly', 'domain']);
-        // dd($data);
+        $data = $onlyControlPoints ? formatForSelect(ControlPoint::whereIn('process_id', $processes)->get()->toArray()) : Process::findOrFail($process)->load(['familly', 'domain', 'control_points']);
         return response()->json($data);
     }
 

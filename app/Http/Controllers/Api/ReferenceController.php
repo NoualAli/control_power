@@ -13,12 +13,18 @@ class ReferenceController extends Controller
 {
     public function pcf()
     {
-        $controlPoints = ControlPoint::with(['familly', 'process', 'domain'])->withRowNumber();
+        $controlPoints = ControlPoint::with(['familly', 'process', 'domain']);
 
         $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
-        $onlyFiltersData = request('onlyFiltersData', false);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
+
+        if ($fetchFilters) {
+            return $this->filtersData();
+        }
 
         if ($filter) {
             $controlPoints = $controlPoints->filter($filter);
@@ -32,18 +38,27 @@ class ReferenceController extends Controller
             $controlPoints = $controlPoints->sortByMultiple($sort);
         }
 
-        if (!$onlyFiltersData) {
-            $perPage = request('perPage', false) ? request()->perPage : 10;
-            return PCFResource::collection($controlPoints->paginate($perPage)->onEachSide(1));
-        }
-        return $this->filtersData();
+        return PCFResource::collection($controlPoints->paginate($perPage)->onEachSide(1));
+    }
+
+    public function show(ControlPoint $controlPoint)
+    {
+        $controlPoint->unsetRelations();
+        $controlPoint->load(['familly', 'domain', 'process']);
+        return $controlPoint->only(['familly', 'domain', 'process', 'name', 'id']);
     }
 
     private function filtersData()
     {
-        $famillies = formatForSelect(Familly::all()->toArray());
-        $domains = formatForSelect(Domain::all()->toArray());
-        $processes = formatForSelect(Process::all()->toArray());
-        return compact('famillies', 'domains', 'processes');
+        // dd(request()->all());
+        $filters = request('filter', false);
+        $families = $filters ? $filters?->familly : false;
+        $domains = $filters ? $filters->domain : false;
+
+        $family = formatForSelect(Familly::all()->toArray());
+
+        $domain = formatForSelect(Domain::all()->toArray());
+        $process = formatForSelect(Process::all()->toArray());
+        return compact('family', 'domain', 'process');
     }
 }

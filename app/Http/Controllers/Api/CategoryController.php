@@ -20,11 +20,15 @@ class CategoryController extends Controller
     public function index()
     {
         isAbleOrAbort(['view_category']);
-        $categories = Category::withCount('processes');
-
+        $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
-        $filter = request('filter', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
+
+        $categories = Category::withCount('processes');
+
 
         if ($filter) {
             $categories = $categories->filter($filter);
@@ -36,8 +40,8 @@ class CategoryController extends Controller
         if ($search) {
             $categories = $categories->search($search);
         }
-        $perPage = request('perPage', false) ? request()->perPage : 10;
-        $categories = request()->has('fetchAll') ? $categories->get()->toJson() : CategoryResource::collection($categories->paginate($perPage)->onEachSide(1));
+
+        $categories = $fetchAll ? $categories->get()->toJson() : CategoryResource::collection($categories->paginate($perPage)->onEachSide(1));
         return $categories;
     }
 

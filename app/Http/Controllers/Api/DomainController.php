@@ -6,10 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Domains\StoreRequest;
 use App\Http\Requests\Domains\UpdateRequest;
 use App\Http\Resources\DomainResource;
-use App\Http\Resources\ProcessResource;
 use App\Models\Domain;
 use App\Models\Process;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 
 class DomainController extends Controller
@@ -23,9 +21,12 @@ class DomainController extends Controller
     {
         $domains = new Domain();
 
+        $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
-        $filter = request('filter', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
 
         if ($filter) {
             $domains = $domains->filter($filter);
@@ -37,8 +38,8 @@ class DomainController extends Controller
         if ($search) {
             $domains = $domains->search($search);
         }
-        $perPage = request('perPage', false) ? request()->perPage : 10;
-        $domains = request()->has('fetchAll') ? $domains->get()->toJson() : DomainResource::collection($domains->paginate($perPage)->onEachSide(1));
+
+        $domains = $fetchAll ? $domains->get()->toJson() : DomainResource::collection($domains->paginate($perPage)->onEachSide(1));
         return $domains;
     }
 

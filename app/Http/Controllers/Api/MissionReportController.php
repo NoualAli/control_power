@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Mission;
 use App\Http\Requests\Mission\Report\StoreRequest;
 use App\Http\Requests\Mission\Report\ValidateRequest;
+use App\Models\BaseModel;
 use App\Models\MissionReport;
 use App\Models\User;
 use App\Notifications\Mission\Validated;
 use Exception;
-
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -55,20 +56,22 @@ class MissionReportController extends Controller
                         'created_by_id' => auth()->user()->id,
                         'validated_at' => $validatedAt,
                     ]);
-
-                    // if ($data['type'] == 'Avis contrôleur') {
-                    //     $state = today()->diffInDays($mission->end) > 0 ? 'En attente de validation' : 'En attente de validation (en retard)';
-                    //     $mission->states()->create(['state' => $state]);
-                    // }
-                    // if ($data['type'] == 'Rapport') {
-                    //     $state = today()->diffInDays($mission->end) > 0 ? 'Validé et envoyé' : 'Validé et envoyé (en retard)';
-                    //     $mission->states()->create(['state' => $state]);
-                    // }
                 }
 
                 if ($report->is_validated) {
                     $users = $this->getUsers($mission, $report);
                     $this->notifyUsers($mission, $users);
+                    switch ($data['type']) {
+                        case 'Avis contrôleur':
+                            $column = 'executed_at';
+                            break;
+                        default:
+                            $column = 'validated_at';
+                            break;
+                    }
+                    foreach ($mission->details()->whereNull($column)->get() as $detail) {
+                        $detail->update([$column => now()]);
+                    }
                 }
             });
             $message = $hasId ? UPDATE_SUCCESS : CREATE_SUCCESS;
@@ -116,15 +119,6 @@ class MissionReportController extends Controller
                     $detail->update([$column => now()]);
                 }
 
-                // if ($data['type'] == 'Avis contrôleur') {
-                //     $state = today()->diffInDays($mission->end) > 0 ? 'En attente de validation' : 'En attente de validation (en retard)';
-                //     $mission->states()->create(['state' => $state]);
-                // }
-                // if ($data['type'] == 'Rapport') {
-                //     $state = today()->diffInDays($mission->end) > 0 ? 'Validé et envoyé' : 'Validé et envoyé (en retard)';
-                //     $mission->states()->create(['state' => $state]);
-                // }
-
                 $users = $this->getUsers($mission, $report);
                 $this->notifyUsers($mission, $users);
             });
@@ -166,7 +160,7 @@ class MissionReportController extends Controller
     private function notifyUsers(Mission $mission, Collection|User $users)
     {
         try {
-            if ($users instanceof Model) {
+            if ($users instanceof Model || $users instanceof BaseModel) {
                 Notification::send($users, new Validated($mission));
             } else {
                 foreach ($users as $user) {

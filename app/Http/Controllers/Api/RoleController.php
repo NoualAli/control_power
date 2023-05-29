@@ -8,7 +8,6 @@ use App\Http\Requests\Role\UpdateRequest;
 use App\Http\Resources\RoleResource;
 use App\Models\Role;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 
 class RoleController extends Controller
 {
@@ -22,9 +21,12 @@ class RoleController extends Controller
         isAbleOrAbort(['view_role', 'create_user', 'update_user']);
         $roles = new Role();
 
+        $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
-        $filter = request('filter', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
 
         if ($filter) {
             $roles = $roles->filter($filter);
@@ -36,8 +38,8 @@ class RoleController extends Controller
         if ($search) {
             $roles = $roles->search($search);
         }
-        $perPage = request('perPage', false) ? request()->perPage : 10;
-        $roles = request()->has('fetchAll') ? formatForSelect($roles->get()->toArray(), 'full_name') : RoleResource::collection($roles->paginate($perPage)->onEachSide(1));
+
+        $roles = $fetchAll ? formatForSelect($roles->get()->toArray(), 'full_name') : RoleResource::collection($roles->paginate($perPage)->onEachSide(1));
         return $roles;
     }
 

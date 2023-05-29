@@ -40,30 +40,31 @@ class UserController extends Controller
         isAbleOrAbort('view_user');
         $users = new User;
 
+        $filter = request('filter', null);
         $search = request('search', null);
-        $order = request()->has('order') && !empty(request()->order) ? request()->order : null;
-        $filter = request()->has('filter') ? request()->filter : null;
+        $sort = request('sort', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        // $fetchAll = request()->has('fetchAll');
+        $fetchAll = request()->has('fetchAll');
+
         if ($filter) {
             $users = $users->filter($filter);
         }
 
-        if ($order) {
-            $users = $users->sortByMultiple($order);
+        if ($sort) {
+            $users = $users->sortByMultiple($sort);
         }
         if ($search) {
             $users = $users->search($search);
         }
-        // $users = User::whereId(9)->first();
-        // // $users = [];
-        // $dre = Dre::findOrFail(1);
-        // dd($users->agencies, $users->dres);
-        $fetchAll = request('fetchAll', null);
+
         if ($fetchAll) {
             $users = formatForSelect($users->get()->toArray(), 'full_name');
         } elseif (request()->has('dre_id')) {
             $users = $users->where('dre_id', request()->dre_id)->get();
         } else {
-            $perPage = request('perPage', false) ? request()->perPage : 10;
+            $perPage = request('perPage', 10);
             $users = UserResource::collection($users->paginate($perPage)->onEachSide(1));
         }
 

@@ -20,9 +20,12 @@ class PermissionController extends Controller
     {
         $permissions = new Permission();
 
+        $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
-        $filter = request('filter', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
 
         if ($filter) {
             $permissions = $permissions->filter($filter);
@@ -34,9 +37,9 @@ class PermissionController extends Controller
         if ($search) {
             $permissions = $permissions->search($search);
         }
-        $perPage = request('perPage', false) ? request()->perPage : 10;
+        $perPage = request('perPage', 10);
 
-        $permissions = request()->has('fetchAll') ? $permissions->get()->toJson() : PermissionResource::collection($permissions->paginate($perPage)->onEachSide(1));
+        $permissions = $fetchAll ? $permissions->get()->toJson() : PermissionResource::collection($permissions->paginate($perPage)->onEachSide(1));
 
         return $permissions;
     }

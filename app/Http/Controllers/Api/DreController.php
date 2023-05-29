@@ -21,9 +21,12 @@ class DreController extends Controller
         isAbleOrAbort(['view_dre', 'create_user', 'update_user']);
         $dres = Dre::withCount('agencies');
 
+        $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
-        $filter = request('filter', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $perPage = request('perPage', 10);
+        $fetchAll = request()->has('fetchAll');
 
         if ($filter) {
             $dres = $dres->filter($filter);
@@ -31,13 +34,15 @@ class DreController extends Controller
 
         if ($sort) {
             $dres = $dres->sortByMultiple($sort);
+        } else {
+            $dres = $dres->orderBy('code');
         }
+
         if ($search) {
             $dres = $dres->search($search);
         }
 
-        $perPage = request('perPage', false) ? request()->perPage : 10;
-        $dres = request()->has('fetchAll') ? $dres->get()->toJson() : DreResource::collection($dres->paginate($perPage)->onEachSide(1));
+        $dres = $fetchAll ? $dres->get()->toJson() : DreResource::collection($dres->paginate($perPage)->onEachSide(1));
         if (request()->has('withAgencies')) {
             $dres = $this->loadWithAgencies();
         }
