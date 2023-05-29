@@ -17,7 +17,6 @@ class CreateMissionsTable extends Migration
             $table->uuid('id')->primary();
             $table->string('reference')->unique();
             $table->text('note')->nullable();
-            // $table->foreignUuid('state_id');
 
             // Relationships
             $table->foreignId('control_campaign_id');
@@ -34,8 +33,6 @@ class CreateMissionsTable extends Migration
             $table->timestamps(7);
             $table->softDeletes('deleted_at', 7);
 
-
-            // $table->foreign('state_id')->on('mission_states')->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('control_campaign_id')->on('control_campaigns')->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('agency_id')->on('agencies')->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('created_by_id')->on('users')->references('id')->onDelete('cascade')->onUpdate('cascade');
