@@ -39,9 +39,9 @@ defineDirectives(app)
 app.config.performance = true
 app.config.errorHandler = (err, vm, info) => {
     // handle error
-    console.error(err)
+    // console.error(err)
     // console.log(vm)
-    console.log(info)
+    // console.log(info)
 }
 app.mount('#app')
 
