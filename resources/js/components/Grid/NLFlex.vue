@@ -1,5 +1,6 @@
 <template>
-    <div class="d-flex" :class="[gapPrefixed, fullCenter, justifyContent, alignItems, extraClass]">
+    <div class="d-flex"
+        :class="[gapPrefixed, fullCenter, getFormatedJustifyContent, getFormatedAlignItems, getFormatedDirection, extraClass]">
         <slot></slot>
     </div>
 </template >
@@ -13,162 +14,162 @@ export default {
             required: false,
             default: null,
         },
-        justifyContent: {
-            type: String,
-            default: null,
-            required: false,
-            validator(value) {
-                return [
-                    'justify-normal',
-                    'justify-center',
-                    'justify-start',
-                    'justify-end',
-                    'justify-left',
-                    'justify-right',
-                    'justify-between',
-                    'justify-around',
-                    'justify-evenly',
-                    'justify-stretch',
-                    'justify-revert-layer',
-                ].includes(value)
-            }
-        },
-        mdJstifyContent: {
-            type: String,
-            default: null,
-            required: false,
-            validator(value) {
-                return [
-                    'justify-md-center',
-                    'justify-md-start',
-                    'justify-md-end',
-                    'justify-md-flex-start',
-                    'justify-md-flex-end',
-                    'justify-md-left',
-                    'justify-md-right',
-                    'justify-md-space-between',
-                    'justify-md-space-around',
-                    'justify-md-space-evenly',
-                    'justify-md-stretch',
-                    'justify-md-revert-layer',
-                ].includes(value)
-            }
-        },
-        lgJustifyContent: {
-            type: String,
-            default: null,
-            required: false,
-            validator(value) {
-                return [
-                    'justify-lg-center',
-                    'justify-lg-start',
-                    'justify-lg-end',
-                    'justify-lg-flex-start',
-                    'justify-lg-flex-end',
-                    'justify-lg-left',
-                    'justify-lg-right',
-                    'justify-lg-space-between',
-                    'justify-lg-space-around',
-                    'justify-lg-space-evenly',
-                    'justify-lg-stretch',
-                    'justify-lg-revert-layer',
-                ].includes(value)
-            }
-        },
         alignItems: {
             type: String,
-            default: null,
+            default: 'start',
             required: false,
             validator(value) {
                 return [
-                    'align-center',
-                    'align-start',
-                    'align-end',
-                    'align-self-start',
-                    'align-self-end',
-                    'align-baseline',
-                    'align-initial',
-                    'align-inherit',
-                    'align-revert-layer',
+                    'center',
+                    'start',
+                    'end',
+                    'self-start',
+                    'self-end',
+                    'baseline',
+                    'initial',
+                    'inherit',
+                    'revert-layer',
                 ].includes(value)
             },
         },
         mdAlignItems: {
             type: String,
-            default: null,
+            default: 'center',
             required: false,
             validator(value) {
                 return [
-                    'align-md-center',
-                    'align-md-start',
-                    'align-md-end',
-                    'align-md-flex-start',
-                    'align-md-flex-end',
-                    'align-md-self-start',
-                    'align-md-self-end',
-                    'align-md-baseline',
-                    'align-md-initial',
-                    'align-md-inherit',
-                    'align-md-revert-layer',
+                    'center',
+                    'start',
+                    'end',
+                    'flex-start',
+                    'flex-end',
+                    'self-start',
+                    'self-end',
+                    'baseline',
+                    'initial',
+                    'inherit',
+                    'revert-layer',
                 ].includes(value)
             },
         },
         lgAlignItems: {
             type: String,
-            default: null,
+            default: 'center',
             required: false,
             validator(value) {
                 return [
-                    'align-lg-center',
-                    'align-lg-start',
-                    'align-lg-end',
-                    'align-lg-flex-start',
-                    'align-lg-flex-end',
-                    'align-lg-self-start',
-                    'align-lg-self-end',
-                    'align-lg-baseline',
-                    'align-lg-initial',
-                    'align-lg-inherit',
-                    'align-lg-revert-layer',
+                    'center',
+                    'start',
+                    'end',
+                    'flex-start',
+                    'flex-end',
+                    'self-start',
+                    'self-end',
+                    'baseline',
+                    'initial',
+                    'inherit',
+                    'revert-layer',
                 ].includes(value)
             },
         },
-        direction: {
+        justifyContent: {
             type: String,
-            default: null,
+            default: 'start',
             required: false,
             validator(value) {
                 return [
-                    'is-row',
-                    'is-column',
-                    'is-row-reverse',
-                    'is-column-reverse',
+                    'normal',
+                    'center',
+                    'start',
+                    'end',
+                    'left',
+                    'right',
+                    'between',
+                    'around',
+                    'evenly',
+                    'stretch',
+                    'revert-layer',
+                ].includes(value)
+            }
+        },
+        mdJustifyContent: {
+            type: String,
+            default: 'start',
+            required: false,
+            validator(value) {
+                return [
+                    'center',
+                    'start',
+                    'end',
+                    'flex-start',
+                    'flex-end',
+                    'left',
+                    'right',
+                    'between',
+                    'around',
+                    'evenly',
+                    'stretch',
+                    'revert-layer',
+                ].includes(value)
+            }
+        },
+        lgJustifyContent: {
+            type: String,
+            default: 'between',
+            required: false,
+            validator(value) {
+                return [
+                    'center',
+                    'start',
+                    'end',
+                    'flex-start',
+                    'flex-end',
+                    'left',
+                    'right',
+                    'between',
+                    'around',
+                    'evenly',
+                    'stretch',
+                    'revert-layer',
+                ].includes(value)
+            }
+        },
+        direction: {
+            type: String,
+            default: 'column',
+            required: false,
+            validator(value) {
+                return [
+                    'row',
+                    'column',
+                    'row-reverse',
+                    'column-reverse',
                 ].includes(value)
             },
         },
         mdDirection: {
             type: String,
-            default: null,
+            default: 'column',
             required: false,
             validator(value) {
                 return [
-                    'is-md-row',
-                    'is-md-column',
-                    'is-md-row-reverse',
-                    'is-md-column-reverse',
+                    'row',
+                    'column',
+                    'row-reverse',
+                    'column-reverse',
                 ].includes(value)
             },
         },
         lgDirection: {
             type: String,
-            default: null,
+            default: 'row',
             required: false,
             validator(value) {
                 return [
-                    'is-lg-row',
-                    'is-lg-column',
-                    'is-lg-row-reverse',
-                    'is-lg-column-reverse',
+                    'row',
+                    'column',
+                    'row-reverse',
+                    'column-reverse',
                 ].includes(value)
             },
         },
@@ -192,6 +193,42 @@ export default {
         },
         fullCenter() {
             return this.isFullCentered ? 'full-center' : null
+        },
+        getFormatedDirection() {
+            return `${this.getDirection} ${this.getMdDirection} ${this.getLgDirection}`
+        },
+        getFormatedAlignItems() {
+            return `${this.getAlignItems} ${this.getMdAlignItems} ${this.getLgAlignItems}`
+        },
+        getFormatedJustifyContent() {
+            return `${this.getJustifyContent} ${this.getMdJustifyContent} ${this.getLgJustifyContent}`
+        },
+        getAlignItems() {
+            return `align-${this.alignItems}`
+        },
+        getMdAlignItems() {
+            return `align-md-${this.mdAlignItems}`
+        },
+        getLgAlignItems() {
+            return `align-lg-${this.lgAlignItems}`
+        },
+        getJustifyContent() {
+            return `justify-${this.justifyContent}`
+        },
+        getMdJustifyContent() {
+            return `justify-md-${this.mdJustifyContent}`
+        },
+        getLgJustifyContent() {
+            return `justify-lg-${this.lgJustifyContent}`
+        },
+        getDirection() {
+            return `is-${this.direction}`
+        },
+        getMdDirection() {
+            return `is-md-${this.mdDirection}`
+        },
+        getLgDirection() {
+            return `is-lg-${this.lgDirection}`
         },
     },
 }
