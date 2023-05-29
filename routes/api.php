@@ -16,9 +16,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\ProcessController;
 use App\Http\Controllers\Api\RoleController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\Settings\PasswordController;
 use App\Http\Controllers\Api\Settings\ProfileController;
@@ -81,6 +79,7 @@ Route::group(['middleware' => 'auth:api'], function () {
      */
     Route::prefix('references')->group(function () {
         Route::get('/pcf', [ReferenceController::class, 'pcf']);
+        Route::get('/pcf/{controlPoint}', [ReferenceController::class, 'show']);
     });
 
     /**
@@ -143,6 +142,8 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::get('/', 'index');
         Route::get('/{mission}', 'show');
         Route::get('/{mission}/export', 'export');
+        // Route::get('/{mission}/export', 'exportSnappy');
+        Route::get('/{mission}/processes', 'processes');
         Route::put('{mission}', 'update');
         Route::put('{mission}/assign', 'assignToCC');
         Route::get('/concerns/config', 'config');
@@ -178,7 +179,6 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::prefix('details')->controller(MissionDetailController::class)->group(function () {
         Route::get('/', 'index');
         Route::get('/major-facts', 'majorFacts');
-        Route::get('/concerns/filters', 'filtersData');
     });
     Route::prefix('regularize')->controller(RegularizationController::class)->group(function () {
         Route::post('/{detail}', 'store');
