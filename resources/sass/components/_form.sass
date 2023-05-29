@@ -18,6 +18,9 @@ $input-hover-border: $dracula
 $input-focus-border: $primary
 $input-focus-shadow: 0 0 0 0.125em rgb(72 95 199 / 25%)
 
+// Placeholder
+$placeholder-color: #C5C4C3
+
 form
     width: auto
     height: auto
@@ -26,7 +29,10 @@ form
 .input-base-container
     position: relative
     width: 100%
-    height: calc(100% - 3.2rem)
+    max-width: 100vw
+    height: auto
+    margin: 0 !important
+    // height: calc(100% - 3.2rem)
 .select
     & .vue-treeselect__control
         position: relative
@@ -44,9 +50,12 @@ form
         &.is-#{nth($color, 1)}
             & .vue-treeselect__control
                 border: 2px solid lighten(nth($color, 2), 10%) !important
+// .vue-treeselect__x-container
+//     display: none !important
+
 .nl-select
     position: relative
-    margin: 1rem 0
+    // margin: 1rem 0
     outline: none
     width: 100%
     padding: $input-padding
@@ -164,7 +173,7 @@ form
                 border-bottom: 1px solid $grey
                 background-color: #E4F9FC
                 &:hover
-                    background-color: $clouds
+                    background-color: $grey
             &:not(.radio-hidden)
                 &:hover
                     & .checkable
@@ -211,7 +220,7 @@ form
                             left: 50%
                             transform: translate(-50%,-50%)
     & .input-checkable
-        display: none
+        // display: none
 .is-password-input
     display: flex
     justify-content: center
@@ -237,7 +246,7 @@ form
         border-bottom-right-radius: $input-border-radius
         transition: .2s ease
         &:hover
-            background-color: $clouds
+            background-color: $grey
             color: lighten($dracula, 10%)
         @each $color in $colors-list
             &.is-#{nth($color, 1)}
@@ -301,14 +310,14 @@ form
                 box-shadow: 0.5px 1px 2.2px rgba(nth($color, 2), 0.034),1.1px 2.4px 5.3px rgba(nth($color, 2), 0.048),2.1px 4.5px 10px rgba(nth($color, 2), 0.06),3.8px 8px 17.9px rgba(nth($color, 2), 0.072),7.1px 15px 33.4px rgba(nth($color, 2), 0.086), 17px 36px 80px rgba(nth($color, 2), 0.12)
                 border: 1px solid nth($color, 2)
 .switch-input:checked ~ .switch
-    background-color: $danger
-    border: 1px solid $danger
+    background-color: $success
+    border: 1px solid $success
     &::after
         content: attr(data-true-label)
-        color: $danger
+        color: $success
         left: 35px
-        box-shadow: 0.5px 1px 2.2px rgba($danger, 0.034),1.1px 2.4px 5.3px rgba($danger, 0.048),2.1px 4.5px 10px rgba($danger, 0.06),3.8px 8px 17.9px rgba($danger, 0.072),7.1px 15px 33.4px rgba($danger, 0.086), 17px 36px 80px rgba($danger, 0.12)
-        border: 1px solid $danger
+        box-shadow: 0.5px 1px 2.2px rgba($success, 0.034),1.1px 2.4px 5.3px rgba($success, 0.048),2.1px 4.5px 10px rgba($success, 0.06),3.8px 8px 17.9px rgba($success, 0.072),7.1px 15px 33.4px rgba($success, 0.086), 17px 36px 80px rgba($success, 0.12)
+        border: 1px solid $success
     @each $color in $colors-list
         &.is-#{nth($color, 1)}
             background-color: nth($color, 2)
@@ -332,7 +341,7 @@ form
     padding: $input-padding
     border: $input-border
     border-radius: $input-border-radius
-    background-color: lighten($primary-extra-light, 75)
+    background-color: lighten($primary-light, 75)
     font-size: $input-font-size
     box-shadow: $input-inset-shadow, $input-shadow
     transition: .1s ease
@@ -371,3 +380,71 @@ form
     cursor: pointer
     width: 100%
     height: 30px
+
+.checkable-container
+    width: 100%
+    display: flex
+    flex-direction: row
+    align-items: center
+    justify-content: start
+    gap: 1rem
+    margin: 1rem 0
+    &.is-column
+        flex-direction: column
+        align-items: flex-start
+        justify-content: flex-start
+    & .radio-container, &.checkbox-container
+        display: flex
+        justify-content: start
+        align-items: center
+        flex-direction: row-reverse
+        gap: .5rem
+        width: auto
+    & input
+        display: none
+    & .radio, & .checkbox
+        position: relative
+        display: block
+        width: 20px
+        height: 20px
+        border: 1px solid $primary
+        cursor: pointer
+        transition: .1s ease-in-out
+        &:after
+            content: ''
+            position: absolute
+            top: 50%
+            left: 50%
+            transform: translate(-50%, -50%)
+            width: 15px
+            height: 15px
+            transition: .2s ease-in-out
+            color: $white
+    & .radio
+        border-radius: 50%
+        &:hover, &.is-checked, & input:checked
+            &::after
+                background-color: $primary
+        &:after
+            border-radius: 50%
+    & .checkbox
+        border-radius: 4px
+        &:hover, &.is-checked, & input:checked
+            background-color: transparent
+            &::after
+                content: '✓'
+                color: $primary
+                background-color: transparent
+    & .checkable-label
+        cursor: pointer
+        &:hover ~ .radio:after
+            background-color: $primary
+
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field,
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-inner-spin-button,
+::placeholder
+    color: $placeholder-color
