@@ -40,17 +40,6 @@ class ControlCampaign extends BaseModel
     protected $filter = 'App\Filters\Campaign';
     protected $filterable = ['reference'];
 
-    /**
-     * Setters
-     */
-    public static function boot()
-    {
-        parent::boot();
-
-        // static::creating(function ($model) {
-        //     $model->reference = generateCDCRef(false, $model->created_at);
-        // });
-    }
 
     /**
      * Relationships
@@ -90,7 +79,7 @@ class ControlCampaign extends BaseModel
      */
     public function scopeCurrent($query)
     {
-        return $query->orderBy('created_at', 'ASC')->get()->last();
+        return $query->validated()->orderBy('created_at', 'ASC')->get()->last();
     }
 
     public function scopeValidated($query)

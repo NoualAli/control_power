@@ -29,6 +29,10 @@ class Process extends BaseModel
     /**
      * Getters
      */
+    public function getTagAttribute()
+    {
+        return '<span class="tag">' . $this->name . '</span>';
+    }
 
     /**
      * Relationships

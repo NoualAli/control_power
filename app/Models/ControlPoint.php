@@ -29,7 +29,7 @@ class ControlPoint extends BaseModel
 
     protected $searchable = ['name', 'domain.name', 'familly.name', 'process.name'];
 
-    protected $appends = ['scores_str'];
+    protected $appends = ['scores_str', 'major_fact_str'];
 
     public $casts = [
         'has_major_fact' => 'boolean',
@@ -41,16 +41,23 @@ class ControlPoint extends BaseModel
      * Getters
      */
 
+    public function getMajorFactStrAttribute()
+    {
+        return $this->has_major_fact ? 'Oui' : 'Non';
+    }
+
     public function getScoresStrAttribute()
     {
         $scores = $this->scores;
         $scores_str = '';
+        $containerStart = '<div class="d-flex justify-start align-center gap-2">';
+        $containerEnd = '</div>';
         if (is_array($scores)) {
             foreach ($scores as $score) {
                 $scores_str .= '<span class="tag"><b>' . $score[1]->label . ':</b> ' . $score[0]->score . '</span>';
             }
         }
-        return $scores_str;
+        return $containerStart . $scores_str . $containerEnd;
     }
 
     public function getScoresArrAttribute()

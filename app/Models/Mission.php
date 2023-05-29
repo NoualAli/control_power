@@ -54,6 +54,10 @@ class Mission extends BaseModel
         'dre_report_is_validated',
     ];
 
+    protected $casts = [
+        'progress_status' => 'int'
+    ];
+
     protected $searchable = ['reference', 'campaign.reference'];
 
     // public $with = ['agency', 'dre', 'campaign', 'controllers', 'details'];
@@ -145,7 +149,6 @@ class Mission extends BaseModel
     }
     public function getRealisationStateAttribute()
     {
-        // return $this->states()->latest()->first()->state;
         $today = now();
         $start = $this->start;
         $end = $this->end;
@@ -228,16 +231,6 @@ class Mission extends BaseModel
         return $this->belongsTo(User::class, 'dcp_validation_by_id');
     }
 
-    public function states()
-    {
-        return $this->hasMany(MissionState::class);
-    }
-
-    public function state()
-    {
-        return $this->belongsTo(MissionState::class);
-    }
-
     /**
      * Scopes
      */
@@ -269,20 +262,6 @@ class Mission extends BaseModel
     {
         // return $query->whereHas('reports', fn ($report) => $report->where('type', 'Rapport')->whereNotNull('validated_at'));
         return $query->whereRelation('reports', 'type', 'Rapport', '!=', null)->whereRelation('reports', 'validated_at', '!=', null);
-    }
-
-    public function scopeNotValidated($query)
-    {
-        // return $query->where
-        // return $query->whereHas('states', function ($q) {
-        //     $q->where('state', 'En attente de validation')
-        //         ->whereNotExists(function ($query) {
-        //             $query->select(DB::raw(1))
-        //                 ->from('mission_states as ms2')
-        //                 ->orderBy('created_at', 'DESC')
-        //                 ->whereRaw('ms2.mission_id = mission_states.mission_id AND ms2.created_at > mission_states.created_at');
-        //         });
-        // });
     }
 
     public function scopeOnlyValidatedMajorFacts($query)

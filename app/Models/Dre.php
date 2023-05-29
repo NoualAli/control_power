@@ -22,12 +22,13 @@ class Dre extends BaseModel
     protected $searchable = ['name', 'code'];
 
     public $appends = [
-        'agencies_count',
         'full_name',
-        'agencies_str'
+        // 'agencies_str'
     ];
 
     public $timestamps = false;
+
+    // public $with = ['agencies'];
 
     /**
      * Getters
@@ -37,15 +38,11 @@ class Dre extends BaseModel
         return strtoupper($name);
     }
 
-    public function getAgenciesStrAttribute()
-    {
-        $agencies = implode(', ', $this->agencies->pluck('name')->flatten()->toArray());
-        return !empty($agencies) ? $agencies : '-';
-    }
-    public function getAgenciesCountAttribute()
-    {
-        return $this->agencies->count();
-    }
+    // public function getAgenciesStrAttribute()
+    // {
+    //     $agencies = implode(', ', $this->agencies->pluck('name')->flatten()->toArray());
+    //     return !empty($agencies) ? $agencies : '-';
+    // }
 
     public function getFullNameAttribute()
     {
@@ -55,15 +52,6 @@ class Dre extends BaseModel
     /**
      * Relationships
      */
-    // public function agencies()
-    // {
-    //     return $this->hasMany(Agency::class);
-    // }
-    // public function users()
-    // {
-    //     // return $this->belongsToMany(User::class, 'user_has_dres');
-    //     return $this->hasManyThrough(User::class, Agency::class, 'dre_id', 'user_id', 'id', 'agency_id');
-    // }
     // Define the many-to-many relationship with User through UserHasAgency pivot table
     public function users()
     {
