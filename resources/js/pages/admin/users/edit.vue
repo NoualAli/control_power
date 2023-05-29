@@ -51,7 +51,7 @@
 
                         <!-- Submit Button -->
                         <div class="d-flex justify-end align-center">
-                            <NLButton :loading="form.busy" label="Update" class="is-radius" />
+                            <NLButton :loading="form.busy" label="Mettre à jour" class="is-radius" />
                         </div>
                     </form>
                 </div>
@@ -74,7 +74,7 @@
                         </div>
                         <!-- Submit Button -->
                         <div class="d-flex justify-end align-center">
-                            <NLButton :loading="passwordForm.busy" label="Update" class="is-radius" />
+                            <NLButton :loading="passwordForm.busy" label="Mettre à jour" class="is-radius" />
                         </div>
                     </form>
                 </div>

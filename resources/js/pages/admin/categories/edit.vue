@@ -17,7 +17,7 @@
                 </div>
                 <!-- Submit Button -->
                 <div class="d-flex justify-end align-center">
-                    <NLButton :loading="form.busy" label="Save" class="is-radius" />
+                    <NLButton :loading="form.busy" label="Enregistrer" class="is-radius" />
                 </div>
             </form>
         </ContentBody>

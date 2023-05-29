@@ -29,7 +29,7 @@
         </div>
         <!-- Submit Button -->
         <div class="d-flex justify-end align-center">
-          <NLButton :loading="form.busy" label="Add" class="is-radius" />
+          <NLButton :loading="form.busy" label="Ajouter" class="is-radius" />
         </div>
       </form>
     </ContentBody>
