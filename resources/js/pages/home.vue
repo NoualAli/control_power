@@ -388,7 +388,15 @@
                         </tbody>
                     </table>
                 </div>
-
+                <NLContainer extraClass="d-flex full-center" isFluid>
+                    <NLFlex isFullCentered extraClass="w-100 h-100" v-if="charts.avgScoreByFamily">
+                        <Doughnut id="avgScoreByFamily" :data="charts.avgScoreByFamily" :options="circularChartOptions"
+                            data-title="notations_moyennes_par_famille" />
+                    </NLFlex>
+                    <div class="w-100 h-100 text-center text-bold" v-else>
+                        Pas assez de données
+                    </div>
+                </NLContainer>
             </NLColumn>
             <!-- 10 agences contenant un nombre des faits majeur élevé -->
             <NLColumn lg="6">
@@ -464,30 +472,20 @@
 </template>
 
 <script>
-import NLFlex from '../components/Grid/NLFlex'
-// import ContentHeader from '../components/ContentHeader'
-import ContentBody from '../components/ContentBody'
+import NLDatatable from '../components/Datatable/NLDatatable.vue'
 import { mapGetters } from 'vuex'
 // import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
 import { Bar, Pie, Doughnut } from 'vue-chartjs'
 // import InProgress from '../components/InProgress'
-import NLDatatable from '../components/Datatable/NLDatatable.vue'
 export default {
     components: {
         NLDatatable,
-        NLFlex,
-        // ContentHeader,
-        ContentBody,
         Bar,
         Doughnut,
         Pie
-        // InProgress
     },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
-    // metaInfo () {
-    //   return { title: 'Tableau de bord ssss' }
-    // },
     data() {
         return {
             currentSection: null,
