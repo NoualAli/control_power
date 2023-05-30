@@ -33,7 +33,7 @@ class ControlCampaign extends BaseModel
         'remaining_days_before_end_str',
     ];
 
-    public $withCount = ['processes'];
+    // public $withCount = ['processes'];
 
     protected $searchable = ['reference'];
 
