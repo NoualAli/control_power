@@ -19,7 +19,8 @@ class FamillyController extends Controller
      */
     public function index()
     {
-        $famillies = new Familly();
+        $famillies = Familly::withCount('domains');
+        // $famillies = new Familly();
 
         $filter = request('filter', null);
         $search = request('search', null);
