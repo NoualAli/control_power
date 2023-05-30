@@ -19,7 +19,7 @@ class ProcessController extends Controller
      */
     public function index()
     {
-        $processes = new Process();
+        $processes = Process::with(['domain', 'familly'])->withCount('control_points');
 
         $filter = request('filter', null);
         $search = request('search', null);

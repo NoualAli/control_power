@@ -20,7 +20,7 @@ class Process extends BaseModel
 
     public $timestamps = false;
 
-    public $withCount = ['control_points'];
+    // public $withCount = ['control_points'];
 
     // public $with = ['domain', 'control_points', 'familly'];
 
