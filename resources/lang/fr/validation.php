@@ -228,7 +228,9 @@ return [
         'action_to_be_taken' => 'action à engagée',
         'reason' => 'cause',
         'pcf_usable' => 'pcf utilisable',
-        'pcf_unusable' => 'pcf inutilisable'
+        'pcf_unusable' => 'pcf inutilisable',
+        'recovery_plan' => 'plan de redressement',
+        'report' => 'constat'
     ],
 
 ];
