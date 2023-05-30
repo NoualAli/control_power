@@ -18,7 +18,7 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        $permissions = new Permission();
+        $permissions = Permission::with('roles');
 
         $filter = request('filter', null);
         $search = request('search', null);

@@ -28,7 +28,7 @@ class FamillyController extends Controller
         $fetchFilters = request()->has('fetchFilters');
         $perPage = request('perPage', 10);
         $fetchAll = request()->has('fetchAll');
-        $withChildren = boolVal(request('withChildren', false));
+        $withChildren = request()->has('withChildren');
 
         if ($filter) {
             $famillies = $famillies->filter($filter);

@@ -19,7 +19,7 @@ class Role extends BaseModel
 
     public $timestamps = false;
 
-    public $with = ['permissions'];
+    // public $with = ['permissions'];
 
     protected $perPage = 10;
 

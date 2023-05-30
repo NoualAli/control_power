@@ -18,7 +18,7 @@ class DreResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'code' => $this->code,
-            'agencies_count' => $this->agencies->count(),
+            'agencies_count' => $this->agencies_count,
         ];
     }
 }

@@ -38,7 +38,7 @@ class UserController extends Controller
     public function index()
     {
         isAbleOrAbort('view_user');
-        $users = new User;
+        $users = User::with(['dres', 'roles']);
 
         $filter = request('filter', null);
         $search = request('search', null);
