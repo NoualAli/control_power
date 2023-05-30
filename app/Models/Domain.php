@@ -20,7 +20,7 @@ class Domain extends BaseModel
 
     protected $searchable = ['name'];
 
-    public $withCount = ['processes'];
+    // public $withCount = ['processes'];
 
     /**
      * Getters
