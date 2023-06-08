@@ -259,7 +259,6 @@ export default {
          */
         handleAction(e) {
             if (e.apply !== undefined) {
-                console.log(e);
                 if (e.apply(e)) {
                     e.apply(e).then((response) => {
                         if (response && Object.hasOwnProperty.call(response, 'data')) {
