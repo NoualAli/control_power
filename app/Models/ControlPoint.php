@@ -50,7 +50,7 @@ class ControlPoint extends BaseModel
     {
         $scores = $this->scores;
         $scores_str = '';
-        $containerStart = '<div class="d-flex justify-start align-center gap-2">';
+        $containerStart = '<div class="d-flex justify-start align-center gap-2 my-2">';
         $containerEnd = '</div>';
         if (is_array($scores)) {
             foreach ($scores as $score) {

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\DataController;
 use App\Http\Controllers\Api\AgencyController;
+use App\Http\Controllers\Api\BugController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ControlCampaignController;
 use App\Http\Controllers\Api\ControlPointController;
@@ -233,6 +234,12 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::get('unreadNotifications', 'unreadNotifications');
         Route::post('read-major-facts', 'read_major_facts');
         Route::post('major-fact/{majorFact}', 'dispatchMajorFact');
+    });
+
+    Route::prefix('bugs')->controller(BugController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::get('{bug}', 'show');
     });
 });
 

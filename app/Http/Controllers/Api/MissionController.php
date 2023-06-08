@@ -367,7 +367,7 @@ class MissionController extends Controller
                 $validatedByIdColumn = 'dcp_validation_by_id';
                 $validationAtColumn = 'dcp_validation_at';
                 $users = User::whereRoles(['cdcr', 'dg', 'cdrcp', 'ig', 'sg', 'der']);
-                $users = User::whereRoles(['da'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($users->get());
+                $users = User::whereRoles(['da', 'dre'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($users->get());
                 if ($step == 1) {
                     $validatedByIdColumn = 'cdcr_validation_by_id';
                     $validationAtColumn = 'cdcr_validation_at';

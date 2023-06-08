@@ -19,7 +19,7 @@ class DomainController extends Controller
      */
     public function index()
     {
-        $domains = new Domain();
+        $domains = Domain::with('familly')->withCount('processes');
 
         $filter = request('filter', null);
         $search = request('search', null);

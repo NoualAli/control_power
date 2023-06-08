@@ -22,7 +22,7 @@ class CreateMediaTable extends Migration
             $table->string('mimetype');
             $table->string('size');
             $table->string('attachable_type');
-            $table->string('attachable_id', 36);
+            $table->string('attachable_id', 36)->nullable();
             $table->timestamps(7);
         });
     }

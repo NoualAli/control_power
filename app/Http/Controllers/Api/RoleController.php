@@ -19,7 +19,7 @@ class RoleController extends Controller
     public function index()
     {
         isAbleOrAbort(['view_role', 'create_user', 'update_user']);
-        $roles = new Role();
+        $roles = new Role;
 
         $filter = request('filter', null);
         $search = request('search', null);

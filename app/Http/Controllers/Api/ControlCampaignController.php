@@ -294,7 +294,7 @@ class ControlCampaignController extends Controller
         if ($fetchFilters) {
             return $this->processesFilters($processes);
         } else {
-            $processes = $processes->get();
+            $processes = $processes->withCount('control_points')->get();
         }
         if ($search) {
             $processes = $processes->filter(fn ($process) => preg_match('/' . strtolower($search) . '/', strtolower($process->name)));

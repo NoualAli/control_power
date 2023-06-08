@@ -37,6 +37,9 @@ export default {
     },
     computed: {
         tdClass() {
+            if (typeof this.column?.extraClass?.td == 'function') {
+                return this.column?.extraClass?.td(this.item)
+            }
             return this.column?.extraClass?.td || ''
         },
         hide() {

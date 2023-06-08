@@ -34,8 +34,8 @@
                             <!-- Major fact -->
                             <div v-if="detail?.control_point.has_major_fact && [4, 3, 2].includes(form.rows[row].score)"
                                 class="col-12">
-                                <NLSwitch v-model="form.rows[row].major_fact" :name="'rows.' + row + '.major_fact'"
-                                    :form="form" label="Fait majeur" />
+                                <NLSwitch type="is-danger" v-model="form.rows[row].major_fact"
+                                    :name="'rows.' + row + '.major_fact'" :form="form" label="Fait majeur" />
                             </div>
                             <div class="col-12">
                                 <NLSelect v-model="form.rows[row].score" :name="'rows.' + row + '.score'" label="Notation"

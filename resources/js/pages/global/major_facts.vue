@@ -168,8 +168,8 @@
                     @keydown="forms.detail.onKeydown($event)">
                     <!-- Major Fact -->
                     <div class="col-12">
-                        <NLSwitch v-model="forms.detail.major_fact" :name="'major_fact'" :form="forms.detail"
-                            label="Fait majeur" />
+                        <NLSwitch type="is-danger" v-model="forms.detail.major_fact" :name="'major_fact'"
+                            :form="forms.detail" label="Fait majeur" />
                     </div>
 
                     <!-- Score -->

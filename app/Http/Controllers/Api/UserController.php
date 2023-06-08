@@ -38,14 +38,13 @@ class UserController extends Controller
     public function index()
     {
         isAbleOrAbort('view_user');
-        $users = new User;
+        $users = User::with(['dres', 'roles']);
 
         $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
         $fetchFilters = request()->has('fetchFilters');
         $perPage = request('perPage', 10);
-        // $fetchAll = request()->has('fetchAll');
         $fetchAll = request()->has('fetchAll');
 
         if ($filter) {

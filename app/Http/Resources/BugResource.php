@@ -2,9 +2,10 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class FamillyResource extends JsonResource
+class BugResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,8 +17,12 @@ class FamillyResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'domains_count' => $this->domains_count,
+            'reference' => $this->reference,
+            'type' => $this->type,
+            'creator' => $this->creator,
+            'priority_html' => $this->priority_html,
+            'created_at' => Carbon::parse($this->created_at)->diffForHumans(),
+            'state' => hasRole('root') ? $this->fixed_at : $this->is_fixed
         ];
     }
 }

@@ -16,13 +16,13 @@ class NotificationResource extends JsonResource
     public function toArray($request)
     {
         $createdAt = $this->created_at ? Carbon::parse($this->created_at)->diffForHumans() : '-';
-        $readAt = $this->read_at ? Carbon::parse($this->read_at)->diffForHumans() : '-';
+        $readAt = $this->read_at ? Carbon::parse($this->read_at)->diffForHumans() : null;
         $content = isset($this->data['content']) ? $this->data['content'] : '-';
         $title = isset($this->data['title']) ? $this->data['title'] : '-';
         $routeName = isset($this->data['routeName']) ? $this->data['routeName'] : '-';
         $paramNames = isset($this->data['paramNames']) ? $this->data['paramNames'] : '-';
         $modelId = isset($this->data['id']) ? $this->data['id'] : '-';
-        $url = isset($this->data['url']) ? $this->data['url'] : '-';
+        $url = isset($this->data['url']) ? $this->data['url'] : null;
         $emitted_by = isset($this->data['emitted_by']) ? $this->data['emitted_by'] : '-';
         return [
             'id' => $this->id,

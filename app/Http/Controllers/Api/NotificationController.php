@@ -99,6 +99,8 @@ class NotificationController extends Controller
         try {
             $roles = ['ig', 'dg', 'cdrcp', 'der'];
             $users = User::whereRoles($roles)->get();
+            // $users = User::whereRoles(['dg', 'cdrcp', 'ig', 'sg', 'der']);
+            // $users = User::whereRoles(['dre', 'cdc'])->whereRelation('agencies', 'agencies.id', $majorFact->mission->agency_id)->get()->merge($users->get());
             foreach ($users as $user) {
                 $majorFact->update(['major_fact_dispatched_at' => now()]);
                 Notification::send($user, new Detected($majorFact));
