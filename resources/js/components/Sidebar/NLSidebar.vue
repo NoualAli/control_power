@@ -35,6 +35,7 @@
                 iconName="la-stack-overflow" v-if="can('view_page_mission_details')" />
             <NLSidebarItem label="Faits majeur" route="major-facts" iconName="la-exclamation-triangle"
                 v-if="can('view_page_major_facts')" />
+            <!-- <NLSidebarItem label="Bugs" route="bugs-index" iconName="la-bug" /> -->
             <!-- <NLSidebarItem label="Validation des rapports" route="missions-not-validated" iconName="la-clipboard-check"
                 v-if="can('validate_report')" /> -->
             <!-- <router-link v-if="can('view_page_major_facts,view_major_fact')" class="sidebar-item"

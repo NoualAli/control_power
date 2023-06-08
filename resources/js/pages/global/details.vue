@@ -266,8 +266,8 @@
                     @keydown="forms.detail.onKeydown($event)">
                     <!-- Major fact -->
                     <div v-if="rowSelected?.control_point?.has_major_fact" class="col-12">
-                        <NLSwitch v-model="forms.detail.major_fact" :name="'major_fact'" :form="forms.detail"
-                            label="Fait majeur" />
+                        <NLSwitch type="is-danger" v-model="forms.detail.major_fact" :name="'major_fact'"
+                            :form="forms.detail" label="Fait majeur" />
                     </div>
                     <!-- score -->
                     <div class="col-12">

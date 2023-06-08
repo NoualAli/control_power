@@ -230,7 +230,8 @@ return [
         'pcf_usable' => 'pcf utilisable',
         'pcf_unusable' => 'pcf inutilisable',
         'recovery_plan' => 'plan de redressement',
-        'report' => 'constat'
+        'report' => 'constat',
+        'priority' => 'priorité',
     ],
 
 ];

@@ -4,14 +4,15 @@
         <input v-if="!readonly" :id="getId" type="file" :name="name" :multiple="multiple" :accept="accept"
             class="file-input" @change="onChange($event)">
         <div :class="[{ 'is-danger': form?.errors.has(name), 'has-files': hasFiles, 'is-readonly': readonly }, 'file-input-area']"
-            :draggable="true" @dragover="dragover" @dragleave="dragleave" @drop="drop">
-            <p v-if="!inProgress && !readonly" class="text-medium file-uploader" @click.stop="openFileBrowser($event)">
+            :draggable="true" @dragover="dragover" @dragleave="dragleave" @drop="drop"
+            @click.stop="openFileBrowser($event)">
+            <p v-if="!inProgress && !readonly" class="text-medium file-uploader">
                 {{ placeholder }} <i class="las la-cloud-upload-alt text-large" />
             </p>
             <p v-else-if="inProgress && !readonly" class="text-medium file-uploader">
                 <i class="las la-spinner la-spin text-large" /> {{ loadingText }}{{ progress }} %
             </p>
-            <div class="files-list list text-medium">
+            <div class="files-list list text-medium" @click.stop="(e) => e.stopPropagation()">
                 <div v-for="(file, index) in getFilesList" :key="name + '-' + index" class="list-item my-1">
                     <div class="grid gap-4 list-item-content" @click.stop="">
                         <div class="col-11 d-flex justify-between align-center">
@@ -143,7 +144,7 @@ export default {
          * @param {*} $event
          */
         openFileBrowser($event) {
-            $event.target.parentNode.parentNode.children[ 1 ].click()
+            $event.target.parentNode.parentNode.querySelector('input[type=file]').click()
         },
         /**
          * Fetch exesting files

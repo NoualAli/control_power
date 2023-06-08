@@ -1,94 +1,74 @@
 <template>
     <ContentBody>
-        <NLDatatable namespace="notifications" :searchable="false" :config="config" @show="show" />
+        <NLDatatable :columns="columns" title="Liste des notifications" urlPrefix="notifications" />
     </ContentBody>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import NLDatatable from '../../components/Datatable/NLDatatable'
 import api from '../../plugins/api'
 export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],
+    components: { NLDatatable },
     metaInfo() {
         return { title: 'Centre de notification' }
     },
     data: () => {
         return {
-            config: {
-                data: null,
-                columns: [
-                    {
-                        label: 'Titre',
-                        field: 'title',
-                        methods: {
-                            style(item) {
-                                if (item.read_at === '-') {
-                                    return 'bg-primary-extra-light'
-                                }
-                            }
+            columns: [
+                {
+                    label: 'Titre',
+                    field: 'title',
+                    extraClass: {
+                        td: (item) => {
+                            return !item.read_at ? 'bg-primary-extra-light' : ''
                         }
                     },
-                    {
-                        label: 'Emis par',
-                        field: 'emitted_by',
-                        methods: {
-                            style(item) {
-                                if (item.read_at === '-') {
-                                    return 'bg-primary-extra-light'
-                                }
-                            }
+                },
+                {
+                    label: 'Emis par',
+                    field: 'emitted_by',
+                    extraClass: {
+                        td: (item) => {
+                            return !item.read_at ? 'bg-primary-extra-light' : ''
                         }
                     },
-                    {
-                        label: 'Contenu',
-                        field: 'content',
-                        methods: {
-                            style(item) {
-                                if (item.read_at === '-') {
-                                    return 'bg-primary-extra-light'
-                                }
-                            }
+                },
+                {
+                    label: 'Contenu',
+                    field: 'content',
+                    extraClass: {
+                        td: (item) => {
+                            return !item.read_at ? 'bg-primary-extra-light' : ''
                         }
                     },
-                    {
-                        label: 'Date',
-                        field: 'created_at',
-                        methods: {
-                            style(item) {
-                                if (item.read_at === '-') {
-                                    return 'bg-primary-extra-light'
-                                }
-                            }
+                },
+                {
+                    label: 'Date',
+                    field: 'created_at',
+                    extraClass: {
+                        td: (item) => {
+                            return !item.read_at ? 'bg-primary-extra-light' : ''
                         }
-                    }
-                ],
-                actions: {
-                    show: (item) => !!item.url
+                    },
                 }
-            }
+            ],
+            // actions: {
+            //     show: {
+            //         show: (item) => !!item.url,
+            //         apply: (item) => {
+            //             const { pathname, search } = new URL(item?.item?.url)
+            //             return this.$router.push({ path: pathname, query: Object.fromEntries(new URLSearchParams(search)) })
+            //         }
+            //     },
+            // },
         }
     },
-    computed: {
-        ...mapGetters({
-            notifications: 'notifications/paginated'
-        })
-    },
     created() {
-        this.initData()
+        this.markAsRead()
     },
     methods: {
-        /**
-         * Initialise les données
-         */
-        initData() {
-            this.$store.dispatch('notifications/fetchPaginated').then(() => {
-                this.config.data = this.notifications.paginated
-                if (Object.entries(this.notifications.paginated).length) {
-                    this.markAsRead()
-                }
-            })
-        },
         /**
          * Affiche l'élément seléctionner
          *
@@ -96,7 +76,7 @@ export default {
          */
         show(item) {
             const { pathname, search } = new URL(item.url)
-            this.$router.push({ path: pathname, query: Object.fromEntries(new URLSearchParams(search)) })
+            return this.$router.push({ path: pathname, query: Object.fromEntries(new URLSearchParams(search)) })
         },
         /**
          * Formate les différentes informations pour créer la route d'action

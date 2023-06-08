@@ -180,6 +180,11 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Login::class);
     }
+
+    public function bugs()
+    {
+        return $this->hasMany(Bug::class, 'created_by_id', 'id');
+    }
     /**
      * Scopes
      */

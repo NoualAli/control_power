@@ -26,6 +26,9 @@ export default {
     },
     computed: {
         thClass() {
+            if (typeof this.column?.extraClass?.th == 'function') {
+                return this.column?.extraClass?.th(this.item)
+            }
             return this.column?.extraClass?.th || ''
         },
         hide() {

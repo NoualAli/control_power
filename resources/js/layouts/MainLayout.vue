@@ -37,6 +37,9 @@
                         class="notification-link has-icon" :class="{ 'notified': totalUnreadNotifications > 0 }">
                         <i class="las la-bell icon" :class="{ 'la-spin': totalUnreadNotifications > 0 }" />
                     </router-link>
+                    <router-link :to="{ name: 'bugs-index' }" class="has-icon">
+                        <i class="las la-bug icon" />
+                    </router-link>
                     <button class="d-lg-none d-block hamburger hamburger--elastic" :class="{ 'is-active': !showSidebar }"
                         type="button" @click="toggleSidebar">
                         <span class="hamburger-box">

@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Agency;
+use App\Models\Category;
 use App\Models\ControlCampaign;
 use App\Models\Mission;
 use App\Models\MissionDetail;
+use App\Models\Process;
 use Illuminate\Database\Eloquent\Builder;
 use Throwable;
 
@@ -97,6 +99,13 @@ class DataController extends Controller
     }
     public function realisationStates()
     {
+        // $categories = Category::with('processes')->get();
+        // $processes = Process::all()->pluck('id')->toArray();
+        // foreach ($categories as $category) {
+        //     // $category->processes()->attach($processes);
+        //     // dd($category->processes()->attach());
+        //     // dd($category->processes, $processes);
+        // }
         $dresClassificationByAchievementRate = $this->dresClassificationByAchievementRate();
         $missionsPercentage = $this->missionsPercentage();
         $missionsState = $this->missionsState();

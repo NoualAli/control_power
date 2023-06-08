@@ -587,6 +587,31 @@ export default [
             }
         }
     },
+
+    /**
+     * Bugs
+     */
+    {
+        path: '/bugs',
+        name: 'bugs-index',
+        component: page('bugs/index.vue'),
+        meta: {
+            breadcrumb: {
+                label: 'Bugs'
+            }
+        }
+    },
+    {
+        path: '/bugs/create',
+        name: 'bugs-create',
+        component: page('bugs/create.vue'),
+        meta: {
+            breadcrumb: {
+                label: 'Signaler un bug'
+            }
+        }
+    },
+
     /**
      * Errors
      */
