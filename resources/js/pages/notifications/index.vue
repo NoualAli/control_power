@@ -57,10 +57,7 @@ export default {
             // actions: {
             //     show: {
             //         show: (item) => !!item.url,
-            //         apply: (item) => {
-            //             const { pathname, search } = new URL(item?.item?.url)
-            //             return this.$router.push({ path: pathname, query: Object.fromEntries(new URLSearchParams(search)) })
-            //         }
+            //         apply: (item) => this.show(item)
             //     },
             // },
         }

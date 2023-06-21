@@ -14,7 +14,8 @@ class StoreRequest extends FormRequest
     public function authorize()
     {
         $currentUser = auth()->user()->id;
-        return isAbleTo(['create_opinion', 'create_dre_report']) && (in_array($currentUser, request()->mission->agencyControllers->pluck('id')->toArray()) || $currentUser == request()->mission->created_by_id);
+        $mission = request()->mission;
+        return isAbleTo(['create_ci_opinion', 'create_cdc_report']) && ($mission->dreControllers->contains('id', $currentUser) || $currentUser == request()->mission->created_by_id);
     }
 
     /**
@@ -24,21 +25,31 @@ class StoreRequest extends FormRequest
      */
     public function rules()
     {
+        return [
+            'content' => ['required', 'string', 'max:3000'],
+            'type' => ['required', 'in:ci_opinion,cdc_report'],
+            'id' => ['nullable', 'exists:comments'],
+            'validated' => ['required', 'boolean']
+        ];
+    }
+
+    public function messages()
+    {
         $type = request()->type;
-        if ($type == 'Avis contrôleur') {
+        if ($type == 'ci_opinion') {
             return [
-                'opinion' => ['required', 'string', 'max:3000'],
-                'type' => ['required', 'in:Avis contrôleur'],
-                'id' => ['nullable', 'exists:mission_reports'],
-                'validated' => ['required', 'boolean']
+                'content.required' => 'Le champ avis est obligatoire.',
+                'content.string' => 'Le champ avis doit être une chaine de caractaire.',
+                'content.max' => 'Le champ avis ne doit pas dépasser 3000 caractaires.',
+            ];
+        } elseif ($type == 'cdc_report') {
+            return [
+                'content.required' => 'Le champ rapport est obligatoire.',
+                'content.string' => 'Le champ rapport doit être une chaine de caractaire.',
+                'content.max' => 'Le champ rapport ne doit pas dépasser 3000 caractaires.',
             ];
         } else {
-            return [
-                'report' => ['required', 'string', 'max:3000'],
-                'type' => ['required', 'in:Rapport'],
-                'id' => ['nullable', 'exists:mission_reports'],
-                'validated' => ['required', 'boolean']
-            ];
+            abort(500, "Le type $type est un type inconnu.");
         }
     }
 }

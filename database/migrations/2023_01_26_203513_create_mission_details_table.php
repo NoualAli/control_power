@@ -23,15 +23,23 @@ class CreateMissionDetailsTable extends Migration
             $table->boolean('major_fact')->default(false);
             $table->json('metadata')->nullable();
 
-            $table->timestamp('executed_at', 7)->nullable();
-            $table->timestamp('processed_at', 7)->nullable();
-            $table->timestamp('validated_at', 7)->nullable();
+            $table->foreignId('assigned_to_ci_id')->nullable()->constrained('users');
+            $table->foreignId('assigned_to_cc_id')->nullable()->constrained('users');
+            $table->foreignId('controlled_by_ci_id')->nullable()->constrained('users');
+            $table->foreignId('controlled_by_cc_id')->nullable()->constrained('users');
+
+            $table->timestamp('controlled_at', 7)->nullable();
+
             $table->timestamp('major_fact_dispatched_at', 7)->nullable();
             $table->timestamps(7);
             $table->softDeletes('deleted_at', 7);
 
             $table->foreign('control_point_id')->on('control_points')->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('mission_id')->on('missions')->references('id')->onDelete('cascade')->onUpdate('cascade');
+            // $table->foreign('assigned_to_ci_id')->on('users')->references('id')->onDelete('SET NULL')->onUpdate('SET NULL');
+            // $table->foreign('assigned_to_cc_id')->on('users')->references('id')->onDelete('SET NULL')->onUpdate('SET NULL');
+            // $table->foreign('controlled_by_ci_id')->on('users')->references('id')->onDelete('SET NULL')->onUpdate('SET NULL');
+            // $table->foreign('controlled_by_cc_id')->on('users')->references('id')->onDelete('SET NULL')->onUpdate('SET NULL');
         });
     }
 

@@ -5,9 +5,9 @@
                 <NLColumn>
                     <NLGrid>
                         <NLColumn v-if="form.type">
-                            <Notification type="is-info">
+                            <Alert type="is-info">
                                 <i class="las la-info-circle icon"></i> {{ description }}
-                            </Notification>
+                            </Alert>
                         </NLColumn>
                         <NLColumn lg="6">
                             <NLSelect v-model="form.type" :form="form" name="type" label="Type"
@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import Notification from '../../components/Notification'
+import Alert from '../../components/Alert'
 import NLGrid from '../../components/Grid/NLGrid'
 import NLFile from '../../components/Inputs/NLFile'
 import NLColumn from '../../components/Grid/NLColumn'
@@ -50,7 +50,7 @@ import { Form } from 'vform'
 
 export default {
     components: {
-        Notification,
+        Alert,
         NLGrid,
         NLFile, NLColumn
     },

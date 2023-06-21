@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Mission\Detail\ControlRequest;
 use App\Http\Requests\Mission\Detail\StoreRequest;
 use App\Http\Resources\MissionDetailResource;
 use App\Models\Agency;
@@ -41,7 +42,7 @@ class MissionDetailController extends Controller
             if ($fetchFilters) {
                 return $this->detailFilters();
             }
-            $details = $this->getDetails();
+            $details = $this->details();
             if (request()->has('campaign_id')) {
                 $details = $details->where('control_campaign_id', request()->campaign_id);
             }
@@ -64,6 +65,7 @@ class MissionDetailController extends Controller
             } else {
                 $details = MissionDetailResource::collection($details->paginate($perPage)->onEachSide(1));
             }
+
             return $details;
         } catch (\Throwable $th) {
             return response()->json([
@@ -72,115 +74,54 @@ class MissionDetailController extends Controller
             ], 500);
         }
     }
-    private function getDetails()
+    private function details()
     {
-        $details = new MissionDetail;
+        $details = MissionDetail::with([
+            'controlPoint'  => fn ($query) => $query->with(['process'  => fn ($query) => $query->with(['domain'  => fn ($query) => $query->with('familly')])]),
+            'agency'  => fn ($query) => $query->with('dre'),
+            'mission' => fn ($query) => $query->with(['campaign'])
+        ]);
 
         $user = auth()->user();
         if (hasRole('dcp')) {
-            $details = $details->dreReportValidated();
+            $details = $details->hasCdcValidation();
         } elseif (hasRole('cdcr')) {
-            $details = $details->dreReportValidated();
+            $details = $details->hasCdcValidation();
         } elseif (hasRole(['cdc', 'cc', 'ci'])) {
-            $details = $user->details();
+            $details = $user->details()->controlled();
         } elseif (hasRole(['dg', 'cdrcp', 'der'])) {
             $details = $details->hasDcpValidation();
         } elseif (hasRole('dre')) {
-            $details = auth()->user()->details()->hasDcpValidation();
+            $details = $user->details()->hasDcpValidation();
         } elseif (hasRole('da')) {
             $details = $user->details()->hasDcpValidation();
         }
-        return $details->whereAnomaly()->where('major_fact', '!=', true)->executed()->with(['process', 'domain', 'controlPoint', 'familly', 'media']);
-    }
-    /**
-     * @return Illuminate\Http\JsonResponse
-     */
-    public function majorFacts()
-    {
-        isAbleOrAbort(['view_major_fact']);
-        $filter = request('filter', null);
-        $search = request('search', null);
-        $sort = request('sort', null);
-        $fetchFilters = request()->has('fetchFilters');
-        $perPage = request('perPage', 10);
-        $fetchAll = request()->has('fetchAll');
-
-        try {
-            if ($fetchFilters) {
-                return $this->majorFactsFilters();
-            }
-
-            $details = $this->getMajorFacts();
-
-            if (request()->has('campaign_id')) {
-                $details = $details->where('control_campaign_id', request()->campaign_id);
-            }
-            if ($sort) {
-                $details = $details->sortByMultiple($sort);
-            } else {
-                $details = $details->orderBy('created_at', 'DESC');
-            }
-
-            if ($search) {
-                $details = $details->search($search);
-            }
-
-            if ($filter) {
-                $details = $details->filter($filter);
-            }
-            $details = $details->onlyMajorFacts();
-
-            if ($fetchAll) {
-                $details = $details->get()->pluck('reference', 'id');
-            } else {
-                $details = MissionDetailResource::collection($details->paginate($perPage)->onEachSide(1));
-            }
-            return $details;
-        } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], 500);
-        }
-    }
-
-    private function getMajorFacts()
-    {
-        $details = new MissionDetail;
-        if (hasRole(['dcp', 'cdcr'])) {
-            $details = $details;
-        } elseif (hasRole(['cdc', 'ci', 'cc'])) {
-            $details = auth()->user()->details()->executed();
-        } elseif (hasRole(['ig', 'dg', 'cdrcp', 'der'])) {
-            $details = $details->onlyDispatchedMajorFacts();
-        } elseif (hasRole(['da', 'dre'])) {
-            $details = auth()->user()->details()->onlyDispatchedMajorFacts();
-        }
-        return $details->onlyMajorFacts();
+        return $details->whereAnomaly()->withoutMajorFacts();
     }
     /**
      * Enregistre les informations de la mission dans la base de donéees
      *
-     * @param StoreRequest $request
+     * @param ControlRequest $request
      *
      * @return Illuminate\Http\Response
      */
-    public function store(StoreRequest $request)
+    public function control(ControlRequest $request)
     {
         $data = $request->validated();
+        $files = $data['media'];
+        unset($data['media']);
         $this->validateMetadata($data);
+
         try {
-            DB::transaction(function () use ($data) {
-                if (array_key_exists('rows', $data)) {
-                    foreach ($data['rows'] as $rowKey => $row) {
-                        $this->handleDetail($row, $rowKey);
-                    }
-                } else {
-                    $this->handleDetail($data);
-                }
+            DB::transaction(function () use ($data, $files) {
+                $detail = MissionDetail::findOrFail($data['detail']);
+                unset($data['detail']);
+                $this->updateDetail($data, $detail);
+                $this->storeFiles($files, $detail);
+                $this->notifyMajorFact($detail);
             });
             return response()->json([
-                'message' => UPDATE_SUCCESS,
+                'message' => 'Les renseignements sur le point de contrôle sont sauvegardés avec succès.',
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
@@ -194,63 +135,8 @@ class MissionDetailController extends Controller
     public function show(MissionDetail $detail)
     {
         $detail->unsetRelations();
-        $detail->load('regularization', 'mission', 'media');
+        $detail->load('regularization', 'mission', 'media', 'dre', 'agency', 'campaign', 'familly', 'domain', 'process', 'controlPoint');
         return $detail;
-    }
-
-    /**
-     * Display config.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function config()
-    {
-        isAbleOrAbort(['view_mission', 'control_agency']);
-        $detailId = request()->has('detail_id') && !empty(request()->detail_id) && request()->detail_id !== 'null' ? request()->detail_id : false;
-        $missionId = request()->has('mission_id') && !empty(request()->mission_id) && request()->mission_id !== 'null' ? request()->mission_id : false;
-        $processId = request()->has('process_id') && !empty(request()->process_id) && request()->process_id !== 'null' ? request()->process_id : false;
-        $detail = $detailId ? MissionDetail::findOrFail($detailId)->load(['controlPoint', 'domain', 'process']) : false;
-        $mission = $missionId ? Mission::findOrFail($missionId) : $detail->mission;
-        $process = $processId ? Process::findOrFail($processId)->load(['familly', 'domain']) : $detail->process->load(['familly', 'domain']);
-
-        $currentUser = auth()->user();
-        $agencyControllers = $mission->agencyControllers->pluck('id')->toArray();
-        $dcpControllers = $mission->dcpControllers->pluck('id')->toArray();
-        $agencies = $currentUser->agencies->pluck('id')->toArray();
-
-        $condition = (in_array($currentUser->id, $agencyControllers)
-            || in_array($currentUser->id, $dcpControllers)
-            || $mission->created_by_id == $currentUser->id
-            || (hasRole(['dcp', 'cdcr']) && $mission->dre_report?->is_validated)
-            || (hasRole(['da', 'dg', 'cdrcp', 'ig', 'der', 'sg']) && ($mission->dcp_validation_at || $detail->major_fact_dispatched_at))
-            || hasRole('dre') && in_array($mission->agency->id, $agencies)
-            || hasRole(['dcp', 'cdcr']) && $detail->major_fact
-        );
-        abort_if(!$condition, 401, __('unauthorized'));
-        if ($detailId) {
-            $detail->load('regularization', 'mission');
-            $mission->load(['dre', 'agency', 'campaign']);
-            return compact('mission', 'detail', 'process');
-        } else {
-            $details = $mission->details()->orderBy('control_point_id');
-            if (request()->has('onlyAnomaly')) {
-                $details = $details->whereAnomaly();
-            }
-            $details = $details->whereRelation('process', 'processes.id', $process->id);
-            // if ($mission->progress_status == 100) {
-            //     $details = $details;
-            // }
-            $details = $details->with(['controlPoint', 'domain', 'process', 'regularization'])->get();
-            return compact('mission', 'details', 'process');
-        }
-    }
-
-    private function handleDetail(array $data)
-    {
-        $processMode = isset($data['process_mode']) ? $data['process_mode'] : false;
-        $detail = $this->updateDetail($data, $processMode);
-        $this->storeFiles($data, $detail);
-        $this->notifyMajorFact($detail);
     }
 
     /**
@@ -296,12 +182,12 @@ class MissionDetailController extends Controller
     /**
      * Store files informations to database
      *
-     * @param array $data
+     * @param array $files
      * @param App\Models\MissionDetail $detail
      */
-    private function storeFiles(array $data, MissionDetail $detail)
+    private function storeFiles(array $files, MissionDetail $detail)
     {
-        $files = !isset($data['media']) ?: $data['media'];
+        // $files = !isset($data['media']) ?: $data['media'];
         if (is_array($files)) {
             $media = Media::whereIn('id', $files)->get();
             foreach ($media as $file) {
@@ -336,41 +222,67 @@ class MissionDetailController extends Controller
      * Update mission detail
      *
      * @param array $data
-     * @param bool $processMode
+     * @param App\Models\MissionDetail $detail
      *
      * @return App\Models\MissionDetail
      */
-    private function updateDetail(array $data, bool $processMode = false)
+    private function updateDetail(array $data, MissionDetail $detail)
     {
-        $detail = MissionDetail::findOrFail($data['detail']);
-        // Vidé les champs report, recovery_plan, metadata
-        if (isset($data['score']) && !in_array($data['score'], [4, 3, 2, 1])) {
-            $data['report'] = null;
-            $data['recovery_plan'] = null;
-            $data['metadata'] = null;
-        }
-        // Mettre la note max si jamais il y'a un fait majeur
-        if (isset($data['major_fact']) && !empty($data['major_fact'])) $data['score'] = max(array_keys($detail->controlPoint->scores_arr));
-        $processedAt = $processMode ? now() : null;
-        $executedAt = now();
+        return DB::transaction(function () use ($detail, $data) {
+            $currentMode = $data['currentMode'];
 
-        // Mise à jour des informations dans la base de données
-        $metadata = isset($data['metadata']) && !empty($data['metadata']) ? $data['metadata'] : $detail->metadata;
-        $detail->update([
-            'major_fact' => $data['major_fact'],
-            'score' => isset($data['score']) ? $data['score'] : $detail->score,
-            'report' => isset($data['report']) ? $data['report'] : $detail->report,
-            'recovery_plan' => isset($data['recovery_plan']) ? $data['recovery_plan'] : $detail->recovery_plan,
-            'metadata' => $metadata,
-            'executed_at' => $executedAt,
-            'processed_at' => $processedAt
-        ]);
-        return $detail;
+            // Vidé les champs report, recovery_plan, metadata
+            if (isset($data['score']) && !in_array($data['score'], [4, 3, 2, 1])) {
+                $data['report'] = null;
+                $data['recovery_plan'] = null;
+                $data['metadata'] = null;
+            }
+            // Mettre la note max si jamais il y'a un fait majeur
+            if (isset($data['major_fact']) && !empty($data['major_fact'])) $data['score'] = max(array_keys($detail->controlPoint->scores_arr));
+            // $controlledAt = !$detail->controlled_at && $currentMode == 1  ? now() : null;
+
+            // $controlledByCIId = $currentMode == 1 ? auth()->user()->id : null;
+
+
+            // Mise à jour des informations dans la base de données
+            $metadata = isset($data['metadata']) && !empty($data['metadata']) ? $data['metadata'] : $detail->metadata;
+            $newData = [
+                'major_fact' => $data['major_fact'],
+                'score' => isset($data['score']) ? $data['score'] : $detail->score,
+                'report' => isset($data['report']) ? $data['report'] : $detail->report,
+                'recovery_plan' => isset($data['recovery_plan']) ? $data['recovery_plan'] : $detail->recovery_plan,
+                'metadata' => $metadata,
+            ];
+
+            if ($currentMode == 1) {
+                $newData['controlled_at'] = now();
+                $newData['controlled_by_cc_id'] = auth()->user()->id;
+            }
+
+            // if ($currentMode == 3) {
+            //     $controlledByCCId = $currentMode == 3 ? auth()->user()->id : null;
+            // }
+
+
+            $detail->update($newData);
+
+            // Mise à jour de la date réel du début de la mission
+            if ($currentMode == 1 && !$detail->reel_start) {
+                $detail->mission->update(['reel_start' => now()]);
+            }
+
+            // Mise à jour de la date réel de la fin de mission
+            if ($currentMode == 1 && !$detail->reel_end && $detail->mission->details()->count() == $detail->mission->details()->controlled()->count()) {
+                $detail->mission->update(['reel_end' => now()]);
+            }
+
+            return $detail;
+        });
     }
 
     public function detailFilters()
     {
-        $details = $this->getDetails();
+        $details = $this->details();
         $family = $details->relationUniqueData('familly');
         $domain = $details->relationUniqueData('domain');
         $process = $details->relationUniqueData('process');
@@ -379,45 +291,5 @@ class MissionDetailController extends Controller
         $mission = $details->relationUniqueData('mission', 'reference');
         $campaign = $details->relationUniqueData('campaign', 'reference');
         return compact('mission', 'family', 'domain', 'process', 'agency', 'campaign', 'dre');
-    }
-
-    public function majorFactsFilters()
-    {
-        // $details = $this->getMajorFacts()->with(['domain', 'process', 'agency', 'mission', 'campaign']);
-
-        // $familliesId = (clone $details)->get()->pluck('familly')->map(fn ($familly) => $familly->id)->unique()->toArray();
-        // $unformatedFamillies = Familly::whereIn('id', $familliesId);
-        // $famillies = formatForSelect((clone $unformatedFamillies)->get()->toArray());
-
-        // $domainsId = (clone $details)->get()->pluck('domain')->map(fn ($domain) => $domain->id)->unique()->toArray();
-        // $unformatedDomains = Domain::whereIn('id', $domainsId)->get();
-        // $domains = formatForSelect($unformatedDomains->toArray());
-
-        // $processesId = (clone $details)->get()->pluck('process')->map(fn ($process) => $process->id)->unique()->toArray();
-        // $unformatedProcesses = Process::whereIn('id', $processesId)->get();
-        // $processes = formatForSelect($unformatedProcesses->toArray());
-
-        // $agenciesId = (clone $details)->get()->pluck('agency')->map(fn ($agency) => $agency->id)->unique()->toArray();
-        // $unformatedAgencies = Agency::whereIn('id', $agenciesId)->get();
-        // $agencies = formatForSelect($unformatedAgencies->toArray(), 'full_name');
-
-        // $missionsId = (clone $details)->get()->pluck('mission')->map(fn ($mission) => $mission->id)->unique()->toArray();
-        // $unformatedMissions = Mission::whereIn('id', $missionsId)->get();
-        // $missions = formatForSelect($unformatedMissions->toArray(), 'reference');
-
-        // $campaignsId = (clone $details)->get()->pluck('campaign')->map(fn ($campaign) => $campaign->id)->unique()->toArray();
-        // $unformatedCampaigns = ControlCampaign::whereIn('id', $campaignsId)->get();
-        // $campaigns = formatForSelect($unformatedCampaigns->toArray(), 'reference');
-
-        // $scores = formatForSelect([['id' => 2, 'name' => '2'], ['id' => 3, 'name' => '3'], ['id' => 4, 'name' => '4']]);
-
-        // return compact('missions', 'famillies', 'domains', 'processes', 'scores', 'agencies', 'campaigns');
-        $famillies = formatForSelect(Familly::all()->pluck('name', 'id')->toArray());
-        $domains = formatForSelect(Domain::all()->pluck('name', 'id')->toArray());
-        $processes = formatForSelect(Process::all()->pluck('name', 'id')->toArray());
-        $agencies = formatForSelect(Agency::all()->pluck('full_name', 'id')->toArray());
-        $missions = !hasRole(['cc', 'cdc', 'ci']) ? formatForSelect(Mission::all()->pluck('refernce', 'id')->toArray(), 'reference') : formatForSelect(auth()->user()->missions->toArray(), 'reference');
-        $campaigns = !hasRole(['cc', 'ci']) ? formatForSelect(ControlCampaign::all()->pluck('reference', 'id')->toArray(), 'reference') : formatForSelect(auth()->user()->campaigns->toArray(), 'reference');
-        return compact('missions', 'famillies', 'domains', 'processes', 'agencies', 'campaigns');
     }
 }

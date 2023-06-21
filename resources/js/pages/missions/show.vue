@@ -1,6 +1,7 @@
 <template>
     <ContentBody v-if="can('view_mission') && forcedRerenderKey !== -1" :key="forcedRerenderKey">
-        <div class="d-flex justify-end align-center gap-3 my-2">
+        <div class="d-flex justify-between align-center gap-3 mb-9">
+            <h2>Informations de la mission</h2>
             <router-link v-if="can('view_control_campaign,view_page_control_campaigns')"
                 :to="{ name: 'campaign', params: { campaignId: mission?.current.campaign.id } }" class="btn">
                 Campagne de contrôle
@@ -12,56 +13,63 @@
         </div>
 
         <!-- Mission informations -->
-        <div class="box border-primary-dark border-1 mb-10">
-            <div class="grid gap-6">
-                <div class="col-4">
-                    <div class="grid gap-6">
-                        <div class="col-12">
+        <div class="box mb-10">
+            <Alert v-if="mission?.current?.remaining_days_before_start > 0" type="is-info" isInline extraClass="mb-6">
+                <p>
+                    Nous vous informons que la mission débutera le <b>{{ mission?.current?.start }}</b> dans exactement
+                    <b>{{
+                        mission?.current?.remaining_days_before_start_str }}</b>
+                </p>
+            </Alert>
+            <NLGrid gap="6">
+                <NLColumn lg="4">
+                    <NLGrid gap="6">
+                        <NLColumn>
                             <span class="text-bold">
                                 Mission:
                             </span>
                             <span>
                                 {{ mission?.current?.reference }}
                             </span>
-                        </div>
-                        <div class="col-12">
+                        </NLColumn>
+                        <NLColumn>
                             <span class="text-bold">
                                 DRE:
                             </span>
                             <span>
                                 {{ mission?.current?.dre.full_name }}
                             </span>
-                        </div>
-                        <div class="col-12">
+                        </NLColumn>
+                        <NLColumn>
                             <span class="text-bold">
                                 Début:
                             </span>
                             <span>
-                                {{ mission?.current?.start + ' / ' +
+                                {{ mission?.current?.programmed_start + ' / ' +
                                     mission?.current?.remaining_days_before_start_str }}
                             </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-4">
-                    <div class="grid gap-6">
-                        <div class="col-12">
+                        </NLColumn>
+                    </NLGrid>
+                </NLColumn>
+                <NLColumn lg="4">
+                    <NLGrid gap="6">
+                        <NLColumn>
                             <span class="text-bold">
                                 Campagne:
                             </span>
                             <span>
                                 {{ mission?.current?.campaign.reference }}
                             </span>
-                        </div>
-                        <div class="col-12">
+                        </NLColumn>
+                        <NLColumn>
                             <span class="text-bold">
                                 Agence:
                             </span>
                             <span>
                                 {{ mission?.current?.agency.full_name }}
                             </span>
-                        </div>
-                        <div class="col-12">
+                        </NLColumn>
+                        <NLColumn>
                             <span class="text-bold">
                                 Fin:
                             </span>
@@ -69,16 +77,16 @@
                                 {{ mission?.current?.end + ' / ' +
                                     mission?.current?.remaining_days_before_end_str }}
                             </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-4">
-                    <div class="grid gap-6">
-                        <div class="col-12">
+                        </NLColumn>
+                    </NLGrid>
+                </NLColumn>
+                <NLColumn lg="4">
+                    <NLGrid gap="6">
+                        <NLColumn>
                             <span class="text-bold">
                                 Contrôleurs dcp:
                             </span>
-                            <span>
+                            <span v-if="mission?.current?.dcp_controllers.length">
                                 <ul class="d-inline-block ml-6">
                                     <li v-for="controller in mission?.current?.dcp_controllers"
                                         :key="'dcp-controller-' + controller.id">
@@ -86,163 +94,160 @@
                                     </li>
                                 </ul>
                             </span>
-                        </div>
-                        <div class="col-12">
+                            <span v-else>-</span>
+                        </NLColumn>
+                        <NLColumn>
                             <span class="text-bold">
                                 Contrôleurs dre:
                             </span>
                             <span>
                                 <ul class="d-inline-block ml-6">
-                                    <li v-for="controller in mission?.current?.agency_controllers"
+                                    <li v-for="controller in mission?.current?.dre_controllers"
                                         :key="'dre_controller-' + controller.id">
                                         {{ controller.full_name }}
                                     </li>
                                 </ul>
                             </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-lg-4">
+                        </NLColumn>
+                    </NLGrid>
+                </NLColumn>
+                <NLColumn lg="4">
                     <span class="text-bold">
                         Taux de progression:
                     </span>
                     <span>
                         {{ mission?.current?.progress_status }}%
                     </span>
-                </div>
-                <div class="col-12 col-lg-4">
+                </NLColumn>
+                <NLColumn lg="4">
                     <span class="text-bold">
                         Statut:
                     </span>
                     <span>
                         {{ mission?.current?.realisation_state }}
                     </span>
-                </div>
-                <div class="col-12 col-lg-4">
+                </NLColumn>
+                <NLColumn lg="4">
                     <span class="text-bold">
                         Moyenne:
                     </span>
                     <span>
                         {{ mission?.current?.avg_score }}
                     </span>
-                </div>
-                <div v-if="mission?.current?.cdcr_validation_at" class="col-12 col-lg-4">
+                </NLColumn>
+                <NLColumn lg="4" v-if="mission?.current?.cdcr_validation_at">
                     <span class="text-bold">
                         1<sup>ère</sup> validation
                     </span>
                     <span>
                         {{ mission?.current?.cdcr_validation_at }}
                     </span>
-                </div>
-                <div v-if="mission?.current?.cdcr_validation_at" class="col-12 col-lg-4">
+                </NLColumn>
+                <NLColumn lg="4" v-if="mission?.current?.cdcr_validation_at">
                     <span class="text-bold">
                         Validé par:
                     </span>
                     <span>
                         {{ mission?.current?.cdcr_validator?.full_name }}
                     </span>
-                </div>
-                <div class="col-12 col-lg-4 d-none d-lg-block" />
-                <div v-if="mission?.current?.dcp_validation_at" class="col-12 col-lg-4">
+                </NLColumn>
+                <NLColumn lg="4" extraClass="d-none d-lg-block" />
+                <NLColumn lg="4" v-if="mission?.current?.dcp_validation_at">
                     <span class="text-bold">
                         2<sup>ème</sup> validation
                     </span>
                     <span>
                         {{ mission?.current?.dcp_validation_at }}
                     </span>
-                </div>
-                <div v-if="mission?.current?.dcp_validation_at" class="col-12 col-lg-4">
+                </NLColumn>
+                <NLColumn lg="4" v-if="mission?.current?.dcp_validation_at">
                     <span class="text-bold">
                         Validé par:
                     </span>
                     <span>
                         {{ mission?.current?.dcp_validator?.full_name }}
                     </span>
-                </div>
-                <div class="col-12">
+                </NLColumn>
+                <NLColumn>
                     <span class="text-bold">
                         Note:
                     </span>
                     <div v-if="mission?.current?.note" class="mt-2 content" v-html="mission?.current?.note" />
                     <span v-else>-</span>
-                </div>
-            </div>
-        </div>
-
-        <div v-if="mission?.current?.remaining_days_before_start > 0" class="box is-info">
-            Nous vous informons que la mission débutera le <b>{{ mission?.current?.start }}</b> dans exactement <b>{{
-                mission?.current?.remaining_days_before_start_str }}</b>
+                </NLColumn>
+            </NLGrid>
         </div>
 
         <!-- Actions -->
         <div class="d-flex align-items gap-2">
-            <button v-if="mission?.current?.dcp_validation_at && is(['dcp', 'dg', 'ig', 'sg', 'cdrcp', 'der'])"
+            <button v-if="mission?.current?.is_validated_by_dcp && is(['dcp', 'dg', 'ig', 'sg', 'cdrcp', 'der'])"
                 class="btn btn-danger has-icon" @click="exportReport(false)">
                 <i class="las la-file-pdf icon" />
                 Exporter le rapport
             </button>
             <!-- CDC -->
-
-            <!-- Report actions -->
             <button
-                v-if="mission?.current.progress_status == 100 && !mission?.current.dre_report && mission?.current.opinion?.is_validated && can('create_dre_report')"
-                class="btn btn-info" @click="showReport">
+                v-if="mission?.current.progress_status == 100 && !mission?.current.cdc_report_exists && mission?.current?.is_validated_by_ci && can('create_cdc_report')"
+                class="btn btn-info" @click="showCommentForm('cdc_report')">
                 Ajouter votre rapport
             </button>
             <button
-                v-if="mission?.current.progress_status == 100 && mission?.current.opinion?.is_validated && !mission?.current.dre_report?.is_validated && mission?.current.dre_report && can('validate_dre_report')"
-                class="btn btn-success" @click.prevent="validateReport">
+                v-if="mission?.current.is_validated_by_ci && !mission?.current.is_validated_by_cdc && mission?.current.cdc_report_exists && can('validate_cdc_report')"
+                class="btn btn-success" @click.prevent="validateMission('cdc_report')">
                 Valider la mission
             </button>
 
             <!-- CI -->
             <button
-                v-if="mission?.current.progress_status == 100 && !mission?.current.controller_opinion_is_validated && mission?.current?.controller_opinion_exist && can('validate_opinion')"
-                class="btn btn-success" @click.prevent="validateOpinion">
+                v-if="mission?.current.progress_status == 100 && !mission?.current.is_validated_by_ci && mission?.current?.ci_opinion_exists && can('validate_ci_opinion')"
+                class="btn btn-success" @click.prevent="validateMission('ci_opinion')">
                 Valider la mission
             </button>
 
             <button
-                v-if="!mission?.current?.controller_opinion_exist && !mission?.current?.dre_report_exist && mission?.current?.progress_status == 100 && can('create_opinion')"
-                class="btn btn-info" @click="showOpinion">
+                v-if="!mission?.current?.ci_opinion_exists && !mission?.current?.cdc_report_exists && mission?.current?.progress_status == 100 && can('create_ci_opinion')"
+                class="btn btn-info" @click="showCommentForm('ci_opinion')">
                 Ajouter votre avis
             </button>
 
             <!-- CDCR -->
-            <button v-if="!mission?.current.cdcr_validation_at && can('make_first_validation')" class="btn btn-success"
-                @click.prevent="validateMission(1)">
+            <button v-if="!mission?.current.is_validated_by_cdcr && can('make_first_validation')" class="btn btn-success"
+                @click.prevent="validateMission('cdcr')">
                 Valider la mission
             </button>
-            <button v-if="!mission?.current.cdcr_validation_at && can('assign_mission_processing')" class="btn btn-success"
-                @click.prevent="showDispatchForm">
+            <button v-if="!mission?.current.is_validated_by_cdcr && can('assign_mission_processing')"
+                class="btn btn-success" @click.prevent="showDispatchForm">
                 Assigné
             </button>
 
             <!-- DCP -->
             <button
-                v-if="mission?.current.cdcr_validation_at && !mission?.current.dcp_validation_at && can('make_second_validation')"
-                class="btn btn-success" @click.prevent="validateMission(2)">
+                v-if="mission?.current.is_validated_by_cdcr && !mission?.current.is_validated_by_dcp && can('make_second_validation')"
+                class="btn btn-success" @click.prevent="validateMission('dcp')">
                 Valider la mission
             </button>
 
             <!-- View report -->
-            <button v-if="mission?.current.dre_report && is('cdc')" class="btn btn-info" @click="showReport">
+            <button v-if="mission?.current.cdc_report_exists && is('cdc')" class="btn btn-info"
+                @click="showCommentForm('cdc_report', true)">
                 Rapport de la mission
             </button>
-            <button v-if="mission?.current.dre_report?.is_validated && is(['dcp', 'cdcr', 'cc'])" class="btn btn-info"
-                @click="showReport">
+            <button v-if="mission?.current.is_validated_by_cdc && is(['dcp', 'cdcr', 'cc'])" class="btn btn-info"
+                @click="showCommentForm('cdc_report', true)">
                 Rapport de la mission
             </button>
-            <button v-if="mission?.current.dcp_validation_at && is(['dg', 'cdrcp', 'da', 'ig', 'der'])" class="btn btn-info"
-                @click="showReport">
+            <button v-if="mission?.current.is_validated_by_dcp && is(['dg', 'cdrcp', 'da', 'ig', 'der'])"
+                class="btn btn-info" @click="showCommentForm('cdc_report', true)">
                 Rapport de la mission
             </button>
 
             <!-- View ci comment -->
-            <button v-if="mission?.current.opinion?.is_validated && is('cdc')" class="btn btn-info" @click="showOpinion">
+            <button v-if="mission?.current.is_validated_by_ci && is('cdc')" class="btn btn-info"
+                @click="showCommentForm('ci_opinion', true)">
                 Avis sur la mission
             </button>
-            <button v-if="mission?.current?.controller_opinion_exist && is('ci')" class="btn btn-info" @click="showOpinion">
+            <button v-if="mission?.current?.ci_opinion_exists && is('ci')" class="btn btn-info"
+                @click="showCommentForm('ci_opinion', true)">
                 Avis sur la mission
             </button>
         </div>
@@ -253,176 +258,36 @@
             <template #actions-after="{ item }">
                 <button
                     v-if="can('control_agency,view_mission_detail') && mission?.current?.remaining_days_before_start <= 0"
-                    class="btn btn-info has-icon" @click.stop="show(item)">
+                    class="btn btn-info has-icon" @click.stop="showProcess(item)">
                     <i v-if="item.progress_status < 100 && !mission?.current.opinion" class="las la-tasks icon" />
                     <i v-else class="las la-list-alt icon" />
                 </button>
             </template>
         </NLDatatable>
-        <!-- Process details (control points) -->
-        <NLModal :show="rowSelected" @close="close">
-            <template #title>
-                <small class="tag is-info text-small">
-                    {{ rowSelected?.familly }}
-                </small>
-                <small class="tag is-primary-dark text-small mx-1">
-                    {{ rowSelected?.domain }}
-                </small>
-                <small class="tag is-warning text-small">
-                    {{ rowSelected?.name }}
-                </small>
-            </template>
-            <template #default>
-                <p class="text-bold mb-6">
-                    Points de contrôle
-                </p>
-                <div class="grid list">
-                    <div v-for=" controlPoint  in  rowSelected?.controlPoints " :key="controlPoint.id"
-                        class="col-12 list-item">
-                        <div class="list-item-content">
-                            {{ controlPoint.label }}
-                        </div>
-                    </div>
-                </div>
-            </template>
-            <template v-if="can('edit_mission')" #footer>
-                <button v-if="rowSelected?.progress_status == 100 && can('view_mission')" class="btn btn-info has-icon"
-                    @click.stop="show(rowSelected)">
-                    <i class="las la-tasks icon" />
-                    Afficher
-                </button>
-                <button v-else-if="can('control_agency')" class="btn btn-info has-icon" @click.stop="show(rowSelected)">
-                    <i class="las la-tasks icon" />
-                    Éffectuer
-                </button>
-            </template>
-        </NLModal>
 
-        <!-- Controller opinion -->
-        <NLModal :show="modals.opinion" @close="modals.opinion = false">
-            <template #title>
-                <h2>Avis du contrôleur</h2>
-            </template>
-            <template #default>
-                <form v-if="!mission?.current.opinion || forms.opinion.edit_mode" @submit.prevent="saveOpinion"
-                    @keydown="forms.opinion.onKeydown($event)">
-                    <div class="grid">
-                        <div class="col-12">
-                            <NLWyswyg v-model="forms.opinion.opinion" :name="'opinion'" :form="forms.opinion"
-                                label="Avis du contrôleur" labelRequired />
-                        </div>
-                        <div class="col-12">
-                            <NLSwitch type="is-success" v-model="forms.opinion.validated" name="validated"
-                                :form="forms.opinion" label="Validé la mission" />
-                        </div>
-                    </div>
-                    <!-- Submit Button -->
-                    <div class="d-flex justify-end align-center">
-                        <NLButton :loading="forms.opinion.busy" label="Enregistrer" />
-                    </div>
-                </form>
-                <div v-else class="grid">
-                    <div class="col-12 content" v-html="mission?.current.opinion.content" />
-                    <div v-if="mission?.current.opinion?.is_validated" class="col-12">
-                        <b>Validé le:</b> <time>{{ mission?.current.opinion.validated_at }}</time>
-                    </div>
-                </div>
-            </template>
-            <template #footer>
-                <button
-                    v-if="!mission?.current.opinion?.is_validated && mission?.current.opinion && !forms.opinion.edit_mode && can('create_opinion')"
-                    class="btn btn-success has-icon" @click.prevent="validateOpinion">
-                    <i class="las la-check-circle icon" />
-                    Valider la mission
-                </button>
-                <button
-                    v-if="!mission?.current.opinion?.is_validated && mission?.current.opinion && !forms.opinion.edit_mode && can('create_opinion')"
-                    class="btn btn-warning has-icon" @click.prevent="enableEdition('opinion')">
-                    <i class="las la-edit icon" />
-                    Editer l'avis
-                </button>
-            </template>
-        </NLModal>
-
-        <!-- Head of department report -->
-        <NLModal :show="modals.report" @close="modals.report = false">
-            <template #title>
-                <h2>Rapport du chef de département</h2>
-            </template>
-            <template #default>
-                <form v-if="!mission?.current.dre_report || forms.report.edit_mode" @submit.prevent="saveReport"
-                    @keydown="forms.report.onKeydown($event)">
-                    <div class="grid">
-                        <div class="col-12">
-                            <NLWyswyg v-model="forms.report.report" :name="'report'" :form="forms.report"
-                                label="Rapport du chef de département" labelRequired />
-                        </div>
-                        <div class="col-12">
-                            <NLSwitch type="is-success" v-model="forms.report.validated" name="validated"
-                                :form="forms.report" label="Validé la mission" />
-                        </div>
-                    </div>
-                    <!-- Submit Button -->
-                    <div class="d-flex justify-end align-center">
-                        <NLButton :loading="forms.report.busy" label="Enregistrer" />
-                    </div>
-                </form>
-                <div v-else class="grid">
-                    <div class="col-12 content" v-html="mission?.current.dre_report.content" />
-                    <div v-if="mission?.current.dre_report?.is_validated" class="col-12">
-                        <b>Validé le:</b> <time>{{ mission?.current.dre_report.validated_at }}</time>
-                    </div>
-                </div>
-            </template>
-            <template #footer>
-                <button
-                    v-if="mission?.current.opinion?.is_validated && mission?.current.dre_report && !mission?.current.dre_report?.is_validated && !forms.report.edit_mode && can('validate_dre_report')"
-                    class="btn btn-success has-icon" @click.prevent="validateReport">
-                    <i class="las la-check-circle icon" />
-                    Valider la mission
-                </button>
-                <button
-                    v-if="mission?.current.opinion?.is_validated && mission?.current.dre_report && !mission?.current.dre_report?.is_validated && !forms.report.edit_mode && can('create_dre_report')"
-                    class="btn btn-warning has-icon" @click.prevent="enableEdition('report')">
-                    <i class="las la-edit icon" />
-                    Editer le rapport
-                </button>
-            </template>
-        </NLModal>
+        <!-- Mission comment -->
+        <MissionCommentForm :config="forms.comment" :show="modals.comment" @success="success" @close="close" />
 
         <!-- Assign mission processing -->
-        <NLModal :show="modals.dispatch" @close="modals.dispatch = false">
-            <template #title>
-                <h2>Assigné le traitement de la mission</h2>
-            </template>
-            <template #default>
-                <form @submit.prevent="dispatchMission" @keydown="forms.dispatch.onKeydown($event)">
-                    <div class="grid">
-                        <div class="col-12">
-                            <NLSelect v-model="forms.dispatch.controllers" name="controllers" :form="forms.dispatch"
-                                :options="controllersList" label="Contrôleurs"
-                                placeholder="Choisissez un ou plusieurs contrôleurs" multiple labelRequired />
-                        </div>
-                    </div>
-                    <!-- Submit Button -->
-                    <div class="d-flex justify-end align-center">
-                        <NLButton :loading="forms.dispatch.busy" label="Enregistrer" />
-                    </div>
-                </form>
-            </template>
-        </NLModal>
+        <MissionAssignationDetailsForm :mission="mission.current" type="cc"
+            :title="'Assigné le traitement des anomalies de la mission' + mission?.current?.reference"
+            :show="modals.dispatch" @success="success" @close="close" />
     </ContentBody>
 </template>
 
 <script>
 import NLDatatable from '../../components/Datatable/NLDatatable'
+import MissionCommentForm from '../../forms/MissionCommentForm'
+import MissionAssignationDetailsForm from '../../forms/MissionAssignationDetailsForm.vue'
 import { mapGetters } from 'vuex'
-import api from '../../plugins/api'
 import { Form } from 'vform'
+import api from '../../plugins/api'
 import { hasRole } from '../../plugins/user'
 export default {
     components: {
-        NLDatatable
+        NLDatatable,
+        MissionCommentForm,
+        MissionAssignationDetailsForm
     },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
@@ -447,6 +312,18 @@ export default {
                     label: 'Total points de contrôle',
                     field: 'control_points_count',
                     align: 'center',
+                    sortable: true,
+                },
+                {
+                    label: 'Taux de progression',
+                    field: 'progress_status',
+                    align: 'center',
+                    sortable: true,
+                    methods: {
+                        showField(item) {
+                            return item.progress_status + '%'
+                        }
+                    }
                 },
                 {
                     label: 'Moyenne',
@@ -498,53 +375,32 @@ export default {
                     value: null,
                     cols: 5
                 }
-                // process_id: {
-                //   label: 'Processus',
-                //   name: 'process',
-                //   multiple: true,
-                //   data: null,
-                //   value: null
-                // },
             },
             modals: {
-                opinion: false,
-                report: false,
+                comment: false,
                 dispatch: false
             },
             forms: {
-                opinion: new Form({
-                    opinion: null,
-                    id: null,
-                    type: 'Avis contrôleur',
-                    validated: false,
-                    edit_mode: true
-                }),
-                report: new Form({
-                    report: null,
-                    id: null,
-                    type: 'Rapport',
-                    validated: false,
-                    edit_mode: true
-                }),
+                comment: {
+                    names: {
+                        content: null,
+                        id: null,
+                        validated: false,
+
+                    },
+                },
                 dispatch: new Form({
                     controllers: []
                 }),
-                validations: {
-                    opinion: new Form({
-                        type: 'Avis contrôleur'
-                    }),
-                    report: new Form({
-                        type: 'Rapport'
-                    })
-                }
             },
         }
     },
     computed: {
         ...mapGetters({
             mission: 'missions/current',
-            users: 'users/all'
-        })
+            // users: 'users/all',
+            // processes: 'missions/current'
+        }),
     },
     watch: {
         mission: {
@@ -562,7 +418,7 @@ export default {
     },
     methods: {
         /**
-         * Export or Preview a report
+         * Export or Preview report
          *
          * @param {Boolean} preview
          */
@@ -576,12 +432,118 @@ export default {
             window.open(url)
         },
 
-        validateMission(step) {
-            this.$swal.confirm({ title: 'Mission ' + this.mission.current.reference, message: 'Vous êtes sur de vouloir valider la mission ' + this.mission.current.reference }).then(action => {
+        /**
+         * Dispatch mission
+         */
+        dispatchMission() {
+            this.forms.dispatch.put('/api/missions/' + this.mission.current.id + '/assign').then(response => {
+                if (response.data.status) {
+                    this.$swal.toast_success(response.data.message)
+                    this.initData()
+                } else {
+                    this.$swal.alert_error(response.data.message)
+                }
+            }).catch(error => {
+                console.log(error)
+            })
+        },
+
+        /**
+         * Show dispatch mission form to cc
+         */
+        showDispatchForm() {
+            // const filters = {
+            //     roles_codes: 'cc'
+            // }
+            // this.$store.dispatch('users/fetchAll', filters).then(() => {
+            //     this.controllersList = this.users.all
+            //     this.forms.dispatch.controllers = this.mission.current.dcp_controllers.map(controller => controller.id)
+            // })
+            // this.$sotre.dispatch('missions/fetch', { missionId: this.mission.id, onlyProcesses: true }).then(() => {
+            //     console.log(this.current);
+            // }).catch(error => console.log(error))
+            this.modals.dispatch = true
+        },
+        /**
+         * Show mission comment (ci opinion, cdc report)
+         */
+        showCommentForm(type, readonly = false) {
+            if (type == 'cdc_report') {
+                this.showCdcReport(readonly)
+            }
+
+            if (type == 'ci_opinion') {
+                this.showCiOpinion(readonly)
+            }
+        },
+        /**
+         * Initialize ci opinion data
+         *
+         * @param {Boolean} readonly
+         */
+        showCiOpinion(readonly) {
+            this.forms.comment.readonly = readonly
+            this.forms.comment.data = this.mission?.current
+            this.forms.comment.comment = this.mission?.current.ci_opinion
+            this.forms.comment.validated = this.mission?.current?.is_validated_by_ci
+            this.forms.comment.title = 'Avis du contrôleur sur la mission ' + this.mission?.current?.reference
+            this.forms.comment.type = 'ci_opinion'
+            this.forms.comment.id = this.mission?.current?.ci_opinion?.length ? this.mission?.current?.ci_opinion?.id : null
+            this.forms.comment.fields = {
+                content: {
+                    label: 'Votre avis',
+                    placeholder: 'Ecrivez votre avis (compte rendu)',
+                    name: 'content'
+                },
+                validated: {
+                    label: 'Validé ?',
+                    name: 'validated'
+                },
+            }
+            this.modals.comment = true
+        },
+
+        /**
+         * Initialize cdc report data
+         *
+         * @param {Boolean} readonly
+         */
+        showCdcReport(readonly) {
+            this.forms.comment.readonly = readonly
+            this.forms.comment.data = this.mission?.current
+            this.forms.comment.comment = this.mission?.current.cdc_report
+            this.forms.comment.validated = this.mission?.current?.is_validated_by_ci
+            this.forms.comment.title = 'Rapport du chef de département sur la mission ' + this.mission?.current?.reference
+            this.forms.comment.type = 'cdc_report'
+            this.forms.comment.id = this.mission?.current?.cdc_report?.length ? this.mission?.current?.cdc_report?.id : null
+
+            this.forms.comment.fields = {
+                content: {
+                    label: 'Votre rapport',
+                    placeholder: 'Ecrivez votre rapport',
+                    name: 'content'
+                },
+                validated: {
+                    label: 'Validé ?',
+                    name: 'validated'
+                },
+            }
+            this.modals.comment = true
+        },
+
+        /**
+         * Validate mission
+         */
+        validateMission(type) {
+            this.$swal.confirm({ title: 'Mission ' + this.mission.current.reference, message: 'Vous êtes sur de vouloir valider la mission ' + this.mission.current.reference }).then((action) => {
                 if (action.isConfirmed) {
-                    this.$api.post('missions/' + this.mission.current.id + '/validate/' + step).then(response => {
-                        this.$swal.toast_success(response.data.message)
-                        this.initData()
+                    api.put('/missions/' + this.mission.current.id + '/validate/' + type).then(response => {
+                        if (response.data.status) {
+                            this.$swal.toast_success(response.data.message)
+                            this.initData()
+                        } else {
+                            this.$swal.alert_error(response.data.message)
+                        }
                     }).catch(error => {
                         console.log(error)
                     })
@@ -589,158 +551,28 @@ export default {
             })
         },
 
-        dispatchMission() {
-            this.forms.dispatch.put('/api/missions/' + this.mission.current.id + '/assign').then(response => {
-                if (response.data.status) {
-                    this.$swal.toast_success(response.data.message)
-                    this.forms.dispatch.reset()
-                    this.initData()
-                } else {
-                    this.$swal.alert_error(response.data.message)
-                }
-            }).catch(error => {
-                console.log(error)
-            })
-        },
         /**
-         * Affiche le formulaire d'assignation du traitement de la mission
+         * Initialize data
          */
-        showDispatchForm() {
-            const filters = {
-                roles_codes: 'cc'
-            }
-            this.$store.dispatch('users/fetchAll', filters).then(() => {
-                this.controllersList = this.users.all
-                this.forms.dispatch.controllers = this.mission.current.dcp_controllers.map(controller => controller.id)
-                this.modals.dispatch = true
-            })
-        },
-        /**
-         * Enregistre l'avis du contrôleur
-         */
-        saveReport() {
-            this.forms.report.post('/api/missions/reports/' + this.mission.current.id).then(response => {
-                if (response.data.status) {
-                    this.$swal.toast_success(response.data.message)
-                    this.forms.opinion.reset()
-                    this.initData()
-                } else {
-                    this.$swal.alert_error(response.data.message)
-                }
-            }).catch(error => {
-                console.log(error)
-            })
-        },
-        /**
-         * Valide l'avis du contrôleur
-         */
-        validateReport() {
-            this.$swal.confirm({ title: 'Mission ' + this.mission.current.reference, message: 'Vous êtes sur de vouloir valider la mission ' + this.mission.current.reference }).then((action) => {
-                if (action.isConfirmed) {
-                    this.forms.validations.report.put('/api/missions/reports/' + this.mission.current.id).then(response => {
-                        if (response.data.status) {
-                            this.$swal.toast_success(response.data.message)
-                            this.initData()
-                        } else {
-                            this.$swal.alert_error(response.data.message)
-                        }
-                    }).catch(error => {
-                        console.log(error)
-                    })
-                }
-            })
-        },
-        /**
-         * Affiche le rapport de la mission
-         */
-        showReport() {
-            this.modals.report = true
-        },
-        /**
-         * Affiche l'avis du contrôleur
-         */
-        showOpinion() {
-            this.modals.opinion = true
-        },
-        /**
-         * Enregistre l'avis du contrôleur
-         */
-        saveOpinion() {
-            this.forms.opinion.post('/api/missions/reports/' + this.mission.current.id).then(response => {
-                if (response.data.status) {
-                    this.$swal.toast_success(response.data.message)
-                    this.forms.opinion.reset()
-                    this.initData()
-                } else {
-                    this.$swal.alert_error(response.data.message)
-                }
-            }).catch(error => {
-                console.log(error)
-            })
-        },
-        /**
-         * Valide l'avis du contrôleur
-         */
-        validateOpinion() {
-            this.$swal.confirm({ title: 'Mission ' + this.mission.current.reference, message: 'Vous êtes sur de vouloir valider la mission ' + this.mission.current.reference }).then((action) => {
-                if (action.isConfirmed) {
-                    this.forms.validations.opinion.put('/api/missions/reports/' + this.mission.current.id).then(response => {
-                        if (response.data.status) {
-                            this.$swal.toast_success(response.data.message)
-                            this.initData()
-                        } else {
-                            this.$swal.alert_error(response.data.message)
-                        }
-                    }).catch(error => {
-                        console.log(error)
-                    })
-                }
-            })
-        },
-        /**
-         * Bascule vers le mode edition
-         *
-         * @param {String} type
-         */
-        enableEdition(type) {
-            if (type === 'opinion') {
-                this.forms.opinion.edit_mode = true
-                this.forms.opinion.opinion = this.mission.current.opinion.content
-                this.forms.opinion.id = this.mission.current.opinion.id
-            } else if (type === 'report') {
-                this.forms.report.edit_mode = true
-                this.forms.report.report = this.mission.current.dre_report.content
-                this.forms.report.id = this.mission.current.dre_report.id
-            }
-        },
-        /**
-         * Initialise les données
-         */
-        initData(reset = false) {
-            this.close()
+        initData() {
             this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId }).then(() => {
                 const length = this.$breadcrumbs.value.length
                 if (this.$breadcrumbs.value[ length - 1 ].label === 'Mission') { this.$breadcrumbs.value[ length - 1 ].label = 'Mission ' + this.mission?.current?.reference }
             }).catch(error => this.$swal.alert_error(error))
-            this.forms.opinion.edit_mode = false
-            this.forms.report.edit_mode = false
-            this.modals.dispatch = false
         },
+
         /**
-         * Redérige vers la page des détails de la mission
+         * Show process control points's
          *
          * @param {Object} item
          */
-        show(item) {
+        showProcess(item) {
             item = item?.item?.id ? item.item : item
-            let name = 'mission-details'
-            if (item.progress_status < 100 && !this.mission?.current.opinion) {
-                name = 'mission-details-execute'
-            }
+            name = 'mission-details'
             return this.$router.push({ name, params: { missionId: this.mission.current.id, processId: item.id } })
         },
         /**
-         * Supprime la mission
+         * Destroy mission
          */
         destroy() {
             this.$swal.confirm_destroy().then((action) => {
@@ -759,10 +591,29 @@ export default {
             })
         },
         /**
-         * Ferme le modal
+         * Close modals
          */
         close() {
             this.rowSelected = null
+            for (const key in this.modals) {
+                if (Object.hasOwnProperty.call(this.modals, key)) {
+                    this.modals[ key ] = false;
+                }
+            }
+            this.forms.comment = {
+                names: {
+                    content: null,
+                    id: null,
+                    validated: false,
+
+                },
+            }
+        },
+        /**
+         * Handle success event
+         */
+        success() {
+            this.initData()
         },
     }
 }

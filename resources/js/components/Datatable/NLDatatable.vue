@@ -259,7 +259,6 @@ export default {
          */
         handleAction(e) {
             if (e.apply !== undefined) {
-                console.log(e);
                 if (e.apply(e)) {
                     e.apply(e).then((response) => {
                         if (response && Object.hasOwnProperty.call(response, 'data')) {
@@ -315,7 +314,6 @@ export default {
                 queryString += `&search=${this.search}`
             }
             for (const key in this.sorting) {
-                console.log(this.sorting);
                 if (Object.hasOwnProperty.call(this.sorting, key)) {
                     const element = this.sorting[ key ];
                     queryString += `&sort[${key}]=${element}`

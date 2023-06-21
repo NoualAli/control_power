@@ -25,7 +25,7 @@
                             <a :href="file.link" :download="file.name">
                                 <i class="las la-download text-info icon" />
                             </a>
-                            <i v-if="canDelete && !readonly" class="las la-trash text-danger icon is-clickable"
+                            <i v-if="canDelete && !readonly && isOwner" class="las la-trash text-danger icon is-clickable"
                                 @click.stop="deleteItem(file, index)" />
                         </div>
                     </div>
@@ -69,6 +69,9 @@ export default {
     computed: {
         hasFiles() {
             return this.files.length
+        },
+        isOwner() {
+            return Number(this.files[ 0 ].uploaded_by_id) == user().id
         },
         accept() {
             return this.accepted.split(',').map(accept => '.' + accept).join(',')

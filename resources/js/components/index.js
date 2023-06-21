@@ -1,5 +1,5 @@
 import Child from './Child.vue'
-import Notification from './Notification.vue'
+import Alert from './Alert.vue'
 import DefaultContainer from './Inputs/DefaultContainer.vue'
 import NLInput from './Inputs/NLInput.vue'
 import NLTextarea from './Inputs/NLTextarea.vue'
@@ -58,7 +58,7 @@ export function useComponents(app) {
         HasError,
         // AlertError,
         // AlertSuccess,
-        Notification,
+        Alert,
         AlertErrors
     ].forEach(Component => {
         app.component(Component.name, Component)

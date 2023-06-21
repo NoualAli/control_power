@@ -14,32 +14,19 @@ class MissionDetailResource extends JsonResource
      */
     public function toArray($request)
     {
+        // dd($this->score_tag);
         return [
             'id' => $this->id,
-            'cdc_reference' => $this->campaign->reference,
-            'dre_report_exist' => $this->mission->dre_report_exist,
-            'controller_opinion_validated' => $this->mission->controller_opinion_validated,
-            'controller_opinion_exist' => $this->mission->controller_opinion_exist,
+            'cdc_reference' => $this->mission->campaign->reference,
             'mission_reference' => $this->mission->reference,
-            'mission_id' => $this->mission->id,
-            'dre_full_name' => $this->dre->full_name,
+            'dre_full_name' => $this->agency->dre->full_name,
             'agency_full_name' => $this->agency->full_name,
-            'familly_name' => $this->familly->name,
-            'domain_name' => $this->domain->name,
-            'process_name' => $this->process->name,
-            'process_id' => $this->process->id,
+            'familly_name' => $this->controlPoint->process->domain->familly->name,
+            'domain_name' => $this->controlPoint->process->domain->name,
+            'process_name' => $this->controlPoint->process->name,
             'control_point_name' => $this->controlPoint->name,
-            'major_fact_str' => $this->major_fact_str,
-            'score' => $this->score,
-            'report' => $this->report,
-            'recovery_plan' => $this->recovery_plan,
-            'appreciation' => $this->appreciation,
-            'parsed_metadata' => $this->parsed_metadata,
-            'metadata' => $this->metadata,
-            'media' => $this->media,
-            'regularization' => $this->regularization,
+            'score' => $this->score_tag,
             'is_regularized' => $this->is_regularized,
-            'mission_dcp_validation' => $this->mission->dcp_validation_at,
         ];
     }
 }

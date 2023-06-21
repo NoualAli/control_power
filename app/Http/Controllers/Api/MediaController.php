@@ -48,7 +48,8 @@ class MediaController extends Controller
                         'mimetype' => $mimetype,
                         'size' => $size,
                         'attachable_id' => $attachableId,
-                        'attachable_type' => $attachableType
+                        'attachable_type' => $attachableType,
+                        'uploaded_by_id' => auth()->user()->id
                     ]);
 
                     array_push($uploadedFiles, $uploadedFile);

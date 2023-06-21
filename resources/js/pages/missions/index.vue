@@ -69,6 +69,7 @@ export default {
                     field: 'avg_score',
                     hide: hasRole([ 'cdc', 'ci' ]),
                     isHtml: true,
+                    align: 'center',
                     methods: {
                         showField(item) {
                             const score = Number(item.avg_score)
@@ -94,6 +95,7 @@ export default {
                     label: 'État',
                     field: 'state',
                     isHtml: true,
+                    align: 'center',
                     methods: {
                         showField(item) {
                             let state = 'done'
@@ -123,6 +125,7 @@ export default {
                 {
                     label: 'Taux de progression',
                     field: 'progress_status',
+                    align: 'center',
                     methods: {
                         showField(item) {
                             return item.progress_status + '%'
@@ -136,9 +139,10 @@ export default {
                         if (hasRole([ 'cdc', 'ci' ])) {
                             return this.can('view_mission')
                         } else if (hasRole([ 'dcp', 'cdcr' ])) {
-                            return this.can('view_mission') && item.progress_status.toString() === '100' && item?.dre_report?.is_validated
+                            console.log(item);
+                            return this.can('view_mission') && item.progress_status.toString() === '100' && item?.is_validated_by_cdc
                         } else if (hasRole([ 'da', 'dg', 'cdrcp', 'ig', 'der' ])) {
-                            return this.can('view_mission') && item.progress_status.toString() === '100' && item?.dcp_validation_at
+                            return this.can('view_mission') && item.progress_status.toString() === '100' && item?.is_validated_by_dcp
                         } else {
                             return this.can('view_mission') && item.progress_status.toString() === '100'
                         }

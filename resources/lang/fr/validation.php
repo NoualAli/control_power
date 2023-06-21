@@ -214,11 +214,7 @@ return [
         'agencies' => 'agences',
         'controllers' => 'contrôleurs',
         'control_campaign_id' => 'campagne de contrôle',
-        'rows.*.score' => 'notation',
-        'rows.*.report' => 'constat',
-        'rows.*.recovery_plan' => 'plan de redressement',
-        'rows.*.detail' => 'détail',
-        'rows.*.metadata.*.*' => 'métadonnées',
+
         'opinion' => 'avis du contrôleur',
         'report' => 'constat',
         'major_fact_types' => 'types des faits majeur',
@@ -232,6 +228,10 @@ return [
         'recovery_plan' => 'plan de redressement',
         'report' => 'constat',
         'priority' => 'priorité',
+        'score' => 'notation',
+        'metadata' => 'information supplémentaires',
+        'major_fact' => 'fait majeur',
+
     ],
 
 ];

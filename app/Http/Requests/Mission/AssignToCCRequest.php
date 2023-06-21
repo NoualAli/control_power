@@ -23,8 +23,14 @@ class AssignToCCRequest extends FormRequest
      */
     public function rules()
     {
+        if (request()->mission->dcpControllers()->count()) {
+            $controllersRequired = 'nullable';
+        } else {
+            $controllersRequired = 'required';
+        }
+
         return [
-            'controllers' => ['nullable', 'array'],
+            'controllers' => [$controllersRequired, 'array'],
             'controllers.*' => ['exists:users,id'],
         ];
     }

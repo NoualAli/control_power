@@ -139,8 +139,10 @@ class User extends Authenticatable implements JWTSubject
     {
         if (hasRole('cdc')) {
             return $this->hasMany(Mission::class, 'created_by_id');
-        } elseif (hasRole(['ci', 'cc'])) {
+        } elseif (hasRole('ci')) {
             return $this->belongsToMany(Mission::class, 'mission_has_controllers');
+        } elseif (hasRole('cc', $this)) {
+            return $this->hasManyThrough(Mission::class, MissionDetail::class, 'assigned_to_cc_id');
         } elseif (hasRole(['da', 'dre'])) {
             return $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->missions());
         }
@@ -163,13 +165,37 @@ class User extends Authenticatable implements JWTSubject
 
     public function details()
     {
-        if (hasRole(['ci', 'cc'])) {
+        if (hasRole('ci')) {
             return $this->hasManyDeep(MissionDetail::class, [MissionHasController::class, Mission::class]);
+        } else if (hasRole('cc')) {
+            return $this->hasMany(MissionDetail::class, 'assigned_to_cc_id');
         } elseif (hasRole('cdc')) {
             return $this->hasManyDeep(MissionDetail::class, [Mission::class], ['created_by_id']);
         } elseif (hasRole(['da', 'dre'])) {
             return $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->details());
         }
+    }
+
+    // public function dispatchedDetails(){
+    //     $details = $this->hasManyDeep(MissionDetail::class, [MissionHasController::class, Mission::class]);
+    //     if (hasRole('ci')) {
+    //         $details->where('')
+    //     }else if(hasRole('cc')){
+
+    //     }
+    //     return $details;
+    // }
+
+    public function majorFacts()
+    {
+        if (hasRole(['ci', 'cc'])) {
+            $majorFacts = $this->hasManyDeep(MissionDetail::class, [MissionHasController::class, Mission::class])->onlyMajorFacts();
+        } elseif (hasRole('cdc')) {
+            $majorFacts = $this->hasManyDeep(MissionDetail::class, [Mission::class], ['created_by_id'])->onlyMajorFacts();
+        } elseif (hasRole(['da', 'dre'])) {
+            $majorFacts = $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->details())->onlyMajorFacts();
+        }
+        return $majorFacts;
     }
     public function regularization()
     {

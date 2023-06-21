@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class CreateMissionsTable extends Migration
@@ -22,12 +23,20 @@ class CreateMissionsTable extends Migration
             $table->foreignId('control_campaign_id');
             $table->foreignId('agency_id');
             $table->foreignId('created_by_id');
-            $table->foreignId('cdcr_validation_by_id')->constrained('users');
-            $table->foreignId('dcp_validation_by_id')->constrained('users');
+            $table->foreignId('cdcr_validation_by_id')->nullable()->constrained('users');
+            $table->foreignId('dcp_validation_by_id')->nullable()->constrained('users');
+            $table->foreignId('cdc_validation_by_id')->nullable()->constrained('users');
+            $table->foreignId('ci_validation_by_id')->nullable()->constrained('users');
+            $table->foreignId('cc_validation_by_id')->nullable()->constrained('users');
 
             // Dates
-            $table->timestamp('start', 7);
-            $table->timestamp('end', 7);
+            $table->timestamp('programmed_start', 7);
+            $table->timestamp('programmed_end', 7);
+            $table->timestamp('reel_start', 7)->nullable();
+            $table->timestamp('reel_end', 7)->nullable();
+            $table->timestamp('cdc_validation_at', 7)->nullable();
+            $table->timestamp('ci_validation_at', 7)->nullable();
+            $table->timestamp('cc_validation_at', 7)->nullable();
             $table->timestamp('cdcr_validation_at', 7)->nullable();
             $table->timestamp('dcp_validation_at', 7)->nullable();
             $table->timestamps(7);
@@ -36,8 +45,6 @@ class CreateMissionsTable extends Migration
             $table->foreign('control_campaign_id')->on('control_campaigns')->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('agency_id')->on('agencies')->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('created_by_id')->on('users')->references('id')->onDelete('cascade')->onUpdate('cascade');
-            // $table->foreign('cdcr_validation_by_id')->on('users')->references('id')->onDelete('set null')->onUpdate('cascade');
-            // $table->foreign('dcp_validation_by_id')->on('users')->references('id')->onDelete('set null')->onUpdate('cascade');
         });
     }
 

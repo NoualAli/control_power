@@ -3,11 +3,13 @@
 use App\Models\ControlCampaign;
 use App\Models\Domain;
 use App\Models\Familly;
+use App\Models\Mission;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -295,6 +297,14 @@ if (!function_exists('pcfToProcesses')) {
 }
 
 if (!function_exists('generateCDCRef')) {
+    /**
+     * Generate a new reference for control campaign
+     *
+     * @param bool $validate
+     * @param string|null $date
+     *
+     * @return string
+     */
     function generateCDCRef(bool $validate = false, ?string $date = null)
     {
         $reference = '';
@@ -306,5 +316,40 @@ if (!function_exists('generateCDCRef')) {
             $reference = 'CDC-' . $date . '-' . addZero($cdc->max('id') + 1) . '-tmp';
         }
         return $reference;
+    }
+}
+
+if (!function_exists('getMissionProcesses')) {
+    /**
+     * Load mission processes
+     *
+     * @param Mission $mission
+     *
+     * @return Illuminate\Database\Query\Builder
+     */
+    function getMissionProcesses(Mission $mission)
+    {
+        $processes = DB::table('processes as p');
+        $processes = $processes->selectRaw("
+            p.id as process_id,
+            p.name as process,
+            d.name as domain,
+            f.name as family,
+            f.id as family_id,
+            d.id as domain_id,
+            COUNT(cp.id) as control_points_count,
+            AVG(md.score) as avg_score,
+            FORMAT(MAX(md.controlled_at), 'dd-MM-yyyy') AS controlled_at,
+            COUNT(md.id) AS total_mission_details,
+            SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) AS scored_mission_details,
+            (count(md.score) * 100) / COUNT(md.id) AS progress_status
+        ");
+        return $processes->join('control_points as cp', 'p.id', '=', 'cp.process_id')
+            ->join('domains as d', 'd.id', '=', 'p.domain_id')
+            ->join('famillies as f', 'f.id', '=', 'd.familly_id')
+            ->join('mission_details as md', 'cp.id', '=', 'md.control_point_id')
+            ->join('missions as m', 'm.id', '=', 'md.mission_id')
+            ->groupBy('f.id', 'd.id', 'p.id', 'p.name', 'd.name', 'f.name')
+            ->where('m.id', $mission->id);
     }
 }

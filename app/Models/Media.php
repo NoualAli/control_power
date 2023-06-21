@@ -18,6 +18,7 @@ class Media extends BaseModel
         'size',
         'attachable_type',
         'attachable_id',
+        'uploaded_by_id',
     ];
 
     protected $appends = ['link', 'type', 'path'];
@@ -40,5 +41,10 @@ class Media extends BaseModel
     public function getLinkAttribute()
     {
         return env('APP_URL') . '/' . $this->path;
+    }
+
+    public function uploader()
+    {
+        return $this->belongsTo(User::class, 'uploaded_by_id');
     }
 }

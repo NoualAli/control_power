@@ -30,12 +30,14 @@
 
                 <!-- Start date -->
                 <div class="col-12 col-lg-6 col-tablet-6">
-                    <NLInput v-model="form.start" :form="form" name="start" label="Date début" type="date" label-required />
+                    <NLInput v-model="form.programmed_start" :form="form" name="programmed_start" label="Date début"
+                        type="date" label-required />
                 </div>
 
                 <!-- End date -->
                 <div class="col-12 col-lg-6 col-tablet-6">
-                    <NLInput v-model="form.end" :form="form" name="end" label="Date fin" type="date" label-required />
+                    <NLInput v-model="form.programmed_end" :form="form" name="programmed_end" label="Date fin" type="date"
+                        label-required />
                 </div>
 
                 <!-- Note -->
@@ -106,8 +108,8 @@ export default {
         return {
             form: new Form({
                 note: null,
-                start: null,
-                end: null,
+                programmed_start: null,
+                programmed_end: null,
                 agency: null,
                 campaign: null,
                 controllers: null,
@@ -117,6 +119,11 @@ export default {
             cdcModalIsOpen: false,
             currentCampaign: null
         }
+    },
+    watch: {
+        'form.programmed_start': function (newVal, oldVal) {
+            if (newVal !== oldVal && newVal) this.form.programmed_end = this.addDays(newVal, 15)
+        },
     },
     computed: mapGetters({
         config: 'missions/config',
@@ -140,8 +147,8 @@ export default {
                     this.form.control_campaign_id = this.mission.current.campaign.id
                     this.currentCampaign = this.mission.current.campaign
                     this.form.controllers = this.mission.current.agency_controllers.map((controller) => controller.id)
-                    this.form.start = this.mission.current.start.split('-').reverse().join('-')
-                    this.form.end = this.mission.current.end.split('-').reverse().join('-')
+                    this.form.programmed_start = this.mission.current.programmed_start.split('-').reverse().join('-')
+                    this.form.programmed_end = this.mission.current.programmed_end.split('-').reverse().join('-')
                     this.form.note = this.mission.current.note
                 }
             }).catch(error => {

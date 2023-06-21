@@ -35,12 +35,14 @@
 
                 <!-- Start date -->
                 <div class="col-12 col-lg-6 col-tablet-6">
-                    <NLInput v-model="form.start" :form="form" name="start" label="Date début" type="date" label-required />
+                    <NLInput v-model="form.programmed_start" :form="form" name="programmed_start" label="Date début"
+                        type="date" label-required />
                 </div>
 
                 <!-- End date -->
                 <div class="col-12 col-lg-6 col-tablet-6">
-                    <NLInput v-model="form.end" :form="form" name="end" label="Date fin" type="date" label-required />
+                    <NLInput v-model="form.programmed_end" :form="form" name="programmed_end" label="Date fin" type="date"
+                        label-required />
                 </div>
 
                 <!-- Note -->
@@ -121,12 +123,17 @@ export default {
             currentCampaignReference: null
         }
     },
-    computed: mapGetters({
-        config: 'missions/config'
-    }),
+    computed: {
+        ...mapGetters({
+            config: 'missions/config'
+        }),
+    },
     watch: {
         'form.control_campaign_id': function (newVal, oldVal) {
             if (newVal !== oldVal && newVal !== null && newVal !== undefined) this.initData()
+        },
+        'form.programmed_start': function (newVal, oldVal) {
+            if (newVal !== oldVal && newVal) this.form.programmed_end = this.addDays(newVal, 15)
         },
         currentCampaignReference: function (newVal, oldVal) {
             if (newVal !== oldVal) {
@@ -155,6 +162,9 @@ export default {
                 this.controllersList = this.config?.config.controllers
                 this.campaignsList = this.config?.config.campaigns
                 this.currentCampaign = this.config?.config.currentCampaign
+                this.form.programmed_start = this.currentCampaign.start.split('-').reverse().join('-')
+                this.form.programmed_end = this.addDays(this.form.programmed_start, 15)
+                this.form.control_campaign_id = this.currentCampaign?.id
                 this.currentCampaignReference = this.config?.config.currentCampaign.reference
                 const length = this.$breadcrumbs.value.length
                 if (this.$breadcrumbs.value[ length - 1 ].lable === 'Répartition des missions de contrôle de la campagne') {
@@ -165,8 +175,8 @@ export default {
         },
         resetForm() {
             this.form.note = null
-            this.form.start = null
-            this.form.end = null
+            this.form.programmed_start = null
+            this.form.programmed_end = null
             this.form.agency = null
             this.form.controllers = null
         },

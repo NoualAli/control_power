@@ -108,7 +108,6 @@ class ControlCampaignController extends Controller
             $data['validated_at'] = isset($data['validate']) && boolval($data['validate']) ? now() : null;
             $data['reference'] = generateCDCRef($data['validate'], $data['start']);
             unset($data['pcf'], $data['validate']);
-
             $campaign = DB::transaction(function () use ($data, $processes) {
                 $campaign = auth()->user()->campaigns()->create($data);
 
@@ -134,7 +133,7 @@ class ControlCampaignController extends Controller
             });
 
             return response()->json([
-                'message' => CREATE_SUCCESS,
+                'message' => 'Campagne de contrôle créé avec succès',
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
@@ -198,7 +197,7 @@ class ControlCampaignController extends Controller
                 }
             });
             return response()->json([
-                'message' => UPDATE_SUCCESS,
+                'message' => 'Campagne de contrôle validée avec succès',
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
@@ -231,7 +230,7 @@ class ControlCampaignController extends Controller
                     }
                 }
                 return response()->json([
-                    'message' => DELETE_SUCCESS,
+                    'message' => 'Campagne de contrôle supprimer avec succès',
                     'status' => true,
                 ]);
             }
@@ -262,7 +261,7 @@ class ControlCampaignController extends Controller
         try {
             if ($campaign->processes()->detach($process)) {
                 return response()->json([
-                    'message' => DETACH_SUCCESS,
+                    'message' => 'Processus détaché avec succès',
                     'status' => true,
                 ]);
             }

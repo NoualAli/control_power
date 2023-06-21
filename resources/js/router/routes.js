@@ -521,17 +521,17 @@ export default [
             }
         }
     },
-    {
-        path: '/missions/:missionId/execute/:processId?',
-        name: 'mission-details-execute',
-        component: page('missions/execute.vue'),
-        meta: {
-            breadcrumb: {
-                parent: 'mission',
-                label: 'Exécution de la mission'
-            }
-        }
-    },
+    // {
+    //     path: '/missions/:missionId/execute/:processId?',
+    //     name: 'mission-details-execute',
+    //     component: page('missions/execute.vue'),
+    //     meta: {
+    //         breadcrumb: {
+    //             parent: 'mission',
+    //             label: 'Exécution de la mission'
+    //         }
+    //     }
+    // },
 
     /**
      * Global

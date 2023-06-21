@@ -4,15 +4,18 @@ use App\Http\Controllers\Api\DataController;
 use App\Http\Controllers\Api\AgencyController;
 use App\Http\Controllers\Api\BugController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\ControlCampaignController;
 use App\Http\Controllers\Api\ControlPointController;
 use App\Http\Controllers\Api\DomainController;
 use App\Http\Controllers\Api\DreController;
 use App\Http\Controllers\Api\FamillyController;
+use App\Http\Controllers\Api\MajorFactController;
 use App\Http\Controllers\Api\MediaController;
+use App\Http\Controllers\Api\MissionAssignationController;
 use App\Http\Controllers\Api\MissionController;
 use App\Http\Controllers\Api\MissionDetailController;
-use App\Http\Controllers\Api\MissionReportController;
+use App\Http\Controllers\Api\MissionCommentController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\ProcessController;
@@ -146,40 +149,43 @@ Route::group(['middleware' => 'auth:api'], function () {
         // Route::get('/{mission}/export', 'exportSnappy');
         Route::get('/{mission}/processes', 'processes');
         Route::put('{mission}', 'update');
-        Route::put('{mission}/assign', 'assignToCC');
+        // Route::put('{mission}/assign', 'assignToCC');
         Route::get('/concerns/config', 'config');
         Route::delete('{mission}', 'destroy');
-        Route::post('{mission}/validate/{step}', 'validateMission');
+        Route::put('{mission}/validate/{type}', 'validateMission');
+        Route::get('/{mission}/details/{process}', 'details');
         /**
          * Details
          */
         Route::prefix('details')->controller(MissionDetailController::class)->group(function () {
             Route::get('{detail}', 'show');
-            Route::get('/concerns/config', 'config');
-            Route::post('/{mission}', 'store');
+            Route::post('/{mission}', 'control');
         });
+
         /**
-         * Report
+         * Mission assignation
          */
-        Route::prefix('reports')->controller(MissionReportController::class)->group(function () {
-            Route::post('/{mission}', 'store');
-            Route::put('/{mission}', 'validateReport');
-        });
-        // Route::get('/missions_state', 'missions_state');
-        // Route::put('/{mission}/validate', 'confirm');
-        // Route::get('/{mission}/samples', 'samples');
-        // Route::get('/validated', 'confirmed');
-        // Route::get('/not-validated', 'notValidated');
-        // Route::get('/{mission}/sample/{sample}', 'sampleDetails');
-        // Route::get('/campaign/{campaign}', 'campaign');
+
+        Route::get('{mission}/loadAssignationData/{type}', [MissionAssignationController::class, 'loadAssignationData']);
+        Route::post('{mission}/assign/{type}', [MissionAssignationController::class, 'assign']);
     });
 
+
+    /**
+     * Mission Comments
+     */
+    Route::prefix('missions/{mission}/comments')->controller(MissionCommentController::class)->group(function () {
+        Route::post('/', 'store');
+    });
     /**
      * Details
      */
     Route::prefix('details')->controller(MissionDetailController::class)->group(function () {
         Route::get('/', 'index');
-        Route::get('/major-facts', 'majorFacts');
+        // Route::get('/major-facts', 'majorFacts');
+        Route::prefix('major-facts')->controller(MajorFactController::class)->group(function () {
+            Route::get('/', 'index');
+        });
     });
     Route::prefix('regularize')->controller(RegularizationController::class)->group(function () {
         Route::post('/{detail}', 'store');
@@ -240,6 +246,10 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::get('/', 'index');
         Route::post('/', 'store');
         Route::get('{bug}', 'show');
+    });
+
+    Route::prefix('comments')->controller(CommentController::class)->group(function () {
+        Route::get('{comment}', 'show');
     });
 });
 

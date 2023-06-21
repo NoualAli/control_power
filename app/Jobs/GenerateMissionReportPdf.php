@@ -105,7 +105,7 @@ class GenerateMissionReportPdf implements ShouldQueue
     {
         $mission->unsetRelations();
         $processes = DB::table('processes as p');
-        $processes = $processes->selectRaw("p.id as process_id, p.name as process, d.name as domain, f.name as family, f.id as family_id, d.id as domain_id,COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, FORMAT(MAX(md.executed_at), 'dd-MM-yyyy') AS executed_at, COUNT(md.id) AS total_mission_details, COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) AS scored_mission_details, (COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) / COUNT(md.id)) * 100 AS progress_status");
+        $processes = $processes->selectRaw("p.id as process_id, p.name as process, d.name as domain, f.name as family, f.id as family_id, d.id as domain_id,COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, FORMAT(MAX(md.controlled_at), 'dd-MM-yyyy') AS controlled_at, COUNT(md.id) AS total_mission_details, COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) AS scored_mission_details, (COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) / COUNT(md.id)) * 100 AS progress_status");
         $processes = $processes->join('control_points as cp', 'p.id', '=', 'cp.process_id')
             ->join('domains as d', 'd.id', '=', 'p.domain_id')
             ->join('famillies as f', 'f.id', '=', 'd.familly_id')

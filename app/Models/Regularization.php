@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasMedia;
 use App\Traits\HasUuid;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Regularization extends BaseModel
 {
-    use HasFactory, HasUuid;
+    use HasFactory, HasUuid, HasMedia;
 
     protected $fillable = [
         'regularized_at',
