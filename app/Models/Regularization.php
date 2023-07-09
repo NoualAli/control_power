@@ -32,6 +32,11 @@ class Regularization extends BaseModel
         return $regularized_at ? Carbon::parse($regularized_at)->format('d-m-Y') : null;
     }
 
+    public function getIsRegularizedAttribute()
+    {
+        return boolval($this->regularized_at);
+    }
+
     /**
      * Relationships
      */

@@ -59,6 +59,11 @@ class MissionDetail extends BaseModel
     /**
      * Getters
      */
+    public function getIsAssignedToCcAttribute()
+    {
+        return boolval($this->assigned_to_cc_id);
+    }
+
     public function getIsRegularizedAttribute()
     {
         return $this->regularization?->regularized_at ? 'Levée' : 'Non levée';
@@ -152,6 +157,23 @@ class MissionDetail extends BaseModel
     public function regularization()
     {
         return $this->belongsTo(Regularization::class);
+    }
+
+    public function controller(string $type)
+    {
+        if ($type == 'cc') {
+            return $this->belongsTo(User::class, 'assigned_to_cc_id');
+        } elseif ($type == 'ci') {
+            return $this->belongsTo(User::class, 'assigned_to_ci_id');
+        } else {
+            abort(500, "Le $type est un type inconnu.");
+        }
+    }
+
+    public function dcpController()
+    {
+        // dd($this->controller('cc'));
+        return $this->controller('cc');
     }
 
 
@@ -324,6 +346,21 @@ class MissionDetail extends BaseModel
             return $query->whereNull('assigned_to_ci_id');
         } else {
             return $query->whereNull('assigned_to_cc_id')->whereNull('assigned_to_ci_id');
+        }
+    }
+
+    // public function scopeWithControllers($query, ?string $type = null){
+
+    // }
+
+    public function scopeDispatched($query, ?string $type = null)
+    {
+        if ($type == 'cc') {
+            return $query->whereNotNull('assigned_to_cc_id');
+        } elseif ($type == 'ci') {
+            return $query->whereNotNull('assigned_to_ci_id');
+        } else {
+            return $query->whereNotNull('assigned_to_cc_id')->whereNotNull('assigned_to_ci_id');
         }
     }
 }

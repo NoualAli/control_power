@@ -181,8 +181,8 @@
         <!-- Actions -->
         <div class="d-flex align-items gap-2">
             <button v-if="mission?.current?.is_validated_by_dcp && is(['dcp', 'dg', 'ig', 'sg', 'cdrcp', 'der'])"
-                class="btn btn-danger has-icon" @click="exportReport(false)">
-                <i class="las la-file-pdf icon" />
+                class="btn btn-pdf has-icon" @click="exportReport(false)">
+                <i class="las la-file-contract icon" />
                 Exporter le rapport
             </button>
             <!-- CDC -->
@@ -211,11 +211,13 @@
             </button>
 
             <!-- CDCR -->
-            <button v-if="!mission?.current.is_validated_by_cdcr && can('make_first_validation')" class="btn btn-success"
-                @click.prevent="validateMission('cdcr')">
+            <button
+                v-if="!mission?.current.is_validated_by_cdcr && mission.current.is_validated_by_cdc && can('make_first_validation')"
+                class="btn btn-success" @click.prevent="validateMission('cdcr')">
                 Valider la mission
             </button>
-            <button v-if="!mission?.current.is_validated_by_cdcr && can('assign_mission_processing')"
+            <button
+                v-if="!mission?.current.is_validated_by_cdcr && mission.current.is_validated_by_cdc && can('assign_mission_processing')"
                 class="btn btn-success" @click.prevent="showDispatchForm">
                 Assigné
             </button>
@@ -319,6 +321,7 @@ export default {
                     field: 'progress_status',
                     align: 'center',
                     sortable: true,
+                    hide: !hasRole([ 'ci', 'cdc' ]),
                     methods: {
                         showField(item) {
                             return item.progress_status + '%'

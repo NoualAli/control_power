@@ -16,10 +16,9 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, string|array $roles)
     {
-        dd($roles);
         if (hasRole($roles)) {
             return $next($request);
         }
-        abort_role($roles);
+        hasRoleOrAbort($roles);
     }
 }

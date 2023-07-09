@@ -159,6 +159,7 @@ return [
     */
 
     'attributes' => [
+        'authLogin' => 'identifiant',
         "last_name" => "nom de famille",
         "first_name" => "prénom",
         "lastname" => "nom de famille",

@@ -7,33 +7,35 @@
         </template>
         <template #default>
             <NLForm :form="form" :action="save" v-if="!isLoading">
-                <div class="col-12" :class="{ 'col-lg-12': !isContainerExpanded, 'col-lg-8': isContainerExpanded }">
+                <NLColumn :lg="isContainerExpanded ? 8 : 12"
+                    :class="{ 'col-lg-12': !isContainerExpanded, 'col-lg-8': isContainerExpanded }">
                     <NLGrid>
                         <!-- Major fact -->
-                        <div v-if="data?.control_point?.has_major_fact" class="col-12">
+                        <NLColumn v-if="data?.control_point?.has_major_fact">
                             <NLSwitch type="is-danger" v-model="form.major_fact" :name="'major_fact'" :form="form"
                                 label="Fait majeur" />
-                        </div>
+                        </NLColumn>
                         <!-- score -->
-                        <div class="col-12">
+                        <NLColumn>
                             <NLSelect v-model="form.score" :name="'score'" label="Notation" :form="form"
                                 :options="scoresList" label-required v-if="[1, 2].includes(form.currentMode)" />
                             <NLInput v-model="data.appreciation" label="Notation" readonly v-else />
-                        </div>
+                        </NLColumn>
                         <!-- Metadata -->
-                        <div v-if="data?.control_point.fields && Number(form.score) > 1 && [1, 2].includes(form.currentMode)"
-                            class="col-12 mb-4">
+                        <NLColumn
+                            v-if="data?.control_point.fields && Number(form.score) > 1 && [1, 2].includes(form.currentMode)"
+                            extraClass="mb-4">
                             <div class="repeater">
                                 <h2 class="mb-6">
                                     Informations supplémentaires
                                 </h2>
                                 <!-- Repeater row -->
-                                <div v-for="( item, dataRow ) in  form.metadata " :key="'metadata-' + dataRow"
-                                    class="grid my-6 repeater-row">
-                                    <div class="col-12">
-                                        <div class="grid gap-2">
-                                            <div class="col-11">
-                                                <div class="grid">
+                                <NLGrid v-for="( item, dataRow ) in  form.metadata " :key="'metadata-' + dataRow"
+                                    extraClass="my-6 repeater-row">
+                                    <NLColumn>
+                                        <NLGrid>
+                                            <NLColumn sm="11" lg="11" md="11">
+                                                <NLGrid>
                                                     <div v-for="( input, index ) in  setupFields(data?.control_point.fields) "
                                                         :key="'metadata-input-' + input.name + '-' + dataRow + '-id'"
                                                         :class="input.style">
@@ -71,17 +73,18 @@
                                                             :placeholder="input.placeholder || 'Choisissez une option...'"
                                                             :multiple="input.multiple" />
                                                     </div>
-                                                </div>
-                                            </div>
+                                                </NLGrid>
+                                            </NLColumn>
                                             <!-- Remove current row -->
-                                            <div v-if="dataRow >= 0" class="col-1 p-0 d-flex justify-start align-center">
+                                            <NLColumn lg="1" md="1" sm="1" v-if="dataRow >= 0"
+                                                extraClass="p-0 d-flex justify-start align-center">
                                                 <div class="btn btn-danger" @click="removeRow(dataRow)">
                                                     <i class="las la-trash-alt icon"></i>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                            </NLColumn>
+                                        </NLGrid>
+                                    </NLColumn>
+                                </NLGrid>
                                 <!-- Add new row -->
                                 <div class="d-flex justify-start align-center">
                                     <span class="btn" @click="addRow(data?.control_point.fields)">
@@ -89,9 +92,9 @@
                                     </span>
                                 </div>
                             </div>
-                        </div>
+                        </NLColumn>
 
-                        <div v-else-if="![1, 2].includes(form.currentMode) && data?.metadata" class="col-12 list-item">
+                        <NLColumn v-else-if="![1, 2].includes(form.currentMode) && data?.metadata" extraClass="list-item">
                             <div class="list-item-content no-bg grid">
                                 <div class="col-12" :class="{ 'col-lg-4': !data?.metadata }">
                                     <b>Informations supplémentaires:</b>
@@ -125,33 +128,33 @@
                                     <span v-else>-</span>
                                 </div>
                             </div>
-                        </div>
+                        </NLColumn>
 
                         <!-- Report -->
-                        <div class="col-12">
+                        <NLColumn>
                             <NLTextarea v-model="form.report" :name="'report'" label="Constat" :form="form"
                                 :placeholder="![1, 2, 3, 4].includes(Number(form.score)) && !form.major_fact ? 'Constat' : 'Ajouter votre constat'"
                                 :label-required="[1, 2, 3, 4].includes(Number(form.score)) || form.major_fact"
                                 :readonly="![1, 2].includes(Number(form.score)) && !form.major_fact" />
-                        </div>
+                        </NLColumn>
 
                         <!-- Recovery plan -->
-                        <div class="col-12">
+                        <NLColumn>
                             <NLTextarea v-model="form.recovery_plan" :name="'recovery_plan'" label="Plan de redressement"
                                 :form="form"
                                 :placeholder="![2, 3, 4].includes(Number(form.score)) && !form.major_fact ? '' : 'Ajouter votre plan de redressement'"
                                 :label-required="[2, 3, 4].includes(Number(form.score)) || form.major_fact"
                                 :disabled="![2, 3, 4].includes(Number(form.score)) && !form.major_fact" />
-                        </div>
+                        </NLColumn>
                     </NLGrid>
-                </div>
+                </NLColumn>
 
                 <!-- Media (attachements) -->
-                <div class="col-12" :class="{ 'col-lg-12': !isContainerExpanded, 'col-lg-4': isContainerExpanded }">
+                <NLColumn :lg="isContainerExpanded ? 4 : 12">
                     <NLFile v-model="form.media" :name="'media'" label="Pièces jointes"
                         attachable-type="App\Models\MissionDetail" :attachable-id="form.detail" :form="form" multiple
                         :canDelete="canDeleteMedia" />
-                </div>
+                </NLColumn>
             </NLForm>
 
             <!-- Loader -->
@@ -182,7 +185,6 @@ export default {
     components: { NLForm },
     props: {
         data: { type: [ Object, null ], required: true },
-        names: { type: Object, required: true },
         show: { type: Boolean, default: false },
     },
     computed: {
@@ -192,14 +194,13 @@ export default {
         canDeleteMedia() {
             if (this.form.currentMode == 1) {
                 return this.detail?.mission.is_validated_by_ci
-            } else if (this.currentMode == 2) {
+            } else if (this.form.currentMode == 2) {
                 return this.detail?.mission.is_validated_by_cdc
-            } else if (this.currentMode == 3) {
+            } else if (this.form.currentMode == 3) {
                 return this.detail?.mission.is_validated_by_cdcr
-            } else if (this.currentMode == 4) {
+            } else if (this.form.currentMode == 4) {
                 return this.detail?.mission.is_validated_by_dcp
             }
-
             return
         }
     },
@@ -264,7 +265,6 @@ export default {
                 } else {
                     this.form.currentMode = 6 // Readonly mode
                 }
-
                 this.form.mission = detail.mission_id
                 this.form.process = Number(detail.control_point.process_id)
                 this.form.detail = detail.id

@@ -211,8 +211,8 @@ export default {
                     this.$swal.toast_success(response.data.message)
                     this.form.edit_mode = false
                     this.config.readonly = true
-                    this.$emit('success')
                     this.initData()
+                    this.$emit('success')
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }

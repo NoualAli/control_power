@@ -26,7 +26,7 @@
             <!-- Table body -->
             <TableRow v-if="!hasData">
                 <!-- Showed if there are no data -->
-                <TableData :colspan="noDataColspan" :align="'center'">
+                <TableData :colspan="noDataColspan" :align="'center'" v-if="!isLoading">
                     {{ noDataText }}
                 </TableData>
             </TableRow>

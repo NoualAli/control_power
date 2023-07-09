@@ -72,7 +72,7 @@ class Deleted extends Notification
         return (new MailMessage)
             ->subject($this->getTitle())
             ->line($this->getContent())
-            ->line('Merci d\'utiliser notre application!')
+            ->line('Merci d\'utiliser PowerControl!')
             ->error();
     }
     /**

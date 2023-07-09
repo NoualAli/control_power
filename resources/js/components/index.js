@@ -1,6 +1,6 @@
 import Child from './Child.vue'
 import Alert from './Alert.vue'
-import DefaultContainer from './Inputs/DefaultContainer.vue'
+import InputContainer from './Inputs/InputContainer.vue'
 import NLInput from './Inputs/NLInput.vue'
 import NLTextarea from './Inputs/NLTextarea.vue'
 import NLButton from './Inputs/NLButton.vue'
@@ -43,7 +43,7 @@ export function useComponents(app) {
         NLSelect,
         NLModal,
         NLTextarea,
-        DefaultContainer,
+        InputContainer,
         NLDatatable,
         NLCheckableContainer,
         NLCheckbox,

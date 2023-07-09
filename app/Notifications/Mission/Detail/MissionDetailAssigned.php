@@ -1,30 +1,53 @@
 <?php
 
-namespace App\Notifications\Mission;
+namespace App\Notifications\Mission\Detail;
 
 use App\Models\Mission;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class Updated extends Notification
+class MissionDetailAssigned extends Notification
 {
     use Queueable;
 
     /**
-     * @var App\Models\Mission
+     * @var App\Models\User
      */
-    private $mission;
+    protected $controller;
 
     /**
-     * Create a new notification instance.
-     *
-     * @return void
+     * @var App\Models\Mission
      */
-    public function __construct(Mission $mission)
+    protected $mission;
+
+    /**
+     * @var Illuminate\Database\Eloquent\Collection
+     */
+    protected $processes;
+
+    public function __construct(User $controller, Mission $mission, Collection $processes)
     {
+        $this->controller = $controller;
         $this->mission = $mission;
+        $this->processes = $processes;
+    }
+
+
+
+
+
+    private function getProcessesString()
+    {
+        $content = '<ul>';
+        foreach ($this->processes as $process) {
+            $content .= '<li>' . $process->name . '</li>';
+        }
+        $content .= '</ul>';
+        return $content;
     }
 
     /**
@@ -34,7 +57,9 @@ class Updated extends Notification
      */
     private function getContent(): string
     {
-        $content = "La mission " . $this->mission->reference . " pour l'agence " . $this->mission->agency->full_name . " a été mise à jour.";
+        $totalProcesses = $this->processes->count();
+        $content = $totalProcesses > 1 ? "Des processus vous on était affectés" : "Un processus vous a étaient affecter";
+        $content .= " pour traitement dans la mission " . $this->mission->reference;
         return $content;
     }
 
@@ -45,7 +70,8 @@ class Updated extends Notification
      */
     private function getTitle(): string
     {
-        return 'Mise à jour: mission ' . $this->mission->reference;
+        $totalProcesses = $this->processes->count();
+        return $totalProcesses > 1 ? 'Assignation des processus de la mission ' . $this->mission->reference : 'Assignation d\'un processus de la mission ' . $this->mission->reference;
     }
 
     /**
@@ -66,8 +92,8 @@ class Updated extends Notification
      */
     public function via($notifiable)
     {
+        return ['mail', 'database'];
         if (app()->environment('production')) {
-            return ['mail', 'database'];
         }
         return ['database'];
     }
@@ -80,16 +106,25 @@ class Updated extends Notification
      */
     public function toMail($notifiable)
     {
-        $startLine = "La mission commence le " . $this->mission->start;
-        $endLine = "La mission se termine le " . $this->mission->end;
         return (new MailMessage)
             ->subject($this->getTitle())
+            ->greeting('Bonjour ' . $this->controller->full_name)
             ->line($this->getContent())
-            ->line($startLine)
-            ->line($endLine)
+            ->line('Pour plus d\'informations veuillez vous rendre sur l\'application')
             ->action('Voir la mission', $this->getUrl())
             ->line('Merci d\'utiliser PowerControl')
             ->success();
+
+        // return (new MailMessage)
+        //     ->subject($this->getTitle())
+        //     ->greeting('Bonjour ' . $this->controller->full_name)
+        //     ->line($this->getContent())
+        //     ->line('Liste des processus:')
+        //     ->view('email_views.processes_list')
+        //     ->with(['htmlContent' => 'test'])
+        //     ->action('Voir la mission', $this->getUrl())
+        //     ->line('Merci d\'utiliser PowerControl')
+        //     ->success();
     }
 
     /**

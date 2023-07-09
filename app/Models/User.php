@@ -52,6 +52,7 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password',
         'remember_token',
+        // 'must_change_password'
     ];
 
     /**
@@ -165,26 +166,20 @@ class User extends Authenticatable implements JWTSubject
 
     public function details()
     {
-        if (hasRole('ci')) {
-            return $this->hasManyDeep(MissionDetail::class, [MissionHasController::class, Mission::class]);
-        } else if (hasRole('cc')) {
-            return $this->hasMany(MissionDetail::class, 'assigned_to_cc_id');
-        } elseif (hasRole('cdc')) {
-            return $this->hasManyDeep(MissionDetail::class, [Mission::class], ['created_by_id']);
-        } elseif (hasRole(['da', 'dre'])) {
-            return $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->details());
+        try {
+            if (hasRole('ci')) {
+                return $this->hasManyDeep(MissionDetail::class, [MissionHasController::class, Mission::class]);
+            } else if (hasRole('cc')) {
+                return $this->hasMany(MissionDetail::class, 'assigned_to_cc_id');
+            } elseif (hasRole('cdc')) {
+                return $this->hasManyDeep(MissionDetail::class, [Mission::class], ['created_by_id']);
+            } elseif (hasRole(['da', 'dre'])) {
+                return $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->details());
+            }
+        } catch (\Throwable $th) {
+            dd($th->getMessage());
         }
     }
-
-    // public function dispatchedDetails(){
-    //     $details = $this->hasManyDeep(MissionDetail::class, [MissionHasController::class, Mission::class]);
-    //     if (hasRole('ci')) {
-    //         $details->where('')
-    //     }else if(hasRole('cc')){
-
-    //     }
-    //     return $details;
-    // }
 
     public function majorFacts()
     {

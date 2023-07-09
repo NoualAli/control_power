@@ -15,12 +15,15 @@ export default {
     name: 'NLForm',
     props: {
         action: { type: Function, required: true },
-        form: { type: Object, required: true }
+        form: { type: [ Object, null ], required: true }
     },
     computed: {
         formErrorsCount() {
             return Object.entries(this.form.errors.all()).length
         },
+    },
+    created() {
+        // console.log(this.form);
     },
     methods: {
     }

@@ -44,6 +44,7 @@ class MissionCommentController extends Controller
                 $validationAtColumn = $attributes['validationAtColumn'];
                 $validationByIdColumn = $attributes['validationByIdColumn'];
                 $message = $attributes['message'];
+
                 if ($comment) {
                     if (!$validated) {
                         $comment->update([
@@ -59,7 +60,7 @@ class MissionCommentController extends Controller
                 }
 
                 if ($validated) {
-                    $users = $this->getUsers($mission, $comment);
+                    $users = $this->getUsers($mission, $type);
                     $this->notifyUsers($mission, $users, $type);
                     $mission->update([
                         $validationByIdColumn => auth()->user()->id,
@@ -127,6 +128,7 @@ class MissionCommentController extends Controller
         } elseif ($type == 'ci_opinion') {
             $users = $mission->creator;
         }
+
         return $users;
     }
 

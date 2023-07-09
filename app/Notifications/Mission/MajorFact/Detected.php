@@ -84,7 +84,7 @@ class Detected extends Notification
             ->line($this->getContent())
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
             ->action('Voir le fait majeur', $this->getUrl())
-            ->line('Merci d\'utiliser notre application!')
+            ->line('Merci d\'utiliser PowerControl!')
             ->error();
     }
 

@@ -1,5 +1,5 @@
 <template>
-    <DefaultContainer :id="getId" :name="name" :form="form" :label="label" :label-required="labelRequired"
+    <InputContainer :id="getId" :name="name" :form="form" :label="label" :label-required="labelRequired"
         :help-text="helpText">
         <input v-if="!readonly" :id="getId" type="file" :name="name" :multiple="multiple" :accept="accept"
             class="file-input" @change="onChange($event)">
@@ -17,6 +17,7 @@
                     <div class="grid gap-4 list-item-content" @click.stop="">
                         <div class="col-11 d-flex justify-between align-center">
                             <a :href="file.link" target="_blank" class="text-dark">
+                                <i class="icon" :class="file.icon"></i>
                                 {{ file.name }}
                             </a>
                             <span>{{ file.size }}</span>
@@ -32,14 +33,14 @@
                 </div>
             </div>
         </div>
-    </DefaultContainer>
+    </InputContainer>
 </template>
 
 <script>
-import DefaultContainer from './DefaultContainer'
+import InputContainer from './InputContainer'
 export default {
     name: 'NLFile',
-    components: { DefaultContainer },
+    components: { InputContainer },
     props: {
         form: { type: Object, required: false },
         name: { type: String },
@@ -83,7 +84,8 @@ export default {
                     name: file.original_name,
                     size: file.size,
                     type: file.type,
-                    link: file.link
+                    link: file.link,
+                    icon: file.icon,
                 }
             })
         },

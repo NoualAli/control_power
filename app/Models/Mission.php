@@ -13,8 +13,11 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Znck\Eloquent\Traits\BelongsToThrough;
+
+use function PHPUnit\Framework\isEmpty;
 
 class Mission extends BaseModel
 {
@@ -242,6 +245,10 @@ class Mission extends BaseModel
     public function dcpControllers()
     {
         return $this->controllers()->wherePivot('control_agency', false);
+        // return $this->belongsToThrough(User::class);
+        // return $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->missions());
+        // return $this->belongsToMany(User::class, MissionDetail::class, 'mission_id');
+        // return $this->controllers()->wherePivot('control_agency', false);
     }
 
     public function creator()
@@ -431,29 +438,86 @@ class Mission extends BaseModel
      */
 
     /**
+     * Fetch not yet dispatched processes
      *
      * @return array
      */
     public function notDispatchedProcesses(?string $concerned = null)
     {
         $notDispatchedProcesses = $this->details()->notDispatched($concerned)->without(['familly', 'domain', 'controlPoint', 'media'])->with(['process' => fn ($process) => $process->pluck('processes.id', 'processes.name')->toArray()])->get()->pluck('process');
-        $missionProcesses = getMissionProcesses($this)->get();
-        $pcf = getPCF();
-
-        $missionProcesses = $missionProcesses->filter(function ($item) use ($notDispatchedProcesses) {
+        $notDispatchedProcesses = getMissionProcesses($this)->get()->filter(function ($item) use ($notDispatchedProcesses) {
             $notDispatchedProcesses = array_unique($notDispatchedProcesses->pluck('id')->toArray());
             return in_array($item->process_id, $notDispatchedProcesses);
-        })->pluck('process_id')->toArray();
+        })->pluck('process_id')->map(fn ($process) => intval($process))->toArray();
 
-        $missionProcesses = array_filter($pcf, function ($family) use ($missionProcesses) {
-            return array_filter($family['children'], function ($domain) use ($missionProcesses) {
-                return array_filter($domain['children'], function ($process) use ($missionProcesses) {
-                    return in_array($process['id'], $missionProcesses);
-                    dd($process, $missionProcesses, in_array($process['id'], $missionProcesses));
+        $pcf = recursive_collect(getPcf());
+        $filteredCollection = $pcf->map(function ($family) use ($notDispatchedProcesses) {
+            $family['children'] = $family['children']->filter(function ($domain) use ($notDispatchedProcesses) {
+                $domain['children'] = $domain['children']->filter(function ($process) use ($notDispatchedProcesses) {
+                    return in_array($process['id'], $notDispatchedProcesses);
                 });
+
+                return count($domain['children']) > 0;
             });
+
+            return $family;
+        })->filter(function ($item) {
+            return count($item['children']) > 0;
         });
-        dd($missionProcesses, $pcf);
-        return array_values($missionProcesses);
+
+        return recursivelyToArray($filteredCollection->values());
+    }
+
+    /**
+     * Fetch not yet dispatched processes
+     *
+     * @return array
+     */
+    public function dispatchedProcesses(?string $concerned = null)
+    {
+
+        dd($this->dcpControllers);
+        // $users = DB::table($this->getTable())->selectRaw('m.id, d.id,d.mission_id,d.assigned_to_' . $concerned . '._id,p.id,p.name,CONCAT(u.firstname, u.lastname) as full_name,u.id')
+        //     ->join('users', 'u.id', '=', 'd.assigned_to_' . $concerned)
+        //     ->join('mission_details', 'm.id', '=', 'd.mission_id')
+        //     ->where('m.id', "$this->id")
+        //     ->groupBy('u.id');
+        $users = DB::table($this->getTable())
+            ->selectRaw('m.id, d.id, d.mission_id, d.assigned_to_' . $concerned . '_id, p.id, p.name, CONCAT(u.first_name, u.last_name) AS full_name, u.id')
+            ->join('users AS u', 'u.id', '=', 'd.assigned_to_' . $concerned . '_id')
+            ->join('mission_details AS d', function ($join) use ($concerned) {
+                $join->on('m.id', '=', 'd.mission_id')
+                    ->whereNull('d.assigned_to_' . $concerned . '_id');
+            })
+            ->where('m.id', $this->id)
+            ->groupBy('u.id')
+            ->get();
+
+        dd($users);
+
+        // $dipatchedProcesses = $this->details()->dispatched($concerned)
+        // ->without(['familly', 'domain', 'controlPoint', 'media'])->with(['dcpController', 'process' => fn ($process) => $process->pluck('processes.id', 'processes.name')->toArray()])->get()->groupBy('dcpController.full_name');
+        // dd($dipatchedProcesses);
+        // $dipatchedProcesses = getMissionProcesses($this)->get()->filter(function ($item) use ($dipatchedProcesses) {
+        //     $dipatchedProcesses = array_unique($dipatchedProcesses->pluck('id')->toArray());
+        //     return in_array($item->process_id, $dipatchedProcesses);
+        // });
+
+        // $pcf = recursive_collect(getPcf());
+        // $filteredCollection = $pcf->map(function ($family) use ($dipatchedProcesses) {
+        //     $family['children'] = $family['children']->filter(function ($domain) use ($dipatchedProcesses) {
+        //         $domain['children'] = $domain['children']->filter(function ($process) use ($dipatchedProcesses) {
+        //             return in_array($process['id'], $dipatchedProcesses);
+        //         });
+
+        //         return count($domain['children']) > 0;
+        //     });
+
+        //     return $family;
+        // })->filter(function ($item) {
+        //     return count($item['children']) > 0;
+        // });
+
+        // return recursivelyToArray($filteredCollection->values());
     }
 }

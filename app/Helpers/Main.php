@@ -97,7 +97,7 @@ if (!function_exists('hasDre')) {
     }
 }
 
-if (!function_exists('abort_role')) {
+if (!function_exists('hasRoleOrAbort')) {
     /**
      * Check if user has specific role with throw exception
      *
@@ -105,7 +105,7 @@ if (!function_exists('abort_role')) {
      *
      * @return void
      */
-    function abort_role(string|array $roles): void
+    function hasRoleOrAbort(string|array $roles): void
     {
         abort_if(!hasRole($roles), 401, __('Whoops! You are not authorized to access this resource'));
     }
@@ -114,7 +114,7 @@ if (!function_exists('abort_role')) {
 if (!function_exists('onlyRoot')) {
     function onlyRoot()
     {
-        return abort_role('root');
+        return hasRoleOrAbort('root');
     }
 }
 
@@ -351,5 +351,32 @@ if (!function_exists('getMissionProcesses')) {
             ->join('missions as m', 'm.id', '=', 'md.mission_id')
             ->groupBy('f.id', 'd.id', 'p.id', 'p.name', 'd.name', 'f.name')
             ->where('m.id', $mission->id);
+    }
+}
+
+if (!function_exists('recursive_collect')) {
+    function recursive_collect(array $array)
+    {
+        return collect($array)->map(function ($item) {
+            if (is_array($item)) {
+                return recursive_collect($item);
+            }
+            return $item;
+        });
+    }
+}
+
+if (!function_exists('recursivelyToArray')) {
+    function recursivelyToArray($collection)
+    {
+        return $collection->map(function ($item) {
+            if ($item instanceof Illuminate\Support\Collection) {
+                $item = is_integer($item->keys()->first()) ?  recursivelyToArray($item->values()) : recursivelyToArray($item);
+            } elseif (is_array($item)) {
+                $item = recursivelyToArray(collect($item));
+            }
+
+            return $item;
+        })->toArray();
     }
 }

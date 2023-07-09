@@ -25,7 +25,7 @@
 </template>
 <script>
 export default {
-    name: 'DefaultContainer',
+    name: 'InputContainer',
     props: {
         form: { type: Object, required: false },
         name: { type: String },

@@ -85,7 +85,7 @@ class Updated extends Notification
             ->line($this->getContent())
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
             ->action('Voir la campagne de contrôle', $this->getUrl())
-            ->line('Merci d\'utiliser notre application!')
+            ->line('Merci d\'utiliser PowerControl!')
             ->success();
     }
 

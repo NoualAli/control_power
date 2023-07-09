@@ -7,10 +7,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class AssignMissionProcessesRequest extends FormRequest
 {
-    /**
-     * @var App\Models\Mission
-     */
-    private $mission;
 
     /**
      * @var string
@@ -19,7 +15,6 @@ class AssignMissionProcessesRequest extends FormRequest
 
     public function __construct()
     {
-        $this->mission = request()->mission;
         $this->type = request()->type;
     }
 
@@ -46,7 +41,8 @@ class AssignMissionProcessesRequest extends FormRequest
     public function rules()
     {
         return [
-            'controller' => ['required', 'exists:users,id', new ControllerDoesentHaveDetails($this->mission)]
+            'controller' => ['required', 'exists:users,id', new ControllerDoesentHaveDetails(request()->mission)],
+            'pcf' => ['required', 'array'],
         ];
     }
 }

@@ -188,7 +188,7 @@ Route::group(['middleware' => 'auth:api'], function () {
         });
     });
     Route::prefix('regularize')->controller(RegularizationController::class)->group(function () {
-        Route::post('/{detail}', 'store');
+        Route::post('{detail}', 'store');
     });
     /**
      * Dre -> agencies

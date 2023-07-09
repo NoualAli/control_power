@@ -149,12 +149,15 @@
         <NLPageLoader :isLoading="pageIsLoading" v-else></NLPageLoader>
 
         <!-- Traitement du point de contrôle -->
-        <MissionDetailForm :data="rowSelected" :show="modals.forms.control" @success="success" @close="close"
-            :names="forms.detail" />
+        <MissionDetailForm :data="rowSelected" :show="modals.forms.control" @success="success" @close="close" />
 
         <!-- Informations du point de contrôle -->
         <MissionDetailModal :rowSelected="rowSelected" :show="modals.popups.control" @showForm="showControlForm"
             @close="close" />
+
+        <!-- Régularization du point de contrôle -->
+        <MissionRegularizationForm :data="rowSelected" :show="modals.regularize" @success="success"
+            :containerExpanded="detailFormExpanded" @close="close" />
     </ContentBody>
 </template>
 
@@ -184,26 +187,13 @@ export default {
             mode: 1,
             modals: {
                 forms: {
-                    control: false
+                    control: false,
+                    regularization: false
                 },
                 popups: {
                     control: false
                 }
             },
-            forms: {
-                detail: {
-                    process_mode: false,
-                    mission: null,
-                    process: null,
-                    media: [],
-                    detail: null,
-                    report: null,
-                    recovery_plan: null,
-                    score: null,
-                    major_fact: null,
-                    metadata: []
-                },
-            }
         }
     },
     computed: {
@@ -245,6 +235,10 @@ export default {
         showDetail(detail) {
             this.rowSelected = detail
             this.modals.popups.control = true
+        },
+        showRegularizationForm(detail) {
+            this.rowSelected = detail
+            this.modals.popups.regularization = true
         },
         success() {
             this.rowSelected = null

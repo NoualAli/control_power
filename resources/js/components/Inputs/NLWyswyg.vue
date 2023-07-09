@@ -1,19 +1,19 @@
 <template>
-    <DefaultContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired" :length="length"
+    <InputContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired" :length="length"
         :current-length="currentLength">
         <VueEditor :id="getId" v-model="currentValue" :editor-toolbar="editorSettings"
             :class="[{ 'is-danger': form?.errors.has(name) }]" :name="name" :autocomplete="autocomplete"
             :autofocus="autofocus" :max-length="length" :placeholder="placeholder || label" :value="currentValue"
             :help-text="helpText" v-bind="$attrs" @input="onInput($event)" @ready="quill => { editorQuill = quill }" />
-    </DefaultContainer>
+    </InputContainer>
 </template>
 <script>
-import DefaultContainer from './DefaultContainer'
+import InputContainer from './InputContainer'
 import { VueEditor } from 'vue3-editor'
 export default {
     name: 'NLWyswyg',
     components: {
-        DefaultContainer, VueEditor
+        InputContainer, VueEditor
     },
     props: {
         form: { type: Object, required: false },

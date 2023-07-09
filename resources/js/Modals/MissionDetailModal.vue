@@ -183,7 +183,7 @@
 
             <!-- CDCR -->
             <button
-                v-if="!row?.mission?.is_validated_by_cdcr && !row?.major_fact_dispatched_at && row?.mission?.is_validated_by_cdc && can('make_first_validation,process_mission')"
+                v-if="!row?.mission?.is_validated_by_cdcr && !row?.major_fact_dispatched_at && row?.mission?.is_validated_by_cdc && can('make_first_validation,process_mission') && [2, 3, 4].includes(Number(row?.score))"
                 class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <i class="las la-pen icon" />
                 Traiter
@@ -191,7 +191,7 @@
 
             <!-- DCP -->
             <button
-                v-if="!row?.mission?.is_validated_by_dcp && row?.mission?.is_validated_by_cdcr && !row?.major_fact_dispatched_at && !row.regularization && can('make_second_validation')"
+                v-if="!row?.mission?.is_validated_by_dcp && row?.mission?.is_validated_by_cdcr && !row?.major_fact_dispatched_at && !row.regularization && can('make_second_validation') && [2, 3, 4].includes(Number(row?.score))"
                 class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <i class="las la-pen icon" />
                 Traiter
@@ -204,7 +204,7 @@
             <!-- Agency director -->
             <button
                 v-if="row?.mission?.is_validated_by_dcp && !row?.regularization?.regularized_at && !row?.major_fact && row?.score !== 1 && can('regularize_mission_detail')"
-                class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
+                class="btn btn-warning has-icon" @click="showForm(row, 'regularization')">
                 <i class="las la-pen icon" />
                 Régulariser
             </button>
