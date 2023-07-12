@@ -191,7 +191,7 @@
 
             <!-- DCP -->
             <button
-                v-if="!row?.mission?.is_validated_by_dcp && row?.mission?.is_validated_by_cdcr && !row?.major_fact_dispatched_at && !row.regularization && can('make_second_validation') && [2, 3, 4].includes(Number(row?.score))"
+                v-if="!row?.mission?.is_validated_by_dcp && row?.mission?.is_validated_by_cdcr && !row?.major_fact_dispatched_at && !row.regularization && can('make_second_validation') && [2, 3, 4].includes(Number(row?.score)) || (row?.major_fact && !row?.major_fact_dispatched_at && [3, 4].includes(Number(row?.score)))"
                 class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <i class="las la-pen icon" />
                 Traiter

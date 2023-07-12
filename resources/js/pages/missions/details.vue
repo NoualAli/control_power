@@ -118,7 +118,7 @@
 
                                             <!-- DCP -->
                                             <button
-                                                v-if="mode == 5 && !mission?.is_validated_by_dcp && mission.is_validated_by_cdcr && !detail?.major_fact_dispatched_at && can('make_second_validation') && [2, 3, 4].includes(Number(detail?.score))"
+                                                v-if="mode == 5 && !mission?.is_validated_by_dcp && mission.is_validated_by_cdcr && !detail?.major_fact_dispatched_at && can('make_second_validation') && [2, 3, 4].includes(Number(detail?.score)) || (detail?.major_fact && !detail?.major_fact_dispatched_at && [3, 4].includes(Number(detail?.score)))"
                                                 class="btn btn-warning has-icon" @click="showControlForm(detail)">
                                                 <i class="las la-pen icon" />
                                                 Traiter

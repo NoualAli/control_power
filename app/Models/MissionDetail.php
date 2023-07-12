@@ -82,6 +82,16 @@ class MissionDetail extends BaseModel
         return isset($score[1]) ? $score[1]->label : null;
     }
 
+    public function getIsControlledAttribute()
+    {
+        return boolval($this->controlled_at);
+    }
+
+    public function getIsDispatchedAttribute()
+    {
+        return boolval($this->controlled_at);
+    }
+
     public function getScoreTagAttribute()
     {
         $score = intval($this->score);
@@ -213,7 +223,8 @@ class MissionDetail extends BaseModel
      */
     public function scopeControlled(Builder $query)
     {
-        return $query->whereNotNull('controlled_at')->whereNotNull('controlled_by_ci_id');
+        // return $query->whereNotNull('controlled_at')->whereNotNull('controlled_by_ci_id');
+        return $query->whereNotNull('controlled_at');
     }
 
     /**

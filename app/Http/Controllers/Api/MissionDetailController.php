@@ -257,8 +257,13 @@ class MissionDetailController extends Controller
             if ($currentMode == 1) {
                 $newData['controlled_at'] = now();
                 $newData['controlled_by_cc_id'] = auth()->user()->id;
+                if ($detail->is_controlled) {
+                    unset($newData['major_fact']);
+                }
             }
-
+            if ($detail->is_dispatched) {
+                unset($newData['major_fact']);
+            }
             // if ($currentMode == 3) {
             //     $controlledByCCId = $currentMode == 3 ? auth()->user()->id : null;
             // }
