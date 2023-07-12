@@ -62,7 +62,7 @@ trait HasDates
     public function getRemainingDaysBeforeStartAttribute(): int
     {
         $today = today();
-        $startAttribute = $this->startAttribute ?? $this->start;
+        $startAttribute = $this->startAttribute ?? 'start';
         $start = $this->$startAttribute ? $today->diffInDays($this->start, false) : 0;
         return $start >= 0 ? $start : 0;
     }
@@ -73,7 +73,7 @@ trait HasDates
     public function getRemainingDaysBeforeEndAttribute(): int
     {
         $today = today();
-        $endAttribute = $this->endAttribute ?? $this->start;
+        $endAttribute = $this->endAttribute ?? 'end';
         $end = $this->$endAttribute ? $today->diffInDays($this->end, false) : 0;
         return $end >= 0 ? $end : 0;
     }
