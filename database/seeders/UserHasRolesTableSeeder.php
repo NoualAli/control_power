@@ -266,23 +266,53 @@ class UserHasRolesTableSeeder extends Seeder
             ),
             49 => 
             array (
-                'user_id' => '51',
-                'role_id' => '12',
+                'user_id' => '80',
+                'role_id' => '13',
             ),
             50 => 
             array (
-                'user_id' => '67',
-                'role_id' => '2',
+                'user_id' => '81',
+                'role_id' => '5',
             ),
             51 => 
             array (
-                'user_id' => '80',
-                'role_id' => '10',
+                'user_id' => '82',
+                'role_id' => '6',
             ),
             52 => 
             array (
-                'user_id' => '81',
-                'role_id' => '10',
+                'user_id' => '83',
+                'role_id' => '11',
+            ),
+            53 => 
+            array (
+                'user_id' => '84',
+                'role_id' => '13',
+            ),
+            54 => 
+            array (
+                'user_id' => '85',
+                'role_id' => '5',
+            ),
+            55 => 
+            array (
+                'user_id' => '86',
+                'role_id' => '6',
+            ),
+            56 => 
+            array (
+                'user_id' => '87',
+                'role_id' => '11',
+            ),
+            57 => 
+            array (
+                'user_id' => '51',
+                'role_id' => '12',
+            ),
+            58 => 
+            array (
+                'user_id' => '67',
+                'role_id' => '2',
             ),
         ));
         

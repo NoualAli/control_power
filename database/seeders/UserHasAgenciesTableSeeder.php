@@ -1456,145 +1456,560 @@ class UserHasAgenciesTableSeeder extends Seeder
             ),
             287 => 
             array (
+                'user_id' => '80',
+                'agency_id' => '32',
+            ),
+            288 => 
+            array (
+                'user_id' => '80',
+                'agency_id' => '33',
+            ),
+            289 => 
+            array (
+                'user_id' => '80',
+                'agency_id' => '34',
+            ),
+            290 => 
+            array (
+                'user_id' => '80',
+                'agency_id' => '35',
+            ),
+            291 => 
+            array (
+                'user_id' => '80',
+                'agency_id' => '36',
+            ),
+            292 => 
+            array (
+                'user_id' => '80',
+                'agency_id' => '37',
+            ),
+            293 => 
+            array (
+                'user_id' => '80',
+                'agency_id' => '38',
+            ),
+            294 => 
+            array (
+                'user_id' => '80',
+                'agency_id' => '39',
+            ),
+            295 => 
+            array (
+                'user_id' => '80',
+                'agency_id' => '40',
+            ),
+            296 => 
+            array (
+                'user_id' => '80',
+                'agency_id' => '41',
+            ),
+            297 => 
+            array (
+                'user_id' => '80',
+                'agency_id' => '42',
+            ),
+            298 => 
+            array (
+                'user_id' => '80',
+                'agency_id' => '43',
+            ),
+            299 => 
+            array (
+                'user_id' => '80',
+                'agency_id' => '44',
+            ),
+            300 => 
+            array (
+                'user_id' => '80',
+                'agency_id' => '45',
+            ),
+            301 => 
+            array (
+                'user_id' => '80',
+                'agency_id' => '46',
+            ),
+            302 => 
+            array (
+                'user_id' => '81',
+                'agency_id' => '32',
+            ),
+            303 => 
+            array (
+                'user_id' => '81',
+                'agency_id' => '33',
+            ),
+            304 => 
+            array (
+                'user_id' => '81',
+                'agency_id' => '34',
+            ),
+            305 => 
+            array (
+                'user_id' => '81',
+                'agency_id' => '35',
+            ),
+            306 => 
+            array (
+                'user_id' => '81',
+                'agency_id' => '36',
+            ),
+            307 => 
+            array (
+                'user_id' => '81',
+                'agency_id' => '37',
+            ),
+            308 => 
+            array (
                 'user_id' => '51',
                 'agency_id' => '118',
             ),
-            288 => 
+            309 => 
             array (
                 'user_id' => '51',
                 'agency_id' => '119',
             ),
-            289 => 
+            310 => 
             array (
                 'user_id' => '51',
                 'agency_id' => '120',
             ),
-            290 => 
+            311 => 
             array (
                 'user_id' => '51',
                 'agency_id' => '121',
             ),
-            291 => 
+            312 => 
             array (
                 'user_id' => '51',
                 'agency_id' => '122',
             ),
-            292 => 
+            313 => 
             array (
                 'user_id' => '51',
                 'agency_id' => '123',
             ),
-            293 => 
+            314 => 
             array (
                 'user_id' => '51',
                 'agency_id' => '124',
             ),
-            294 => 
+            315 => 
             array (
                 'user_id' => '78',
                 'agency_id' => '201',
             ),
-            295 => 
+            316 => 
             array (
                 'user_id' => '78',
                 'agency_id' => '202',
             ),
-            296 => 
+            317 => 
+            array (
+                'user_id' => '81',
+                'agency_id' => '38',
+            ),
+            318 => 
+            array (
+                'user_id' => '81',
+                'agency_id' => '39',
+            ),
+            319 => 
+            array (
+                'user_id' => '81',
+                'agency_id' => '40',
+            ),
+            320 => 
+            array (
+                'user_id' => '81',
+                'agency_id' => '41',
+            ),
+            321 => 
+            array (
+                'user_id' => '81',
+                'agency_id' => '42',
+            ),
+            322 => 
+            array (
+                'user_id' => '81',
+                'agency_id' => '43',
+            ),
+            323 => 
+            array (
+                'user_id' => '81',
+                'agency_id' => '44',
+            ),
+            324 => 
+            array (
+                'user_id' => '81',
+                'agency_id' => '45',
+            ),
+            325 => 
+            array (
+                'user_id' => '81',
+                'agency_id' => '46',
+            ),
+            326 => 
+            array (
+                'user_id' => '82',
+                'agency_id' => '32',
+            ),
+            327 => 
+            array (
+                'user_id' => '82',
+                'agency_id' => '33',
+            ),
+            328 => 
+            array (
+                'user_id' => '82',
+                'agency_id' => '34',
+            ),
+            329 => 
+            array (
+                'user_id' => '82',
+                'agency_id' => '35',
+            ),
+            330 => 
+            array (
+                'user_id' => '82',
+                'agency_id' => '36',
+            ),
+            331 => 
+            array (
+                'user_id' => '82',
+                'agency_id' => '37',
+            ),
+            332 => 
+            array (
+                'user_id' => '82',
+                'agency_id' => '38',
+            ),
+            333 => 
+            array (
+                'user_id' => '82',
+                'agency_id' => '39',
+            ),
+            334 => 
+            array (
+                'user_id' => '82',
+                'agency_id' => '40',
+            ),
+            335 => 
+            array (
+                'user_id' => '82',
+                'agency_id' => '41',
+            ),
+            336 => 
+            array (
+                'user_id' => '82',
+                'agency_id' => '42',
+            ),
+            337 => 
+            array (
+                'user_id' => '82',
+                'agency_id' => '43',
+            ),
+            338 => 
+            array (
+                'user_id' => '82',
+                'agency_id' => '44',
+            ),
+            339 => 
+            array (
+                'user_id' => '82',
+                'agency_id' => '45',
+            ),
+            340 => 
+            array (
+                'user_id' => '82',
+                'agency_id' => '46',
+            ),
+            341 => 
+            array (
+                'user_id' => '83',
+                'agency_id' => '33',
+            ),
+            342 => 
+            array (
+                'user_id' => '84',
+                'agency_id' => '47',
+            ),
+            343 => 
+            array (
+                'user_id' => '84',
+                'agency_id' => '48',
+            ),
+            344 => 
+            array (
+                'user_id' => '84',
+                'agency_id' => '49',
+            ),
+            345 => 
+            array (
+                'user_id' => '84',
+                'agency_id' => '50',
+            ),
+            346 => 
+            array (
+                'user_id' => '84',
+                'agency_id' => '51',
+            ),
+            347 => 
+            array (
+                'user_id' => '84',
+                'agency_id' => '52',
+            ),
+            348 => 
+            array (
+                'user_id' => '84',
+                'agency_id' => '53',
+            ),
+            349 => 
+            array (
+                'user_id' => '84',
+                'agency_id' => '54',
+            ),
+            350 => 
+            array (
+                'user_id' => '84',
+                'agency_id' => '56',
+            ),
+            351 => 
+            array (
+                'user_id' => '84',
+                'agency_id' => '57',
+            ),
+            352 => 
+            array (
+                'user_id' => '84',
+                'agency_id' => '58',
+            ),
+            353 => 
+            array (
+                'user_id' => '84',
+                'agency_id' => '59',
+            ),
+            354 => 
+            array (
+                'user_id' => '85',
+                'agency_id' => '47',
+            ),
+            355 => 
+            array (
+                'user_id' => '85',
+                'agency_id' => '48',
+            ),
+            356 => 
+            array (
+                'user_id' => '85',
+                'agency_id' => '49',
+            ),
+            357 => 
+            array (
+                'user_id' => '85',
+                'agency_id' => '50',
+            ),
+            358 => 
+            array (
+                'user_id' => '85',
+                'agency_id' => '51',
+            ),
+            359 => 
+            array (
+                'user_id' => '85',
+                'agency_id' => '52',
+            ),
+            360 => 
+            array (
+                'user_id' => '85',
+                'agency_id' => '53',
+            ),
+            361 => 
+            array (
+                'user_id' => '85',
+                'agency_id' => '54',
+            ),
+            362 => 
+            array (
+                'user_id' => '85',
+                'agency_id' => '56',
+            ),
+            363 => 
+            array (
+                'user_id' => '85',
+                'agency_id' => '57',
+            ),
+            364 => 
+            array (
+                'user_id' => '85',
+                'agency_id' => '58',
+            ),
+            365 => 
+            array (
+                'user_id' => '85',
+                'agency_id' => '59',
+            ),
+            366 => 
+            array (
+                'user_id' => '86',
+                'agency_id' => '47',
+            ),
+            367 => 
+            array (
+                'user_id' => '86',
+                'agency_id' => '48',
+            ),
+            368 => 
+            array (
+                'user_id' => '86',
+                'agency_id' => '49',
+            ),
+            369 => 
+            array (
+                'user_id' => '86',
+                'agency_id' => '50',
+            ),
+            370 => 
+            array (
+                'user_id' => '86',
+                'agency_id' => '51',
+            ),
+            371 => 
+            array (
+                'user_id' => '86',
+                'agency_id' => '52',
+            ),
+            372 => 
+            array (
+                'user_id' => '86',
+                'agency_id' => '53',
+            ),
+            373 => 
+            array (
+                'user_id' => '86',
+                'agency_id' => '54',
+            ),
+            374 => 
+            array (
+                'user_id' => '86',
+                'agency_id' => '56',
+            ),
+            375 => 
+            array (
+                'user_id' => '86',
+                'agency_id' => '57',
+            ),
+            376 => 
+            array (
+                'user_id' => '86',
+                'agency_id' => '58',
+            ),
+            377 => 
+            array (
+                'user_id' => '86',
+                'agency_id' => '59',
+            ),
+            378 => 
+            array (
+                'user_id' => '87',
+                'agency_id' => '53',
+            ),
+            379 => 
             array (
                 'user_id' => '52',
                 'agency_id' => '169',
             ),
-            297 => 
+            380 => 
             array (
                 'user_id' => '52',
                 'agency_id' => '170',
             ),
-            298 => 
+            381 => 
             array (
                 'user_id' => '52',
                 'agency_id' => '171',
             ),
-            299 => 
+            382 => 
             array (
                 'user_id' => '52',
                 'agency_id' => '172',
             ),
-            300 => 
+            383 => 
             array (
                 'user_id' => '52',
                 'agency_id' => '173',
             ),
-            301 => 
+            384 => 
             array (
                 'user_id' => '52',
                 'agency_id' => '174',
             ),
-            302 => 
+            385 => 
             array (
                 'user_id' => '52',
                 'agency_id' => '175',
             ),
-            303 => 
+            386 => 
             array (
                 'user_id' => '52',
                 'agency_id' => '176',
             ),
-            304 => 
+            387 => 
             array (
                 'user_id' => '52',
                 'agency_id' => '177',
             ),
-            305 => 
+            388 => 
             array (
                 'user_id' => '78',
                 'agency_id' => '203',
             ),
-            306 => 
+            389 => 
             array (
                 'user_id' => '78',
                 'agency_id' => '204',
             ),
-            307 => 
+            390 => 
             array (
                 'user_id' => '78',
                 'agency_id' => '205',
             ),
-            308 => 
+            391 => 
             array (
                 'user_id' => '78',
                 'agency_id' => '206',
             ),
-            309 => 
+            392 => 
             array (
                 'user_id' => '78',
                 'agency_id' => '207',
             ),
-            310 => 
+            393 => 
             array (
                 'user_id' => '78',
                 'agency_id' => '208',
             ),
-            311 => 
+            394 => 
             array (
                 'user_id' => '78',
                 'agency_id' => '209',
             ),
-            312 => 
+            395 => 
             array (
                 'user_id' => '78',
                 'agency_id' => '210',
             ),
-            313 => 
+            396 => 
             array (
                 'user_id' => '78',
                 'agency_id' => '211',
             ),
-            314 => 
+            397 => 
             array (
                 'user_id' => '78',
                 'agency_id' => '212',
             ),
-            315 => 
+            398 => 
             array (
                 'user_id' => '79',
                 'agency_id' => '206',
