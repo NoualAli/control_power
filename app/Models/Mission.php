@@ -210,7 +210,8 @@ class Mission extends BaseModel
         $endDiff = $today->diffInDays($end, false);
         $totalControlled = $this->details()->controlled()->count();
         // dd($startDiff <= 0, $endDiff >= 0, $progressStatus < 100, $totalControlled);
-        if ($startDiff > 0 && $progressStatus == 0 && !$totalControlled) {
+        // dd($startDiff, $progressStatus, $totalControlled);
+        if ($startDiff >= 0 && $progressStatus == 0 && !$totalControlled) {
             $state = 'À réaliser';
         } else if ($startDiff <= 0 && $endDiff >= 0 && $progressStatus < 100 && $totalControlled) {
             $state = 'En cours';
