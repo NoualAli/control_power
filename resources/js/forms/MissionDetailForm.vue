@@ -1,5 +1,5 @@
 <template>
-    <NLModal :show="show" @isExpanded="handleDetailForm" @close="() => this.$emit('close')">
+    <NLModal :show="show" @isExpanded="handleDetailForm" @close="close">
         <template #title>
             <small>
                 {{ data?.control_point.name }}
@@ -195,13 +195,13 @@ export default {
         }),
         canDeleteMedia() {
             if (this.form.currentMode == 1) {
-                return this.currentMission.is_validated_by_ci
+                return !this.currentMission.is_validated_by_ci
             } else if (this.form.currentMode == 2) {
-                return this.currentMission.is_validated_by_cdc
+                return !this.currentMission.is_validated_by_cdc
             } else if (this.form.currentMode == 3) {
-                return this.currentMission.is_validated_by_cdcr
+                return !this.currentMission.is_validated_by_cdcr
             } else if (this.form.currentMode == 4) {
-                return this.currentMission.is_validated_by_dcp
+                return !this.currentMission.is_validated_by_dcp
             }
             return false
         }
@@ -246,6 +246,11 @@ export default {
     methods: {
         handleDetailForm(e) {
             this.isContainerExpanded = e
+        },
+        close() {
+            this.currentMission = {}
+            this.form.reset()
+            this.$emit('close')
         },
         /**
          * Initialize form
