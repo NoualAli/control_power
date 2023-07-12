@@ -135,7 +135,8 @@
                             <NLTextarea v-model="form.report" :name="'report'" label="Constat" :form="form"
                                 :placeholder="![1, 2, 3, 4].includes(Number(form.score)) && !form.major_fact ? 'Constat' : 'Ajouter votre constat'"
                                 :label-required="[1, 2, 3, 4].includes(Number(form.score)) || form.major_fact"
-                                :readonly="![1, 2].includes(Number(form.score)) && !form.major_fact" />
+                                :readonly="![1, 2].includes(Number(form.score)) && !form.major_fact && ![1, 2].includes(form.currentMode)"
+                                :disabled="[null, ''].includes(form.score)" />
                         </NLColumn>
 
                         <!-- Recovery plan -->
@@ -187,21 +188,22 @@ export default {
         data: { type: [ Object, null ], required: true },
         show: { type: Boolean, default: false },
     },
+
     computed: {
         ...mapGetters({
             detail: 'details/detail',
         }),
         canDeleteMedia() {
             if (this.form.currentMode == 1) {
-                return this.detail?.mission.is_validated_by_ci
+                return this.currentMission.is_validated_by_ci
             } else if (this.form.currentMode == 2) {
-                return this.detail?.mission.is_validated_by_cdc
+                return this.currentMission.is_validated_by_cdc
             } else if (this.form.currentMode == 3) {
-                return this.detail?.mission.is_validated_by_cdcr
+                return this.currentMission.is_validated_by_cdcr
             } else if (this.form.currentMode == 4) {
-                return this.detail?.mission.is_validated_by_dcp
+                return this.currentMission.is_validated_by_dcp
             }
-            return
+            return false
         }
     },
     watch: {
@@ -234,6 +236,7 @@ export default {
                 major_fact: null,
                 metadata: []
             }),
+            currentMission: {},
             isContainerExpanded: false,
             currentMetadata: {},
             scoresList: [],
@@ -265,6 +268,7 @@ export default {
                 } else {
                     this.form.currentMode = 6 // Readonly mode
                 }
+                this.currentMission = detail.mission
                 this.form.mission = detail.mission_id
                 this.form.process = Number(detail.control_point.process_id)
                 this.form.detail = detail.id
