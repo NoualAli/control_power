@@ -156,14 +156,14 @@
             @close="close" />
 
         <!-- Régularization du point de contrôle -->
-        <MissionRegularizationForm :data="rowSelected" :show="modals.regularize" @success="success"
-            :containerExpanded="detailFormExpanded" @close="close" />
+        <MissionRegularizationForm :data="rowSelected" :show="modals.regularize" @success="success" @close="close" />
     </ContentBody>
 </template>
 
 <script>
 import MissionDetailForm from '../../forms/MissionDetailForm'
 import MissionDetailModal from '../../Modals/MissionDetailModal'
+import MissionRegularizationForm from '../../forms/MissionRegularizationForm'
 import NLPageLoader from '../../components/NLPageLoader'
 import ContentBody from '../../components/ContentBody'
 import { mapGetters } from 'vuex'
@@ -172,7 +172,8 @@ export default {
         ContentBody,
         NLPageLoader,
         MissionDetailForm,
-        MissionDetailModal
+        MissionDetailModal,
+        MissionRegularizationForm
     },
     emits: [ 'loading' ],
     layout: 'MainLayout',
