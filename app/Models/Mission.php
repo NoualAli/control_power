@@ -213,6 +213,8 @@ class Mission extends BaseModel
         // dd($startDiff, $progressStatus, $totalControlled);
         if ($startDiff >= 0 && $progressStatus == 0 && !$totalControlled) {
             $state = 'À réaliser';
+        } else if ($startDiff < 0 && $progressStatus == 0 && !$totalControlled) {
+            $state = 'En retard';
         } else if ($startDiff <= 0 && $endDiff >= 0 && $progressStatus < 100 && $totalControlled) {
             $state = 'En cours';
         } else if ($progressStatus >= 100 && ($this->ci_opinion_exists && $this->is_validated_by_ci && (!$this->cdc_report_exists || ($this->cdc_report_exists && !$this->is_validated_by_cdc)) || !$this->ci_opinion_exists)) {
