@@ -63,7 +63,7 @@ trait HasDates
     {
         $today = today();
         $startAttribute = $this->startAttribute ?? 'start';
-        $start = $this->$startAttribute ? $today->diffInDays($this->start, false) : 0;
+        $start = $this->$startAttribute ? $today->diffInDays($this->$startAttribute, false) : 0;
         return $start >= 0 ? $start : 0;
     }
 
@@ -74,7 +74,7 @@ trait HasDates
     {
         $today = today();
         $endAttribute = $this->endAttribute ?? 'end';
-        $end = $this->$endAttribute ? $today->diffInDays($this->end, false) : 0;
+        $end = $this->$endAttribute ? $today->diffInDays($this->$endAttribute, false) : 0;
         return $end >= 0 ? $end : 0;
     }
 
