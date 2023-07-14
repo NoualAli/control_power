@@ -11,7 +11,7 @@
                                 <slot name="title" v-if="!isLoading"></slot>
                             </h3>
                         </NLColumn>
-                        <NLColumn lg="1" sm="1" md="1">
+                        <NLColumn lg="1" sm="1" md="1" extraClass="d-flex align-center justify-end">
                             <NLFlex alignItems="center" lgJustifyContent="end" justifyContent="end" gap="3">
                                 <i class="las la-expand icon modal-action-icon modal-expand-button" @click="handleExpansion"
                                     v-if="!isExpanded" title="Agrandir"></i>
