@@ -20,7 +20,6 @@ class ControlRequest extends FormRequest
      */
     public function authorize()
     {
-        // && in_array($this->mode, [1, 2, 3, 4, 5])
         return isAbleTo(['control_agency']) || in_array($this->mode, [1, 2, 3, 4, 5]);
     }
 
@@ -41,12 +40,12 @@ class ControlRequest extends FormRequest
             'metadata' => ['sometimes', 'array'],
             'media' => ['nullable', 'array'],
         ];
-        if (in_array($this->mode, [1, 2])) {
-            return $rules;
-        } else if (in_array($this->mode, [3, 4, 5])) {
+
+        if (in_array($this->mode, [3, 4, 5])) {
             unset($rules['report'], $rules['score'], $rules['metadata']);
             return $rules;
         }
+        return $rules;
     }
 
     public function messages()
