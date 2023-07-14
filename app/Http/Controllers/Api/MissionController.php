@@ -101,9 +101,10 @@ class MissionController extends Controller
         $condition = (in_array($currentUser->id, $dreControllers)
             || in_array($currentUser->id, $dcpControllers)
             || $mission->created_by_id == $currentUser->id
-            || (hasRole(['dcp', 'cdcr']) && $mission->is_validated_by_cdc)
-            || (hasRole(['da', 'dg', 'cdrcp', 'ig', 'der']) && $mission->is_validated_by_dcp)
-            || hasRole('dre') && in_array($mission->agency->id, $agencies)
+            || (hasRole(['dcp']) && $mission->is_validated_by_cdcr)
+            || (hasRole(['cdcr']) && $mission->is_validated_by_cdc)
+            || (hasRole(['dg', 'cdrcp', 'ig', 'der', 'sg']) && $mission->is_validated_by_dcp)
+            || (hasRole(['dre', 'da']) && in_array($mission->agency->id, $agencies) && $mission->is_validated_by_dcp)
         );
         if (!isAbleTo('view_opinion')) {
             $mission->makeHidden('opinion');
@@ -647,16 +648,17 @@ class MissionController extends Controller
     private function getMissions()
     {
         $missions = new Mission();
-        if (hasRole(['dcp', 'cdcr', 'dg'])) {
+        if (hasRole(['dcp', 'cdcr', 'dg', 'cdrcp', 'der', 'sg'])) {
             $missions = $missions;
-        } elseif (hasRole(['cdc', 'cc', 'ci'])) {
+        } elseif (hasRole(['cdc', 'cc', 'ci', 'dre', 'da'])) {
             $missions = auth()->user()->missions();
-        } elseif (hasRole(['da', 'dre'])) {
-            $missions = auth()->user()->missions()->hasDcpValidation();
-        } elseif (hasRole(['cdrcp', 'der'])) {
-            $missions = $missions->hasDcpValidation();
         }
-
+        // elseif (hasRole(['cdrcp', 'der'])) {
+        //     $missions = $missions->hasDcpValidation();
+        // }
+        // elseif (hasRole(['da', 'dre'])) {
+        //     $missions = auth()->user()->missions()->hasDcpValidation();
+        // }
         return $missions;
     }
 }
