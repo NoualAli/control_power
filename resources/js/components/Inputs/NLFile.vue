@@ -10,7 +10,8 @@
                 {{ placeholder }} <i class="las la-cloud-upload-alt text-large" />
             </p>
             <p v-else-if="inProgress && !readonly" class="text-medium file-uploader">
-                <i class="las la-spinner la-spin text-large" /> {{ loadingText }}{{ progress }} %
+                <i class="las la-spinner la-spin text-large" /> {{ visibleLoadingText }}{{ progress }}
+                <span v-if="progress">%</span>
             </p>
             <div class="files-list list text-medium" @click.stop="(e) => e.stopPropagation()">
                 <div v-for="(file, index) in getFilesList" :key="name + '-' + index" class="list-item my-1">
@@ -64,7 +65,8 @@ export default {
             isDragging: false,
             inProgress: false,
             progress: 0,
-            files: []
+            files: [],
+            visibleLoadingText: this.loadingText
         }
     },
     computed: {
@@ -97,7 +99,7 @@ export default {
             } else {
                 return ''
             }
-        }
+        },
     },
     watch: {
         modelValue(newVal, oldVal) {
@@ -157,8 +159,16 @@ export default {
          * @param {String} filesStr
          */
         loadFiles(filesStr) {
-            this.$api.get('upload?media=' + filesStr).then(response => {
+            this.progress = ''
+            this.isLoading = !this.isLoading
+            this.inProgress = !this.inProgress
+            this.visibleLoadingText = 'Récupération des fichiers en cours...'
+            this.$api.get('upload?media=' + filesStr, {
+                onDownloadProgress: progressEvent => this.setProgress(progressEvent)
+            }).then(response => {
                 this.files = response.data
+                this.inProgress = !this.inProgress
+                this.isLoading = !this.isLoading
             }).catch(error => {
                 console.error(error)
             })
@@ -199,9 +209,7 @@ export default {
                 data.append('attachable[id]', this.attachableId)
                 data.append('attachable[type]', this.attachableType)
                 this.$api.post('upload', data, {
-                    onUploadProgress: progressEvent => {
-                        this.progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-                    }
+                    onUploadProgress: progressEvent => this.setProgress(progressEvent)
                 }).then(response => {
                     //   console.log(response)
                     this.inProgress = false
@@ -212,6 +220,11 @@ export default {
                     this.inProgress = false
                     console.error(error)
                 })
+            }
+        },
+        setProgress(progressEvent) {
+            if (this.progressEvent.total) {
+                this.progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
             }
         }
     }
