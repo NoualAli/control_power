@@ -106,10 +106,10 @@ class MissionController extends Controller
             || (hasRole(['dg', 'cdrcp', 'ig', 'der', 'sg']) && $mission->is_validated_by_dcp)
             || (hasRole(['dre', 'da']) && in_array($mission->agency->id, $agencies) && $mission->is_validated_by_dcp)
         );
+        abort_if(!$condition, 401, __('unauthorized'));
         if (!isAbleTo('view_opinion')) {
             $mission->makeHidden('opinion');
         }
-        abort_if(!$condition, 401, __('unauthorized'));
         if (request()->has('edit')) {
             $condition = $mission->remaining_days_before_start > 5;
             abort_if(!$condition, 401, __('unauthorized'));
@@ -234,6 +234,21 @@ class MissionController extends Controller
     public function details(Mission $mission, Process $process)
     {
         isAbleOrAbort(['view_mission', 'control_agency']);
+        $currentUser = auth()->user();
+
+        $dreControllers = $mission->dreControllers->pluck('id')->toArray();
+        $dcpControllers = $mission->dcpControllers->pluck('id')->toArray();
+        $agencies = $currentUser->agencies->pluck('id')->toArray();
+
+        $condition = (in_array($currentUser->id, $dreControllers)
+            || in_array($currentUser->id, $dcpControllers)
+            || $mission->created_by_id == $currentUser->id
+            || (hasRole(['dcp']) && $mission->is_validated_by_cdcr)
+            || (hasRole(['cdcr']) && $mission->is_validated_by_cdc)
+            || (hasRole(['dg', 'cdrcp', 'ig', 'der', 'sg']) && $mission->is_validated_by_dcp)
+            || (hasRole(['dre', 'da']) && in_array($mission->agency->id, $agencies) && $mission->is_validated_by_dcp)
+        );
+        abort_if(!$condition, 401, __('unauthorized'));
 
         $details = $mission->details()->with('controlPoint')->orderBy('control_point_id');
         $mission->unsetRelations();
@@ -310,7 +325,7 @@ class MissionController extends Controller
     public function validationAttributes(Mission $mission, string $type)
     {
         switch ($type) {
-            case 'ci_opinion':
+            case 'ci_report':
                 $validationAtColumn = 'ci_validation_at';
                 $validationByColumn = 'ci_validation_by_id';
                 $isAbleOrAbort = hasRole('ci') && $mission->dreControllers->contains('id', auth()->user()->id);

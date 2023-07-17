@@ -77,7 +77,7 @@ class PermissionsTableSeeder extends Seeder
             11 =>
             array(
                 'id' => '47',
-                'name' => 'create_ci_opinion',
+                'name' => 'create_ci_report',
             ),
             12 =>
             array(
@@ -262,7 +262,7 @@ class PermissionsTableSeeder extends Seeder
             48 =>
             array(
                 'id' => '51',
-                'name' => 'validate_ci_opinion',
+                'name' => 'validate_ci_report',
             ),
             49 =>
             array(

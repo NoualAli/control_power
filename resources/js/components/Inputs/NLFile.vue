@@ -9,7 +9,7 @@
             <p v-if="!inProgress && !readonly" class="text-medium file-uploader">
                 {{ placeholder }} <i class="las la-cloud-upload-alt text-large" />
             </p>
-            <p v-else-if="inProgress && !readonly" class="text-medium file-uploader">
+            <p v-if="inProgress" class="text-medium file-uploader">
                 <i class="las la-spinner la-spin text-large" /> {{ visibleLoadingText }}{{ progress }}
                 <span v-if="progress">%</span>
             </p>
@@ -199,6 +199,7 @@ export default {
          * @param {Array} files
          */
         upload(files) {
+            this.visibleLoadingText = this.loadingText
             const data = new FormData()
             for (let i = 0; i < files.length; i++) {
                 data.append('media[]', files[ i ])

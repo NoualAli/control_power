@@ -242,32 +242,49 @@ class MissionDetailController extends Controller
             // $controlledAt = !$detail->controlled_at && $currentMode == 1  ? now() : null;
 
             // $controlledByCIId = $currentMode == 1 ? auth()->user()->id : null;
-
+            $reportColumn = null;
+            if (isset($data['report'])) {
+                if (hasRole('ci')) {
+                    $reportColumn = 'ci_report';
+                } else {
+                    if ($data['report'] !== 'ci_report') {
+                        $reportColumn = 'cdc_report';
+                    }
+                }
+            }
 
             // Mise à jour des informations dans la base de données
             $metadata = isset($data['metadata']) && !empty($data['metadata']) ? $data['metadata'] : $detail->metadata;
             $newData = [
                 'major_fact' => $data['major_fact'],
                 'score' => isset($data['score']) ? $data['score'] : $detail->score,
-                'report' => isset($data['report']) ? $data['report'] : $detail->report,
                 'recovery_plan' => isset($data['recovery_plan']) ? $data['recovery_plan'] : $detail->recovery_plan,
                 'metadata' => $metadata,
             ];
 
+            if ($reportColumn) {
+                $newData[$reportColumn] = isset($data['report']) ? $data['report'] : $detail->report;
+            }
+
             if ($currentMode == 1) {
                 $newData['controlled_at'] = now();
-                $newData['controlled_by_cc_id'] = auth()->user()->id;
+                $newData['controlled_by_ci_id'] = auth()->user()->id;
                 if ($detail->is_controlled) {
                     unset($newData['major_fact']);
                 }
             }
+
             if ($detail->is_dispatched) {
                 unset($newData['major_fact']);
             }
-            // if ($currentMode == 3) {
-            //     $controlledByCCId = $currentMode == 3 ? auth()->user()->id : null;
-            // }
 
+            if ($currentMode == 3) {
+                $newData['controlled_by_cc_at'] = now();
+                $newData['controlled_by_cc_id'] = auth()->user()->id;
+                if ($detail->is_controlled_by_cc) {
+                    unset($newData['major_fact']);
+                }
+            }
 
             $detail->update($newData);
 

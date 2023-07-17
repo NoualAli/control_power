@@ -72,8 +72,10 @@ class Mission extends BaseModel
         'is_validated_by_cdc',
         'is_validated_by_ci',
         'is_validated_by_cc',
-        'ci_opinion_exists',
+        'ci_report_exists',
         'cdc_report_exists',
+        'ci_report',
+        'cdc_report'
     ];
 
     protected $casts = [
@@ -139,14 +141,14 @@ class Mission extends BaseModel
         return $totalFinishedDetails ? number_format($totalFinishedDetails * 100 / $totalDetails) : 0;
     }
 
-    public function getCiOpinionExistsAttribute()
+    public function getCiReportExistsAttribute()
     {
-        return boolval(count($this->ciOpinion));
+        return boolval($this->ci_report);
     }
 
     public function getCdcReportExistsAttribute()
     {
-        return boolval(count($this->cdcReport));
+        return boolval($this->cdc_report);
     }
 
     public function getCdcrValidationAtAttribute($cdcr_validation_at)
@@ -217,7 +219,7 @@ class Mission extends BaseModel
             $state = 'En retard';
         } else if ($startDiff <= 0 && $endDiff >= 0 && $progressStatus < 100 && $totalControlled) {
             $state = 'En cours';
-        } else if ($progressStatus >= 100 && ($this->ci_opinion_exists && $this->is_validated_by_ci && (!$this->cdc_report_exists || ($this->cdc_report_exists && !$this->is_validated_by_cdc)) || !$this->ci_opinion_exists)) {
+        } else if ($progressStatus >= 100 && ($this->ci_report_exists && $this->is_validated_by_ci && (!$this->cdc_report_exists || ($this->cdc_report_exists && !$this->is_validated_by_cdc)) || !$this->ci_report_exists)) {
             $state = 'En attente de validation';
         } else if ($progressStatus >= 100 && $this->is_validated_by_cdc && !$this->is_validated_by_cdcr) {
             $state = 'Validé et envoyé';
@@ -231,6 +233,16 @@ class Mission extends BaseModel
             $state = 'Indéterminé';
         }
         return $state;
+    }
+
+    public function getCdcReportAttribute()
+    {
+        return $this->comments()->where('type', 'cdc_report')->first();
+    }
+
+    public function getCiReportAttribute()
+    {
+        return $this->comments()->where('type', 'ci_report')->first();
     }
 
     /**
@@ -273,16 +285,6 @@ class Mission extends BaseModel
     public function details()
     {
         return $this->hasMany(MissionDetail::class);
-    }
-
-    public function cdcReport()
-    {
-        return $this->comments()->where('type', 'cdc_report');
-    }
-
-    public function ciOpinion()
-    {
-        return $this->comments()->where('type', 'ci_opinion');
     }
 
     public function cdcrValidator()

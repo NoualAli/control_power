@@ -199,15 +199,15 @@
 
             <!-- CI -->
             <button
-                v-if="mission?.current.progress_status == 100 && !mission?.current.is_validated_by_ci && mission?.current?.ci_opinion_exists && can('validate_ci_opinion')"
-                class="btn btn-success" @click.prevent="validateMission('ci_opinion')">
+                v-if="mission?.current.progress_status == 100 && !mission?.current.is_validated_by_ci && mission?.current?.ci_report_exists && can('validate_ci_report')"
+                class="btn btn-success" @click.prevent="validateMission('ci_report')">
                 Valider la mission
             </button>
 
             <button
-                v-if="!mission?.current?.ci_opinion_exists && !mission?.current?.cdc_report_exists && mission?.current?.progress_status == 100 && can('create_ci_opinion')"
-                class="btn btn-info" @click="showCommentForm('ci_opinion')">
-                Ajouter votre avis
+                v-if="!mission?.current?.ci_report_exists && !mission?.current?.cdc_report_exists && mission?.current?.progress_status == 100 && can('create_ci_report')"
+                class="btn btn-info" @click="showCommentForm('ci_report')">
+                Ajouter votre compte-rendu
             </button>
 
             <!-- CDCR -->
@@ -245,12 +245,12 @@
 
             <!-- View ci comment -->
             <button v-if="mission?.current.is_validated_by_ci && is('cdc')" class="btn btn-info"
-                @click="showCommentForm('ci_opinion', true)">
-                Avis sur la mission
+                @click="showCommentForm('ci_report', true)">
+                Compte rendu de la mission
             </button>
-            <button v-if="mission?.current?.ci_opinion_exists && is('ci')" class="btn btn-info"
-                @click="showCommentForm('ci_opinion', true)">
-                Avis sur la mission
+            <button v-if="mission?.current?.ci_report_exists && is('ci')" class="btn btn-info"
+                @click="showCommentForm('ci_report', true)">
+                Compte rendu de la mission
             </button>
         </div>
 
@@ -268,7 +268,8 @@
         </NLDatatable>
 
         <!-- Mission comment -->
-        <MissionCommentForm :config="forms.comment" :show="modals.comment" @success="success" @close="close" />
+        <MissionCommentForm :type="commentType" :mission="mission.current" :readonly="commentReadonly"
+            :show="modals.comment" @success="success" @close="close" />
 
         <!-- Assign mission processing -->
         <MissionAssignationDetailsForm :mission="mission.current" type="cc"
@@ -297,6 +298,8 @@ export default {
         return {
             forcedRerenderKey: -1,
             controllersList: [],
+            commentType: null,
+            commentReadonly: false,
             columns: [
                 {
                     label: 'Famille',
@@ -384,14 +387,7 @@ export default {
                 dispatch: false
             },
             forms: {
-                comment: {
-                    names: {
-                        content: null,
-                        id: null,
-                        validated: false,
-
-                    },
-                },
+                // comment: {},
                 dispatch: new Form({
                     controllers: []
                 }),
@@ -475,8 +471,8 @@ export default {
                 this.showCdcReport(readonly)
             }
 
-            if (type == 'ci_opinion') {
-                this.showCiOpinion(readonly)
+            if (type == 'ci_report') {
+                this.showCiReport(readonly)
             }
         },
         /**
@@ -484,26 +480,28 @@ export default {
          *
          * @param {Boolean} readonly
          */
-        showCiOpinion(readonly) {
-            this.forms.comment.readonly = readonly
-            this.forms.comment.data = this.mission?.current
-            this.forms.comment.comment = this.mission?.current.ci_opinion
-            this.forms.comment.validated = this.mission?.current?.is_validated_by_ci
-            this.forms.comment.title = 'Avis du contrôleur sur la mission ' + this.mission?.current?.reference
-            this.forms.comment.type = 'ci_opinion'
-            this.forms.comment.id = this.mission?.current?.ci_opinion?.length ? this.mission?.current?.ci_opinion?.id : null
-            this.forms.comment.fields = {
-                content: {
-                    label: 'Votre avis',
-                    placeholder: 'Ecrivez votre avis (compte rendu)',
-                    name: 'content'
-                },
-                validated: {
-                    label: 'Validé ?',
-                    name: 'validated'
-                },
-            }
+        showCiReport(readonly) {
+            // this.forms.comment.readonly = readonly
+            // this.forms.comment.data = this.mission?.current
+            // this.forms.comment.comment = this.mission?.current.ci_report
+            // this.forms.comment.validated = this.mission?.current?.is_validated_by_ci
+            // this.forms.comment.title = 'Compte-rendu du contrôleur sur la mission ' + this.mission?.current?.reference
+            // this.forms.comment.type = 'ci_report'
+            // this.forms.comment.id = this.mission?.current?.ci_report?.length ? this.mission?.current?.ci_report?.id : null
+            // this.forms.comment.fields = {
+            //     content: {
+            //         label: 'Votre compte-rendu',
+            //         placeholder: 'Ecrivez votre compte-rendu',
+            //         name: 'content'
+            //     },
+            //     validated: {
+            //         label: 'Validé ?',
+            //         name: 'validated'
+            //     },
+            // }
             this.modals.comment = true
+            this.commentType = 'ci_report'
+            this.commentReadonly = readonly
         },
 
         /**
@@ -512,26 +510,28 @@ export default {
          * @param {Boolean} readonly
          */
         showCdcReport(readonly) {
-            this.forms.comment.readonly = readonly
-            this.forms.comment.data = this.mission?.current
-            this.forms.comment.comment = this.mission?.current.cdc_report
-            this.forms.comment.validated = this.mission?.current?.is_validated_by_ci
-            this.forms.comment.title = 'Rapport du chef de département sur la mission ' + this.mission?.current?.reference
-            this.forms.comment.type = 'cdc_report'
-            this.forms.comment.id = this.mission?.current?.cdc_report?.length ? this.mission?.current?.cdc_report?.id : null
+            // this.forms.comment.readonly = readonly
+            // this.forms.comment.data = this.mission?.current
+            // this.forms.comment.comment = this.mission?.current.cdc_report
+            // this.forms.comment.validated = this.mission?.current?.is_validated_by_ci
+            // this.forms.comment.title = 'Rapport du chef de département sur la mission ' + this.mission?.current?.reference
+            // this.forms.comment.type = 'cdc_report'
+            // this.forms.comment.id = this.mission?.current?.cdc_report?.length ? this.mission?.current?.cdc_report?.id : null
 
-            this.forms.comment.fields = {
-                content: {
-                    label: 'Votre rapport',
-                    placeholder: 'Ecrivez votre rapport',
-                    name: 'content'
-                },
-                validated: {
-                    label: 'Validé ?',
-                    name: 'validated'
-                },
-            }
+            // this.forms.comment.fields = {
+            //     content: {
+            //         label: 'Votre rapport',
+            //         placeholder: 'Ecrivez votre rapport',
+            //         name: 'content'
+            //     },
+            //     validated: {
+            //         label: 'Validé ?',
+            //         name: 'validated'
+            //     },
+            // }
             this.modals.comment = true
+            this.commentType = 'cdc_report'
+            this.commentReadonly = readonly
         },
 
         /**
@@ -596,20 +596,24 @@ export default {
         /**
          * Close modals
          */
-        close() {
-            this.rowSelected = null
+        close({ type, reload }) {
             for (const key in this.modals) {
                 if (Object.hasOwnProperty.call(this.modals, key)) {
                     this.modals[ key ] = false;
                 }
             }
-            this.forms.comment = {
-                names: {
-                    content: null,
-                    id: null,
-                    validated: false,
+            this.initData()
+            if (reload) {
+                if (type) {
+                    if (type == 'ci_report') {
+                        this.showCiReport(true)
+                    }
 
-                },
+                    if (type == 'cdc_report') {
+                        this.showCdcReport(true)
+                    }
+                }
+                console.log('reloaded');
             }
         },
         /**

@@ -5,7 +5,7 @@
         </ul>
         <p v-else>{{ form?.errors?.get('error') }}</p>
     </Alert>
-    <form enctype="multipart/form-data" class="grid gap-6" @submit.prevent="action" @keydown="form.onKeydown($event)">
+    <form enctype="multipart/form-data" class="box grid gap-6" @submit.prevent="action" @keydown="form.onKeydown($event)">
         <slot></slot>
     </form>
 </template>

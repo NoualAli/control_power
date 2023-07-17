@@ -27,8 +27,8 @@ class MissionCommentController extends Controller
         $type = $data['type'];
         if ($type == 'cdc_report') {
             isAbleOrAbort(['create_cdc_report', 'validate_cdc_report']);
-        } else if ($type == 'ci_opinion') {
-            isAbleOrAbort(['create_ci_opinion', 'validate_ci_opinion']);
+        } else if ($type == 'ci_report') {
+            isAbleOrAbort(['create_ci_report', 'validate_ci_report']);
         } else {
             abort(500, "Le type $type est un type inconnu.");
         }
@@ -93,7 +93,7 @@ class MissionCommentController extends Controller
     private function commentAttributes(Mission $mission, string $type, bool $update = false)
     {
         switch ($type) {
-            case 'ci_opinion':
+            case 'ci_report':
                 $validationByIdColumn = 'ci_validation_by_id';
                 $validationAtColumn = 'ci_validation_at';
                 $message = $update ? 'Votre avis a été mis à jour avec succès' : 'Votre avis a été créé avec succès';
@@ -125,7 +125,7 @@ class MissionCommentController extends Controller
     {
         if ($type == 'cdc_report') {
             $users = User::whereRoles(['cdcr'])->get();
-        } elseif ($type == 'ci_opinion') {
+        } elseif ($type == 'ci_report') {
             $users = $mission->creator;
         }
 

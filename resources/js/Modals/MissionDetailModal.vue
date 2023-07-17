@@ -1,11 +1,11 @@
 <template>
-    <NLModal :show="show" @close="() => this.$emit('close')" :isLoading="isLoading">
+    <NLModal :show="show" @close="close" :isLoading="isLoading">
         <template #title>
             <div class="tags">
-                <small class="tag is-success text-small">
+                <small class="tag is-success">
                     {{ row?.campaign?.reference }}
                 </small>
-                <small class="tag is-info text-small mx-1">
+                <small class="tag is-info">
                     {{ row?.mission.reference }}
                 </small>
             </div>
@@ -167,7 +167,7 @@
         </template>
         <template #footer>
             <!-- CI -->
-            <button v-if="!row?.mission?.is_validated_by_ci && !row?.major_fact && can('create_ci_opinion')"
+            <button v-if="!row?.mission?.is_validated_by_ci && !row?.major_fact && can('create_ci_report')"
                 class="btn btn-warning has-icon" @click="showForm(row, 'edit')">
                 <i class="las la-pen icon" />
                 Modifier
@@ -183,7 +183,7 @@
 
             <!-- CDCR -->
             <button
-                v-if="!row?.mission?.is_validated_by_cdcr && !row?.major_fact_dispatched_at && row?.mission?.is_validated_by_cdc && can('make_first_validation,process_mission') && [2, 3, 4].includes(Number(row?.score))"
+                v-if="(!row?.mission?.is_validated_by_cdcr && !row?.major_fact_dispatched_at && row?.mission?.is_validated_by_cdc && [2, 3, 4].includes(Number(row?.score))) || (row?.major_fact && !row?.major_fact_dispatched_at && [3, 4].includes(Number(row?.score))) && can('make_first_validation,process_mission')"
                 class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <i class="las la-pen icon" />
                 Traiter
@@ -191,7 +191,7 @@
 
             <!-- DCP -->
             <button
-                v-if="!row?.mission?.is_validated_by_dcp && row?.mission?.is_validated_by_cdcr && !row?.major_fact_dispatched_at && !row.regularization && can('make_second_validation') && [2, 3, 4].includes(Number(row?.score)) || (row?.major_fact && !row?.major_fact_dispatched_at && [3, 4].includes(Number(row?.score)))"
+                v-if="(!row?.mission?.is_validated_by_dcp && row?.mission?.is_validated_by_cdcr && !row?.major_fact_dispatched_at && !row.regularization && [2, 3, 4].includes(Number(row?.score)) || (row?.major_fact && !row?.major_fact_dispatched_at && [3, 4].includes(Number(row?.score)))) && can('make_second_validation')"
                 class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <i class="las la-pen icon" />
                 Traiter
@@ -235,7 +235,7 @@ export default {
                 this.initData()
             } else {
                 this.row = null
-                this.currentMetadata = {}
+                this.currentMetadata.keys = null
                 this.isLoading = false
             }
         }
@@ -243,15 +243,37 @@ export default {
     data() {
         return {
             row: null,
-            currentMetadata: {},
+            currentMetadata: {
+                keys: null
+            },
             isLoading: false,
         }
     },
 
     methods: {
+        /**
+         *
+         * @param {*} row
+         * @param {*} type
+         */
         showForm(row, type) {
+            console.log(row, type);
             this.$emit('showForm', { row, type })
         },
+
+        /**
+         *
+         */
+        close() {
+            this.row = null
+            this.currentMetadata.keys = null
+            this.isLoading = false
+            this.$emit('close')
+        },
+
+        /**
+         *
+         */
         initData() {
             this.isLoading = true
             if (this.rowSelected?.id && this.isLoading && !this.row) {
@@ -262,6 +284,9 @@ export default {
                 }).catch(error => console.log(error))
             }
         },
+        /**
+         *
+         */
         notify() {
             this.$swal.confirm({ title: 'Dispatch notification', message: 'Voulez-vous notifier les autorités concernées?' }).then(action => {
                 if (action.isConfirmed) {

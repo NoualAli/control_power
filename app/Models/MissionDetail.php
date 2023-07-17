@@ -22,7 +22,8 @@ class MissionDetail extends BaseModel
     public $fillable = [
         'control_point_id',
         'mission_id',
-        'report',
+        'ci_report',
+        'cdc_report',
         'recovery_plan',
         'score',
         'major_fact',
@@ -53,12 +54,29 @@ class MissionDetail extends BaseModel
         'appreciation',
         'parsed_metadata',
         'major_fact_str',
-        'score_tag'
+        'score_tag',
+        'report'
     ];
 
     /**
      * Getters
      */
+    public function getReportAttribute()
+    {
+        if (hasRole('ci')) {
+            $column = 'ci_report';
+        } elseif (hasRole('cdc')) {
+            $column = $this->cdc_report ? 'cdc_report' : 'ci_report';
+        } else {
+            if ($this->cdc_report) {
+                $column = 'cdc_report';
+            } else {
+                $column = 'ci_report';
+            }
+        }
+        return $this->$column;
+    }
+
     public function getIsAssignedToCcAttribute()
     {
         return boolval($this->assigned_to_cc_id);
@@ -85,11 +103,12 @@ class MissionDetail extends BaseModel
     public function getIsControlledAttribute()
     {
         return boolval($this->controlled_at);
+        // return boolval($this->controlled_at) && boolval($this->controlled_by_ci_id);
     }
 
     public function getIsDispatchedAttribute()
     {
-        return boolval($this->controlled_at);
+        return boolval($this->major_fact_dispatched_at);
     }
 
     public function getScoreTagAttribute()

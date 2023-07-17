@@ -17,7 +17,8 @@ class CreateMissionDetailsTable extends Migration
             $table->uuid('id')->primary();
             $table->foreignId('control_point_id');
             $table->foreignUuid('mission_id');
-            $table->text('report')->nullable();
+            $table->text('ci_report')->nullable();
+            $table->text('cdc_report')->nullable();
             $table->text('recovery_plan')->nullable();
             $table->tinyInteger('score')->nullable();
             $table->boolean('major_fact')->default(false);

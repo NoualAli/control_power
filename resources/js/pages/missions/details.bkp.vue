@@ -73,7 +73,7 @@
 
                                     <!-- CI -->
                                     <button
-                                        v-if="!mission?.controller_opinion_is_validated && !detail?.major_fact && can('create_ci_opinion')"
+                                        v-if="!mission?.controller_opinion_is_validated && !detail?.major_fact && can('create_ci_report')"
                                         class="btn btn-warning has-icon" @click="edit(detail)">
                                         <i class="las la-pen icon" />
                                         Modifier
@@ -294,7 +294,7 @@
                         <div class="d-flex align-center gap-2">
                             <!-- CI -->
                             <button
-                                v-if="!rowSelected?.mission?.controller_opinion_is_validated && !rowSelected?.major_fact && can('create_ci_opinion')"
+                                v-if="!rowSelected?.mission?.controller_opinion_is_validated && !rowSelected?.major_fact && can('create_ci_report')"
                                 class="btn btn-warning has-icon" @click="edit(rowSelected)">
                                 <i class="las la-pen icon" />
                                 Modifier

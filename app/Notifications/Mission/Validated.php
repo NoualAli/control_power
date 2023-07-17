@@ -43,7 +43,7 @@ class Validated extends Notification
 
         $content = 'Mission ' . $this->mission->reference . ' a été réalisé';
         switch ($this->type) {
-            case 'ci_opinion':
+            case 'ci_report':
                 $content = 'La mission ' . $this->mission->reference . ' a été réalisée et validée par le Contrôleur itinérant' . auth()->user()->full_name;
                 break;
             case 'cdc_report':
@@ -72,7 +72,7 @@ class Validated extends Notification
      */
     private function getTitle(): string
     {
-        if ($this->type == 'ci_opinion') {
+        if ($this->type == 'ci_report') {
             return 'Mission ' . $this->mission->reference . ' réalisée et validée par ' . auth()->user()->full_name;
         }
         return 'Mission ' . $this->mission->reference . ' vérifiée et validée par ' . auth()->user()->full_name;

@@ -7,14 +7,14 @@
         </template>
         <template #default>
             <NLForm :form="form" :action="save" v-if="!isLoading">
+                <!-- Major fact -->
+                <NLColumn v-if="data?.control_point?.has_major_fact">
+                    <NLSwitch type="is-danger" v-model="form.major_fact" :name="'major_fact'" :form="form"
+                        label="Fait majeur" />
+                </NLColumn>
                 <NLColumn :lg="isContainerExpanded ? 8 : 12"
                     :class="{ 'col-lg-12': !isContainerExpanded, 'col-lg-8': isContainerExpanded }">
                     <NLGrid>
-                        <!-- Major fact -->
-                        <NLColumn v-if="data?.control_point?.has_major_fact">
-                            <NLSwitch type="is-danger" v-model="form.major_fact" :name="'major_fact'" :form="form"
-                                label="Fait majeur" />
-                        </NLColumn>
                         <!-- score -->
                         <NLColumn>
                             <NLSelect v-model="form.score" :name="'score'" label="Notation" :form="form"
@@ -135,8 +135,8 @@
                             <NLTextarea v-model="form.report" :name="'report'" label="Constat" :form="form"
                                 :placeholder="![1, 2, 3, 4].includes(Number(form.score)) && !form.major_fact ? 'Constat' : 'Ajouter votre constat'"
                                 :label-required="[1, 2, 3, 4].includes(Number(form.score)) || form.major_fact"
-                                :readonly="![1, 2].includes(Number(form.score)) && !form.major_fact && ![1, 2].includes(form.currentMode)"
-                                :disabled="[null, ''].includes(form.score)" />
+                                :readonly="![1, 2].includes(form.currentMode)"
+                                :disabled="![1, 2, 3, 4].includes(Number(form.score)) && !form.major_fact" />
                         </NLColumn>
 
                         <!-- Recovery plan -->
@@ -149,7 +149,6 @@
                         </NLColumn>
                     </NLGrid>
                 </NLColumn>
-
                 <!-- Media (attachements) -->
                 <NLColumn :lg="isContainerExpanded ? 4 : 12">
                     <NLFile v-model="form.media" :name="'media'" label="Pièces jointes"
@@ -216,6 +215,7 @@ export default {
             if (newValue && newValue !== oldValue) {
                 this.initData()
             } else {
+                this.currentMission = {}
                 this.currentMetadata = {}
                 this.scoresList = []
                 this.isLoading = false
@@ -249,6 +249,9 @@ export default {
         },
         close() {
             this.currentMission = {}
+            this.currentMetadata = {}
+            this.scoresList = []
+            this.isLoading = false
             this.form.reset()
             this.$emit('close')
         },

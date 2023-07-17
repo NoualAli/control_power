@@ -12,8 +12,8 @@
                 </NLColumn>
                 <NLColumn lg="1" />
                 <NLColumn lg="11">
-                    <div v-for="detail in details">
-                        <div class="box my-6" v-if="!detail?.score && [1, 2].includes(mode)">
+                    <div v-for="detail in details" class="my-6">
+                        <div class="box" v-if="!detail?.score && [1, 2].includes(mode)">
                             <NLFlex alignItems="center">
                                 <p class="text-bold">
                                     {{ detail.control_point.name }}
@@ -22,127 +22,123 @@
                                     @click="showControlForm(detail)" />
                             </NLFlex>
                         </div>
+                        <div v-if="detail.score" class="box border-1 border-solid"
+                            :class="[{ 'border-success': detail.score == 1 }, { 'border-warning': [2, 3, 4].includes(Number(detail.score)) && !detail.major_fact }, { 'border-danger': detail.major_fact }]">
+                            <NLGrid>
+                                <!-- Control Point name -->
+                                <NLColumn>
+                                    <h3>{{ detail?.control_point?.name }}</h3>
+                                </NLColumn>
+
+                                <!-- Major fact -->
+                                <NLColumn lg="4">
+                                    <b>Fait majeur:</b>
+                                </NLColumn>
+                                <NLColumn lg="8">
+                                    <span v-if="!detail?.major_fact">
+                                        <i class="las la-check-circle icon text-success" />
+                                        Non
+                                    </span>
+                                    <span v-else>
+                                        <i class="las la-times-circle icon text-danger" />
+                                        Oui
+                                    </span>
+                                </NLColumn>
+
+                                <!-- Score -->
+                                <NLColumn lg="4">
+                                    <b>Appréciation:</b>
+                                </NLColumn>
+                                <NLColumn lg="8">
+                                    {{ detail?.appreciation }}
+                                </NLColumn>
+
+                                <!-- Report -->
+                                <NLColumn lg="4">
+                                    <b>Constat:</b>
+                                </NLColumn>
+                                <NLColumn lg="8">
+                                    {{ detail?.report || '-' }}
+                                </NLColumn>
+
+                                <!-- Recovery plan -->
+                                <NLColumn lg="4">
+                                    <b>Plan de redressement:</b>
+                                </NLColumn>
+                                <NLColumn lg="8">
+                                    {{ detail?.recovery_plan || '-' }}
+                                </NLColumn>
+
+                                <!-- Regularization -->
+                                <NLColumn v-if="detail?.regularization?.regularized">
+                                    <NLGrid>
+                                        <NLColumn lg="4">
+                                            <b>Régularisation:</b>
+                                        </NLColumn>
+                                        <div lg="8">
+                                            {{ detail?.regularization?.regularized || '-' }}
+                                        </div>
+                                    </NLGrid>
+                                </NLColumn>
+
+                                <!-- Actions -->
+                                <NLColumn extraClass="d-flex justify-end align-center">
+                                    <NLFlex gap="2">
+                                        <button class="btn btn-info has-icon" @click="showDetail(detail)">
+                                            <i class="las la-eye icon" />
+                                            Voir plus
+                                        </button>
+
+                                        <!-- CI -->
+                                        <button
+                                            v-if="mode == 1 && !detail?.major_fact && !mission?.is_validated_by_ci && can('create_ci_report')"
+                                            class="btn btn-warning has-icon" @click="showControlForm(detail)">
+                                            <i class="las la-pen icon" />
+                                            Modifier
+                                        </button>
+                                        <!-- CDC -->
+                                        <button
+                                            v-if="mode == 2 && !detail?.major_fact && !mission?.is_validated_by_cdc && mission?.is_validated_by_ci && can('create_cdc_report,validate_cdc_report')"
+                                            class="btn btn-warning has-icon" @click="showControlForm(detail)">
+                                            <i class="las la-pen icon" />
+                                            Modifier
+                                        </button>
+
+                                        <!-- CDCR -->
+                                        <button
+                                            v-if="mode == 4 && !detail?.major_fact_dispatched_at && !mission?.is_validated_by_cdcr && can(['make_first_validation', 'process_mission']) && [2, 3, 4].includes(Number(detail?.score))"
+                                            class="btn btn-warning has-icon" @click="showControlForm(detail)">
+                                            <i class="las la-pen icon" />
+                                            Traiter
+                                        </button>
+
+                                        <!-- DCP -->
+                                        <button
+                                            v-if="(mode == 5 && !mission?.is_validated_by_dcp && mission.is_validated_by_cdcr && !detail?.major_fact_dispatched_at && [2, 3, 4].includes(Number(detail?.score)) || (detail?.major_fact && !detail?.major_fact_dispatched_at && [3, 4].includes(Number(detail?.score)))) && can('make_second_validation')"
+                                            class="btn btn-warning has-icon" @click="showControlForm(detail)">
+                                            <i class="las la-pen icon" />
+                                            Traiter
+                                        </button>
+                                        <button
+                                            v-if="mode == 5 && !detail?.major_fact_dispatched_at && detail?.major_fact && can('dispatch_major_fact')"
+                                            class="btn btn-info has-icon" @click.prevent="notify(detail)">
+                                            <i class="las la-bell icon" />
+                                            Notifier
+                                        </button>
+
+                                        <!-- Agency director -->
+                                        <button
+                                            v-if="mission?.is_validated_by_dcp && !detail?.regularization?.regularized_at && !detail?.major_fact && detail?.score !== 1 && can('regularize_mission_detail')"
+                                            class="btn btn-warning has-icon" @click="regularize(detail)">
+                                            <i class="las la-pen icon" />
+                                            Régulariser
+                                        </button>
+                                    </NLFlex>
+                                </NLColumn>
+                            </NLGrid>
+                        </div>
                     </div>
-                    <NLGrid>
-                        <NLColumn v-for="detail in details" :key="detail?.id">
-                            <div class="box border-1 border-solid"
-                                :class="[{ 'border-success': detail.score == 1 }, { 'border-warning': [2, 3, 4].includes(Number(detail.score)) && !detail.major_fact }, { 'border-danger': detail.major_fact }]"
-                                v-if="detail.score">
-                                <NLGrid>
-                                    <!-- Control Point name -->
-                                    <NLColumn>
-                                        <h3>{{ detail?.control_point?.name }}</h3>
-                                    </NLColumn>
 
-                                    <!-- Major fact -->
-                                    <NLColumn lg="4">
-                                        <b>Fait majeur:</b>
-                                    </NLColumn>
-                                    <NLColumn lg="8">
-                                        <span v-if="!detail?.major_fact">
-                                            <i class="las la-check-circle icon text-success" />
-                                            Non
-                                        </span>
-                                        <span v-else>
-                                            <i class="las la-times-circle icon text-danger" />
-                                            Oui
-                                        </span>
-                                    </NLColumn>
-
-                                    <!-- Score -->
-                                    <NLColumn lg="4">
-                                        <b>Appréciation:</b>
-                                    </NLColumn>
-                                    <NLColumn lg="8">
-                                        {{ detail?.appreciation }}
-                                    </NLColumn>
-
-                                    <!-- Report -->
-                                    <NLColumn lg="4">
-                                        <b>Constat:</b>
-                                    </NLColumn>
-                                    <NLColumn lg="8">
-                                        {{ detail?.report || '-' }}
-                                    </NLColumn>
-
-                                    <!-- Recovery plan -->
-                                    <NLColumn lg="4">
-                                        <b>Plan de redressement:</b>
-                                    </NLColumn>
-                                    <NLColumn lg="8">
-                                        {{ detail?.recovery_plan || '-' }}
-                                    </NLColumn>
-
-                                    <!-- Regularization -->
-                                    <NLColumn v-if="detail?.regularization?.regularized">
-                                        <NLGrid>
-                                            <NLColumn lg="4">
-                                                <b>Régularisation:</b>
-                                            </NLColumn>
-                                            <div lg="8">
-                                                {{ detail?.regularization?.regularized || '-' }}
-                                            </div>
-                                        </NLGrid>
-                                    </NLColumn>
-
-                                    <!-- Actions -->
-                                    <NLColumn extraClass="d-flex justify-end align-center">
-                                        <NLFlex gap="2">
-                                            <button class="btn btn-info has-icon" @click="showDetail(detail)">
-                                                <i class="las la-eye icon" />
-                                                Voir plus
-                                            </button>
-
-                                            <!-- CI -->
-                                            <button
-                                                v-if="mode == 1 && !detail?.major_fact && !mission?.is_validated_by_ci && can('create_ci_opinion')"
-                                                class="btn btn-warning has-icon" @click="showControlForm(detail)">
-                                                <i class="las la-pen icon" />
-                                                Modifier
-                                            </button>
-                                            <!-- CDC -->
-                                            <button
-                                                v-if="mode == 2 && !detail?.major_fact && !mission?.is_validated_by_cdc && mission?.is_validated_by_ci && can('create_cdc_report,validate_cdc_report')"
-                                                class="btn btn-warning has-icon" @click="showControlForm(detail)">
-                                                <i class="las la-pen icon" />
-                                                Modifier
-                                            </button>
-
-                                            <!-- CDCR -->
-                                            <button
-                                                v-if="mode == 4 && !detail?.major_fact_dispatched_at && !mission?.is_validated_by_cdcr && can(['make_first_validation', 'process_mission']) && [2, 3, 4].includes(Number(detail?.score))"
-                                                class="btn btn-warning has-icon" @click="showControlForm(detail)">
-                                                <i class="las la-pen icon" />
-                                                Traiter
-                                            </button>
-
-                                            <!-- DCP -->
-                                            <button
-                                                v-if="mode == 5 && !mission?.is_validated_by_dcp && mission.is_validated_by_cdcr && !detail?.major_fact_dispatched_at && can('make_second_validation') && [2, 3, 4].includes(Number(detail?.score)) || (detail?.major_fact && !detail?.major_fact_dispatched_at && [3, 4].includes(Number(detail?.score)))"
-                                                class="btn btn-warning has-icon" @click="showControlForm(detail)">
-                                                <i class="las la-pen icon" />
-                                                Traiter
-                                            </button>
-                                            <button
-                                                v-if="mode == 5 && !detail?.major_fact_dispatched_at && detail?.major_fact && can('dispatch_major_fact')"
-                                                class="btn btn-info has-icon" @click.prevent="notify(detail)">
-                                                <i class="las la-bell icon" />
-                                                Notifier
-                                            </button>
-
-                                            <!-- Agency director -->
-                                            <button
-                                                v-if="mission?.is_validated_by_dcp && !detail?.regularization?.regularized_at && !detail?.major_fact && detail?.score !== 1 && can('regularize_mission_detail')"
-                                                class="btn btn-warning has-icon" @click="regularize(detail)">
-                                                <i class="las la-pen icon" />
-                                                Régulariser
-                                            </button>
-                                        </NLFlex>
-                                    </NLColumn>
-                                </NLGrid>
-                            </div>
-                        </NLColumn>
-                    </NLGrid>
                 </NLColumn>
             </NLGrid>
         </NLContainer>
@@ -152,8 +148,7 @@
         <MissionDetailForm :data="rowSelected" :show="modals.forms.control" @success="success" @close="close" />
 
         <!-- Informations du point de contrôle -->
-        <MissionDetailModal :rowSelected="rowSelected" :show="modals.popups.control" @showForm="showControlForm"
-            @close="close" />
+        <MissionDetailModal :rowSelected="rowSelected" :show="modals.popups.control" @showForm="showForm" @close="close" />
 
         <!-- Régularization du point de contrôle -->
         <MissionRegularizationForm :data="rowSelected" :show="modals.regularize" @success="success" @close="close" />
@@ -209,7 +204,7 @@ export default {
 
     methods: {
         /**
-         * Initialise les données
+         * Initialize data
          */
         initData() {
             const length = this.$breadcrumbs.value.length
@@ -228,24 +223,64 @@ export default {
             })
         },
 
-        showControlForm(row) {
-            this.rowSelected = row.type !== undefined ? row.row : row
-            this.modals.forms.control = true
-            this.modals.popups.control = false
+        /**
+         * Handle form visibility
+         *
+         * @param {Object} Object
+         * @param {Object} Object.row
+         * @param {string} Object.type
+         */
+        showForm({ row, type }) {
+            if ([ 'processing', 'edit' ].includes(type)) {
+                this.showControlForm(row)
+            } else if (type == 'regularization') {
+                this.showRegularizationForm(row)
+            }
         },
+
+        /**
+         * Show control form for edition and processing
+         *
+         * @param {Object} detail
+         */
+        showControlForm(detail) {
+            this.rowSelected = detail
+            this.modals.popups.control = false
+            this.modals.forms.control = true
+        },
+
+        /**
+         * Show control point informations
+         *
+         * @param {Object} detail
+         */
         showDetail(detail) {
             this.rowSelected = detail
             this.modals.popups.control = true
         },
+
+        /**
+         * Show regularization form
+         *
+         * @param {Object} detail
+         */
         showRegularizationForm(detail) {
             this.rowSelected = detail
             this.modals.popups.regularization = true
         },
+
+        /**
+         * Handle success event
+         */
         success() {
             this.rowSelected = null
             this.modals.forms.control = false
             this.initData()
         },
+
+        /**
+         * Handle close event
+         */
         close() {
             this.rowSelected = null
             for (const key in this.modals.forms) {
