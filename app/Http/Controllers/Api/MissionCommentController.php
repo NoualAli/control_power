@@ -45,12 +45,10 @@ class MissionCommentController extends Controller
                 $validationByIdColumn = $attributes['validationByIdColumn'];
                 $message = $attributes['message'];
 
-                if ($comment) {
-                    if (!$validated) {
-                        $comment->update([
-                            'content' => $content,
-                        ]);
-                    }
+                if ($comment && !$validated) {
+                    $comment->update([
+                        'content' => $content,
+                    ]);
                 } else {
                     $comment = $mission->comments()->create([
                         'content' => $content,
@@ -96,7 +94,7 @@ class MissionCommentController extends Controller
             case 'ci_report':
                 $validationByIdColumn = 'ci_validation_by_id';
                 $validationAtColumn = 'ci_validation_at';
-                $message = $update ? 'Votre avis a été mis à jour avec succès' : 'Votre avis a été créé avec succès';
+                $message = $update ? 'Votre compte-rendu a été mis à jour avec succès' : 'Votre compte-rendu a été créé avec succès';
                 break;
             case 'cdc_report':
                 $validationByIdColumn = 'cdc_validation_by_id';

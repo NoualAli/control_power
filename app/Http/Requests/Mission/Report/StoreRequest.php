@@ -36,7 +36,6 @@ class StoreRequest extends FormRequest
     public function messages()
     {
         $type = request()->type;
-        // dd($type);
         if ($type == 'ci_report') {
             return [
                 'content.required' => 'Le champ compte-rendu est obligatoire.',

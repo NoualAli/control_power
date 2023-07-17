@@ -229,6 +229,8 @@ class Mission extends BaseModel
             $state = '2ème validation';
         } else if ($endDiff < 0 && $progressStatus < 100 && (!$this->is_validated_by_ci || !$this->is_validated_by_cdc)) {
             $state = 'En retard';
+        } elseif ($progressStatus && $totalControlled) {
+            return 'En cours';
         } else {
             $state = 'Indéterminé';
         }

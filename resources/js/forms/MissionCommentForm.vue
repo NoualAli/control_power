@@ -196,10 +196,8 @@ export default {
         showCiReport() {
             this.form.validated = this.mission?.is_validated_by_ci
             this.form.type = 'ci_report'
-            this.form.id = this.mission?.ci_report?.length ? this.mission?.ci_report?.id : null
+            this.form.id = this.commentExists ? this.mission?.ci_report?.id : null
             this.form.content = this.content
-            // if (!this.isReadonly) {
-            // }
 
             this.title = 'Compte-rendu du contrôleur sur la mission ' + this.mission?.reference
             this.fields.content = {
@@ -215,10 +213,8 @@ export default {
         showCdcReport() {
             this.form.validated = this.mission?.is_validated_by_ci
             this.form.type = 'cdc_report'
-            this.form.id = this.mission?.cdc_report?.length ? this.mission?.cdc_report?.id : null
+            this.form.id = this.commentExists ? this.mission?.cdc_report?.id : null
             this.form.content = this.content
-            // if (!this.isReadonly) {
-            // }
 
             this.title = 'Rapport du chef de département sur la mission ' + this.mission?.reference
             this.fields.content = {
