@@ -1,19 +1,23 @@
 <template>
-    <ContentBody v-if="can('view_mission') && forcedRerenderKey !== -1" :key="forcedRerenderKey">
-        <div class="d-flex justify-between align-center gap-3 mb-9">
-            <h2>Informations de la mission</h2>
-            <router-link v-if="can('view_control_campaign,view_page_control_campaigns')"
-                :to="{ name: 'campaign', params: { campaignId: mission?.current.campaign.id } }" class="btn">
-                Campagne de contrôle
-            </router-link>
-            <router-link v-if="mission?.current?.remaining_days_before_start > 5 && can('edit_mission')"
-                class="btn btn-warning" :to="{ name: 'missions-edit', params: { missionId: mission?.current.id } }">
-                <i class="las la-edit icon" />
-            </router-link>
-        </div>
+    <ContentHeader>
+        <template v-if="!pageIsLoading" #title>
+            <h2 class="w-100">Informations de la mission</h2>
+            <NLFlex lgJustifyContent="end" extraClass="w-100">
+                <router-link v-if="can('view_control_campaign,view_page_control_campaigns')"
+                    :to="{ name: 'campaign', params: { campaignId: mission?.current.campaign.id } }" class="btn">
+                    Campagne de contrôle
+                </router-link>
+                <router-link v-if="mission?.current?.remaining_days_before_start > 5 && can('edit_mission')"
+                    class="btn btn-warning" :to="{ name: 'missions-edit', params: { missionId: mission?.current.id } }">
+                    <i class="las la-edit icon" />
+                </router-link>
+            </NLFlex>
+        </template>
+    </ContentHeader>
+    <ContentBody v-if="can('view_mission') && forcedRerenderKey !== -1" :key="forcedRerenderKey && !pageIsLoading">
 
         <!-- Mission informations -->
-        <div class="box mb-10">
+        <div class="box mb-10" v-if="!pageIsLoading">
             <Alert v-if="mission?.current?.remaining_days_before_start > 0" type="is-info" isInline extraClass="mb-6">
                 <p>
                     Nous vous informons que la mission débutera le <b>{{ mission?.current?.start }}</b> dans exactement
@@ -179,7 +183,7 @@
         </div>
 
         <!-- Actions -->
-        <div class="d-flex align-items gap-2">
+        <div class="d-flex align-items gap-2" v-if="!pageIsLoading">
             <button v-if="mission?.current?.is_validated_by_dcp && is(['dcp', 'dg', 'ig', 'sg', 'cdrcp', 'der'])"
                 class="btn btn-pdf has-icon" @click="exportReport(false)">
                 <i class="las la-file-contract icon" />
@@ -254,7 +258,7 @@
             </button>
         </div>
 
-        <NLDatatable v-if="mission?.current?.id" :columns="columns" :details="details" :filters="filters"
+        <NLDatatable v-if="mission?.current?.id && !pageIsLoading" :columns="columns" :details="details" :filters="filters"
             title="Processus de la mission" :urlPrefix="'missions/' + mission?.current?.id + '/processes'"
             detailsUrlPrefix="processes">
             <template #actions-after="{ item }">
@@ -269,19 +273,21 @@
 
         <!-- Mission comment -->
         <MissionCommentForm :type="commentType" :mission="mission.current" :readonly="commentReadonly"
-            :show="modals.comment" @success="success" @close="close" />
+            :show="modals.comment" @success="success" @close="close" v-if="!pageIsLoading" />
 
         <!-- Assign mission processing -->
         <MissionAssignationDetailsForm :mission="mission.current" type="cc"
             :title="'Assigné le traitement des anomalies de la mission' + mission?.current?.reference"
-            :show="modals.dispatch" @success="success" @close="close" />
+            :show="modals.dispatch" @success="success" @close="close" v-if="!pageIsLoading" />
     </ContentBody>
+    <NLPageLoader :isLoading="pageIsLoading"></NLPageLoader>
 </template>
 
 <script>
 import NLDatatable from '../../components/Datatable/NLDatatable'
 import MissionCommentForm from '../../forms/MissionCommentForm'
 import MissionAssignationDetailsForm from '../../forms/MissionAssignationDetailsForm.vue'
+import NLPageLoader from '../../components/NLPageLoader'
 import { mapGetters } from 'vuex'
 import { Form } from 'vform'
 import api from '../../plugins/api'
@@ -290,12 +296,14 @@ export default {
     components: {
         NLDatatable,
         MissionCommentForm,
-        MissionAssignationDetailsForm
+        MissionAssignationDetailsForm,
+        NLPageLoader
     },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     data() {
         return {
+            pageIsLoading: true,
             forcedRerenderKey: -1,
             controllersList: [],
             commentType: null,
@@ -396,9 +404,7 @@ export default {
     },
     computed: {
         ...mapGetters({
-            mission: 'missions/current',
-            // users: 'users/all',
-            // processes: 'missions/current'
+            mission: 'missions/current'
         }),
     },
     watch: {
@@ -475,64 +481,6 @@ export default {
                 this.showCiReport(readonly)
             }
         },
-        /**
-         * Initialize ci opinion data
-         *
-         * @param {Boolean} readonly
-         */
-        showCiReport(readonly) {
-            // this.forms.comment.readonly = readonly
-            // this.forms.comment.data = this.mission?.current
-            // this.forms.comment.comment = this.mission?.current.ci_report
-            // this.forms.comment.validated = this.mission?.current?.is_validated_by_ci
-            // this.forms.comment.title = 'Compte-rendu du contrôleur sur la mission ' + this.mission?.current?.reference
-            // this.forms.comment.type = 'ci_report'
-            // this.forms.comment.id = this.mission?.current?.ci_report?.length ? this.mission?.current?.ci_report?.id : null
-            // this.forms.comment.fields = {
-            //     content: {
-            //         label: 'Votre compte-rendu',
-            //         placeholder: 'Ecrivez votre compte-rendu',
-            //         name: 'content'
-            //     },
-            //     validated: {
-            //         label: 'Validé ?',
-            //         name: 'validated'
-            //     },
-            // }
-            this.modals.comment = true
-            this.commentType = 'ci_report'
-            this.commentReadonly = readonly
-        },
-
-        /**
-         * Initialize cdc report data
-         *
-         * @param {Boolean} readonly
-         */
-        showCdcReport(readonly) {
-            // this.forms.comment.readonly = readonly
-            // this.forms.comment.data = this.mission?.current
-            // this.forms.comment.comment = this.mission?.current.cdc_report
-            // this.forms.comment.validated = this.mission?.current?.is_validated_by_ci
-            // this.forms.comment.title = 'Rapport du chef de département sur la mission ' + this.mission?.current?.reference
-            // this.forms.comment.type = 'cdc_report'
-            // this.forms.comment.id = this.mission?.current?.cdc_report?.length ? this.mission?.current?.cdc_report?.id : null
-
-            // this.forms.comment.fields = {
-            //     content: {
-            //         label: 'Votre rapport',
-            //         placeholder: 'Ecrivez votre rapport',
-            //         name: 'content'
-            //     },
-            //     validated: {
-            //         label: 'Validé ?',
-            //         name: 'validated'
-            //     },
-            // }
-            this.modals.comment = true
-            this.commentType = 'cdc_report'
-            this.commentReadonly = readonly
-        },
 
         /**
          * Validate mission
@@ -561,6 +509,7 @@ export default {
             this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId }).then(() => {
                 const length = this.$breadcrumbs.value.length
                 if (this.$breadcrumbs.value[ length - 1 ].label === 'Mission') { this.$breadcrumbs.value[ length - 1 ].label = 'Mission ' + this.mission?.current?.reference }
+                this.pageIsLoading = !this.pageIsLoading
             }).catch(error => this.$swal.alert_error(error))
         },
 
