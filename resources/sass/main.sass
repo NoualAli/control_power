@@ -30,6 +30,7 @@ $main-container-w-active: $main-container-w
 $main-container-h: $layout-h
 $main-container-bg: $body-bg
 $body-fs: 1rem
+$normal-border-radius: 6px
 
 *
     margin: 0
@@ -367,20 +368,6 @@ ul
                 position: absolute
                 left: 5px
 
-.control-point
-    margin: 1rem 0
-    outline: none
-    width: 100%
-    padding: $input-padding
-    border: $input-border
-    border-radius: $input-border-radius
-    font-size: 1.1rem
-    box-shadow: $input-inset-shadow, $input-shadow
-    background-color: $primary
-    color: $white !important
-    font-weight: 700
-    transition: .1s ease
-
 .mission-state
     position: relative
     display: block
@@ -482,8 +469,8 @@ ul
     min-height: 200px
     height: 100%
     background-color: rgba($primary,.4)
-    border-top-left-radius: $table-radius
-    border-top-right-radius: $table-radius
+    border-top-left-radius: $normal-border-radius
+    border-top-right-radius: $normal-border-radius
     user-select: none
     z-index: 4
 
