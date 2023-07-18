@@ -1,9 +1,9 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
     <router-view :key="$route.url" v-slot="{ Component }">
-        <transition name="page" mode="out-in">
-            <component :is="Component" />
-        </transition>
+        <component :is="Component" />
+        <!-- <transition name="page" mode="out-in">
+        </transition> -->
     </router-view>
 </template>
 
