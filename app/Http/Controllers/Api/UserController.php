@@ -45,7 +45,6 @@ class UserController extends Controller
         $sort = request('sort', null);
         $fetchFilters = request()->has('fetchFilters');
         $perPage = request('perPage', 10);
-        // $fetchAll = request()->has('fetchAll');
         $fetchAll = request()->has('fetchAll');
 
         if ($filter) {
