@@ -7,12 +7,12 @@
                     Missions
                 </router-link>
                 <router-link
-                    v-if="(campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign')) || !campaign?.current.validated_by_id"
+                    v-if="(campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign')) && !campaign?.current.is_validated"
                     class="btn btn-warning" :to="{ name: 'campaigns-edit', params: { campaignId: campaign?.current?.id } }">
                     <i class="las la-edit icon" />
                 </router-link>
                 <button
-                    v-if="(campaign?.current?.remaining_days_before_start > 5 && can('delete_control_campaign')) || !campaign?.current.validated_by_id"
+                    v-if="(campaign?.current?.remaining_days_before_start > 5 && can('delete_control_campaign')) && !campaign?.current.is_validated"
                     class="btn btn-danger" @click.stop="destroy">
                     <i class="las la-trash icon" />
                 </button>

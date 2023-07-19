@@ -25,7 +25,8 @@ class ControlCampaignResource extends JsonResource
             'remaining_days_before_start' => $this->remaining_days_before_start,
             'remaining_days_before_end' => $this->remaining_days_before_end,
             'remaining_days_before_start_str' => $this->remaining_days_before_start_str,
-            'remaining_days_before_end_str' => $this->remaining_days_before_end_str
+            'remaining_days_before_end_str' => $this->remaining_days_before_end_str,
+            'is_validated' => $this->is_validated
         ];
     }
 }

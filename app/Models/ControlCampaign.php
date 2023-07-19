@@ -31,6 +31,7 @@ class ControlCampaign extends BaseModel
         'remaining_days_before_end',
         'remaining_days_before_start_str',
         'remaining_days_before_end_str',
+        'is_validated',
     ];
 
     // public $withCount = ['processes'];
@@ -40,6 +41,13 @@ class ControlCampaign extends BaseModel
     protected $filter = 'App\Filters\Campaign';
     protected $filterable = ['reference'];
 
+    /**
+     * Getters
+     */
+    public function getIsValidatedAttribute()
+    {
+        return boolval($this->validated_at) && boolval($this->validated_by_id);
+    }
 
     /**
      * Relationships

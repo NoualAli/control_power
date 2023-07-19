@@ -76,13 +76,13 @@ export default {
                 },
                 edit: {
                     show: (item) => {
-                        return (this.can('edit_control_campaign') && item.remaining_days_before_start > 5) || !item.validated_by_id
+                        return (this.can('edit_control_campaign') && item.remaining_days_before_start > 5) && !item.is_validated
                     },
                     apply: this.edit
                 },
                 delete: {
                     show: (item) => {
-                        return (this.can('delete_control_campaign') && item.remaining_days_before_start > 5) || !item.validated_by_id
+                        return (this.can('delete_control_campaign') && item.remaining_days_before_start > 5) && !item.is_validated
                     },
                     apply: this.destroy
                 }
