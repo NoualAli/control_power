@@ -1,7 +1,7 @@
 <template>
     <ContentBody>
         <NLDatatable :columns="columns" :actions="actions" :filters="filters" @show="show"
-            title="Anomalie • Notation • Plan de redressement" urlPrefix="details" />
+            title="Anomalie • Notation • Plan de redressement" urlPrefix="details" :key="forceReload" />
 
         <!-- View control point informations -->
         <MissionDetailModal :rowSelected="rowSelected" :show="modals.show" @showForm="showForm" @close="close" />
@@ -10,7 +10,8 @@
         <MissionDetailForm :data="rowSelected" :show="modals.edit" @success="success" @close="close" />
 
         <!-- Régularization du point de contrôle -->
-        <MissionRegularizationForm :data="rowSelected" :show="modals.regularize" @success="success" @close="close" />
+        <MissionRegularizationForm :data="rowSelected" :show="modals.regularize" @success="success" @close="close"
+            :key="forceReload" />
     </ContentBody>
 </template>
 <script>
@@ -27,6 +28,7 @@ export default {
     data: () => {
         return {
             rowSelected: null,
+            forceReload: 1,
             columns: [
                 {
                     label: 'CDC-ID',
@@ -68,29 +70,6 @@ export default {
                     align: 'center',
                     hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
                     isHtml: true,
-                    //     methods: {
-                    //         style() {
-                    //             return 'text-center'
-                    //         },
-                    //         showField(item) {
-                    //             const score = Number(item.score)
-                    //             let style = 'text-dark text-bold'
-                    //             if (score === 1) {
-                    //                 style = 'bg-success text-white text-bold'
-                    //             } else if (score === 2) {
-                    //                 style = 'bg-info text-white text-bold'
-                    //             } else if (score === 3) {
-                    //                 style = 'bg-warning text-bold'
-                    //             } else if (score === 4) {
-                    //                 style = 'bg-danger text-white text-bold'
-                    //             } else {
-                    //                 style = 'bg-grey text-dark text-bold'
-                    //             }
-                    //             return `<div class="container">
-                    //   <div class="has-border-radius py-1 text-center ${style}">${score}</div>
-                    // </div>`
-                    //         }
-                    //     }
                 },
                 {
                     label: 'Etat',
@@ -200,9 +179,7 @@ export default {
          * @param {*} e
          */
         success(e) {
-            this.close('edit')
-            this.close('show')
-            this.close('regularize')
+            this.close(true)
         },
         /**
         * Affiche le modal des informations du point de contrôle
@@ -239,13 +216,16 @@ export default {
         /**
          * Ferme la boite modal des détails du point de contrôle
          */
-        close() {
+        close(forceReload = false) {
             for (const key in this.modals) {
                 if (Object.hasOwnProperty.call(this.modals, key)) {
                     this.modals[ key ] = false
                 }
             }
             this.rowSelected = null
+            if (forceReload) {
+                this.forceReload += 1
+            }
         },
         /**
          * @param {Object} Object

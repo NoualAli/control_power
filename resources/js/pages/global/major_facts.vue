@@ -4,7 +4,7 @@
         <!-- <NLDatatable :columns="columns" :actions="actions" :filters="filters" @show="show"
             title="Anomalie • Notation • Plan de redressement" urlPrefix="details" /> -->
         <NLDatatable :columns="columns" :actions="actions" :filters="filters" title="Faits majeurs"
-            urlPrefix="details/major-facts" @show="show" />
+            urlPrefix="details/major-facts" @show="show" :key="forceReload" />
 
         <!-- View control point informations -->
         <MissionDetailModal :rowSelected="rowSelected" :show="modals.show" @showForm="showForm" @close="close" />
@@ -30,6 +30,7 @@ export default {
     data: () => {
         return {
             rowSelected: null,
+            forceReload: 1,
             columns: [
                 {
                     label: 'CDC-ID',
@@ -178,9 +179,7 @@ export default {
          * @param {*} e
          */
         success(e) {
-            this.close('edit')
-            this.close('show')
-            this.close('regularize')
+            this.close()
         },
         /**
         * Affiche le modal des informations du point de contrôle
@@ -217,13 +216,16 @@ export default {
         /**
          * Ferme la boite modal des détails du point de contrôle
          */
-        close() {
+        close(forceReload = false) {
             for (const key in this.modals) {
                 if (Object.hasOwnProperty.call(this.modals, key)) {
                     this.modals[ key ] = false
                 }
             }
             this.rowSelected = null
+            if (forceReload) {
+                this.forceReload += 1
+            }
         },
         /**
          * @param {Object} Object
