@@ -180,8 +180,8 @@ class MissionController extends Controller
             DB::transaction(function () use ($mission, $data) {
                 $mission->dreControllers()->sync($data['controllers']);
                 $mission->update([
-                    'start' => $data['start'],
-                    'end' => $data['end'],
+                    'programmed_start' => $data['programmed_start'],
+                    'programmed_end' => $data['programmed_end'],
                     'note' => $data['note'],
                 ]);
                 $users = $mission->dreControllers();

@@ -9,47 +9,47 @@
             </template>
         </ContentHeader>
         <form @submit.prevent="create" @keydown="form.onKeydown($event)">
-            <div class="grid my-2">
+            <NLGrid>
                 <!-- Control campaigns -->
-                <div v-if="!campaignId" class="col-12 col-lg-6">
+                <NLColumn v-if="!campaignId" lg="6">
                     <NLSelect v-model="form.control_campaign_id" name="control_campaign_id" label="Campagne de contrôle"
                         placeholder="Veuillez choisir une campagne de contrôle" :options="campaignsList" :form="form"
                         label-required />
-                </div>
-                <div v-else class="col-12 col-lg-6">
+                </NLColumn>
+                <NLColumn v-else lg="6">
                     <NLInput v-model="currentCampaignReference" name="campaign" label="Campagne de contrôle" readonly />
-                </div>
+                </NLColumn>
                 <!-- Agencies -->
-                <div class="col-12 col-lg-6">
+                <NLColumn lg="6">
                     <NLSelect v-model="form.agency" name="agency" label="Agence" placeholder="Veuillez choisir une agence"
                         :options="agenciesList" :form="form" label-required />
-                </div>
+                </NLColumn>
 
                 <!-- Controllers -->
-                <div class="col-12">
+                <NLColumn>
                     <NLSelect v-model="form.controllers" name="controllers" label="Contrôleurs"
                         placeholder="Veuillez choisir un ou plusieurs contrôleurs" :options="controllersList" :form="form"
                         label-required :multiple="true" loading-text="Chargement de la liste des contrôleurs en cours"
                         no-options-text="Vous n'avez aucun contrôleur de disponible pour le moment" />
-                </div>
+                </NLColumn>
 
                 <!-- Start date -->
-                <div class="col-12 col-lg-6 col-tablet-6">
+                <NLColumn lg="6" md="6">
                     <NLInput v-model="form.programmed_start" :form="form" name="programmed_start" label="Date début"
                         type="date" label-required />
-                </div>
+                </NLColumn>
 
                 <!-- End date -->
-                <div class="col-12 col-lg-6 col-tablet-6">
+                <NLColumn lg="6" md="6">
                     <NLInput v-model="form.programmed_end" :form="form" name="programmed_end" label="Date fin" type="date"
                         label-required />
-                </div>
+                </NLColumn>
 
                 <!-- Note -->
-                <div class="col-12">
+                <NLColumn>
                     <NLWyswyg v-model="form.note" :form="form" name="note" label="Note" placeholder="Ajouter une note" />
-                </div>
-            </div>
+                </NLColumn>
+            </NLGrid>
 
             <!-- Submit Button -->
             <div class="d-flex justify-end align-center">
