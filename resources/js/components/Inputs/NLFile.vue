@@ -212,7 +212,6 @@ export default {
                 this.$api.post('upload', data, {
                     onUploadProgress: progressEvent => this.setProgress(progressEvent)
                 }).then(response => {
-                    //   console.log(response)
                     this.inProgress = false
                     this.files.push(...response.data)
                     const files = this.files.map((file) => file.id)
@@ -224,8 +223,8 @@ export default {
             }
         },
         setProgress(progressEvent) {
-            if (this.progressEvent.total) {
-                this.progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            if (this.progressEvent?.total) {
+                this.progress = Math.round((progressEvent.loaded * 100) / progressEvent?.total)
             }
         }
     }
