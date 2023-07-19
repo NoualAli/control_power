@@ -17,21 +17,7 @@
                             :label="fields.validated.label" />
                     </NLColumn>
                 </NLForm>
-                <NLGrid extraClass="content" v-else>
-                    <NLColumn v-html="content"></NLColumn>
-                    <NLColumn>
-                        <div class="tags" v-if="!isValidated">
-                            <div class="tag is-warning">En attente de validation</div>
-                        </div>
-                        <span v-if="isValidated">
-                            Date de validation:
-                        </span>
-                        <span v-if="isValidated">
-                            {{ validatedAt }}
-                        </span>
-                    </NLColumn>
-
-                </NLGrid>
+                <NLContainer class="content" v-else isFluid v-html="content"></NLContainer>
             </div>
 
             <!-- Loader -->
@@ -43,6 +29,14 @@
             </div>
         </template>
         <template #footer>
+            <NLFlex v-if="isValidated">
+                <span>
+                    Date de validation:
+                </span>
+                <span>
+                    {{ validatedAt }}
+                </span>
+            </NLFlex>
             <!-- Submit Button -->
             <NLButton v-if="!isReadonly && !isLoading" :loading="form.busy" label="Enregistrer" class="is-radius"
                 @click="save" />
@@ -211,7 +205,7 @@ export default {
          *
          */
         showCdcReport() {
-            this.form.validated = this.mission?.is_validated_by_ci
+            this.form.validated = this.mission?.is_validated_by_cdc
             this.form.type = 'cdc_report'
             this.form.id = this.commentExists ? this.mission?.cdc_report?.id : null
             this.form.content = this.content
@@ -249,6 +243,7 @@ export default {
          * Save comment
          */
         save() {
+            this.isLoading = !this.isLoading
             this.form.post('/api/missions/' + this.mission?.id + '/comments').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
@@ -257,6 +252,7 @@ export default {
                     // this.close(this.form.type, true)
                     this.switchReadonlyMode()
                     this.$emit('success')
+                    this.isLoading = !this.isLoading
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }
@@ -264,6 +260,12 @@ export default {
                 console.log(error)
             })
         },
+        /**
+         * Close modal
+         *
+         * @param {String} type
+         * @param {Boolean} reload
+         */
         close(type = null, reload = false) {
             this.isLoading = false
             this.$emit('close', { type, reload })
