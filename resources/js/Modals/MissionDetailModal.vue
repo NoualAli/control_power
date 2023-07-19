@@ -257,7 +257,6 @@ export default {
          * @param {*} type
          */
         showForm(row, type) {
-            console.log(row, type);
             this.$emit('showForm', { row, type })
         },
 
