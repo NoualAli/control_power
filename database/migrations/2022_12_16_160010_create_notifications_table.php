@@ -18,8 +18,14 @@ class CreateNotificationsTable extends Migration
             $table->string('type');
             $table->morphs('notifiable');
             $table->text('data');
-            $table->timestamp('read_at', 7)->nullable();
-            $table->timestamps(7);
+
+            if (env('DB_CONNECTION') == 'mysql') {
+                $table->timestamp('read_at')->nullable();
+                $table->timestamps();
+            } else {
+                $table->timestamp('read_at', 7)->nullable();
+                $table->timestamps(7);
+            }
         });
     }
 

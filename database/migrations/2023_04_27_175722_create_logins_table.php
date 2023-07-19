@@ -18,8 +18,13 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->string('ip_address');
             $table->string('user_agent');
-            $table->timestamp('last_activity', 7)->nullable();
-            $table->timestamps(7);
+            if (env('DB_CONNECTION') == 'mysql') {
+                $table->timestamp('last_activity')->nullable();
+                $table->timestamps();
+            } else {
+                $table->timestamp('last_activity', 7)->nullable();
+                $table->timestamps(7);
+            }
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });

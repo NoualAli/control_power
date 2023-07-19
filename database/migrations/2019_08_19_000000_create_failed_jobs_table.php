@@ -20,7 +20,11 @@ class CreateFailedJobsTable extends Migration
             $table->text('queue');
             $table->longText('payload');
             $table->longText('exception');
-            $table->timestamp('failed_at', 7)->useCurrent();
+            if (env('DB_CONNECTION') == 'mysql') {
+                $table->timestamp('failed_at')->useCurrent();
+            } else {
+                $table->timestamp('failed_at', 7)->useCurrent();
+            }
         });
     }
 

@@ -20,8 +20,13 @@ return new class extends Migration
             $table->string('commentable_type');
             $table->string('commentable_id', 36)->nullable();
             $table->foreignId('created_by_id')->constrained('users')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->timestamps(7);
-            $table->softDeletes('deleted_at', 7);
+            if (env('DB_CONNECTION') == 'mysql') {
+                $table->timestamps();
+                $table->softDeletes();
+            } else {
+                $table->timestamps(7);
+                $table->softDeletes('deleted_at', 7);
+            }
         });
     }
 

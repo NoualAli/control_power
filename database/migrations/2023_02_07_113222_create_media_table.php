@@ -24,7 +24,12 @@ class CreateMediaTable extends Migration
             $table->string('attachable_type');
             $table->string('attachable_id', 36)->nullable();
             $table->foreignId('uploaded_by_id')->nullable();
-            $table->timestamps(7);
+
+            if (env('DB_CONNECTION') == 'mysql') {
+                $table->timestamps();
+            } else {
+                $table->timestamps(7);
+            }
 
             $table->foreign('uploaded_by_id')->on('users')->references('id')->onDelete('cascade')->onUpdate('cascade');
         });

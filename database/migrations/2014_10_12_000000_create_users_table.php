@@ -23,7 +23,11 @@ class CreateUsersTable extends Migration
             $table->string('avatar')->nullable();
             $table->string('password')->nullable();
             $table->rememberToken();
-            $table->timestamps(7);
+            if (env('DB_CONNECTION') == 'mysql') {
+                $table->timestamps();
+            } else {
+                $table->timestamps(7);
+            }
         });
     }
 

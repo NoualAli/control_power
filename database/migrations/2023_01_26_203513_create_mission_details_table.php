@@ -29,11 +29,17 @@ class CreateMissionDetailsTable extends Migration
             $table->foreignId('controlled_by_ci_id')->nullable()->constrained('users');
             $table->foreignId('controlled_by_cc_id')->nullable()->constrained('users');
 
-            $table->timestamp('controlled_at', 7)->nullable();
-
-            $table->timestamp('major_fact_dispatched_at', 7)->nullable();
-            $table->timestamps(7);
-            $table->softDeletes('deleted_at', 7);
+            if (env('DB_CONNECTION') == 'mysql') {
+                $table->timestamp('controlled_at')->nullable();
+                $table->timestamp('major_fact_dispatched_at')->nullable();
+                $table->timestamps();
+                $table->softDeletes();
+            } else {
+                $table->timestamp('controlled_at', 7)->nullable();
+                $table->timestamp('major_fact_dispatched_at', 7)->nullable();
+                $table->timestamps(7);
+                $table->softDeletes('deleted_at', 7);
+            }
 
             $table->foreign('control_point_id')->on('control_points')->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('mission_id')->on('missions')->references('id')->onDelete('cascade')->onUpdate('cascade');

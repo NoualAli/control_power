@@ -16,18 +16,25 @@ class CreateControlCampaignsTable extends Migration
         Schema::create('control_campaigns', function (Blueprint $table) {
             $table->id();
             $table->text('description');
-            $table->timestamp('start', 7);
-            $table->timestamp('end', 7);
             $table->string('reference');
             // $table->string('state', 30)->default('À effectuer');
             // $table->set('state', ['En cours', 'Réaliser', 'En retard', 'À effectuer'])->default('À effectuer');
             $table->foreignId('created_by_id')->constrained('users');
             $table->foreignId('validated_by_id')->constrained('users');
-            $table->timestamp('validated_at', 7)->nullable();
 
-            $table->timestamps(7);
-            $table->softDeletes('deleted_at', 7);
-
+            if (env('DB_CONNECTION') == 'mysql') {
+                $table->timestamp('validated_at')->nullable();
+                $table->timestamp('start');
+                $table->timestamp('end');
+                $table->timestamps();
+                $table->softDeletes('deleted_at');
+            } else {
+                $table->timestamp('validated_at', 7)->nullable();
+                $table->timestamp('start', 7);
+                $table->timestamp('end', 7);
+                $table->timestamps(7);
+                $table->softDeletes('deleted_at', 7);
+            }
             //$table->foreign('created_by_id')->on('users')->references('id')->onDelete('set null')->onUpdate('set null');
             //$table->foreign('validated_by_id')->on('users')->references('id')->onDelete('set null')->onUpdate('set null');
         });
