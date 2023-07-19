@@ -4,16 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Mission\Detail\ControlRequest;
-use App\Http\Requests\Mission\Detail\StoreRequest;
 use App\Http\Resources\MissionDetailResource;
-use App\Models\Agency;
-use App\Models\ControlCampaign;
-use App\Models\Domain;
-use App\Models\Familly;
 use App\Models\Media;
-use App\Models\Mission;
 use App\Models\MissionDetail;
-use App\Models\Process;
 use App\Models\User;
 use App\Notifications\Mission\MajorFact\Detected;
 use App\Traits\UploadFiles;
