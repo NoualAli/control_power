@@ -164,7 +164,6 @@ export default {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.initData()
-                    this.resetForm()
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }
