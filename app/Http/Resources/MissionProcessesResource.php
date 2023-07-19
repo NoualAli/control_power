@@ -20,7 +20,7 @@ class MissionProcessesResource extends JsonResource
             'domain' => $this->domain,
             'name' => $this->process,
             'control_points_count' => $this->control_points_count,
-            'progress_status' => $this->progress_status,
+            'progress_status' => number_format($this->progress_status, 0, ''),
             'avg_score' => intval($this->avg_score),
             'controlled_at' => $this->controlled_at,
         ];
