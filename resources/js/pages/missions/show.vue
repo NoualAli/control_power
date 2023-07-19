@@ -1,6 +1,6 @@
 <template>
     <ContentHeader>
-        <template v-if="!pageIsLoading" #title>
+        <template class="d-flex justify-between align-center gap-3 mb-9" v-if="!pageIsLoading" #title>
             <h2 class="w-100">Informations de la mission</h2>
             <NLFlex lgJustifyContent="end" extraClass="w-100">
                 <router-link v-if="can('view_control_campaign,view_page_control_campaigns')"
@@ -14,7 +14,7 @@
             </NLFlex>
         </template>
     </ContentHeader>
-    <ContentBody v-if="can('view_mission') && forcedRerenderKey !== -1" :key="forcedRerenderKey && !pageIsLoading">
+    <ContentBody v-if="can('view_mission') && forcedRerenderKey !== -1" :key="forcedRerenderKey">
 
         <!-- Mission informations -->
         <div class="box mb-10" v-if="!pageIsLoading">
@@ -273,7 +273,7 @@
 
         <!-- Mission comment -->
         <MissionCommentForm :type="commentType" :mission="mission.current" :readonly="commentReadonly"
-            :show="modals.comment" @success="success" @close="close" v-if="!pageIsLoading" />
+            :show="modals.comment" @success="success" @close="close" />
 
         <!-- Assign mission processing -->
         <MissionAssignationDetailsForm :mission="mission.current" type="cc"
@@ -481,7 +481,27 @@ export default {
                 this.showCiReport(readonly)
             }
         },
+        /**
+                 * Initialize ci opinion data
+                 *
+                 * @param {Boolean} readonly
+                 */
+        showCiReport(readonly) {
+            this.modals.comment = true
+            this.commentType = 'ci_report'
+            this.commentReadonly = readonly
+        },
 
+        /**
+         * Initialize cdc report data
+         *
+         * @param {Boolean} readonly
+         */
+        showCdcReport(readonly) {
+            this.modals.comment = true
+            this.commentType = 'cdc_report'
+            this.commentReadonly = readonly
+        },
         /**
          * Validate mission
          */
@@ -506,6 +526,7 @@ export default {
          * Initialize data
          */
         initData() {
+            this.pageIsLoading = true
             this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId }).then(() => {
                 const length = this.$breadcrumbs.value.length
                 if (this.$breadcrumbs.value[ length - 1 ].label === 'Mission') { this.$breadcrumbs.value[ length - 1 ].label = 'Mission ' + this.mission?.current?.reference }
@@ -551,8 +572,8 @@ export default {
                     this.modals[ key ] = false;
                 }
             }
-            this.initData()
             if (reload) {
+                this.initData()
                 if (type) {
                     if (type == 'ci_report') {
                         this.showCiReport(true)
