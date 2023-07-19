@@ -264,11 +264,11 @@ export default {
         /**
          *
          */
-        close() {
+        close(forceReload = false) {
             this.row = null
             this.currentMetadata.keys = null
             this.isLoading = false
-            this.$emit('close')
+            this.$emit('close', forceReload)
         },
 
         /**
@@ -292,7 +292,7 @@ export default {
                 if (action.isConfirmed) {
                     this.$api.post('notifications/major-fact/' + this.rowSelected.id).then(response => {
                         this.$swal.toast_success(response.data.message)
-                        this.row = null
+                        this.close(true)
                     }).catch(error => {
                         this.$swal.alert_error(error)
                     })
