@@ -10,6 +10,7 @@ import api from '../../plugins/api'
 export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],
+    components: { NLDatatable },
     metaInfo() {
         return { title: 'Centre de notification' }
     },
@@ -22,35 +23,64 @@ export default {
                     extraClass: {
                         td: (item) => {
                             return !item.read_at ? 'bg-primary-extra-light' : ''
-                        }
-                    },
-                },
+                            columns: [
+                                {
+                                    label: 'Titre',
+                                    field: 'title',
+                                    extraClass: {
+                                        td: (item) => {
+                                            return !item.read_at ? 'bg-primary-extra-light' : ''
+                                        }
+                                    },
+                                },
+                                {
+                                    label: 'Emis par',
+                                    field: 'emitted_by',
+                                    extraClass: {
+                                        td: (item) => {
+                                            return !item.read_at ? 'bg-primary-extra-light' : ''
+                                        },
                 {
-                    label: 'Emis par',
-                    field: 'emitted_by',
-                    extraClass: {
-                        td: (item) => {
-                            return !item.read_at ? 'bg-primary-extra-light' : ''
-                        }
-                    },
-                },
+                                    label: 'Emis par',
+                                    field: 'emitted_by',
+                                    extraClass: {
+                                        td: (item) => {
+                                            return !item.read_at ? 'bg-primary-extra-light' : ''
+                                        }
+                                    },
+                                },
+                                {
+                                    label: 'Contenu',
+                                    field: 'content',
+                                    extraClass: {
+                                        td: (item) => {
+                                            return !item.read_at ? 'bg-primary-extra-light' : ''
+                                        },
                 {
-                    label: 'Contenu',
-                    field: 'content',
-                    extraClass: {
-                        td: (item) => {
-                            return !item.read_at ? 'bg-primary-extra-light' : ''
-                        }
-                    },
-                },
+                                    label: 'Contenu',
+                                    field: 'content',
+                                    extraClass: {
+                                        td: (item) => {
+                                            return !item.read_at ? 'bg-primary-extra-light' : ''
+                                        }
+                                    },
+                                },
+                                {
+                                    label: 'Date',
+                                    field: 'created_at',
+                                    extraClass: {
+                                        td: (item) => {
+                                            return !item.read_at ? 'bg-primary-extra-light' : ''
+                                        },
                 {
-                    label: 'Date',
-                    field: 'created_at',
-                    extraClass: {
-                        td: (item) => {
-                            return !item.read_at ? 'bg-primary-extra-light' : ''
-                        }
-                    },
+                                    label: 'Date',
+                                    field: 'created_at',
+                                    extraClass: {
+                                        td: (item) => {
+                                            return !item.read_at ? 'bg-primary-extra-light' : ''
+                                        }
+                                    },
+                                },
                 }
             ],
             // actions: {
@@ -73,6 +103,7 @@ export default {
          */
         show(item) {
             const { pathname, search } = new URL(item.url)
+            return this.$router.push({ path: pathname, query: Object.fromEntries(new URLSearchParams(search)) })
             return this.$router.push({ path: pathname, query: Object.fromEntries(new URLSearchParams(search)) })
         },
         /**
