@@ -1,5 +1,5 @@
 <template>
-    <div class="page-loader-container" v-if="isLoading">
+    <div class="page-loader-container" :class="{ 'is-active': isLoading }">
         <div class="page-loader">
             <i class="las la-landmark"></i>
         </div>

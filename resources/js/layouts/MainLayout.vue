@@ -52,6 +52,7 @@
                 <NLContainer extraClass="py-6">
                     <Child />
                 </NLContainer>
+                <NLPageLoader :isLoading="pageLoadingState" />
             </div>
         </div>
     </div>
@@ -61,12 +62,13 @@
 import NLSidebar from '../components/Sidebar/NLSidebar'
 import Child from '../components/Child'
 import { mapGetters } from 'vuex'
-
+import NLPageLoader from '../components/NLPageLoader'
 export default {
     name: 'MainLayout',
     components: {
         NLSidebar,
-        Child
+        Child,
+        NLPageLoader
     },
     middleware: [ 'auth', 'admin' ],
     data() {
@@ -77,7 +79,8 @@ export default {
     computed: mapGetters({
         showSidebar: 'sidebar/showSidebar',
         user: 'auth/user',
-        notifications: 'notifications/unread'
+        notifications: 'notifications/unread',
+        pageLoadingState: 'settings/pageIsLoading'
     }),
     watch: {
         $route(to, from) {

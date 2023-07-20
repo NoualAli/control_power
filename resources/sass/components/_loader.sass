@@ -31,7 +31,7 @@
     letter-spacing: 1px
 
 .page-loader-container
-    position: fixed
+    position: absolute
     top: 0
     left: 0
     display: flex
@@ -44,6 +44,12 @@
     background-color: rgba($primary,1)
     user-select: none
     z-index: 4
+    transform: translateY(-100%)
+    transition: .2s ease-in-out
+    opacity: 0
+    &.is-active
+        transform: translateY(0)
+        opacity: 1
 
 .page-loader
     position: relative
