@@ -472,14 +472,10 @@
 </template>
 
 <script>
-import NLDatatable from '../components/Datatable/NLDatatable.vue'
 import { mapGetters } from 'vuex'
-// import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
 import { Bar, Pie, Doughnut } from 'vue-chartjs'
-// import InProgress from '../components/InProgress'
 export default {
     components: {
-        NLDatatable,
         Bar,
         Doughnut,
         Pie
@@ -565,6 +561,7 @@ export default {
         }
     },
     created() {
+        this.$store.dispatch('settings/updatePageLoading', false)
         this.setCurrentSection('realisationStates')
     },
     methods: {
@@ -614,6 +611,7 @@ export default {
                     }
                 })
             }
+            this.$store.dispatch('settings/updatePageLoading', false)
         },
         savePNG(element) {
             const canvas = document.querySelector(`#${element}`)

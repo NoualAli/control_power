@@ -69,18 +69,24 @@ export default {
         })
     },
     created() {
-        this.$store.dispatch('agencies/fetchConfig').then(() => {
-            this.dresList = this.config.config.dres
-            this.categoriesList = this.config.config.categories
-            this.pcfList = this.config.config.pcf
-        })
+        this.initData()
     },
     methods: {
+        initData() {
+            this.$store.dispatch('settings/updatePageLoading', true)
+            this.$store.dispatch('agencies/fetchConfig').then(() => {
+                this.dresList = this.config.config.dres
+                this.categoriesList = this.config.config.categories
+                this.pcfList = this.config.config.pcf
+                this.$store.dispatch('settings/updatePageLoading', false)
+            })
+        },
         create() {
             this.form.post('/api/agencies').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.form.reset()
+                    this.initData()
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }

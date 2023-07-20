@@ -1,16 +1,15 @@
 <template>
     <ContentBody>
-        <NLDatatable :columns="columns" title="Liste des notifications" urlPrefix="notifications" />
+        <NLDatatable :columns="columns" title="Liste des notifications" urlPrefix="notifications"
+            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
     </ContentBody>
 </template>
 
 <script>
-import NLDatatable from '../../components/Datatable/NLDatatable'
 import api from '../../plugins/api'
 export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],
-    components: { NLDatatable },
     metaInfo() {
         return { title: 'Centre de notification' }
     },
@@ -63,6 +62,7 @@ export default {
         }
     },
     created() {
+        this.$store.dispatch('settings/updatePageLoading', true)
         this.markAsRead()
     },
     methods: {

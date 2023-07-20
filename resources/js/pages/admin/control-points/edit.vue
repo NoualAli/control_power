@@ -303,6 +303,7 @@ export default {
 
     methods: {
         initData() {
+            this.$store.dispatch('settings/updatePageLoading', true)
             this.$store.dispatch('controlPoints/fetch', this.$route.params.controlPoint).then(() => {
                 this.loadFamillies()
                 this.loadValidationRules()
@@ -324,6 +325,7 @@ export default {
                 this.familliesList = this.famillies.all
                 this.loadDomains(this.form.familly_id)
                 this.loadProcesses(this.form.domain_id)
+                this.$store.dispatch('settings/updatePageLoading', false)
             })
         },
         /**

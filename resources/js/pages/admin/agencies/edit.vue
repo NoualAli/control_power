@@ -74,6 +74,7 @@ export default {
 
     methods: {
         initData() {
+            this.$store.dispatch('settings/updatePageLoading', true)
             this.$store.dispatch('agencies/fetchConfig', this.$route.params.agency).then(() => {
                 this.agency = this.config.config.agency
                 this.dresList = this.config.config.dres
@@ -86,6 +87,7 @@ export default {
                 this.form.category_id = this.agency.category_id
                 this.form.pcf_usable = this.agency.usableProcesses.map(process => process.id)
                 this.form.pcf_unusable = this.agency.unusableProcesses.map(process => process.id)
+                this.$store.dispatch('settings/updatePageLoading', false)
             })
         },
         update() {

@@ -91,11 +91,13 @@ export default {
         dres: 'dre/all'
     }),
     created() {
+        this.$store.dispatch('settings/updatePageLoading', true)
         this.$store.dispatch('roles/fetchAll').then(() => {
             this.rolesList = this.roles.all
-        })
-        this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
-            this.dresList = this.dres.all
+            this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
+                this.dresList = this.dres.all
+                this.$store.dispatch('settings/updatePageLoading', false)
+            })
         })
     },
     methods: {

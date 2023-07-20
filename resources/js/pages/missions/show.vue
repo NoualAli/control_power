@@ -1,6 +1,6 @@
 <template>
     <ContentHeader>
-        <template class="d-flex justify-between align-center gap-3 mb-9" v-if="!pageIsLoading" #title>
+        <template class="d-flex justify-between align-center gap-3 mb-9" v-if="!pageLoadingState" #title>
             <h2 class="w-100">Informations de la mission</h2>
             <NLFlex lgJustifyContent="end" extraClass="w-100">
                 <router-link v-if="can('view_control_campaign,view_page_control_campaigns')"
@@ -17,7 +17,7 @@
     <ContentBody v-if="can('view_mission') && forcedRerenderKey !== -1" :key="forcedRerenderKey">
 
         <!-- Mission informations -->
-        <div class="box mb-10" v-if="!pageIsLoading">
+        <div class="box mb-10" v-if="!pageLoadingState">
             <Alert v-if="mission?.current?.remaining_days_before_start > 0" type="is-info" isInline extraClass="mb-6">
                 <p>
                     Nous vous informons que la mission débutera le <b>{{ mission?.current?.start }}</b> dans exactement
@@ -183,7 +183,7 @@
         </div>
 
         <!-- Actions -->
-        <div class="d-flex align-items gap-2" v-if="!pageIsLoading">
+        <div class="d-flex align-items gap-2" v-if="!pageLoadingState">
             <button v-if="mission?.current?.is_validated_by_dcp && is(['dcp', 'dg', 'ig', 'sg', 'cdrcp', 'der'])"
                 class="btn btn-pdf has-icon" @click="exportReport(false)">
                 <i class="las la-file-contract icon" />
@@ -258,9 +258,9 @@
             </button>
         </div>
 
-        <NLDatatable v-if="mission?.current?.id && !pageIsLoading" :columns="columns" :details="details" :filters="filters"
-            title="Processus de la mission" :urlPrefix="'missions/' + mission?.current?.id + '/processes'"
-            detailsUrlPrefix="processes">
+        <NLDatatable v-if="mission?.current?.id && !pageLoadingState" :columns="columns" :details="details"
+            :filters="filters" title="Processus de la mission"
+            :urlPrefix="'missions/' + mission?.current?.id + '/processes'" detailsUrlPrefix="processes">
             <template #actions-after="{ item }">
                 <button
                     v-if="can('control_agency,view_mission_detail') && mission?.current?.remaining_days_before_start <= 0"
@@ -278,32 +278,26 @@
         <!-- Assign mission processing -->
         <MissionAssignationDetailsForm :mission="mission.current" type="cc"
             :title="'Assigné le traitement des anomalies de la mission' + mission?.current?.reference"
-            :show="modals.dispatch" @success="success" @close="close" v-if="!pageIsLoading" />
+            :show="modals.dispatch" @success="success" @close="close" v-if="!pageLoadingState" />
     </ContentBody>
-    <NLPageLoader :isLoading="pageIsLoading"></NLPageLoader>
 </template>
 
 <script>
-import NLDatatable from '../../components/Datatable/NLDatatable'
 import MissionCommentForm from '../../forms/MissionCommentForm'
 import MissionAssignationDetailsForm from '../../forms/MissionAssignationDetailsForm.vue'
-import NLPageLoader from '../../components/NLPageLoader'
 import { mapGetters } from 'vuex'
 import { Form } from 'vform'
 import api from '../../plugins/api'
 import { hasRole } from '../../plugins/user'
 export default {
     components: {
-        NLDatatable,
         MissionCommentForm,
         MissionAssignationDetailsForm,
-        NLPageLoader
     },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     data() {
         return {
-            pageIsLoading: true,
             forcedRerenderKey: -1,
             controllersList: [],
             commentType: null,
@@ -404,7 +398,8 @@ export default {
     },
     computed: {
         ...mapGetters({
-            mission: 'missions/current'
+            mission: 'missions/current',
+            pageLoadingState: 'settings/pageIsLoading',
         }),
     },
     watch: {
@@ -526,11 +521,11 @@ export default {
          * Initialize data
          */
         initData() {
-            this.pageIsLoading = true
+            this.$store.dispatch('settings/updatePageLoading', true)
             this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId }).then(() => {
                 const length = this.$breadcrumbs.value.length
                 if (this.$breadcrumbs.value[ length - 1 ].label === 'Mission') { this.$breadcrumbs.value[ length - 1 ].label = 'Mission ' + this.mission?.current?.reference }
-                this.pageIsLoading = !this.pageIsLoading
+                this.$store.dispatch('settings/updatePageLoading', false)
             }).catch(error => this.$swal.alert_error(error))
         },
 

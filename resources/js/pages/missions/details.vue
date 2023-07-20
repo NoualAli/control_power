@@ -1,6 +1,6 @@
 <template>
     <ContentBody v-if="can('view_mission,control_agency,create_cdc_report,validate_cdc_report')">
-        <NLContainer v-if="!pageIsLoading">
+        <NLContainer v-if="!pageLoadingState">
             <NLGrid>
                 <NLColumn lg="1" />
                 <NLColumn lg="11">
@@ -142,7 +142,7 @@
                 </NLColumn>
             </NLGrid>
         </NLContainer>
-        <NLPageLoader :isLoading="pageIsLoading" v-else></NLPageLoader>
+        <NLPageLoader :isLoading="pageLoadingState" v-else></NLPageLoader>
 
         <!-- Traitement du point de contrôle -->
         <MissionDetailForm :data="rowSelected" :show="modals.forms.control" @success="success" @close="close" />
@@ -159,13 +159,9 @@
 import MissionDetailForm from '../../forms/MissionDetailForm'
 import MissionDetailModal from '../../Modals/MissionDetailModal'
 import MissionRegularizationForm from '../../forms/MissionRegularizationForm'
-import NLPageLoader from '../../components/NLPageLoader'
-import ContentBody from '../../components/ContentBody'
 import { mapGetters } from 'vuex'
 export default {
     components: {
-        ContentBody,
-        NLPageLoader,
         MissionDetailForm,
         MissionDetailModal,
         MissionRegularizationForm
@@ -175,7 +171,6 @@ export default {
     middleware: [ 'auth' ],
     data() {
         return {
-            pageIsLoading: true,
             process: null,
             mission: null,
             details: [],
@@ -196,6 +191,7 @@ export default {
         ...mapGetters({
             config: 'missions/detailsConfig',
             detail: 'details/detail',
+            pageLoadingState: 'settings/pageLoadingState'
         })
     },
     created() {
@@ -208,7 +204,7 @@ export default {
          */
         initData() {
             const length = this.$breadcrumbs.value.length
-            this.pageIsLoading = true
+            this.$store.dispatch('settings/updatePageLoading', true)
             this.$store.dispatch('missions/fetchDetails', { missionId: this.$route.params.missionId, processId: this.$route.params.processId }).then(() => {
                 this.details = this.config.detailsConfig.details
                 this.mission = this.config.detailsConfig.mission
@@ -219,7 +215,7 @@ export default {
                     this.$breadcrumbs.value[ length - 2 ].label = ''
                     this.$breadcrumbs.value[ length - 1 ].label = this.process?.name
                 }
-                this.pageIsLoading = false
+                this.$store.dispatch('settings/updatePageLoading', false)
             })
         },
 

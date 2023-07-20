@@ -1,6 +1,8 @@
 <template>
     <div class="page-loader-container" v-if="isLoading">
-        <div class="page-loader"></div>
+        <div class="page-loader">
+            <i class="las la-landmark"></i>
+        </div>
         <div class="page-loader-text">
             Chargement en cours
         </div>

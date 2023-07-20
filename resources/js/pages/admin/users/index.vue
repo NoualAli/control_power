@@ -9,27 +9,26 @@
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" :details="details" title="Liste des utilisateurs"
-                urlPrefix="users" @edit="edit" @delete="destroy" />
+                urlPrefix="users" @edit="edit" @delete="destroy" :key="forceReload"
+                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
         </ContentBody>
     </div>
 </template>
 
 <script>
-import NLDatatable from '../../../components/Datatable/NLDatatable'
-import NLModal from '../../../components/NLModal'
 import Avatar from '../../../components/Avatar.vue'
 import { user } from '../../../plugins/user'
 import api from '../../../plugins/api'
 export default {
-    components: { NLDatatable, NLModal, Avatar },
+    components: { Avatar },
     layout: 'MainLayout',
     middleware: [ 'auth', 'admin' ],
-    // metaInfo () {
-    //   return { title: 'Utilisateurs' }
-    // },
+    created() {
+        this.$store.dispatch('settings/updatePageLoading', true)
+    },
     data() {
         return {
-            reloadData: false,
+            forceReload: 1,
             columns: [
                 {
                     label: "Nom d'utilisateur",
@@ -115,7 +114,7 @@ export default {
                 if (action.isConfirmed) {
                     api.delete('users/' + item.id).then(response => {
                         if (response.data.status) {
-                            this.initData()
+                            this.forceReload += 1
                             this.$swal.toast_success(response.data.message)
                         } else {
                             this.$swal.toast_error(response.data.message)
@@ -127,13 +126,6 @@ export default {
                 this.$swal.alert_error()
             })
         },
-
-        /**
-         * Initialise les données
-         */
-        initData() {
-            this.reloadData = true
-        }
     }
 }
 </script>

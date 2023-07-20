@@ -81,7 +81,8 @@
         <!-- Processes List -->
         <NLDatatable v-if="campaign?.current?.id" :columns="columns" :details="details" :filters="filters"
             title="Liste des processus de la campagne de contrôle"
-            :urlPrefix="'campaigns/processes/' + campaign?.current?.id" detailsUrlPrefix="processes">
+            :urlPrefix="'campaigns/processes/' + campaign?.current?.id" detailsUrlPrefix="processes"
+            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
             <template #actions-before="{ item, callback }"
                 v-if="can('edit_control_campaign') && !campaign?.current.validated_by_id && is(['dcp'])">
                 <button class="btn btn-danger has-icon" @click.stop="callback(detachProcess, item)">
@@ -93,13 +94,9 @@
 </template>
 
 <script>
-import NLDatatable from '../../components/Datatable/NLDatatable'
 import { mapGetters } from 'vuex'
 import api from '../../plugins/api'
 export default {
-    components: {
-        NLDatatable
-    },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     data() {
@@ -171,6 +168,7 @@ export default {
     },
     methods: {
         initData() {
+            this.$store.dispatch('settings/updatePageLoading', true)
             this.close()
             const campaignId = this.$route.params.campaignId
             this.$store.dispatch('campaigns/fetch', { campaignId }).then(() => {
@@ -178,8 +176,8 @@ export default {
                 if (this.$breadcrumbs.value[ length - 1 ].label === 'Détails campagne') {
                     this.$breadcrumbs.value[ length - 1 ].label = 'Détails campagne ' + this.campaign.current?.reference
                 }
+                this.$store.dispatch('settings/updatePageLoading', false)
             })
-            // this.$store.dispatch('campaigns/fetchProcesses', campaignId).then(() => { this.config.data = this.processes.processes })
         },
         loadControlPoints(process) {
             this.$store.dispatch('processes/fetch', { id: process.id, onlyControlPoints: true }).then(() => { this.control_points = this.process.controlPoints })

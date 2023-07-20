@@ -11,7 +11,6 @@ import NLCheckbox from './Inputs/NLCheckbox.vue'
 import NLSelect from './Inputs/NLSelect'
 import NLCheckableContainer from './Inputs/NLCheckableContainer.vue'
 import NLWyswyg from './Inputs/NLWyswyg.vue'
-// import NLDatatable from './NLDatatable.vue'
 import NLDatatable from './Datatable/NLDatatable.vue'
 import { HasError, AlertErrors } from 'vform/components/bootstrap5'
 import NLModal from './NLModal'
@@ -25,9 +24,13 @@ import NLHeading from './NLHeading'
 import NLGrid from './Grid/NLGrid'
 import NLColumn from './Grid/NLColumn'
 import NLFlex from './Grid/NLFlex'
+// import NLPageLoader from './NLPageLoader'
+// import NLComponentLoader from './NLComponentLoader.vue'
 // Components that are registered globaly.
 export function useComponents(app) {
     [
+        // NLPageLoader,
+        // NLComponentLoader,
         NLRadios,
         NLCheckboxes,
         NLGrid,

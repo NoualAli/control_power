@@ -45,8 +45,10 @@ export default {
         }
     },
     created() {
+        this.$store.dispatch('settings/updatePageLoading', true)
         this.$store.dispatch('categories/fetchConfig').then(() => {
             this.pcfList = this.config.config.pcf
+            this.$store.dispatch('settings/updatePageLoading', false)
         })
     },
     methods: {

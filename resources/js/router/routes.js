@@ -200,7 +200,7 @@ export default [
         component: page('admin/agencies/index.vue'),
         meta: {
             breadcrumb: {
-                label: 'Agence'
+                label: 'Agences'
 
             }
         }

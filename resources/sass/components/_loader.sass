@@ -41,19 +41,30 @@
     width: 100%
     min-height: calc( 100vh - $navbar-height )
     height: 100%
-    background-color: rgba($primary,.4)
+    background-color: rgba($primary,1)
     user-select: none
     z-index: 4
 
 .page-loader
-    animation: spinAround .5s infinite linear
     position: relative
     height: 3rem
     width: 3rem
-    border-radius: 50%
-    border: .25rem solid $light
-    border-right-color: transparent
-    border-top-color: transparent
+    display: flex
+    justify-content: center
+    align-items: center
+    & i
+        color: $light
+        font-size: 2rem
+    &::after
+        position: absolute
+        content: ''
+        animation: spinAround .5s infinite linear
+        height: 3rem
+        width: 3rem
+        border-radius: 50%
+        border: .25rem solid $light
+        border-right-color: transparent
+        border-top-color: transparent
 
 .page-loader-text
     color: $light

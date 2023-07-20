@@ -6,10 +6,13 @@
                     Ajouter
                 </router-link>
             </template>
+            <template #title>
+                Liste des agences
+            </template>
         </ContentHeader>
         <ContentBody>
-            <NLDatatable :columns="columns" :actions="actions" title="Liste des agences" urlPrefix="agencies" @edit="edit"
-                @delete="destroy" />
+            <NLDatatable :columns="columns" :actions="actions" urlPrefix="agencies" @edit="edit" @delete="destroy"
+                @dataLoaded="this.$store.dispatch('settings/updatePageLoading', false)" :key="forceReload" />
         </ContentBody>
     </div>
 </template>
@@ -25,7 +28,7 @@ export default {
     },
     data() {
         return {
-            reloadData: false,
+            forceReload: 1,
             columns: [
                 {
                     label: 'Code',
@@ -56,6 +59,9 @@ export default {
             }
         }
     },
+    created() {
+        this.$store.dispatch('settings/updatePageLoading', true)
+    },
     methods: {
         /**
          * Redirige vers la page d'edition
@@ -74,7 +80,7 @@ export default {
                 if (action.isConfirmed) {
                     api.delete('agencies/' + item.id).then(response => {
                         if (response.data.status) {
-                            this.initData()
+                            this.forceReload += 1
                             this.$swal.toast_success(response.data.message)
                         } else {
                             this.$swal.toast_error(response.data.message)
@@ -85,13 +91,6 @@ export default {
                 this.$swal.alert_error()
             })
         },
-
-        /**
-         * Initialise les données
-         */
-        initData() {
-            this.reloadData = false
-        }
     }
 }
 </script>

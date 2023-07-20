@@ -9,7 +9,7 @@
         </div>
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" :filters="filters" title="Suivi du planning annuel"
-                urlPrefix="campaigns">
+                urlPrefix="campaigns" @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
                 <template #actions-before="{ item, callback }">
                     <button v-if="!item?.validated_by_id && can('validate_control_campaign')" class="btn btn-info has-icon"
                         @click.stop="callback(validate, item)">
@@ -22,14 +22,9 @@
 </template>
 
 <script>
-import ContentBody from '../../components/ContentBody'
 import { hasRole } from '../../plugins/user'
 import api from '../../plugins/api'
-import NLDatatable from '../../components/Datatable/NLDatatable'
 export default {
-    components: {
-        ContentBody, NLDatatable
-    },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     data() {
@@ -127,6 +122,9 @@ export default {
                 }
             },
         }
+    },
+    created() {
+        this.$store.dispatch('settings/updatePageLoading', true)
     },
     computed: {
         yearsList() {

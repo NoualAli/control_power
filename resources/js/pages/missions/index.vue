@@ -10,25 +10,21 @@
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" :filters="filters"
-                title="Suivi des réalisations des missions" urlPrefix="missions" />
+                title="Suivi des réalisations des missions" urlPrefix="missions" :key="forceReload"
+                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
         </ContentBody>
     </div>
 </template>
 
 <script>
-import ContentHeader from '../../components/ContentHeader'
-import ContentBody from '../../components/ContentBody'
 import { mapGetters } from 'vuex'
 import { hasRole } from '../../plugins/user'
-import NLDatatable from '../../components/Datatable/NLDatatable'
 export default {
-    components: {
-        ContentHeader, ContentBody, NLDatatable
-    },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     data() {
         return {
+            forceReload: 1,
             campaignId: null,
             columns: [
                 {
@@ -139,7 +135,6 @@ export default {
                         if (hasRole([ 'cdc', 'ci' ])) {
                             return this.can('view_mission')
                         } else if (hasRole([ 'dcp', 'cdcr' ])) {
-                            console.log(item);
                             return this.can('view_mission') && item.progress_status.toString() === '100' && item?.is_validated_by_cdc
                         } else if (hasRole([ 'da', 'dg', 'cdrcp', 'ig', 'der' ])) {
                             return this.can('view_mission') && item.progress_status.toString() === '100' && item?.is_validated_by_dcp
@@ -217,15 +212,23 @@ export default {
     computed: mapGetters({
         campaign: 'campaigns/current',
     }),
+    created() {
+        this.initData()
+    },
     methods: {
         initData() {
+            this.$store.dispatch('settings/updatePageLoading', true)
+            console.log(this.$store.getters[ 'settings/pageIsLoading' ]);
             const length = this.$breadcrumbs.value.length
             if (this.$route.params.campaignId) {
                 this.$store.dispatch('campaigns/fetch', { campaignId: this.$route.params.campaignId }).then((data) => {
                     if (this.$breadcrumbs.value[ length - 2 ].label === 'Détails campagne') {
                         this.$breadcrumbs.value[ length - 2 ].label = 'Détails campagne ' + data.reference
                     }
+                    // this.$store.dispatch('settings/updatePageLoading', false)
                 })
+            } else {
+                // this.$store.dispatch('settings/updatePageLoading', false)
             }
         },
         show(e) {
@@ -237,6 +240,7 @@ export default {
         destroy(e) {
             return this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
+                    this.forceReload += 1
                     return this.$api.delete('missions/' + e.item.id)
                 }
             })

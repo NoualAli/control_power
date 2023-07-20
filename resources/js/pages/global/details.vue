@@ -1,7 +1,8 @@
 <template>
     <ContentBody>
         <NLDatatable :columns="columns" :actions="actions" :filters="filters" @show="show"
-            title="Anomalie • Notation • Plan de redressement" urlPrefix="details" :key="forceReload" />
+            title="Anomalie • Notation • Plan de redressement" urlPrefix="details" :key="forceReload"
+            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
 
         <!-- View control point informations -->
         <MissionDetailModal :rowSelected="rowSelected" :show="modals.show" @showForm="showForm" @close="close" />
@@ -17,12 +18,11 @@
 <script>
 import { hasRole } from '../../plugins/user'
 import Alert from '../../components/Alert'
-import NLDatatable from '../../components/Datatable/NLDatatable'
 import MissionDetailModal from '../../Modals/MissionDetailModal'
 import MissionDetailForm from '../../forms/MissionDetailForm'
 import MissionRegularizationForm from '../../forms/MissionRegularizationForm'
 export default {
-    components: { Alert, NLDatatable, MissionDetailForm, MissionDetailModal, MissionRegularizationForm },
+    components: { Alert, MissionDetailForm, MissionDetailModal, MissionRegularizationForm },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     data: () => {
@@ -172,6 +172,9 @@ export default {
             },
         }
     },
+    created() {
+        this.$store.dispatch('settings/updatePageLoading', true)
+    },
     methods: {
         /**
          * Handle success result
@@ -217,6 +220,7 @@ export default {
          * Ferme la boite modal des détails du point de contrôle
          */
         close(forceReload = false) {
+            this.$store.dispatch('settings/updatePageLoading', true)
             for (const key in this.modals) {
                 if (Object.hasOwnProperty.call(this.modals, key)) {
                     this.modals[ key ] = false
@@ -226,6 +230,7 @@ export default {
             if (forceReload) {
                 this.forceReload += 1
             }
+            this.$store.dispatch('settings/updatePageLoading', false)
         },
         /**
          * @param {Object} Object

@@ -9,23 +9,25 @@
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" title="Liste des processus" urlPrefix="processes"
-                @edit="edit" @delete="destroy" />
+                @edit="edit" @delete="destroy" :key="froceReload"
+                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
         </ContentBody>
     </div>
 </template>
 
 <script>
-import NLDatatable from '../../../components/Datatable/NLDatatable'
 export default {
-    components: { NLDatatable },
     layout: 'MainLayout',
     middleware: [ 'auth', 'admin' ],
     metaInfo() {
         return { title: 'Processus' }
     },
+    created() {
+        this.$store.dispatch('settings/updatePageLoading', true)
+    },
     data() {
         return {
-            reloadData: false,
+            froceReload: 1,
             columns: [
                 {
                     label: 'Famille',
@@ -73,7 +75,7 @@ export default {
                 if (action.isConfirmed) {
                     this.$api.delete('processes/' + item.id).then(response => {
                         if (response.data.status) {
-                            this.initData()
+                            this.froceReload += 1
                             this.$swal.toast_success(response.data.message)
                         } else {
                             this.$swal.toast_error(response.data.message)
@@ -85,13 +87,6 @@ export default {
                 this.$swal.alert_error()
             })
         },
-
-        /**
-         * Initialise les données
-         */
-        initData() {
-            this.reloadData = true
-        }
     }
 }
 </script>

@@ -62,7 +62,7 @@ export default {
         nextReference: 'campaigns/nextReference'
     }),
     created() {
-        this.fetchNextReference()
+        this.$store.dispatch('settings/updatePageLoading', true)
         this.loadPFC()
         this.showValidation = hasRole('dcp')
     },
@@ -87,17 +87,12 @@ export default {
             })
         },
         /**
-         * Récupère la prochaine référence
-         */
-        fetchNextReference() {
-            this.$store.dispatch('campaigns/fetchNextReference')
-        },
-        /**
          * Récupère la liste des familles -> domaines -> processus
          */
         loadPFC() {
             this.$store.dispatch('famillies/fetchAll', true).then(() => {
                 this.pcfList = this.famillies.all
+                this.$store.dispatch('campaigns/fetchNextReference').then(() => this.$store.dispatch('settings/updatePageLoading', false))
             })
         }
     }

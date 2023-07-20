@@ -12,15 +12,14 @@
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :filters="filters" :details="details" :actions="actions"
-                title="Liste des points de contrôle" urlPrefix="control-points" @edit="edit" @delete="destroy" />
+                title="Liste des points de contrôle" urlPrefix="control-points" @edit="edit" @delete="destroy"
+                :key="forceRealod" @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
         </ContentBody>
     </div>
 </template>
 
 <script>
-import NLDatatable from '../../../components/Datatable/NLDatatable'
 export default {
-    components: { NLDatatable },
     layout: 'MainLayout',
     middleware: [ 'auth', 'admin' ],
     metaInfo() {
@@ -28,7 +27,7 @@ export default {
     },
     data() {
         return {
-            reloadData: false,
+            forceRealod: 1,
             columns: [
                 {
                     label: 'Famille',
@@ -116,6 +115,9 @@ export default {
             },
         }
     },
+    created() {
+        this.$store.dispatch('settings/updatePageLoading', true)
+    },
     methods: {
         /**
          * Redirige vers la page d'edition
@@ -134,7 +136,7 @@ export default {
                 if (action.isConfirmed) {
                     this.$api.delete('control-points/' + item.id).then(response => {
                         if (response.data.status) {
-                            this.initData()
+                            this.forceRealod += 1
                             this.$swal.toast_success(response.data.message)
                         } else {
                             this.$swal.toast_error(response.data.message)
@@ -144,12 +146,6 @@ export default {
             }).catch(error => {
                 this.$swal.alert_error(error.message)
             })
-        },
-        /**
-         * Initialise les données
-         */
-        initData() {
-            this.reloadData = true
         },
     }
 }

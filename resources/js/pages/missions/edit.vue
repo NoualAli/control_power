@@ -1,5 +1,5 @@
 <template>
-    <ContentBody v-if="can('create_mission') && !pageIsLoading">
+    <ContentBody v-if="can('create_mission') && !pageLoadingState">
         <ContentHeader>
             <template #actions>
                 <button class="btn btn-info has-icon" @click.prevent="cdcModalIsOpen = true">
@@ -85,19 +85,14 @@
             </template>
         </NLModal>
     </ContentBody>
-    <NLPageLoader :isLoading="pageIsLoading"></NLPageLoader>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import Form from 'vform'
-import NLPageLoader from '../../components/NLPageLoader'
 export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],
-    components: {
-        NLPageLoader
-    },
     data() {
         return {
             form: new Form({
@@ -113,13 +108,13 @@ export default {
             campaignsList: [],
             controllersList: [],
             cdcModalIsOpen: false,
-            pageIsLoading: true,
         }
     },
     computed: {
         ...mapGetters({
             config: 'missions/config',
-            mission: 'missions/current'
+            mission: 'missions/current',
+            pageLoadingState: 'settings/pageIsLoading',
         }),
         canBeEdited() {
             return this.mission.current.remaining_days_before_start > 5
@@ -134,7 +129,7 @@ export default {
          * Initialise les données
          */
         initData() {
-            this.pageIsLoading = true
+            this.$store.dispatch('settings/updatePageLoading', true)
             this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId, edit: true }).then(() => {
                 if (this.canBeEdited) {
                     this.$store.dispatch('missions/fetchConfig', this.mission.current.campaign.id).then(() => {
@@ -151,7 +146,7 @@ export default {
                 } else {
                     this.$swal.alert_error('Vous ne pouvez plus modifier cette mission car le temps restant avant le début de l\'execution de cette dernière est écoulé')
                 }
-                this.pageIsLoading = false
+                this.$store.dispatch('settings/updatePageLoading', false)
             }).catch(error => {
                 this.$swal.alert_error(error)
             })

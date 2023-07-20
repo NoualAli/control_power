@@ -94,14 +94,9 @@
 </template>
 
 <script>
-import ContentHeader from '../../components/ContentHeader'
-import NLSelect from '../../components/Inputs/NLSelect'
 import { mapGetters } from 'vuex'
 import Form from 'vform'
 export default {
-    components: {
-        ContentHeader, NLSelect
-    },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     data() {
@@ -120,12 +115,12 @@ export default {
             controllersList: [],
             agenciesList: [],
             cdcModalIsOpen: false,
-            currentCampaignReference: null
+            currentCampaignReference: null,
         }
     },
     computed: {
         ...mapGetters({
-            config: 'missions/config'
+            config: 'missions/config',
         }),
     },
     watch: {
@@ -145,14 +140,12 @@ export default {
     created() {
         this.initData()
     },
-    mounted() {
-        this.initData()
-    },
     methods: {
         /**
          * Initialise les données
          */
         initData() {
+            this.$store.dispatch('settings/updatePageLoading', true)
             if (this.$route.params.campaignId) {
                 this.form.control_campaign_id = this.$route.params.campaignId
                 this.campaignId = this.$route.params.campaignId
@@ -171,6 +164,7 @@ export default {
                     this.$breadcrumbs.value[ length - 1 ].lable = 'Répartition des missions de contrôle de la campagne ' + this.currentCampaignReference
                     this.$breadcrumbs.value[ length - 1 ].parent = 'campaign'
                 }
+                this.$store.dispatch('settings/updatePageLoading', false)
             })
         },
         resetForm() {
