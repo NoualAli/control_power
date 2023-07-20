@@ -41,14 +41,14 @@ class MissionReminder extends Command
         try {
             if ($this->argument('id')) {
                 $mission =  Mission::find($this->argument('id'));
-                $controllers = $mission->agencyControllers;
+                $controllers = $mission->dreControllers;
                 foreach ($controllers as $controller) {
                     Notification::send($controller, new Reminder($mission));
                 }
             } else {
                 $missions =  Mission::all()->filter(fn ($mission) => $mission->remaining_days_before_start <= 5);
                 foreach ($missions as $mission) {
-                    $controllers = $mission->agencyControllers;
+                    $controllers = $mission->dreControllers;
                     foreach ($controllers as $controller) {
                         Notification::send($controller, new Reminder($mission));
                     }

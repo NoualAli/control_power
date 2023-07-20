@@ -22,16 +22,18 @@ class MissionDetail extends BaseModel
     public $fillable = [
         'control_point_id',
         'mission_id',
-        'report',
+        'ci_report',
+        'cdc_report',
         'recovery_plan',
         'score',
         'major_fact',
         'metadata',
-        'executed_at',
-        'processed_at',
-        'validated_at',
+        'assigned_to_ci_id',
+        'assigned_to_cc_id',
+        'controlled_by_ci_id',
+        'controlled_by_cc_id',
+        'controlled_at',
         'major_fact_dispatched_at',
-        'regularization_id',
     ];
 
     protected $filter = 'App\Filters\MissionDetail';
@@ -42,28 +44,51 @@ class MissionDetail extends BaseModel
 
     public $casts = [
         'metadata' => 'object',
-        'executed_at' => 'datetime:d-m-Y H:i',
+        'controlled_at' => 'datetime:d-m-Y H:i',
         'processed_at' => 'datetime:d-m-Y H:i',
+        'major_fact_dispatched_at' => 'datetime:d-m-Y H:i',
         'major_fact' => 'boolean'
     ];
 
     public $appends = [
         'appreciation',
         'parsed_metadata',
-        'major_fact_str'
+        'major_fact_str',
+        'score_tag',
+        'report'
     ];
 
     /**
      * Getters
      */
+    public function getReportAttribute()
+    {
+        if (hasRole('ci')) {
+            $column = 'ci_report';
+        } elseif (hasRole('cdc')) {
+            $column = $this->cdc_report ? 'cdc_report' : 'ci_report';
+        } else {
+            if ($this->cdc_report) {
+                $column = 'cdc_report';
+            } else {
+                $column = 'ci_report';
+            }
+        }
+        return $this->$column;
+    }
+
+    public function getIsAssignedToCcAttribute()
+    {
+        return boolval($this->assigned_to_cc_id);
+    }
+
     public function getIsRegularizedAttribute()
     {
         return $this->regularization?->regularized_at ? 'Levée' : 'Non levée';
-        // return $query->whereHas('regularization', fn ($regularization) => $regularization->whereNotNull('regularized_at'));
     }
-    public function getExecutedAtAttribute($executed_at)
+    public function getExecutedAtAttribute($controlled_at)
     {
-        return $executed_at ? Carbon::parse($executed_at)->format('d-m-Y H:i') : '-';
+        return $controlled_at ? Carbon::parse($controlled_at)->format('d-m-Y H:i') : '-';
     }
     public function getProcessedAtAttribute($processed_at)
     {
@@ -73,6 +98,35 @@ class MissionDetail extends BaseModel
     {
         $score = collect($this->controlPoint?->scores)->filter(fn ($score) => $score[0]->score == $this->score)->first();
         return isset($score[1]) ? $score[1]->label : null;
+    }
+
+    public function getIsControlledAttribute()
+    {
+        return boolval($this->controlled_at);
+        // return boolval($this->controlled_at) && boolval($this->controlled_by_ci_id);
+    }
+
+    public function getIsDispatchedAttribute()
+    {
+        return boolval($this->major_fact_dispatched_at);
+    }
+
+    public function getScoreTagAttribute()
+    {
+        $score = intval($this->score);
+        if ($score === 1) {
+            $style = 'is-success';
+        } else if ($score === 2) {
+            $style = 'is-info';
+        } else if ($score === 3) {
+            $style = 'is-warning';
+        } else if ($score === 4) {
+            $style = 'is-danger';
+        } else {
+            $style = 'is-grey';
+        }
+
+        return '<div class="tag ' . $style . '">' . $score . '</div>';
     }
 
     public function getParsedMetadataAttribute()
@@ -101,10 +155,6 @@ class MissionDetail extends BaseModel
     public function mission()
     {
         return $this->belongsTo(Mission::class);
-    }
-    public function reports()
-    {
-        return $this->hasMany(MissionReport::class, 'mission_id', 'mission_id');
     }
     public function familly()
     {
@@ -138,6 +188,23 @@ class MissionDetail extends BaseModel
         return $this->belongsTo(Regularization::class);
     }
 
+    public function controller(string $type)
+    {
+        if ($type == 'cc') {
+            return $this->belongsTo(User::class, 'assigned_to_cc_id');
+        } elseif ($type == 'ci') {
+            return $this->belongsTo(User::class, 'assigned_to_ci_id');
+        } else {
+            abort(500, "Le $type est un type inconnu.");
+        }
+    }
+
+    public function dcpController()
+    {
+        // dd($this->controller('cc'));
+        return $this->controller('cc');
+    }
+
 
     /**
      * Scopes
@@ -153,6 +220,121 @@ class MissionDetail extends BaseModel
     {
         return $query->where('major_fact', true);
     }
+
+    /**
+     * Get validated
+     *
+     * @param Builder $query
+     *
+     * @return Builder
+     */
+    public function scopeValidated(Builder $query)
+    {
+        return $query->whereNotNull('validated_at');
+    }
+
+    /**
+     * Get controlled
+     *
+     * @param Builder $query
+     *
+     * @return Builder
+     */
+    public function scopeControlled(Builder $query)
+    {
+        // return $query->whereNotNull('controlled_at')->whereNotNull('controlled_by_ci_id');
+        return $query->whereNotNull('controlled_at');
+    }
+
+    /**
+     * Get uncontrolled
+     *
+     * @param Builder $query
+     *
+     * @return Builder
+     */
+    public function scopeUnControlled(Builder $query)
+    {
+        return $query->whereNull('controlled_at')->whereNull('controlled_by_ci_id');
+    }
+
+    /**
+     * Get processed
+     *
+     * @param Builder $query
+     *
+     * @return Builder
+     */
+    public function scopeProcessed(Builder $query)
+    {
+        return $query->whereNotNull('processed_at');
+    }
+
+    /**
+     * Get where has ci validation
+     *
+     * @param Builder $query
+     *
+     * @return Builder
+     */
+    public function scopeHasCiValidation(Builder $query)
+    {
+        return $query->whereRelation('mission', 'ci_validation_at', '!=', null)->whereRelation('mission', 'ci_validation_by_id', '!=', null);
+    }
+
+    public function scopeHasCdcValidation(Builder $query)
+    {
+        return $query->whereRelation('mission', 'cdc_validation_at', '!=', null)->whereRelation('mission', 'cdc_validation_by_id', '!=', null);
+    }
+
+    /**
+     * Get where has cdc validation
+     *
+     * @param Builder $query
+     *
+     * @return Builder
+     */
+    public function scopeHasCdcrValidation(Builder $query)
+    {
+        return $query->whereRelation('mission', 'cdcr_validation_at', '!=', null)->whereRelation('mission', 'cdcr_validation_by_id', '!=', null);
+    }
+
+    /**
+     * Get where has dcp validation
+     *
+     * @param Builder $query
+     *
+     * @return Builder
+     */
+    public function scopeHasDcpValidation(Builder $query)
+    {
+        return $query->whereRelation('mission', 'dcp_validation_at', '!=', null)->whereRelation('mission', 'dcp_validation_by_id', '!=', null);
+    }
+
+    /**
+     * Get only anomalies
+     *
+     * @param Builder $query
+     *
+     * @return Builder
+     */
+    public function scopeWhereAnomaly(Builder $query)
+    {
+        return $query->whereIn('score', [2, 3, 4, '2', '3', '4']);
+    }
+
+    /**
+     * Get details without major facts
+     *
+     * @param Builder $query
+     *
+     * @return Builder
+     */
+    public function scopeWithoutMajorFacts(Builder $query)
+    {
+        return $query->where('major_fact', false);
+    }
+
     /**
      * Get major facts
      *
@@ -175,100 +357,6 @@ class MissionDetail extends BaseModel
     {
         return $query->onlyMajorFacts()->where('major_fact_dispatched_at', '!=', null);
     }
-    /**
-     * Get validated
-     *
-     * @param Builder $query
-     *
-     * @return Builder
-     */
-    public function scopeValidated(Builder $query)
-    {
-        return $query->whereNotNull('validated_at');
-    }
-    /**
-     * Get mission report validated
-     *
-     * @param Builder $query
-     *
-     * @return Builder
-     */
-    public function scopeDreReportValidated(Builder $query, ?string $type = 'Rapport')
-    {
-        return $query->whereRelation('reports', function ($report) use ($type) {
-            return $report->where('type', $type)->where('validated_at', '!=', null);
-        });
-    }
-    /**
-     * Get mission report validated
-     *
-     * @param Builder $query
-     *
-     * @return Builder
-     */
-    public function scopeOpinionValidated(Builder $query)
-    {
-        return $query->whereRelation('reports', 'mission_reports.validated_at', '!=', null);
-    }
-
-    /**
-     * Get executed
-     *
-     * @param Builder $query
-     *
-     * @return Builder
-     */
-    public function scopeExecuted(Builder $query)
-    {
-        return $query->whereNotNull('executed_at');
-    }
-    /**
-     * Get processed
-     *
-     * @param Builder $query
-     *
-     * @return Builder
-     */
-    public function scopeProcessed(Builder $query)
-    {
-        return $query->whereNotNull('processed_at');
-    }
-
-    public function scopeHasCdcValidation(Builder $query)
-    {
-        return $query->whereRelation('reports', function ($report) {
-            return $report->where('type', 'Rapport')->where('validated_at', '!=', null);
-        });
-    }
-
-    /**
-     * Get where has cdcr validation
-     *
-     * @param Builder $query
-     *
-     * @return Builder
-     */
-    public function scopeHasCdcrValidation(Builder $query)
-    {
-        return $query->whereRelation('mission', 'cdcr_validation_at', '!=', null);
-    }
-
-    /**
-     * Get where has dcp validation
-     *
-     * @param Builder $query
-     *
-     * @return Builder
-     */
-    public function scopeHasDcpValidation(Builder $query)
-    {
-        return $query->whereRelation('mission', 'dcp_validation_at', '!=', null);
-    }
-
-    public function scopeWhereAnomaly(Builder $query)
-    {
-        return $query->whereIn('score', ['2', '3', '4']);
-    }
 
     public function scopeOnlyUnregularized($query)
     {
@@ -278,5 +366,31 @@ class MissionDetail extends BaseModel
     public function scopeOnlyRegularized($query)
     {
         return $query->whereHas('regularization', fn ($regularization) => $regularization->whereNotNull('regularized_at'));
+    }
+
+    public function scopeNotDispatched($query, ?string $type = null)
+    {
+        if ($type == 'cc') {
+            return $query->whereNull('assigned_to_cc_id');
+        } elseif ($type == 'ci') {
+            return $query->whereNull('assigned_to_ci_id');
+        } else {
+            return $query->whereNull('assigned_to_cc_id')->whereNull('assigned_to_ci_id');
+        }
+    }
+
+    // public function scopeWithControllers($query, ?string $type = null){
+
+    // }
+
+    public function scopeDispatched($query, ?string $type = null)
+    {
+        if ($type == 'cc') {
+            return $query->whereNotNull('assigned_to_cc_id');
+        } elseif ($type == 'ci') {
+            return $query->whereNotNull('assigned_to_ci_id');
+        } else {
+            return $query->whereNotNull('assigned_to_cc_id')->whereNotNull('assigned_to_ci_id');
+        }
     }
 }

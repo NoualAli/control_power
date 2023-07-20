@@ -52,7 +52,12 @@ export default {
             return 'col-lg-' + this.lg
         },
         finalStyle() {
-            return `${this.smPrefixed} ${this.mdPrefixed} ${this.lgPrefixed} ${this.extraClass}`
+            let finalStyle = `${this.smPrefixed} ${this.mdPrefixed} ${this.lgPrefixed}`
+            if (this.extraClass) {
+                finalStyle += ' ' + this.extraClass
+            }
+
+            return finalStyle
         }
     }
 }

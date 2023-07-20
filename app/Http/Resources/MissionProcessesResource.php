@@ -2,8 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Models\details;
-use App\Models\MissionDetail;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class MissionProcessesResource extends JsonResource
@@ -16,59 +14,20 @@ class MissionProcessesResource extends JsonResource
      */
     public function toArray($request)
     {
-        // $processId = $this->id;
-        // $details = MissionDetail::whereRelation('process', 'processes.id', $processId)->whereRelation('mission', 'missions.id', request()->mission->id);
-        // $totalDetails = $details->count();
-        // $detailsCollection = $details->get();
-        // $controlPoints = $detailsCollection->pluck('controlPoint');
-        // $data =  [
-        //     'id' => $this->id,
-        //     'familly' => $this->familly->name,
-        //     'domain' => $this->domain->name,
-        //     'name' => $this->name,
-        //     'controlPoints' => $controlPoints,
-        //     'control_points_count' => $controlPoints->count(),
-        //     'progress_status' => $this->calculateProgress($detailsCollection, $totalDetails),
-        //     'avg_score' => $this->calculateAvgScore($details),
-        //     'executed_at' => $this->executedAt($detailsCollection, $totalDetails),
-        // ];
         $data =  [
             'id' => $this->process_id,
             'familly' => $this->family,
             'domain' => $this->domain,
             'name' => $this->process,
-            'controlPoints' => [],
             'control_points_count' => $this->control_points_count,
-            'progress_status' => intval($this->progress_status),
+            'progress_status' => number_format($this->progress_status, 0, ''),
             'avg_score' => intval($this->avg_score),
-            'executed_at' => $this->executed_at,
+            'controlled_at' => $this->controlled_at,
         ];
-        // if (isAbleTo(['process_mission', 'assign_mission_processing'])) $data['processed_at'] = $this->processedAt($detailsCollection, $totalDetails);
+        if (hasRole(['ci', 'cdc'])) {
+            unset($data['avg_score']);
+        }
+
         return $data;
-    }
-
-    private function executedAt($details, $totalDetails)
-    {
-        $totalExecuted = $details->filter(fn ($detail) => $detail->executed_at !== null)->count();
-        $detail = $details->first();
-        return $totalDetails == $totalExecuted ? $detail?->executed_at : '-';
-    }
-
-    private function processedAt($details, $totalDetails)
-    {
-        $totalProcessed = $details->filter(fn ($detail) => $detail->processed_at !== null)->count();
-        $detail = $details->first();
-        return $totalDetails == $totalProcessed ? $detail?->processed_at : '-';
-    }
-
-    private function calculateAvgScore($details)
-    {
-        return addZero(intVal($details->executed()->avg('score')));
-    }
-
-    private function calculateProgress($details, $totalDetails)
-    {
-        $totalFinishedDetails = $details->filter(fn ($detail) => $detail->score !== null)->count();
-        return number_format($totalFinishedDetails * 100 / $totalDetails);
     }
 }

@@ -10,6 +10,16 @@ export const helpersMixin = {
         },
     },
     methods: {
+        addDays(startingDay, days) {
+            // Set the starting day
+            var startingDay = new Date(startingDay);
+
+            // Add 15 days to the starting day
+            var fifteenDaysLater = new Date(startingDay.getTime() + (days * 24 * 60 * 60 * 1000));
+
+            // Format the date as desired (e.g., YYYY-MM-DD)
+            return fifteenDaysLater.toISOString().split('T')[ 0 ];
+        },
         /**
          * Ask user to confirm page leaving
          *

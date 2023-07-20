@@ -9,16 +9,15 @@
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" title="Liste des catégories" urlPrefix="categories"
-                @edit="edit" @delete="destroy" />
+                @edit="edit" @delete="destroy" :key="forceReload"
+                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
         </ContentBody>
     </div>
 </template>
 
 <script>
-import NLDatatable from '../../../components/Datatable/NLDatatable'
 import api from '~/plugins/api'
 export default {
-    components: { NLDatatable },
     layout: 'MainLayout',
     middleware: [ 'auth', 'admin' ],
     metaInfo() {
@@ -26,7 +25,7 @@ export default {
     },
     data() {
         return {
-            reloadData: false,
+            forceReload: 1,
             columns: [
                 {
                     label: 'Nom',
@@ -49,6 +48,9 @@ export default {
             }
         }
     },
+    created() {
+        this.$store.dispatch('settings/updatePageLoading', true)
+    },
     methods: {
         /**
          * Redirige vers la page d'edition
@@ -67,7 +69,7 @@ export default {
                 if (action.isConfirmed) {
                     api.delete('categories/' + item.id).then(response => {
                         if (response.data.status) {
-                            this.initData()
+                            this.forceReload += 1
                             this.$swal.toast_success(response.data.message)
                         } else {
                             this.$swal.toast_error(response.data.message)
@@ -79,13 +81,6 @@ export default {
                 console.error(error)
             })
         },
-
-        /**
-         * Initialise les données
-         */
-        initData() {
-            this.reloadData = true
-        }
     }
 }
 </script>

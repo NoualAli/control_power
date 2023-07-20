@@ -302,6 +302,7 @@ export default {
          * Initialise les données
          */
         initData() {
+            this.$store.dispatch('settings/updatePageLoading', true)
             this.domainsList = []
             this.processesList = []
             this.loadFamillies()
@@ -313,6 +314,7 @@ export default {
         loadFamillies() {
             this.$store.dispatch('famillies/fetchAll', false).then(() => {
                 this.familliesList = this.famillies.all
+                this.$store.dispatch('settings/updatePageLoading', false)
             })
         },
         /**

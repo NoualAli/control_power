@@ -254,7 +254,7 @@ class DataController extends Controller
         $achievments = [];
         foreach ($missions as $dre => $missions) {
             $dre = $missions->first()->dre;
-            $totalAchieved = $dre->missions()->validated()->count();
+            $totalAchieved = $dre->missions()->hasCdcValidation()->count();
             $total = $dre->missions()->count();
             $rate = $total ? number_format(($totalAchieved * 100) / $total, 2) : 0;
             array_push($achievments, ['dre' => $dre->full_name, 'total' => $total, 'totalAchieved' => $totalAchieved, 'rate' => $rate]);
@@ -274,8 +274,8 @@ class DataController extends Controller
     private function missionsPercentage(): array
     {
         $missions = hasRole(['dcp', 'cdcr', 'dg']) ? new Mission : $this->getMissions();
-        $total = $missions->executed()->count();
-        $validated = $missions->validated()->count();
+        $total = $missions->with(['details', fn ($query) => $query->controlled()])->count();
+        $validated = $missions->hasCdcValidation()->count();
         $notValidated = ($total - $validated);
 
         $labels = ['Rapports validés', 'Rapports non validés'];
@@ -624,7 +624,7 @@ class DataController extends Controller
     private function getCampaigns()
     {
         $campaigns = new ControlCampaign;
-        // $campaigns = hasRole(['ci', 'cc']) ? auth()->user()->campaigns() : $campaigns->validated();
+        // $campaigns = hasRole(['ci', 'cc']) ? auth()->user()->campaigns() : $campaigns->hasCdcValidation();
         $campaigns = $campaigns->validated();
         return $campaigns;
     }
@@ -643,7 +643,7 @@ class DataController extends Controller
             // $details = $details->hasCdcrValidation();
         }
         // elseif (hasRole('cdcr')) {
-        //     $details = $details->dreReportValidated();
+        //     $details = $details->dreReporthasCdcValidation();
         // }
         elseif (hasRole(['cdc', 'cc', 'ci'])) {
             $details = $user->details();

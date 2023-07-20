@@ -26,7 +26,7 @@
             <!-- Table body -->
             <TableRow v-if="!hasData">
                 <!-- Showed if there are no data -->
-                <TableData :colspan="noDataColspan" :align="'center'">
+                <TableData :colspan="noDataColspan" :align="'center'" v-if="!isLoading">
                     {{ noDataText }}
                 </TableData>
             </TableRow>
@@ -314,7 +314,6 @@ export default {
                 queryString += `&search=${this.search}`
             }
             for (const key in this.sorting) {
-                console.log(this.sorting);
                 if (Object.hasOwnProperty.call(this.sorting, key)) {
                     const element = this.sorting[ key ];
                     queryString += `&sort[${key}]=${element}`

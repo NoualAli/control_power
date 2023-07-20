@@ -1,10 +1,10 @@
 <template>
-    <DefaultContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired" :length="length"
+    <InputContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired" :length="length"
         :current-length="currentLength" :help-text="helpText">
         <textarea :id="getId" :class="{ 'is-danger': form?.errors.has(name) }" class="input" :name="name"
             :autofocus="autofocus" :placeholder="placeholder || label" :value="modelValue" :readonly="readonly"
             :disabled="disabled" :maxlength="length" v-bind="$attrs" @input="onInput($event)" />
-    </DefaultContainer>
+    </InputContainer>
 </template>
 
 <script>

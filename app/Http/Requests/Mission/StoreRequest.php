@@ -5,6 +5,7 @@ namespace App\Http\Requests\Mission;
 use App\Rules\CanBeControlled;
 use App\Rules\IncludedInsideCDCDate;
 use App\Rules\IsAbleTo;
+use App\Rules\MissionDontExceedFifteenDays;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
@@ -26,15 +27,13 @@ class StoreRequest extends FormRequest
      */
     public function rules()
     {
-        // dd(request()->all());
         return [
             'agency' => ['required', 'exists:agencies,id', new CanBeControlled],
             'controllers' => ['required', 'array', new IsAbleTo('control_agency')],
-            'start' => ['required', 'date', new IncludedInsideCDCDate(request()->control_campaign_id)],
-            'end' => ['required', 'date', 'after:start', new IncludedInsideCDCDate(request()->control_campaign_id)],
+            'programmed_start' => ['required', 'date', new IncludedInsideCDCDate(request()->control_campaign_id)],
+            'programmed_end' => ['required', 'date', 'after:programmed_start', new IncludedInsideCDCDate(request()->control_campaign_id), new MissionDontExceedFifteenDays(request()->programmed_start)],
             'control_campaign_id' => ['required', 'exists:control_campaigns,id'],
             'note' => ['nullable', 'string', 'max:1000'],
-            'processMode' => ['nullable'],
         ];
     }
 }

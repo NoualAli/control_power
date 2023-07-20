@@ -1,11 +1,11 @@
 <template>
     <ContentBody>
-        <NLDatatable :columns="columns" title="Liste des notifications" urlPrefix="notifications" />
+        <NLDatatable :columns="columns" title="Liste des notifications" urlPrefix="notifications"
+            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
     </ContentBody>
 </template>
 
 <script>
-import NLDatatable from '../../components/Datatable/NLDatatable'
 import api from '../../plugins/api'
 export default {
     layout: 'MainLayout',
@@ -23,49 +23,76 @@ export default {
                     extraClass: {
                         td: (item) => {
                             return !item.read_at ? 'bg-primary-extra-light' : ''
-                        }
-                    },
-                },
+                            columns: [
+                                {
+                                    label: 'Titre',
+                                    field: 'title',
+                                    extraClass: {
+                                        td: (item) => {
+                                            return !item.read_at ? 'bg-primary-extra-light' : ''
+                                        }
+                                    },
+                                },
+                                {
+                                    label: 'Emis par',
+                                    field: 'emitted_by',
+                                    extraClass: {
+                                        td: (item) => {
+                                            return !item.read_at ? 'bg-primary-extra-light' : ''
+                                        },
                 {
-                    label: 'Emis par',
-                    field: 'emitted_by',
-                    extraClass: {
-                        td: (item) => {
-                            return !item.read_at ? 'bg-primary-extra-light' : ''
-                        }
-                    },
-                },
+                                    label: 'Emis par',
+                                    field: 'emitted_by',
+                                    extraClass: {
+                                        td: (item) => {
+                                            return !item.read_at ? 'bg-primary-extra-light' : ''
+                                        }
+                                    },
+                                },
+                                {
+                                    label: 'Contenu',
+                                    field: 'content',
+                                    extraClass: {
+                                        td: (item) => {
+                                            return !item.read_at ? 'bg-primary-extra-light' : ''
+                                        },
                 {
-                    label: 'Contenu',
-                    field: 'content',
-                    extraClass: {
-                        td: (item) => {
-                            return !item.read_at ? 'bg-primary-extra-light' : ''
-                        }
-                    },
-                },
+                                    label: 'Contenu',
+                                    field: 'content',
+                                    extraClass: {
+                                        td: (item) => {
+                                            return !item.read_at ? 'bg-primary-extra-light' : ''
+                                        }
+                                    },
+                                },
+                                {
+                                    label: 'Date',
+                                    field: 'created_at',
+                                    extraClass: {
+                                        td: (item) => {
+                                            return !item.read_at ? 'bg-primary-extra-light' : ''
+                                        },
                 {
-                    label: 'Date',
-                    field: 'created_at',
-                    extraClass: {
-                        td: (item) => {
-                            return !item.read_at ? 'bg-primary-extra-light' : ''
-                        }
-                    },
+                                    label: 'Date',
+                                    field: 'created_at',
+                                    extraClass: {
+                                        td: (item) => {
+                                            return !item.read_at ? 'bg-primary-extra-light' : ''
+                                        }
+                                    },
+                                },
                 }
             ],
             // actions: {
             //     show: {
             //         show: (item) => !!item.url,
-            //         apply: (item) => {
-            //             const { pathname, search } = new URL(item?.item?.url)
-            //             return this.$router.push({ path: pathname, query: Object.fromEntries(new URLSearchParams(search)) })
-            //         }
+            //         apply: (item) => this.show(item)
             //     },
             // },
         }
     },
     created() {
+        this.$store.dispatch('settings/updatePageLoading', true)
         this.markAsRead()
     },
     methods: {
@@ -76,6 +103,7 @@ export default {
          */
         show(item) {
             const { pathname, search } = new URL(item.url)
+            return this.$router.push({ path: pathname, query: Object.fromEntries(new URLSearchParams(search)) })
             return this.$router.push({ path: pathname, query: Object.fromEntries(new URLSearchParams(search)) })
         },
         /**

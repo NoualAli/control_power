@@ -88,7 +88,7 @@ class Updated extends Notification
             ->line($startLine)
             ->line($endLine)
             ->action('Voir la mission', $this->getUrl())
-            ->line('Merci d\'utiliser notre application')
+            ->line('Merci d\'utiliser PowerControl')
             ->success();
     }
 

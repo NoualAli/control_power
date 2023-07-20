@@ -1,15 +1,17 @@
 <template>
     <ContentBody>
         <NLDatatable :columns="columns" :details="details" :filters="filters" title="Références PCF"
-            urlPrefix="references/pcf" @action="handleActions" @show="handleActions" />
+            urlPrefix="references/pcf" @action="handleActions" @show="handleActions"
+            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
     </ContentBody>
 </template>
 <script>
-import NLDatatable from '../../components/Datatable/NLDatatable'
 export default {
-    components: { NLDatatable },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
+    created() {
+        this.$store.dispatch('settings/updatePageLoading', true)
+    },
     data() {
         return {
             columns: [

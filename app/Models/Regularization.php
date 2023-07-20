@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasMedia;
 use App\Traits\HasUuid;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Regularization extends BaseModel
 {
-    use HasFactory, HasUuid;
+    use HasFactory, HasUuid, HasMedia;
 
     protected $fillable = [
         'regularized_at',
@@ -29,6 +30,11 @@ class Regularization extends BaseModel
     public function getRegularizedAtAttribute($regularized_at)
     {
         return $regularized_at ? Carbon::parse($regularized_at)->format('d-m-Y') : null;
+    }
+
+    public function getIsRegularizedAttribute()
+    {
+        return boolval($this->regularized_at);
     }
 
     /**

@@ -18,14 +18,21 @@ class Validated extends Notification
     private $mission;
 
     /**
+     * @var string
+     */
+    private $type;
+
+    /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct(Mission $mission)
+    public function __construct(Mission $mission, $type)
     {
         $this->mission = $mission;
+        $this->type = $type;
     }
+
     /**
      * Get email body
      *
@@ -33,7 +40,28 @@ class Validated extends Notification
      */
     private function getContent(): string
     {
+
         $content = 'Mission ' . $this->mission->reference . ' a été réalisé';
+        switch ($this->type) {
+            case 'ci_report':
+                $content = 'La mission ' . $this->mission->reference . ' a été réalisée et validée par le Contrôleur itinérant' . auth()->user()->full_name;
+                break;
+            case 'cdc_report':
+                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Chef de Département Contrôle DRE ' . auth()->user()->full_name;
+                break;
+            case 'cc':
+                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Collaborateur ' . auth()->user()->full_name;
+                break;
+            case 'cdc':
+                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Chef de Département de Contrôle Réseau ' . auth()->user()->full_name;
+                break;
+            case 'dcp':
+                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Directeur du Contrôle Permanent ' . auth()->user()->full_name;
+                break;
+            default:
+                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par ' . auth()->user()->full_name;
+                break;
+        }
         return $content;
     }
 
@@ -44,7 +72,10 @@ class Validated extends Notification
      */
     private function getTitle(): string
     {
-        return 'Mission ' . $this->mission->reference . ' validée';
+        if ($this->type == 'ci_report') {
+            return 'Mission ' . $this->mission->reference . ' réalisée et validée par ' . auth()->user()->full_name;
+        }
+        return 'Mission ' . $this->mission->reference . ' vérifiée et validée par ' . auth()->user()->full_name;
     }
 
     /**
@@ -83,7 +114,7 @@ class Validated extends Notification
             ->line($this->getContent())
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
             ->action('Voir la mission', url('/missions/' . $this->mission->id))
-            ->line('Merci d\'utiliser notre application!')
+            ->line('Merci d\'utiliser PowerControl!')
             ->success();
     }
 

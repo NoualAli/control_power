@@ -11,10 +11,10 @@
 
 <script>
 
-import DefaultContainer from './DefaultContainer'
+import InputContainer from './InputContainer'
 export default {
   name: 'NLCheckableContainer',
-  components: { DefaultContainer },
+  components: { InputContainer },
   props: {
     form: { type: Object, required: false },
     name: { type: String },

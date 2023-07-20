@@ -92,7 +92,7 @@ class Regularized extends Notification
             ->lines($this->getContent(true))
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
             ->action('Voir le point de contrôle', $this->getUrl())
-            ->line('Merci d\'utiliser notre application!')
+            ->line('Merci d\'utiliser PowerControl!')
             ->success();
     }
 

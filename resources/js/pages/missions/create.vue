@@ -9,45 +9,47 @@
             </template>
         </ContentHeader>
         <form @submit.prevent="create" @keydown="form.onKeydown($event)">
-            <div class="grid my-2">
+            <NLGrid>
                 <!-- Control campaigns -->
-                <div v-if="!campaignId" class="col-12 col-lg-6">
+                <NLColumn v-if="!campaignId" lg="6">
                     <NLSelect v-model="form.control_campaign_id" name="control_campaign_id" label="Campagne de contrôle"
                         placeholder="Veuillez choisir une campagne de contrôle" :options="campaignsList" :form="form"
                         label-required />
-                </div>
-                <div v-else class="col-12 col-lg-6">
+                </NLColumn>
+                <NLColumn v-else lg="6">
                     <NLInput v-model="currentCampaignReference" name="campaign" label="Campagne de contrôle" readonly />
-                </div>
+                </NLColumn>
                 <!-- Agencies -->
-                <div class="col-12 col-lg-6">
+                <NLColumn lg="6">
                     <NLSelect v-model="form.agency" name="agency" label="Agence" placeholder="Veuillez choisir une agence"
                         :options="agenciesList" :form="form" label-required />
-                </div>
+                </NLColumn>
 
                 <!-- Controllers -->
-                <div class="col-12">
+                <NLColumn>
                     <NLSelect v-model="form.controllers" name="controllers" label="Contrôleurs"
                         placeholder="Veuillez choisir un ou plusieurs contrôleurs" :options="controllersList" :form="form"
                         label-required :multiple="true" loading-text="Chargement de la liste des contrôleurs en cours"
                         no-options-text="Vous n'avez aucun contrôleur de disponible pour le moment" />
-                </div>
+                </NLColumn>
 
                 <!-- Start date -->
-                <div class="col-12 col-lg-6 col-tablet-6">
-                    <NLInput v-model="form.start" :form="form" name="start" label="Date début" type="date" label-required />
-                </div>
+                <NLColumn lg="6" md="6">
+                    <NLInput v-model="form.programmed_start" :form="form" name="programmed_start" label="Date début"
+                        type="date" label-required />
+                </NLColumn>
 
                 <!-- End date -->
-                <div class="col-12 col-lg-6 col-tablet-6">
-                    <NLInput v-model="form.end" :form="form" name="end" label="Date fin" type="date" label-required />
-                </div>
+                <NLColumn lg="6" md="6">
+                    <NLInput v-model="form.programmed_end" :form="form" name="programmed_end" label="Date fin" type="date"
+                        label-required />
+                </NLColumn>
 
                 <!-- Note -->
-                <div class="col-12">
+                <NLColumn>
                     <NLWyswyg v-model="form.note" :form="form" name="note" label="Note" placeholder="Ajouter une note" />
-                </div>
-            </div>
+                </NLColumn>
+            </NLGrid>
 
             <!-- Submit Button -->
             <div class="d-flex justify-end align-center">
@@ -92,14 +94,9 @@
 </template>
 
 <script>
-import ContentHeader from '../../components/ContentHeader'
-import NLSelect from '../../components/Inputs/NLSelect'
 import { mapGetters } from 'vuex'
 import Form from 'vform'
 export default {
-    components: {
-        ContentHeader, NLSelect
-    },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     data() {
@@ -118,15 +115,20 @@ export default {
             controllersList: [],
             agenciesList: [],
             cdcModalIsOpen: false,
-            currentCampaignReference: null
+            currentCampaignReference: null,
         }
     },
-    computed: mapGetters({
-        config: 'missions/config'
-    }),
+    computed: {
+        ...mapGetters({
+            config: 'missions/config',
+        }),
+    },
     watch: {
         'form.control_campaign_id': function (newVal, oldVal) {
             if (newVal !== oldVal && newVal !== null && newVal !== undefined) this.initData()
+        },
+        'form.programmed_start': function (newVal, oldVal) {
+            if (newVal !== oldVal && newVal) this.form.programmed_end = this.addDays(newVal, 15)
         },
         currentCampaignReference: function (newVal, oldVal) {
             if (newVal !== oldVal) {
@@ -138,14 +140,12 @@ export default {
     created() {
         this.initData()
     },
-    mounted() {
-        this.initData()
-    },
     methods: {
         /**
          * Initialise les données
          */
         initData() {
+            this.$store.dispatch('settings/updatePageLoading', true)
             if (this.$route.params.campaignId) {
                 this.form.control_campaign_id = this.$route.params.campaignId
                 this.campaignId = this.$route.params.campaignId
@@ -155,18 +155,22 @@ export default {
                 this.controllersList = this.config?.config.controllers
                 this.campaignsList = this.config?.config.campaigns
                 this.currentCampaign = this.config?.config.currentCampaign
+                this.form.programmed_start = this.currentCampaign.start.split('-').reverse().join('-')
+                this.form.programmed_end = this.addDays(this.form.programmed_start, 15)
+                this.form.control_campaign_id = this.currentCampaign?.id
                 this.currentCampaignReference = this.config?.config.currentCampaign.reference
                 const length = this.$breadcrumbs.value.length
                 if (this.$breadcrumbs.value[ length - 1 ].lable === 'Répartition des missions de contrôle de la campagne') {
                     this.$breadcrumbs.value[ length - 1 ].lable = 'Répartition des missions de contrôle de la campagne ' + this.currentCampaignReference
                     this.$breadcrumbs.value[ length - 1 ].parent = 'campaign'
                 }
+                this.$store.dispatch('settings/updatePageLoading', false)
             })
         },
         resetForm() {
             this.form.note = null
-            this.form.start = null
-            this.form.end = null
+            this.form.programmed_start = null
+            this.form.programmed_end = null
             this.form.agency = null
             this.form.controllers = null
         },

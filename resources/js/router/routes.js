@@ -200,7 +200,7 @@ export default [
         component: page('admin/agencies/index.vue'),
         meta: {
             breadcrumb: {
-                label: 'Agence'
+                label: 'Agences'
 
             }
         }
@@ -521,17 +521,17 @@ export default [
             }
         }
     },
-    {
-        path: '/missions/:missionId/execute/:processId?',
-        name: 'mission-details-execute',
-        component: page('missions/execute.vue'),
-        meta: {
-            breadcrumb: {
-                parent: 'mission',
-                label: 'Exécution de la mission'
-            }
-        }
-    },
+    // {
+    //     path: '/missions/:missionId/execute/:processId?',
+    //     name: 'mission-details-execute',
+    //     component: page('missions/execute.vue'),
+    //     meta: {
+    //         breadcrumb: {
+    //             parent: 'mission',
+    //             label: 'Exécution de la mission'
+    //         }
+    //     }
+    // },
 
     /**
      * Global

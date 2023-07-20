@@ -10,25 +10,21 @@
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" :filters="filters"
-                title="Suivi des réalisations des missions" urlPrefix="missions" />
+                title="Suivi des réalisations des missions" urlPrefix="missions" :key="forceReload"
+                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
         </ContentBody>
     </div>
 </template>
 
 <script>
-import ContentHeader from '../../components/ContentHeader'
-import ContentBody from '../../components/ContentBody'
 import { mapGetters } from 'vuex'
 import { hasRole } from '../../plugins/user'
-import NLDatatable from '../../components/Datatable/NLDatatable'
 export default {
-    components: {
-        ContentHeader, ContentBody, NLDatatable
-    },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     data() {
         return {
+            forceReload: 1,
             campaignId: null,
             columns: [
                 {
@@ -69,6 +65,7 @@ export default {
                     field: 'avg_score',
                     hide: hasRole([ 'cdc', 'ci' ]),
                     isHtml: true,
+                    align: 'center',
                     methods: {
                         showField(item) {
                             const score = Number(item.avg_score)
@@ -94,6 +91,7 @@ export default {
                     label: 'État',
                     field: 'state',
                     isHtml: true,
+                    align: 'center',
                     methods: {
                         showField(item) {
                             let state = 'done'
@@ -123,6 +121,7 @@ export default {
                 {
                     label: 'Taux de progression',
                     field: 'progress_status',
+                    align: 'center',
                     methods: {
                         showField(item) {
                             return item.progress_status + '%'
@@ -136,9 +135,9 @@ export default {
                         if (hasRole([ 'cdc', 'ci' ])) {
                             return this.can('view_mission')
                         } else if (hasRole([ 'dcp', 'cdcr' ])) {
-                            return this.can('view_mission') && item.progress_status.toString() === '100' && item?.dre_report?.is_validated
+                            return this.can('view_mission') && item.progress_status.toString() === '100' && item?.is_validated_by_cdc
                         } else if (hasRole([ 'da', 'dg', 'cdrcp', 'ig', 'der' ])) {
-                            return this.can('view_mission') && item.progress_status.toString() === '100' && item?.dcp_validation_at
+                            return this.can('view_mission') && item.progress_status.toString() === '100' && item?.is_validated_by_dcp
                         } else {
                             return this.can('view_mission') && item.progress_status.toString() === '100'
                         }
@@ -213,15 +212,23 @@ export default {
     computed: mapGetters({
         campaign: 'campaigns/current',
     }),
+    created() {
+        this.initData()
+    },
     methods: {
         initData() {
+            this.$store.dispatch('settings/updatePageLoading', true)
+            console.log(this.$store.getters[ 'settings/pageIsLoading' ]);
             const length = this.$breadcrumbs.value.length
             if (this.$route.params.campaignId) {
                 this.$store.dispatch('campaigns/fetch', { campaignId: this.$route.params.campaignId }).then((data) => {
                     if (this.$breadcrumbs.value[ length - 2 ].label === 'Détails campagne') {
                         this.$breadcrumbs.value[ length - 2 ].label = 'Détails campagne ' + data.reference
                     }
+                    // this.$store.dispatch('settings/updatePageLoading', false)
                 })
+            } else {
+                // this.$store.dispatch('settings/updatePageLoading', false)
             }
         },
         show(e) {
@@ -233,6 +240,7 @@ export default {
         destroy(e) {
             return this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
+                    this.forceReload += 1
                     return this.$api.delete('missions/' + e.item.id)
                 }
             })

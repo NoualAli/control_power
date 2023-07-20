@@ -11,7 +11,6 @@ $container-shadows: 0 0 .5em -0.125rem rgb(10 10 10 / 10%), 0 0 0 1px rgb(10 10 
 $td-padding: 1rem 1rem
 $th-padding: 1rem
 $table-align: center
-$table-radius: 6px
 $table-border: none
 
 $tr-border: 1px solid $grey
@@ -162,7 +161,7 @@ table
 @media (min-width: $desktop)
     table
         position: relative
-        // border-radius: $table-radius
+        // border-radius: $normal-border-radius
         // box-shadow: $table-shadows
         & td, & th
             vertical-align: middle
@@ -182,10 +181,10 @@ table
             box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4)
             font-weight: $th-fw
             &:first-child
-                border-top-left-radius: $table-radius
+                border-top-left-radius: $normal-border-radius
                 border: none !important
             &:last-child
-                border-top-right-radius: $table-radius
+                border-top-right-radius: $normal-border-radius
             &.details_row-th,&.bulk-delete-th, &.bulck-delete-th > & .container
                 width: 30px !important
                 max-width: 30px !important

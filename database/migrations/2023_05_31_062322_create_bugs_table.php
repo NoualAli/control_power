@@ -20,8 +20,13 @@
                 $table->tinyInteger('priority');
                 $table->text('description');
                 $table->foreignId('created_by_id');
-                $table->timestamp('fixed_at', 7)->nullable();
-                $table->timestamps(7);
+                if (env('DB_CONNECTION') == 'mysql') {
+                    $table->timestamp('fixed_at')->nullable();
+                    $table->timestamps();
+                } else {
+                    $table->timestamp('fixed_at', 7)->nullable();
+                    $table->timestamps(7);
+                }
 
                 $table->foreign('created_by_id')->on('users')->references('id')->onDelete('cascade')->onUpdate('cascade');
             });

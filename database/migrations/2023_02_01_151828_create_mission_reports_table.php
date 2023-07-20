@@ -20,9 +20,15 @@ class CreateMissionReportsTable extends Migration
             $table->text('content');
             $table->foreignUuid('mission_id');
             $table->foreignId('created_by_id')->constrained('users');
-            $table->timestamp('validated_at', 7)->nullable();
-            $table->timestamps(7);
-            $table->softDeletes('deleted_at', 7);
+            if (env('DB_CONNECTION') == 'mysql') {
+                $table->timestamp('validated_at')->nullable();
+                $table->timestamps();
+                $table->softDeletes();
+            } else {
+                $table->timestamp('validated_at', 7)->nullable();
+                $table->timestamps(7);
+                $table->softDeletes('deleted_at', 7);
+            }
 
             $table->foreign('mission_id')->on('missions')->references('id')->onDelete('cascade')->onUpdate('cascade');
             //$table->foreign('created_by_id')->on('users')->references('id')->onDelete('cascade')->onUpdate('cascade');

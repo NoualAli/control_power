@@ -1,5 +1,5 @@
 <template>
-    <DefaultContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired" :length="length"
+    <InputContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired" :length="length"
         :current-length="currentLength" :help-text="helpText">
         <div class="input-container" :class="{ 'is-password-input': type == 'password' }">
             <input :id="getId" :maxlength="length"
@@ -12,15 +12,15 @@
                 <i class="las text-small" :class="eyeIcon" />
             </div>
         </div>
-    </DefaultContainer>
+    </InputContainer>
 </template>
 
 <script>
 
-import DefaultContainer from './DefaultContainer'
+import InputContainer from './InputContainer'
 export default {
     name: 'NLInput',
-    components: { DefaultContainer },
+    components: { InputContainer },
     props: {
         form: { type: Object, required: false, default: null },
         autocomplete: { type: String, default: 'off' },

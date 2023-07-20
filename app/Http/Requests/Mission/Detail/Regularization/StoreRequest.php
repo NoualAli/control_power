@@ -24,8 +24,8 @@ class StoreRequest extends FormRequest
      */
     public function rules()
     {
-        $isActionToBeTaken = request()->type == 'Action à engagée' && !request()->id && request()->reason == null;
-        $isReason = request()->type == 'Cause' && !request()->id && request()->action_to_be_taken == null;
+        // $isActionToBeTaken = request()->type == 'Action à engagée' && !request()->id && request()->reason == null;
+        // $isReason = request()->type == 'Cause' && !request()->id && request()->action_to_be_taken == null;
         $regularized = boolval(request()->regularized);
         if ($regularized) {
             return [

@@ -1,5 +1,5 @@
 <template>
-    <DefaultContainer :id="getId" :name="name" :form="form" :label="label" :label-required="labelRequired"
+    <InputContainer :id="getId" :name="name" :form="form" :label="label" :label-required="labelRequired"
         :help-text="helpText">
         <input v-if="!readonly" :id="getId" type="file" :name="name" :multiple="multiple" :accept="accept"
             class="file-input" @change="onChange($event)">
@@ -9,14 +9,16 @@
             <p v-if="!inProgress && !readonly" class="text-medium file-uploader">
                 {{ placeholder }} <i class="las la-cloud-upload-alt text-large" />
             </p>
-            <p v-else-if="inProgress && !readonly" class="text-medium file-uploader">
-                <i class="las la-spinner la-spin text-large" /> {{ loadingText }}{{ progress }} %
+            <p v-if="inProgress" class="text-medium file-uploader">
+                <i class="las la-spinner la-spin text-large" /> {{ visibleLoadingText }}{{ progress }}
+                <span v-if="progress">%</span>
             </p>
             <div class="files-list list text-medium" @click.stop="(e) => e.stopPropagation()">
                 <div v-for="(file, index) in getFilesList" :key="name + '-' + index" class="list-item my-1">
                     <div class="grid gap-4 list-item-content" @click.stop="">
                         <div class="col-11 d-flex justify-between align-center">
                             <a :href="file.link" target="_blank" class="text-dark">
+                                <i class="icon" :class="file.icon"></i>
                                 {{ file.name }}
                             </a>
                             <span>{{ file.size }}</span>
@@ -25,21 +27,21 @@
                             <a :href="file.link" :download="file.name">
                                 <i class="las la-download text-info icon" />
                             </a>
-                            <i v-if="canDelete && !readonly" class="las la-trash text-danger icon is-clickable"
+                            <i v-if="canDelete && !readonly && isOwner" class="las la-trash text-danger icon is-clickable"
                                 @click.stop="deleteItem(file, index)" />
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </DefaultContainer>
+    </InputContainer>
 </template>
 
 <script>
-import DefaultContainer from './DefaultContainer'
+import InputContainer from './InputContainer'
 export default {
     name: 'NLFile',
-    components: { DefaultContainer },
+    components: { InputContainer },
     props: {
         form: { type: Object, required: false },
         name: { type: String },
@@ -63,12 +65,16 @@ export default {
             isDragging: false,
             inProgress: false,
             progress: 0,
-            files: []
+            files: [],
+            visibleLoadingText: this.loadingText
         }
     },
     computed: {
         hasFiles() {
             return this.files.length
+        },
+        isOwner() {
+            return Number(this.files[ 0 ].uploaded_by_id) == user().id
         },
         accept() {
             return this.accepted.split(',').map(accept => '.' + accept).join(',')
@@ -80,7 +86,8 @@ export default {
                     name: file.original_name,
                     size: file.size,
                     type: file.type,
-                    link: file.link
+                    link: file.link,
+                    icon: file.icon,
                 }
             })
         },
@@ -92,7 +99,7 @@ export default {
             } else {
                 return ''
             }
-        }
+        },
     },
     watch: {
         modelValue(newVal, oldVal) {
@@ -152,8 +159,16 @@ export default {
          * @param {String} filesStr
          */
         loadFiles(filesStr) {
-            this.$api.get('upload?media=' + filesStr).then(response => {
+            this.progress = ''
+            this.isLoading = !this.isLoading
+            this.inProgress = !this.inProgress
+            this.visibleLoadingText = 'Récupération des fichiers en cours...'
+            this.$api.get('upload?media=' + filesStr, {
+                onDownloadProgress: progressEvent => this.setProgress(progressEvent)
+            }).then(response => {
                 this.files = response.data
+                this.inProgress = !this.inProgress
+                this.isLoading = !this.isLoading
             }).catch(error => {
                 console.error(error)
             })
@@ -184,6 +199,7 @@ export default {
          * @param {Array} files
          */
         upload(files) {
+            this.visibleLoadingText = this.loadingText
             const data = new FormData()
             for (let i = 0; i < files.length; i++) {
                 data.append('media[]', files[ i ])
@@ -194,11 +210,8 @@ export default {
                 data.append('attachable[id]', this.attachableId)
                 data.append('attachable[type]', this.attachableType)
                 this.$api.post('upload', data, {
-                    onUploadProgress: progressEvent => {
-                        this.progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-                    }
+                    onUploadProgress: progressEvent => this.setProgress(progressEvent)
                 }).then(response => {
-                    //   console.log(response)
                     this.inProgress = false
                     this.files.push(...response.data)
                     const files = this.files.map((file) => file.id)
@@ -207,6 +220,11 @@ export default {
                     this.inProgress = false
                     console.error(error)
                 })
+            }
+        },
+        setProgress(progressEvent) {
+            if (this.progressEvent?.total) {
+                this.progress = Math.round((progressEvent.loaded * 100) / progressEvent?.total)
             }
         }
     }

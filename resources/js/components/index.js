@@ -1,6 +1,6 @@
 import Child from './Child.vue'
-import Notification from './Notification.vue'
-import DefaultContainer from './Inputs/DefaultContainer.vue'
+import Alert from './Alert.vue'
+import InputContainer from './Inputs/InputContainer.vue'
 import NLInput from './Inputs/NLInput.vue'
 import NLTextarea from './Inputs/NLTextarea.vue'
 import NLButton from './Inputs/NLButton.vue'
@@ -11,7 +11,6 @@ import NLCheckbox from './Inputs/NLCheckbox.vue'
 import NLSelect from './Inputs/NLSelect'
 import NLCheckableContainer from './Inputs/NLCheckableContainer.vue'
 import NLWyswyg from './Inputs/NLWyswyg.vue'
-// import NLDatatable from './NLDatatable.vue'
 import NLDatatable from './Datatable/NLDatatable.vue'
 import { HasError, AlertErrors } from 'vform/components/bootstrap5'
 import NLModal from './NLModal'
@@ -25,9 +24,13 @@ import NLHeading from './NLHeading'
 import NLGrid from './Grid/NLGrid'
 import NLColumn from './Grid/NLColumn'
 import NLFlex from './Grid/NLFlex'
+// import NLPageLoader from './NLPageLoader'
+// import NLComponentLoader from './NLComponentLoader.vue'
 // Components that are registered globaly.
 export function useComponents(app) {
     [
+        // NLPageLoader,
+        // NLComponentLoader,
         NLRadios,
         NLCheckboxes,
         NLGrid,
@@ -43,7 +46,7 @@ export function useComponents(app) {
         NLSelect,
         NLModal,
         NLTextarea,
-        DefaultContainer,
+        InputContainer,
         NLDatatable,
         NLCheckableContainer,
         NLCheckbox,
@@ -58,7 +61,7 @@ export function useComponents(app) {
         HasError,
         // AlertError,
         // AlertSuccess,
-        Notification,
+        Alert,
         AlertErrors
     ].forEach(Component => {
         app.component(Component.name, Component)

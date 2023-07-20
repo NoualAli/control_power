@@ -88,6 +88,16 @@ export default {
             }
         }
     },
+    created() {
+        this.$store.dispatch('notifications/fetchUnreadNotifications').then(() => {
+            this.totalUnreadNotifications = this.notifications.unread.totalUnread
+        })
+    },
+    updated() {
+        this.$store.dispatch('notifications/fetchUnreadNotifications').then(() => {
+            this.totalUnreadNotifications = this.notifications.unread.totalUnread
+        })
+    },
     methods: {
         toggleSidebar() {
             this.$store.dispatch('sidebar/toggleSidebar')

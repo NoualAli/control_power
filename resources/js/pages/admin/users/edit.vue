@@ -85,7 +85,6 @@
 
 <script>
 import { Form } from 'vform'
-// import Notification from '../../../components/Notification.vue'
 import { mapGetters } from 'vuex'
 export default {
     layout: 'MainLayout',
@@ -115,16 +114,18 @@ export default {
         roles: 'roles/all'
     }),
     created() {
+        this.$store.dispatch('settings/updatePageLoading', true)
         this.$store.dispatch('roles/fetchAll').then(() => {
             this.rolesList = this.roles.all
-        })
-        this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
-            this.dresList = this.dres.all
-        })
-        this.$store.dispatch('users/fetch', this.$route.params.user).then(() => {
-            this.form.fill(this.user.current)
-            this.form.roles = this.user.current.roles.map(item => item.id)
-            this.form.dres = this.user.current.agencies.map(item => item.id)
+            this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
+                this.dresList = this.dres.all
+                this.$store.dispatch('users/fetch', this.$route.params.user).then(() => {
+                    this.form.fill(this.user.current)
+                    this.form.roles = this.user.current.roles.map(item => item.id)
+                    this.form.dres = this.user.current.agencies.map(item => item.id)
+                    this.$store.dispatch('settings/updatePageLoading', false)
+                })
+            })
         })
     },
     methods: {

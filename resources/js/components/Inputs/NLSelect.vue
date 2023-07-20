@@ -1,11 +1,11 @@
 <template>
-    <DefaultContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired"
+    <InputContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired"
         :help-text="helpText">
         <Treeselect :id="getId" v-bind="$attrs" ref="treeselect" v-model="selected" :key="forcedKey"
             :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" :value="modelValue" :name="name"
             :multiple="multiple" :options="options" :placeholder="placeholder" :loading-text="loadingText"
             :no-options-text="noOptionsText" search-nested />
-    </DefaultContainer>
+    </InputContainer>
 </template>
 
 <script>

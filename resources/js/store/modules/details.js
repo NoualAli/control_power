@@ -3,7 +3,7 @@ import api from "../../plugins/api"
 export const state = {
     all: null,
     paginated: null,
-    current: null,
+    detail: null,
     config: null,
     global: null,
     majorFacts: null,
@@ -18,7 +18,7 @@ export const mutations = {
         state.all = data
     },
     FETCH(state, data) {
-        state.current = data
+        state.detail = data
     },
     FETCH_CONFIG(state, data) {
         state.config = data
@@ -35,41 +35,10 @@ export const mutations = {
 }
 
 export const actions = {
-    // async fetchAll({ commit }) {
-    //     try {
-    //         const { data } = await api.get('missions?fetchAll')
-    //         commit('FETCH_ALL', { all: data })
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // },
-    // async fetchPaginated({ commit }, missionId = null) {
-    //     try {
-    //         const url = missionId ? 'missions?mission_id=' + missionId : 'missions'
-    //         const { data } = await api.get(url)
-    //         commit('FETCH_PAGINATED', { paginated: data })
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // },
-    // async fetch({ commit }, { missionId, onlyProcesses = false, edit = false }) {
-    //     try {
-    //         let url = onlyProcesses ? 'missions/' + missionId + '?onlyProcesses' : 'missions/' + missionId
-    //         url += edit ? '?edit' : ''
-    //         const { data } = await api.get(url)
-    //         if (onlyProcesses) {
-    //             commit('FETCH_PROCESSES', { processes: data })
-    //         } else {
-    //             commit('FETCH', { current: data })
-    //         }
-    //     } catch (error) {
-    //         console.error(error);
-    //     }
-    // },
     async fetch({ commit }, detailId) {
         try {
             const { data } = await api.get('missions/details/' + detailId)
-            commit('FETCH', { current: data })
+            commit('FETCH', { detail: data })
         } catch (error) {
             console.error(error);
         }
@@ -116,7 +85,7 @@ export const actions = {
 export const getters = {
     all: state => state.all,
     paginated: state => state.paginated,
-    current: state => state.current,
+    detail: state => state.detail,
     config: state => state.config,
     global: state => state.global,
     majorFacts: state => state.majorFacts,

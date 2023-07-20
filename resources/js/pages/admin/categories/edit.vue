@@ -49,10 +49,12 @@ export default {
     },
     methods: {
         initData() {
+            this.$store.dispatch('settings/updatePageLoading', true)
             this.$store.dispatch('categories/fetchConfig', this.$route.params.category).then(() => {
                 this.pcfList = this.config.config.pcf
                 this.form.name = this.config.config.category.name
                 this.form.pcf = this.config.config.category.processes.map(process => process.id)
+                this.$store.dispatch('settings/updatePageLoading', false)
             })
         },
         create() {

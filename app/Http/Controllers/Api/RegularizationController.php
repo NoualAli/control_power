@@ -41,10 +41,12 @@ class RegularizationController extends Controller
                     $data['regularized_at'] = now();
                 }
                 unset($data['regularized'], $data['detail_id']);
-                // dd($data);
+
                 if (isset($data['id'])) {
                     $regularization = Regularization::findOrFail($data['id']);
                     unset($data['id']);
+                    if ($regularization->is_regularized) {
+                    }
                     $regularization->update($data);
                 } else {
                     $regularization = Regularization::create($data);
@@ -52,19 +54,11 @@ class RegularizationController extends Controller
                 return $detail->update(['regularization_id' => $regularization->id]);
             });
             if ($res) {
-                // $users = User::dcp();
-                // foreach ($users as $user) {
-                //     Notification::send($user, new Regularized($detail));
-                // }
                 return response()->json([
                     'message' => CREATE_SUCCESS,
                     'status' => true,
                 ]);
             }
-            // $users = User::dcp();
-            // foreach ($users as $user) {
-            //     Notification::send($user, new Unregularized($detail));
-            // }
             return response()->json([
                 'message' => CREATE_ERROR,
                 'status' => false,
