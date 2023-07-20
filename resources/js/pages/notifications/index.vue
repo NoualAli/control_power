@@ -22,67 +22,39 @@ export default {
                     field: 'title',
                     extraClass: {
                         td: (item) => {
-                            return !item.read_at ? 'bg-primary-extra-light' : ''
-                            columns: [
-                                {
-                                    label: 'Titre',
-                                    field: 'title',
-                                    extraClass: {
-                                        td: (item) => {
-                                            return !item.read_at ? 'bg-primary-extra-light' : ''
-                                        }
-                                    },
-                                },
-                                {
-                                    label: 'Emis par',
-                                    field: 'emitted_by',
-                                    extraClass: {
-                                        td: (item) => {
-                                            return !item.read_at ? 'bg-primary-extra-light' : ''
-                                        },
+                            return !item.read_at ? 'bg-primary-extra-light' : '';
+                        },
+                    },
+                },
                 {
-                                    label: 'Emis par',
-                                    field: 'emitted_by',
-                                    extraClass: {
-                                        td: (item) => {
-                                            return !item.read_at ? 'bg-primary-extra-light' : ''
-                                        }
-                                    },
-                                },
-                                {
-                                    label: 'Contenu',
-                                    field: 'content',
-                                    extraClass: {
-                                        td: (item) => {
-                                            return !item.read_at ? 'bg-primary-extra-light' : ''
-                                        },
+                    label: 'Emis par',
+                    field: 'emitted_by',
+                    extraClass: {
+                        td: (item) => {
+                            return !item.read_at ? 'bg-primary-extra-light' : '';
+                        },
+                    },
+                },
                 {
-                                    label: 'Contenu',
-                                    field: 'content',
-                                    extraClass: {
-                                        td: (item) => {
-                                            return !item.read_at ? 'bg-primary-extra-light' : ''
-                                        }
-                                    },
-                                },
-                                {
-                                    label: 'Date',
-                                    field: 'created_at',
-                                    extraClass: {
-                                        td: (item) => {
-                                            return !item.read_at ? 'bg-primary-extra-light' : ''
-                                        },
+                    label: 'Contenu',
+                    field: 'content',
+                    extraClass: {
+                        td: (item) => {
+                            return !item.read_at ? 'bg-primary-extra-light' : '';
+                        },
+                    },
+                },
                 {
-                                    label: 'Date',
-                                    field: 'created_at',
-                                    extraClass: {
-                                        td: (item) => {
-                                            return !item.read_at ? 'bg-primary-extra-light' : ''
-                                        }
-                                    },
-                                },
-                }
+                    label: 'Date',
+                    field: 'created_at',
+                    extraClass: {
+                        td: (item) => {
+                            return !item.read_at ? 'bg-primary-extra-light' : '';
+                        },
+                    },
+                },
             ],
+
             // actions: {
             //     show: {
             //         show: (item) => !!item.url,
