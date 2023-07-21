@@ -232,7 +232,9 @@ return [
         'score' => 'notation',
         'metadata' => 'information supplémentaires',
         'major_fact' => 'fait majeur',
-
+        'programmed_end' => 'date fin',
+        'programmed_start' => 'date début',
+        'category_id' => "catégorie"
     ],
 
 ];
