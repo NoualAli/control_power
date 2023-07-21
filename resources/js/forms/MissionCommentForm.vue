@@ -6,19 +6,17 @@
             </small>
         </template>
         <template #default>
-            <div v-if="!isLoading">
-                <NLForm :form="form" :action="save" v-if="!isReadonly">
-                    <NLColumn>
-                        <NLWyswyg v-model="form.content" :name="fields.content.name" :form="form"
-                            :label="fields.content.label" :placeholder="fields.content.placeholder" labelRequired />
-                    </NLColumn>
-                    <NLColumn>
-                        <NLSwitch type="is-success" v-model="form.validated" :name="fields.validated.name" :form="form"
-                            :label="fields.validated.label" />
-                    </NLColumn>
-                </NLForm>
-                <NLContainer class="content" v-else isFluid v-html="content"></NLContainer>
-            </div>
+            <NLForm :form="form" :action="save" v-if="!isReadonly && !isLoading">
+                <NLColumn>
+                    <NLWyswyg v-model="form.content" :name="fields.content.name" :form="form" :label="fields.content.label"
+                        :placeholder="fields.content.placeholder" labelRequired />
+                </NLColumn>
+                <NLColumn>
+                    <NLSwitch type="is-success" v-model="form.validated" :name="fields.validated.name" :form="form"
+                        :label="fields.validated.label" />
+                </NLColumn>
+            </NLForm>
+            <NLContainer class="content" v-if="isReadonly && !isLoading" isFluid v-html="content"></NLContainer>
 
             <!-- Loader -->
             <div class="component-loader-container" v-else>
@@ -38,8 +36,7 @@
                 </span>
             </NLFlex>
             <!-- Submit Button -->
-            <NLButton v-if="!isReadonly && !isLoading" :loading="form.busy" label="Enregistrer" class="is-radius"
-                @click="save" />
+            <NLButton v-if="!isReadonly && !isLoading" :loading="form.busy" label="Enregistrer" @click="save" />
             <button
                 v-if="type == 'ci_report' && !isValidated && commentExists && !editMode && canCreateComment && isReadonly"
                 class="btn btn-warning has-icon" @click.prevent="switchEditMode()">
@@ -244,7 +241,7 @@ export default {
          */
         save() {
             this.isLoading = !this.isLoading
-            this.form.post('/api/missions/' + this.mission?.id + '/comments').then(response => {
+            this.form.post('missions/' + this.mission?.id + '/comments').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     // this.editMode = false

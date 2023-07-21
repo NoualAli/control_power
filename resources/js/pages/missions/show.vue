@@ -438,7 +438,7 @@ export default {
          * Dispatch mission
          */
         dispatchMission() {
-            this.forms.dispatch.put('/api/missions/' + this.mission.current.id + '/assign').then(response => {
+            this.forms.dispatch.put('missions/' + this.mission.current.id + '/assign').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.initData()

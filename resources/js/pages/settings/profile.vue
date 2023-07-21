@@ -1,78 +1,79 @@
 <template>
-    <div class="grid">
-        <div class="col-12">
-            <form @submit.prevent="updateProfile" @keydown="infoForm.onKeydown($event)">
-                <h2>Mettez à jour vos informations</h2>
+    <NLGrid>
+        <NLColumn>
+            <NLForm :action="updateProfile" :form="infoForm">
+                <NLColumn>
+                    <h2>Mettez à jour vos informations</h2>
+                </NLColumn>
 
-                <div class="grid gap-3 my-4">
-                    <!-- Username -->
-                    <div class="col-12 col-lg-4 col-md-6">
-                        <NLInput v-model="infoForm.username" :form="infoForm" name="username" label="Nom d'utilisateur"
-                            readonly />
-                    </div>
+                <!-- Username -->
+                <NLColumn lg="4" md="6">
+                    <NLInput v-model="infoForm.username" :form="infoForm" name="username" label="Nom d'utilisateur"
+                        readonly />
+                </NLColumn>
 
-                    <!-- Firstname -->
-                    <div class="col-12 col-lg-4 col-md-6">
-                        <NLInput v-model="infoForm.first_name" :form="infoForm" name="firstname" label="Prénom" />
-                    </div>
+                <!-- Firstname -->
+                <NLColumn lg="4" md="6">
+                    <NLInput v-model="infoForm.first_name" :form="infoForm" name="firstname" label="Prénom" />
+                </NLColumn>
 
-                    <!-- Lastname -->
-                    <div class="col-12 col-lg-4 col-md-6">
-                        <NLInput v-model="infoForm.last_name" :form="infoForm" name="last_name" label="Nom de famille" />
-                    </div>
+                <!-- Lastname -->
+                <NLColumn lg="4" md="6">
+                    <NLInput v-model="infoForm.last_name" :form="infoForm" name="last_name" label="Nom de famille" />
+                </NLColumn>
 
-                    <!-- Phone -->
-                    <div class="col-12 col-lg-6 col-md-6">
-                        <NLInput v-model="infoForm.phone" :form="infoForm" name="phone" label="N° de téléphone"
-                            type="phone" />
-                    </div>
+                <!-- Phone -->
+                <NLColumn lg="6" md="6">
+                    <NLInput v-model="infoForm.phone" :form="infoForm" name="phone" label="N° de téléphone" type="phone" />
+                </NLColumn>
 
-                    <!-- Email -->
-                    <div class="col-12 col-lg-6 col-md-6">
-                        <NLInput v-model="infoForm.email" :form="infoForm" name="email" label="Adresse e-mail"
-                            label-required type="email" />
-                    </div>
-                </div>
-                <!-- Submit Button -->
-                <div class="d-flex justify-end align-center">
-                    <NLButton :loading="infoForm.busy" label="Mettre à jour" class="is-radius" />
-                </div>
-            </form>
-        </div>
+                <!-- Email -->
+                <NLColumn lg="6" md="6">
+                    <NLInput v-model="infoForm.email" :form="infoForm" name="email" label="Adresse e-mail" label-required
+                        type="email" />
+                </NLColumn>
+                <NLColumn>
+                    <NLFlex lgJustifyContent="end">
+                        <NLButton :loading="infoForm.busy" label="Mettre à jour" @click.prevent="updateProfile" />
+                    </NLFlex>
+                </NLColumn>
+            </NLForm>
+        </NLColumn>
 
-        <div class="col-12">
-            <form @submit.prevent="updatePassword" @keydown="passwordForm.onKeydown($event)">
-                <h2>Changez votre mot de passe</h2>
-                <div class="grid gap-3 my-4">
-                    <!-- Current password -->
-                    <div class="col-12 col-lg-4">
-                        <NLInput v-model="passwordForm.current_password" :form="passwordForm" label="Mot de passe actuel"
-                            name="current_password" type="password" label-required />
-                    </div>
+        <NLColumn>
+            <NLForm :action="updatePassword" :form="passwordForm">
+                <NLColumn>
+                    <h2>Changez votre mot de passe</h2>
+                </NLColumn>
+                <!-- Current password -->
+                <NLColumn lg="4" md="4">
+                    <NLInput v-model="passwordForm.current_password" :form="passwordForm" label="Mot de passe actuel"
+                        name="current_password" type="password" label-required />
+                </NLColumn>
 
-                    <!-- Password -->
-                    <div class="col-12 col-lg-4">
-                        <NLInput v-model="passwordForm.password" :form="passwordForm" label="Mot de passe" name="password"
-                            type="password" label-required />
-                    </div>
-                    <!-- Password Confirmation -->
-                    <div class="col-12 col-lg-4">
-                        <NLInput v-model="passwordForm.password_confirmation" :form="passwordForm"
-                            label="Confirmation mot de passe" name="password_confirmation" type="password" label-required />
-                    </div>
-                </div>
-                <!-- Submit Button -->
-                <div class="d-flex justify-end align-center">
-                    <NLButton :loading="infoForm.busy" label="Mettre à jour" class="is-radius" />
-                </div>
-            </form>
-        </div>
+                <!-- Password -->
+                <NLColumn lg="4" md="4">
+                    <NLInput v-model="passwordForm.password" :form="passwordForm" label="Mot de passe" name="password"
+                        type="password" label-required />
+                </NLColumn>
+                <!-- Password Confirmation -->
+                <NLColumn lg="4" md="4">
+                    <NLInput v-model="passwordForm.password_confirmation" :form="passwordForm"
+                        label="Confirmation mot de passe" name="password_confirmation" type="password" label-required />
+                </NLColumn>
+                <NLColumn>
+                    <NLFlex lgJustifyContent="end">
+                        <NLButton :loading="infoForm.busy" label="Mettre à jour" @click.prevent="updatePassword" />
+                    </NLFlex>
+                </NLColumn>
+            </NLForm>
+        </NLColumn>
 
-        <div class="col-12">
+        <NLColumn>
             <NLDatatable :columns="columns" title="Historique de connexion" urlPrefix="users/logins/history"
                 @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
-        </div>
-    </div>
+        </NLColumn>
+    </NLGrid>
 </template>
 
 <script>
@@ -147,7 +148,7 @@ export default {
 
     methods: {
         updateProfile() {
-            this.infoForm.patch('/api/settings/profile/' + user().id).then(response => {
+            this.infoForm.patch('settings/profile/' + user().id).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                 } else {
@@ -158,7 +159,7 @@ export default {
             })
         },
         updatePassword() {
-            this.passwordForm.patch('/api/settings/password/' + user().id).then(response => {
+            this.passwordForm.patch('settings/password/' + user().id).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.passwordForm.reset()

@@ -512,9 +512,8 @@
 
                         <!-- Submit Button -->
                         <div class="col-12 d-flex justify-end align-center">
-                            <NLButton v-if="!forms.detail.process_mode" :loading="forms.detail.busy" label="Enregistrer"
-                                class="is-radius" />
-                            <NLButton v-else :loading="forms.detail.busy" label="Valider" class="is-radius" />
+                            <NLButton v-if="!forms.detail.process_mode" :loading="forms.detail.busy" label="Enregistrer" />
+                            <NLButton v-else :loading="forms.detail.busy" label="Valider" />
                         </div>
                     </form>
                 </template>
@@ -560,8 +559,8 @@
                         </div>
                         <div class="col-12 d-flex justify-end align-center">
                             <NLButton v-if="!forms.regularization.id" :loading="forms.regularization.busy"
-                                label="Enregistrer" class="is-radius" />
-                            <NLButton v-else :loading="forms.regularization.busy" label="Valider" class="is-radius" />
+                                label="Enregistrer" />
+                            <NLButton v-else :loading="forms.regularization.busy" label="Valider" />
                         </div>
                     </form>
                 </template>
@@ -826,7 +825,7 @@ export default {
          * Régularisation du détail de la mission
          */
         // regularize() {
-        //   this.forms.regularization.post('/api/regularize/' + this.forms.regularization.detail_id).then(response => {
+        //   this.forms.regularization.post('regularize/' + this.forms.regularization.detail_id).then(response => {
         //     if (response.data.status) {
         //       swal.toast_success(response.data.message)
         //       this.forms.regularization.reset()

@@ -142,8 +142,8 @@
 
                 <!-- Submit Button -->
                 <div class="d-flex justify-end align-center">
-                    <NLButton v-if="!form.process_mode" :loading="form.busy" label="Enregistrer" class="is-radius" />
-                    <NLButton v-else :loading="form.busy" label="Valider" class="is-radius" />
+                    <NLButton v-if="!form.process_mode" :loading="form.busy" label="Enregistrer" />
+                    <NLButton v-else :loading="form.busy" label="Valider" />
                 </div>
             </form>
         </div>
@@ -297,7 +297,7 @@ export default {
          */
         create() {
             //   console.log(this.form)
-            this.form.post('/api/missions/details/' + this.$route.params.missionId).then(response => {
+            this.form.post('missions/details/' + this.$route.params.missionId).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.$router.push({ name: 'mission', params: { missionId: this.$route.params.missionId } })

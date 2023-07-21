@@ -2,50 +2,52 @@
     <div v-if="can('create_agency')">
         <ContentHeader title="Ajouter une nouvelle agence" />
         <ContentBody>
-            <form @submit.prevent="create" @keydown="form.onKeydown($event)">
-                <div class="grid gap-10 my-4">
-                    <!-- Code -->
-                    <div class="col-12 col-md-6">
-                        <NLInput v-model="form.code" type="number" :form="form" name="code" label="Code" label-required />
-                    </div>
-                    <!-- Name -->
-                    <div class="col-12 col-md-6">
-                        <NLInput v-model="form.name" :form="form" name="name" label="Name" label-required />
-                    </div>
-                    <!-- Dre -->
-                    <div class="col-12 col-md-6">
-                        <NLSelect v-model="form.dre_id" :form="form" name="dre_id" label="Dre" :options="dresList"
-                            label-required :multiple="false" />
-                    </div>
-                    <!-- Category -->
-                    <div class="col-12 col-md-6">
-                        <NLSelect v-model="form.category_id" :form="form" name="category_id" label="Catégorie"
-                            :options="categoriesList" label-required :multiple="false" />
-                    </div>
-                    <!-- PCF -->
-                    <div class="col-12 col-md-6">
-                        <NLSelect v-model="form.pcf_usable" :form="form" name="pcf_usable"
-                            label="PCF exceptionnel (à utiliser)" :options="pcfList" :multiple="true" />
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <NLSelect v-model="form.pcf_unusable" :form="form" name="pcf_unusable"
-                            label="PCF exceptionnel (à ne pas utiliser)" :options="pcfList" :multiple="true" />
-                    </div>
-                </div>
+            <NLForm :action="create" :form="form">
+                <!-- Code -->
+                <NLColumn lg="6" md="6">
+                    <NLInput v-model="form.code" type="number" :form="form" name="code" label="Code" label-required />
+                </NLColumn>
+                <!-- Name -->
+                <NLColumn lg="6" md="6">
+                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required />
+                </NLColumn>
+                <!-- Dre -->
+                <NLColumn lg="6" md="6">
+                    <NLSelect v-model="form.dre_id" :form="form" name="dre_id" label="Dre" :options="dresList"
+                        label-required :multiple="false" />
+                </NLColumn>
+                <!-- Category -->
+                <NLColumn lg="6" md="6">
+                    <NLSelect v-model="form.category_id" :form="form" name="category_id" label="Catégorie"
+                        :options="categoriesList" label-required :multiple="false" />
+                </NLColumn>
+                <!-- PCF -->
+                <NLColumn lg="6" md="6">
+                    <NLSelect v-model="form.pcf_usable" :form="form" name="pcf_usable" label="PCF exceptionnel (à utiliser)"
+                        :options="pcfList" :multiple="true" />
+                </NLColumn>
+                <NLColumn lg="6" md="6">
+                    <NLSelect v-model="form.pcf_unusable" :form="form" name="pcf_unusable"
+                        label="PCF exceptionnel (à ne pas utiliser)" :options="pcfList" :multiple="true" />
+                </NLColumn>
                 <!-- Submit Button -->
-                <div class="d-flex justify-end align-center">
-                    <NLButton :loading="form.busy" label="Ajouter" class="is-radius" />
-                </div>
-            </form>
+                <NLColumn>
+                    <NLFlex lgJustifyContent="end">
+                        <NLButton :loading="form.busy" label="Ajouter" />
+                    </NLFlex>
+                </NLColumn>
+            </NLForm>
         </ContentBody>
     </div>
 </template>
 
 <script>
+import NLForm from '../../../components/NLForm'
 import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 
 export default {
+    components: { NLForm },
     layout: 'MainLayout',
     middleware: [ 'auth', 'admin' ],
     data() {
@@ -82,7 +84,7 @@ export default {
             })
         },
         create() {
-            this.form.post('/api/agencies').then(response => {
+            this.form.post('agencies').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.form.reset()

@@ -168,7 +168,7 @@
         <template #footer>
             <!-- Submit Button -->
             <div class="col-12 d-flex justify-end align-center">
-                <NLButton :loading="form.busy" label="Enregistrer" class="is-radius" @click="save" />
+                <NLButton :loading="form.busy" label="Enregistrer" @click="save" />
             </div>
         </template>
     </NLModal>
@@ -295,8 +295,7 @@ export default {
          * Save detail
          */
         save() {
-            let url = '/api/missions/details/' + this.data.mission_id
-            this.form.post(url).then(response => {
+            this.form.post('missions/details/' + this.data.mission_id).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.$emit('success', response)

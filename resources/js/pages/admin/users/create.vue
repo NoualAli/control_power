@@ -2,63 +2,62 @@
     <div v-if="can('create_user')">
         <ContentHeader title="Ajouter un utilisateur" />
         <ContentBody>
-            <form @submit.prevent="create" @keydown="form.onKeydown($event)">
-                <div class="grid gap-10 my-4">
-                    <!-- Firstname -->
-                    <div class="col-12 col-lg-6 col-md-6">
-                        <NLInput v-model="form.first_name" :form="form" name="firstname" label="Prénom" />
-                    </div>
+            <NLForm :action="create" :form="form">
+                <!-- Firstname -->
+                <NLColumn lg="6" md="6">
+                    <NLInput v-model="form.first_name" :form="form" name="firstname" label="Prénom" />
+                </NLColumn>
 
-                    <!-- Lastname -->
-                    <div class="col-12 col-lg-6 col-md-6">
-                        <NLInput v-model="form.last_name" :form="form" name="last_name" label="Nom de famille" />
-                    </div>
+                <!-- Lastname -->
+                <NLColumn lg="6" md="6">
+                    <NLInput v-model="form.last_name" :form="form" name="last_name" label="Nom de famille" />
+                </NLColumn>
 
-                    <!-- Username -->
-                    <div class="col-12 col-lg-6 col-md-6">
-                        <NLInput v-model="form.username" :form="form" name="username" label="Nom d'utilisateur"
-                            label-required />
-                    </div>
+                <!-- Username -->
+                <NLColumn lg="6" md="6">
+                    <NLInput v-model="form.username" :form="form" name="username" label="Nom d'utilisateur"
+                        label-required />
+                </NLColumn>
 
-                    <!-- Email -->
-                    <div class="col-12 col-lg-6 col-md-6">
-                        <NLInput v-model="form.email" :form="form" name="email" label="Adresse e-mail" label-required
-                            type="email" />
-                    </div>
+                <!-- Email -->
+                <NLColumn lg="6" md="6">
+                    <NLInput v-model="form.email" :form="form" name="email" label="Adresse e-mail" label-required
+                        type="email" />
+                </NLColumn>
 
-                    <!-- Phone -->
-                    <div class="col-12 col-lg-6 col-md-6">
-                        <NLInput v-model="form.phone" :form="form" name="phone" label="N° de téléphone" type="phone" />
-                    </div>
+                <!-- Phone -->
+                <NLColumn lg="6" md="6">
+                    <NLInput v-model="form.phone" :form="form" name="phone" label="N° de téléphone" type="phone" />
+                </NLColumn>
 
-                    <!-- Dres -->
-                    <div class="col-12 col-lg-6 col-md-6">
-                        <NLSelect v-model="form.dres" :form="form" name="dres" label="DRE" :options="dresList"
-                            placeholder="Choisissez une DRE" :multiple="true" />
-                    </div>
+                <!-- Dres -->
+                <NLColumn lg="6" md="6">
+                    <NLSelect v-model="form.dres" :form="form" name="dres" label="DRE" :options="dresList"
+                        placeholder="Choisissez une DRE" :multiple="true" />
+                </NLColumn>
 
-                    <!-- Roles -->
-                    <div class="col-12">
-                        <NLSelect v-model="form.roles" :form="form" name="roles" label="Rôles"
-                            placeholder="Choisissez un rôle" :options="rolesList" :multiple="true" />
-                    </div>
+                <!-- Roles -->
+                <NLColumn>
+                    <NLSelect v-model="form.roles" :form="form" name="roles" label="Rôles" placeholder="Choisissez un rôle"
+                        :options="rolesList" :multiple="true" />
+                </NLColumn>
 
-                    <!-- Password -->
-                    <div class="col-12 col-lg-4">
-                        <NLInput v-model="form.password" :form="form" label="Mot de passe" name="password" type="password"
-                            label-required />
-                    </div>
-                    <!-- Password Confirmation -->
-                    <div class="col-12 col-lg-4">
-                        <NLInput v-model="form.password_confirmation" :form="form" label="Confirmation du mot de passe"
-                            name="password_confirmation" type="password" label-required />
-                    </div>
-                </div>
-                <!-- Submit Button -->
-                <div class="d-flex justify-end align-center">
-                    <NLButton :loading="form.busy" label="Ajouter" class="is-radius" />
-                </div>
-            </form>
+                <!-- Password -->
+                <NLColumn lg="4" md="4">
+                    <NLInput v-model="form.password" :form="form" label="Mot de passe" name="password" type="password"
+                        label-required />
+                </NLColumn>
+                <!-- Password Confirmation -->
+                <NLColumn lg="4" md="4">
+                    <NLInput v-model="form.password_confirmation" :form="form" label="Confirmation du mot de passe"
+                        name="password_confirmation" type="password" label-required />
+                </NLColumn>
+                <NLColumn>
+                    <NLFlex lgJustifyContent="end">
+                        <NLButton :loading="form.busy" label="Ajouter" />
+                    </NLFlex>
+                </NLColumn>
+            </NLForm>
         </ContentBody>
     </div>
 </template>
@@ -102,7 +101,7 @@ export default {
     },
     methods: {
         create() {
-            this.form.post('/api/users').then(response => {
+            this.form.post('users').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.form.reset()

@@ -2,52 +2,51 @@
 <template>
     <div v-if="can('edit_control_point')">
         <ContentBody>
-            <form @submit.prevent="update" @keydown="form.onKeydown($event)">
-                <div class="grid gap-10 my-4">
-                    <!-- Familliies -->
-                    <div class="col-12 col-md-6">
-                        <NLSelect v-model="form.familly_id" :form="form" name="familly_id" label="Famille"
-                            :options="familliesList" label-required :multiple="false" />
-                    </div>
-                    <!-- Domains -->
-                    <div class="col-12 col-md-6">
-                        <NLSelect v-model="form.domain_id" :form="form" name="domain_id" label="Domaine"
-                            :options="domainsList" label-required :multiple="false" />
-                    </div>
-                    <!-- Processes -->
-                    <div class="col-12 col-md-6">
-                        <NLSelect v-model="form.process_id" :form="form" name="process_id" label="Processus"
-                            :options="processesList" label-required :multiple="false" />
-                    </div>
-                    <!-- Name -->
-                    <div class="col-12 col-md-6">
-                        <NLInput v-model="form.name" :form="form" name="name" label="Name" label-required />
-                    </div>
-                    <!-- Major fact -->
-                    <div class="col-12">
-                        <NLSwitch v-model="form.has_major_fact" name="has_major_fact" :form="form" label="Fait majeur" />
-                    </div>
-                    <!-- Major fact types -->
-                    <div v-if="form.has_major_fact" class="col-12">
-                        <NLRepeater name="major_fact_types" :row-schema="majorFactTypesSchema" :form="form"
-                            title="Types des faits majeur" add-button-label="Ajouter un type" />
-                    </div>
-                    <!-- Scores -->
-                    <div class="col-12">
-                        <NLRepeater name="scores" :row-schema="scoresSchema" :form="form" title="Notation"
-                            add-button-label="Ajouter une notation" />
-                    </div>
-                    <!-- Fields -->
-                    <div class="col-12">
-                        <NLRepeater name="fields" :row-schema="fieldsSchema" :form="form" title="Metadata"
-                            add-button-label="Ajouter un champs" />
-                    </div>
-                </div>
-                <!-- Submit Button -->
-                <div class="d-flex justify-end align-center">
-                    <NLButton :loading="form.busy" label="Mettre à jour" class="is-radius" />
-                </div>
-            </form>
+            <NLForm :action="update" :form="form">
+                <!-- Familliies -->
+                <NLColumn lg="6" md="6">
+                    <NLSelect v-model="form.familly_id" :form="form" name="familly_id" label="Famille"
+                        :options="familliesList" label-required :multiple="false" />
+                </NLColumn>
+                <!-- Domains -->
+                <NLColumn lg="6" md="6">
+                    <NLSelect v-model="form.domain_id" :form="form" name="domain_id" label="Domaine" :options="domainsList"
+                        label-required :multiple="false" />
+                </NLColumn>
+                <!-- Processes -->
+                <NLColumn lg="6" md="6">
+                    <NLSelect v-model="form.process_id" :form="form" name="process_id" label="Processus"
+                        :options="processesList" label-required :multiple="false" />
+                </NLColumn>
+                <!-- Name -->
+                <NLColumn lg="6" md="6">
+                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required />
+                </NLColumn>
+                <!-- Major fact -->
+                <NLColumn>
+                    <NLSwitch v-model="form.has_major_fact" name="has_major_fact" :form="form" label="Fait majeur" />
+                </NLColumn>
+                <!-- Major fact types -->
+                <NLColumn v-if="form.has_major_fact">
+                    <NLRepeater name="major_fact_types" :row-schema="majorFactTypesSchema" :form="form"
+                        title="Types des faits majeur" add-button-label="Ajouter un type" />
+                </NLColumn>
+                <!-- Scores -->
+                <NLColumn>
+                    <NLRepeater name="scores" :row-schema="scoresSchema" :form="form" title="Notation"
+                        add-button-label="Ajouter une notation" />
+                </NLColumn>
+                <!-- Fields -->
+                <NLColumn>
+                    <NLRepeater name="fields" :row-schema="fieldsSchema" :form="form" title="Metadata"
+                        add-button-label="Ajouter un champs" />
+                </NLColumn>
+                <NLColumn>
+                    <NLFlex lgJustifyContent="end">
+                        <NLButton :loading="form.busy" label="Mettre à jour" />
+                    </NLFlex>
+                </NLColumn>
+            </NLForm>
         </ContentBody>
     </div>
 </template>
@@ -373,7 +372,7 @@ export default {
             ]
         },
         update() {
-            this.form.put('/api/control-points/' + this.$route.params.controlPoint).then(response => {
+            this.form.put('control-points/' + this.$route.params.controlPoint).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.$router.push({ name: 'control-points-index' })
