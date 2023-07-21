@@ -92,7 +92,7 @@ class Media extends BaseModel
                 $icon = 'las la-file-word text-office-word';
                 break;
             case 'pdf':
-                $icon = 'las la-file-pdf text-office-pdf';
+                $icon = 'las la-file-pdf text-pdf';
                 break;
             default:
                 $icon = 'las la-file-alt';
