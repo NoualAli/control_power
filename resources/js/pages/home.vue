@@ -27,8 +27,8 @@
             </NLColumn>
         </NLGrid>
 
+        <!-- Suivi de la réalisation des missions -->
         <NLGrid gap="4" v-if="currentSection == 'realisationStates'">
-            <!-- Suivi de la réalisation des missions -->
             <NLColumn>
                 <NLGrid gap="4">
                     <NLColumn>
@@ -71,74 +71,53 @@
             <NLColumn lg="4" extraClass="box">
                 <div class="d-flex align-center justify-between">
                     <h2>Situation des rapports</h2>
-                    <button class="btn btn-info has-icon" @click.prevent="savePNG('missionsPercentage')">
+                    <button class="btn btn-info has-icon" @click.prevent="savePNG('missionsPercentage')"
+                        v-if="charts.missionsPercentage.datasets[0].data.length">
                         <i class="las la-save icon" />
                     </button>
                 </div>
                 <NLContainer extraClass="d-flex full-center" isFluid>
-                    <NLFlex isFullCentered extraClass="w-100 h-100" v-if="charts.missionsPercentage">
+                    <NLFlex isFullCentered extraClass="w-100 h-100"
+                        v-if="charts.missionsPercentage.datasets[0].data.length">
                         <Pie id="missionsPercentage" :data="charts.missionsPercentage" :options="circularChartOptions"
                             data-title="situation_des_rapports" />
                     </NLFlex>
-                    <div class="w-100 h-100 text-center text-bold" v-else>
+                    <div class="my-10 text-center text-bold" v-else>
                         Pas assez de données
                     </div>
                 </NLContainer>
             </NLColumn>
 
             <!-- Classement des DRE par taux de réalisation des missions -->
-            <NLColumn lg="8">
-                <NLColumn lg="8">
-                    <h2>Classement des DRE par taux de réalisation des missions</h2>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>DRE</th>
-                                    <th>Missions programmées</th>
-                                    <th>Missions réalisées</th>
-                                    <th>Taux de réalisation</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(row, index) in tables.dresClassificationByAchievementRate" :key="index">
-                                    <td>{{ index + 1 }}</td>
-                                    <td>{{ row['dre'] }}</td>
-                                    <td>{{ row['total'] }}</td>
-                                    <td>{{ row['totalAchieved'] }}</td>
-                                    <td>{{ row['rate'] }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </NLColumn>
+            <NLColumn lg="8" extraClass="box">
+                <h2>Classement des DRE par taux de réalisation des missions</h2>
+                <div class="table-container" v-if="tables.dresClassificationByAchievementRate.length">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>DRE</th>
+                                <th>Missions programmées</th>
+                                <th>Missions réalisées</th>
+                                <th>Taux de réalisation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, index) in tables.dresClassificationByAchievementRate" :key="index">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ row['dre'] }}</td>
+                                <td>{{ row['total'] }}</td>
+                                <td>{{ row['totalAchieved'] }}</td>
+                                <td>{{ row['rate'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="my-10 text-center text-bold" v-else>
+                    Pas assez de données
+                </div>
             </NLColumn>
         </NLGrid>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>DRE</th>
-                        <th>Missions programmées</th>
-                        <th>Missions réalisées</th>
-                        <th>Taux de réalisation</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(row, index) in tables.dresClassificationByAchievementRate" :key="index">
-                        <td>{{ index + 1 }}</td>
-                        <td>{{ row['dre'] }}</td>
-                        <td>{{ row['total'] }}</td>
-                        <td>{{ row['totalAchieved'] }}</td>
-                        <td>{{ row['rate'] }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <!-- </NLColumn>
-        </NLGrid> -->
 
         <!-- Scores -->
         <NLGrid gap="4" v-if="currentSection == 'scores'">
@@ -146,137 +125,93 @@
             <NLColumn lg="6" extraClass="box">
                 <div class="d-flex align-center justify-between">
                     <h2>Classement des notations</h2>
-                    <button class="btn btn-info has-icon" @click.prevent="savePNG('globalScores')">
+                    <button class="btn btn-info has-icon" @click.prevent="savePNG('globalScores')"
+                        v-if="charts.globalScores.datasets[0].data.length">
                         <i class="las la-save icon" />
                     </button>
                 </div>
                 <NLContainer extraClass="d-flex full-center" isFluid>
-                    <NLFlex isFullCentered extraClass="w-100 h-100" v-if="charts.globalScores">
+                    <NLFlex isFullCentered extraClass="w-100 h-100" v-if="charts.globalScores.datasets[0].data.length">
                         <Bar id="globalScores" :data="charts.globalScores" :options="horizontalBarOptions"
                             data-title="classement_des_notations" />
                     </NLFlex>
-                    <div class="w-100 h-100 text-center text-bold" v-else>
+                    <div class="my-10 text-center text-bold" v-else>
                         Pas assez de données
                     </div>
                 </NLContainer>
             </NLColumn>
-            <!-- Scores -->
-            <NLGrid gap="4" v-if="currentSection == 'scores'">
-                <!-- Classement des notations -->
-                <NLColumn lg="6" extraClass="box">
-                    <div class="d-flex align-center justify-between">
-                        <h2>Classement des notations</h2>
-                        <button class="btn btn-info has-icon" @click.prevent="savePNG('globalScores')">
-                            <i class="las la-save icon" />
-                        </button>
-                    </div>
-                    <NLContainer extraClass="d-flex full-center" isFluid>
-                        <NLFlex isFullCentered extraClass="w-100 h-100" v-if="charts.globalScores">
-                            <Bar id="globalScores" :data="charts.globalScores" :options="horizontalBarOptions"
-                                data-title="classement_des_notations" />
-                        </NLFlex>
-                        <div class="w-100 h-100 text-center text-bold" v-else>
-                            Pas assez de données
-                        </div>
-                    </NLContainer>
-                </NLColumn>
 
-                <!-- Notations moyennes par famille -->
-                <NLColumn lg="6" class="box">
-                    <div class="d-flex align-center justify-between">
-                        <h2>Notations moyennes par famille</h2>
-                        <button class="btn btn-info has-icon" @click.prevent="savePNG('avgScoreByFamily')">
-                            <i class="las la-save icon" />
-                        </button>
+            <!-- Notations moyennes par famille -->
+            <NLColumn lg="6" class="box">
+                <div class="d-flex align-center justify-between">
+                    <h2>Notations moyennes par famille</h2>
+                    <button class="btn btn-info has-icon" @click.prevent="savePNG('avgScoreByFamily')"
+                        v-if="charts.avgScoreByFamily.datasets[0].data.length">
+                        <i class="las la-save icon" />
+                    </button>
+                </div>
+                <NLContainer extraClass="d-flex full-center" isFluid>
+                    <NLFlex isFullCentered extraClass="w-100 h-100" v-if="charts.avgScoreByFamily.datasets[0].data.length">
+                        <Doughnut id="avgScoreByFamily" :data="charts.avgScoreByFamily" :options="circularChartOptions"
+                            data-title="notations_moyennes_par_famille" />
+                    </NLFlex>
+                    <div class="my-10 text-center text-bold" v-else>
+                        Pas assez de données
                     </div>
-                    <NLContainer extraClass="d-flex full-center" isFluid>
-                        <NLFlex isFullCentered extraClass="w-100 h-100" v-if="charts.avgScoreByFamily">
-                            <Doughnut id="avgScoreByFamily" :data="charts.avgScoreByFamily" :options="circularChartOptions"
-                                data-title="notations_moyennes_par_famille" />
-                        </NLFlex>
-                        <div class="w-100 h-100 text-center text-bold" v-else>
-                            Pas assez de données
-                        </div>
-                    </NLContainer>
-                </NLColumn>
-                <!-- Notations moyennes par famille -->
-                <NLColumn lg="6" class="box">
-                    <div class="d-flex align-center justify-between">
-                        <h2>Notations moyennes par famille</h2>
-                        <button class="btn btn-info has-icon" @click.prevent="savePNG('avgScoreByFamily')">
-                            <i class="las la-save icon" />
-                        </button>
-                    </div>
-                    <NLContainer extraClass="d-flex full-center" isFluid>
-                        <NLFlex isFullCentered extraClass="w-100 h-100" v-if="charts.avgScoreByFamily">
-                            <Doughnut id="avgScoreByFamily" :data="charts.avgScoreByFamily" :options="circularChartOptions"
-                                data-title="notations_moyennes_par_famille" />
-                        </NLFlex>
-                        <div class="w-100 h-100 text-center text-bold" v-else>
-                            Pas assez de données
-                        </div>
-                    </NLContainer>
-                </NLColumn>
+                </NLContainer>
+            </NLColumn>
 
-                <!-- Notations par domaine -->
-                <NLColumn lg="6">
-                    <h2>Notations moyennes par domaine</h2>
-                    <div class="table-container">
-                        <!-- Notations par domaine -->
-                        <NLColumn lg="6">
-                            <h2>Notations moyennes par domaine</h2>
-                            <div class="table-container">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Domaine</th>
-                                            <th>Nombre</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(row, index) in tables.avgScoreByDomain" :key="index">
-                                            <td>{{ index + 1 }}</td>
-                                            <td>{{ row['domain'] }}</td>
-                                            <td>{{ row['avg_score'] }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </NLColumn>
-                    </div>
-                </NLColumn>
+            <!-- Notations par domaine -->
+            <NLColumn lg="6" extraClass="box">
+                <h2>Notations moyennes par domaine</h2>
+                <div class="table-container" v-if="tables.avgScoreByDomain.length">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Domaine</th>
+                                <th>Nombre</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, index) in tables.avgScoreByDomain" :key="index">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ row['domain'] }}</td>
+                                <td>{{ row['avg_score'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="my-10 text-center text-bold" v-else>
+                    Pas assez de données
+                </div>
+            </NLColumn>
 
-                <!-- Notations moyennes par DRE -->
-                <NLColumn lg="6">
-                    <h2>Notations moyennes par DRE</h2>
-                    <div class="table-container">
-                        <!-- Notations moyennes par DRE -->
-                        <NLColumn lg="6">
-                            <h2>Notations moyennes par DRE</h2>
-                            <div class="table-container">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>DRE</th>
-                                            <th>Notation moyenne</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(row, index) in tables.avgScoreByDre" :key="index">
-                                            <td>{{ index + 1 }}</td>
-                                            <td>{{ row['dre'] }}</td>
-                                            <td>{{ row['avg_score'] }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </NLColumn>
-                    </div>
-                </NLColumn>
-            </NLGrid>
-            <!-- </NLColumn> -->
+            <!-- Notations moyennes par DRE -->
+            <NLColumn lg="6" extraClass="box">
+                <h2>Notations moyennes par DRE</h2>
+                <div class="table-container" v-if="tables.avgScoreByDre.length">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>DRE</th>
+                                <th>Notation moyenne</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, index) in tables.avgScoreByDre" :key="index">
+                                <td>{{ index + 1 }}</td>
+                                <td>{{ row['dre'] }}</td>
+                                <td>{{ row['avg_score'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="my-10 text-center text-bold" v-else>
+                    Pas assez de données
+                </div>
+            </NLColumn>
         </NLGrid>
 
         <!-- Anomalies -->
@@ -285,169 +220,46 @@
             <NLColumn lg="6" class="box">
                 <div class="d-flex align-center justify-between">
                     <h2>Anomalies par famille</h2>
-                    <button class="btn btn-info has-icon" @click.prevent="savePNG('familiesAnomalies')">
+                    <button class="btn btn-info has-icon" @click.prevent="savePNG('familiesAnomalies')"
+                        v-if="anomaliesData.charts.families.datasets[0].data.length">
                         <i class="las la-save icon" />
                     </button>
                 </div>
                 <NLContainer extraClass="d-flex full-center" isFluid>
-                    <NLFlex isFullCentered extraClass="w-100 h-100" v-if="anomaliesData.charts.families">
+                    <NLFlex isFullCentered extraClass="w-100 h-100"
+                        v-if="anomaliesData.charts.families.datasets[0].data.length">
                         <Doughnut id="familiesAnomalies" :data="anomaliesData.charts.families"
                             :options="circularChartOptions" data-title="anomalies_par_familles" />
                     </NLFlex>
-                    <div class="w-100 h-100 text-center text-bold" v-else>
+                    <div class="my-10 text-center text-bold" v-else>
                         Pas assez de données
                     </div>
-                    <!-- Anomalies -->
-                    <NLGrid gap="4" v-if="currentSection == 'anomalies'">
-                        <!-- Anomalies par famille -->
-                        <NLColumn lg="6" class="box">
-                            <div class="d-flex align-center justify-between">
-                                <h2>Anomalies par famille</h2>
-                                <button class="btn btn-info has-icon" @click.prevent="savePNG('familiesAnomalies')">
-                                    <i class="las la-save icon" />
-                                </button>
-                            </div>
-                            <NLContainer extraClass="d-flex full-center" isFluid>
-                                <NLFlex isFullCentered extraClass="w-100 h-100" v-if="anomaliesData.charts.families">
-                                    <Doughnut id="familiesAnomalies" :data="anomaliesData.charts.families"
-                                        :options="circularChartOptions" data-title="anomalies_par_familles" />
-                                </NLFlex>
-                                <div class="w-100 h-100 text-center text-bold" v-else>
-                                    Pas assez de données
-                                </div>
-                            </NLContainer>
-                        </NLColumn>
-                        <!-- Anomalies par DRE -->
-                        <NLColumn lg="6" class="box">
-                            <div class="d-flex align-center justify-between">
-                                <h2>Anomalies par DRE</h2>
-                                <button class="btn btn-info has-icon" @click.prevent="savePNG('dresAnomalies')">
-                                    <i class="las la-save icon" />
-                                </button>
-                            </div>
-                            <NLContainer extraClass="d-flex full-center" isFluid>
-                                <NLFlex isFullCentered extraClass="w-100 h-100" v-if="anomaliesData.charts.dres">
-                                    <Bar id="dresAnomalies" :data="anomaliesData.charts.dres" :options="chartOptions"
-                                        data-title="anomalies_par_dre" />
-                                </NLFlex>
-                                <div class="w-100 h-100 text-center text-bold" v-else>
-                                    Pas assez de données
-                                </div>
-                            </NLContainer>
-                        </NLColumn>
-                        <!-- Anomalies par DRE -->
-                        <NLColumn lg="6" class="box">
-                            <div class="d-flex align-center justify-between">
-                                <h2>Anomalies par DRE</h2>
-                                <button class="btn btn-info has-icon" @click.prevent="savePNG('dresAnomalies')">
-                                    <i class="las la-save icon" />
-                                </button>
-                            </div>
-                            <NLContainer extraClass="d-flex full-center" isFluid>
-                                <NLFlex isFullCentered extraClass="w-100 h-100" v-if="anomaliesData.charts.dres">
-                                    <Bar id="dresAnomalies" :data="anomaliesData.charts.dres" :options="chartOptions"
-                                        data-title="anomalies_par_dre" />
-                                </NLFlex>
-                                <div class="w-100 h-100 text-center text-bold" v-else>
-                                    Pas assez de données
-                                </div>
-                            </NLContainer>
-                        </NLColumn>
-                        <!-- Anomalies par domaine -->
-                        <NLColumn lg="6">
-                            <h2>Anomalies par domaine</h2>
-                            <div class="table-container">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Domaine</th>
-                                            <th>Nombre</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(row, index) in anomaliesData.tables.domains" :key="index">
-                                            <td>{{ index + 1 }}</td>
-                                            <td>{{ row['domain'] }}</td>
-                                            <td>{{ row['total'] }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </NLColumn>
-                        <!-- 10 agences contenant un nombre d'anomalies élevé -->
-                        <NLColumn lg="6">
-                            <h2>Les 10 agences contenant un nombre d'anomalies élevé</h2>
-                            <div class="table-container">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Agence</th>
-                                            <th>Nombre d'anomalies</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(row, index) in anomaliesData.tables.agencies" :key="index">
-                                            <td>{{ index + 1 }}</td>
-                                            <td>{{ row['agency'] }}</td>
-                                            <td>{{ row['total_anomalies'] }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </NLColumn>
-                        <!-- 10 missions contenant un nombre des anomalies élevé -->
-                        <NLColumn lg="6">
-                            <h2>Les 10 missions contenant un nombre des anomalies élevé</h2>
-                            <div class="table-container">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Mission</th>
-                                            <th>Nombre d'anomalies</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(row, index) in anomaliesData.tables.missions" :key="index">
-                                            <td>{{ index + 1 }}</td>
-                                            <td>{{ row['mission'] }}</td>
-                                            <td>{{ row['total_anomaly'] }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </NLColumn>
-                        <!-- 10 missions contenant un nombre des anomalies élevé -->
-                        <NLColumn lg="6">
-                            <h2>Les 10 campagnes de contrôle contenant un nombre des anomalies élevé</h2>
-                            <div class="table-container">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Campagne</th>
-                                            <th>Nombre d'anomalies</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(row, index) in anomaliesData.tables.campaigns" :key="index">
-                                            <td>{{ index + 1 }}</td>
-                                            <td>{{ row['campaign'] }}</td>
-                                            <td>{{ row['total_anomaly'] }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </NLColumn>
-                    </NLGrid>
+                </NLContainer>
+            </NLColumn>
+            <!-- Anomalies par DRE -->
+            <NLColumn lg="6" class="box">
+                <div class="d-flex align-center justify-between">
+                    <h2>Anomalies par DRE</h2>
+                    <button class="btn btn-info has-icon" @click.prevent="savePNG('dresAnomalies')"
+                        v-if="anomaliesData.charts.dres.datasets[0].data.length">
+                        <i class="las la-save icon" />
+                    </button>
+                </div>
+                <NLContainer extraClass="d-flex full-center" isFluid>
+                    <NLFlex isFullCentered extraClass="w-100 h-100"
+                        v-if="anomaliesData.charts.dres.datasets[0].data.length">
+                        <Bar id="dresAnomalies" :data="anomaliesData.charts.dres" :options="chartOptions"
+                            data-title="anomalies_par_dre" />
+                    </NLFlex>
+                    <div class="my-10 text-center text-bold" v-else>
+                        Pas assez de données
+                    </div>
                 </NLContainer>
             </NLColumn>
             <!-- Anomalies par domaine -->
-            <NLColumn lg="6">
+            <NLColumn lg="6" class="box">
                 <h2>Anomalies par domaine</h2>
-                <div class="table-container">
+                <div class="table-container" v-if="anomaliesData.tables.domains.length">
                     <table>
                         <thead>
                             <tr>
@@ -465,11 +277,14 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="my-10 text-center text-bold" v-else>
+                    Pas assez de données
+                </div>
             </NLColumn>
             <!-- 10 agences contenant un nombre d'anomalies élevé -->
-            <NLColumn lg="6">
+            <NLColumn lg="6" class="box">
                 <h2>Les 10 agences contenant un nombre d'anomalies élevé</h2>
-                <div class="table-container">
+                <div class="table-container" v-if="anomaliesData.tables.agencies.length">
                     <table>
                         <thead>
                             <tr>
@@ -487,11 +302,14 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="my-10 text-center text-bold" v-else>
+                    Pas assez de données
+                </div>
             </NLColumn>
             <!-- 10 missions contenant un nombre des anomalies élevé -->
-            <NLColumn lg="6">
+            <NLColumn lg="6" class="box">
                 <h2>Les 10 missions contenant un nombre des anomalies élevé</h2>
-                <div class="table-container">
+                <div class="table-container" v-if="anomaliesData.tables.missions.length">
                     <table>
                         <thead>
                             <tr>
@@ -509,11 +327,14 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="my-10 text-center text-bold" v-else>
+                    Pas assez de données
+                </div>
             </NLColumn>
             <!-- 10 missions contenant un nombre des anomalies élevé -->
-            <NLColumn lg="6">
+            <NLColumn lg="6" class="box">
                 <h2>Les 10 campagnes de contrôle contenant un nombre des anomalies élevé</h2>
-                <div class="table-container">
+                <div class="table-container" v-if="anomaliesData.tables.campaigns.length">
                     <table>
                         <thead>
                             <tr>
@@ -531,6 +352,9 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="my-10 text-center text-bold" v-else>
+                    Pas assez de données
+                </div>
             </NLColumn>
         </NLGrid>
 
@@ -540,179 +364,44 @@
             <NLColumn lg="6" class="box">
                 <div class="d-flex align-center justify-between">
                     <h2>Faits majeur par famille</h2>
-                    <button class="btn btn-info has-icon" @click.prevent="savePNG('familiesMajorFacts')">
+                    <button class="btn btn-info has-icon" @click.prevent="savePNG('familiesMajorFacts')"
+                        v-if="majorFactsData.charts.families.datasets[0].data.length">
                         <i class="las la-save icon" />
                     </button>
                 </div>
                 <NLContainer extraClass="d-flex full-center" isFluid>
-                    <NLFlex isFullCentered v-if="majorFactsData.charts.families?.length">
+                    <NLFlex isFullCentered v-if="majorFactsData.charts.families.datasets[0].data.length">
                         <Doughnut id="familiesMajorFacts" :data="majorFactsData.charts.families"
                             :options="circularChartOptions" data-title="faits_majeur_par_famille" />
                     </NLFlex>
-                    <div class="w-100 h-100 text-center text-bold" v-else>
+                    <div class="my-10 text-center text-bold" v-else>
                         Pas assez de données
                     </div>
-                    <!-- Major facts -->
-                    <NLGrid gap="4" v-if="currentSection == 'majorFacts'">
-                        <!-- Faits majeur par famille -->
-                        <NLColumn lg="6" class="box">
-                            <div class="d-flex align-center justify-between">
-                                <h2>Faits majeur par famille</h2>
-                                <button class="btn btn-info has-icon" @click.prevent="savePNG('familiesMajorFacts')">
-                                    <i class="las la-save icon" />
-                                </button>
-                            </div>
-                            <NLContainer extraClass="d-flex full-center" isFluid>
-                                <NLFlex isFullCentered v-if="majorFactsData.charts.families?.length">
-                                    <Doughnut id="familiesMajorFacts" :data="majorFactsData.charts.families"
-                                        :options="circularChartOptions" data-title="faits_majeur_par_famille" />
-                                </NLFlex>
-                                <div class="w-100 h-100 text-center text-bold" v-else>
-                                    Pas assez de données
-                                </div>
-                            </NLContainer>
-                        </NLColumn>
-                        <!-- Faits majeur par DRE -->
-                        <NLColumn lg="6" class="box">
-                            <div class="d-flex align-center justify-between">
-                                <h2>Faits majeur par DRE</h2>
-                                <button class="btn btn-info has-icon" @click.prevent="savePNG('dresMajorFacts')">
-                                    <i class="las la-save icon" />
-                                </button>
-                            </div>
-                            <NLContainer extraClass="d-flex full-center" isFluid>
-                                <NLFlex isFullCentered class="w-100 h-100" v-if="majorFactsData.charts.dres?.length">
-                                    <Bar id="dresMajorFacts" :data="majorFactsData.charts.dres" :options="chartOptions"
-                                        data-title="faits_majeur_par_dre" />
-                                </NLFlex>
-                                <div class="w-100 h-100 text-center text-bold" v-else>
-                                    Pas assez de données
-                                </div>
-                            </NLContainer>
-                        </NLColumn>
-                        <!-- Faits majeur par DRE -->
-                        <NLColumn lg="6" class="box">
-                            <div class="d-flex align-center justify-between">
-                                <h2>Faits majeur par DRE</h2>
-                                <button class="btn btn-info has-icon" @click.prevent="savePNG('dresMajorFacts')">
-                                    <i class="las la-save icon" />
-                                </button>
-                            </div>
-                            <NLContainer extraClass="d-flex full-center" isFluid>
-                                <NLFlex isFullCentered class="w-100 h-100" v-if="majorFactsData.charts.dres?.length">
-                                    <Bar id="dresMajorFacts" :data="majorFactsData.charts.dres" :options="chartOptions"
-                                        data-title="faits_majeur_par_dre" />
-                                </NLFlex>
-                                <div class="w-100 h-100 text-center text-bold" v-else>
-                                    Pas assez de données
-                                </div>
-                            </NLContainer>
-                        </NLColumn>
-                        <!-- Faits majeur par domaine -->
-                        <NLColumn lg="6">
-                            <h2>Faits majeur par domaine</h2>
-                            <div class="table-container">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Domaine</th>
-                                            <th>Nombre Faits majeur</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(row, index) in majorFactsData.tables.domains" :key="index">
-                                            <td>{{ index + 1 }}</td>
-                                            <td>{{ row['domain'] }}</td>
-                                            <td>{{ row['total'] }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <NLContainer extraClass="d-flex full-center" isFluid>
-                                <NLFlex isFullCentered extraClass="w-100 h-100" v-if="charts.avgScoreByFamily">
-                                    <Doughnut id="avgScoreByFamily" :data="charts.avgScoreByFamily"
-                                        :options="circularChartOptions" data-title="notations_moyennes_par_famille" />
-                                </NLFlex>
-                                <div class="w-100 h-100 text-center text-bold" v-else>
-                                    Pas assez de données
-                                </div>
-                            </NLContainer>
-                        </NLColumn>
-                        <!-- 10 agences contenant un nombre des faits majeur élevé -->
-                        <NLColumn lg="6">
-                            <h2>Les 10 agences contenant un nombre des faits majeur élevé</h2>
-                            <div class="table-container">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Agence</th>
-                                            <th>Nombre Faits majeur</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(row, index) in majorFactsData.tables.agencies" :key="index">
-                                            <td>{{ index + 1 }}</td>
-                                            <td>{{ row['agency'] }}</td>
-                                            <td>{{ row['total_major_facts'] }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </NLColumn>
-                        <!-- 10 missions contenant un nombre des faits majeur élevé -->
-                        <NLColumn lg="6">
-                            <h2>Les 10 missions contenant un nombre des faits majeur élevé</h2>
-                            <div class="table-container">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Mission</th>
-                                            <th>Nombre Faits majeur</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(row, index) in majorFactsData.tables.missions" :key="index">
-                                            <td>{{ index + 1 }}</td>
-                                            <td>{{ row['mission'] }}</td>
-                                            <td>{{ row['total_major_facts'] }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                            </div>
-                        </NLColumn>
-                        <!-- 10 missions contenant un nombre des faits majeur élevé -->
-                        <NLColumn lg="6">
-                            <h2>Les 10 campagnes de contrôle contenant un nombre des faits majeur élevé</h2>
-                            <div class="table-container">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Campagne</th>
-                                            <th>Nombre de Faits majeur</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(row, index) in majorFactsData.tables.campaigns" :key="index">
-                                            <td>{{ index + 1 }}</td>
-                                            <td>{{ row['campaign'] }}</td>
-                                            <td>{{ row['total_major_facts'] }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </NLColumn>
-                    </NLGrid>
+                </NLContainer>
+            </NLColumn>
+            <!-- Faits majeur par DRE -->
+            <NLColumn lg="6" class="box">
+                <div class="d-flex align-center justify-between">
+                    <h2>Faits majeur par DRE</h2>
+                    <button class="btn btn-info has-icon" @click.prevent="savePNG('dresMajorFacts')"
+                        v-if="majorFactsData.charts.dres.datasets[0].data.length">
+                        <i class="las la-save icon" />
+                    </button>
+                </div>
+                <NLContainer extraClass="d-flex full-center" isFluid>
+                    <NLFlex isFullCentered class="w-100 h-100" v-if="majorFactsData.charts.dres.datasets[0].data.length">
+                        <Bar id="dresMajorFacts" :data="majorFactsData.charts.dres" :options="chartOptions"
+                            data-title="faits_majeur_par_dre" />
+                    </NLFlex>
+                    <div class="my-10 text-center text-bold" v-else>
+                        Pas assez de données
+                    </div>
                 </NLContainer>
             </NLColumn>
             <!-- Faits majeur par domaine -->
-            <NLColumn lg="6">
+            <NLColumn lg="6" class="box">
                 <h2>Faits majeur par domaine</h2>
-                <div class="table-container">
+                <div class="table-container" v-if="majorFactsData.tables.domains.length">
                     <table>
                         <thead>
                             <tr>
@@ -730,20 +419,14 @@
                         </tbody>
                     </table>
                 </div>
-                <NLContainer extraClass="d-flex full-center" isFluid>
-                    <NLFlex isFullCentered extraClass="w-100 h-100" v-if="charts.avgScoreByFamily">
-                        <Doughnut id="avgScoreByFamily" :data="charts.avgScoreByFamily" :options="circularChartOptions"
-                            data-title="notations_moyennes_par_famille" />
-                    </NLFlex>
-                    <div class="w-100 h-100 text-center text-bold" v-else>
-                        Pas assez de données
-                    </div>
-                </NLContainer>
+                <div class="my-10 text-center text-bold" v-else>
+                    Pas assez de données
+                </div>
             </NLColumn>
             <!-- 10 agences contenant un nombre des faits majeur élevé -->
-            <NLColumn lg="6">
+            <NLColumn lg="6" class="box">
                 <h2>Les 10 agences contenant un nombre des faits majeur élevé</h2>
-                <div class="table-container">
+                <div class="table-container" v-if="majorFactsData.tables.agencies.length">
                     <table>
                         <thead>
                             <tr>
@@ -761,11 +444,14 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="my-10 text-center text-bold" v-else>
+                    Pas assez de données
+                </div>
             </NLColumn>
             <!-- 10 missions contenant un nombre des faits majeur élevé -->
-            <NLColumn lg="6">
-                <h2>Les 10 missions contenant un nombre des faits majeur élevé</h2>
-                <div class="table-container">
+            <NLColumn lg="6" class="box">
+                <h2>Les 10 missions contenant unl nombre des faits majeur élevé</h2>
+                <div class="table-container" v-if="majorFactsData.tables.missions.length">
                     <table>
                         <thead>
                             <tr>
@@ -782,13 +468,15 @@
                             </tr>
                         </tbody>
                     </table>
-
+                </div>
+                <div class="my-10 text-center text-bold" v-else>
+                    Pas assez de données
                 </div>
             </NLColumn>
             <!-- 10 missions contenant un nombre des faits majeur élevé -->
-            <NLColumn lg="6">
+            <NLColumn lg="6" class="box">
                 <h2>Les 10 campagnes de contrôle contenant un nombre des faits majeur élevé</h2>
-                <div class="table-container">
+                <div class="table-container" v-if="majorFactsData.tables.campaigns.length">
                     <table>
                         <thead>
                             <tr>
@@ -806,10 +494,12 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="my-10 text-center text-bold" v-else>
+                    Pas assez de données
+                </div>
             </NLColumn>
         </NLGrid>
 
-        <NLGrid gap="6" v-if="currentSection == 'regularizations'" />
         <NLGrid gap="6" v-if="currentSection == 'regularizations'" />
     </ContentBody>
 </template>
@@ -904,7 +594,7 @@ export default {
         }
     },
     created() {
-        this.$store.dispatch('settings/updatePageLoading', false)
+        this.$store.dispatch('settings/updatePageLoading', true)
         this.setCurrentSection('realisationStates')
     },
     methods: {
@@ -916,6 +606,7 @@ export default {
          * @return {void}
          */
         setCurrentSection(section) {
+            this.$store.dispatch('settings/updatePageLoading', true)
             const UCFsection = section.charAt(0).toUpperCase() + section.slice(1)
             if (this.currentSection !== section) {
                 this.$store.dispatch('statistics/fetch' + UCFsection).then(() => {
@@ -952,9 +643,9 @@ export default {
                             this.tables.dresClassificationByAchievementRate = this.realisationStates.data.dresClassificationByAchievementRate
                         }
                     }
+                    this.$store.dispatch('settings/updatePageLoading', false)
                 })
             }
-            this.$store.dispatch('settings/updatePageLoading', false)
         },
         savePNG(element) {
             const canvas = document.querySelector(`#${element}`)
