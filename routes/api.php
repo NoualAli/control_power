@@ -3,7 +3,6 @@
 use App\Http\Controllers\Api\DataController;
 use App\Http\Controllers\Api\AgencyController;
 use App\Http\Controllers\Api\BugController;
-use App\Http\Controllers\Api\BugController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\ControlCampaignController;

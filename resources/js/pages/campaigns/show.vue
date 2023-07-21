@@ -80,9 +80,8 @@
 
         <!-- Processes List -->
         <NLDatatable v-if="campaign?.current?.id" :columns="columns" :details="details" :filters="filters"
-            title="Liste des processus de la campagne de contrôle"
-            :urlPrefix="'campaigns/processes/' + campaign?.current?.id" detailsUrlPrefix="processes"
-            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
+            title="Liste des processus" :urlPrefix="'campaigns/processes/' + campaign?.current?.id"
+            detailsUrlPrefix="processes" @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
             <template #actions-before="{ item, callback }"
                 v-if="can('edit_control_campaign') && !campaign?.current.validated_by_id && is(['dcp'])">
                 <button class="btn btn-danger has-icon" @click.stop="callback(detachProcess, item)">

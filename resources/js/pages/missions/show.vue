@@ -259,8 +259,8 @@
         </div>
 
         <NLDatatable v-if="mission?.current?.id && !pageLoadingState" :columns="columns" :details="details"
-            :filters="filters" title="Processus de la mission"
-            :urlPrefix="'missions/' + mission?.current?.id + '/processes'" detailsUrlPrefix="processes">
+            :filters="filters" title="Liste des processus" :urlPrefix="'missions/' + mission?.current?.id + '/processes'"
+            detailsUrlPrefix="processes">
             <template #actions-after="{ item }">
                 <button
                     v-if="can('control_agency,view_mission_detail') && mission?.current?.remaining_days_before_start <= 0"
