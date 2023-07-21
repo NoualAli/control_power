@@ -24,13 +24,15 @@ import NLHeading from './NLHeading'
 import NLGrid from './Grid/NLGrid'
 import NLColumn from './Grid/NLColumn'
 import NLFlex from './Grid/NLFlex'
+import NLForm from './NLForm'
 // import NLPageLoader from './NLPageLoader'
 // import NLComponentLoader from './NLComponentLoader.vue'
 // Components that are registered globaly.
 export function useComponents(app) {
     [
         // NLPageLoader,
-        // NLComponentLoader,
+        // NLComponentLoader
+        NLForm,
         NLRadios,
         NLCheckboxes,
         NLGrid,
