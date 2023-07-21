@@ -2,24 +2,23 @@
     <div v-if="can('create_permission')">
         <ContentHeader title="Ajouter une nouvelle permission" />
         <ContentBody>
-            <form @submit.prevent="create" @keydown="form.onKeydown($event)">
-                <div class="grid gap-10 my-4">
-                    <!-- Name -->
-                    <div class="col-12 col-md-6">
-                        <NLInput v-model="form.name" :form="form" name="name" label="Name" label-required />
-                    </div>
+            <NLForm :action="create" :form="form">
+                <!-- Name -->
+                <NLColumn lg="6" md="6">
+                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required />
+                </NLColumn>
 
-                    <!-- Rôles -->
-                    <div class="col-12 col-md-6">
-                        <NLSelect v-model="form.roles" :form="form" name="roles" label="Rôles" :options="rolesList"
-                            :multiple="true" label-required />
-                    </div>
-                </div>
-                <!-- Submit Button -->
-                <div class="d-flex justify-end align-center">
-                    <NLButton :loading="form.busy" label="Ajouter" class="is-radius" />
-                </div>
-            </form>
+                <!-- Rôles -->
+                <NLColumn lg="6" md="6">
+                    <NLSelect v-model="form.roles" :form="form" name="roles" label="Rôles" :options="rolesList"
+                        :multiple="true" label-required />
+                </NLColumn>
+                <NLColumn>
+                    <NLFlex lgJustifyContent="end">
+                        <NLButton :loading="form.busy" label="Ajouter" />
+                    </NLFlex>
+                </NLColumn>
+            </NLForm>
         </ContentBody>
     </div>
 </template>
@@ -55,7 +54,7 @@ export default {
 
     methods: {
         create() {
-            this.form.post('/api/permissions').then(response => {
+            this.form.post('permissions').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.form.reset()

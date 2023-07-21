@@ -40,7 +40,7 @@
         <template #footer>
             <!-- Submit Button -->
             <div class="col-12 d-flex justify-end align-center">
-                <NLButton :loading="form.busy" label="Enregistrer" class="is-radius" @click="save" />
+                <NLButton :loading="form.busy" label="Enregistrer" @click="save" />
             </div>
         </template>
     </NLModal>
@@ -127,7 +127,7 @@ export default {
          * Save regularization
          */
         save() {
-            this.form.post('/api/regularize/' + this.data.id).then(response => {
+            this.form.post('regularize/' + this.data.id).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.$emit('success', response)

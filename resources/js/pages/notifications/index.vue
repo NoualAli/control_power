@@ -10,7 +10,6 @@ import api from '../../plugins/api'
 export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],
-    components: { NLDatatable },
     metaInfo() {
         return { title: 'Centre de notification' }
     },

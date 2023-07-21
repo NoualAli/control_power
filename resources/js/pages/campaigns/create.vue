@@ -1,38 +1,36 @@
 <template>
     <div v-if="can('create_control_campaign')">
         <ContentBody>
-            <form @submit.prevent="create" @keydown="form.onKeydown($event)">
-                <!-- Control campaign base informations -->
-                <div class="grid">
-                    <div class="col-12">
-                        <NLWyswyg v-model="form.description" :form="form" name="description" label="Description"
-                            placeholder="Ajouter une description" label-required />
-                    </div>
-                    <div class="col-12 col-lg-4">
-                        <NLInput name="reference" :value="nextReference?.nextReference" :form="form" label="Référence"
-                            readonly label-required />
-                    </div>
-                    <div class="col-12 col-lg-4 col-tablet-6">
-                        <NLInput v-model="form.start" :form="form" name="start" label="Date début" type="date"
-                            label-required />
-                    </div>
-                    <div class="col-12 col-lg-4 col-tablet-6">
-                        <NLInput v-model="form.end" :form="form" name="end" label="Date fin" type="date" label-required />
-                    </div>
-                    <div class="col-12">
-                        <NLSelect v-model="form.pcf" :form="form" name="pcf" :options="pcfList" label="PCF" :multiple="true"
-                            placeholder="Choisissez un ou plusieurs PCF" no-options-text="Aucun PCF disponible"
-                            loading-text="Chargement des PCF en cours..." label-required />
-                    </div>
-                </div>
-                <div v-if="showValidation" class="col-12">
+            <NLForm :action="create" :form="form">
+                <NLColumn>
+                    <NLWyswyg v-model="form.description" :form="form" name="description" label="Description"
+                        placeholder="Ajouter une description" label-required />
+                </NLColumn>
+                <NLColumn lg="4">
+                    <NLInput name="reference" :value="nextReference?.nextReference" :form="form" label="Référence" readonly
+                        label-required />
+                </NLColumn>
+                <NLColumn lg="4" md="6">
+                    <NLInput v-model="form.start" :form="form" name="start" label="Date début" type="date" label-required />
+                </NLColumn>
+                <NLColumn lg="4" md="6">
+                    <NLInput v-model="form.end" :form="form" name="end" label="Date fin" type="date" label-required />
+                </NLColumn>
+                <NLColumn>
+                    <NLSelect v-model="form.pcf" :form="form" name="pcf" :options="pcfList" label="PCF" :multiple="true"
+                        placeholder="Choisissez un ou plusieurs PCF" no-options-text="Aucun PCF disponible"
+                        loading-text="Chargement des PCF en cours..." label-required />
+                </NLColumn>
+                <NLColumn v-if="showValidation">
                     <NLSwitch v-model="form.validate" name="validate" :form="form" label="Validé" type="is-success" />
-                </div>
+                </NLColumn>
                 <!-- Submit Button -->
-                <div class="d-flex justify-end align-center">
-                    <NLButton :loading="form.busy" label="Ajouter" class="is-radius" />
-                </div>
-            </form>
+                <NLColumn>
+                    <NLFlex lgJustifyContent="end">
+                        <NLButton :loading="form.busy" label="Ajouter" />
+                    </NLFlex>
+                </NLColumn>
+            </NLForm>
         </ContentBody>
     </div>
 </template>
@@ -74,7 +72,7 @@ export default {
             this.form.reset()
         },
         create() {
-            this.form.post('/api/campaigns').then(response => {
+            this.form.post('campaigns').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.form.reset()

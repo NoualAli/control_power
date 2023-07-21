@@ -8,8 +8,8 @@
                 </button>
             </template>
         </ContentHeader>
-        <form @submit.prevent="update" @keydown="form.onKeydown($event)">
-            <NLGrid>
+        <ContentBody>
+            <NLForm :action="update" :form="form">
                 <!-- Control campaigns -->
                 <NLColumn lg="6">
                     <NLInput v-model="this.form.campaign" name="campaign" label="Campagne de contrôle" readonly />
@@ -43,54 +43,63 @@
                 <NLColumn>
                     <NLWyswyg v-model="form.note" :form="form" name="note" label="Note" placeholder="Ajouter une note" />
                 </NLColumn>
-            </NLGrid>
-
-            <!-- Submit Button -->
-            <div class="d-flex justify-end align-center">
-                <NLButton :loading="form.busy" label="Mettre à jour" class="is-radius" />
-            </div>
-        </form>
-        <!-- Control campaign informations -->
-        <NLModal :show="cdcModalIsOpen" @close="cdcModalIsOpen = false">
-            <template #title>
-                {{ currentCampaign?.reference }}
-            </template>
-            <template #default>
-                <div class="list grid gap-12">
-                    <div class="col-12 col-lg-6 list-item">
-                        <span class="list-item-label">
-                            Début
-                        </span>
-                        <span class="list-item-content">
-                            {{ currentCampaign?.start + ' / ' +
-                                currentCampaign?.remaining_days_before_start_str }}
-                        </span>
+                <NLColumn>
+                    <NLFlex lgJustifyContent="end">
+                        <NLButton :loading="form.busy" label="Mettre à jour" />
+                    </NLFlex>
+                </NLColumn>
+            </NLForm>
+            <!-- Control campaign informations -->
+            <NLModal :show="cdcModalIsOpen" @close="cdcModalIsOpen = false">
+                <template #title>
+                    {{ currentCampaign?.reference }}
+                </template>
+                <template #default>
+                    <div class="list grid gap-12">
+                        <div class="col-12 col-lg-6 list-item">
+                            <span class="list-item-label">
+                                Début
+                            </span>
+                            <span class="list-item-content">
+                                {{ currentCampaign?.start + ' / ' +
+                                    currentCampaign?.remaining_days_before_start_str }}
+                            </span>
+                        </div>
+                        <div class="col-12 col-lg-6 list-item">
+                            <span class="list-item-label">
+                                Fin
+                            </span>
+                            <span class="list-item-content">
+                                {{ currentCampaign?.end + ' / ' +
+                                    currentCampaign?.remaining_days_before_end_str }}
+                            </span>
+                        </div>
+                        <div class="col-12 list-item">
+                            <span class="list-item-label">
+                                Description:
+                            </span>
+                            <div class="list-item-content content" v-html="currentCampaign?.description"></div>
+                        </div>
                     </div>
-                    <div class="col-12 col-lg-6 list-item">
-                        <span class="list-item-label">
-                            Fin
-                        </span>
-                        <span class="list-item-content">
-                            {{ currentCampaign?.end + ' / ' +
-                                currentCampaign?.remaining_days_before_end_str }}
-                        </span>
-                    </div>
-                    <div class="col-12 list-item">
-                        <span class="list-item-label">
-                            Description:
-                        </span>
-                        <div class="list-item-content content" v-html="currentCampaign?.description"></div>
-                    </div>
-                </div>
-            </template>
-        </NLModal>
+                </template>
+            </NLModal>
+        </ContentBody>
     </ContentBody>
 </template>
 
 <script>
+import NLFlex from '../../components/Grid/NLFlex'
+import NLColumn from '../../components/Grid/NLColumn'
+import NLForm from '../../components/NLForm'
+import ContentBody from '../../components/ContentBody'
 import { mapGetters } from 'vuex'
 import Form from 'vform'
 export default {
+    components: {
+        NLFlex,
+        NLColumn,
+        NLForm, ContentBody
+    },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     data() {
@@ -155,7 +164,7 @@ export default {
          * Update mission
          */
         update() {
-            this.form.put('/api/missions/' + this.mission.current.id).then(response => {
+            this.form.put('missions/' + this.mission.current.id).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.initData()

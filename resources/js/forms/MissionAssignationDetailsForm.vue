@@ -6,22 +6,19 @@
             </small>
         </template>
         <template #default>
-            <div v-if="!isLoading">
-                <NLForm :form="form" :action="save">
-                    <NLColumn>
-                        <NLSelect v-model="form.controller" name="controllers" :form="form" :options="controllersList"
-                            label="Contrôleur" placeholder="Choisissez un contrôleur"
-                            no-options-text="Aucun contrôleur disponible"
-                            loading-text="Chargement des contrôleurs en cours..." label-required />
-                    </NLColumn>
-                    <NLColumn>
-                        <NLSelect v-model="form.pcf" :form="form" name="pcf" :options="pcfList" label="PCF" :multiple="true"
-                            placeholder="Choisissez un ou plusieurs PCF" no-options-text="Aucun PCF disponible"
-                            loading-text="Chargement des PCF en cours..." label-required />
-                    </NLColumn>
-                </NLForm>
-            </div>
-
+            <NLForm :form="form" :action="save" v-if="!isLoading">
+                <NLColumn>
+                    <NLSelect v-model="form.controller" name="controllers" :form="form" :options="controllersList"
+                        label="Contrôleur" placeholder="Choisissez un contrôleur"
+                        no-options-text="Aucun contrôleur disponible" loading-text="Chargement des contrôleurs en cours..."
+                        label-required />
+                </NLColumn>
+                <NLColumn>
+                    <NLSelect v-model="form.pcf" :form="form" name="pcf" :options="pcfList" label="PCF" :multiple="true"
+                        placeholder="Choisissez un ou plusieurs PCF" no-options-text="Aucun PCF disponible"
+                        loading-text="Chargement des PCF en cours..." label-required />
+                </NLColumn>
+            </NLForm>
             <!-- Loader -->
             <div class="component-loader-container" v-else>
                 <div class="component-loader"></div>
@@ -97,7 +94,7 @@ export default {
          * Save assignation
          */
         save() {
-            this.form.post('/api/missions/' + this.mission?.id + '/assign/' + this.type).then(response => {
+            this.form.post('missions/' + this.mission?.id + '/assign/' + this.type).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.$emit('success')

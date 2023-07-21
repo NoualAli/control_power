@@ -2,38 +2,36 @@
 <!-- eslint-disable vue/valid-model-definition -->
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-    <div class="box auth-box grid gap-6">
-        <div class="col-12 auth-box__header">
+    <NLGrid class="box auth-box grid" gap="6">
+        <NLColumn class="auth-box__header">
             <img src="/app/images/brand.svg" class="auth-brand">
             <span class="auth-box__title">
                 S'identifier
                 <br>
                 à votre compte
             </span>
-        </div>
-        <div class="col-12 form-container container">
+        </NLColumn>
+        <NLColumn class="form-container container">
             <form method="POST" @submit.prevent="login" @keydown="form.onKeydown($event)">
-                <div class="grid gap-2 my-2">
-                    <div class="col-12">
+                <NLGrid gap="2" class="my-2">
+                    <NLColumn>
                         <NLInput v-model="form.authLogin" name="authLogin" placeholder="Identifiant" :form="form"
                             class="is-for-auth" />
-                    </div>
-                    <div class="col-12">
+                    </NLColumn>
+                    <NLColumn>
                         <NLInput v-model="form.password" name="password" class="is-for-auth" placeholder="Mot de passe"
                             :form="form" type="password" />
-                    </div>
-                </div>
-                <div class="d-flex justify-center align-center">
-                    <NLButton :loading="form.busy" label="Connexion" class="is-radius d-block w-100" />
-                </div>
+                    </NLColumn>
+                </NLGrid>
+                <NLFlex lgJustifyContent="center">
+                    <NLButton :loading="form.busy" label="Connexion" class="d-block w-100" />
+                </NLFlex>
             </form>
-        </div>
-        <div class="col-12 text-center d-block d-lg-none">
-            <p class="">
-                &copy; {{ currentYear }} - Tous droits réservés - BNA
-            </p>
-        </div>
-    </div>
+        </NLColumn>
+        <NLColumn class="text-center d-block">
+            &copy; {{ currentYear }} - Tous droits réservés - BNA
+        </NLColumn>
+    </NLGrid>
 </template>
 
 <script>
@@ -71,7 +69,7 @@ export default {
         },
         async login() {
             // Submit the form.
-            const { data } = await this.form.post('/api/login')
+            const { data } = await this.form.post('login')
             // Save the token.
             this.$store.dispatch('auth/saveToken', {
                 token: data.token,

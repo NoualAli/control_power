@@ -1,7 +1,9 @@
 <template>
-    <ContentHeader>
-        <template class="d-flex justify-between align-center gap-3 mb-9" v-if="!pageLoadingState" #title>
-            <h2 class="w-100">Informations de la mission</h2>
+    <ContentHeader v-if="can('view_mission') && forcedRerenderKey !== -1" :key="forcedRerenderKey">
+        <template #title>
+            Informations de la mission
+        </template>
+        <template class="d-flex justify-between align-center gap-3 mb-9" v-if="!pageLoadingState" #actions>
             <NLFlex lgJustifyContent="end" extraClass="w-100">
                 <router-link v-if="can('view_control_campaign,view_page_control_campaigns')"
                     :to="{ name: 'campaign', params: { campaignId: mission?.current.campaign.id } }" class="btn">
@@ -436,7 +438,7 @@ export default {
          * Dispatch mission
          */
         dispatchMission() {
-            this.forms.dispatch.put('/api/missions/' + this.mission.current.id + '/assign').then(response => {
+            this.forms.dispatch.put('missions/' + this.mission.current.id + '/assign').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.initData()

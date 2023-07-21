@@ -138,27 +138,39 @@ class DataController extends Controller
      */
     private function globalScores(): array
     {
-        $details = $this->getDetails()->whereNotNull('score')->groupBy('score');
-        if (hasRole(['cc', 'ci'])) {
-            $details = $details->groupBy('user_id');
-        }
-        if (hasRole(['cdc'])) {
-            $details = $details->groupBy('created_by_id');
-        }
-        $details = $details->selectRaw('score, COUNT(*) as scores_count')->get()->pluck('scores_count', 'score');
-        $labels = $details->keys();
         extract($this->defaultColors());
-        $datasets = [
+        if (!hasRole(['dre', 'da'])) {
+            $details = $this->getDetails()->whereNotNull('score')->groupBy('score');
+            if (hasRole(['cc', 'ci'])) {
+                $details = $details->groupBy('user_id');
+            }
+            if (hasRole(['cdc'])) {
+                $details = $details->groupBy('created_by_id');
+            }
+            $details = $details->selectRaw('score, COUNT(*) as scores_count')->get()->pluck('scores_count', 'score');
+            $labels = $details->keys();
+            $datasets = [
+                [
+                    'axis' => 'y',
+                    "label" => "Classement des notations",
+                    "data" => $details->values(),
+                    'backgroundColor' => $backgroundColor,
+                    'borderColor' => $borderColor,
+                    'borderWidth' => $borderWidth,
+                ]
+            ];
+            return compact('labels', 'datasets');
+        }
+        return $datasets = [
             [
                 'axis' => 'y',
                 "label" => "Classement des notations",
-                "data" => $details->values(),
+                "data" => [],
                 'backgroundColor' => $backgroundColor,
                 'borderColor' => $borderColor,
                 'borderWidth' => $borderWidth,
             ]
         ];
-        return compact('labels', 'datasets');
     }
 
     /**
@@ -640,18 +652,11 @@ class DataController extends Controller
         $details = MissionDetail::whereNotNull('score');
         if (hasRole(['dcp', 'dg', 'cdcr'])) {
             $details = $details;
-            // $details = $details->hasCdcrValidation();
-        }
-        // elseif (hasRole('cdcr')) {
-        //     $details = $details->dreReporthasCdcValidation();
-        // }
-        elseif (hasRole(['cdc', 'cc', 'ci'])) {
+        } elseif (hasRole(['cdc', 'cc', 'ci'])) {
             $details = $user->details();
         } elseif (hasRole(['cdrcp', 'der'])) {
             $details = $details->hasDcpValidation();
-        } elseif (hasRole('dre')) {
-            $details = auth()->user()->details()->hasDcpValidation();
-        } elseif (hasRole('da')) {
+        } elseif (hasRole(['dre', 'da'])) {
             $details = $user->details()->hasDcpValidation();
         }
         return $details->without(['process', 'domain', 'controlPoint', 'familly', 'media']);

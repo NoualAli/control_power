@@ -2,23 +2,22 @@
     <div v-if="can('create_domain')">
         <ContentHeader title="Ajouter un nouveau domaine" />
         <ContentBody>
-            <form @submit.prevent="create" @keydown="form.onKeydown($event)">
-                <div class="grid gap-10 my-4">
-                    <!-- Familliies -->
-                    <div class="col-12 col-md-6">
-                        <NLSelect v-model="form.familly_id" :form="form" name="familly_id" label="Famille"
-                            :options="familliesList" label-required :multiple="false" />
-                    </div>
-                    <!-- Name -->
-                    <div class="col-12 col-md-6">
-                        <NLInput v-model="form.name" :form="form" name="name" label="Name" label-required />
-                    </div>
-                </div>
-                <!-- Submit Button -->
-                <div class="d-flex justify-end align-center">
-                    <NLButton :loading="form.busy" label="Ajouter" class="is-radius" />
-                </div>
-            </form>
+            <NLForm :action="create" :form="form">
+                <!-- Familliies -->
+                <NLColumn lg="6" md="6">
+                    <NLSelect v-model="form.familly_id" :form="form" name="familly_id" label="Famille"
+                        :options="familliesList" label-required :multiple="false" />
+                </NLColumn>
+                <!-- Name -->
+                <NLColumn lg="6" md="6">
+                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required />
+                </NLColumn>
+                <NLColumn>
+                    <NLFlex lgJustifyContent="end">
+                        <NLButton :loading="form.busy" label="Ajouter" />
+                    </NLFlex>
+                </NLColumn>
+            </NLForm>
         </ContentBody>
     </div>
 </template>
@@ -52,7 +51,7 @@ export default {
     },
     methods: {
         create() {
-            this.form.post('/api/domains').then(response => {
+            this.form.post('domains').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.form.reset()

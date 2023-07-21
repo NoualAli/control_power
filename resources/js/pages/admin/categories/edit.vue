@@ -2,24 +2,23 @@
     <div v-if="can('create_agency')">
         <ContentHeader title="Ajouter une nouvelle catégorie" />
         <ContentBody>
-            <form @submit.prevent="create" @keydown="form.onKeydown($event)">
-                <div class="grid gap-10 my-4">
-                    <!-- Name -->
-                    <div class="col-12 col-md-6">
-                        <NLInput v-model="form.name" :form="form" name="name" label="Name" label-required />
-                    </div>
-                    <!-- Processus -->
-                    <div class="col-12 col-md-6">
-                        <NLSelect v-model="form.pcf" :form="form" name="pcf" :options="pcfList" label="PCF" :multiple="true"
-                            placeholder="Choisissez un ou plusieurs PCF" no-options-text="Aucune PCF disponible"
-                            loading-text="Chargement des PCF en cours..." label-required />
-                    </div>
-                </div>
-                <!-- Submit Button -->
-                <div class="d-flex justify-end align-center">
-                    <NLButton :loading="form.busy" label="Enregistrer" class="is-radius" />
-                </div>
-            </form>
+            <NLForm :action="update" :form="form">
+                <!-- Name -->
+                <NLColumn lg="6" md="6">
+                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required />
+                </NLColumn>
+                <!-- Processus -->
+                <NLColumn lg="6" md="6">
+                    <NLSelect v-model="form.pcf" :form="form" name="pcf" :options="pcfList" label="PCF" :multiple="true"
+                        placeholder="Choisissez un ou plusieurs PCF" no-options-text="Aucune PCF disponible"
+                        loading-text="Chargement des PCF en cours..." label-required />
+                </NLColumn>
+                <NLColumn>
+                    <NLFlex lgJustifyContent="end">
+                        <NLButton :loading="form.busy" label="Enregistrer" />
+                    </NLFlex>
+                </NLColumn>
+            </NLForm>
         </ContentBody>
     </div>
 </template>
@@ -57,8 +56,8 @@ export default {
                 this.$store.dispatch('settings/updatePageLoading', false)
             })
         },
-        create() {
-            this.form.put('/api/categories/' + this.$route.params.category).then(response => {
+        update() {
+            this.form.put('categories/' + this.$route.params.category).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.initData()

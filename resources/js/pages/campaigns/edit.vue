@@ -2,37 +2,33 @@
     <div v-if="forcedRerenderKey !== -1 && ((campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign')) || !campaign?.current?.validated_by_id)"
         :key="forcedRerenderKey">
         <ContentBody>
-            <form @submit.prevent="update" @keydown="form.onKeydown($event)">
-                <!-- Control campaign base informations -->
-                <div class="grid">
-                    <div class="col-12">
-                        <NLWyswyg v-model="form.description" :form="form" name="description" label="Description"
-                            placeholder="Ajouter une description" label-required />
-                    </div>
-                    <div class="col-12 col-lg-4">
-                        <NLInput name="reference" :value="form.reference" :form="form" label="Référence" readonly
-                            label-required />
-                    </div>
-                    <div class="col-12 col-lg-4 col-tablet-6">
-                        <NLInput v-model="form.start" :form="form" name="start" label="Date début" type="date"
-                            label-required />
-                    </div>
-                    <div class="col-12 col-lg-4 col-tablet-6">
-                        <NLInput v-model="form.end" :form="form" name="end" label="Date fin" type="date" label-required />
-                    </div>
-                    <div class="col-12">
-                        <NLSelect v-if="!readonly.pcf" v-model="form.pcf" :form="form" name="pcf" :options="pcfList"
-                            label="PCF" :multiple="true" placeholder="Choisissez un ou plusieurs PCF"
-                            no-options-text="Aucun PCF disponible" loading-text="Chargement des PCF en cours..."
-                            label-required />
-                    </div>
-                </div>
-
+            <NLForm :action="update" :form="form">
+                <NLColumn>
+                    <NLWyswyg v-model="form.description" :form="form" name="description" label="Description"
+                        placeholder="Ajouter une description" label-required />
+                </NLColumn>
+                <NLColumn lg="4">
+                    <NLInput name="reference" :value="form.reference" :form="form" label="Référence" readonly
+                        label-required />
+                </NLColumn>
+                <NLColumn lg="4" md="6">
+                    <NLInput v-model="form.start" :form="form" name="start" label="Date début" type="date" label-required />
+                </NLColumn>
+                <NLColumn lg="4" md="6">
+                    <NLInput v-model="form.end" :form="form" name="end" label="Date fin" type="date" label-required />
+                </NLColumn>
+                <NLColumn>
+                    <NLSelect v-if="!readonly.pcf" v-model="form.pcf" :form="form" name="pcf" :options="pcfList" label="PCF"
+                        :multiple="true" placeholder="Choisissez un ou plusieurs PCF" no-options-text="Aucun PCF disponible"
+                        loading-text="Chargement des PCF en cours..." label-required />
+                </NLColumn>
                 <!-- Submit Button -->
-                <div class="d-flex justify-end align-center">
-                    <NLButton :loading="form.busy" label="Mettre à jour" class="is-radius" />
-                </div>
-            </form>
+                <NLColumn>
+                    <NLFlex lgJustifyContent="end">
+                        <NLButton :loading="form.busy" label="Mettre à jour" />
+                    </NLFlex>
+                </NLColumn>
+            </NLForm>
         </ContentBody>
     </div>
 </template>
@@ -89,7 +85,7 @@ export default {
         update() {
             // console.log(this.$route.params.campaignId)
 
-            this.form.put('/api/campaigns/' + this.$route.params.campaignId).then(response => {
+            this.form.put('campaigns/' + this.$route.params.campaignId).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.$router.push({ name: 'campaign', params: { campaignId: this.$route.params.campaignId } })

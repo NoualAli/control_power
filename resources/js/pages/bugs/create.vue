@@ -35,7 +35,7 @@
             </NLGrid>
             <!-- Submit Button -->
             <div class="d-flex justify-end align-center">
-                <NLButton :loading="form.busy" label="Signaler" class="is-radius" />
+                <NLButton :loading="form.busy" label="Signaler" />
             </div>
         </form>
     </ContentBody>
@@ -143,7 +143,7 @@ export default {
             return false; // No changes in form values
         },
         create() {
-            this.form.post('/api/bugs').then(response => {
+            this.form.post('bugs').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.form.reset()

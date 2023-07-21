@@ -1,7 +1,10 @@
 <template>
-    <ContentBody v-if="can('view_control_campaign')">
-        <div :key="forcedRerenderKey" class="d-flex justify-end align-center gap-3 my-2">
-            <template v-if="forcedRerenderKey !== -1">
+    <ContentHeader v-if="can('view_control_campaign')">
+        <template #title>
+            Informations de la campagne de contrôle
+        </template>
+        <template class="d-flex justify-between align-center gap-3 mb-9" v-if="!pageLoadingState" #actions>
+            <NLFlex lgJustifyContent="end" extraClass="w-100" v-if="forcedRerenderKey !== -1">
                 <router-link v-if="can('view_mission')"
                     :to="{ name: 'campaign-missions', params: { campaignId: campaign?.current?.id } }" class="btn">
                     Missions
@@ -20,11 +23,12 @@
                     class="btn btn-info has-icon" @click.stop="validate(campaign?.current)">
                     <i class="las la-check icon" />
                 </button>
-            </template>
-        </div>
-
+            </NLFlex>
+        </template>
+    </ContentHeader>
+    <ContentBody v-if="can('view_control_campaign')">
         <!-- Control campaign informations -->
-        <div class="box mb-10 border-primary-dark border-1">
+        <div class="box mb-10">
             <div class="grid gap-12">
                 <div class="col-12 col-lg-4">
                     <span class="text-bold">
