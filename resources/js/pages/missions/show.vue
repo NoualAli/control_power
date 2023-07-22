@@ -252,11 +252,11 @@
             <!-- View ci comment -->
             <button v-if="mission?.current.is_validated_by_ci && is('cdc')" class="btn btn-info"
                 @click="showCommentForm('ci_report', true)">
-                Compte rendu de la mission
+                Compte-rendu de la mission
             </button>
             <button v-if="mission?.current?.ci_report_exists && is('ci')" class="btn btn-info"
                 @click="showCommentForm('ci_report', true)">
-                Compte rendu de la mission
+                Compte-rendu de la mission
             </button>
         </div>
 
