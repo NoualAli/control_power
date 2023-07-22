@@ -1,4 +1,4 @@
-<template>
+<template @keypress="handleKeyboard">
     <NLModal :show="show" @isExpanded="handleDetailForm" @close="close">
         <template #title>
             <small>
@@ -8,7 +8,7 @@
         <template #default>
             <NLForm :form="form" :action="save" v-if="!isLoading">
                 <!-- Major fact -->
-                <NLColumn v-if="data?.control_point?.has_major_fact">
+                <NLColumn v-if="data?.control_point?.has_major_fact && ([2, 3, 4]).includes(form.score)">
                     <NLSwitch type="is-danger" v-model="form.major_fact" :name="'major_fact'" :form="form"
                         label="Fait majeur" />
                 </NLColumn>
@@ -87,7 +87,7 @@
                                 </NLGrid>
                                 <!-- Add new row -->
                                 <div class="d-flex justify-start align-center">
-                                    <span class="btn" @click="addRow(data?.control_point.fields)">
+                                    <span class="btn" @click="addRow(data?.control_point.fields)" title="alt + '+'">
                                         <i class="las la-plus" />
                                     </span>
                                 </div>
@@ -156,20 +156,12 @@
                         :canDelete="canDeleteMedia" />
                 </NLColumn>
             </NLForm>
-
             <!-- Loader -->
-            <div class="component-loader-container" v-else>
-                <div class="component-loader"></div>
-                <div class="component-loader-text">
-                    Chargement en cours
-                </div>
-            </div>
+            <NLComponentLoader :isLoading="isLoading" />
         </template>
+        <!-- Submit Button -->
         <template #footer>
-            <!-- Submit Button -->
-            <div class="col-12 d-flex justify-end align-center">
-                <NLButton :loading="form.busy" label="Enregistrer" @click="save" />
-            </div>
+            <NLButton :loading="form.busy" label="Enregistrer" @click="save" v-if="!isLoading" />
         </template>
     </NLModal>
 </template>
@@ -179,10 +171,11 @@ import NLForm from '../components/NLForm';
 import { Form } from 'vform';
 import { mapGetters } from 'vuex';
 import { hasRole } from '../plugins/user';
+import NLComponentLoader from '../components/NLComponentLoader'
 export default {
     name: 'MissionDetailForm',
     emits: [ 'success', 'close' ],
-    components: { NLForm },
+    components: { NLForm, NLComponentLoader },
     props: {
         data: { type: [ Object, null ], required: true },
         show: { type: Boolean, default: false },
@@ -204,6 +197,9 @@ export default {
             }
             return false
         }
+    },
+    mounted() {
+        this.handleKeyboard()
     },
     watch: {
         'form.major_fact': function (newValue, oldValue) {
@@ -244,6 +240,24 @@ export default {
         }
     },
     methods: {
+        handleKeyboard() {
+            window.addEventListener('keyup', e => {
+                if (this.data?.control_point.fields && Number(this.form.score) > 1 && [ 1, 2 ].includes(this.form.currentMode)) {
+                    if (e.key == '+' && e.altKey) {
+                        e.preventDefault()
+                        this.addRow(this.data?.control_point.fields)
+                    }
+                    if (e.key == '-' && e.altKey) {
+                        e.preventDefault()
+                        const totalData = Object.values(this.form.metadata).length
+                        if (totalData) {
+                            const index = totalData - 1
+                            this.removeRow(index)
+                        }
+                    }
+                }
+            })
+        },
         handleDetailForm(e) {
             this.isContainerExpanded = e
         },
@@ -367,7 +381,7 @@ export default {
          * @param {Number} row
          * @param {Number} field
          */
-        removeRow(row, field) {
+        removeRow(field) {
             this.form.metadata.splice(field, 1)
         },
         /**
