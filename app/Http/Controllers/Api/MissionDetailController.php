@@ -111,7 +111,9 @@ class MissionDetailController extends Controller
                 unset($data['detail']);
                 $this->updateDetail($data, $detail);
                 $this->storeFiles($files, $detail);
-                $this->notifyMajorFact($detail);
+                if (hasRole('ci')) {
+                    $this->notifyMajorFact($detail);
+                }
             });
             return response()->json([
                 'message' => 'Les renseignements sur le point de contrôle sont sauvegardés avec succès.',
