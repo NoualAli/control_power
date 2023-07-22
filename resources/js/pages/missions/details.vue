@@ -142,7 +142,6 @@
                 </NLColumn>
             </NLGrid>
         </NLContainer>
-        <NLPageLoader :isLoading="pageLoadingState" v-else></NLPageLoader>
 
         <!-- Traitement du point de contrôle -->
         <MissionDetailForm :data="rowSelected" :show="modals.forms.control" @success="success" @close="close" />
@@ -191,7 +190,7 @@ export default {
         ...mapGetters({
             config: 'missions/detailsConfig',
             detail: 'details/detail',
-            pageLoadingState: 'settings/pageLoadingState'
+            pageLoadingState: 'settings/pageIsLoading'
         })
     },
     created() {
