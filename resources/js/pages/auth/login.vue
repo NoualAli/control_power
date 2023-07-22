@@ -28,7 +28,7 @@
                 </NLFlex>
             </form>
         </NLColumn>
-        <NLColumn class="text-center d-block">
+        <NLColumn class="text-center d-block d-lg-none">
             &copy; {{ currentYear }} - Tous droits réservés - BNA
         </NLColumn>
     </NLGrid>
