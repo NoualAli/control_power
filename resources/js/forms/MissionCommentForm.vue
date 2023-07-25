@@ -19,12 +19,7 @@
             <NLContainer class="content" v-if="isReadonly && !isLoading" isFluid v-html="content"></NLContainer>
 
             <!-- Loader -->
-            <div class="component-loader-container" v-else>
-                <div class="component-loader"></div>
-                <div class="component-loader-text">
-                    Chargement en cours
-                </div>
-            </div>
+            <NLComponentLoader :isLoading="isLoading" />
         </template>
         <template #footer>
             <NLFlex v-if="isValidated">
@@ -57,10 +52,11 @@
 import NLForm from '../components/NLForm';
 import { Form } from 'vform';
 import api from '../plugins/api';
+import NLComponentLoader from '../components/NLComponentLoader'
 export default {
     name: 'MissionDetailForm',
     emits: [ 'success', 'close' ],
-    components: { NLForm },
+    components: { NLForm, NLComponentLoader },
     props: {
         show: { type: Boolean, default: false },
         type: { type: [ String, null ], required: true },
