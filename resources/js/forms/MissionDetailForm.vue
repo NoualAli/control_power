@@ -242,7 +242,7 @@ export default {
     methods: {
         handleKeyboard() {
             window.addEventListener('keyup', e => {
-                if (this.data?.control_point.fields && Number(this.form.score) > 1 && [ 1, 2 ].includes(this.form.currentMode)) {
+                if (this.data?.control_point?.fields && Number(this.form.score) > 1 && [ 1, 2 ].includes(this.form.currentMode)) {
                     if (e.key == '+' && e.altKey) {
                         e.preventDefault()
                         this.addRow(this.data?.control_point.fields)
