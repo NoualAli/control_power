@@ -27,8 +27,9 @@
                             <a :href="file.link" :download="file.name">
                                 <i class="las la-download text-info icon" />
                             </a>
-                            <i v-if="canDelete && !readonly && isOwner" class="las la-trash text-danger icon is-clickable"
-                                @click.stop="deleteItem(file, index)" />
+                            {{ canDelete && file.is_owner && !readonly }}
+                            <i v-if="canDelete && file.isOwner && !readonly"
+                                class="las la-trash text-danger icon is-clickable" @click.stop="deleteItem(file, index)" />
                         </div>
                     </div>
                 </div>
@@ -73,21 +74,19 @@ export default {
         hasFiles() {
             return this.files.length
         },
-        isOwner() {
-            return Number(this.files[ 0 ].uploaded_by_id) == user().id
-        },
         accept() {
             return this.accepted.split(',').map(accept => '.' + accept).join(',')
         },
         getFilesList() {
             return [ ...this.files ].map((file) => {
                 return {
-                    id: file.id,
-                    name: file.original_name,
-                    size: file.size,
-                    type: file.type,
-                    link: file.link,
-                    icon: file.icon,
+                    id: file?.id,
+                    name: file?.original_name,
+                    size: file?.size,
+                    type: file?.type,
+                    link: file?.link,
+                    icon: file?.icon,
+                    isOwner: file?.is_owner,
                 }
             })
         },
@@ -104,7 +103,7 @@ export default {
     watch: {
         modelValue(newVal, oldVal) {
             if (newVal !== oldVal) this.loadFiles(newVal.join(','))
-        }
+        },
     },
     created() {
         if (!this.files.length) {
@@ -163,7 +162,12 @@ export default {
             this.isLoading = !this.isLoading
             this.inProgress = !this.inProgress
             this.visibleLoadingText = 'Récupération des fichiers en cours...'
-            this.$api.get('upload?media=' + filesStr, {
+            let url = 'upload'
+            if (!([ null, '', undefined ]).includes(filesStr)) {
+                url += '?media=' + filesStr
+            }
+
+            this.$api.get(url, {
                 onDownloadProgress: progressEvent => this.setProgress(progressEvent)
             }).then(response => {
                 this.files = response.data
