@@ -1,11 +1,15 @@
 <template>
     <InputContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired" :length="length"
-        :current-length="currentLength">
+        :current-length="currentLength" v-if="!readonly">
         <VueEditor :id="getId" v-model="currentValue" :editor-toolbar="editorSettings" class="input"
             :class="[{ 'is-danger': form?.errors.has(name) }]" :name="name" :autocomplete="autocomplete"
             :autofocus="autofocus" :max-length="length" :placeholder="placeholder || label" :value="currentValue"
             :help-text="helpText" v-bind="$attrs" @input="onInput($event)" @ready="quill => { editorQuill = quill }" />
     </InputContainer>
+    <NLContainer isFluid v-else>
+        <label class="label">{{ label }}</label>
+        <div class="content text-normal my-2" v-html="currentValue"></div>
+    </NLContainer>
 </template>
 <script>
 import InputContainer from './InputContainer'
