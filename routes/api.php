@@ -25,7 +25,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\Settings\PasswordController;
 use App\Http\Controllers\Api\Settings\ProfileController;
 use App\Http\Controllers\Api\ReferenceController;
-use App\Http\Controllers\Api\RegularizationController;
+use App\Http\Controllers\Api\MissionDetailRegularizationController;
 use App\Http\Controllers\Api\Settings\SettingController;
 use Illuminate\Support\Facades\Route;
 
@@ -187,8 +187,9 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/', 'index');
         });
     });
-    Route::prefix('regularize')->controller(RegularizationController::class)->group(function () {
+    Route::prefix('regularize')->controller(MissionDetailRegularizationController::class)->group(function () {
         Route::post('{detail}', 'store');
+        Route::get('{detail}/history', 'show');
     });
     /**
      * Dre -> agencies
