@@ -37,6 +37,7 @@ export default {
                 {
                     label: 'Contenu',
                     field: 'content',
+                    isHtml: true,
                     extraClass: {
                         td: (item) => {
                             return !item.read_at ? 'bg-primary-extra-light' : '';
