@@ -132,7 +132,7 @@
 
                         <!-- Report -->
                         <NLColumn>
-                            <NLTextarea v-model="form.report" :name="'report'" label="Constat" :form="form"
+                            <NLWyswyg v-model="form.report" :name="'report'" label="Constat" :form="form"
                                 :placeholder="![1, 2, 3, 4].includes(Number(form.score)) && !form.major_fact ? 'Constat' : 'Ajouter votre constat'"
                                 :label-required="[1, 2, 3, 4].includes(Number(form.score)) || form.major_fact"
                                 :readonly="![1, 2].includes(form.currentMode)"
@@ -141,7 +141,7 @@
 
                         <!-- Recovery plan -->
                         <NLColumn>
-                            <NLTextarea v-model="form.recovery_plan" :name="'recovery_plan'" label="Plan de redressement"
+                            <NLWyswyg v-model="form.recovery_plan" :name="'recovery_plan'" label="Plan de redressement"
                                 :form="form"
                                 :placeholder="![2, 3, 4].includes(Number(form.score)) && !form.major_fact ? '' : 'Ajouter votre plan de redressement'"
                                 :label-required="[2, 3, 4].includes(Number(form.score)) || form.major_fact"
