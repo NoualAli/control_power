@@ -75,7 +75,7 @@
                         Description:
                     </span>
                     <br>
-                    <div v-if="campaign?.current?.description !== '-'" class="mt-2 content"
+                    <div v-if="campaign?.current?.description !== '-'" class="mt-2 content text-normal"
                         v-html="campaign?.current?.description" />
                     <span v-else />
                 </div>
