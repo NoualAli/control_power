@@ -178,7 +178,7 @@
                     <span class="text-bold">
                         Note:
                     </span>
-                    <div v-if="mission?.current?.note" class="mt-2 content" v-html="mission?.current?.note" />
+                    <div v-if="mission?.current?.note" class="mt-2 content text-normal" v-html="mission?.current?.note" />
                     <span v-else>-</span>
                 </NLColumn>
             </NLGrid>
@@ -232,6 +232,13 @@
             <button
                 v-if="mission?.current.is_validated_by_cdcr && !mission?.current.is_validated_by_dcp && can('make_second_validation')"
                 class="btn btn-success" @click.prevent="validateMission('dcp')">
+                Valider la mission
+            </button>
+
+            <!-- DA -->
+            <button
+                v-if="mission?.current?.is_validated_by_dcp && !mission?.current?.is_validated_by_da && mission?.current?.regularization_status == 100 && can('regularize_mission_detail')"
+                class="btn btn-success" @click.prevent="validateMission('da')">
                 Valider la mission
             </button>
 
