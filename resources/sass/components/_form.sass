@@ -348,6 +348,11 @@ form
     transition: .1s ease
     color: $input-color
     overflow-y: auto
+    &.is-flat
+        padding: 0
+        border: none
+        box-shadow: none
+        min-height: auto
     &:hover
         background-color: lighten($primary, 80)
     @each $color in $colors-list
