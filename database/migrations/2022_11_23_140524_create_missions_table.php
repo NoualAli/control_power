@@ -41,7 +41,7 @@ class CreateMissionsTable extends Migration
                 $table->timestamp('dcp_validation_at')->nullable();
                 $table->timestamps();
                 $table->softDeletes('deleted_at');
-            }else{
+            } else {
                 // Dates
                 $table->timestamp('programmed_start', 7);
                 $table->timestamp('programmed_end', 7);
@@ -54,7 +54,6 @@ class CreateMissionsTable extends Migration
                 $table->timestamp('dcp_validation_at', 7)->nullable();
                 $table->timestamps(7);
                 $table->softDeletes('deleted_at', 7);
-
             }
 
             $table->foreign('control_campaign_id')->on('control_campaigns')->references('id')->onDelete('cascade')->onUpdate('cascade');
