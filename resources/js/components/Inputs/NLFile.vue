@@ -3,7 +3,7 @@
         :help-text="helpText">
         <input v-if="!readonly" :id="getId" type="file" :name="name" :multiple="multiple" :accept="accept"
             class="file-input" @change="onChange($event)">
-        <div :class="[{ 'is-danger': form?.errors.has(name), 'has-files': hasFiles, 'is-readonly': readonly }, 'file-input-area']"
+        <div :class="[{ 'is-danger': form?.errors.has(name), 'has-files': hasFiles, 'is-readonly': readonly, 'is-flat': isFlat }, 'file-input-area']"
             :draggable="true" @dragover="dragover" @dragleave="dragleave" @drop="drop"
             @click.stop="openFileBrowser($event)">
             <p v-if="!inProgress && !readonly" class="text-medium file-uploader">
@@ -27,7 +27,6 @@
                             <a :href="file.link" :download="file.name">
                                 <i class="las la-download text-info icon" />
                             </a>
-                            {{ canDelete && file.is_owner && !readonly }}
                             <i v-if="canDelete && file.isOwner && !readonly"
                                 class="las la-trash text-danger icon is-clickable" @click.stop="deleteItem(file, index)" />
                         </div>
@@ -58,7 +57,8 @@ export default {
         accepted: { type: String, default: 'jpg,jpeg,png,doc,docx,xls,xlsx,pdf' },
         helpText: { type: String, default: null },
         canDelete: { type: Boolean, default: true },
-        readonly: { type: Boolean, default: false }
+        readonly: { type: Boolean, default: false },
+        isFlat: { type: Boolean, default: false }
     },
     emits: [ 'change' ],
     data() {
@@ -106,7 +106,7 @@ export default {
         },
     },
     created() {
-        if (!this.files.length) {
+        if (this.modelValue.length) {
             this.loadFiles(this.modelValue.join(','))
         }
     },
