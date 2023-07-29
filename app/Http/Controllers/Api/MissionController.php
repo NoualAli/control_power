@@ -20,7 +20,6 @@ use App\Notifications\Mission\Updated;
 use App\Notifications\Mission\Validated;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\App;
@@ -296,7 +295,6 @@ class MissionController extends Controller
                     $attributes['validationAtColumn'] => now(),
                     $attributes['validationByColumn'] => auth()->user()->id,
                 ]);
-
                 if ($attributes['notify'] instanceof Collection) {
                     foreach ($attributes['notify'] as $user) {
                         Notification::send($user, new Validated($mission, $type));
@@ -324,6 +322,7 @@ class MissionController extends Controller
      **/
     public function validationAttributes(Mission $mission, string $type)
     {
+
         switch ($type) {
             case 'ci_report':
                 $validationAtColumn = 'ci_validation_at';
@@ -343,6 +342,12 @@ class MissionController extends Controller
                 $isAbleOrAbort = hasRole('cdcr');
                 $notify = User::whereRoles(['dcp'])->get();
                 break;
+            case 'cc':
+                $validationAtColumn = 'cc_validation_at';
+                $validationByColumn = 'cc_validation_by_id';
+                $isAbleOrAbort = hasRole('cc') && $mission->dcpControllers->contains('id', auth()->user()->id);
+                $notify = User::whereRoles(['cdcr'])->get();
+                break;
             case 'dcp':
                 $validationAtColumn = 'dcp_validation_at';
                 $validationByColumn = 'dcp_validation_by_id';
@@ -350,11 +355,13 @@ class MissionController extends Controller
                 $notify = User::whereRoles(['cdcr', 'dg', 'cdrcp', 'ig', 'sg', 'der']);
                 $notify = User::whereRoles(['da', 'dre'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($notify->get());
                 break;
-            case 'cc':
-                $validationAtColumn = 'cc_validation_at';
-                $validationByColumn = 'cc_validation_by_id';
-                $isAbleOrAbort = hasRole('cc') && $mission->dcpControllers->contains('id', auth()->user()->id);
-                $notify = User::whereRoles(['cdcr'])->get();
+            case 'da':
+                $validationAtColumn = 'da_validation_at';
+                $validationByColumn = 'da_validation_by_id';
+                $isAbleOrAbort = hasRole('da') && auth()->user()->hasAgencies($mission->agency_id) && isAbleTo('regularize_mission_detail');
+                $notify = User::whereRoles(['cdcr', 'dg', 'cdrcp', 'ig', 'sg', 'der']);
+                $notify = User::whereRoles(['dre'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($notify->get());
+                $notify = $notify->merge($mission->dcpControllers)->merge($mission->dreControllers);
                 break;
             default:
                 $validationAtColumn = 'ci_validation_at';
@@ -378,7 +385,7 @@ class MissionController extends Controller
         // Dispatch the job and retrieve the returned filepath
         $job = new GenerateMissionReportPdf($mission);
         $filepath = Bus::dispatchNow($job);
-
+        // dd($job);
         // Access the filepath and perform further actions
         if ($filepath) {
             // Process the filepath, such as downloading the file or displaying a success message
