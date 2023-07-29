@@ -39,21 +39,23 @@ class Mission extends BaseModel
         'programmed_end',
         'reel_start',
         'reel_end',
+        'ci_validation_by_id',
+        'cdc_validation_by_id',
+        'cc_validation_by_id',
         'cdcr_validation_by_id',
         'dcp_validation_by_id',
-        'cdc_validation_by_id',
-        'ci_validation_by_id',
-        'cc_validation_by_id',
-        'cdcr_validation_at',
-        'dcp_validation_at',
+        'da_validation_by_id',
+        'ci_validation_at',
         'cdc_validation_at',
         'cc_validation_at',
-        'ci_validation_at',
+        'cdcr_validation_at',
+        'dcp_validation_at',
+        'da_validation_at',
         'state',
     ];
 
     protected $hidden = [
-        'dcp_validation_by_id', 'cdcr_validation_by_id', 'cdc_validation_by_id', 'ci_validation_by_id', 'cc_validation_by_id'
+        'dcp_validation_by_id', 'cdcr_validation_by_id', 'cdc_validation_by_id', 'ci_validation_by_id', 'cc_validation_by_id', 'da_validation_by_id'
     ];
 
     protected $appends = [
@@ -62,16 +64,18 @@ class Mission extends BaseModel
         'remaining_days_before_start_str',
         'remaining_days_before_end_str',
         'progress_status',
+        'regularization_status',
         'realisation_state',
         'avg_score',
         'end',
         'dcp_controllers_str',
         'dre_controllers_str',
-        'is_validated_by_dcp',
-        'is_validated_by_cdcr',
-        'is_validated_by_cdc',
         'is_validated_by_ci',
+        'is_validated_by_cdc',
         'is_validated_by_cc',
+        'is_validated_by_cdcr',
+        'is_validated_by_dcp',
+        'is_validated_by_da',
         'ci_report_exists',
         'cdc_report_exists',
         'ci_report',
@@ -137,8 +141,16 @@ class Mission extends BaseModel
     {
         $totalDetails = $this->details()->count();
         $totalFinishedDetails = $this->details()->controlled()->count();
-        // dd($totalFinishedDetails, $totalDetails);
+
         return $totalFinishedDetails ? number_format($totalFinishedDetails * 100 / $totalDetails) : 0;
+    }
+
+    public function getRegularizationStatusAttribute()
+    {
+        $totalDetails = $this->details()->count();
+        $totalRegularized = $this->details()->onlyRegularized()->count();
+
+        return $totalRegularized ? number_format($totalRegularized * 100 / $totalDetails) : 0;
     }
 
     public function getCiReportExistsAttribute()
@@ -176,30 +188,35 @@ class Mission extends BaseModel
         return $cc_validation_at ? Carbon::parse($cc_validation_at)->format('d-m-Y') : null;
     }
 
-    public function getIsValidatedByCdcrAttribute()
-    {
-        return boolval($this->cdcr_validation_at);
-    }
-
-    public function getIsValidatedByDcpAttribute()
-    {
-        return boolval($this->dcp_validation_at);
-    }
 
     public function getIsValidatedByCiAttribute()
     {
-        // dd(boolval($this->ci_validation_at), $this->ci_validation_at);
-        return boolval($this->ci_validation_at);
+        return boolval($this->ci_validation_at) && boolval($this->ci_validation_by_id);
     }
 
     public function getIsValidatedByCdcAttribute()
     {
-        return boolval($this->cdc_validation_at);
+        return boolval($this->cdc_validation_at) && boolval($this->cdc_validation_by_id);
     }
 
     public function getIsValidatedByCcAttribute()
     {
-        return boolval($this->cc_validation_at);
+        return boolval($this->cc_validation_at) && boolval($this->cc_validation_by_id);
+    }
+
+    public function getIsValidatedByCdcrAttribute()
+    {
+        return boolval($this->cdcr_validation_at) && boolval($this->cdcr_validation_by_id);
+    }
+
+    public function getIsValidatedByDcpAttribute()
+    {
+        return boolval($this->dcp_validation_at) && boolval($this->dcp_validation_by_id);
+    }
+
+    public function getIsValidatedByDaAttribute()
+    {
+        return boolval($this->da_validation_at) && boolval($this->dcp_validation_by_id);
     }
 
     public function getRealisationStateAttribute()

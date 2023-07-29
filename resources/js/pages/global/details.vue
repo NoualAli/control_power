@@ -11,7 +11,7 @@
         <MissionDetailForm :data="rowSelected" :show="modals.edit" @success="success" @close="close" />
 
         <!-- Régularization du point de contrôle -->
-        <MissionRegularizationForm :data="rowSelected" :show="modals.regularize" @success="success" @close="close"
+        <MissionRegularizationForm :detail="rowSelected" :show="modals.regularize" @success="success" @close="close"
             :key="forceReload" />
     </ContentBody>
 </template>
@@ -73,7 +73,7 @@ export default {
                 },
                 {
                     label: 'Etat',
-                    field: 'is_regularized',
+                    field: 'is_regularized_str',
                     hide: hasRole([ 'cdc', 'ci' ])
                 }
             ],
@@ -182,7 +182,8 @@ export default {
          * @param {*} e
          */
         success(e) {
-            this.close(true)
+            this.$store.dispatch('settings/updatePageLoading', true)
+            this.forceReload += 1
         },
         /**
         * Affiche le modal des informations du point de contrôle
@@ -217,7 +218,7 @@ export default {
         },
 
         /**
-         * Ferme la boite modal des détails du point de contrôle
+         * Handle close event
          */
         close(forceReload = false) {
             this.$store.dispatch('settings/updatePageLoading', true)

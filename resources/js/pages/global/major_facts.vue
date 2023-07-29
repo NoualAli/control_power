@@ -66,7 +66,7 @@ export default {
                 },
                 {
                     label: 'Etat',
-                    field: 'is_regularized',
+                    field: 'is_regularized_str',
                     hide: hasRole([ 'cc', 'cdcr', 'cdc', 'ci' ])
                 },
                 {

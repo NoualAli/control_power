@@ -41,25 +41,28 @@ class Validated extends Notification
     private function getContent(): string
     {
 
-        $content = 'Mission ' . $this->mission->reference . ' a été réalisé';
+        $content = 'Mission <b>' . $this->mission->reference . '</b> a été réalisé';
         switch ($this->type) {
             case 'ci_report':
-                $content = 'La mission ' . $this->mission->reference . ' a été réalisée et validée par le Contrôleur itinérant' . auth()->user()->full_name;
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été réalisée et validée par le <b>Contrôleur itinérant ' . auth()->user()->full_name . '</b>';
                 break;
             case 'cdc_report':
-                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Chef de Département Contrôle DRE ' . auth()->user()->full_name;
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Chef de Département Contrôle DRE ' . auth()->user()->full_name . '</b>';
                 break;
             case 'cc':
-                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Collaborateur ' . auth()->user()->full_name;
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Contrôleur central ' . auth()->user()->full_name . '</b>';
                 break;
             case 'cdc':
-                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Chef de Département de Contrôle Réseau ' . auth()->user()->full_name;
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Chef de Département de Contrôle Réseau ' . auth()->user()->full_name . '</b>';
                 break;
             case 'dcp':
-                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Directeur du Contrôle Permanent ' . auth()->user()->full_name;
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Directeur du Contrôle Permanent ' . auth()->user()->full_name . '</b>';
+                break;
+            case 'da':
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Directeur d\'agence ' . auth()->user()->full_name . '</b>';
                 break;
             default:
-                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par ' . auth()->user()->full_name;
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par ' . auth()->user()->full_name . '</b>';
                 break;
         }
         return $content;

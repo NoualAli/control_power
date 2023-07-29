@@ -27,6 +27,7 @@ class MissionDetailResource extends JsonResource
             'control_point_name' => $this->controlPoint->name,
             'score' => $this->score_tag,
             'is_regularized' => $this->is_regularized,
+            'is_regularized_str' => $this->is_regularized_str,
         ];
     }
 }

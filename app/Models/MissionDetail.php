@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Znck\Eloquent\Traits\BelongsToThrough;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
@@ -34,6 +35,7 @@ class MissionDetail extends BaseModel
         'controlled_by_cc_id',
         'controlled_at',
         'major_fact_dispatched_at',
+        'regularization_id'
     ];
 
     protected $filter = 'App\Filters\MissionDetail';
@@ -55,7 +57,9 @@ class MissionDetail extends BaseModel
         'parsed_metadata',
         'major_fact_str',
         'score_tag',
-        'report'
+        'report',
+        'is_regularized',
+        'is_regularized_str',
     ];
 
     /**
@@ -84,8 +88,14 @@ class MissionDetail extends BaseModel
 
     public function getIsRegularizedAttribute()
     {
-        return $this->regularization?->regularized_at ? 'Levée' : 'Non levée';
+        return boolval($this->regularizations?->first()?->is_regularized);
     }
+
+    public function getIsRegularizedStrAttribute()
+    {
+        return $this->is_regularized ? 'Levée' : 'Non levée';
+    }
+
     public function getExecutedAtAttribute($controlled_at)
     {
         return $controlled_at ? Carbon::parse($controlled_at)->format('d-m-Y H:i') : '-';
@@ -183,9 +193,14 @@ class MissionDetail extends BaseModel
         return $this->belongsToThrough(Agency::class, Mission::class);
     }
 
+    public function regularizations()
+    {
+        return $this->hasMany(MissionDetailRegularization::class, 'mission_detail_id')->orderBy('mission_detail_regularizations.created_at', 'DESC');
+    }
+
     public function regularization()
     {
-        return $this->belongsTo(Regularization::class);
+        return $this->belongsTo(MissionDetailRegularization::class);
     }
 
     public function controller(string $type)
@@ -360,12 +375,12 @@ class MissionDetail extends BaseModel
 
     public function scopeOnlyUnregularized($query)
     {
-        return $query->whereHas('regularization', fn ($regularization) => $regularization->whereNull('regularized_at'))->orDoesntHave('regularization');
+        return $query->doesntHave('regularizations')->orWhereHas('regularizations', fn ($regularization) => $regularization->where('is_regularized', false));
     }
 
     public function scopeOnlyRegularized($query)
     {
-        return $query->whereHas('regularization', fn ($regularization) => $regularization->whereNotNull('regularized_at'));
+        return $query->whereHas('regularizations', fn ($regularization) => $regularization->where('is_regularized', true));
     }
 
     public function scopeNotDispatched($query, ?string $type = null)
