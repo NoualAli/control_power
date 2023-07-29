@@ -1,18 +1,18 @@
 <template>
     <slot name="filter"></slot>
-    <NLContainer extraClass="my-6" isFluid>
+    <NLFlex extraClass="my-6">
+        <NLHeading type="2">{{ title }}</NLHeading>
         <NLFlex>
-            <NLHeading type="2">{{ title }}</NLHeading>
-            <NLFlex>
-                <SearchBar @search="(e) => this.$emit('search', e)" />
-                <button class="btn btn-filter" :class="{ 'btn-danger': filterIsOpen, 'btn-info': !filterIsOpen }"
-                    v-if="hasFilters" @click.stop="(e) => this.handleFilterState(e)">
-                    <i class="las la-filter icon" v-if="!filterIsOpen"></i>
-                    <i class="las la-times icon" v-else></i>
-                </button>
-            </NLFlex>
+            <SearchBar @search="(e) => this.$emit('search', e)" />
+            <button class="btn btn-filter" :class="{ 'btn-danger': filterIsOpen, 'btn-info': !filterIsOpen }"
+                v-if="hasFilters" @click.stop="(e) => this.handleFilterState(e)">
+                <i class="las la-filter icon" v-if="!filterIsOpen"></i>
+                <i class="las la-times icon" v-else></i>
+            </button>
         </NLFlex>
-    </NLContainer>
+    </NLFlex>
+    <!-- <NLContainer extraClass="my-6 p-none" isFluid>
+    </NLContainer> -->
     <div class="table-container">
         <table>
             <TableHead>
