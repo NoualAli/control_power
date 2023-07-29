@@ -21,7 +21,7 @@ class Media extends BaseModel
         'uploaded_by_id',
     ];
 
-    protected $appends = ['link', 'type', 'path', 'icon'];
+    protected $appends = ['link', 'type', 'path', 'icon', 'is_owner'];
 
     /**
      * @return string
@@ -99,6 +99,12 @@ class Media extends BaseModel
                 break;
         }
         return $icon;
+    }
+
+    public function getIsOwnerAttribute()
+    {
+        return true;
+        // return auth()->user()->id == $this->uploaded_by_id;
     }
 
     /**
