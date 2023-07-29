@@ -16,7 +16,7 @@
                         :label="fields.validated.label" />
                 </NLColumn>
             </NLForm>
-            <NLContainer class="content" v-if="isReadonly && !isLoading" isFluid v-html="content"></NLContainer>
+            <NLContainer class="content text-normal" v-if="isReadonly && !isLoading" isFluid v-html="content"></NLContainer>
 
             <!-- Loader -->
             <NLComponentLoader :isLoading="isLoading" />
@@ -146,7 +146,7 @@ export default {
          * Initialize data
          */
         initData() {
-            this.isLoading = !this.isLoading
+            this.isLoading = true
             this.isReadonly = true
             this.editMode = false
             if (this.commentExists) {
@@ -236,16 +236,13 @@ export default {
          * Save comment
          */
         save() {
-            this.isLoading = !this.isLoading
+            this.isLoading = true
             this.form.post('missions/' + this.mission?.id + '/comments').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
-                    // this.editMode = false
-                    // this.isReadonly = true
-                    // this.close(this.form.type, true)
                     this.switchReadonlyMode()
                     this.$emit('success')
-                    this.isLoading = !this.isLoading
+                    this.isLoading = false
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }
