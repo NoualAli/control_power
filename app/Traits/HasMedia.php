@@ -6,6 +6,16 @@ use App\Models\Media;
 
 trait HasMedia
 {
+
+    /**
+     * Getters
+     */
+
+    public function getMediaArrayAttribute()
+    {
+        return $this->media->map(fn ($item) => $item->id);
+    }
+
     /**
      * Relationships
      */
