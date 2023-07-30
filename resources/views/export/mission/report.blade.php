@@ -77,7 +77,7 @@
                     </tr>
                     <tr>
                         <td>Validé par</td>
-                        <td>{{ $mission->dre_report->creator->full_name }}</td>
+                        <td>{{ $mission?->cdc_report?->creator?->full_name }}</td>
                     </tr>
                 </table>
             </div>

@@ -79,7 +79,9 @@ class Mission extends BaseModel
         'ci_report_exists',
         'cdc_report_exists',
         'ci_report',
-        'cdc_report'
+        'cdc_report',
+        'pdf_report_exists',
+        'report_name',
     ];
 
     protected $casts = [
@@ -96,11 +98,29 @@ class Mission extends BaseModel
     /**
      * Getters
      */
+    public function getPdfReportExistsAttribute()
+    {
+        return file_exists(public_path('exported/missions/' . $this->report_name . '.pdf'));
+    }
+
+    public function getReportNameAttribute()
+    {
+        $reference = str_replace('/', '-', $this->reference) . '-' . str_replace(' ', '', $this->agency->name);
+        return strtolower('rapport_mission-' . $reference);
+    }
+
     public function getEndAttribute()
     {
         $date = $this->reel_end ?? $this->programmed_end;
         return $date->format('d-m-Y');
     }
+
+    public function getStartAttribute()
+    {
+        $date = $this->reel_start ?? $this->programmed_start;
+        return $date->format('d-m-Y');
+    }
+
     public function getHasDcpControllersAttribute()
     {
         return $this->dcpControllers->count();

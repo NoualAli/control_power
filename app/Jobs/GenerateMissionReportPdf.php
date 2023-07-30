@@ -4,19 +4,30 @@ namespace App\Jobs;
 
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Mission;
+use App\Models\User;
+use App\Notifications\ReportNotification;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class GenerateMissionReportPdf implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Batchable;
 
+    /**
+     * @var App\Models\Mission
+     */
     protected $mission;
+
+    /**
+     * @var array
+     */
+    protected $response = [];
 
     /**
      * Create a new job instance.
@@ -51,10 +62,9 @@ class GenerateMissionReportPdf implements ShouldQueue
                 'total_major_facts' => $this->mission->details()->onlyMajorFacts()->count(),
             ];
 
-            if (!file_exists(public_path('exported\missions\\' . $this->filename()))) {
+            if (!file_exists($this->filepath())) {
                 $pdf = Pdf::loadView('export.report', compact('mission', 'campaign', 'details', 'stats'));
                 $pdf->render();
-
                 $canvas = $pdf->get_canvas();
                 $cpdf = $canvas->get_cpdf();
 
@@ -74,51 +84,59 @@ class GenerateMissionReportPdf implements ShouldQueue
                         $number++;
                     }
                 }
-
                 $pdf->save($this->filepath());
+                $notify = User::whereRoles(['cdcr', 'dg', 'cdrcp', 'ig', 'sg', 'der', 'dcp']);
+                $notify = User::whereRoles(['dre'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($notify->get());
+                $notify = $notify->merge($mission->dcpControllers)->merge($mission->dreControllers);
+                foreach ($notify as $user) {
+                    Notification::send($user, new ReportNotification($this->mission));
+                }
+            } else {
+                redirect($this->filepath());
             }
         } catch (\Throwable $th) {
-            echo "<pre>";
-            echo $th->getMessage();
-            echo "</pre>";
+            $this->response['message'] = $th->getMessage() . ' on line ' . $th->getLine() . ' on file ' . $th->getFile();
+            $this->response['status'] = false;
         }
-        return $this->filepath();
+        $this->response['message'] = $th->getMessage() . ' on line ' . $th->getLine() . ' on file ' . $th->getFile();
+        $this->response['status'] = false;
+        $this->response['file_path'] = $this->filepath();
     }
 
-    private function reference()
+    public function getResponse()
     {
-        return str_replace('/', '-', $this->mission->reference) . '-' . str_replace(' ', '', $this->mission->agency->name);
+        return $this->response;
     }
 
-    private function filepath($relative = true)
+
+    /**
+     * Generate file path
+     *
+     * @param bool $relative
+     *
+     * @return string
+     */
+    private function filepath($relative = true): string
     {
-        $relativePath = 'exported\missions\\' . $this->filename();
+        $relativePath = __DIR__ . '\..\..\public\exported\missions\\' . $this->mission->report_name . '.pdf';
         return $relative ? $relativePath : public_path($relativePath);
     }
 
-    private function filename()
-    {
-        return strtolower('rapport_mission-' . $this->reference() . '.pdf');
-    }
-
+    /**
+     * Load processes
+     *
+     * @param Mission $mission
+     * @param bool $paginated
+     * @param bool $formated
+     * @param bool $onlyWhereAnomaly
+     *
+     * @return Illuminate\Support\Collection
+     */
     private function loadProcesses(Mission $mission, bool $paginated = false, bool $formated = false, bool $onlyWhereAnomaly = false)
     {
         $mission->unsetRelations();
-        $processes = DB::table('processes as p');
-        $processes = $processes->selectRaw("p.id as process_id, p.name as process, d.name as domain, f.name as family, f.id as family_id, d.id as domain_id,COUNT(cp.id) as control_points_count, AVG(md.score) as avg_score, FORMAT(MAX(md.controlled_at), 'dd-MM-yyyy') AS controlled_at, COUNT(md.id) AS total_mission_details, COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) AS scored_mission_details, (COUNT(CASE WHEN md.score IS NOT NULL THEN md.id ELSE NULL END) / COUNT(md.id)) * 100 AS progress_status");
-        $processes = $processes->join('control_points as cp', 'p.id', '=', 'cp.process_id')
-            ->join('domains as d', 'd.id', '=', 'p.domain_id')
-            ->join('famillies as f', 'f.id', '=', 'd.familly_id')
-            ->join('mission_details as md', 'cp.id', '=', 'md.control_point_id')
-            ->join('missions as m', 'm.id', '=', 'md.mission_id')
-            ->groupBy('f.id', 'd.id', 'p.id', 'p.name', 'd.name', 'f.name')
-            ->where('m.id', $mission->id);
-        $processes = !hasRole(['cdc', 'ci']) && $onlyWhereAnomaly ? $processes->whereIn('md.score', [2, 3, 4]) : $processes;
-        $processes = $processes->orderBy('f.id')->orderBy('p.id')->get();
-        $search = request()->has('search') ? request()->search : false;
-        if ($search) {
-            $processes = $processes->filter(fn ($processe) => preg_match('/' . strtolower($search) . '/', strtolower($processe->process)));
-        }
+        $processes = getMissionProcesses($mission)->whereIn('md.score', [2, 3, 4])->orderBy('f.id')->orderBy('p.id')->get();
+
         if ($formated) {
             $processes = formatForSelect($processes->toArray());
         }

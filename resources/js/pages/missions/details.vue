@@ -19,7 +19,7 @@
                                     {{ detail.control_point.name }}
                                 </p>
                                 <NLButton type="info" label="Contrôler" v-if="mode == 1 && !detail?.score"
-                                    @click="showControlForm(detail)" />
+                                    @click="showForm({ row: detail, type: 'edit' })" />
                             </NLFlex>
                         </div>
                         <div v-if="detail.score" class="box border-1 border-solid"
@@ -196,6 +196,7 @@ export default {
          * Initialize data
          */
         initData() {
+            this.close()
             const length = this.$breadcrumbs.value.length
             this.$store.dispatch('settings/updatePageLoading', true)
             this.$store.dispatch('missions/fetchDetails', { missionId: this.$route.params.missionId, processId: this.$route.params.processId }).then(() => {
@@ -272,7 +273,6 @@ export default {
          * Handle close event
          */
         close(forceReload = false) {
-            this.$store.dispatch('settings/updatePageLoading', true)
             for (const key in this.modals) {
                 if (Object.hasOwnProperty.call(this.modals, key)) {
                     this.modals[ key ] = false
@@ -280,9 +280,10 @@ export default {
             }
             this.rowSelected = null
             if (forceReload) {
+                // this.$store.dispatch('settings/updatePageLoading', true)
                 this.forceReload += 1
             }
-            this.$store.dispatch('settings/updatePageLoading', false)
+            // this.$store.dispatch('settings/updatePageLoading', false)
         },
     }
 }

@@ -382,57 +382,9 @@ class MissionController extends Controller
      */
     public function export(Mission $mission)
     {
-        // Dispatch the job and retrieve the returned filepath
-        $job = new GenerateMissionReportPdf($mission);
-        $filepath = Bus::dispatchNow($job);
-        // dd($job);
-        // Access the filepath and perform further actions
-        if ($filepath) {
-            // Process the filepath, such as downloading the file or displaying a success message
-            return redirect($filepath);
-        } else {
-            // Handle the case where the filepath is empty or not available
-            return back()->with('error', 'Failed to generate the mission report.');
-        }
-    }
-
-    public function exportSnappy(Mission $mission)
-    {
-        try {
-            $start = now();
-            $mission->unsetRelations();
-            $mission->load(['details', 'campaign']);
-            $details = $mission->details()->whereIn('score', [1, 2, 3, 4])->get()->groupBy('familly.name');
-            $end = now();
-            $difference = $end->diffInRealMilliseconds($start);
-            $campaign = $mission->campaign;
-            $stats = [
-                'avg_score' => $mission->avg_score,
-                'total_processes' => $this->loadProcesses($mission)->count(),
-                'total_anomalies' => $mission->details()->whereAnomaly()->count(),
-                'total_major_facts' => $mission->details()->onlyMajorFacts()->count(),
-            ];
-
-            // $snappy = App::make('snappy.pdf');
-            // $html = '<h1>Bill</h1><p>You owe me money, dude.</p>';
-            // return $snappy->generateFromHtml($html, 'bill-123.pdf');
-            $title = 'mission';
-            $pdf = \SnappyPDF::loadView('export.mission', compact('mission', 'campaign', 'details', 'stats', 'title'));
-            // $pdf->setOption('header-html', view('export.mission.header'));
-            // $pdf->setOption('footer-html', view('export.mission.footer'));
-            $filename = strtolower('rapport_mission-' . $mission->reference . '-' . str_replace(' ', '', $mission->agency->name) . '.pdf');
-            return $pdf->stream($filename);
-            $filename = strtolower('rapport_mission-' . $mission->reference . '-' . str_replace(' ', '', $mission->agency->name) . '.pdf');
-            if (request()->has('mode') && request()->mode == "preview") {
-                return $pdf->stream($filename);
-            } else {
-                return $pdf->download($filename);
-            }
-        } catch (\Throwable $th) {
-            echo "<pre>";
-            echo $th->getMessage();
-            echo "</pre>";
-        }
+        $job = GenerateMissionReportPdf::dispatch($mission);
+        // $response['message'] = 'Génération'
+        // return response()
     }
 
     /**

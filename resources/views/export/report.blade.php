@@ -64,7 +64,7 @@
                 </div>
 
                 <div class="validated_by">
-                    <b>Validé par</b> {{ $mission->creator->full_name }}
+                    <b>Validé par</b> {{ $mission->cdc_report->creator->full_name }}
                     {{-- <div class="validator">
 
                 </div> --}}
@@ -162,11 +162,11 @@
                     </tr>
                     <tr>
                         <td>Contrôle sur place</td>
-                        <td>{{ $mission->agency_controllers_str }}</td>
+                        <td>{{ $mission->dre_controllers_str }}</td>
                     </tr>
                     <tr>
                         <td>Validé par</td>
-                        <td>{{ $mission->dre_report->creator->full_name }}</td>
+                        <td>{{ $mission->cdc_report->creator->full_name }}</td>
                     </tr>
                 </table>
             </div>
@@ -244,7 +244,6 @@
                                             <th>Fait majeur</th>
                                             <td
                                                 class="{{ $item->major_fact ? 'text-danger' : null }} {{ $item->major_fact ? 'has-major_fact' : 'no-major_fact' }}">
-                                                {{-- {!! $item->major_fact ? '❌ Oui' : '✔️ Non' !!} --}}
                                                 {{ $item->major_fact ? 'Oui' : 'Non' }}
                                             </td>
                                             <th class="margin-cell"></th>
@@ -252,18 +251,23 @@
                                         <tr>
                                             <th class="margin-cell"></th>
                                             <th>Constat</th>
-                                            <td>{{ $item->report ?? '-' }}</td>
+                                            <td>{!! $item->report ?? '-' !!}</td>
                                             <th class="margin-cell"></th>
                                         </tr>
                                         @if ($item->score != 1)
                                             <tr>
                                                 <th class="margin-cell"></th>
                                                 <th>Plan de redressement</th>
-                                                <td>{{ $item->recovery_plan }}</td>
+                                                <td>{!! $item->recovery_plan !!}</td>
                                                 <th class="margin-cell"></th>
                                             </tr>
                                         @endif
-                                        @if ($item->metadata)
+                                        {{-- @php
+                                            if ($item->metadata) {
+                                                dd($item->metadata);
+                                            }
+                                        @endphp --}}
+                                        {{-- @if ($item->metadata)
                                             <tr>
                                                 <td colspan="4" class="text-center bg-gray">
                                                     <b>Constats liés à l'échantillonage</b>
@@ -295,15 +299,21 @@
                                                     @endphp
                                                 @endforeach
                                             @endforeach
-                                        @endif
+                                        @endif --}}
                                     </tbody>
                                 </table>
                             </div>
-                            @foreach ($item->media as $file)
-                                @if (in_array($file->extension, ['jpg', 'jpeg', 'png', 'svg']))
-                                    <img src="{{ $file->link }}" alt="{{ $file->original_name }}" class="media">
-                                @endif
-                            @endforeach
+                            <div class="grid container is-fluid">
+                                @foreach ($item->media as $file)
+                                    @if (in_array($file->extension, ['jpg', 'jpeg', 'png', 'svg']))
+                                        <div class="column is-6">
+                                            <img src="{{ $file->link }}" alt="{{ $file->original_name }}"
+                                                width="auto"
+                                                height="300px">
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
                         @endforeach
                     @endforeach
                 @endforeach
@@ -311,7 +321,7 @@
             @endforeach
 
             <h2>Rapport du chef de département</h2>
-            {!! $mission->dre_report->content !!}
+            {!! $mission->cdc_report->content !!}
         </div>
     </main>
 </body>

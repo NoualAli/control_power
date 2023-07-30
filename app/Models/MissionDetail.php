@@ -67,16 +67,20 @@ class MissionDetail extends BaseModel
      */
     public function getReportAttribute()
     {
-        if (hasRole('ci')) {
-            $column = 'ci_report';
-        } elseif (hasRole('cdc')) {
-            $column = $this->cdc_report ? 'cdc_report' : 'ci_report';
-        } else {
-            if ($this->cdc_report) {
-                $column = 'cdc_report';
-            } else {
+        if (auth()->check()) {
+            if (hasRole('ci')) {
                 $column = 'ci_report';
+            } elseif (hasRole('cdc')) {
+                $column = $this->cdc_report ? 'cdc_report' : 'ci_report';
+            } else {
+                if ($this->cdc_report) {
+                    $column = 'cdc_report';
+                } else {
+                    $column = 'ci_report';
+                }
             }
+        } else {
+            $column = 'cdc_report';
         }
         return $this->$column;
     }

@@ -185,10 +185,15 @@
         </div>
 
         <!-- Actions -->
+        <!-- , 'dg', 'ig', 'sg', 'cdrcp', 'der' -->
         <div class="d-flex align-items gap-2" v-if="!pageLoadingState">
-            <button v-if="mission?.current?.is_validated_by_dcp && is(['dcp', 'dg', 'ig', 'sg', 'cdrcp', 'der'])"
-                class="btn btn-pdf has-icon" @click="exportReport(false)">
-                <i class="las la-file-contract icon" />
+            <button v-if="mission?.current?.is_validated_by_dcp && is(['dcp']) && !mission?.current?.pdf_report_exists"
+                class="btn btn-pdf has-icon" @click.prevent="exportReport()">
+                <i class="las la-file-pdf icon" />
+                Générer le rapport
+            </button>
+            <button v-if="mission?.current?.pdf_report_exists" class="btn btn-pdf has-icon" @click="exportReport()">
+                <i class="las la-file-pdf icon" />
                 Exporter le rapport
             </button>
             <!-- CDC -->
@@ -432,13 +437,16 @@ export default {
          * @param {Boolean} preview
          */
         exportReport(preview) {
-            let url = '/api/missions/' + this.mission.current.id + '/export?type=pdf'
-            if (preview) {
-                url += '&mode=preview'
+            // console.log(this.mission?.current?.pdf_report_exists);
+            if (this.mission?.current?.pdf_report_exists) {
+                window.open('/exported/missions/' + this.mission?.current?.report_name + '.pdf')
             } else {
-                url += '&mode=download'
+                this.$api.get('missions/' + this.mission.current.id + '/export?type=pdf').then((response) => {
+                    this.$swal.alert_success('La génération du rapport de la mission ' + this.mission?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.', 'Génération du rapport PDF')
+                }).catch((error) => {
+                    console.log(error);
+                })
             }
-            window.open(url)
         },
 
         /**

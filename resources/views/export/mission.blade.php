@@ -65,7 +65,7 @@
             </div>
 
             <div class="validated_by">
-                <b>Validé par</b> {{ $mission->creator->full_name }}
+                <b>Validé par</b> {{ $mission?->creator?->full_name }}
                 {{-- <div class="validator">
 
             </div> --}}
@@ -165,7 +165,7 @@
                     </tr>
                     <tr>
                         <td>Validé par</td>
-                        <td>{{ $mission->dre_report->creator->full_name }}</td>
+                        <td>{{ $mission?->cdc_report?->creator->full_name }}</td>
                     </tr>
                 </table>
             </div>
