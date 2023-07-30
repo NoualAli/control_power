@@ -1,7 +1,13 @@
 <template>
     <ContentBody>
         <NLDatatable :columns="columns" title="Liste des notifications" urlPrefix="notifications"
-            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
+            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
+            <template #actions-after="{ item }">
+                <button class="btn btn-success has-icon" @click.stop="show(item)" v-if="!!item.url">
+                    <i class="las la-eye icon"></i>
+                </button>
+            </template>
+        </NLDatatable>
     </ContentBody>
 </template>
 
@@ -54,13 +60,6 @@ export default {
                     },
                 },
             ],
-
-            // actions: {
-            //     show: {
-            //         show: (item) => !!item.url,
-            //         apply: (item) => this.show(item)
-            //     },
-            // },
         }
     },
     created() {
@@ -75,7 +74,6 @@ export default {
          */
         show(item) {
             const { pathname, search } = new URL(item.url)
-            return this.$router.push({ path: pathname, query: Object.fromEntries(new URLSearchParams(search)) })
             return this.$router.push({ path: pathname, query: Object.fromEntries(new URLSearchParams(search)) })
         },
         /**
