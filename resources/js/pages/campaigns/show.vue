@@ -38,7 +38,7 @@
                         {{ campaign?.current?.reference }}
                     </span>
                 </div>
-                <div v-has-role="'cdcr,dcp'" class="col-12 col-lg-4">
+                <div v-if="is('cdcr,dcp')" class="col-12 col-lg-4">
                     <span class="text-bold">
                         Etat:
                     </span>
