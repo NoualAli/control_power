@@ -17,7 +17,7 @@
             <NLSidebarItem label="Agences" route="agencies-index" iconName="la-landmark" v-if="can('view_page_agencies')" />
             <NLSidebarItem label="Catégories" route="categories-index" iconName="la-landmark"
                 v-if="can('view_page_categories')" />
-            <NLSidebarItem label="Familles" route="famillies-index" iconName="la-tag" v-if="can('view_page_families')" />
+            <NLSidebarItem label="Familles" route="families-index" iconName="la-tag" v-if="can('view_page_families')" />
             <NLSidebarItem label="Domaines" route="domains-index" iconName="la-tags" v-if="can('view_page_domains')" />
             <NLSidebarItem label="Processus" route="processes-index" iconName="la-project-diagram"
                 v-if="can('view_page_processes')" />

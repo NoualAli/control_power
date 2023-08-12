@@ -3,7 +3,7 @@
         <ContentHeader>
             <template #title>
                 <div class="tags w-90">
-                    <span class="tag is-info">{{ process?.familly?.name }}</span>
+                    <span class="tag is-info">{{ process?.family?.name }}</span>
                     <span class="tag">{{ process?.domain?.name }}</span>
                     <span class="tag is-warning">{{ process?.name }}</span>
                 </div>

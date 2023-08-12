@@ -19,7 +19,7 @@ class ProcessResource extends JsonResource
             'name' => $this->name,
             'control_points_count' => $this->control_points_count,
             'domain_name' => $this->domain->name,
-            'familly_name' => $this->familly->name,
+            'family_name' => $this->family->name,
         ];
     }
 }

@@ -187,8 +187,9 @@
         <!-- Actions -->
         <!-- , 'dg', 'ig', 'sg', 'cdrcp', 'der' -->
         <div class="d-flex align-items gap-2" v-if="!pageLoadingState">
-            <button v-if="mission?.current?.is_validated_by_dcp && is(['dcp']) && !mission?.current?.pdf_report_exists"
-                class="btn btn-pdf has-icon" @click.prevent="exportReport()">
+            <button
+                v-if="mission?.current?.is_validated_by_dcp && is(['dcp']) && showGenerateReportBtn && !mission?.current?.pdf_report_exists"
+                class="btn btn-pdf has-icon" @click.prevent="generateReport()">
                 <i class="las la-file-pdf icon" />
                 Générer le rapport
             </button>
@@ -316,10 +317,11 @@ export default {
             controllersList: [],
             commentType: null,
             commentReadonly: false,
+            showGenerateReportBtn: true,
             columns: [
                 {
                     label: 'Famille',
-                    field: 'familly'
+                    field: 'family'
                 },
                 {
                     label: 'Domaine',
@@ -433,20 +435,23 @@ export default {
     methods: {
         /**
          * Export or Preview report
-         *
-         * @param {Boolean} preview
          */
-        exportReport(preview) {
-            // console.log(this.mission?.current?.pdf_report_exists);
-            if (this.mission?.current?.pdf_report_exists) {
-                window.open('/exported/missions/' + this.mission?.current?.report_name + '.pdf')
-            } else {
-                this.$api.get('missions/' + this.mission.current.id + '/export?type=pdf').then((response) => {
-                    this.$swal.alert_success('La génération du rapport de la mission ' + this.mission?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.', 'Génération du rapport PDF')
-                }).catch((error) => {
-                    console.log(error);
+        generateReport() {
+            this.$api.get('missions/' + this.mission.current.id + '/report?action=generate').then((response) => {
+                this.$swal.alert_success('La génération du rapport de la mission ' + this.mission?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.', 'Génération du rapport PDF').then(() => {
+                    this.initData()
+                    this.showGenerateReportBtn = false
                 })
-            }
+            }).catch((error) => {
+                console.log(error);
+            })
+        },
+        /**
+         * Export or Preview report
+         *
+         */
+        exportReport() {
+            window.open('/missions/' + this.mission.current.id + '/report?action=export')
         },
 
         /**
@@ -469,16 +474,6 @@ export default {
          * Show dispatch mission form to cc
          */
         showDispatchForm() {
-            // const filters = {
-            //     roles_codes: 'cc'
-            // }
-            // this.$store.dispatch('users/fetchAll', filters).then(() => {
-            //     this.controllersList = this.users.all
-            //     this.forms.dispatch.controllers = this.mission.current.dcp_controllers.map(controller => controller.id)
-            // })
-            // this.$sotre.dispatch('missions/fetch', { missionId: this.mission.id, onlyProcesses: true }).then(() => {
-            //     console.log(this.current);
-            // }).catch(error => console.log(error))
             this.modals.dispatch = true
         },
         /**

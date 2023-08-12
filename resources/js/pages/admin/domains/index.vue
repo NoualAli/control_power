@@ -28,7 +28,7 @@ export default {
             columns: [
                 {
                     label: 'Famille',
-                    field: 'familly.name'
+                    field: 'family.name'
                 },
                 {
                     label: 'Nom',

@@ -42,7 +42,7 @@ class MissionDetail extends BaseModel
 
     protected $searchable = ['mission_details-id'];
 
-    public $with = ['process', 'domain', 'controlPoint', 'familly', 'media'];
+    public $with = ['process', 'domain', 'controlPoint', 'family', 'media'];
 
     public $casts = [
         'metadata' => 'object',
@@ -80,7 +80,11 @@ class MissionDetail extends BaseModel
                 }
             }
         } else {
-            $column = 'cdc_report';
+            if ($this->cdc_report) {
+                $column = 'cdc_report';
+            } else {
+                $column = 'ci_report';
+            }
         }
         return $this->$column;
     }
@@ -143,6 +147,26 @@ class MissionDetail extends BaseModel
         return '<div class="tag ' . $style . '">' . $score . '</div>';
     }
 
+    public function getNewParsedMetadataAttribute()
+    {
+
+        $metadata = $this->metadata;
+        $newMetadata = [];
+        // dd($metadata);
+        foreach ($metadata as $item) {
+            foreach ($item as $value) {
+                if (!in_array($value->label, $newMetadata)) {
+                    $newMetadata[$value->label] = [];
+                    array_push($newMetadata[$value->label], collect($value)->last());
+                } else {
+                    dd('old');
+                }
+            }
+        }
+        // dd($newMetadata);
+        return $newMetadata;
+    }
+
     public function getParsedMetadataAttribute()
     {
         return collect($this->metadata)->flatten()->groupBy('label')->map(function ($data) {
@@ -170,9 +194,9 @@ class MissionDetail extends BaseModel
     {
         return $this->belongsTo(Mission::class);
     }
-    public function familly()
+    public function family()
     {
-        return $this->belongsToThrough(Familly::class, [Domain::class, Process::class, ControlPoint::class]);
+        return $this->belongsToThrough(Family::class, [Domain::class, Process::class, ControlPoint::class]);
     }
     public function domain()
     {

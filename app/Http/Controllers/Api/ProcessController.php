@@ -19,7 +19,7 @@ class ProcessController extends Controller
      */
     public function index()
     {
-        $processes = Process::with(['domain', 'familly'])->withCount('control_points');
+        $processes = Process::with(['domain', 'family'])->withCount('control_points');
 
         $filter = request('filter', null);
         $search = request('search', null);
@@ -78,7 +78,7 @@ class ProcessController extends Controller
     {
         $processes = explode(',', $process);
         $onlyControlPoints = request()->has('onlyControlPoints');
-        $data = $onlyControlPoints ? formatForSelect(ControlPoint::whereIn('process_id', $processes)->get()->toArray()) : Process::findOrFail($process)->load(['familly', 'domain', 'control_points']);
+        $data = $onlyControlPoints ? formatForSelect(ControlPoint::whereIn('process_id', $processes)->get()->toArray()) : Process::findOrFail($process)->load(['family', 'domain', 'control_points']);
         return response()->json($data);
     }
 

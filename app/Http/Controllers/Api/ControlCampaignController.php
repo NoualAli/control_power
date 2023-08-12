@@ -286,8 +286,9 @@ class ControlCampaignController extends Controller
     {
 
         abort_if(!($campaign->validated_by_id || hasRole(['dcp', 'cdcr'])), 401, __('unauthorized'));
-        $campaign->load(['processes' => fn ($query) => $query->with(['familly', 'domain'])]);
+        $campaign->load(['processes' => fn ($query) => $query->with(['family', 'domain'])]);
         $processes = $campaign->processes();
+        // dd($processes);
         $search = request('search', false);
         $fetchFilters = request()->has('fetchFilters');
         if ($fetchFilters) {
@@ -305,7 +306,7 @@ class ControlCampaignController extends Controller
     private function processesFilters($processes)
     {
         // dd($processes);
-        $family = $processes->relationUniqueData('familly');
+        $family = $processes->relationUniqueData('family');
         $domain = $processes->relationUniqueData('domain');
         // dd(compact('family', 'domain'));
         return compact('family', 'domain');

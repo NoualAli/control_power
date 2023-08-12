@@ -31,7 +31,7 @@ export default {
             columns: [
                 {
                     label: 'Famille',
-                    field: 'familly_name'
+                    field: 'family_name'
                 },
                 {
                     label: 'Domaine',

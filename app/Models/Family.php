@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Znck\Eloquent\Traits\BelongsToThrough;
 
-class Familly extends BaseModel
+class Family extends BaseModel
 {
     use HasFactory, IsSortable, IsSearchable, BelongsToThrough, HasRelationships;
 

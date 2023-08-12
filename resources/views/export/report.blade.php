@@ -5,6 +5,11 @@
     $bnaLogo = public_path('app\images\bna_logo.svg');
     $coverPageImg = public_path('app\images\report_cover_page.png');
     $appBrandMonochrome = public_path('app\images\brand_monochrome.png');
+    // $appBrand = '';
+    // $bnaLogo = '';
+    // $coverPageImg = '';
+    // $appBrandMonochrome = '';
+    // dd('test');
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -24,7 +29,7 @@
     <section>
         <div class="page no-padding">
             <main class="page-body no-padding">
-                <img src="{{ $coverPageImg }}" class="cover-page-img">
+                <img src="{{ $coverPageImg }}" class="cover-page-img" />
                 <img src="{{ $bnaLogo }}" class="no-padding cover-page-logo">
                 <div class="first-section-text">
                     <p>Division Risques et Contrôle Permanant - <b>DRCP</b></p>
@@ -58,23 +63,16 @@
 
                 <div class="controlled_by">
                     <b>Contrôlé par</b> {{ $mission->controllers[0]->full_name }}
-                    {{-- <div class="controller">
-
-                </div> --}}
                 </div>
 
                 <div class="validated_by">
-                    <b>Validé par</b> {{ $mission->cdc_report->creator->full_name }}
-                    {{-- <div class="validator">
-
-                </div> --}}
+                    <b>Validé par</b> {{ $mission->cdc_report?->creator->full_name }}
                 </div>
 
                 <img src="{{ $appBrandMonochrome }}" alt="PowerControlMonochrome" class="power-control-monochrome">
             </main>
         </div>
     </section>
-
 
     <header class="page-header">
         <div class="container">
@@ -131,6 +129,7 @@
                     <br>
                 @endforeach
             </ul>
+
             <div class="page-break-after-always"></div>
             <h2>Fiche technique</h2>
             <br>
@@ -166,7 +165,7 @@
                     </tr>
                     <tr>
                         <td>Validé par</td>
-                        <td>{{ $mission->cdc_report->creator->full_name }}</td>
+                        <td>{{ $mission->cdc_report?->creator->full_name }}</td>
                     </tr>
                 </table>
             </div>
@@ -199,6 +198,7 @@
                 </table>
             </div>
             <div class="page-break-before-always"></div>
+
             @foreach ($details as $family => $familyData)
                 <h2 id="{{ $family }}">Famille: {!! $family !!}</h2>
                 @php
@@ -262,12 +262,8 @@
                                                 <th class="margin-cell"></th>
                                             </tr>
                                         @endif
-                                        {{-- @php
-                                            if ($item->metadata) {
-                                                dd($item->metadata);
-                                            }
-                                        @endphp --}}
-                                        {{-- @if ($item->metadata)
+                                        @if ($item->metadata)
+                                            <div class="page-break-after-always"></div>
                                             <tr>
                                                 <td colspan="4" class="text-center bg-gray">
                                                     <b>Constats liés à l'échantillonage</b>
@@ -287,10 +283,10 @@
                                                         class="metadata-row {{ $currentIndex == $count ? 'border-bottom' : null }}">
                                                         <th class="margin-cell"></th>
                                                         <th>
-                                                            {{ $parsed[$keys[1]] }}
+                                                            {{ $parsed[$keys[0]] }}
                                                         </th>
                                                         <td>
-                                                            {{ $parsed[$keys[0]] }}
+                                                            {{ $parsed[$keys[2]] }}
                                                         </td>
                                                         <th class="margin-cell"></th>
                                                     </tr>
@@ -299,18 +295,17 @@
                                                     @endphp
                                                 @endforeach
                                             @endforeach
-                                        @endif --}}
+                                        @endif
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="grid container is-fluid">
+                            <div class="container">
                                 @foreach ($item->media as $file)
                                     @if (in_array($file->extension, ['jpg', 'jpeg', 'png', 'svg']))
-                                        <div class="column is-6">
-                                            <img src="{{ $file->link }}" alt="{{ $file->original_name }}"
-                                                width="auto"
-                                                height="300px">
-                                        </div>
+                                        <img src="{{ $file->link }}" alt="{{ $file->original_name }}"
+                                            class="img">
+                                        {{-- <div class="column is-6">
+                                        </div> --}}
                                     @endif
                                 @endforeach
                             </div>
@@ -319,7 +314,6 @@
                 @endforeach
                 <div class="page-break-after-always"></div>
             @endforeach
-
             <h2>Rapport du chef de département</h2>
             {!! $mission->cdc_report->content !!}
         </div>

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Familly;
+namespace App\Http\Requests\Family;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -24,7 +24,7 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'unique:famillies', 'max:255']
+            'name' => ['required', 'unique:families', 'max:255']
         ];
     }
 }

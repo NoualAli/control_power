@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Familly;
+namespace App\Http\Requests\Family;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -23,10 +23,10 @@ class UpdateRequest extends FormRequest
      */
     public function rules()
     {
-        $id = request()->familly->id;
+        $id = request()->family->id;
 
         return [
-            'name' => ['required', 'unique:famillies,name,' . $id . ',id', 'max:255']
+            'name' => ['required', 'unique:families,name,' . $id . ',id', 'max:255']
         ];
     }
 }

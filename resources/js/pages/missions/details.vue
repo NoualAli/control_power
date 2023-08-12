@@ -5,7 +5,7 @@
                 <NLColumn lg="1" />
                 <NLColumn lg="11">
                     <div class="tags">
-                        <span class="tag"><i class="las la-tag icon mr-1"></i> {{ process?.familly?.name }}</span>
+                        <span class="tag"><i class="las la-tag icon mr-1"></i> {{ process?.family?.name }}</span>
                         <span class="tag"><i class="las la-tags icon mr-1"></i> {{ process?.domain?.name }}</span>
                         <span class="tag"><i class="las la-project-diagram icon mr-1"></i> {{ process?.name }}</span>
                     </div>

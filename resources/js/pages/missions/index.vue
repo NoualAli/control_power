@@ -47,7 +47,7 @@ export default {
                 },
                 {
                     label: 'Contrôle sur place par',
-                    field: 'agency_controllers_str',
+                    field: 'dre_controllers_str',
                     hide: hasRole([ 'ci' ])
                 },
                 {
@@ -218,7 +218,6 @@ export default {
     methods: {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
-            console.log(this.$store.getters[ 'settings/pageIsLoading' ]);
             const length = this.$breadcrumbs.value.length
             if (this.$route.params.campaignId) {
                 this.$store.dispatch('campaigns/fetch', { campaignId: this.$route.params.campaignId }).then((data) => {

@@ -4,7 +4,8 @@
             <NLForm :action="update" :form="form">
                 <!-- Name -->
                 <NLColumn lg="6" md="6">
-                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required />
+                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required
+                        placeholder="Veuillez saisir le nom de famille" />
                 </NLColumn>
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
@@ -24,13 +25,13 @@ export default {
     middleware: [ 'auth', 'admin' ],
     computed: {
         ...mapGetters({
-            familly: 'famillies/current'
+            family: 'families/current'
         })
     },
     created() {
         this.$store.dispatch('settings/updatePageLoading', true)
-        this.$store.dispatch('famillies/fetch', { id: this.$route.params.familly }).then(() => {
-            const data = this.familly.current
+        this.$store.dispatch('families/fetch', { id: this.$route.params.family }).then(() => {
+            const data = this.family.current
             this.form.fill(data)
             this.$store.dispatch('settings/updatePageLoading', false)
         })
@@ -45,10 +46,10 @@ export default {
     },
     methods: {
         update() {
-            this.form.put('famillies/' + this.$route.params.familly).then(response => {
+            this.form.put('families/' + this.$route.params.family).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
-                    this.$router.push({ name: 'famillies-index' })
+                    this.$router.push({ name: 'families-index' })
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }

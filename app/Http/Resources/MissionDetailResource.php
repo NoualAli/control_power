@@ -21,7 +21,7 @@ class MissionDetailResource extends JsonResource
             'mission_reference' => $this->mission->reference,
             'dre_full_name' => $this->agency->dre->full_name,
             'agency_full_name' => $this->agency->full_name,
-            'familly_name' => $this->controlPoint->process->domain->familly->name,
+            'family_name' => $this->controlPoint->process->domain->family->name,
             'domain_name' => $this->controlPoint->process->domain->name,
             'process_name' => $this->controlPoint->process->name,
             'control_point_name' => $this->controlPoint->name,

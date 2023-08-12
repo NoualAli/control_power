@@ -22,7 +22,7 @@ class Process extends BaseModel
 
     // public $withCount = ['control_points'];
 
-    // public $with = ['domain', 'control_points', 'familly'];
+    // public $with = ['domain', 'control_points', 'family'];
 
     protected $searchable = ['name'];
 
@@ -45,9 +45,9 @@ class Process extends BaseModel
     {
         return $this->hasMany(ControlPoint::class);
     }
-    public function familly()
+    public function family()
     {
-        return $this->belongsToThrough(Familly::class, Domain::class);
+        return $this->belongsToThrough(Family::class, Domain::class);
     }
     public function details()
     {

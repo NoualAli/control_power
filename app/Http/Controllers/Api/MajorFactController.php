@@ -7,7 +7,7 @@ use App\Http\Resources\MajorFactResource;
 use App\Models\Agency;
 use App\Models\ControlCampaign;
 use App\Models\Domain;
-use App\Models\Familly;
+use App\Models\Family;
 use App\Models\MajorFact;
 use App\Models\Mission;
 use App\Models\Process;
@@ -72,7 +72,7 @@ class MajorFactController extends Controller
     private function majorFacts()
     {
         $majorFacts = MajorFact::with([
-            'controlPoint'  => fn ($query) => $query->with(['process'  => fn ($query) => $query->with(['domain'  => fn ($query) => $query->with('familly')])]),
+            'controlPoint'  => fn ($query) => $query->with(['process'  => fn ($query) => $query->with(['domain'  => fn ($query) => $query->with('family')])]),
             'agency'  => fn ($query) => $query->with('dre'),
             'mission' => fn ($query) => $query->with(['campaign'])
         ]);
@@ -92,7 +92,7 @@ class MajorFactController extends Controller
     {
         $majorFacts = $this->majorFacts();
 
-        $family = $majorFacts->relationUniqueData('familly');
+        $family = $majorFacts->relationUniqueData('family');
         $domain = $majorFacts->relationUniqueData('domain');
         $process = $majorFacts->relationUniqueData('process');
         $dre = $majorFacts->relationUniqueData('dre', 'full_name');

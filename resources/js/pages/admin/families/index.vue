@@ -2,13 +2,13 @@
     <div v-if="can('view_familly')">
         <ContentHeader>
             <template #actions>
-                <router-link v-if="can('create_familly')" :to="{ name: 'famillies-create' }" class="btn btn-info">
+                <router-link v-if="can('create_familly')" :to="{ name: 'families-create' }" class="btn btn-info">
                     Ajouter
                 </router-link>
             </template>
         </ContentHeader>
         <ContentBody>
-            <NLDatatable :columns="columns" :actions="actions" title="Liste des familles" urlPrefix="famillies" @edit="edit"
+            <NLDatatable :columns="columns" :actions="actions" title="Liste des familles" urlPrefix="families" @edit="edit"
                 @delete="destroy" :key="forceReload"
                 @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
         </ContentBody>
@@ -55,7 +55,7 @@ export default {
          * @param {Object} item
          */
         edit(item) {
-            this.$router.push({ name: 'famillies-edit', params: { familly: item.id } })
+            this.$router.push({ name: 'families-edit', params: { family: item.id } })
         },
 
         /**
@@ -65,7 +65,7 @@ export default {
         destroy(item) {
             this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
-                    api.delete('famillies/' + item.id).then(response => {
+                    api.delete('families/' + item.id).then(response => {
                         if (response.data.status) {
                             this.forceReload += 1
                             this.$swal.toast_success(response.data.message)

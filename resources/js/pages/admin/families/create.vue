@@ -4,9 +4,10 @@
         <ContentBody>
             <NLForm :action="create" :form="form">
                 <!-- Name -->
-                <div lg="6" md="6">
-                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required />
-                </div>
+                <NLColumn lg="6" md="6">
+                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required
+                        placeholder="Veuillez saisir le nom de famille" />
+                </NLColumn>
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
                         <NLButton :loading="form.busy" label="Ajouter" />
@@ -31,7 +32,7 @@ export default {
     },
     methods: {
         create() {
-            this.form.post('famillies').then(response => {
+            this.form.post('families').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.form.reset()

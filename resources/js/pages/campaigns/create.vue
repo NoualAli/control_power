@@ -56,7 +56,7 @@ export default {
         }
     },
     computed: mapGetters({
-        famillies: 'famillies/all',
+        families: 'families/all',
         nextReference: 'campaigns/nextReference'
     }),
     created() {
@@ -88,8 +88,8 @@ export default {
          * Récupère la liste des familles -> domaines -> processus
          */
         loadPFC() {
-            this.$store.dispatch('famillies/fetchAll', true).then(() => {
-                this.pcfList = this.famillies.all
+            this.$store.dispatch('families/fetchAll', true).then(() => {
+                this.pcfList = this.families.all
                 this.$store.dispatch('campaigns/fetchNextReference').then(() => this.$store.dispatch('settings/updatePageLoading', false))
             })
         }

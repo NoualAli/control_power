@@ -47,7 +47,7 @@ class ControlPointController extends Controller
     public function filters()
     {
         $controlPoints = new ControlPoint;
-        $family = $controlPoints->relationUniqueData('familly', 'name', 'id');
+        $family = $controlPoints->relationUniqueData('family', 'name', 'id');
         $domain = $controlPoints->relationUniqueData('domain', 'name', 'id');
         $process = $controlPoints->relationUniqueData('process', 'name', 'id');
 
@@ -91,7 +91,7 @@ class ControlPointController extends Controller
     public function show(ControlPoint $controlPoint): JsonResponse
     {
         isAbleOrAbort('view_control_point');
-        $controlPoint->load(['familly', 'domain', 'process']);
+        $controlPoint->load(['family', 'domain', 'process']);
         return response()->json($controlPoint);
     }
 

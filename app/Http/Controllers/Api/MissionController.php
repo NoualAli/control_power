@@ -18,12 +18,17 @@ use App\Notifications\Mission\AssignationRemoved;
 use App\Notifications\Mission\Assigned;
 use App\Notifications\Mission\Updated;
 use App\Notifications\Mission\Validated;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Foundation\Bus\PendingDispatch;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Storage;
 
 class MissionController extends Controller
 {
@@ -251,7 +256,7 @@ class MissionController extends Controller
 
         $details = $mission->details()->with('controlPoint')->orderBy('control_point_id');
         $mission->unsetRelations();
-        $process->load(['familly', 'domain']);
+        $process->load(['family', 'domain']);
         if (request()->has('onlyAnomaly')) {
             $details = $details->whereAnomaly();
         }
@@ -373,18 +378,55 @@ class MissionController extends Controller
 
         return compact('validationAtColumn', 'validationByColumn', 'isAbleOrAbort', 'notify');
     }
+
     /**
-     * Generate mission report in PDF format
+     * Handle mission report action [Export, Generate]
      *
-     * @param \App\Models\Mission $mission
+     * @param Mission $mission
+     *
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response|\Illuminate\Foundation\Bus\PendingDispatch
+     */
+    public function handleReport(Mission $mission): JsonResponse|Response|PendingDispatch
+    {
+        $fileExists = Storage::exists($mission->report_path);
+        if (request()->action == 'generate' && !$fileExists) {
+            return $this->generateReport($mission);
+        } elseif (request()->action == 'export' && $fileExists) {
+            return $this->exportReport($mission);
+        } else {
+            return response()->json(['error' => "L'action que vous avez choisit n'existe pas."], 404);
+        }
+    }
+
+    /**
+     * Export mission report
+     *
+     * @param Mission $mission
      *
      * @return \Illuminate\Http\Response
      */
-    public function export(Mission $mission)
+    private function exportReport(Mission $mission): Response
     {
-        $job = GenerateMissionReportPdf::dispatch($mission);
-        // $response['message'] = 'Génération'
-        // return response()
+        $filename = $mission->report_path;
+        $file = Storage::get($filename);
+        // Determine the MIME type
+        $mime = Storage::mimeType($filename);
+        // Create a response with the file contents and appropriate headers
+        $response = response($file, 200)->header('Content-Type', $mime);
+
+        return $response;
+    }
+
+    /**
+     * Generate mission report
+     *
+     * @param Mission $mission
+     *
+     * @return \Illuminate\Foundation\Bus\PendingDispatch
+     */
+    private function generateReport(Mission $mission): PendingDispatch
+    {
+        return GenerateMissionReportPdf::dispatch($mission);
     }
 
     /**

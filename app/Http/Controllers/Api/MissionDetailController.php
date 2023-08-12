@@ -70,7 +70,7 @@ class MissionDetailController extends Controller
     private function details()
     {
         $details = MissionDetail::with([
-            'controlPoint'  => fn ($query) => $query->with(['process'  => fn ($query) => $query->with(['domain'  => fn ($query) => $query->with('familly')])]),
+            'controlPoint'  => fn ($query) => $query->with(['process'  => fn ($query) => $query->with(['domain'  => fn ($query) => $query->with('family')])]),
             'agency'  => fn ($query) => $query->with('dre'),
             'mission' => fn ($query) => $query->with(['campaign'])
         ]);
@@ -130,7 +130,7 @@ class MissionDetailController extends Controller
     public function show(MissionDetail $detail)
     {
         $detail->unsetRelations();
-        $detail->load('regularization', 'mission', 'media', 'dre', 'agency', 'campaign', 'familly', 'domain', 'process', 'controlPoint');
+        $detail->load('regularization', 'mission', 'media', 'dre', 'agency', 'campaign', 'family', 'domain', 'process', 'controlPoint');
         return $detail;
     }
 
@@ -300,7 +300,7 @@ class MissionDetailController extends Controller
     public function detailFilters()
     {
         $details = $this->details();
-        $family = $details->relationUniqueData('familly');
+        $family = $details->relationUniqueData('family');
         $domain = $details->relationUniqueData('domain');
         $process = $details->relationUniqueData('process');
         $dre = $details->relationUniqueData('dre', 'full_name');

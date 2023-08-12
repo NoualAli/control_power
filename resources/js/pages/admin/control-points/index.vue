@@ -31,7 +31,7 @@ export default {
             columns: [
                 {
                     label: 'Famille',
-                    field: 'familly_name'
+                    field: 'family_name'
                 },
                 {
                     label: 'Domaine',
@@ -55,7 +55,7 @@ export default {
             details: [
                 {
                     label: 'Famille',
-                    field: 'familly.name'
+                    field: 'family.name'
                 },
                 {
                     label: 'Domaine',
@@ -102,7 +102,7 @@ export default {
                     multiple: true,
                     data: null,
                     value: null,
-                    dependsOn: 'familly'
+                    dependsOn: 'family'
                 },
                 process: {
                     label: 'Processus',

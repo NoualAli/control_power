@@ -5,7 +5,7 @@
             <NLForm :action="update" :form="form">
                 <!-- Familliies -->
                 <NLColumn lg="6" md="6">
-                    <NLSelect v-model="form.familly_id" :form="form" name="familly_id" label="Famille"
+                    <NLSelect v-model="form.family_id" :form="form" name="family_id" label="Famille"
                         :options="familliesList" label-required :multiple="false" />
                 </NLColumn>
                 <!-- Domains -->
@@ -269,7 +269,7 @@ export default {
             ],
             form: new Form({
                 name: null,
-                familly_id: null,
+                family_id: null,
                 domain_id: null,
                 process_id: null,
                 major_fact_types: [],
@@ -281,15 +281,15 @@ export default {
     },
     computed: {
         ...mapGetters({
-            familly: 'famillies/domains',
+            family: 'families/domains',
             domain: 'domains/processes',
-            famillies: 'famillies/all',
+            families: 'families/all',
             controlPoint: 'controlPoints/current',
             validationRules: 'settings/validationRules'
         })
     },
     watch: {
-        'form.familly_id': function (newVal, oldVal) {
+        'form.family_id': function (newVal, oldVal) {
             if (newVal !== oldVal) { this.loadDomains(newVal) }
         },
         'form.domain_id': function (newVal, oldVal) {
@@ -307,7 +307,7 @@ export default {
                 this.loadFamillies()
                 this.loadValidationRules()
                 this.form.name = this.controlPoint.current.name
-                this.form.familly_id = this.controlPoint.current.familly.id
+                this.form.family_id = this.controlPoint.current.family.id
                 this.form.domain_id = this.controlPoint.current.domain.id
                 this.form.process_id = this.controlPoint.current.process.id
                 this.form.has_major_fact = this.controlPoint.current.has_major_fact
@@ -320,9 +320,9 @@ export default {
      * Récupère la liste des familles
      */
         loadFamillies() {
-            this.$store.dispatch('famillies/fetchAll', false).then(() => {
-                this.familliesList = this.famillies.all
-                this.loadDomains(this.form.familly_id)
+            this.$store.dispatch('families/fetchAll', false).then(() => {
+                this.familliesList = this.families.all
+                this.loadDomains(this.form.family_id)
                 this.loadProcesses(this.form.domain_id)
                 this.$store.dispatch('settings/updatePageLoading', false)
             })
@@ -333,8 +333,8 @@ export default {
          */
         loadDomains(value) {
             if (value) {
-                this.$store.dispatch('famillies/fetch', { id: value, onlyDomains: true }).then(() => {
-                    this.domainsList = this.familly.domains
+                this.$store.dispatch('families/fetch', { id: value, onlyDomains: true }).then(() => {
+                    this.domainsList = this.family.domains
                 })
             } else {
                 this.domainsList = []

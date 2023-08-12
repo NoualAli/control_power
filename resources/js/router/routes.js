@@ -264,12 +264,12 @@ export default [
         }
     },
     /**
-     * Famillies
+     * Families
      */
     {
-        path: '/admin/famillies',
-        name: 'famillies-index',
-        component: page('admin/famillies/index.vue'),
+        path: '/admin/families',
+        name: 'families-index',
+        component: page('admin/families/index.vue'),
         meta: {
             breadcrumb: {
                 label: 'Familles'
@@ -278,24 +278,24 @@ export default [
         }
     },
     {
-        path: '/admin/famillies/create',
-        name: 'famillies-create',
-        component: page('admin/famillies/create.vue'),
+        path: '/admin/families/create',
+        name: 'families-create',
+        component: page('admin/families/create.vue'),
         meta: {
             breadcrumb: {
                 label: 'Nouvelle famille',
-                parent: 'famillies-index'
+                parent: 'families-index'
             }
         }
     },
     {
-        path: '/admin/famillies/edit/:familly',
-        name: 'famillies-edit',
-        component: page('admin/famillies/edit.vue'),
+        path: '/admin/families/edit/:family',
+        name: 'families-edit',
+        component: page('admin/families/edit.vue'),
         meta: {
             breadcrumb: {
                 label: 'Edition famille',
-                parent: 'famillies-index'
+                parent: 'families-index'
             }
         }
     },

@@ -204,11 +204,11 @@ export default {
                 //         const newItem = newValue[ key ]?.value || []
                 //         const oldItem = this.appliedFilters && Object.hasOwnProperty.call(this.appliedFilters, key) ? this.appliedFilters[ key ] : []
                 //         const newItemValue = typeof newItem == 'array' || typeof newItem == 'object' ? newItem.join(',') : '';
-                //         // if (key == 'familly') {
+                //         // if (key == 'family') {
                 //         //     console.log('old item ' + key + ': ', oldItem);
                 //         // }
                 //         // const oldItemValue = typeof oldItem == 'array' ? oldItem?.value.join(',') : '';
-                //         // if (key == 'familly') {
+                //         // if (key == 'family') {
                 //         //     console.log('old item value ' + key + ': ', oldItemValue);
                 //         //     console.log(newItemValue !== oldItemValue);
                 //         // }

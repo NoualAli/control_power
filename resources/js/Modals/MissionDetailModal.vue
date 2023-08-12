@@ -36,7 +36,7 @@
                         </NLColumn>
                         <NLColumn lg="6">
                             <span class="label">Famille: </span>
-                            <span>{{ row?.familly?.name }}</span>
+                            <span>{{ row?.family?.name }}</span>
                         </NLColumn>
                         <NLColumn lg="6">
                             <span class="label">Domaine: </span>

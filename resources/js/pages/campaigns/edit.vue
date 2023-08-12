@@ -58,7 +58,7 @@ export default {
         }
     },
     computed: mapGetters({
-        famillies: 'famillies/all',
+        families: 'families/all',
         campaign: 'campaigns/current'
     }),
     watch: {
@@ -100,9 +100,9 @@ export default {
          * Récupère la liste des familles -> domaines -> processus
          */
         loadPFC() {
-            this.$store.dispatch('famillies/fetchAll', true).then(() => {
-                // console.log(typeof this.famillies.all)
-                this.pcfList = this.famillies.all
+            this.$store.dispatch('families/fetchAll', true).then(() => {
+                // console.log(typeof this.families.all)
+                this.pcfList = this.families.all
             })
         },
         initData() {

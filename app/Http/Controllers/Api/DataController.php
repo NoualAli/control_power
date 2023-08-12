@@ -223,7 +223,7 @@ class DataController extends Controller
      */
     private function avgScoreByFamily(): array
     {
-        $families = $this->getDetails()->with('familly')->get()->groupBy('familly.name')
+        $families = $this->getDetails()->with('family')->get()->groupBy('family.name')
             ->mapWithKeys(fn ($details, $family) => [$family => intval(round(floatval($details->avg('score'))))]);
         $labels = $families->keys();
         extract($this->defaultColors());
@@ -325,14 +325,14 @@ class DataController extends Controller
     }
 
     /**
-     * Fetch famillies anomalies statistics
+     * Fetch families anomalies statistics
      *
      * @return array
      */
     private function familiesAnomalies(): array
     {
-        $anomalies = $this->getDetails()->whereAnomaly()->with('familly')->get()->groupBy('familly.id')->mapWithKeys(function ($data, $key) {
-            $familyName = $data->first()->familly->name;
+        $anomalies = $this->getDetails()->whereAnomaly()->with('family')->get()->groupBy('family.id')->mapWithKeys(function ($data, $key) {
+            $familyName = $data->first()->family->name;
             return [$familyName => $data->count()];
         });
         $labels = $anomalies->keys();
@@ -486,14 +486,14 @@ class DataController extends Controller
     }
 
     /**
-     * Fetch famillies major facts statistics
+     * Fetch families major facts statistics
      *
      * @return array
      */
     private function familiesMajorFacts(): array
     {
-        $majorFacts = $this->getDetails()->onlyMajorFacts()->with('familly')->get()->groupBy('familly.id')->mapWithKeys(function ($data, $key) {
-            $famillyName = $data->first()->familly->name;
+        $majorFacts = $this->getDetails()->onlyMajorFacts()->with('family')->get()->groupBy('family.id')->mapWithKeys(function ($data, $key) {
+            $famillyName = $data->first()->family->name;
             return [$famillyName => $data->count()];
         });
         $labels = $majorFacts->keys();
@@ -659,7 +659,7 @@ class DataController extends Controller
         } elseif (hasRole(['dre', 'da'])) {
             $details = $user->details()->hasDcpValidation();
         }
-        return $details->without(['process', 'domain', 'controlPoint', 'familly', 'media']);
+        return $details->without(['process', 'domain', 'controlPoint', 'family', 'media']);
     }
 
     /**

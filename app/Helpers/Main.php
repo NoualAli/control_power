@@ -2,7 +2,7 @@
 
 use App\Models\ControlCampaign;
 use App\Models\Domain;
-use App\Models\Familly;
+use App\Models\Family;
 use App\Models\Mission;
 use App\Models\User;
 use Carbon\Carbon;
@@ -234,18 +234,18 @@ if (!function_exists('getPCF')) {
     /**
      * Fetch and format PCF array
      *
-     * @param Familly|null $famillies
+     * @param Family|null $families
      *
      * @return array
      */
-    function getPCF(?Familly $famillies = null): array
+    function getPCF(?Family $families = null): array
     {
-        $famillies = $famillies ? $famillies : new Familly;
-        $famillies = $famillies->orderBy('id', 'ASC')->with(['domains' => fn ($domain) => $domain->with(['processes' => fn ($process) => $process->without('control_points')])])->get()->toArray();
-        return array_map(function ($familly) {
+        $families = $families ? $families : new Family;
+        $families = $families->orderBy('id', 'ASC')->with(['domains' => fn ($domain) => $domain->with(['processes' => fn ($process) => $process->without('control_points')])])->get()->toArray();
+        return array_map(function ($family) {
             return [
-                'id' => 'f-' . $familly['id'] . '-' . $familly['name'],
-                'label' => $familly['name'],
+                'id' => 'f-' . $family['id'] . '-' . $family['name'],
+                'label' => $family['name'],
                 'children' => array_map(function ($domain) {
                     return [
                         'id' => 'd-' . $domain['id'] . '-' . $domain['name'],
@@ -257,9 +257,9 @@ if (!function_exists('getPCF')) {
                             ];
                         }, $domain['processes'])
                     ];
-                }, $familly['domains'])
+                }, $family['domains'])
             ];
-        }, $famillies);
+        }, $families);
     }
 }
 
@@ -280,7 +280,7 @@ if (!function_exists('pcfToProcesses')) {
                 if ($item[0] == 'd') {
                     $ids = array_merge(Domain::findOrFail($item[1])->processes->pluck('id')->toArray(), $ids);
                 } elseif ($item[0] == 'f') {
-                    $ids = array_merge(Familly::findOrFail($item[1])->processes->pluck('id')->toArray(), $ids);
+                    $ids = array_merge(Family::findOrFail($item[1])->processes->pluck('id')->toArray(), $ids);
                 } else {
                     $ids = array_merge($ids, [intval($item[0])]);
                 }
@@ -289,6 +289,7 @@ if (!function_exists('pcfToProcesses')) {
             $pcf = Validator::make($pcf, [
                 '*' => 'exists:processes,id'
             ])->validated();
+            // dd($pcf);
 
             return $pcf;
         }
@@ -344,13 +345,14 @@ if (!function_exists('getMissionProcesses')) {
             SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) AS scored_mission_details,
             (count(md.score) * 100) / COUNT(md.id) AS progress_status
         ");
-        return $processes->join('control_points as cp', 'p.id', '=', 'cp.process_id')
+        $processes = $processes->join('control_points as cp', 'p.id', '=', 'cp.process_id')
             ->join('domains as d', 'd.id', '=', 'p.domain_id')
-            ->join('famillies as f', 'f.id', '=', 'd.familly_id')
+            ->join('families as f', 'f.id', '=', 'd.family_id')
             ->join('mission_details as md', 'cp.id', '=', 'md.control_point_id')
             ->join('missions as m', 'm.id', '=', 'md.mission_id')
             ->groupBy('f.id', 'd.id', 'p.id', 'p.name', 'd.name', 'f.name')
             ->where('m.id', $mission->id);
+        return $processes;
     }
 }
 

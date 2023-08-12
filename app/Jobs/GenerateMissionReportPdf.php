@@ -14,6 +14,9 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
+
+use function PHPUnit\Framework\directoryExists;
 
 class GenerateMissionReportPdf implements ShouldQueue
 {
@@ -49,19 +52,17 @@ class GenerateMissionReportPdf implements ShouldQueue
         try {
             $mission = $this->mission;
             $start = now();
-            $this->mission->unsetRelations();
-            $this->mission->load(['details', 'campaign']);
-            $details = $this->mission->details()->whereIn('score', [1, 2, 3, 4])->get()->groupBy('familly.name');
-            $end = now();
-            $difference = $end->diffInRealMilliseconds($start);
-            $campaign = $this->mission->campaign;
+            $mission->unsetRelations();
+            // $mission->load(['details' => fn ($query) => $query->whereIn('score', [1, 2, 3, 4])->get()->groupBy('family.name'), 'campaign']);
+            $mission->load(['details', 'campaign']);
+            $details = $mission->details()->whereIn('score', [1, 2, 3, 4])->get()->groupBy('family.name');
+            $campaign = $mission->campaign;
             $stats = [
-                'avg_score' => $this->mission->avg_score,
-                'total_processes' => $this->loadProcesses($this->mission)->count(),
-                'total_anomalies' => $this->mission->details()->whereAnomaly()->count(),
-                'total_major_facts' => $this->mission->details()->onlyMajorFacts()->count(),
+                'avg_score' => $mission->avg_score,
+                'total_processes' => $this->loadProcesses($mission)->count(),
+                'total_anomalies' => $mission->details()->whereAnomaly()->count(),
+                'total_major_facts' => $mission->details()->onlyMajorFacts()->count(),
             ];
-
             if (!file_exists($this->filepath())) {
                 $pdf = Pdf::loadView('export.report', compact('mission', 'campaign', 'details', 'stats'));
                 $pdf->render();
@@ -84,23 +85,30 @@ class GenerateMissionReportPdf implements ShouldQueue
                         $number++;
                     }
                 }
-                $pdf->save($this->filepath());
+                $content = $pdf->download()->getOriginalContent();
+
+                Storage::put($this->filepath(), $content);
+                $this->response['message'] = 'Fichier générer avec succès !';
+                $this->response['status'] = true;
                 $notify = User::whereRoles(['cdcr', 'dg', 'cdrcp', 'ig', 'sg', 'der', 'dcp']);
                 $notify = User::whereRoles(['dre'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($notify->get());
                 $notify = $notify->merge($mission->dcpControllers)->merge($mission->dreControllers);
                 foreach ($notify as $user) {
                     Notification::send($user, new ReportNotification($this->mission));
                 }
+                $end = now();
+                $difference = $end->diffInRealMilliseconds($start);
             } else {
                 redirect($this->filepath());
             }
         } catch (\Throwable $th) {
+            // dd($th->getMessage(), $th->getLine());
             $this->response['message'] = $th->getMessage() . ' on line ' . $th->getLine() . ' on file ' . $th->getFile();
             $this->response['status'] = false;
         }
-        $this->response['message'] = $th->getMessage() . ' on line ' . $th->getLine() . ' on file ' . $th->getFile();
-        $this->response['status'] = false;
-        $this->response['file_path'] = $this->filepath();
+        // $this->response['message'] = $th->getMessage() . ' on line ' . $th->getLine() . ' on file ' . $th->getFile();
+        // $this->response['status'] = false;
+        // $this->response['file_path'] = $this->filepath();
     }
 
     public function getResponse()
@@ -118,8 +126,23 @@ class GenerateMissionReportPdf implements ShouldQueue
      */
     private function filepath($relative = true): string
     {
-        $relativePath = __DIR__ . '\..\..\public\exported\missions\\' . $this->mission->report_name . '.pdf';
+        $relativePath = $this->dirPath($relative) . '\\' . $this->mission->report_name . '.pdf';
+        return $relativePath;
         return $relative ? $relativePath : public_path($relativePath);
+    }
+
+    /**
+     * @param bool $relative
+     *
+     * @return string
+     */
+    private function dirPath($relative = true): string
+    {
+        $relativePath = 'exported\campaigns\\' . $this->mission->campaign->reference . '\\missions';
+        if (!Storage::directoryExists($relativePath)) {
+            Storage::makeDirectory($relativePath);
+        }
+        return $relativePath;
     }
 
     /**

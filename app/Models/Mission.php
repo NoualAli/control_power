@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Znck\Eloquent\Traits\BelongsToThrough;
 
@@ -100,13 +101,18 @@ class Mission extends BaseModel
      */
     public function getPdfReportExistsAttribute()
     {
-        return file_exists(public_path('exported/missions/' . $this->report_name . '.pdf'));
+        return Storage::fileExists('exported\campaigns\\' . $this->campaign->reference . '\\missions\\' . $this->report_name . '.pdf');
     }
 
     public function getReportNameAttribute()
     {
         $reference = str_replace('/', '-', $this->reference) . '-' . str_replace(' ', '', $this->agency->name);
         return strtolower('rapport_mission-' . $reference);
+    }
+
+    public function getReportPathAttribute()
+    {
+        return 'exported/campaigns/' . $this->campaign->reference . '/missions/' . $this->report_name . '.pdf';
     }
 
     public function getEndAttribute()
@@ -488,7 +494,7 @@ class Mission extends BaseModel
      */
     public function notDispatchedProcesses(?string $concerned = null)
     {
-        $notDispatchedProcesses = $this->details()->notDispatched($concerned)->without(['familly', 'domain', 'controlPoint', 'media'])->with(['process' => fn ($process) => $process->pluck('processes.id', 'processes.name')->toArray()])->get()->pluck('process');
+        $notDispatchedProcesses = $this->details()->notDispatched($concerned)->without(['family', 'domain', 'controlPoint', 'media'])->with(['process' => fn ($process) => $process->pluck('processes.id', 'processes.name')->toArray()])->get()->pluck('process');
         $notDispatchedProcesses = getMissionProcesses($this)->get()->filter(function ($item) use ($notDispatchedProcesses) {
             $notDispatchedProcesses = array_unique($notDispatchedProcesses->pluck('id')->toArray());
             return in_array($item->process_id, $notDispatchedProcesses);
@@ -540,7 +546,7 @@ class Mission extends BaseModel
         dd($users);
 
         // $dipatchedProcesses = $this->details()->dispatched($concerned)
-        // ->without(['familly', 'domain', 'controlPoint', 'media'])->with(['dcpController', 'process' => fn ($process) => $process->pluck('processes.id', 'processes.name')->toArray()])->get()->groupBy('dcpController.full_name');
+        // ->without(['family', 'domain', 'controlPoint', 'media'])->with(['dcpController', 'process' => fn ($process) => $process->pluck('processes.id', 'processes.name')->toArray()])->get()->groupBy('dcpController.full_name');
         // dd($dipatchedProcesses);
         // $dipatchedProcesses = getMissionProcesses($this)->get()->filter(function ($item) use ($dipatchedProcesses) {
         //     $dipatchedProcesses = array_unique($dipatchedProcesses->pluck('id')->toArray());

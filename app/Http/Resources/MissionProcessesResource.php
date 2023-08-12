@@ -16,7 +16,7 @@ class MissionProcessesResource extends JsonResource
     {
         $data =  [
             'id' => $this->process_id,
-            'familly' => $this->family,
+            'family' => $this->family,
             'domain' => $this->domain,
             'name' => $this->process,
             'control_points_count' => $this->control_points_count,

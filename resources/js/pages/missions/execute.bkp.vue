@@ -5,7 +5,7 @@
                 <div class="col-1" />
                 <div class="col-11">
                     <h2 v-if="process" :key="process">
-                        {{ process?.familly?.name }} / {{ process?.domain?.name }} / {{ process?.name }}
+                        {{ process?.family?.name }} / {{ process?.domain?.name }} / {{ process?.name }}
                     </h2>
                 </div>
                 <div class="col-1" />

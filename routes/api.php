@@ -9,7 +9,7 @@ use App\Http\Controllers\Api\ControlCampaignController;
 use App\Http\Controllers\Api\ControlPointController;
 use App\Http\Controllers\Api\DomainController;
 use App\Http\Controllers\Api\DreController;
-use App\Http\Controllers\Api\FamillyController;
+use App\Http\Controllers\Api\FamilyController;
 use App\Http\Controllers\Api\MajorFactController;
 use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\MissionAssignationController;
@@ -89,12 +89,12 @@ Route::group(['middleware' => 'auth:api'], function () {
     /**
      * Famillies -> Domains -> Processes -> Control Points
      */
-    Route::prefix('famillies')->controller(FamillyController::class)->group(function () {
+    Route::prefix('families')->controller(FamilyController::class)->group(function () {
         Route::get('/', 'index');
-        Route::get('{familly}', 'show');
+        Route::get('{family}', 'show');
         Route::post('/', 'store');
-        Route::put('{familly}', 'update');
-        Route::delete('{familly}', 'destroy');
+        Route::put('{family}', 'update');
+        Route::delete('{family}', 'destroy');
     });
 
 
@@ -145,7 +145,8 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::post('/', 'store');
         Route::get('/', 'index');
         Route::get('/{mission}', 'show');
-        Route::get('/{mission}/export', 'export');
+        Route::get('/{mission}/report', 'handleReport');
+        // Route::get('/{mission}/report/export', 'exportReport');
         // Route::get('/{mission}/export', 'exportSnappy');
         Route::get('/{mission}/processes', 'processes');
         Route::put('{mission}', 'update');

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\ControlCompaignController;
+use App\Http\Controllers\Api\MissionController;
 use App\Http\Controllers\ExcelReaderController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +19,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/excel-reader', ExcelReaderController::class);
 
-Route::get('/artisan', function () {
-    Artisan::call('optimize:clear');
+Route::prefix('missions')->controller(MissionController::class)->group(function () {
+    Route::get('/{mission}/report', 'handleReport');
 });

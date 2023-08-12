@@ -25,7 +25,7 @@ class StoreRequest extends FormRequest
     {
         return [
             'name' => ['required', 'unique:domains', 'string', 'max:255'],
-            'familly_id' => ['required', 'exists:famillies,id'],
+            'family_id' => ['required', 'exists:families,id'],
         ];
     }
 }

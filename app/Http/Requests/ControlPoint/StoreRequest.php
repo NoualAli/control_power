@@ -27,7 +27,7 @@ class StoreRequest extends FormRequest
     {
         return [
             'name' => ['required', new UniqueInProcess(request()->process_id), 'string', 'max:255'],
-            'familly_id' => ['required', 'exists:famillies,id'],
+            'family_id' => ['required', 'exists:families,id'],
             'domain_id' => ['required', 'exists:domains,id'],
             'process_id' => ['required', 'exists:processes,id'],
             'has_major_fact' => ['required', 'boolean'],

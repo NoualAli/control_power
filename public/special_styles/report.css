@@ -246,7 +246,7 @@ ul {
 
 .page-header .text-content {
     position: absolute;
-    right: 10%;
+    right: 0;
     top: 50%;
     /* left: 20%; */
     transform: translateY(-50%);
@@ -413,8 +413,13 @@ td {
 }
 
 .container {
+    position: relative;
     width: 80%;
     margin: 0 auto;
+}
+
+.container.is-fluid {
+    width: 100%;
 }
 
 .text-center {
@@ -429,4 +434,10 @@ td {
 .table-of-content a {
     color: #000000;
     text-decoration: none;
+}
+
+.img {
+    max-width: 100%;
+    height: auto;
+    margin: 10px auto;
 }

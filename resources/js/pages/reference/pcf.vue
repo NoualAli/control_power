@@ -17,8 +17,8 @@ export default {
             columns: [
                 {
                     label: 'Famille',
-                    field: 'familly_name',
-                    filterable: 'familly_id',
+                    field: 'family_name',
+                    filterable: 'family_id',
                 },
                 {
                     label: 'Domaine',
@@ -52,7 +52,7 @@ export default {
                     multiple: true,
                     data: null,
                     value: null,
-                    dependsOn: 'familly'
+                    dependsOn: 'family'
                 },
                 process: {
                     label: 'Processus',
@@ -66,7 +66,7 @@ export default {
             details: [
                 {
                     label: 'Famille',
-                    field: 'familly.name',
+                    field: 'family.name',
                 },
                 {
                     label: 'Domaine',

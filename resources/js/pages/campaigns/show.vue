@@ -3,8 +3,8 @@
         <template #title>
             Informations de la campagne de contrôle
         </template>
-        <template class="d-flex justify-between align-center gap-3 mb-9" v-if="!pageLoadingState" #actions>
-            <NLFlex lgJustifyContent="end" extraClass="w-100" v-if="forcedRerenderKey !== -1">
+        <template class="d-flex justify-between align-center gap-3 mb-9" #actions>
+            <NLFlex lgJustifyContent="end" extraClass="w-100" v-if="renderKey">
                 <router-link v-if="can('view_mission')"
                     :to="{ name: 'campaign-missions', params: { campaignId: campaign?.current?.id } }" class="btn">
                     Missions
@@ -83,7 +83,7 @@
         </div>
 
         <!-- Processes List -->
-        <NLDatatable v-if="campaign?.current?.id" :columns="columns" :details="details" :filters="filters"
+        <NLDatatable :key="renderKey" v-if="campaign?.current?.id" :columns="columns" :details="details" :filters="filters"
             title="Liste des processus" :urlPrefix="'campaigns/processes/' + campaign?.current?.id"
             detailsUrlPrefix="processes" @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
             <template #actions-before="{ item, callback }"
@@ -104,11 +104,11 @@ export default {
     middleware: [ 'auth' ],
     data() {
         return {
-            forcedRerenderKey: -1,
+            renderKey: 0,
             columns: [
                 {
                     label: 'Famille',
-                    field: 'familly_name'
+                    field: 'family_name'
                 },
                 {
                     label: 'Domaine',
@@ -144,7 +144,7 @@ export default {
                     multiple: true,
                     data: null,
                     value: null,
-                    dependsOn: 'familly'
+                    dependsOn: 'family'
                 },
             },
         }
@@ -153,17 +153,6 @@ export default {
         ...mapGetters({
             campaign: 'campaigns/current'
         })
-    },
-    watch: {
-        campaign: {
-            immediate: true,
-            deep: true,
-            handler(newValue, oldValue) {
-                if (newValue) {
-                    this.forcedRerenderKey = newValue.current.id
-                }
-            }
-        }
     },
 
     created() {
@@ -179,7 +168,7 @@ export default {
                 if (this.$breadcrumbs.value[ length - 1 ].label === 'Détails campagne') {
                     this.$breadcrumbs.value[ length - 1 ].label = 'Détails campagne ' + this.campaign.current?.reference
                 }
-                this.$store.dispatch('settings/updatePageLoading', false)
+                this.renderKey += 1
             })
         },
         loadControlPoints(process) {
@@ -196,6 +185,7 @@ export default {
                     api.put('campaigns/' + item.id + '/validate').then(response => {
                         if (response.data.status) {
                             this.initData()
+                            this.$store.dispatch('settings/updatePageLoading', false)
                             this.$swal.toast_success(response.data.message)
                         } else {
                             this.$swal.toast_error(response.data.message)

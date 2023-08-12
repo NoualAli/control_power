@@ -6,22 +6,25 @@
             <NLForm :action="create" :form="form">
                 <!-- Familliies -->
                 <NLColumn lg="6" md="6">
-                    <NLSelect v-model="form.familly_id" :form="form" name="familly_id" label="Famille"
-                        :options="familliesList" label-required :multiple="false" />
+                    <NLSelect v-model="form.family_id" :form="form" name="family_id" label="Famille"
+                        :options="familliesList" label-required :multiple="false"
+                        placeholder="Veuillez choisir une famille" />
                 </NLColumn>
                 <!-- Domains -->
                 <NLColumn lg="6" md="6">
                     <NLSelect v-model="form.domain_id" :form="form" name="domain_id" label="Domaine" :options="domainsList"
-                        label-required :multiple="false" />
+                        label-required :multiple="false" placeholder="Veuillez choisir un domaine" />
                 </NLColumn>
                 <!-- Processes -->
                 <NLColumn lg="6" md="6">
                     <NLSelect v-model="form.process_id" :form="form" name="process_id" label="Processus"
-                        :options="processesList" label-required :multiple="false" />
+                        :options="processesList" label-required :multiple="false"
+                        placeholder="Veuillez choisir un processus" />
                 </NLColumn>
                 <!-- Name -->
                 <NLColumn lg="6" md="6">
-                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required />
+                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required
+                        placeholder="Veuillez saisir le nom de point de contrôle" />
                 </NLColumn>
                 <!-- Major fact -->
                 <NLColumn>
@@ -267,7 +270,7 @@ export default {
             ],
             form: new Form({
                 name: null,
-                familly_id: null,
+                family_id: null,
                 domain_id: null,
                 process_id: null,
                 scores: [],
@@ -279,14 +282,14 @@ export default {
     },
     computed: {
         ...mapGetters({
-            famillies: 'famillies/all',
-            familly: 'famillies/domains',
+            families: 'families/all',
+            family: 'families/domains',
             domain: 'domains/processes',
             validationRules: 'settings/validationRules'
         })
     },
     watch: {
-        'form.familly_id': function (newVal, oldVal) {
+        'form.family_id': function (newVal, oldVal) {
             if (newVal !== oldVal) { this.loadDomains(newVal) }
         },
         'form.domain_id': function (newVal, oldVal) {
@@ -311,8 +314,8 @@ export default {
          * Récupère la liste des familles
          */
         loadFamillies() {
-            this.$store.dispatch('famillies/fetchAll', false).then(() => {
-                this.familliesList = this.famillies.all
+            this.$store.dispatch('families/fetchAll', false).then(() => {
+                this.familliesList = this.families.all
                 this.$store.dispatch('settings/updatePageLoading', false)
             })
         },
@@ -322,8 +325,8 @@ export default {
          */
         loadDomains(value) {
             if (value) {
-                this.$store.dispatch('famillies/fetch', { id: value, onlyDomains: true }).then(() => {
-                    this.domainsList = this.familly.domains
+                this.$store.dispatch('families/fetch', { id: value, onlyDomains: true }).then(() => {
+                    this.domainsList = this.family.domains
                 })
             } else {
                 this.domainsList = []
@@ -361,7 +364,7 @@ export default {
                     // this.form.reset()
                     // this.initData()
                     this.form.name = null
-                    // this.form.familly_id = null
+                    // this.form.family_id = null
                     // this.form.domain_id = null
                     // this.form.process_id = null
                     this.form.scores = []

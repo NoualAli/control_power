@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Familly\StoreRequest;
-use App\Http\Requests\Familly\UpdateRequest;
-use App\Http\Resources\FamillyResource;
+use App\Http\Requests\Family\StoreRequest;
+use App\Http\Requests\Family\UpdateRequest;
+use App\Http\Resources\FamilyResource;
 use App\Models\Domain;
-use App\Models\Familly;
+use App\Models\Family;
 use Illuminate\Http\JsonResponse;
 
-class FamillyController extends Controller
+class FamilyController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,8 +19,8 @@ class FamillyController extends Controller
      */
     public function index()
     {
-        $famillies = Familly::withCount('domains');
-        // $famillies = new Familly();
+        $families = Family::withCount('domains');
+        // $families = new Family();
 
         $filter = request('filter', null);
         $search = request('search', null);
@@ -31,36 +31,36 @@ class FamillyController extends Controller
         $withChildren = request()->has('withChildren');
 
         if ($filter) {
-            $famillies = $famillies->filter($filter);
+            $families = $families->filter($filter);
         }
 
         if ($sort) {
-            $famillies = $famillies->sortByMultiple($sort);
+            $families = $families->sortByMultiple($sort);
         }
         if ($search) {
-            $famillies = $famillies->search($search);
+            $families = $families->search($search);
         }
 
         if ($fetchAll && $withChildren) {
-            $famillies = getPCF();
+            $families = getPCF();
         } elseif ($fetchAll && !$withChildren) {
-            $famillies = formatForSelect($famillies->get()->toArray());
+            $families = formatForSelect($families->get()->toArray());
         }
-        $famillies = $fetchAll ? $famillies : FamillyResource::collection($famillies->paginate($perPage)->onEachSide(1));
-        return $famillies;
+        $families = $fetchAll ? $families : FamilyResource::collection($families->paginate($perPage)->onEachSide(1));
+        return $families;
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  App\Http\Familly\StoreRequest  $request*
+     * @param  App\Http\Family\StoreRequest  $request*
      * @return JsonResponse
      */
     public function store(StoreRequest $request): JsonResponse
     {
         try {
             $data = $request->validated();
-            $familly = Familly::create($data);
+            $family = Family::create($data);
 
             return response()->json([
                 'message' => CREATE_SUCCESS,
@@ -78,30 +78,30 @@ class FamillyController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param string $familly
+     * @param string $family
      * @return JsonResponse
      */
-    public function show(string $familly): JsonResponse
+    public function show(string $family): JsonResponse
     {
-        $famillies = explode(',', $familly);
+        $families = explode(',', $family);
         $onlyDomains = request()->has('onlyDomains');
-        $data = !$onlyDomains ? Familly::findOrFail($familly) : formatForSelect(Domain::whereIn('familly_id', $famillies)->get()->toArray());
+        $data = !$onlyDomains ? Family::findOrFail($family) : formatForSelect(Domain::whereIn('family_id', $families)->get()->toArray());
         return response()->json($data);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param App\Http\Familly\UpdateRequest $request
-     * @param App\Models\Familly $familly
+     * @param App\Http\Family\UpdateRequest $request
+     * @param App\Models\Family $family
      *
      * @return JsonResponse
      */
-    public function update(UpdateRequest $request, Familly $familly): JsonResponse
+    public function update(UpdateRequest $request, Family $family): JsonResponse
     {
         try {
             $data = $request->validated();
-            $familly->update($data);
+            $family->update($data);
             return response()->json([
                 'message' => UPDATE_SUCCESS,
                 'status' => true,
@@ -119,14 +119,14 @@ class FamillyController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param App\Models\Familly $familly
+     * @param App\Models\Family $family
      * @return JsonResponse
      */
-    public function destroy(Familly $familly): JsonResponse
+    public function destroy(Family $family): JsonResponse
     {
         isAbleOrAbort('delete_familly');
         try {
-            $familly->delete();
+            $family->delete();
             return response()->json([
                 'message' => DELETE_SUCCESS,
                 'status' => true,
