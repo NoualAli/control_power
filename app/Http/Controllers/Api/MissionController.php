@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\MissionReportGeneratedEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Mission\AssignToCCRequest;
 use App\Http\Requests\Mission\StoreRequest;
@@ -18,6 +19,7 @@ use App\Notifications\Mission\AssignationRemoved;
 use App\Notifications\Mission\Assigned;
 use App\Notifications\Mission\Updated;
 use App\Notifications\Mission\Validated;
+use App\Notifications\ReportNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -28,6 +30,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 
 class MissionController extends Controller
@@ -386,16 +389,27 @@ class MissionController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response|\Illuminate\Foundation\Bus\PendingDispatch
      */
-    public function handleReport(Mission $mission): JsonResponse|Response|PendingDispatch
+    public function handleReport(Mission $mission)
     {
         $fileExists = Storage::exists($mission->report_path);
         if (request()->action == 'generate' && !$fileExists) {
-            return $this->generateReport($mission);
+            if (!Session::has('mission_report_generated_' . $mission->reference)) {
+                session()->put('mission_report_generated_' . $mission->reference, 'mission_report_generated_' . $mission->reference);
+                $this->generateReport($mission);
+            } else {
+                return $this->exportReport($mission);
+            }
         } elseif (request()->action == 'export' && $fileExists) {
             return $this->exportReport($mission);
         } else {
             return response()->json(['error' => "L'action que vous avez choisit n'existe pas."], 404);
         }
+    }
+
+    public function missionReportIsGenerated(Mission $mission)
+    {
+        // dd((bool)Session::has('mission_report_generated_' . $mission->reference));
+        return response()->json((bool) Session::has('mission_report_generated_' . $mission->reference));
     }
 
     /**
@@ -405,7 +419,7 @@ class MissionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    private function exportReport(Mission $mission): Response
+    private function exportReport(Mission $mission)
     {
         $filename = $mission->report_path;
         $file = Storage::get($filename);
@@ -424,7 +438,7 @@ class MissionController extends Controller
      *
      * @return \Illuminate\Foundation\Bus\PendingDispatch
      */
-    private function generateReport(Mission $mission): PendingDispatch
+    private function generateReport(Mission $mission)
     {
         return GenerateMissionReportPdf::dispatch($mission);
     }

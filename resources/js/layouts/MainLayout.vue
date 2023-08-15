@@ -63,6 +63,7 @@ import NLSidebar from '../components/Sidebar/NLSidebar'
 import Child from '../components/Child'
 import { mapGetters } from 'vuex'
 import NLPageLoader from '../components/NLPageLoader'
+import store from '~/store'
 export default {
     name: 'MainLayout',
     components: {
@@ -76,29 +77,38 @@ export default {
             totalUnreadNotifications: 0
         }
     },
-    computed: mapGetters({
-        showSidebar: 'sidebar/showSidebar',
-        user: 'auth/user',
-        notifications: 'notifications/unread',
-        pageLoadingState: 'settings/pageIsLoading'
-    }),
+    computed: {
+        ...mapGetters({
+            showSidebar: 'sidebar/showSidebar',
+            user: 'auth/user',
+            notifications: 'notifications/totalUnread',
+            pageLoadingState: 'settings/pageIsLoading',
+        }),
+    },
     watch: {
+        "store.notifications.totalUnread.totalUnread"(newValue, oldValue) {
+            if (newValue !== oldValue && newValue !== this.totalUnreadNotifications) {
+                this.totalUnreadNotifications = newValue
+                // console.log(this.totalUnreadNotifications);
+            }
+        },
         $route(to, from) {
             if (to.path !== '/login') {
                 this.$store.dispatch('notifications/fetchUnreadNotifications').then(() => {
-                    this.totalUnreadNotifications = this.notifications.unread.totalUnread
+                    this.totalUnreadNotifications = this.notifications.totalUnread.totalUnread
                 })
             }
         }
     },
     created() {
         this.$store.dispatch('notifications/fetchUnreadNotifications').then(() => {
-            this.totalUnreadNotifications = this.notifications.unread.totalUnread
+            // console.log(this.notifications.totalUnread.totalUnread);
+            this.totalUnreadNotifications = this.notifications.totalUnread.totalUnread
         })
     },
     updated() {
         this.$store.dispatch('notifications/fetchUnreadNotifications').then(() => {
-            this.totalUnreadNotifications = this.notifications.unread.totalUnread
+            this.totalUnreadNotifications = this.notifications.totalUnread.totalUnread
         })
     },
     methods: {

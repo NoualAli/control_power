@@ -146,8 +146,7 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::get('/', 'index');
         Route::get('/{mission}', 'show');
         Route::get('/{mission}/report', 'handleReport');
-        // Route::get('/{mission}/report/export', 'exportReport');
-        // Route::get('/{mission}/export', 'exportSnappy');
+        Route::get('/{mission}/report/check-if-is-generated', 'missionReportIsGenerated');
         Route::get('/{mission}/processes', 'processes');
         Route::put('{mission}', 'update');
         // Route::put('{mission}/assign', 'assignToCC');

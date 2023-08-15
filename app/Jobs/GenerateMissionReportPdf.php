@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\MissionReportGeneratedEvent;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Mission;
 use App\Models\User;
@@ -13,6 +14,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
@@ -88,27 +90,26 @@ class GenerateMissionReportPdf implements ShouldQueue
                 $content = $pdf->download()->getOriginalContent();
 
                 Storage::put($this->filepath(), $content);
-                $this->response['message'] = 'Fichier générer avec succès !';
-                $this->response['status'] = true;
+                // $this->response['message'] = 'Fichier générer avec succès !';
+                // $this->response['status'] = true;
                 $notify = User::whereRoles(['cdcr', 'dg', 'cdrcp', 'ig', 'sg', 'der', 'dcp']);
                 $notify = User::whereRoles(['dre'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($notify->get());
                 $notify = $notify->merge($mission->dcpControllers)->merge($mission->dreControllers);
-                foreach ($notify as $user) {
-                    Notification::send($user, new ReportNotification($this->mission));
-                }
                 $end = now();
                 $difference = $end->diffInRealMilliseconds($start);
+                event(new MissionReportGeneratedEvent($mission));
+                foreach ($notify as $user) {
+                    // event(new MissionReportGeneratedEvent($mission, $user));
+                    Notification::send($user, new ReportNotification($mission));
+                }
+                // dd('Event emited');
             } else {
                 redirect($this->filepath());
             }
         } catch (\Throwable $th) {
-            // dd($th->getMessage(), $th->getLine());
             $this->response['message'] = $th->getMessage() . ' on line ' . $th->getLine() . ' on file ' . $th->getFile();
             $this->response['status'] = false;
         }
-        // $this->response['message'] = $th->getMessage() . ' on line ' . $th->getLine() . ' on file ' . $th->getFile();
-        // $this->response['status'] = false;
-        // $this->response['file_path'] = $this->filepath();
     }
 
     public function getResponse()

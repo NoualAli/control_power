@@ -303,7 +303,8 @@ import MissionAssignationDetailsForm from '../../forms/MissionAssignationDetails
 import { mapGetters } from 'vuex'
 import { Form } from 'vform'
 import api from '../../plugins/api'
-import { hasRole } from '../../plugins/user'
+import { hasRole, user } from '../../plugins/user'
+import { alert_success } from '../../plugins/swal'
 export default {
     components: {
         MissionCommentForm,
@@ -317,7 +318,7 @@ export default {
             controllersList: [],
             commentType: null,
             commentReadonly: false,
-            showGenerateReportBtn: true,
+            showGenerateReportBtn: false,
             columns: [
                 {
                     label: 'Famille',
@@ -437,11 +438,9 @@ export default {
          * Export or Preview report
          */
         generateReport() {
+            this.showGenerateReportBtn = false
             this.$api.get('missions/' + this.mission.current.id + '/report?action=generate').then((response) => {
-                this.$swal.alert_success('La génération du rapport de la mission ' + this.mission?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.', 'Génération du rapport PDF').then(() => {
-                    this.initData()
-                    this.showGenerateReportBtn = false
-                })
+                this.$swal.alert_success('La génération du rapport de la mission ' + this.mission?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.', 'Génération du rapport PDF')
             }).catch((error) => {
                 console.log(error);
             })
@@ -535,6 +534,20 @@ export default {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
             this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId }).then(() => {
+                //
+                this.$api.get('missions/' + this.mission.current.id + '/report/check-if-is-generated').then((response) => {
+                    this.showGenerateReportBtn = !response.data
+                    // if(response.data){
+                    // }else{
+
+                    // }
+                })
+                window.Echo.channel('mission.report.generated.' + this.mission.current.id)
+                    .listen('.MissionReportGenerated', (data) => {
+                        console.log('Event received:', data);
+                        this.$swal.alert_success(data.message,)
+                        this.$store.dispatch('notifications/fetchUnreadNotifications')
+                    });
                 const length = this.$breadcrumbs.value.length
                 if (this.$breadcrumbs.value[ length - 1 ].label === 'Mission') { this.$breadcrumbs.value[ length - 1 ].label = 'Mission ' + this.mission?.current?.reference }
                 this.$store.dispatch('settings/updatePageLoading', false)

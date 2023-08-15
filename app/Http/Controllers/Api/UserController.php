@@ -9,6 +9,7 @@ use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Resources\LoginHistoryResource;
 use App\Http\Resources\UserResource;
 use App\Models\Dre;
+use App\Models\Mission;
 use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,11 @@ class UserController extends Controller
      */
     public function current()
     {
-        return response()->json(auth()->user());
+        $user = auth()->user();
+        $missions = !hasRole(['cdcr', 'dcp', 'dg', 'ig', 'sg', 'cdrcp']) ? $user->missions : Mission::all();
+        $missions = $missions->filter(fn ($mission) => !$mission->pdf_report_exists)->pluck('id')->toArray();
+        $user['missions_without_report'] = $missions;
+        return response()->json($user);
     }
 
     public function loginsHistory()

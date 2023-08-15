@@ -72,6 +72,12 @@ class User extends Authenticatable implements JWTSubject
     /**
      * Getters
      */
+    // public function getMissionsWithoutReportAttribute()
+    // {
+    //     $missions = !hasRole(['cdcr', 'dcp', 'dg', 'ig', 'sg', 'cdrcp']) ? $this->missions : Mission::all();
+    //     return $missions->filter(fn ($mission) => !$mission->pdf_report_exists)->pluck('id')->toArray();
+    // }
+
     public function getAuthorizationsAttribute()
     {
         $authorizations = [];

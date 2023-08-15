@@ -70,25 +70,6 @@ import NLSidebarSubmenu from './NLSidebarSubmenu.vue'
 export default {
     name: "NLSidebar",
     components: { NLSidebarItem, NLSidebarSubmenu },
-    // data() {
-    //     return {
-    //         unreadMajorFacts: 0
-    //     }
-    // },
-    watch: {
-        // $route(to, from) {
-        //   this.dispatch('notifications/fetchTotalUnreadMajorFacts').then(() => {
-        //     this.unreadMajorFacts = this.$store.getters[ 'notifications/total_unread_major_facts' ].total_unread_major_facts
-        //   })
-        // },
-        // unreadMajorFacts: (newVal, oldVal) => {
-        //   if (newVal !== oldVal) {
-        //     this.$store.dispatch('notifications/fetchTotalUnreadMajorFacts').then(() => {
-        //       // this.unreadMajorFacts = newVal
-        //     })
-        //   }
-        // }
-    },
     methods: {
         async logout() {
             // Log out the user.
@@ -98,10 +79,5 @@ export default {
             this.$router.push({ name: 'login' })
         }
     }
-    // created() {
-    //   this.$store.dispatch('notifications/fetchTotalUnreadMajorFacts').then(() => {
-    //     this.unreadMajorFacts = this.$store.getters[ 'notifications/total_unread_major_facts' ].total_unread_major_facts
-    //   })
-    // },
 }
 </script>

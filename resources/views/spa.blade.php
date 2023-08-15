@@ -56,6 +56,14 @@
                 'font-size: 25px;');
         </script>
     @endif
+    <script>
+        window.laravel_echo_port = '{{ env('LARAVEL_WEBSOCKETS_PORT') }}';
+        window.app_host = '{{ env('APP_HOST') }}';
+        window.app_url = '{{ env('APP_url') }}';
+        window.app_port = '{{ env('APP_port') }}';
+    </script>
+    <script src="//{{ env('APP_HOST') }}:{{ env('LARAVEL_WEBSOCKETS_PORT') }}/socket.io/socket.io.js"></script>
+    {{-- <script src="{{ url('/js/echo-realtime.js') }}" type="text/javascript"></script> --}}
     <script src="{{ $appJs }}"></script>
 </body>
 
