@@ -1,6 +1,3 @@
-<!-- eslint-disable vue/multi-word-component-names -->
-<!-- eslint-disable vue/valid-model-definition -->
-<!-- eslint-disable vue/multi-word-component-names -->
 <template>
     <NLGrid class="box auth-box grid" gap="6">
         <NLColumn class="auth-box__header">
@@ -43,7 +40,7 @@ import Form from 'vform'
 export default {
     components: { NLInput, NLButton },
     layout: 'auth',
-    // middleware: 'guest',
+    middleware: 'guest',
 
     metaInfo() {
         return { title: 'Connexion' }
