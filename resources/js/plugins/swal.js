@@ -14,10 +14,11 @@ export function confirm({ icon = 'question', title = '', message = '', showConfi
         position: 'center',
         confirmButtonColor: '#00C851',
         cancelButtonColor: '#CC0000',
+        confirmButtonText: 'Valider',
+        cancelButtonText: 'Annuler',
         showConfirmButton,
         showCancelButton,
-        cancelButtonText: 'Annuler',
-        text: message
+        html: message
     })
 }
 
@@ -118,8 +119,8 @@ export function toast({ icon = 'question', title = '', message = '' }) {
  *
  * @return {any}
  */
-export function toast_success(message = '') {
-    return toast({ icon: 'success', title: 'Succès', message })
+export function toast_success(message = '', title = 'Succès') {
+    return toast({ icon: 'success', title, message })
 }
 
 /**
@@ -129,8 +130,8 @@ export function toast_success(message = '') {
  *
  * @return {any}
  */
-export function toast_error(message = 'Une erreur est survenue') {
-    return toast({ icon: 'error', title: 'Erreur', message })
+export function toast_error(message = 'Une erreur est survenue', title = 'Erreur') {
+    return toast({ icon: 'error', title, message })
 }
 
 export function alert_status(error) {
