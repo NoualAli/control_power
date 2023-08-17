@@ -66,7 +66,11 @@ export const actions = {
             localStorage.setItem('roles', JSON.stringify(data.roles.map(role => role.code)))
             localStorage.setItem('permissions', JSON.stringify(data.roles.map(role => role.permissions.map(permission => permission.name))[ 0 ]))
             localStorage.setItem('dres', JSON.stringify(data.dres.map(dre => dre.full_name)))
-            localStorage.setItem('agencies', JSON.stringify(data.dres?.map(dre => dre.agencies?.map(agency => agency.full_name))[ 0 ]))
+            if (data.dres?.agencies) {
+                localStorage.setItem('agencies', JSON.stringify(data.dres?.map(dre => dre?.agencies?.map(agency => agency.full_name))[ 0 ]))
+            } else {
+                localStorage.setItem('agencies', JSON.stringify([]))
+            }
             localStorage.setItem('missions_without_report', JSON.stringify(data.missions_without_report))
             commit('FETCH_USER_SUCCESS', { user: data })
         } catch (e) {
