@@ -25,6 +25,11 @@ class NotificationController extends Controller
         $perPage = request('perPage', 10);
         $fetchAll = request()->has('fetchAll');
         try {
+            if (request()->has('withCount')) {
+                $totalUnread = auth()->user()->unreadNotifications()->count();
+                return response()->json($totalUnread);
+                // return compact('notifications', 'totalUnread');
+            }
             $notifications = auth()->user()->notifications();
 
             if (request()->has('order')) {
@@ -45,10 +50,6 @@ class NotificationController extends Controller
                 $notifications = $notifications->get()->pluck('reference', 'id');
             } else {
                 $notifications = NotificationResource::collection($notifications->paginate($perPage)->onEachSide(1));
-            }
-            if (request()->has('withCount')) {
-                $totalUnread = auth()->user()->unreadNotifications()->count();
-                return compact('notifications', 'totalUnread');
             }
             return $notifications;
         } catch (\Throwable $th) {
