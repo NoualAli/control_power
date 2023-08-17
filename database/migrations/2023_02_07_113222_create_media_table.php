@@ -21,6 +21,7 @@ class CreateMediaTable extends Migration
             $table->string('extension');
             $table->string('mimetype');
             $table->string('size');
+            $table->json('payload')->nullable();
             $table->string('attachable_type');
             $table->string('attachable_id', 36)->nullable();
             $table->foreignId('uploaded_by_id')->nullable();
