@@ -16,7 +16,7 @@
                 <NLColumn>
                     <NLSelect v-model="form.pcf" :form="form" name="pcf" :options="pcfList" label="PCF" :multiple="true"
                         placeholder="Choisissez un ou plusieurs PCF" no-options-text="Aucun PCF disponible"
-                        loading-text="Chargement des PCF en cours..." label-required />
+                        loading-text="Chargement des PCF en cours..." label-required :disableBranchNodes="true" />
                 </NLColumn>
             </NLForm>
             <!-- Loader -->
