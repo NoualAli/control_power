@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
 class Media extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, HasUuid;
 
     protected $fillable = [
         'original_name',
