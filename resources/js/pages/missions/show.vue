@@ -534,20 +534,9 @@ export default {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
             this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId }).then(() => {
-                //
                 this.$api.get('missions/' + this.mission?.current?.id + '/report/check-if-is-generated').then((response) => {
                     this.showGenerateReportBtn = !response.data
-                    // if(response.data){
-                    // }else{
-
-                    // }
                 })
-                window.Echo.channel('mission.report.generated.' + this.mission?.current.id)
-                    .listen('.MissionReportGenerated', (data) => {
-                        console.log('Event received:', data);
-                        this.$swal.alert_success(data.message,)
-                        this.$store.dispatch('notifications/fetchUnreadNotifications')
-                    });
                 const length = this.$breadcrumbs.value.length
                 if (this.$breadcrumbs.value[ length - 1 ].label === 'Mission') { this.$breadcrumbs.value[ length - 1 ].label = 'Mission ' + this.mission?.current?.reference }
                 this.$store.dispatch('settings/updatePageLoading', false)
