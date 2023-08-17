@@ -14,10 +14,8 @@ class CreateControlCampaignProcessesTable extends Migration
     public function up()
     {
         Schema::create('control_campaign_processes', function (Blueprint $table) {
-            $table->id();
             $table->foreignId('control_campaign_id');
             $table->foreignId('process_id');
-            // $table->boolean('sampling');
 
             $table->foreign('control_campaign_id')->on('control_campaigns')->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('process_id')->on('processes')->references('id')->onDelete('cascade')->onUpdate('cascade');
