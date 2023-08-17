@@ -2,34 +2,38 @@ import { user } from '~/plugins/user'
 import store from "~/store"
 import * as $swal from '~/plugins/swal'
 
-// Subscribe to missions witout report channel
-user().missions_without_report?.map((mission) => {
-    window.Echo.private('mission.report.generated.' + mission)
-        .listen('.MissionReportGenerated', (data) => {
-            console.log('Event received:', data);
+let missionsWithoutReports = user().missions_without_report
 
-            // Show toast for success
-            $swal.toast_success(data.message, data.title, data.link)
+if (Array.isArray(missionsWithoutReports) && missionsWithoutReports.length !== 0) {
+    // Subscribe to missions witout report channel
+    missionsWithoutReports?.map((mission) => {
+        window.Echo.private('mission.report.generated.' + mission)
+            .listen('.MissionReportGenerated', (data) => {
+                console.log('Event received:', data);
 
-            // Update total notifications
-            // store.dispatch('notifications/incrementTotal')
-            store.commit('notifications/SET_TOTAL_UNREAD_NOTIFICATIONS', store.getters[ 'notifications/totalUnread' ].totalUnread + 1)
+                // Show toast for success
+                $swal.toast_success(data.message, data.title, data.link)
 
-            // update missions without report list
-            store.dispatch('auth/fetchUser').then(() => console.log('ok'))
+                // Update total notifications
+                // store.dispatch('notifications/incrementTotal')
+                store.commit('notifications/SET_TOTAL_UNREAD_NOTIFICATIONS', store.getters[ 'notifications/totalUnread' ].totalUnread + 1)
 
-            // Show desktop notification
-            if (Notification.permission == 'granted') {
-                new Notification(data.title + ': Génération du rapport avec succès !')
-            }
+                // update missions without report list
+                store.dispatch('auth/fetchUser').then(() => console.log('ok'))
 
-            // Play audio song for notification
-            // try {
-            //     const audio = new Audio('/songs/notification-std.wav')
-            //     audio.play()
-            // } catch (error) {
-            //     console.log(error)
-            // }
+                // Show desktop notification
+                if (Notification.permission == 'granted') {
+                    new Notification(data.title + ': Génération du rapport avec succès !')
+                }
 
-        });
-})
+                // Play audio song for notification
+                // try {
+                //     const audio = new Audio('/songs/notification-std.wav')
+                //     audio.play()
+                // } catch (error) {
+                //     console.log(error)
+                // }
+
+            });
+    })
+}
