@@ -224,12 +224,12 @@
 
             <!-- CDCR -->
             <button
-                v-if="!mission?.current.is_validated_by_cdcr && mission.current.is_validated_by_cdc && can('make_first_validation')"
+                v-if="!mission?.current.is_validated_by_cdcr && mission?.current.is_validated_by_cdc && can('make_first_validation')"
                 class="btn btn-success" @click.prevent="validateMission('cdcr')">
                 Valider la mission
             </button>
             <button
-                v-if="!mission?.current.is_validated_by_cdcr && mission.current.is_validated_by_cdc && can('assign_mission_processing')"
+                v-if="!mission?.current.is_validated_by_cdcr && mission?.current.is_validated_by_cdc && can('assign_mission_processing')"
                 class="btn btn-success" @click.prevent="showDispatchForm">
                 Assigné
             </button>
@@ -287,11 +287,11 @@
         </NLDatatable>
 
         <!-- Mission comment -->
-        <MissionCommentForm :type="commentType" :mission="mission.current" :readonly="commentReadonly"
+        <MissionCommentForm :type="commentType" :mission="mission?.current" :readonly="commentReadonly"
             :show="modals.comment" @success="success" @close="close" />
 
         <!-- Assign mission processing -->
-        <MissionAssignationDetailsForm :mission="mission.current" type="cc"
+        <MissionAssignationDetailsForm :mission="mission?.current" type="cc"
             :title="'Assigné le traitement des anomalies de la mission' + mission?.current?.reference"
             :show="modals.dispatch" @success="success" @close="close" v-if="!pageLoadingState" />
     </ContentBody>
@@ -425,7 +425,7 @@ export default {
             deep: true,
             handler(newValue, oldValue) {
                 if (newValue) {
-                    this.forcedRerenderKey = newValue.current.id
+                    this.forcedRerenderKey = newValue?.current.id
                 }
             }
         }
@@ -439,7 +439,7 @@ export default {
          */
         generateReport() {
             this.showGenerateReportBtn = false
-            this.$api.get('missions/' + this.mission.current.id + '/report?action=generate').then((response) => {
+            this.$api.get('missions/' + this.mission?.current?.id + '/report?action=generate').then((response) => {
                 this.$swal.alert_success('La génération du rapport de la mission ' + this.mission?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.', 'Génération du rapport PDF')
             }).catch((error) => {
                 console.log(error);
@@ -450,14 +450,14 @@ export default {
          *
          */
         exportReport() {
-            window.open('/missions/' + this.mission.current.id + '/report?action=export')
+            window.open('/missions/' + this.mission?.current?.id + '/report?action=export')
         },
 
         /**
          * Dispatch mission
          */
         dispatchMission() {
-            this.forms.dispatch.put('missions/' + this.mission.current.id + '/assign').then(response => {
+            this.forms.dispatch.put('missions/' + this.mission?.current?.id + '/assign').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.initData()
@@ -512,9 +512,9 @@ export default {
          * Validate mission
          */
         validateMission(type) {
-            this.$swal.confirm({ title: 'Mission ' + this.mission.current.reference, message: 'Vous êtes sur de vouloir valider la mission ' + this.mission.current.reference }).then((action) => {
+            this.$swal.confirm({ title: 'Mission ' + this.mission?.current.reference, message: 'Vous êtes sur de vouloir valider la mission ' + this.mission?.current.reference }).then((action) => {
                 if (action.isConfirmed) {
-                    api.put('/missions/' + this.mission.current.id + '/validate/' + type).then(response => {
+                    api.put('/missions/' + this.mission?.current.id + '/validate/' + type).then(response => {
                         if (response.data.status) {
                             this.$swal.toast_success(response.data.message)
                             this.initData()
@@ -535,14 +535,14 @@ export default {
             this.$store.dispatch('settings/updatePageLoading', true)
             this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId }).then(() => {
                 //
-                this.$api.get('missions/' + this.mission.current.id + '/report/check-if-is-generated').then((response) => {
+                this.$api.get('missions/' + this.mission?.current?.id + '/report/check-if-is-generated').then((response) => {
                     this.showGenerateReportBtn = !response.data
                     // if(response.data){
                     // }else{
 
                     // }
                 })
-                window.Echo.channel('mission.report.generated.' + this.mission.current.id)
+                window.Echo.channel('mission.report.generated.' + this.mission?.current.id)
                     .listen('.MissionReportGenerated', (data) => {
                         console.log('Event received:', data);
                         this.$swal.alert_success(data.message,)
@@ -562,7 +562,7 @@ export default {
         showProcess(item) {
             item = item?.item?.id ? item.item : item
             name = 'mission-details'
-            return this.$router.push({ name, params: { missionId: this.mission.current.id, processId: item.id } })
+            return this.$router.push({ name, params: { missionId: this.mission?.current.id, processId: item.id } })
         },
         /**
          * Destroy mission
