@@ -8,15 +8,16 @@
         <template #default>
             <NLForm :form="form" :action="save" v-if="!isReadonly && !isLoading">
                 <NLColumn>
-                    <NLWyswyg v-model="form.content" :name="fields.content.name" :form="form" :label="fields.content.label"
-                        :placeholder="fields.content.placeholder" labelRequired />
+                    <NLWyswyg :length="3000" v-model="form.content" :name="fields.content.name" :form="form"
+                        :label="fields.content.label" :placeholder="fields.content.placeholder" labelRequired />
                 </NLColumn>
                 <NLColumn>
                     <NLSwitch type="is-success" v-model="form.validated" :name="fields.validated.name" :form="form"
                         :label="fields.validated.label" />
                 </NLColumn>
             </NLForm>
-            <NLContainer class="content text-normal" v-if="isReadonly && !isLoading" isFluid v-html="content"></NLContainer>
+            <NLContainer class="content box text-normal" v-if="isReadonly && !isLoading" isFluid v-html="content">
+            </NLContainer>
 
             <!-- Loader -->
             <NLComponentLoader :isLoading="isLoading" />

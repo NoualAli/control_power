@@ -47,7 +47,8 @@
 
                 <!-- Note -->
                 <NLColumn>
-                    <NLWyswyg v-model="form.note" :form="form" name="note" label="Note" placeholder="Ajouter une note" />
+                    <NLWyswyg v-model="form.note" :form="form" name="note" label="Note" :length="1000"
+                        placeholder="Ajouter une note" />
                 </NLColumn>
 
                 <NLColumn>
@@ -129,9 +130,9 @@ export default {
         'form.control_campaign_id': function (newVal, oldVal) {
             if (newVal !== oldVal && newVal !== null && newVal !== undefined) this.initData()
         },
-        'form.programmed_start': function (newVal, oldVal) {
-            if (newVal !== oldVal && newVal) this.form.programmed_end = this.addDays(newVal, 15)
-        },
+        // 'form.programmed_start': function (newVal, oldVal) {
+        //     if (newVal !== oldVal && newVal) this.form.programmed_end = this.addDays(newVal, 15)
+        // },
         currentCampaignReference: function (newVal, oldVal) {
             if (newVal !== oldVal) {
                 this.currentCampaignReference = newVal
@@ -158,7 +159,7 @@ export default {
                 this.campaignsList = this.config?.config.campaigns
                 this.currentCampaign = this.config?.config.currentCampaign
                 this.form.programmed_start = this.currentCampaign.start.split('-').reverse().join('-')
-                this.form.programmed_end = this.addDays(this.form.programmed_start, 15)
+                // this.form.programmed_end = this.addDays(this.form.programmed_start, 15)
                 this.form.control_campaign_id = this.currentCampaign?.id
                 this.currentCampaignReference = this.config?.config.currentCampaign.reference
                 const length = this.$breadcrumbs.value.length
@@ -180,6 +181,7 @@ export default {
          * Création de la mission
          */
         create() {
+            // this.resetForm()
             this.form.post('missions').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)

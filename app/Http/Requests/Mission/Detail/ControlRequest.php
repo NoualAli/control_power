@@ -33,8 +33,8 @@ class ControlRequest extends FormRequest
         $rules = [
             'currentMode' => ['required', 'in:1,2,3,4,5'],
             'detail' => ['required', 'exists:mission_details,id'],
-            'report' => ['required_if:score,1,2,3,4'],
-            'recovery_plan' => ['required_if:score,2,3,4'],
+            'report' => ['required_if:score,1,2,3,4', 'max:1000'],
+            'recovery_plan' => ['required_if:score,2,3,4', 'max:1000'],
             'major_fact' => ['required', 'boolean'],
             'score' => ['required', 'in:1,2,3,4'],
             'metadata' => ['sometimes', 'array'],
