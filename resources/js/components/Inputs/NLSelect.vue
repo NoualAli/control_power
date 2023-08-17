@@ -4,7 +4,7 @@
         <Treeselect :id="getId" v-bind="$attrs" ref="treeselect" v-model="selected" :key="forcedKey"
             :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" :value="modelValue" :name="name"
             :multiple="multiple" :options="options" :placeholder="placeholder" :loading-text="loadingText"
-            :no-options-text="noOptionsText" search-nested />
+            :no-options-text="noOptionsText" search-nested :disable-branch-nodes="disableBranchNodes" />
     </InputContainer>
 </template>
 
@@ -25,7 +25,8 @@ export default {
         multiple: { type: Boolean, default: false },
         modelValue: { type: [ String, Array, Number, Boolean ], default: () => [] },
         options: { type: Array, required: true },
-        helpText: { type: String, default: null }
+        helpText: { type: String, default: null },
+        disableBranchNodes: { type: Boolean, default: false }
     },
     data() {
         return {
