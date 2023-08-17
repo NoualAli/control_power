@@ -36,6 +36,8 @@
                     <router-link :key="totalUnreadNotifications" :to="{ name: 'notifications' }"
                         class="notification-link has-icon" :class="{ 'notified': totalUnreadNotifications > 0 }">
                         <i class="las la-bell icon" :class="{ 'la-spin': totalUnreadNotifications > 0 }" />
+                        <!-- <span class="has-border-radius-half p-1 text-small text-white bg-danger">{{
+                            totalUnreadNotifications }}</span> -->
                     </router-link>
                     <router-link :to="{ name: 'bugs-index' }" class="has-icon">
                         <i class="las la-bug icon" />
@@ -86,29 +88,28 @@ export default {
         }),
     },
     watch: {
-        "store.notifications.totalUnread.totalUnread"(newValue, oldValue) {
-            if (newValue !== oldValue && newValue !== this.totalUnreadNotifications) {
+        "notifications.totalUnread"(newValue, oldValue) {
+            if (newValue !== this.totalUnreadNotifications) {
                 this.totalUnreadNotifications = newValue
-                // console.log(this.totalUnreadNotifications);
             }
+
         },
         $route(to, from) {
             if (to.path !== '/login') {
-                this.$store.dispatch('notifications/fetchUnreadNotifications').then(() => {
-                    this.totalUnreadNotifications = this.notifications.totalUnread.totalUnread
+                this.$store.dispatch('notifications/fetchTotalUnreadNotifications').then(() => {
+                    this.totalUnreadNotifications = this.notifications.totalUnread
                 })
             }
-        }
+        },
     },
     created() {
-        this.$store.dispatch('notifications/fetchUnreadNotifications').then(() => {
-            // console.log(this.notifications.totalUnread.totalUnread);
-            this.totalUnreadNotifications = this.notifications.totalUnread.totalUnread
+        this.$store.dispatch('notifications/fetchTotalUnreadNotifications').then(() => {
+            this.totalUnreadNotifications = this.notifications.totalUnread
         })
     },
     updated() {
-        this.$store.dispatch('notifications/fetchUnreadNotifications').then(() => {
-            this.totalUnreadNotifications = this.notifications.totalUnread.totalUnread
+        this.$store.dispatch('notifications/fetchTotalUnreadNotifications').then(() => {
+            this.totalUnreadNotifications = this.notifications.totalUnread
         })
     },
     methods: {
