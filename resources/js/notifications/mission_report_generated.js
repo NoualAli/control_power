@@ -1,5 +1,6 @@
 import { user } from '~/plugins/user'
 import store from "~/store"
+import * as $swal from '~/plugins/swal'
 
 // Subscribe to missions witout report channel
 user().missions_without_report?.map((mission) => {
@@ -8,19 +9,27 @@ user().missions_without_report?.map((mission) => {
             console.log('Event received:', data);
 
             // Show toast for success
-            $swal.toast_success({ message: data.message, title: data.title })
+            $swal.toast_success(data.message, data.title, data.link)
 
             // Update total notifications
-            store.commit('notifications/SET_UNREAD_NOTIFICATIONS', store.getters[ 'notifications/totalUnread' ] + 1)
+            // store.dispatch('notifications/incrementTotal')
+            store.commit('notifications/SET_TOTAL_UNREAD_NOTIFICATIONS', store.getters[ 'notifications/totalUnread' ].totalUnread + 1)
 
-            // Play audio song for notification
-            const audio = new Audio('/songs/notification-std.wav')
-            audio.play()
+            // update missions without report list
+            store.dispatch('auth/fetchUser').then(() => console.log('ok'))
 
             // Show desktop notification
             if (Notification.permission == 'granted') {
                 new Notification(data.title + ': Génération du rapport avec succès !')
             }
+
+            // Play audio song for notification
+            // try {
+            //     const audio = new Audio('/songs/notification-std.wav')
+            //     audio.play()
+            // } catch (error) {
+            //     console.log(error)
+            // }
 
         });
 })

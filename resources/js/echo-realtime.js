@@ -12,7 +12,6 @@ window.Echo = new Echo({
     }
 });
 
-require('./notifications/mission_report_generated')
 
 // Request permission to show desktop notifications
 window.addEventListener('DOMContentLoaded', () => {
@@ -21,3 +20,5 @@ window.addEventListener('DOMContentLoaded', () => {
         $swal.alert_error('Your browser doesn\'t support notifications.')
     }
 })
+
+require('./notifications/mission_report_generated')
