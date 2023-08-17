@@ -59,7 +59,8 @@ class MissionReportGeneratedEvent implements ShouldBroadcast
     {
         return [
             'title' => 'Mission ' . $this->mission->reference,
-            'message' => 'Nous vous informons que le rapport PDF de la mission <b>' . $this->mission->reference . '</b> est maintenant disponible.'
+            'message' => 'Nous vous informons que le rapport PDF de la mission <b>' . $this->mission->reference . '</b> est maintenant disponible.',
+            'link' => env('APP_URL') . '/missions/' . $this->mission->id
         ];
     }
 }
