@@ -13,18 +13,9 @@ class ControlCampaignProcess extends BaseModel
     protected $fillable = [
         'control_campaign_id',
         'process_id',
-        'sampling',
     ];
 
     public $timestamps = false;
-
-    /**
-     * Getters
-     */
-    public function getSamplingTextAttribute()
-    {
-        return 'test';
-    }
 
     /**
      * Relationships
