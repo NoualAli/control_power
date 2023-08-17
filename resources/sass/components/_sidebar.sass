@@ -8,6 +8,7 @@
     transition-property: width, overflow-x
     transition-duration: .2s
     transition-timing-function: ease
+    z-index: 5
     & ::selection
         background-color: $sidebar-links-active-bg
         color: $sidebar-links-active-color
@@ -121,7 +122,8 @@
             text-align: center !important
             justify-content: center !important
             border-radius: 0 !important
-            border: none !important
+            border: none
+            border-right: 1px solid $white
             margin: 0 !important
             // width: 100%
             width: $sidebar-container-w-active !important
