@@ -20,9 +20,7 @@ class DatabaseSeeder extends Seeder
 
         if (env('DB_CONNECTION') == 'mysql') {
             $this->call(UsersTableSeeder::class);
-            $this->call(MissionHasControllersTableSeeder::class);
-        $this->call(CommentsTableSeeder::class);
-    } else {
+        } else {
             DB::unprepared('SET IDENTITY_INSERT users ON');
             $this->call(UsersTableSeeder::class);
             DB::unprepared('SET IDENTITY_INSERT users OFF');
@@ -83,24 +81,20 @@ class DatabaseSeeder extends Seeder
             $this->call(MediaTableSeeder::class);
             $this->call(MissionDetailRegularizationsTableSeeder::class);
         } else {
-            DB::unprepared('SET IDENTITY_INSERT agencies ON');
+            DB::unprepared('SET IDENTITY_INSERT control_campaigns ON');
             $this->call(ControlCampaignsTableSeeder::class);
-            DB::unprepared('SET IDENTITY_INSERT agencies OFF');
-            DB::unprepared('SET IDENTITY_INSERT agencies ON');
+            DB::unprepared('SET IDENTITY_INSERT control_campaigns OFF');
+
             $this->call(MissionsTableSeeder::class);
-            DB::unprepared('SET IDENTITY_INSERT agencies OFF');
-            DB::unprepared('SET IDENTITY_INSERT agencies ON');
             $this->call(MissionDetailsTableSeeder::class);
-            DB::unprepared('SET IDENTITY_INSERT agencies OFF');
-            DB::unprepared('SET IDENTITY_INSERT agencies ON');
             $this->call(ControlCampaignProcessesTableSeeder::class);
-            DB::unprepared('SET IDENTITY_INSERT agencies OFF');
-            DB::unprepared('SET IDENTITY_INSERT agencies ON');
-            $this->call(MediaTableSeeder::class);
-            DB::unprepared('SET IDENTITY_INSERT agencies OFF');
-            DB::unprepared('SET IDENTITY_INSERT agencies ON');
-            $this->call(MissionDetailRegularizationsTableSeeder::class);
-            DB::unprepared('SET IDENTITY_INSERT agencies OFF');
+            // $this->call(MediaTableSeeder::class);
+
+            // DB::unprepared('SET IDENTITY_INSERT mission_detail_regularizations ON');
+            // $this->call(MissionDetailRegularizationsTableSeeder::class);
+            // DB::unprepared('SET IDENTITY_INSERT mission_detail_regularizations OFF');
         }
+        $this->call(MissionHasControllersTableSeeder::class);
+        $this->call(CommentsTableSeeder::class);
     }
 }
