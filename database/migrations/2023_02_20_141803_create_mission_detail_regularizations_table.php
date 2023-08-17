@@ -17,16 +17,17 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->text('action_to_be_taken');
             $table->boolean('is_regularized')->default(false);
-            $table->foreignId('created_by_id');
-            $table->foreignUuid('mission_detail_id');
             if (env('DB_CONNECTION') == 'mysql') {
+                $table->foreignUuid('mission_detail_id');
+                $table->foreignId('created_by_id');
+                $table->foreign('mission_detail_id')->on('mission_details')->references('id')->onDelete('cascade')->onUpdate('cascade');
+                $table->foreign('created_by_id')->on('users')->references('id')->onDelete('cascade')->onUpdate('cascade');
                 $table->timestamp('created_at');
             } else {
+                $table->foreignUuid('mission_detail_id')->constrained('mission_details');
+                $table->foreignId('created_by_id')->constrained('users');
                 $table->timestamp('created_at', 7);
             }
-
-            $table->foreign('mission_detail_id')->on('mission_details')->references('id')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('created_by_id')->on('users')->references('id')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 
