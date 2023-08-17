@@ -408,8 +408,7 @@ class MissionController extends Controller
 
     public function missionReportIsGenerated(Mission $mission)
     {
-        // dd((bool)Session::has('mission_report_generated_' . $mission->reference));
-        return response()->json((bool) Session::has('mission_report_generated_' . $mission->reference));
+        return response()->json((bool) Session::has('mission_report_generated_' . $mission->reference) || $mission->pdf_report_exists);
     }
 
     /**
