@@ -22,7 +22,9 @@ class MissionProcessesResource extends JsonResource
             'control_points_count' => $this->control_points_count,
             'progress_status' => number_format($this->progress_status, 0, ''),
             'avg_score' => intval($this->avg_score),
-            'controlled_at' => $this->controlled_at,
+            'total_anomalies' => $this->total_anomalies,
+            'anomalies_rate' => $this->anomalies_rate,
+            'major_fact' => $this->major_fact,
         ];
         if (hasRole(['ci', 'cdc'])) {
             unset($data['avg_score']);
