@@ -31,9 +31,16 @@ class MissionDetail extends BaseModel
         'metadata',
         'assigned_to_ci_id',
         'assigned_to_cc_id',
+        'controlled_by_ci_at',
+        'controlled_by_cdc_at',
+        'controlled_by_cc_at',
+        'controlled_by_cdcr_at',
+        'controlled_by_dcp_at',
         'controlled_by_ci_id',
+        'controlled_by_cdc_id',
         'controlled_by_cc_id',
-        'controlled_at',
+        'controlled_by_cdcr_id',
+        'controlled_by_dcp_id',
         'major_fact_dispatched_at',
         'regularization_id'
     ];
@@ -46,7 +53,11 @@ class MissionDetail extends BaseModel
 
     public $casts = [
         'metadata' => 'object',
-        'controlled_at' => 'datetime:d-m-Y H:i',
+        'controlled_by_ci_at' => 'datetime:d-m-Y H:i',
+        'controlled_by_cdc_at' => 'datetime:d-m-Y H:i',
+        'controlled_by_cc_at' => 'datetime:d-m-Y H:i',
+        'controlled_by_cdcr_at' => 'datetime:d-m-Y H:i',
+        'controlled_by_dcp_at' => 'datetime:d-m-Y H:i',
         'processed_at' => 'datetime:d-m-Y H:i',
         'major_fact_dispatched_at' => 'datetime:d-m-Y H:i',
         'major_fact' => 'boolean'
@@ -60,6 +71,11 @@ class MissionDetail extends BaseModel
         'report',
         'is_regularized',
         'is_regularized_str',
+        'is_controlled_by_ci',
+        'is_controlled_by_cdc',
+        'is_controlled_by_cc',
+        'is_controlled_by_cdcr',
+        'is_controlled_by_dcp',
     ];
 
     /**
@@ -89,6 +105,31 @@ class MissionDetail extends BaseModel
         return $this->$column;
     }
 
+    public function getIsControlledByCiAttribute()
+    {
+        return boolval($this->controlled_by_ci_id);
+    }
+
+    public function getIsControlledByCdcAttribute()
+    {
+        return boolval($this->controlled_by_cdc_id);
+    }
+
+    public function getIsControlledByCcAttribute()
+    {
+        return boolval($this->controlled_by_cc_id);
+    }
+
+    public function getIsControlledByCdcrAttribute()
+    {
+        return boolval($this->controlled_by_cdcr_id);
+    }
+
+    public function getIsControlledByDcpAttribute()
+    {
+        return boolval($this->controlled_by_dcp_id);
+    }
+
     public function getIsAssignedToCcAttribute()
     {
         return boolval($this->assigned_to_cc_id);
@@ -104,9 +145,9 @@ class MissionDetail extends BaseModel
         return $this->is_regularized ? 'Levée' : 'Non levée';
     }
 
-    public function getExecutedAtAttribute($controlled_at)
+    public function getExecutedAtAttribute($controlled_by_ci_at)
     {
-        return $controlled_at ? Carbon::parse($controlled_at)->format('d-m-Y H:i') : '-';
+        return $controlled_by_ci_at ? Carbon::parse($controlled_by_ci_at)->format('d-m-Y H:i') : '-';
     }
     public function getProcessedAtAttribute($processed_at)
     {
@@ -120,8 +161,7 @@ class MissionDetail extends BaseModel
 
     public function getIsControlledAttribute()
     {
-        return boolval($this->controlled_at);
-        // return boolval($this->controlled_at) && boolval($this->controlled_by_ci_id);
+        return boolval($this->controlled_by_ci_at);
     }
 
     public function getIsDispatchedAttribute()
@@ -145,26 +185,6 @@ class MissionDetail extends BaseModel
         }
 
         return '<div class="tag ' . $style . '">' . $score . '</div>';
-    }
-
-    public function getNewParsedMetadataAttribute()
-    {
-
-        $metadata = $this->metadata;
-        $newMetadata = [];
-        // dd($metadata);
-        foreach ($metadata as $item) {
-            foreach ($item as $value) {
-                if (!in_array($value->label, $newMetadata)) {
-                    $newMetadata[$value->label] = [];
-                    array_push($newMetadata[$value->label], collect($value)->last());
-                } else {
-                    dd('old');
-                }
-            }
-        }
-        // dd($newMetadata);
-        return $newMetadata;
     }
 
     public function getParsedMetadataAttribute()
@@ -283,10 +303,9 @@ class MissionDetail extends BaseModel
      *
      * @return Builder
      */
-    public function scopeControlled(Builder $query)
+    public function scopeControlled(Builder $query, string $type = 'ci')
     {
-        // return $query->whereNotNull('controlled_at')->whereNotNull('controlled_by_ci_id');
-        return $query->whereNotNull('controlled_at');
+        return $query->whereNotNull('controlled_by_' . $type . '_at');
     }
 
     /**
@@ -296,21 +315,9 @@ class MissionDetail extends BaseModel
      *
      * @return Builder
      */
-    public function scopeUnControlled(Builder $query)
+    public function scopeUnControlled(Builder $query, string $type = 'ci')
     {
-        return $query->whereNull('controlled_at')->whereNull('controlled_by_ci_id');
-    }
-
-    /**
-     * Get processed
-     *
-     * @param Builder $query
-     *
-     * @return Builder
-     */
-    public function scopeProcessed(Builder $query)
-    {
-        return $query->whereNotNull('processed_at');
+        return $query->whereNull('controlled_by_' . $type . '_at')->whereNull('controlled_by_' . $type . '_id');
     }
 
     /**

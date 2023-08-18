@@ -27,15 +27,26 @@ class CreateMissionDetailsTable extends Migration
             $table->foreignId('assigned_to_ci_id')->nullable()->constrained('users');
             $table->foreignId('assigned_to_cc_id')->nullable()->constrained('users');
             $table->foreignId('controlled_by_ci_id')->nullable()->constrained('users');
+            $table->foreignId('controlled_by_cdc_id')->nullable()->constrained('users');
             $table->foreignId('controlled_by_cc_id')->nullable()->constrained('users');
+            $table->foreignId('controlled_by_cdcr_id')->nullable()->constrained('users');
+            $table->foreignId('controlled_by_dcp_id')->nullable()->constrained('users');
 
             if (env('DB_CONNECTION') == 'mysql') {
-                $table->timestamp('controlled_at')->nullable();
+                $table->timestamp('controlled_by_ci_at')->nullable();
+                $table->timestamp('controlled_by_cdc_at')->nullable();
+                $table->timestamp('controlled_by_cc_at')->nullable();
+                $table->timestamp('controlled_by_cdcr_at')->nullable();
+                $table->timestamp('controlled_by_dcp_at')->nullable();
                 $table->timestamp('major_fact_dispatched_at')->nullable();
                 $table->timestamps();
                 $table->softDeletes();
             } else {
-                $table->timestamp('controlled_at', 7)->nullable();
+                $table->timestamp('controlled_by_ci_at', 7)->nullable();
+                $table->timestamp('controlled_by_cdc_at', 7)->nullable();
+                $table->timestamp('controlled_by_cc_at', 7)->nullable();
+                $table->timestamp('controlled_by_cdcr_at', 7)->nullable();
+                $table->timestamp('controlled_by_dcp_at', 7)->nullable();
                 $table->timestamp('major_fact_dispatched_at', 7)->nullable();
                 $table->timestamps(7);
                 $table->softDeletes('deleted_at', 7);
@@ -43,10 +54,6 @@ class CreateMissionDetailsTable extends Migration
 
             $table->foreign('control_point_id')->on('control_points')->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('mission_id')->on('missions')->references('id')->onDelete('cascade')->onUpdate('cascade');
-            // $table->foreign('assigned_to_ci_id')->on('users')->references('id')->onDelete('SET NULL')->onUpdate('SET NULL');
-            // $table->foreign('assigned_to_cc_id')->on('users')->references('id')->onDelete('SET NULL')->onUpdate('SET NULL');
-            // $table->foreign('controlled_by_ci_id')->on('users')->references('id')->onDelete('SET NULL')->onUpdate('SET NULL');
-            // $table->foreign('controlled_by_cc_id')->on('users')->references('id')->onDelete('SET NULL')->onUpdate('SET NULL');
         });
     }
 
