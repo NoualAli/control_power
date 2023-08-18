@@ -100,6 +100,7 @@
                 Ci-après les familles, domaines et processus à contrôler:
             </p>
             <br>
+
             <ul class="table-of-content">
                 @foreach ($details as $family => $familyData)
                     <li><a href="#{{ $family }}">Famille: {!! ucfirst(strtolower($family)) !!}</a></li>
@@ -131,6 +132,7 @@
             </ul>
 
             <div class="page-break-after-always"></div>
+
             <h2>Fiche technique</h2>
             <br>
             <div class="table-container">
@@ -172,6 +174,7 @@
             <br>
             <h2>Chiffres clés</h2>
             <br>
+
             <div class="table-container">
                 <table>
                     <tr>
@@ -262,41 +265,43 @@
                                                 <th class="margin-cell"></th>
                                             </tr>
                                         @endif
-                                        @if ($item->metadata)
-                                            <div class="page-break-after-always"></div>
-                                            <tr>
-                                                <td colspan="4" class="text-center bg-gray">
-                                                    <b>Constats liés à l'échantillonage</b>
-                                                </td>
-                                            </tr>
-                                            @foreach ($item->metadata as $metadata)
-                                                @php
-                                                    $currentIndex = 1;
-                                                @endphp
-                                                @foreach ($metadata as $parsed)
-                                                    @php
-                                                        $parsed = json_decode(json_encode($parsed), true);
-                                                        $keys = array_keys($parsed);
-                                                        $count = count($metadata);
-                                                    @endphp
-                                                    <tr
-                                                        class="metadata-row {{ $currentIndex == $count ? 'border-bottom' : null }}">
-                                                        <th class="margin-cell"></th>
-                                                        <th>
-                                                            {{ $parsed[$keys[0]] }}
-                                                        </th>
-                                                        <td>
-                                                            {{ $parsed[$keys[2]] }}
-                                                        </td>
-                                                        <th class="margin-cell"></th>
-                                                    </tr>
-                                                    @php
-                                                        $currentIndex += 1;
-                                                    @endphp
-                                                @endforeach
-                                            @endforeach
-                                        @endif
                                     </tbody>
+                                </table>
+                                <div class="page-break-after-always"></div>
+                                <table>
+                                    @if ($item->metadata)
+                                        <tr>
+                                            <td colspan="4" class="text-center bg-gray">
+                                                <b>Constats liés à l'échantillonage</b>
+                                            </td>
+                                        </tr>
+                                        @foreach ($item->metadata as $metadata)
+                                            @php
+                                                $currentIndex = 1;
+                                            @endphp
+                                            @foreach ($metadata as $parsed)
+                                                @php
+                                                    $parsed = json_decode(json_encode($parsed), true);
+                                                    $keys = array_keys($parsed);
+                                                    $count = count($metadata);
+                                                @endphp
+                                                <tr
+                                                    class="metadata-row {{ $currentIndex == $count ? 'border-bottom' : null }}">
+                                                    <th class="margin-cell"></th>
+                                                    <th>
+                                                        {{ $parsed[$keys[1]] }}
+                                                    </th>
+                                                    <td>
+                                                        {{ $parsed[$keys[0]] }}
+                                                    </td>
+                                                    <th class="margin-cell"></th>
+                                                </tr>
+                                                @php
+                                                    $currentIndex += 1;
+                                                @endphp
+                                            @endforeach
+                                        @endforeach
+                                    @endif
                                 </table>
                             </div>
                             <div class="container">
@@ -304,8 +309,6 @@
                                     @if (in_array($file->extension, ['jpg', 'jpeg', 'png', 'svg']))
                                         <img src="{{ $file->link }}" alt="{{ $file->original_name }}"
                                             class="img">
-                                        {{-- <div class="column is-6">
-                                        </div> --}}
                                     @endif
                                 @endforeach
                             </div>
@@ -314,6 +317,7 @@
                 @endforeach
                 <div class="page-break-after-always"></div>
             @endforeach
+
             <h2>Rapport du chef de département</h2>
             {!! $mission->cdc_report->content !!}
         </div>
