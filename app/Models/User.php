@@ -148,8 +148,9 @@ class User extends Authenticatable implements JWTSubject
             return $this->hasMany(Mission::class, 'created_by_id');
         } elseif (hasRole('ci')) {
             return $this->belongsToMany(Mission::class, 'mission_has_controllers');
-        } elseif (hasRole('cc', $this)) {
-            return $this->hasManyThrough(Mission::class, MissionDetail::class, 'assigned_to_cc_id');
+        } elseif (hasRole('cc')) {
+            return Mission::whereRelation('details', 'assigned_to_cc_id', $this->id)->distinct();
+            return $this->hasManyThrough(Mission::class, MissionDetail::class, 'mission_details.assigned_to_cc_id', 'missions.id', 'users.id', 'mission_details.mission_id')->distinct('id');
         } elseif (hasRole(['da', 'dre'])) {
             return $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->missions());
         }
@@ -170,16 +171,16 @@ class User extends Authenticatable implements JWTSubject
         }
     }
 
-    public function details()
+    public function details(User $user = null)
     {
         try {
-            if (hasRole('ci')) {
+            if (hasRole('ci', $user)) {
                 return $this->hasManyDeep(MissionDetail::class, [MissionHasController::class, Mission::class]);
-            } else if (hasRole('cc')) {
+            } else if (hasRole('cc', $user)) {
                 return $this->hasMany(MissionDetail::class, 'assigned_to_cc_id');
-            } elseif (hasRole('cdc')) {
+            } elseif (hasRole('cdc', $user)) {
                 return $this->hasManyDeep(MissionDetail::class, [Mission::class], ['created_by_id']);
-            } elseif (hasRole(['da', 'dre'])) {
+            } elseif (hasRole(['da', 'dre'], $user)) {
                 return $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->details());
             }
         } catch (\Throwable $th) {
