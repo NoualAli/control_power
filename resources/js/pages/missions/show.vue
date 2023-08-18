@@ -19,7 +19,7 @@
     <ContentBody v-if="can('view_mission') && forcedRerenderKey !== -1" :key="forcedRerenderKey">
 
         <!-- Mission informations -->
-        <div class="box mb-10" v-if="!pageLoadingState">
+        <div class="box mb-10">
             <Alert v-if="mission?.current?.remaining_days_before_start > 0" type="is-info" isInline extraClass="mb-6">
                 <p>
                     Nous vous informons que la mission débutera le <b>{{ mission?.current?.start }}</b> dans exactement
@@ -186,7 +186,7 @@
 
         <!-- Actions -->
         <!-- , 'dg', 'ig', 'sg', 'cdrcp', 'der' -->
-        <div class="d-flex align-items gap-2" v-if="!pageLoadingState">
+        <div class="d-flex align-items gap-2">
             <button
                 v-if="mission?.current?.is_validated_by_dcp && is(['dcp']) && showGenerateReportBtn && !mission?.current?.pdf_report_exists"
                 class="btn btn-pdf has-icon" @click.prevent="generateReport()">
@@ -224,14 +224,26 @@
 
             <!-- CDCR -->
             <button
-                v-if="!mission?.current.is_validated_by_cdcr && mission?.current.is_validated_by_cdc && can('make_first_validation')"
+                v-if="mission?.current.is_validated_by_cdc && can('make_first_validation') && (mission?.current?.has_dcp_controllers ? mission?.current?.is_validated_by_cc && !mission?.current.is_validated_by_cdcr : !mission?.current.is_validated_by_cdcr)"
                 class="btn btn-success" @click.prevent="validateMission('cdcr')">
                 Valider la mission
             </button>
             <button
-                v-if="!mission?.current.is_validated_by_cdcr && mission?.current.is_validated_by_cdc && can('assign_mission_processing')"
+                v-if="(mission?.current?.has_dcp_controllers ? !mission?.current?.is_validated_by_cc && !mission?.current.is_validated_by_cdcr : !mission?.current.is_validated_by_cdcr) && mission?.current.is_validated_by_cdc && can('assign_mission_processing')"
                 class="btn btn-success" @click.prevent="showDispatchForm">
-                Assigné
+                <span v-if="!mission?.current?.dcp_controllers?.length">
+                    Déléguer
+                </span>
+                <span v-else>
+                    Modifier l'assignation
+                </span>
+            </button>
+
+            <!-- CC -->
+            <button
+                v-if="!mission?.current?.is_validated_by_cc && is('cc') && mission?.current?.is_validated_by_cdc && mission?.current?.dcp_controllers?.some((controller) => controller.id = currentUser.id)"
+                class="btn btn-success" @click.prevent="validateMission('cc')">
+                Valider la mission
             </button>
 
             <!-- DCP -->
@@ -273,8 +285,8 @@
             </button>
         </div>
 
-        <NLDatatable v-if="mission?.current?.id && !pageLoadingState" :columns="columns" :details="details"
-            :filters="filters" title="Liste des processus" :urlPrefix="'missions/' + mission?.current?.id + '/processes'"
+        <NLDatatable v-if="mission?.current?.id" :columns="columns" :details="details" :filters="filters"
+            title="Liste des processus" :urlPrefix="'missions/' + mission?.current?.id + '/processes'"
             detailsUrlPrefix="processes">
             <template #actions-after="{ item }">
                 <button
@@ -292,8 +304,8 @@
 
         <!-- Assign mission processing -->
         <MissionAssignationDetailsForm :mission="mission?.current" type="cc"
-            :title="'Assigné le traitement des anomalies de la mission' + mission?.current?.reference"
-            :show="modals.dispatch" @success="success" @close="close" v-if="!pageLoadingState" />
+            :title="'Assigné le traitement des anomalies de la mission ' + mission?.current?.reference"
+            :show="modals.dispatch" @success="success" @close="close({ type: 'dispatch' })" />
     </ContentBody>
 </template>
 
@@ -304,7 +316,6 @@ import { mapGetters } from 'vuex'
 import { Form } from 'vform'
 import api from '../../plugins/api'
 import { hasRole, user } from '../../plugins/user'
-import { alert_success } from '../../plugins/swal'
 export default {
     components: {
         MissionCommentForm,
@@ -319,18 +330,22 @@ export default {
             commentType: null,
             commentReadonly: false,
             showGenerateReportBtn: false,
+            currentUser: null,
             columns: [
                 {
                     label: 'Famille',
-                    field: 'family'
+                    field: 'family',
+                    sortable: true,
                 },
                 {
                     label: 'Domaine',
-                    field: 'domain'
+                    field: 'domain',
+                    sortable: true,
                 },
                 {
                     label: 'Processus',
-                    field: 'name'
+                    field: 'name',
+                    sortable: true,
                 },
                 {
                     label: 'Total points de contrôle',
@@ -351,11 +366,29 @@ export default {
                     }
                 },
                 {
-                    label: 'Moyenne',
+                    label: 'Total anomalies',
+                    field: 'total_anomalies',
+                    align: 'center',
+                    sortable: true,
+                },
+                {
+                    label: 'Taux d\'anomalies',
+                    field: 'anomalies_rate',
+                    align: 'center',
+                    sortable: true,
+                    methods: {
+                        showField(item) {
+                            return item.anomalies_rate + '%'
+                        }
+                    }
+                },
+                {
+                    label: 'Note moyenne',
                     field: 'avg_score',
                     hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
                     isHtml: true,
                     align: 'center',
+                    sortable: true,
                     methods: {
                         showField(item) {
                             const score = Number(item.avg_score)
@@ -374,7 +407,13 @@ export default {
                             return `<div class="has-border-radius py-2 px-4 text-center d-inline-block ${style}">${score}</div>`
                         }
                     }
-                }
+                },
+                {
+                    label: 'Fait majeur',
+                    field: 'major_fact',
+                    align: 'center',
+                    sortable: true,
+                },
             ],
             details: [
                 {
@@ -533,6 +572,7 @@ export default {
          */
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
+            this.currentUser = user()
             this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId }).then(() => {
                 this.$api.get('missions/' + this.mission?.current?.id + '/report/check-if-is-generated').then((response) => {
                     this.showGenerateReportBtn = !response.data
@@ -592,7 +632,6 @@ export default {
                         this.showCdcReport(true)
                     }
                 }
-                console.log('reloaded');
             }
         },
         /**

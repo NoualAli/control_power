@@ -102,7 +102,15 @@
 
                                         <!-- CDCR -->
                                         <button
-                                            v-if="mode == 4 && !detail?.major_fact_dispatched_at && !mission?.is_validated_by_cdcr && can(['make_first_validation', 'process_mission']) && [2, 3, 4].includes(Number(detail?.score))"
+                                            v-if="mode == 4 && !detail?.major_fact_dispatched_at && (mission?.has_dcp_controllers ? mission?.is_validated_by_cc && !mission?.is_validated_by_cdcr : !mission?.is_validated_by_cdcr) && can(['make_first_validation', 'process_mission']) && [2, 3, 4].includes(Number(detail?.score))"
+                                            class="btn btn-warning has-icon" @click="edit(detail)">
+                                            <i class="las la-pen icon" />
+                                            Traiter
+                                        </button>
+
+                                        <!-- CC -->
+                                        <button
+                                            v-if="mode == 3 && !detail?.major_fact_dispatched_at && detail.assigned_to_cc_id == currentUser.id && !mission?.is_validated_by_cc && [2, 3, 4].includes(Number(detail?.score))"
                                             class="btn btn-warning has-icon" @click="edit(detail)">
                                             <i class="las la-pen icon" />
                                             Traiter
@@ -156,6 +164,7 @@ import MissionDetailForm from '../../forms/MissionDetailForm'
 import MissionDetailModal from '../../Modals/MissionDetailModal'
 import MissionRegularizationForm from '../../forms/MissionRegularizationForm'
 import { mapGetters } from 'vuex'
+import { user } from '../../plugins/user'
 export default {
     components: {
         MissionDetailForm,
@@ -178,6 +187,7 @@ export default {
                 edit: false,
                 regularize: false
             },
+            currentUser: null
         }
     },
     computed: {
@@ -198,6 +208,7 @@ export default {
         initData() {
             this.close()
             const length = this.$breadcrumbs.value.length
+            this.currentUser = user()
             this.$store.dispatch('settings/updatePageLoading', true)
             this.$store.dispatch('missions/fetchDetails', { missionId: this.$route.params.missionId, processId: this.$route.params.processId }).then(() => {
                 this.details = this.config.detailsConfig.details

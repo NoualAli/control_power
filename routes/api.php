@@ -166,8 +166,11 @@ Route::group(['middleware' => 'auth:api'], function () {
          * Mission assignation
          */
 
+        Route::get('{mission}/assigned-processes/{user}', [MissionAssignationController::class, 'getAssignedProcesses']);
         Route::get('{mission}/loadAssignationData/{type}', [MissionAssignationController::class, 'loadAssignationData']);
+        Route::get('{mission}/not-dispatched-processes/{type}', [MissionAssignationController::class, 'getNotDispatchedProcesses']);
         Route::post('{mission}/assign/{type}', [MissionAssignationController::class, 'assign']);
+        Route::delete('{mission}/assign/{process}/{user}/{type}', [MissionAssignationController::class, 'destroy']);
     });
 
 

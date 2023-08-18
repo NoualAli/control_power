@@ -162,7 +162,15 @@
 
             <!-- CDCR -->
             <button
-                v-if="(currentMode == 4 && !row?.mission?.is_validated_by_cdcr && !row?.major_fact_dispatched_at && row?.mission?.is_validated_by_cdc && [2, 3, 4].includes(Number(row?.score))) || (row?.major_fact && !row?.major_fact_dispatched_at && [3, 4].includes(Number(row?.score))) && can('make_first_validation')"
+                v-if="(currentMode == 4 && (row?.mission?.has_dcp_controllers ? row?.mission?.is_validated_by_cc && !row?.mission?.is_validated_by_cdcr : !row?.mission?.is_validated_by_cdcr) && !row?.major_fact_dispatched_at && row?.mission?.is_validated_by_cdc && [2, 3, 4].includes(Number(row?.score))) || (row?.major_fact && !row?.major_fact_dispatched_at && [3, 4].includes(Number(row?.score))) && can('make_first_validation')"
+                class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
+                <i class="las la-pen icon" />
+                Traiter
+            </button>
+
+            <!-- CC -->
+            <button
+                v-if="currentMode == 3 && !row?.major_fact_dispatched_at && row.assigned_to_cc_id == currentUser.id && !row?.mission?.is_validated_by_cc && [2, 3, 4].includes(Number(row?.score))"
                 class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <i class="las la-pen icon" />
                 Traiter
@@ -228,6 +236,7 @@ export default {
             },
             isLoading: false,
             currentMode: 1,
+            currentUser: null,
         }
     },
 
@@ -257,6 +266,7 @@ export default {
         initData() {
             this.isLoading = true
             if (this.rowSelected?.id && this.isLoading && !this.row) {
+                this.currentUser = user()
                 this.$store.dispatch('details/fetch', this.rowSelected.id).then(() => {
                     this.row = this.detail.detail
                     this.currentMetadata.keys = Object.keys(this.row.parsed_metadata)

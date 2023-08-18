@@ -41,7 +41,7 @@ class AssignMissionProcessesRequest extends FormRequest
     public function rules()
     {
         return [
-            'controller' => ['required', 'exists:users,id', new ControllerDoesentHaveDetails(request()->mission)],
+            'controller' => ['required', 'exists:users,id'],
             'pcf' => ['required', 'array'],
         ];
     }
