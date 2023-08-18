@@ -10,10 +10,9 @@
                 {{ placeholder }} <i class="las la-cloud-upload-alt text-large" />
             </p>
             <p v-if="inProgress" class="text-medium file-uploader">
-                <i class="las la-spinner la-spin text-large" /> {{ visibleLoadingText }}{{ progress }}
-                <span v-if="progress">%</span>
+                <i class="las la-spinner la-spin text-large" /> {{ visibleLoadingText }}{{ progress }} %
             </p>
-            <div class="files-list list text-medium" @click.stop="(e) => e.stopPropagation()">
+            <div class="files-list list text-medium" @click.stop="(e) => e.stopPropagation()" v-if="getFilesList.length">
                 <div v-for="(file, index) in getFilesList" :key="name + '-' + index" class="list-item my-1">
                     <div class="grid gap-4 list-item-content" @click.stop="">
                         <div class="col-11 d-flex justify-between align-center">
