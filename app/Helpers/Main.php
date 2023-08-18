@@ -338,11 +338,13 @@ if (!function_exists('getMissionProcesses')) {
             f.name as family,
             f.id as family_id,
             d.id as domain_id,
+            CASE WHEN COUNT(CASE WHEN md.major_fact > 0 THEN 1 ELSE NULL END) > 0 THEN 'Oui' ELSE 'Non' END AS major_fact,
+            COUNT(CASE WHEN score IN (2, 3, 4) THEN 1 ELSE NULL END) AS total_anomalies,
             COUNT(cp.id) as control_points_count,
             AVG(md.score) as avg_score,
-            FORMAT(MAX(md.controlled_at), 'dd-MM-yyyy') AS controlled_at,
             COUNT(md.id) AS total_mission_details,
             SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) AS scored_mission_details,
+            (COUNT(CASE WHEN score IN (2, 3, 4) THEN 1 ELSE NULL END) * 100) / COUNT(md.id) AS anomalies_rate,
             (count(md.score) * 100) / COUNT(md.id) AS progress_status
         ");
         $processes = $processes->join('control_points as cp', 'p.id', '=', 'cp.process_id')
