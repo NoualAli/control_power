@@ -234,9 +234,7 @@ class MissionDetailController extends Controller
             }
             // Mettre la note max si jamais il y'a un fait majeur
             if (isset($data['major_fact']) && !empty($data['major_fact'])) $data['score'] = max(array_keys($detail->controlPoint->scores_arr));
-            // $controlledAt = !$detail->controlled_at && $currentMode == 1  ? now() : null;
 
-            // $controlledByCIId = $currentMode == 1 ? auth()->user()->id : null;
             $reportColumn = null;
             if (isset($data['report'])) {
                 if (hasRole('ci')) {
@@ -261,24 +259,38 @@ class MissionDetailController extends Controller
                 $newData[$reportColumn] = isset($data['report']) ? $data['report'] : $detail->report;
             }
 
-            if ($currentMode == 1) {
-                $newData['controlled_at'] = now();
+            if (hasRole('ci')) {
+                $newData['controlled_by_ci_at'] = now();
                 $newData['controlled_by_ci_id'] = auth()->user()->id;
-                if ($detail->is_controlled) {
+                if ($detail->is_controlled_by_ci) {
                     unset($newData['major_fact']);
                 }
-            }
-
-            if ($detail->is_dispatched) {
-                unset($newData['major_fact']);
-            }
-
-            if ($currentMode == 3) {
+            } elseif (hasRole('cdc')) {
+                $newData['controlled_by_cdc_at'] = now();
+                $newData['controlled_by_cdc_id'] = auth()->user()->id;
+                if ($detail->is_controlled_by_ci) {
+                    unset($newData['major_fact']);
+                }
+            } elseif (hasRole('cc')) {
                 $newData['controlled_by_cc_at'] = now();
                 $newData['controlled_by_cc_id'] = auth()->user()->id;
                 if ($detail->is_controlled_by_cc) {
                     unset($newData['major_fact']);
                 }
+            } elseif (hasRole('cdcr')) {
+                $newData['controlled_by_cdcr_at'] = now();
+                $newData['controlled_by_cdcr_id'] = auth()->user()->id;
+            } elseif (hasRole('dcp')) {
+                $newData['controlled_by_dcp_at'] = now();
+                $newData['controlled_by_dcp_id'] = auth()->user()->id;
+            } else {
+                abort(500, 'Le rôle de l\'utilisateur n\'est pas pri en charge.');
+            }
+
+
+
+            if ($detail->is_dispatched) {
+                unset($newData['major_fact']);
             }
 
             $detail->update($newData);
