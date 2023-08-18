@@ -153,7 +153,7 @@
                 <NLColumn :lg="isContainerExpanded ? 4 : 12">
                     <NLFile v-model="form.media" :name="'media'" label="Pièces jointes"
                         attachable-type="App\Models\MissionDetail" :attachable-id="form.detail" :form="form" multiple
-                        :canDelete="canDeleteMedia" />
+                        :canDelete="canDeleteMedia" :readonly="![1, 2].includes(form.currentMode)" />
                 </NLColumn>
             </NLForm>
             <!-- Loader -->
