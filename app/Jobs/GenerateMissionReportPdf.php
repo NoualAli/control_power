@@ -65,7 +65,7 @@ class GenerateMissionReportPdf implements ShouldQueue
                 'total_anomalies' => $mission->details()->whereAnomaly()->count(),
                 'total_major_facts' => $mission->details()->onlyMajorFacts()->count(),
             ];
-            if (!file_exists($this->filepath())) {
+            if (!Storage::exists($this->filepath())) {
                 $pdf = Pdf::loadView('export.report', compact('mission', 'campaign', 'details', 'stats'));
                 $pdf->render();
                 $canvas = $pdf->get_canvas();
@@ -97,18 +97,16 @@ class GenerateMissionReportPdf implements ShouldQueue
                 $notify = $notify->merge($mission->dcpControllers)->merge($mission->dreControllers);
                 $end = now();
                 $difference = $end->diffInRealMilliseconds($start);
-                event(new MissionReportGeneratedEvent($mission));
                 foreach ($notify as $user) {
                     // event(new MissionReportGeneratedEvent($mission, $user));
                     Notification::send($user, new ReportNotification($mission));
                 }
-                // dd('Event emited');
+                event(new MissionReportGeneratedEvent($mission));
             } else {
                 redirect($this->filepath());
             }
         } catch (\Throwable $th) {
-            $this->response['message'] = $th->getMessage() . ' on line ' . $th->getLine() . ' on file ' . $th->getFile();
-            $this->response['status'] = false;
+            echo $th->getMessage() . ' ' . $th->getLine() . ' ' . $th->getFile();
         }
     }
 
