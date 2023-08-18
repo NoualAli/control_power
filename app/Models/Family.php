@@ -48,7 +48,7 @@ class Family extends BaseModel
 
     public function controlPoints()
     {
-        return $this->belongsToThrough(ControlPoint::class, [Domain::class, Process::class]);
+        return $this->belongsToThrough(ControlPoint::class, [Process::class, Domain::class]);
     }
 
     public function details()
