@@ -100,7 +100,9 @@ class MissionController extends Controller
     {
         isAbleOrAbort('view_mission');
         $currentUser = auth()->user();
-
+        // $missions = $currentUser->missions()?->pluck('id')->toArray() ?: [];
+        // // dd(in_array($mission->id, $missions));
+        // // dd($missions);
         $dreControllers = $mission->dreControllers->pluck('id')->toArray();
         $dcpControllers = $mission->dcpControllers->pluck('id')->toArray();
         $agencies = $currentUser->agencies->pluck('id')->toArray();
@@ -439,6 +441,34 @@ class MissionController extends Controller
      */
     private function generateReport(Mission $mission)
     {
+        // $metadata = $mission->details()->whereNotNull('metadata')->first()->metadata;
+        // if ($metadata) {
+        //     echo '<div class="page-break-after-always"></div>';
+        //     echo '<tr>';
+        //     echo '<td colspan="4" class="text-center bg-gray">';
+        //     echo '<b>Constats liés à l\'échantillonage</b>';
+        //     echo '</td>';
+        //     echo '</tr>';
+
+        //     foreach ($metadata as $item) {
+        //         $currentIndex = 1;
+
+        //         foreach ($item as $parsed) {
+        //             $parsed = json_decode(json_encode($parsed), true);
+        //             $keys = array_keys($parsed);
+        //             $count = count($item);
+        //             // dd($parsed[$keys[1]], $keys[1]);
+        //             echo '<tr class="metadata-row ' . ($currentIndex == $count ? 'border-bottom' : null) . '">';
+        //             echo '<th class="margin-cell"></th>';
+        //             echo '<th>' . $parsed[$keys[0]] . '</th>';
+        //             echo '<td>' . $parsed[$keys[1]] . '</td>';
+        //             echo '<th class="margin-cell"></th>';
+        //             echo '</tr>';
+
+        //             $currentIndex += 1;
+        //         }
+        //     }
+        // }
         return GenerateMissionReportPdf::dispatch($mission);
     }
 
