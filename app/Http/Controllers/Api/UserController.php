@@ -24,9 +24,11 @@ class UserController extends Controller
     public function current()
     {
         $user = auth()->user();
-        $missions = !hasRole(['cdcr', 'dcp', 'dg', 'ig', 'sg', 'cdrcp']) ? $user->missions()->get() : Mission::all();
-        $missions = $missions->filter(fn ($mission) => !$mission->pdf_report_exists)->pluck('id')->toArray();
-        $user['missions_without_report'] = $missions;
+        if (!hasRole(['admin', 'root'])) {
+            $missions = !hasRole(['cdcr', 'dcp', 'dg', 'ig', 'sg', 'cdrcp']) ? $user->missions()->get() : Mission::all();
+            $missions = $missions->filter(fn ($mission) => !$mission->pdf_report_exists)->pluck('id')->toArray();
+            $user['missions_without_report'] = $missions;
+        }
         return response()->json($user);
     }
 

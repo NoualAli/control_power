@@ -71,7 +71,9 @@ export const actions = {
             } else {
                 localStorage.setItem('agencies', JSON.stringify([]))
             }
-            localStorage.setItem('missions_without_report', JSON.stringify(data.missions_without_report))
+            if (data.missions_without_report) {
+                localStorage.setItem('missions_without_report', JSON.stringify(data.missions_without_report))
+            }
             commit('FETCH_USER_SUCCESS', { user: data })
         } catch (e) {
             console.error(e)
