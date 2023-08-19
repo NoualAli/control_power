@@ -20,9 +20,14 @@ class Media extends BaseModel
         'attachable_type',
         'attachable_id',
         'uploaded_by_id',
+        'payload'
     ];
 
     protected $appends = ['link', 'type', 'path', 'icon', 'is_owner'];
+
+    protected $casts = [
+        'payload' => 'array'
+    ];
 
     /**
      * @return string
