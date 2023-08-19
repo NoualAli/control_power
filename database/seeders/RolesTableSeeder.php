@@ -21,81 +21,81 @@ class RolesTableSeeder extends Seeder
         \DB::table('roles')->insert(array (
             0 => 
             array (
-                'code' => 'root',
-                'id' => 1,
+                'id' => '1',
                 'name' => 'root',
+                'code' => 'root',
             ),
             1 => 
             array (
-                'code' => 'dg',
-                'id' => 2,
+                'id' => '2',
                 'name' => 'Directeur général',
+                'code' => 'dg',
             ),
             2 => 
             array (
-                'code' => 'dcp',
-                'id' => 3,
+                'id' => '3',
                 'name' => 'Directeur du contrôle permanant',
+                'code' => 'dcp',
             ),
             3 => 
             array (
+                'id' => '4',
+            'name' => 'Chef de département de contrôle réseau (DCP)',
                 'code' => 'cdcr',
-                'id' => 4,
-            'name' => 'chef de département de contrôle réseau (DCP)',
             ),
             4 => 
             array (
-                'code' => 'cdc',
-                'id' => 5,
+                'id' => '5',
             'name' => 'Chef de département de contrôle (DRE)',
+                'code' => 'cdc',
             ),
             5 => 
             array (
+                'id' => '6',
+                'name' => 'Controlleur itinérant',
                 'code' => 'ci',
-                'id' => 6,
-                'name' => 'controlleur itinérant',
             ),
             6 => 
             array (
+                'id' => '7',
+                'name' => 'Admin',
                 'code' => 'admin',
-                'id' => 7,
-                'name' => 'admin',
             ),
             7 => 
             array (
-                'code' => 'cdrcp',
-                'id' => 8,
+                'id' => '8',
                 'name' => 'Chef division des risques et du contrôle permanent',
+                'code' => 'cdrcp',
             ),
             8 => 
             array (
-                'code' => 'ig',
-                'id' => 9,
+                'id' => '9',
                 'name' => 'Inspecteur général',
+                'code' => 'ig',
             ),
             9 => 
             array (
-                'code' => 'cc',
-                'id' => 10,
+                'id' => '10',
                 'name' => 'Contrôleur central',
+                'code' => 'cc',
             ),
             10 => 
             array (
-                'code' => 'da',
-                'id' => 11,
+                'id' => '11',
                 'name' => 'Directeur d\'agence',
+                'code' => 'da',
             ),
             11 => 
             array (
-                'code' => 'der',
-                'id' => 12,
+                'id' => '12',
                 'name' => 'Direction encadrement réseau',
+                'code' => 'der',
             ),
             12 => 
             array (
-                'code' => 'dre',
-                'id' => 13,
+                'id' => '13',
                 'name' => 'Direction réseau exploitation',
+                'code' => 'dre',
             ),
         ));
         
