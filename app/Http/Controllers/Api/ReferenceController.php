@@ -45,7 +45,7 @@ class ReferenceController extends Controller
     {
         $controlPoint->unsetRelations();
         $controlPoint->load(['family', 'domain', 'process']);
-        return $controlPoint->only(['family', 'domain', 'process', 'name', 'id']);
+        return $controlPoint->only(['family', 'domain', 'process', 'name', 'id', 'scores_str']);
     }
 
     private function filtersData()
