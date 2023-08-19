@@ -83,6 +83,7 @@ export default {
                 {
                     label: 'Notations',
                     field: 'scores_str',
+                    isHtml: true,
                 },
             ],
         }
