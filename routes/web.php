@@ -17,7 +17,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/excel-reader', ExcelReaderController::class);
+Route::prefix('excel-reader')->controller(ExcelReaderController::class)->group(function () {
+    Route::get('load-pcf', 'loadPCF');
+    Route::get('load-references', 'loadReferences');
+})->name('excel');
 
 Route::prefix('missions')->controller(MissionController::class)->group(function () {
     Route::get('/{mission}/report', 'handleReport');
