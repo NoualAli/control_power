@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasMedia;
 use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,7 +12,7 @@ use Znck\Eloquent\Traits\BelongsToThrough;
 
 class Process extends BaseModel
 {
-    use HasFactory, IsSearchable, IsSortable, BelongsToThrough, HasRelationships;
+    use HasFactory, IsSearchable, IsSortable, BelongsToThrough, HasRelationships, HasMedia;
 
     protected $fillable = [
         'name',

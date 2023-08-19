@@ -261,7 +261,7 @@ class MissionController extends Controller
 
         $details = $mission->details()->with('controlPoint')->orderBy('control_point_id');
         $mission->unsetRelations();
-        $process->load(['family', 'domain']);
+        $process->load(['family', 'domain', 'media']);
         if (request()->has('onlyAnomaly')) {
             $details = $details->whereAnomaly();
         }
@@ -282,7 +282,7 @@ class MissionController extends Controller
         } else {
             $mode = 6; // Readonly mode
         }
-        // dd($details);
+        dd($process);
         return compact('mission', 'details', 'process', 'mode');
     }
 
