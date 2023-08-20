@@ -69,6 +69,7 @@ class Mission extends BaseModel
         'realisation_state',
         'avg_score',
         'end',
+        'start',
         'has_dcp_controllers',
         'dcp_controllers_str',
         'dre_controllers_str',
@@ -84,6 +85,11 @@ class Mission extends BaseModel
         'cdc_report',
         'pdf_report_exists',
         'report_name',
+        'total_anomalies',
+        'anomalies_rate',
+        'total_details',
+        'has_major_facts',
+        'total_major_facts'
     ];
 
     protected $casts = [
@@ -100,6 +106,53 @@ class Mission extends BaseModel
     /**
      * Getters
      */
+
+    /**
+     * @return int
+     */
+    public function getRemainingDaysBeforeStartAttribute(): int
+    {
+        $today = today();
+        $startAttribute = $this->startAttribute ?? 'start';
+        $start = $this->$startAttribute ? $today->diffInDays($this->$startAttribute, false) : 0;
+        return $start >= 0 && $this->progress_status !== 0 ? $start : 0;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRemainingDaysBeforeEndStrAttribute(): string
+    {
+        $remainingDays = $this->remaining_days_before_end > 1 ? $this->remaining_days_before_end . ' jours' : $this->remaining_days_before_end . ' jour';
+        return $this->remaining_days_before_end ? $remainingDays : '-';
+    }
+
+    public function getTotalAnomaliesAttribute()
+    {
+        return $this->details()->whereAnomaly()->count();
+    }
+
+    public function getAnomaliesRateAttribute()
+    {
+        $anomalies = ($this->total_anomalies * 100);
+        return $anomalies ? $anomalies  / $this->total_details : 0;
+    }
+
+    public function getTotalDetailsAttribute()
+    {
+        return $this->details()->count();
+    }
+
+    public function getHasMajorFactsAttribute()
+    {
+        return (bool) $this->total_major_facts;
+    }
+
+    public function getTotalMajorFactsAttribute()
+    {
+        return $this->details()->onlyMajorFacts()->count();
+    }
+
     public function getPdfReportExistsAttribute()
     {
         return Storage::fileExists('exported\campaigns\\' . $this->campaign->reference . '\\missions\\' . $this->report_name . '.pdf');
@@ -118,13 +171,13 @@ class Mission extends BaseModel
 
     public function getEndAttribute()
     {
-        $date = $this->reel_end ?? $this->programmed_end;
+        $date = $this->reel_end ?: $this->programmed_end;
         return $date->format('d-m-Y');
     }
 
     public function getStartAttribute()
     {
-        $date = $this->reel_start ?? $this->programmed_start;
+        $date = $this->reel_start ?: $this->programmed_start;
         return $date->format('d-m-Y');
     }
 
@@ -330,6 +383,19 @@ class Mission extends BaseModel
         return $this->hasMany(MissionDetail::class);
     }
 
+    public function ciValidator()
+    {
+        return $this->belongsTo(User::class, 'ci_validation_by_id');
+    }
+    public function cdcValidator()
+    {
+        return $this->belongsTo(User::class, 'cdc_validation_by_id');
+    }
+
+    public function ccValidator()
+    {
+        return $this->belongsTo(User::class, 'cc_validation_by_id');
+    }
     public function cdcrValidator()
     {
         return $this->belongsTo(User::class, 'cdcr_validation_by_id');
@@ -340,20 +406,11 @@ class Mission extends BaseModel
         return $this->belongsTo(User::class, 'dcp_validation_by_id');
     }
 
-    public function cdcValidator()
+    public function daRegularizator()
     {
-        return $this->belongsTo(User::class, 'cdc_validation_by_id');
+        return $this->belongsTo(User::class, 'da_validation_by_id');
     }
 
-    public function ciValidator()
-    {
-        return $this->belongsTo(User::class, 'ci_validation_by_id');
-    }
-
-    public function ccValidator()
-    {
-        return $this->belongsTo(User::class, 'cc_validation_by_id');
-    }
 
     /**
      * Scopes
