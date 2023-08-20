@@ -41,7 +41,8 @@
 
                 <!-- Note -->
                 <NLColumn>
-                    <NLWyswyg v-model="form.note" :form="form" name="note" label="Note" placeholder="Ajouter une note" />
+                    <NLWyswyg v-model="form.note" :form="form" name="note" label="Note" placeholder="Ajouter une note"
+                        :length="1000" />
                 </NLColumn>
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">

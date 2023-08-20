@@ -4,7 +4,7 @@
             <NLForm :action="create" :form="form">
                 <NLColumn>
                     <NLWyswyg v-model="form.description" :form="form" name="description" label="Description"
-                        placeholder="Ajouter une description" label-required />
+                        placeholder="Ajouter une description" label-required :length="3000" />
                 </NLColumn>
                 <NLColumn lg="4">
                     <NLInput name="reference" :value="nextReference?.nextReference" :form="form" label="Référence" readonly
