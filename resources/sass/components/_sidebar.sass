@@ -111,7 +111,6 @@
         overflow: hidden
         height: $sidebar-footer-h
         display: flex
-        // justify-content: center
         justify-content: start
         align-content: center
         width: $sidebar-container-w
@@ -125,19 +124,21 @@
             border: none
             border-right: 1px solid $white
             margin: 0 !important
-            // width: 100%
             width: $sidebar-container-w-active !important
             height: 100%
             background-color: $primary
-            // background-color: red
             font-size: 1rem
-            // transition: .2s ease-in-out
             &:hover
                 background-color: $danger-dark !important
                 color: $white !important
                 font-weight: bold !important
                 & .sidebar-icon
                     color: $white !important
+            &.is-loading
+                cursor: not-allowed
+                opacity: .5
+                background-color: $danger-dark !important
+                user-select: none
     &-body
         height: $sidebar-body-h
         overflow-x: hidden

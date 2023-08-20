@@ -53,12 +53,19 @@
         </div>
 
         <div class="sidebar-footer">
-            <a href="logout" @click.prevent="logout" class="sidebar-item logout-btn">
-                <i class="las la-sign-out-alt sidebar-icon"></i>
-                <span class="sidebar-icon_text">
+            <a href="logout" @click.prevent="logout" class="sidebar-item logout-btn" :class="{ 'is-loading': isLogout }"
+                v-if="!isLogout">
+                <i class="las la-sign-out-alt sidebar-icon" v-if="!isLogout"></i>
+                <i class="las la-spinner la-spin sidebar-icon" v-else></i>
+                <span class="sidebar-icon_text" v-if="!isLogout">
                     Déconnexion
                 </span>
+                <span class="sidebar-icon_text" v-else>Déconnexion en cours</span>
             </a>
+            <div class="sidebar-item logout-btn" :class="{ 'is-loading': isLogout }" v-else>
+                <i class="las la-spinner la-spin sidebar-icon"></i>
+                <span class="sidebar-icon_text">Déconnexion en cours</span>
+            </div>
         </div>
     </div>
 </template>
@@ -70,8 +77,14 @@ import NLSidebarSubmenu from './NLSidebarSubmenu.vue'
 export default {
     name: "NLSidebar",
     components: { NLSidebarItem, NLSidebarSubmenu },
+    data() {
+        return {
+            isLogout: false
+        }
+    },
     methods: {
         async logout() {
+            this.isLogout = true
             // Log out the user.
             await this.$store.dispatch('auth/logout')
 
