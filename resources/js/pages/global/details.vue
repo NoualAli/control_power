@@ -182,8 +182,13 @@ export default {
          * @param {*} e
          */
         success(e) {
-            this.$store.dispatch('settings/updatePageLoading', true)
-            this.forceReload += 1
+            // this.$store.dispatch('settings/updatePageLoading', true)
+            // this.forceReload += 1
+            const row = this.rowSelected
+            this.modals.edit = false
+            this.modals.regularize = false
+            this.close(true)
+            this.show(row)
         },
         /**
         * Affiche le modal des informations du point de contrôle
