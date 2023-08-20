@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Mission\Report;
 
+use App\Rules\MaxLengthQuill;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
@@ -26,7 +27,7 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'content' => ['required', 'string', 'max:3000'],
+            'content' => ['required', 'string', new MaxLengthQuill(3000)],
             'type' => ['required', 'in:ci_report,cdc_report'],
             'id' => ['nullable', 'exists:comments'],
             'validated' => ['required', 'boolean']
