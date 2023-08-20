@@ -124,8 +124,25 @@ class MissionController extends Controller
             abort_if(!$condition, 401, __('unauthorized'));
         }
 
-        $mission = $mission->load(['agency', 'dre', 'dreControllers', 'dcpControllers', 'cdcrValidator', 'dcpValidator', 'ccValidator', 'ciValidator', 'cdcValidator', 'campaign' => fn ($campaign) => $campaign->without('processes')])->unsetRelation('details');
-        $mission->makeHidden(['dcp_validation_by_id', 'cdcr_validation_by_id', 'cdc_validation_by_id', 'ci_validation_by_id', 'cc_validation_by_id', 'agency_id', 'control_campaign_id', 'created_by_id', 'dre_controllers_str', 'dcp_controllers_str']);
+        if (!hasRole('cdc')) {
+            $mission->makeHidden('ci_report');
+        }
+
+        $mission = $mission->load([
+            'agency',
+            'dre',
+            'dreControllers',
+            'dcpControllers',
+            'ciValidator',
+            'cdcValidator',
+            'ccValidator',
+            'cdcrValidator',
+            'dcpValidator',
+            'daRegularizator',
+            'campaign' => fn ($campaign) => $campaign->select('reference', 'id')->without('processes')
+        ])->unsetRelation('details');
+        $mission->makeHidden(['dcp_validation_by_id', 'cdcr_validation_by_id', 'cdc_validation_by_id', 'ci_validation_by_id', 'cc_validation_by_id', 'agency_id', 'control_campaign_id', 'created_by_id']);
+
         return $mission;
     }
 
@@ -258,7 +275,6 @@ class MissionController extends Controller
             || (hasRole(['dre', 'da']) && in_array($mission->agency->id, $agencies) && $mission->is_validated_by_dcp)
         );
         abort_if(!$condition, 401, __('unauthorized'));
-
         $details = $mission->details()->with('controlPoint')->orderBy('control_point_id');
         $mission->unsetRelations();
         $process->load(['family', 'domain', 'media']);
@@ -282,7 +298,6 @@ class MissionController extends Controller
         } else {
             $mode = 6; // Readonly mode
         }
-        dd($process);
         return compact('mission', 'details', 'process', 'mode');
     }
 
