@@ -16,7 +16,8 @@
                         :label="fields.validated.label" />
                 </NLColumn>
             </NLForm>
-            <NLContainer class="content box text-normal" v-if="isReadonly && !isLoading" isFluid v-html="content">
+            <NLContainer class="content box text-normal" v-if="isReadonly && !isLoading" isFluid v-html="content"
+                :key="forceReload">
             </NLContainer>
 
             <!-- Loader -->
@@ -119,6 +120,7 @@ export default {
             isReadonly: this.readonly,
             editMode: false,
             comment: this.mission?.comment,
+            forceReload: 1,
             fields: {
                 content: {
                     label: 'Votre compte-rendu',
@@ -146,13 +148,16 @@ export default {
         /**
          * Initialize data
          */
-        initData() {
+        initData(forceReload = false) {
             this.isLoading = true
             this.isReadonly = true
             this.editMode = false
             if (this.commentExists) {
                 api.get('comments/' + this.mission[ this.type ]?.id).then((response) => {
                     this.comment = response.data
+                    if (forceReload) {
+                        this.forceReload += 1
+                    }
                     this.isLoading = false
                 })
             } else {
@@ -228,7 +233,7 @@ export default {
          * @param {String} type
          */
         switchReadonlyMode() {
-            this.initData()
+            this.initData(true)
             this.editMode = false
             this.isReadonly = true
         },
@@ -237,17 +242,19 @@ export default {
          * Save comment
          */
         save() {
+            // console.log('test');
             this.isLoading = true
             this.form.post('missions/' + this.mission?.id + '/comments').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.switchReadonlyMode()
                     this.$emit('success')
-                    this.isLoading = false
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }
+                this.isLoading = false
             }).catch(error => {
+                this.isLoading = false
                 console.log(error)
             })
         },
