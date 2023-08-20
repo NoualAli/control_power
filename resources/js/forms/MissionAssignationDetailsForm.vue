@@ -63,6 +63,13 @@ export default {
                 this.isLoading = true
             }
         },
+        "form.controller"(newValue, oldValue) {
+            if (this.newValue !== oldValue) {
+                this.forceReload += 1
+                return
+            }
+            // console.log(newValue, oldValue);
+        }
     },
     data() {
         return {
@@ -164,6 +171,7 @@ export default {
                     this.$emit('success')
                     this.form.reset()
                     this.initData()
+                    this.forceReload += 1
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }
