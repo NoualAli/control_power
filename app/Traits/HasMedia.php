@@ -23,4 +23,9 @@ trait HasMedia
     {
         return $this->morphMany(Media::class, 'attachable');
     }
+
+    public function images()
+    {
+        return $this->morphMany(Media::class, 'attachable')->whereIn('extension', ['jpg', 'jpeg', 'png', 'svg']);
+    }
 }
