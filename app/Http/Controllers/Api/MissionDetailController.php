@@ -227,7 +227,7 @@ class MissionDetailController extends Controller
             $currentMode = $data['currentMode'];
 
             // Vidé les champs report, recovery_plan, metadata
-            if (isset($data['score']) && !in_array($data['score'], [4, 3, 2, 1])) {
+            if (isset($data['score']) && $data['score'] == 1) {
                 $data['report'] = null;
                 $data['recovery_plan'] = null;
                 $data['metadata'] = null;
@@ -292,6 +292,7 @@ class MissionDetailController extends Controller
             if ($detail->is_dispatched) {
                 unset($newData['major_fact']);
             }
+            // dd($newData);
 
             $detail->update($newData);
 
