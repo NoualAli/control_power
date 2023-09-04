@@ -90,6 +90,18 @@ class ControlPoint extends BaseModel
         return $scores_arr;
     }
 
+    public function getScoresArrNumAttribute()
+    {
+        $scores = $this->scores;
+        $scores_arr = [];
+        if (is_array($scores)) {
+            foreach ($scores as $score) {
+                array_push($scores_arr, intval($score[0]->score));
+            }
+        }
+        return $scores_arr;
+    }
+
     /**
      * Relationships
      */
