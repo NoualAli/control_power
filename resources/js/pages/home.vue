@@ -72,13 +72,13 @@
                 <div class="d-flex align-center justify-between">
                     <h2>Situation des rapports</h2>
                     <button class="btn btn-info has-icon" @click.prevent="savePNG('missionsPercentage')"
-                        v-if="charts.missionsPercentage.datasets[0].data.length">
+                        v-if="charts.missionsPercentage.datasets[0].data.some(value => value > 0)">
                         <i class="las la-save icon" />
                     </button>
                 </div>
                 <NLContainer extraClass="d-flex full-center" isFluid>
                     <NLFlex isFullCentered extraClass="w-100 h-100"
-                        v-if="charts.missionsPercentage.datasets[0].data.length">
+                        v-if="charts.missionsPercentage.datasets[0].data.some(value => value > 0)">
                         <Pie id="missionsPercentage" :data="charts.missionsPercentage" :options="circularChartOptions"
                             data-title="situation_des_rapports" />
                     </NLFlex>
@@ -96,7 +96,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>DRE</th>
+                                <th class="text-left">DRE</th>
                                 <th>Missions programmées</th>
                                 <th>Missions réalisées</th>
                                 <th>Taux de réalisation</th>
@@ -104,11 +104,11 @@
                         </thead>
                         <tbody>
                             <tr v-for="(row, index) in tables.dresClassificationByAchievementRate" :key="index">
-                                <td>{{ index + 1 }}</td>
+                                <td class="text-center">{{ index + 1 }}</td>
                                 <td>{{ row['dre'] }}</td>
-                                <td>{{ row['total'] }}</td>
-                                <td>{{ row['totalAchieved'] }}</td>
-                                <td>{{ row['rate'] }}</td>
+                                <td class="text-center">{{ row['total'] }}</td>
+                                <td class="text-center">{{ row['totalAchieved'] }}</td>
+                                <td class="text-center">{{ row['rate'] }}%</td>
                             </tr>
                         </tbody>
                     </table>
@@ -168,16 +168,16 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Domaine</th>
-                                <th>Nombre</th>
+                                <th class="text-center">#</th>
+                                <th class="text-left">Domaine</th>
+                                <th class="text-center">Moyenne</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(row, index) in tables.avgScoreByDomain" :key="index">
-                                <td>{{ index + 1 }}</td>
-                                <td>{{ row['domain'] }}</td>
-                                <td>{{ row['avg_score'] }}</td>
+                                <td class="text-center">{{ index + 1 }}</td>
+                                <td class="text-left">{{ row['domain'] }}</td>
+                                <td class="text-center">{{ row['avg_score'] }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -194,16 +194,16 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>DRE</th>
-                                <th>Notation moyenne</th>
+                                <th class="text-center">#</th>
+                                <th class="text-left">DRE</th>
+                                <th class="text-center">Moyenne</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(row, index) in tables.avgScoreByDre" :key="index">
-                                <td>{{ index + 1 }}</td>
-                                <td>{{ row['dre'] }}</td>
-                                <td>{{ row['avg_score'] }}</td>
+                                <td class="text-center">{{ index + 1 }}</td>
+                                <td class="text-left">{{ row['dre'] }}</td>
+                                <td class="text-center">{{ row['avg_score'] }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -236,6 +236,7 @@
                     </div>
                 </NLContainer>
             </NLColumn>
+
             <!-- Anomalies par DRE -->
             <NLColumn lg="6" class="box">
                 <div class="d-flex align-center justify-between">
@@ -256,23 +257,24 @@
                     </div>
                 </NLContainer>
             </NLColumn>
-            <!-- Anomalies par domaine -->
+
+            <!-- 10 domaines contenant un nombre d'anomalies élevé -->
             <NLColumn lg="6" class="box">
-                <h2>Anomalies par domaine</h2>
+                <h2>Les 10 Domaines contenant un nombre d'anomalies élevé</h2>
                 <div class="table-container" v-if="anomaliesData.tables.domains.length">
                     <table>
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Domaine</th>
-                                <th>Nombre</th>
+                                <th class="text-center">#</th>
+                                <th class="text-left">Domaine</th>
+                                <th class="text-center">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(row, index) in anomaliesData.tables.domains" :key="index">
-                                <td>{{ index + 1 }}</td>
-                                <td>{{ row['domain'] }}</td>
-                                <td>{{ row['total'] }}</td>
+                                <td class="text-center">{{ index + 1 }}</td>
+                                <td class="text-left">{{ row['domain'] }}</td>
+                                <td class="text-center">{{ row['total_anomalies'] }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -283,21 +285,21 @@
             </NLColumn>
             <!-- 10 agences contenant un nombre d'anomalies élevé -->
             <NLColumn lg="6" class="box">
-                <h2>Les 10 agences contenant un nombre d'anomalies élevé</h2>
+                <h2>Les 10 Agences contenant un nombre d'anomalies élevé</h2>
                 <div class="table-container" v-if="anomaliesData.tables.agencies.length">
                     <table>
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Agence</th>
-                                <th>Nombre d'anomalies</th>
+                                <th class="text-center">#</th>
+                                <th class="text-left">Agence</th>
+                                <th class="text-center">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(row, index) in anomaliesData.tables.agencies" :key="index">
-                                <td>{{ index + 1 }}</td>
-                                <td>{{ row['agency'] }}</td>
-                                <td>{{ row['total_anomalies'] }}</td>
+                                <td class="text-center">{{ index + 1 }}</td>
+                                <td class="text-left">{{ row['agency'] }}</td>
+                                <td class="text-center">{{ row['total_anomalies'] }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -306,23 +308,23 @@
                     Pas assez de données
                 </div>
             </NLColumn>
-            <!-- 10 missions contenant un nombre des anomalies élevé -->
+            <!-- 10 missions contenant un nombre d'anomalies élevé -->
             <NLColumn lg="6" class="box">
-                <h2>Les 10 missions contenant un nombre des anomalies élevé</h2>
+                <h2>Les 10 Missions contenant un nombre d'anomalies élevé</h2>
                 <div class="table-container" v-if="anomaliesData.tables.missions.length">
                     <table>
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Mission</th>
-                                <th>Nombre d'anomalies</th>
+                                <th class="text-center">#</th>
+                                <th class="text-left">Mission</th>
+                                <th class="text-center">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(row, index) in anomaliesData.tables.missions" :key="index">
-                                <td>{{ index + 1 }}</td>
-                                <td>{{ row['mission'] }}</td>
-                                <td>{{ row['total_anomaly'] }}</td>
+                                <td class="text-center">{{ index + 1 }}</td>
+                                <td class="text-left">{{ row['mission'] }}</td>
+                                <td class="text-center">{{ row['total_anomalies'] }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -331,23 +333,23 @@
                     Pas assez de données
                 </div>
             </NLColumn>
-            <!-- 10 missions contenant un nombre des anomalies élevé -->
+            <!-- 10 missions contenant un nombre d'anomalies élevé -->
             <NLColumn lg="6" class="box">
-                <h2>Les 10 campagnes de contrôle contenant un nombre des anomalies élevé</h2>
+                <h2>Les 10 Campagnes de contrôle contenant un nombre d'anomalies élevé</h2>
                 <div class="table-container" v-if="anomaliesData.tables.campaigns.length">
                     <table>
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Campagne</th>
-                                <th>Nombre d'anomalies</th>
+                                <th class="text-center">#</th>
+                                <th class="text-left">Campagne</th>
+                                <th class="text-center">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(row, index) in anomaliesData.tables.campaigns" :key="index">
-                                <td>{{ index + 1 }}</td>
-                                <td>{{ row['campaign'] }}</td>
-                                <td>{{ row['total_anomaly'] }}</td>
+                                <td class="text-center">{{ index + 1 }}</td>
+                                <td class="text-left">{{ row['campaign'] }}</td>
+                                <td class="text-center">{{ row['total_anomalies'] }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -370,7 +372,8 @@
                     </button>
                 </div>
                 <NLContainer extraClass="d-flex full-center" isFluid>
-                    <NLFlex isFullCentered v-if="majorFactsData.charts.families.datasets[0].data.length">
+                    <NLFlex isFullCentered extraClass="w-100 h-100"
+                        v-if="majorFactsData.charts.families.datasets[0].data.length">
                         <Doughnut id="familiesMajorFacts" :data="majorFactsData.charts.families"
                             :options="circularChartOptions" data-title="faits_majeur_par_famille" />
                     </NLFlex>
@@ -398,23 +401,23 @@
                     </div>
                 </NLContainer>
             </NLColumn>
-            <!-- Faits majeur par domaine -->
+            <!-- 10 domaines contenant un nombre des faits majeur élevé -->
             <NLColumn lg="6" class="box">
-                <h2>Faits majeur par domaine</h2>
+                <h2>Les 10 Domaines contenant un nombre des faits majeur élevé</h2>
                 <div class="table-container" v-if="majorFactsData.tables.domains.length">
                     <table>
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Domaine</th>
-                                <th>Nombre Faits majeur</th>
+                                <th class="text-center">#</th>
+                                <th class="text-left">Domaine</th>
+                                <th class="text-center">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(row, index) in majorFactsData.tables.domains" :key="index">
-                                <td>{{ index + 1 }}</td>
-                                <td>{{ row['domain'] }}</td>
-                                <td>{{ row['total'] }}</td>
+                                <td class="text-center">{{ index + 1 }}</td>
+                                <td class="text-left">{{ row['domain'] }}</td>
+                                <td class="text-center">{{ row['total_major_facts'] }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -425,21 +428,21 @@
             </NLColumn>
             <!-- 10 agences contenant un nombre des faits majeur élevé -->
             <NLColumn lg="6" class="box">
-                <h2>Les 10 agences contenant un nombre des faits majeur élevé</h2>
+                <h2>Les 10 Agences contenant un nombre des faits majeur élevé</h2>
                 <div class="table-container" v-if="majorFactsData.tables.agencies.length">
                     <table>
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Agence</th>
-                                <th>Nombre Faits majeur</th>
+                                <th class="text-center">#</th>
+                                <th class="text-left">Agence</th>
+                                <th class="text-center">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(row, index) in majorFactsData.tables.agencies" :key="index">
-                                <td>{{ index + 1 }}</td>
-                                <td>{{ row['agency'] }}</td>
-                                <td>{{ row['total_major_facts'] }}</td>
+                                <td class="text-center">{{ index + 1 }}</td>
+                                <td class="text-left">{{ row['agency'] }}</td>
+                                <td class="text-center">{{ row['total_major_facts'] }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -450,21 +453,21 @@
             </NLColumn>
             <!-- 10 missions contenant un nombre des faits majeur élevé -->
             <NLColumn lg="6" class="box">
-                <h2>Les 10 missions contenant unl nombre des faits majeur élevé</h2>
+                <h2>Les 10 Missions contenant un nombre des faits majeur élevé</h2>
                 <div class="table-container" v-if="majorFactsData.tables.missions.length">
                     <table>
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Mission</th>
-                                <th>Nombre Faits majeur</th>
+                                <th class="text-center">#</th>
+                                <th class="text-left">Mission</th>
+                                <th class="text-center">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(row, index) in majorFactsData.tables.missions" :key="index">
-                                <td>{{ index + 1 }}</td>
-                                <td>{{ row['mission'] }}</td>
-                                <td>{{ row['total_major_facts'] }}</td>
+                                <td class="text-center">{{ index + 1 }}</td>
+                                <td class="text-left">{{ row['mission'] }}</td>
+                                <td class="text-center">{{ row['total_major_facts'] }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -473,23 +476,23 @@
                     Pas assez de données
                 </div>
             </NLColumn>
-            <!-- 10 missions contenant un nombre des faits majeur élevé -->
+            <!-- 10 campagnes de contrôle contenant un nombre des faits majeur élevé -->
             <NLColumn lg="6" class="box">
-                <h2>Les 10 campagnes de contrôle contenant un nombre des faits majeur élevé</h2>
+                <h2>Les 10 Campagnes de contrôle contenant un nombre des faits majeur élevé</h2>
                 <div class="table-container" v-if="majorFactsData.tables.campaigns.length">
                     <table>
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Campagne</th>
-                                <th>Nombre de Faits majeur</th>
+                                <th class="text-center">#</th>
+                                <th class="text-left">Campagne</th>
+                                <th class="text-center">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(row, index) in majorFactsData.tables.campaigns" :key="index">
-                                <td>{{ index + 1 }}</td>
-                                <td>{{ row['campaign'] }}</td>
-                                <td>{{ row['total_major_facts'] }}</td>
+                                <td class="text-center">{{ index + 1 }}</td>
+                                <td class="text-left">{{ row['campaign'] }}</td>
+                                <td class="text-center">{{ row['total_major_facts'] }}</td>
                             </tr>
                         </tbody>
                     </table>

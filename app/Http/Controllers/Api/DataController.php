@@ -4,27 +4,24 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Agency;
-use App\Models\Category;
-use App\Models\ControlCampaign;
-use App\Models\Mission;
-use App\Models\MissionDetail;
-use App\Models\Process;
 use Illuminate\Database\Eloquent\Builder;
-use Throwable;
+use Illuminate\Support\Facades\DB;
 
 class DataController extends Controller
 {
-    public function anomalies()
+    /**
+     * Anomalies section
+     *
+     * @return array
+     */
+    public function anomalies(): array
     {
         $missionsAnomalies = $this->missionsAnomalies();
         $campaignsAnomalies = $this->campaignsAnomalies();
-        // dd($campaignsAnomalies);
         $familiesAnomalies = $this->familiesAnomalies();
         $domainsAnomalies = $this->domainsAnomalies();
         $dresAnomalies = $this->dresAnomalies();
         $agenciesAnomalies = $this->agenciesAnomalies();
-        // $processesAnomalies = $this->processesAnomalies();
-        // $controlPointsAnomalies = $this->controlPointsAnomalies();
         return compact(
             'missionsAnomalies',
             'campaignsAnomalies',
@@ -32,11 +29,15 @@ class DataController extends Controller
             'domainsAnomalies',
             'dresAnomalies',
             'agenciesAnomalies',
-            // 'processesAnomalies',
-            // 'controlPointsAnomalies',
         );
     }
-    public function majorFacts()
+
+    /**
+     * Major Facts data section
+     *
+     * @return array
+     */
+    public function majorFacts(): array
     {
         $missionsMajorFacts = $this->missionsMajorFacts();
         $campaignsMajorFacts = $this->campaignsMajorFacts();
@@ -44,8 +45,6 @@ class DataController extends Controller
         $domainsMajorFacts = $this->domainsMajorFacts();
         $dresMajorFacts = $this->dresMajorFacts();
         $agenciesMajorFacts = $this->agenciesMajorFacts();
-        // $processesMajorFacts = $this->processesMajorFacts();
-        // $controlPointsMajorFacts = $this->controlPointsMajorFacts();
         return compact(
             'missionsMajorFacts',
             'campaignsMajorFacts',
@@ -53,38 +52,25 @@ class DataController extends Controller
             'dresMajorFacts',
             'domainsMajorFacts',
             'agenciesMajorFacts',
-            // 'processesMajorFacts',
-            // 'controlPointsMajorFacts',
         );
     }
-    public function regularizations()
+
+    /**
+     * Regularizations data section
+     *
+     * @return array
+     */
+    public function regularizations(): array
     {
-        $scores = $this->scores();
-        $missionsAnomalies = $this->missionsAnomalies();
-        $campaignsAnomalies = $this->campaignsAnomalies();
-        $familiesAnomalies = $this->familiesAnomalies();
-        $domainsAnomalies = $this->domainsAnomalies();
-        $processesAnomalies = $this->processesAnomalies();
-        $controlPointsAnomalies = $this->controlPointsAnomalies();
-        $dresAnomalies = $this->dresAnomalies();
-        $agenciesAnomalies = $this->agenciesAnomalies();
-        $missionsMajorFacts = $this->missionsMajorFacts();
-        $campaignsMajorFacts = $this->campaignsMajorFacts();
-        $familiesMajorFacts = $this->familiesMajorFacts();
-        $domainsMajorFacts = $this->domainsMajorFacts();
-        $processesMajorFacts = $this->processesMajorFacts();
-        $controlPointsMajorFacts = $this->controlPointsMajorFacts();
-        $dresMajorFacts = $this->dresMajorFacts();
-        $agenciesMajorFacts = $this->agenciesMajorFacts();
-        $missionsPercentage = $this->missionsPercentage();
-        $dresClassificationByAchievementRate = $this->dresClassificationByAchievementRate();
-        $avgScoreByDre = $this->avgScoreByDre();
-        $avgScoreByFamily = $this->avgScoreByFamily();
-        $avgScoreByDomain = $this->avgScoreByDomain();
-        $missionsState = $this->missionsState();
-        return compact('');
+        return [];
     }
-    public function scores()
+
+    /**
+     * Scores data section
+     *
+     * @return array
+     */
+    public function scores(): array
     {
         $avgScoreByDre = $this->avgScoreByDre();
         $avgScoreByFamily = $this->avgScoreByFamily();
@@ -97,15 +83,10 @@ class DataController extends Controller
             'globalScores',
         );
     }
+
+
     public function realisationStates()
     {
-        // $categories = Category::with('processes')->get();
-        // $processes = Process::all()->pluck('id')->toArray();
-        // foreach ($categories as $category) {
-        //     // $category->processes()->attach($processes);
-        //     // dd($category->processes()->attach());
-        //     // dd($category->processes, $processes);
-        // }
         $dresClassificationByAchievementRate = $this->dresClassificationByAchievementRate();
         $missionsPercentage = $this->missionsPercentage();
         $missionsState = $this->missionsState();
@@ -123,11 +104,41 @@ class DataController extends Controller
      */
     private function missionsState(): array
     {
-        $missions = hasRole(['dcp', 'cdcr', 'dg']) ? Mission::all() : $this->getMissions()->get();
-        $active = (clone $missions)->filter(fn ($mission) => $mission->realisation_state == 'En cours')->count();
-        $todo = (clone $missions)->filter(fn ($mission) => $mission->realisation_state == 'À réaliser')->count();
-        $delay = (clone $missions)->filter(fn ($mission) => $mission->realisation_state == 'En retard')->count();
-        $done = (clone $missions)->filter(fn ($mission) =>  $mission->realisation_state == 'Validé et envoyé' || $mission->realisation_state == '2ème validation' || $mission->realisation_state == '1ère validation')->count();
+        $missions = $this->getMissions();
+        if (!hasRole(['cc'])) {
+            $missions = $missions->join('mission_details as md', 'm.id', 'md.mission_id')->groupBy('m.id');
+        }
+
+        $today = today()->format('Y-m-d');
+
+        $active = (clone $missions)
+            ->whereNotNull('md.controlled_by_ci_id')
+            ->whereNull('m.cdc_validation_by_id')
+            ->whereDate('m.programmed_start', '<=', $today)
+            ->whereDate('m.programmed_end', '<', $today)
+            ->get()->count();
+
+        $delay = (clone $missions)
+            ->where(function ($query) {
+                $query->whereNull('m.cdc_validation_by_id')->orWhereNull('md.controlled_by_ci_id');
+            })
+            ->whereDate('m.programmed_end', '<', $today)
+            ->get()->count();
+
+        $done = (clone $missions);
+        if (hasRole('cdc')) {
+            $done = $done->whereNotNull('m.ci_validation_by_id');
+        } else {
+            $done = $done->whereNotNull('m.cdc_validation_by_id');
+        }
+        $done = $done->get()->count();
+
+        $todo = (clone $missions)
+            ->whereNull('md.controlled_by_ci_id')
+            ->whereNull('m.cdc_validation_by_id')
+            ->whereDate('m.programmed_start', '>', $today)
+            ->whereDate('m.programmed_end', '<=', $today)
+            ->get()->count();
         return compact('delay', 'active', 'todo', 'done');
     }
 
@@ -139,38 +150,31 @@ class DataController extends Controller
     private function globalScores(): array
     {
         extract($this->defaultColors());
-        if (!hasRole(['dre', 'da'])) {
-            $details = $this->getDetails()->whereNotNull('score')->groupBy('score');
-            if (hasRole(['cc', 'ci'])) {
-                $details = $details->groupBy('user_id');
-            }
-            if (hasRole(['cdc'])) {
-                $details = $details->groupBy('created_by_id');
-            }
-            $details = $details->selectRaw('score, COUNT(*) as scores_count')->get()->pluck('scores_count', 'score');
-            $labels = $details->keys();
-            $datasets = [
-                [
-                    'axis' => 'y',
-                    "label" => "Classement des notations",
-                    "data" => $details->values(),
-                    'backgroundColor' => $backgroundColor,
-                    'borderColor' => $borderColor,
-                    'borderWidth' => $borderWidth,
-                ]
-            ];
-            return compact('labels', 'datasets');
+        $details = $this->getDetails()->select(['score', DB::raw('COUNT(*) as scores_count')])->whereNotNull('score');
+        $groupBy = ['score'];
+        if (hasRole(['ci'])) {
+            $details = $details->addSelect('mhc.user_id');
+            $groupBy = ['score', 'mhc.user_id'];
         }
-        return $datasets = [
+        if (hasRole(['cdc'])) {
+            $details = $details->addSelect('created_by_id');
+            $groupBy = ['score', 'created_by_id'];
+        }
+
+        $details = $details->groupBy($groupBy);
+        $details = $details->orderBy('score', 'DESC')->get()->pluck('scores_count', 'score');
+        $labels = $details->keys();
+        $datasets = [
             [
                 'axis' => 'y',
                 "label" => "Classement des notations",
-                "data" => [],
+                "data" => $details->values(),
                 'backgroundColor' => $backgroundColor,
                 'borderColor' => $borderColor,
                 'borderWidth' => $borderWidth,
             ]
         ];
+        return compact('labels', 'datasets');
     }
 
     /**
@@ -180,39 +184,13 @@ class DataController extends Controller
      */
     private function avgScoreByDre(): array
     {
-        // $dres = Dre::with(['details' => fn ($details) => $details])
-        //     ->withAvg('details', 'score')
-        //     ->get()
-        //     ->pluck('details_avg_score', 'full_name');
-        $dres = $this->getDetails()->with('dre')->get()->groupBy('dre.name');
-        $scores = [];
-        foreach ($dres as $dre => $details) {
-            array_push($scores, ['dre' => $dre, 'avg_score' => intval(round(floatval($details->avg('score'))))]);
-        }
-        uasort($scores, function ($a, $b) {
-            return $a['avg_score'] - $b['avg_score'];
-        });
-        return array_values($scores);
-    }
-
-    /**
-     * Get avg scores for each agency
-     *
-     * @return array
-     */
-    private function avgScoreByAgency(): array
-    {
-        // $agencies = $agencies->with(['details' => fn ($details) => $details, 'dre'])
-        //     ->withAvg('details', 'score')
-        //     ->get();
-        $agencies = request()->has('dre_id') ? Agency::where('dre_id', request()->dre_id) : $this->getDetails()->with('agency')->get()->groupBy('agency.name');
-        $scores = [];
-        foreach ($agencies as $agency => $details) {
-            array_push($scores, ['dre' => $details->first()->dre->full_name, 'agency' => $agency, 'avg_score' => intval(round(floatval($details->avg('score'))))]);
-        }
-        uasort($scores, function ($a, $b) {
-            return $a['avg_score'] - $b['avg_score'];
-        });
+        $scores = $this->getDetails()->get()->groupBy('dre')->map(function ($groupedDetails) {
+            return [
+                'dre' => $groupedDetails->first()->dre,
+                'avg_score' => number_format($groupedDetails->avg('score'), 2)
+            ];
+        })->sortBy('avg_score')
+            ->values()->toArray();
         return array_values($scores);
     }
 
@@ -223,9 +201,15 @@ class DataController extends Controller
      */
     private function avgScoreByFamily(): array
     {
-        $families = $this->getDetails()->with('family')->get()->groupBy('family.name')
-            ->mapWithKeys(fn ($details, $family) => [$family => intval(round(floatval($details->avg('score'))))]);
+        $families = $this->getDetails()
+            ->select(['f.name as family', DB::raw('FORMAT(AVG(score), 2) as score')])
+            ->join('control_points as cp', 'cp.id', 'md.control_point_id')
+            ->join('processes as p', 'p.id', 'cp.process_id')
+            ->join('domains as dm', 'dm.id', 'p.domain_id')
+            ->join('families as f', 'f.id', 'dm.family_id')
+            ->groupBy(['family'])->get()->map(fn ($data) => [$data->family => $data->score])->collapse();
         $labels = $families->keys();
+
         extract($this->defaultColors());
         $datasets = [
             [
@@ -246,12 +230,13 @@ class DataController extends Controller
      */
     private function avgScoreByDomain(): array
     {
-        $domains = $this->getDetails()->with('domain')->get()->groupBy('domain.name')
-            ->map(fn ($details, $domain) =>  ['domain' => $domain, 'avg_score' => intval(round(floatval($details->avg('score'))))])->toArray();
-        uasort($domains, function ($a, $b) {
-            return $a['avg_score'] - $b['avg_score'];
-        });
-        return array_values($domains);
+        $domains = $this->getDetails()
+            ->select(['dm.name as domain', DB::raw('FORMAT(AVG(score), 2) as avg_score')])
+            ->join('control_points as cp', 'cp.id', 'md.control_point_id')
+            ->join('processes as p', 'p.id', 'cp.process_id')
+            ->join('domains as dm', 'dm.id', 'p.domain_id')
+            ->groupBy(['domain'])->orderBy('avg_score', 'ASC')->get()->toArray();
+        return $domains;
     }
 
 
@@ -262,17 +247,27 @@ class DataController extends Controller
      */
     private function dresClassificationByAchievementRate(): array
     {
-        $missions = $this->getMissions()->with('dre')->get()->groupBy('dre.name');
+        $missions = $this->getMissions()->get()->groupBy('dre');
         $achievments = [];
         foreach ($missions as $dre => $missions) {
-            $dre = $missions->first()->dre;
-            $totalAchieved = $dre->missions()->hasCdcValidation()->count();
-            $total = $dre->missions()->count();
+            $dreMissions = DB::table('dres as d')
+                ->select(DB::raw('CONCAT(d.code, " - ", d.name) as dre_name'), DB::raw('CONCAT(a.code, " - ", a.name) as agency_name'), 'm.reference')
+                ->leftJoin('agencies as a', 'a.dre_id', 'd.id')
+                ->join('missions as m', 'm.agency_id', 'a.id')
+                ->where(DB::raw(('CONCAT(d.code, " - ", d.name)')), $dre);
+            $totalAchieved = (clone $dreMissions)->whereNotNull('m.cdc_validation_by_id')->count();
+            $total = (clone $dreMissions)->count();
             $rate = $total ? number_format(($totalAchieved * 100) / $total, 2) : 0;
-            array_push($achievments, ['dre' => $dre->full_name, 'total' => $total, 'totalAchieved' => $totalAchieved, 'rate' => $rate]);
+            array_push($achievments, ['dre' => $dre, 'total' => $total, 'totalAchieved' => $totalAchieved, 'rate' => $rate]);
         }
         usort($achievments, function ($a, $b) {
-            return $b['rate'] <=> $a['rate'];
+            if ($a['rate'] != $b['rate']) {
+                return $b['rate'] <=> $a['rate']; // Tri par rapport à rate
+            } elseif ($a['totalAchieved'] != $b['totalAchieved']) {
+                return $b['totalAchieved'] <=> $a['totalAchieved']; // Si rate est le même, tri par rapport à totalAchieved
+            } else {
+                return $b['total'] <=> $a['total']; // Si rate et totalAchieved sont les mêmes, tri par rapport à total
+            }
         });
 
         return $achievments;
@@ -285,16 +280,16 @@ class DataController extends Controller
      */
     private function missionsPercentage(): array
     {
-        $missions = hasRole(['dcp', 'cdcr', 'dg']) ? new Mission : $this->getMissions();
-        $total = $missions->with(['details', fn ($query) => $query->controlled()])->count();
-        $validated = $missions->hasCdcValidation()->count();
+        $missions = $this->getMissions();
+        $total = $missions->count();
+        $validated = $missions->whereNotNull('cdc_validation_by_id')->count();
         $notValidated = ($total - $validated);
 
         $labels = ['Rapports validés', 'Rapports non validés'];
         extract($this->defaultColors());
         $datasets = [
             [
-                "label" => "Anomalies par mission",
+                "label" => "",
                 "data" => [$validated, $notValidated],
                 'backgroundColor' => $backgroundColor,
                 'borderColor' => $borderColor,
@@ -310,8 +305,18 @@ class DataController extends Controller
      */
     private function missionsAnomalies(): array
     {
-        $missions = $this->getMissions()->withCount(['details' => fn ($query) => $query->whereAnomaly()])->get()->map(fn ($mission) => ['mission' => $mission->reference, 'total_anomaly' => $mission->details_count])->sortByDesc('total_anomaly')->take(10)->toArray();
-        return array_values($missions);
+        $missions = $this->getMissions()
+            ->select(DB::raw('COUNT(*) as total_anomalies'), 'm.reference as mission');
+        if (!hasRole('cc')) {
+            $missions = $missions->join('mission_details as md', 'md.mission_id', 'm.id');
+        }
+        $missions = $missions->where('md.score', '>', 1)
+            ->groupBy(['m.id'])
+            ->orderBy('total_anomalies', 'DESC')
+            ->take(10)
+            ->get()
+            ->toArray();
+        return $missions;
     }
     /**
      * Fetch campaigns anomalies statistics
@@ -320,7 +325,15 @@ class DataController extends Controller
      */
     private function campaignsAnomalies(): array
     {
-        $campaigns = $this->getCampaigns()->withCount(['details' => fn ($query) => $query->whereAnomaly()])->get()->map(fn ($campaign) => ['campaign' => $campaign->reference, 'total_anomaly' => $campaign->details_count])->sortByDesc('total_anomaly')->take(10)->toArray();
+        $campaigns = $this->getCampaigns()
+            ->addSelect(DB::raw('COUNT(md.score) as total_anomalies'))
+            ->join('mission_details as md', 'm.id', 'md.mission_id')
+            ->where('md.score', '>', 1)
+            ->orderBy('total_anomalies', 'DESC')
+            ->take(10)
+            ->get()
+            ->toArray();
+
         return array_values($campaigns);
     }
 
@@ -331,11 +344,22 @@ class DataController extends Controller
      */
     private function familiesAnomalies(): array
     {
-        $anomalies = $this->getDetails()->whereAnomaly()->with('family')->get()->groupBy('family.id')->mapWithKeys(function ($data, $key) {
-            $familyName = $data->first()->family->name;
-            return [$familyName => $data->count()];
+        $anomalies = $this->getDetails()
+            ->select(DB::raw('COUNT(*) as count'), 'f.name as family')
+            ->join('control_points as cp', 'cp.id', '=', 'md.control_point_id')
+            ->join('processes as p', 'p.id', '=', 'cp.process_id')
+            ->join('domains as dm', 'dm.id', '=', 'p.domain_id')
+            ->join('families as f', 'f.id', '=', 'dm.family_id')
+            ->where('md.score', '>', 1)
+            ->groupBy('family')
+            ->orderBy('count', 'DESC')
+            ->get();
+        $anomalies = $anomalies->mapWithKeys(function ($data, $key) {
+            $familyName = $data->family;
+            return [$familyName => $data->count];
         });
         $labels = $anomalies->keys();
+
         extract($this->defaultColors());
         $datasets = [
             [
@@ -356,67 +380,17 @@ class DataController extends Controller
      */
     private function domainsAnomalies(): array
     {
-        $domains = $this->getDetails()->whereAnomaly()->with('domain')->get()->groupBy('domain.name')
-            ->map(fn ($details, $domain) => ['domain' => $domain, 'total' => $details->count()])->sortByDesc('total_major_facts')->toArray();
-        return array_values($domains);
-    }
-
-    /**
-     * Fetch processes anomalies statistics
-     *
-     * @return array
-     */
-    private function processesAnomalies(): array
-    {
         $anomalies = $this->getDetails()
-            ->with('process')
-            ->get()
-            ->groupBy('process.id')
-            ->mapWithKeys(function ($data, $key) {
-                $processName = $data->first()->process->name;
-                return [$processName => $data->count()];
-            });
-        $labels = $anomalies->keys();
-        extract($this->defaultColors());
-        $datasets = [
-            [
-                "label" => "Anomalies par processus",
-                "data" => $anomalies->values(),
-                'backgroundColor' => $backgroundColor,
-                'borderColor' => $borderColor,
-                'borderWidth' => $borderWidth,
-            ]
-        ];
-        return compact('labels', 'datasets');
-    }
-
-    /**
-     * Fetch control points anomalies statistics
-     *
-     * @return array
-     */
-    private function controlPointsAnomalies(): array
-    {
-        $anomalies = $this->getDetails()
-            ->with('controlPoint')
-            ->get()
-            ->groupBy('control_point_id')
-            ->mapWithKeys(function ($data, $key) {
-                $controlPoint = $data->first()->controlPoint->name;
-                return [$controlPoint => $data->count()];
-            });
-        $labels = $anomalies->keys();
-        extract($this->defaultColors());
-        $datasets = [
-            [
-                "label" => "Anomalies par point de contrôle",
-                "data" => $anomalies->values(),
-                'backgroundColor' => $backgroundColor,
-                'borderColor' => $borderColor,
-                'borderWidth' => $borderWidth,
-            ]
-        ];
-        return compact('labels', 'datasets');
+            ->select(DB::raw('COUNT(*) as total_anomalies'), 'dm.name as domain')
+            ->join('control_points as cp', 'cp.id', '=', 'md.control_point_id')
+            ->join('processes as p', 'p.id', '=', 'cp.process_id')
+            ->join('domains as dm', 'dm.id', '=', 'p.domain_id')
+            ->where('md.score', '>', 1)
+            ->groupBy('domain')
+            ->orderBy('total_anomalies', 'DESC')
+            ->take(10)
+            ->get();
+        return $anomalies->toArray();
     }
 
     /**
@@ -427,12 +401,12 @@ class DataController extends Controller
     private function dresAnomalies(): array
     {
         $anomalies = $this->getDetails()
-            ->with('dre')
-            ->get()
-            ->groupBy('dre.id')
-            ->mapWithKeys(function ($data, $key) {
-                $dre = $data->first()->dre->name;
-                return [$dre => $data->count()];
+            ->select(DB::raw('COUNT(*) as count'), 'd.name as dre')
+            ->where('md.score', '>', 1)
+            ->groupBy('dre')
+            ->get()->mapWithKeys(function ($data, $key) {
+                $dre = $data->dre;
+                return [$dre => $data->count];
             });
         $labels = $anomalies->keys();
         extract($this->defaultColors());
@@ -456,11 +430,12 @@ class DataController extends Controller
     private function agenciesAnomalies(): array
     {
         $anomalies = $this->getDetails()
-            ->whereAnomaly()
-            ->with('agency')
-            ->get()
-            ->groupBy('agency.id')
-            ->map(fn ($details) => ['agency' => $details->first()->agency->full_name, 'total_anomalies' => $details->count()])->sortByDesc('total_anomalies')->toArray();
+            ->select(DB::raw('COUNT(*) as total_anomalies'), DB::raw('CONCAT(a.code, " - ", a.name) as agency'))
+            ->where('md.score', '>', 1)
+            ->groupBy('agency')
+            ->orderBy('total_anomalies', 'DESC')
+            ->take(10)
+            ->get()->toArray();
         return array_values($anomalies);
     }
 
@@ -471,7 +446,17 @@ class DataController extends Controller
      */
     private function missionsMajorFacts(): array
     {
-        $missions = $this->getMissions()->withCount(['details' => fn ($query) => $query->onlyMajorFacts()])->get()->map(fn ($mission) => ['mission' => $mission->reference, 'total_major_facts' => $mission->details_count])->sortByDesc('total_major_facts')->take(10)->toArray();
+        $missions = $this->getMissions()->select(DB::raw('COUNT(md.major_fact) as total_major_facts'), 'm.reference as mission');
+        if (!hasRole('cc')) {
+            $missions = $missions->join('mission_details as md', 'md.mission_id', 'm.id');
+        }
+        $missions = $missions
+            ->where('md.major_fact', true)
+            ->groupBy('m.id')
+            ->orderBy('total_major_facts', 'DESC')
+            ->take(10)
+            ->get()
+            ->toArray();
         return array_values($missions);
     }
     /**
@@ -481,7 +466,14 @@ class DataController extends Controller
      */
     private function campaignsMajorFacts(): array
     {
-        $campaigns = $this->getCampaigns()->withCount(['details' => fn ($query) => $query->onlyMajorFacts()])->get()->map(fn ($campaign) => ['campaign' => $campaign->reference, 'total_major_facts' => $campaign->details_count])->sortByDesc('total_major_facts')->take(10)->toArray();
+        $campaigns = $this->getCampaigns()
+            ->addSelect(DB::raw('COUNT(md.id) as total_major_facts'))
+            ->join('mission_details as md', 'm.id', 'md.mission_id')
+            ->where('md.major_fact', true)
+            ->orderBy('total_major_facts', 'DESC')
+            ->take(10)
+            ->get()
+            ->toArray();
         return array_values($campaigns);
     }
 
@@ -492,10 +484,22 @@ class DataController extends Controller
      */
     private function familiesMajorFacts(): array
     {
-        $majorFacts = $this->getDetails()->onlyMajorFacts()->with('family')->get()->groupBy('family.id')->mapWithKeys(function ($data, $key) {
-            $famillyName = $data->first()->family->name;
-            return [$famillyName => $data->count()];
+        $majorFacts = $this->getDetails()
+            ->select(DB::raw('COUNT(*) as count'), 'f.name as family')
+            ->join('control_points as cp', 'cp.id', '=', 'md.control_point_id')
+            ->join('processes as p', 'p.id', '=', 'cp.process_id')
+            ->join('domains as dm', 'dm.id', '=', 'p.domain_id')
+            ->join('families as f', 'f.id', '=', 'dm.family_id')
+            ->where('md.major_fact', true)
+            ->groupBy('family')
+            ->orderBy('count', 'DESC')
+            ->get();
+
+        $majorFacts = $majorFacts->mapWithKeys(function ($data, $key) {
+            $familyName = $data->family;
+            return [$familyName => $data->count];
         });
+
         $labels = $majorFacts->keys();
         extract($this->defaultColors());
         $datasets = [
@@ -517,69 +521,18 @@ class DataController extends Controller
      */
     private function domainsMajorFacts(): array
     {
-        $domains = $this->getDetails()->onlyMajorFacts()->with('domain')->get()->groupBy('domain.name')
-            ->map(fn ($details, $domain) => ['domain' => $domain, 'total' => $details->count()])->sortByDesc('total_major_facts')->toArray();
-        return array_values($domains);
-    }
+        $domains = $this->getDetails()
+            ->select(DB::raw('COUNT(md.id) as total_major_facts'), 'dm.name as domain')
+            ->join('control_points as cp', 'cp.id', '=', 'md.control_point_id')
+            ->join('processes as p', 'p.id', '=', 'cp.process_id')
+            ->join('domains as dm', 'dm.id', '=', 'p.domain_id')
+            ->where('md.major_fact', true)
+            ->groupBy('domain')
+            ->orderBy('total_major_facts', 'DESC')
+            ->take(10)
+            ->get();
 
-    /**
-     * Fetch processes major facts statistics
-     *
-     * @return array
-     */
-    private function processesMajorFacts(): array
-    {
-        $majorFacts = $this->getDetails()
-            ->onlyMajorFacts()
-            ->with('process')
-            ->get()
-            ->groupBy('process.id')
-            ->mapWithKeys(function ($data, $key) {
-                $processName = $data->first()->process->name;
-                return [$processName => $data->count()];
-            });
-        $labels = $majorFacts->keys();
-        extract($this->defaultColors());
-        $datasets = [
-            [
-                "label" => "Faits majeur par processus",
-                "data" => $majorFacts->values(),
-                'backgroundColor' => $backgroundColor,
-                'borderColor' => $borderColor,
-                'borderWidth' => $borderWidth,
-            ]
-        ];
-        return compact('labels', 'datasets');
-    }
-
-    /**
-     * Fetch control points major facts statistics
-     *
-     * @return array
-     */
-    private function controlPointsMajorFacts(): array
-    {
-        $majorFacts = $this->getDetails()
-            ->onlyMajorFacts()
-            ->with('controlPoint')
-            ->get()
-            ->groupBy('control_point_id')
-            ->mapWithKeys(function ($data, $key) {
-                $controlPoint = $data->first()->controlPoint->name;
-                return [$controlPoint => $data->count()];
-            });
-        $labels = $majorFacts->keys();
-        extract($this->defaultColors());
-        $datasets = [
-            [
-                "label" => "Faits majeur par points de contrôle",
-                "data" => $majorFacts->values(),
-                'backgroundColor' => $backgroundColor,
-                'borderColor' => $borderColor,
-                'borderWidth' => $borderWidth,
-            ]
-        ];
-        return compact('labels', 'datasets');
+        return $domains->toArray();
     }
 
     /**
@@ -590,13 +543,12 @@ class DataController extends Controller
     private function dresMajorFacts(): array
     {
         $majorFacts = $this->getDetails()
-            ->onlyMajorFacts()
-            ->with('dre')
-            ->get()
-            ->groupBy('dre.id')
-            ->mapWithKeys(function ($data, $key) {
-                $dre = $data->first()->dre->name;
-                return [$dre => $data->count()];
+            ->select(DB::raw('COUNT(md.id) as count'), 'd.name as dre')
+            ->where('md.major_fact', true)
+            ->groupBy('dre')
+            ->get()->mapWithKeys(function ($data, $key) {
+                $dre = $data->dre;
+                return [$dre => $data->count];
             });
         $labels = $majorFacts->keys();
         extract($this->defaultColors());
@@ -620,69 +572,103 @@ class DataController extends Controller
     private function agenciesMajorFacts(): array
     {
         $majorFacts = $this->getDetails()
-            ->onlyMajorFacts()
-            ->with('agency')
-            ->get()
-            ->groupBy('agency.id')
-            ->map(fn ($details) => ['agency' => $details->first()->agency->full_name, 'total_major_facts' => $details->count()])->sortByDesc('total_major_facts')->take(10)->toArray();
+            ->select(DB::raw('COUNT(*) as total_major_facts'), DB::raw('CONCAT(a.code, " - ", a.name) as agency'))
+            ->where('md.major_fact', true)
+            ->groupBy('agency')
+            ->orderBy('total_major_facts', 'DESC')
+            ->take(10)
+            ->get()->toArray();
         return array_values($majorFacts);
     }
 
     /**
-     * Filter Campaigns data
+     * Fetch Control Campaigns
      *
      * @return Builder
      */
     private function getCampaigns()
     {
-        $campaigns = new ControlCampaign;
-        // $campaigns = hasRole(['ci', 'cc']) ? auth()->user()->campaigns() : $campaigns->hasCdcValidation();
-        $campaigns = $campaigns->validated();
+        $campaigns = DB::table('control_campaigns as c')
+            ->select('c.reference as campaign')
+            ->join('missions as m', 'c.id', 'm.control_campaign_id');
+
+        $user = auth()->user();
+        if (hasRole('ci')) {
+            $campaigns = $campaigns->join('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')->where('mhc.user_id', $user->id);
+        } elseif (hasRole('cdc')) {
+            $campaigns = $campaigns->where('m.created_by_id', $user->id);
+        } elseif (hasRole('cc')) {
+            $campaigns = $campaigns->where('md.assigned_to_cc_id', $user->id);
+        } elseif (hasRole('da')) {
+            $campaigns = $campaigns->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
+        } elseif (hasRole('dre')) {
+            $campaigns = $campaigns->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
+        }
+
+        $campaigns = $campaigns->whereNotNull('validated_at')->groupBy('campaign');
         return $campaigns;
     }
 
     /**
-     * Filter Mission Details data
+     * Fetch Mission Details
      *
      * @return Builder
      */
     private function getDetails()
     {
+        $details = DB::table('mission_details as md')
+            ->select(['m.id', 'm.reference', DB::raw('CONCAT(d.code, " - ", d.name) as dre'), DB::raw('CONCAT(a.code, " - ", a.name) as agency'), 'md.score'])
+            ->whereNotNull('md.score')
+            ->join('missions as m', 'm.id', 'md.mission_id')
+            ->join('agencies as a', 'a.id', 'm.agency_id')
+            ->join('dres as d', 'd.id', 'a.dre_id');
         $user = auth()->user();
-        $details = MissionDetail::whereNotNull('score');
-        if (hasRole(['dcp', 'dg', 'cdcr'])) {
-            $details = $details;
-        } elseif (hasRole(['cdc', 'cc', 'ci'])) {
-            $details = $user->details();
-        } elseif (hasRole(['cdrcp', 'der'])) {
-            $details = $details->hasDcpValidation();
-        } elseif (hasRole(['dre', 'da'])) {
-            $details = $user->details()->hasDcpValidation();
+        if (hasRole('ci')) {
+            $details = $details->join('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')->where('mhc.user_id', $user->id);
+        } elseif (hasRole('cdc')) {
+            $details = $details->where('m.created_by_id', $user->id);
+        } elseif (hasRole('cc')) {
+            $details = $details->where('md.assigned_to_cc_id', $user->id);
+        } elseif (hasRole('da')) {
+            $details = $details->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
+        } elseif (hasRole('dre')) {
+            $details = $details->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
         }
-        return $details->without(['process', 'domain', 'controlPoint', 'family', 'media']);
+        return $details;
     }
 
     /**
-     * Filter Missions
+     * Fetch Missions
      *
      * @return Builder
      */
     private function getMissions()
     {
-        $missions = new Mission;
+        $missions = DB::table('missions as m')
+            ->select(['m.id', 'm.reference', DB::raw('CONCAT(d.code, " - ", d.name) as dre'), DB::raw('CONCAT(a.code, " - ", a.name) as agency')])
+            ->join('agencies as a', 'a.id', 'm.agency_id')
+            ->join('dres as d', 'd.id', 'a.dre_id');
         $user = auth()->user();
-        if (hasRole(['dcp', 'cdcr', 'dg'])) {
-            $missions = $missions;
-        } elseif (hasRole(['cdc', 'cc', 'ci'])) {
-            $missions = $user->missions();
-        } elseif (hasRole(['da', 'dre'])) {
-            $missions = $user->missions()->hasDcpValidation();
-        } elseif (hasRole(['cdrcp', 'der'])) {
-            $missions = $missions->hasDcpValidation();
+        if (hasRole('ci')) {
+            $missions = $missions->join('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')->where('mhc.user_id', $user->id);
+        } elseif (hasRole('cdc')) {
+            $missions = $missions->where('m.created_by_id', $user->id);
+        } elseif (hasRole('cc')) {
+            $missions = $missions->join('mission_details as md', 'md.mission_id', 'm.id')->where('md.assigned_to_cc_id', $user->id);
+        } elseif (hasRole('da')) {
+            $missions = $missions->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
+        } elseif (hasRole('dre')) {
+            $missions = $missions->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
         }
+
         return $missions;
     }
 
+    /**
+     * Colors config for charts
+     *
+     * @return array
+     */
     private function defaultColors(): array
     {
         return [
