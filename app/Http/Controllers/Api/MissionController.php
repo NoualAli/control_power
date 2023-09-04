@@ -30,6 +30,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 
@@ -124,7 +125,7 @@ class MissionController extends Controller
             abort_if(!$condition, 401, __('unauthorized'));
         }
 
-        if (!hasRole('cdc')) {
+        if (!hasRole(['cdc', 'ci'])) {
             $mission->makeHidden('ci_report');
         }
 
@@ -410,9 +411,10 @@ class MissionController extends Controller
     {
         $fileExists = Storage::exists($mission->report_path);
         if (request()->action == 'generate' && !$fileExists) {
-            if (!Session::has('mission_report_generated_' . $mission->reference)) {
-                session()->put('mission_report_generated_' . $mission->reference, 'mission_report_generated_' . $mission->reference);
+            if (!Cache::has('mission_report_generated_' . $mission->reference)) {
+                Cache::rememberForever('mission_report_generated_' . $mission->reference, fn () => true);
                 $this->generateReport($mission);
+                // ('mission_report_generated_' . $mission->reference, 'mission_report_generated_' . $mission->reference);
             } else {
                 return $this->exportReport($mission);
             }
@@ -425,7 +427,7 @@ class MissionController extends Controller
 
     public function missionReportIsGenerated(Mission $mission)
     {
-        return response()->json((bool) Session::has('mission_report_generated_' . $mission->reference) || $mission->pdf_report_exists);
+        return response()->json((bool) Cache::has('mission_report_generated_' . $mission->reference) || $mission->pdf_report_exists);
     }
 
     /**
