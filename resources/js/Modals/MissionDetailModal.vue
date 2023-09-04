@@ -284,7 +284,7 @@ export default {
                     } else {
                         this.currentMode = 6 // Readonly mode
                     }
-                    console.log(this.currentMode);
+                    // console.log(this.currentMode);
                 }).catch(error => console.log(error))
             }
         },
