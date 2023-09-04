@@ -1,7 +1,7 @@
 <template>
     <ContentHeader v-if="can('view_mission') && forcedRerenderKey !== -1" :key="forcedRerenderKey">
         <template #title>
-            Informations de la mission
+            Mission {{ mission?.current?.reference }}
         </template>
         <template class="d-flex justify-between align-center gap-3 mb-9" v-if="!pageLoadingState" #actions>
             <NLFlex lgJustifyContent="end" extraClass="w-100">
@@ -28,7 +28,11 @@
                 </p>
             </Alert>
             <NLGrid gap="6">
-                <NLColumn lg="4">
+                <!-- Basic informations -->
+                <NLColumn>
+                    <h2>Informations de base</h2>
+                </NLColumn>
+                <!-- <NLColumn lg="4">
                     <NLGrid gap="6">
                         <NLColumn>
                             <span class="text-bold">
@@ -85,39 +89,63 @@
                             </span>
                         </NLColumn>
                     </NLGrid>
+                </NLColumn> -->
+
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Mission:
+                    </span>
+                    <span>
+                        {{ mission?.current?.reference }}
+                    </span>
                 </NLColumn>
-                <NLColumn lg="4">
-                    <NLGrid gap="6">
-                        <NLColumn>
-                            <span class="text-bold">
-                                Contrôleurs dcp:
-                            </span>
-                            <span v-if="mission?.current?.dcp_controllers.length">
-                                <ul class="d-inline-block ml-6">
-                                    <li v-for="controller in mission?.current?.dcp_controllers"
-                                        :key="'dcp-controller-' + controller.id">
-                                        {{ controller.full_name }}
-                                    </li>
-                                </ul>
-                            </span>
-                            <span v-else>-</span>
-                        </NLColumn>
-                        <NLColumn>
-                            <span class="text-bold">
-                                Contrôleurs dre:
-                            </span>
-                            <span>
-                                <ul class="d-inline-block ml-6">
-                                    <li v-for="controller in mission?.current?.dre_controllers"
-                                        :key="'dre_controller-' + controller.id">
-                                        {{ controller.full_name }}
-                                    </li>
-                                </ul>
-                            </span>
-                        </NLColumn>
-                    </NLGrid>
+
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Campagne:
+                    </span>
+                    <span>
+                        {{ mission?.current?.campaign?.reference }}
+                    </span>
                 </NLColumn>
-                <NLColumn lg="4">
+
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Dre:
+                    </span>
+                    <span>
+                        {{ mission?.current?.dre?.full_name }}
+                    </span>
+                </NLColumn>
+
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Agence:
+                    </span>
+                    <span>
+                        {{ mission?.current?.agency?.full_name }}
+                    </span>
+                </NLColumn>
+
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Début:
+                    </span>
+                    <span>
+                        {{ mission?.current?.start }} / {{ mission?.current?.remaining_days_before_start_str }}
+                    </span>
+                </NLColumn>
+
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Fin:
+                    </span>
+                    <span>
+                        {{ mission?.current?.end }} / {{ mission?.current?.remaining_days_before_end_str }}
+                    </span>
+                </NLColumn>
+
+                <NLColumn lg="3">
                     <span class="text-bold">
                         Taux de progression:
                     </span>
@@ -125,7 +153,7 @@
                         {{ mission?.current?.progress_status }}%
                     </span>
                 </NLColumn>
-                <NLColumn lg="4">
+                <NLColumn lg="3">
                     <span class="text-bold">
                         Statut:
                     </span>
@@ -133,53 +161,158 @@
                         {{ mission?.current?.realisation_state }}
                     </span>
                 </NLColumn>
+
+                <!-- Statistics -->
+                <NLColumn>
+                    <div class="divider"></div>
+                </NLColumn>
+
+                <NLColumn>
+                    <h2>Statistiques</h2>
+                </NLColumn>
+                <NLColumn lg="4">
+                    <span class="text-bold">
+                        Taux d'anomalie:
+                    </span>
+                    <span>
+                        {{ mission?.current?.anomalies_rate }}%
+                    </span>
+                </NLColumn>
+                <NLColumn lg="4">
+                    <span class="text-bold">
+                        Total anomalies:
+                    </span>
+                    <span>
+                        {{ mission?.current?.total_anomalies || '-' }}
+                    </span>
+                </NLColumn>
+                <NLColumn lg="4">
+                    <span class="text-bold">
+                        Total points à controlé:
+                    </span>
+                    <span>
+                        {{ mission?.current?.total_details }}
+                    </span>
+                </NLColumn>
+                <NLColumn lg="4">
+                    <span class="text-bold">
+                        Faits majeur détéctés:
+                    </span>
+                    <span>
+                        {{ mission?.current?.has_major_facts ? 'Oui' : 'Non' }}
+                    </span>
+                </NLColumn>
+                <NLColumn lg="4">
+                    <span class="text-bold">
+                        Total faits majeurs:
+                    </span>
+                    <span>
+                        {{ mission?.current?.total_major_facts || '-' }}
+                    </span>
+                </NLColumn>
                 <NLColumn lg="4">
                     <span class="text-bold">
                         Moyenne:
                     </span>
                     <span>
-                        {{ mission?.current?.avg_score }}
+                        {{ mission?.current?.avg_score || '-' }}
                     </span>
                 </NLColumn>
-                <NLColumn lg="4" v-if="mission?.current?.cdcr_validation_at">
-                    <span class="text-bold">
-                        1<sup>ère</sup> validation
-                    </span>
-                    <span>
-                        {{ mission?.current?.cdcr_validation_at }}
-                    </span>
+
+                <!-- CDC Note -->
+                <NLColumn>
+                    <div class="divider"></div>
                 </NLColumn>
-                <NLColumn lg="4" v-if="mission?.current?.cdcr_validation_at">
-                    <span class="text-bold">
-                        Validé par:
-                    </span>
-                    <span>
-                        {{ mission?.current?.cdcr_validator?.full_name }}
-                    </span>
-                </NLColumn>
-                <NLColumn lg="4" extraClass="d-none d-lg-block" />
-                <NLColumn lg="4" v-if="mission?.current?.dcp_validation_at">
-                    <span class="text-bold">
-                        2<sup>ème</sup> validation
-                    </span>
-                    <span>
-                        {{ mission?.current?.dcp_validation_at }}
-                    </span>
-                </NLColumn>
-                <NLColumn lg="4" v-if="mission?.current?.dcp_validation_at">
-                    <span class="text-bold">
-                        Validé par:
-                    </span>
-                    <span>
-                        {{ mission?.current?.dcp_validator?.full_name }}
-                    </span>
+
+                <NLColumn>
+                    <h2>Note du chef de département de contrôle DRE:</h2>
                 </NLColumn>
                 <NLColumn>
-                    <span class="text-bold">
-                        Note:
-                    </span>
-                    <div v-if="mission?.current?.note" class="mt-2 content text-normal" v-html="mission?.current?.note" />
+                    <div v-if="mission?.current?.note" class="content text-normal" v-html="mission?.current?.note" />
                     <span v-else>-</span>
+                </NLColumn>
+
+                <!-- Signatures -->
+                <NLColumn>
+                    <div class="divider"></div>
+                </NLColumn>
+                <NLColumn>
+                    <h2>Contrôleurs et Validateurs</h2>
+                </NLColumn>
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Contrôleurs DRE:
+                    </span>
+                    {{ mission?.current?.dre_controllers_str || '-' }}
+                </NLColumn>
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Contrôlé le:
+                    </span>
+                    {{ mission?.current?.ci_validation_at || '-' }}
+                </NLColumn>
+
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Validé par:
+                    </span>
+                    {{ mission?.current?.cdc_validator?.full_name || '-' }}
+                </NLColumn>
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Validé le:
+                    </span>
+                    {{ mission?.current?.cdc_validation_at || '-' }}
+                </NLColumn>
+
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Contrôleurs DCP:
+                    </span>
+                    {{ mission?.current?.dcp_controllers_str || '-' }}
+                </NLColumn>
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Contrôlé le:
+                    </span>
+                    {{ mission?.current?.cc_validation_at || '-' }}
+                </NLColumn>
+
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Validé par:
+                    </span>
+                    {{ mission?.current?.cdcr_validator?.full_name || '-' }}
+                </NLColumn>
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        1<sup>ère</sup> validation:
+                    </span>
+                    {{ mission?.current?.cdcr_validation_at || '-' }}
+                </NLColumn>
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Validé par:
+                    </span>
+                    {{ mission?.current?.dcp_validator?.full_name || '-' }}
+                </NLColumn>
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        2<sup>ème</sup> validation:
+                    </span>
+                    {{ mission?.current?.dcp_validation_at || '-' }}
+                </NLColumn>
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Régularisé par:
+                    </span>
+                    {{ mission?.current?.da_regularizator?.full_name || '-' }}
+                </NLColumn>
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Régularisé le
+                    </span>
+                    {{ mission?.current?.da_validation_at || '-' }}
                 </NLColumn>
             </NLGrid>
         </div>
@@ -534,6 +667,7 @@ export default {
         showCiReport(readonly) {
             this.modals.comment = true
             this.commentType = 'ci_report'
+            // console.log(readonly);
             this.commentReadonly = readonly
         },
 
