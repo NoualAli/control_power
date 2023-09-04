@@ -152,9 +152,11 @@ export default {
             this.isLoading = true
             this.isReadonly = true
             this.editMode = false
+            // console.log(this.mission[ this.type ], this.type, this.mission);
             if (this.commentExists) {
                 api.get('comments/' + this.mission[ this.type ]?.id).then((response) => {
                     this.comment = response.data
+                    console.log(this.comment);
                     if (forceReload) {
                         this.forceReload += 1
                     }
