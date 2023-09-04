@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Znck\Eloquent\Traits\BelongsToThrough;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
+use stdClass;
 
 class MissionDetail extends BaseModel
 {
@@ -198,6 +199,26 @@ class MissionDetail extends BaseModel
             });
         });
     }
+
+    public function getInlineMetadata()
+    {
+        $metadata = $this->metadata;
+        $newMetadata = collect([]);
+        foreach ($metadata as $rows) {
+            $newRow = collect([]);
+            foreach ($rows as $row) {
+                $item = new stdClass;
+                $item->label = $row->label;
+                $value = end($row);
+                $item->label = $row->label;
+                $item->value = $value;
+                $newRow->push($item);
+            }
+            $newMetadata->push($newRow);
+        }
+        return $newMetadata;
+    }
+
     public function getMajorFactStrAttribute()
     {
         return $this->major_fact ? '<i class="las la-times-circle text-danger text-medium icon" title="Oui"></i>' : '<i class="las la-check-circle text-success text-medium icon" title="Non"></i>';
