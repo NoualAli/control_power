@@ -21,9 +21,9 @@ class ControlRequest extends FormRequest
      */
     public function authorize()
     {
-        $details = auth()->user()?->details()?->pluck('id')->toArray() ?: [];
-        // dd(isAbleTo(['control_agency']), in_array($this->mode, [1, 2, 3, 4, 5]), in_array(request()->detail, $details));
-        return in_array($this->mode, [1, 2, 3, 4, 5]) && (hasRole(['dcp', 'cdcr']) || isAbleTo(['control_agency']) || in_array(request()->detail, $details));
+        $userDetails = auth()->user()?->details()?->pluck('mission_details.id')->toArray() ?: [];
+        // dd(isAbleTo(['control_agency']), in_array($this->mode, [1, 2, 3, 4, 5]), in_array(request()->detail, $userDetails));
+        return in_array($this->mode, [1, 2, 3, 4, 5]) && (hasRole(['dcp', 'cdcr']) || isAbleTo(['control_agency']) || in_array(request()->detail, $userDetails));
     }
 
     /**
