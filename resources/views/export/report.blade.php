@@ -172,6 +172,7 @@
                 </table>
             </div>
             <br>
+
             <h2>Chiffres clés</h2>
             <br>
 
@@ -267,57 +268,63 @@
                                         @endif
                                     </tbody>
                                 </table>
-                                <div class="page-break-after-always"></div>
-                                <table>
-                                    @if ($item->metadata)
+
+                                {{-- Metadata --}}
+                                @if ($item->metadata !== null)
+                                    <table>
                                         <tr>
                                             <td colspan="4" class="text-center bg-gray">
                                                 <b>Constats liés à l'échantillonage</b>
                                             </td>
                                         </tr>
-                                        @foreach ($item->metadata as $metadata)
+                                        @php
+                                            $totalItems = $item->inline_metadata->count() - 1;
+                                            $currentIndex = 0;
+                                        @endphp
+                                        @foreach ($item->inline_metadata as $key => $rows)
                                             @php
-                                                $currentIndex = 1;
+                                                $totalRows = $rows->count();
+                                                $currentRow = 1;
                                             @endphp
-                                            @foreach ($metadata as $parsed)
-                                                @php
-                                                    $parsed = json_decode(json_encode($parsed), true);
-                                                    $keys = array_keys($parsed);
-                                                    $count = count($metadata);
-                                                @endphp
+                                            @foreach ($rows as $row)
                                                 <tr
-                                                    class="metadata-row {{ $currentIndex == $count ? 'border-bottom' : null }}">
+                                                    class="metadata-row {{ $totalRows == $currentRow && $totalItems !== $currentIndex ? 'border-bottom' : null }}">
                                                     <th class="margin-cell"></th>
                                                     <th>
-                                                        {{ $parsed[$keys[1]] }}
+                                                        {{ $row->label }}
                                                     </th>
                                                     <td>
-                                                        {{ $parsed[$keys[0]] }}
+                                                        {{ $row->value }}
                                                     </td>
                                                     <th class="margin-cell"></th>
-                                                </tr>
-                                                @php
-                                                    $currentIndex += 1;
-                                                @endphp
+                                                    @php
+                                                        $currentRow += 1;
+                                                    @endphp
                                             @endforeach
+                                            @php
+                                                $currentIndex += 1;
+                                            @endphp
                                         @endforeach
-                                    @endif
-                                </table>
+                                    </table>
+                                @endif
                             </div>
-                            <div class="container">
+                            {{-- Supporting documents --}}
+                            @if ($item->images->count())
+                                <h4>Pièces justificatifs</h4>
                                 @foreach ($item->media as $file)
-                                    @if (in_array($file->extension, ['jpg', 'jpeg', 'png', 'svg']))
+                                    <div class="img-container">
                                         <img src="{{ $file->link }}" alt="{{ $file->original_name }}"
                                             class="img">
-                                    @endif
+                                    </div>
                                 @endforeach
-                            </div>
+                            @endif
                         @endforeach
                     @endforeach
                 @endforeach
-                <div class="page-break-after-always"></div>
+                <div class="page-break-before-always"></div>
             @endforeach
-
+        </div>
+        <div class="container">
             <h2>Rapport du chef de département</h2>
             {!! $mission->cdc_report->content !!}
         </div>

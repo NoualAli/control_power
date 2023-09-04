@@ -362,10 +362,24 @@ tr:last-child {
 
 tr.metadata-row td,
 tr.metadata-row th {
+    text-align: left;
     position: relative;
     border: none;
     /* width: 100%; */
-    white-space: pre-wrap;
+    /* white-space: pre-wrap; */
+}
+
+tr.metadata-row th {
+    /* max-width: 200px; */
+    /* background-color: red; */
+    vertical-align: text-top;
+}
+
+tr.metadata-row td {
+    /* background-color: yellow; */
+    text-align: justify;
+    white-space: wrap;
+    max-width: 100%;
 }
 
 tr.metadata-row.border-bottom td,
@@ -406,6 +420,10 @@ td {
     padding: 10px 20px;
 }
 
+th {
+    vertical-align: text-top;
+}
+
 .text-danger {
     color: #CC0000;
 }
@@ -438,8 +456,16 @@ td {
     text-decoration: none;
 }
 
+.img-container {
+    position: relative;
+    display: block;
+    width: 100%;
+    margin: 10px auto;
+}
+
 .img {
-    max-width: 100%;
+    width: 100%;
+    /* max-width: 400px; */
     height: auto;
     margin: 10px auto;
 }

@@ -9,13 +9,12 @@ if (Array.isArray(missionsWithoutReports) && missionsWithoutReports.length !== 0
     missionsWithoutReports?.map((mission) => {
         window.Echo.private('mission.report.generated.' + mission)
             .listen('.MissionReportGenerated', (data) => {
-                console.log('Event received:', data);
+                // console.log('Event received:', data);
 
                 // Show toast for success
                 $swal.toast_success(data.message, data.title, data.link)
 
                 // Update total notifications
-                // store.dispatch('notifications/incrementTotal')
                 store.commit('notifications/SET_TOTAL_UNREAD_NOTIFICATIONS', store.getters[ 'notifications/totalUnread' ].totalUnread + 1)
 
                 // update missions without report list

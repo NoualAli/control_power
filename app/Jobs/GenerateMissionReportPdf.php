@@ -24,6 +24,8 @@ class GenerateMissionReportPdf implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Batchable;
 
+    public $tries = 3;
+
     /**
      * @var App\Models\Mission
      */
