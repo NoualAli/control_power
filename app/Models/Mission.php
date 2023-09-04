@@ -135,7 +135,7 @@ class Mission extends BaseModel
     public function getAnomaliesRateAttribute()
     {
         $anomalies = ($this->total_anomalies * 100);
-        return $anomalies ? $anomalies  / $this->total_details : 0;
+        return $anomalies ? number_format($anomalies  / $this->total_details, 2) : 0;
     }
 
     public function getTotalDetailsAttribute()
