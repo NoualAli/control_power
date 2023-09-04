@@ -25,7 +25,7 @@ class UserController extends Controller
     {
         $user = auth()->user();
         if (!hasRole(['admin', 'root'])) {
-            $missions = !hasRole(['cdcr', 'dcp', 'dg', 'ig', 'sg', 'cdrcp']) ? $user->missions()->get() : Mission::all();
+            $missions = !hasRole(['cdcr', 'dcp', 'dg', 'ig', 'sg', 'cdrcp', 'der']) ? $user->missions()->get() : Mission::all();
             $missions = $missions->filter(fn ($mission) => !$mission->pdf_report_exists)->pluck('id')->toArray();
             $user['missions_without_report'] = $missions;
         }
