@@ -22,7 +22,6 @@ class ControlRequest extends FormRequest
     public function authorize()
     {
         $userDetails = auth()->user()?->details()?->pluck('mission_details.id')->toArray() ?: [];
-        // dd(isAbleTo(['control_agency']), in_array($this->mode, [1, 2, 3, 4, 5]), in_array(request()->detail, $userDetails));
         return in_array($this->mode, [1, 2, 3, 4, 5]) && (hasRole(['dcp', 'cdcr']) || isAbleTo(['control_agency']) || in_array(request()->detail, $userDetails));
     }
 
@@ -33,7 +32,6 @@ class ControlRequest extends FormRequest
      */
     public function rules()
     {
-        // dd(request()->recovery_plan);
         $rules = [
             'currentMode' => ['required', 'in:1,2,3,4,5'],
             'detail' => ['required', 'exists:mission_details,id'],
@@ -47,7 +45,6 @@ class ControlRequest extends FormRequest
 
         if (in_array($this->mode, [3, 4, 5])) {
             unset($rules['report'], $rules['score'], $rules['metadata']);
-            return $rules;
         }
         return $rules;
     }

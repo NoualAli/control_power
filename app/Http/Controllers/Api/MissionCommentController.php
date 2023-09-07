@@ -99,7 +99,7 @@ class MissionCommentController extends Controller
             case 'cdc_report':
                 $validationByIdColumn = 'cdc_validation_by_id';
                 $validationAtColumn = 'cdc_validation_at';
-                $message = $update ? 'Votre rapport a été mis à jour avec succès' : 'Votre rapport a été créé avec succès';
+                $message = $update ? 'Votre conclusion a été mis à jour avec succès' : 'Votre conclusion a été créé avec succès';
                 break;
             default:
                 $validationByIdColumn = 'ci_validation_by_id';

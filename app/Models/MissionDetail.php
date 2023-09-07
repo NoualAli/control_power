@@ -200,7 +200,7 @@ class MissionDetail extends BaseModel
         });
     }
 
-    public function getInlineMetadata()
+    public function getInlineMetadataAttribute()
     {
         $metadata = $this->metadata;
         $newMetadata = collect([]);

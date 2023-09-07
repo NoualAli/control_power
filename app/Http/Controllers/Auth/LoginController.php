@@ -54,7 +54,6 @@ class LoginController extends Controller
         $token = (string) $this->guard()->getToken();
         $expiration = $this->guard()->getPayload()->get('exp');
         $loginInformations = $this->storeLoginInformations($request, auth()->user());
-
         return response()->json([
             'user' => auth()->user(),
             'token' => $token,

@@ -13,7 +13,7 @@ class ReferenceController extends Controller
 {
     public function pcf()
     {
-        $controlPoints = ControlPoint::with(['family', 'process', 'domain']);
+        $controlPoints = Process::with(['family', 'domain', 'media']);
 
         $filter = request('filter', null);
         $search = request('search', null);
@@ -41,11 +41,11 @@ class ReferenceController extends Controller
         return PCFResource::collection($controlPoints->paginate($perPage)->onEachSide(1));
     }
 
-    public function show(ControlPoint $controlPoint)
+    public function show(Process $process)
     {
-        $controlPoint->unsetRelations();
-        $controlPoint->load(['family', 'domain', 'process']);
-        return $controlPoint->only(['family', 'domain', 'process', 'name', 'id', 'scores_str']);
+        $process->unsetRelations();
+        $process->load(['family', 'domain', 'control_points']);
+        return $process->only(['family', 'domain', 'name', 'id', 'control_points']);
     }
 
     private function filtersData()

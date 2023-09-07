@@ -14,13 +14,13 @@ class MissionDetailsTableSeeder extends Seeder
      */
     public function run()
     {
-        
+
 
         \DB::table('mission_details')->delete();
-        
-        \DB::table('mission_details')->insert(array (
-            0 => 
-            array (
+
+        \DB::table('mission_details')->insert(array(
+            0 =>
+            array(
                 'id' => '0A5346D3-9D36-4A0C-AED0-097CBF0CB1FB',
                 'control_point_id' => '43',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -47,8 +47,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:10:53.0000000',
                 'deleted_at' => NULL,
             ),
-            1 => 
-            array (
+            1 =>
+            array(
                 'id' => 'C8A43390-4D6B-49E9-9662-0C8CF73590F7',
                 'control_point_id' => '225',
                 'mission_id' => 'FA60045C-C4FD-457F-905E-5DB6D5260066',
@@ -75,8 +75,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-08-18 10:22:58.4430000',
                 'deleted_at' => NULL,
             ),
-            2 => 
-            array (
+            2 =>
+            array(
                 'id' => '4105606F-63A0-402E-AD7A-13A91D9E64AE',
                 'control_point_id' => '484',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -103,8 +103,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:09:31.0000000',
                 'deleted_at' => NULL,
             ),
-            3 => 
-            array (
+            3 =>
+            array(
                 'id' => '5859CD2A-FF26-4546-8CC0-15CEF55D840E',
                 'control_point_id' => '230',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -131,8 +131,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:15:04.0000000',
                 'deleted_at' => NULL,
             ),
-            4 => 
-            array (
+            4 =>
+            array(
                 'id' => '61534DD6-D343-4FC7-ABC2-19DD50E9F625',
                 'control_point_id' => '39',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -159,8 +159,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:09:54.0000000',
                 'deleted_at' => NULL,
             ),
-            5 => 
-            array (
+            5 =>
+            array(
                 'id' => 'B1368D0B-73B2-4792-8BB7-1DF0477C5FAD',
                 'control_point_id' => '227',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -187,8 +187,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:14:05.0000000',
                 'deleted_at' => NULL,
             ),
-            6 => 
-            array (
+            6 =>
+            array(
                 'id' => '3B73CD7C-DBA9-4DCF-B91A-23F1A992A13C',
                 'control_point_id' => '482',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -215,8 +215,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:09:17.0000000',
                 'deleted_at' => NULL,
             ),
-            7 => 
-            array (
+            7 =>
+            array(
                 'id' => 'FA0F5665-B7E5-401C-9A57-26A46330FB4D',
                 'control_point_id' => '483',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -243,14 +243,14 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:12:25.0000000',
                 'deleted_at' => NULL,
             ),
-            8 => 
-            array (
+            8 =>
+            array(
                 'id' => 'EDF90F48-2EDE-412C-A193-26D717856872',
                 'control_point_id' => '38',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
                 'ci_report' => '<p class="ql-align-justify">Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words</p>',
                 'cdc_report' => NULL,
-            'recovery_plan' => '<p class="ql-align-justify">Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p>',
+                'recovery_plan' => '<p class="ql-align-justify">Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p>',
                 'score' => '4',
                 'major_fact' => '0',
                 'metadata' => NULL,
@@ -271,12 +271,12 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:09:00.0000000',
                 'deleted_at' => NULL,
             ),
-            9 => 
-            array (
+            9 =>
+            array(
                 'id' => 'F581F311-0D85-4769-8EAC-2F538DF43D30',
                 'control_point_id' => '35',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
-            'ci_report' => '<p class="ql-align-justify">Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p>',
+                'ci_report' => '<p class="ql-align-justify">Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p>',
                 'cdc_report' => NULL,
                 'recovery_plan' => NULL,
                 'score' => '1',
@@ -299,8 +299,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:08:03.0000000',
                 'deleted_at' => NULL,
             ),
-            10 => 
-            array (
+            10 =>
+            array(
                 'id' => 'FD4252CA-BA8E-4E06-A78C-37330EB155AF',
                 'control_point_id' => '230',
                 'mission_id' => 'FA60045C-C4FD-457F-905E-5DB6D5260066',
@@ -327,8 +327,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-08-18 06:24:14.0330000',
                 'deleted_at' => NULL,
             ),
-            11 => 
-            array (
+            11 =>
+            array(
                 'id' => 'D59FC653-7DE4-4F97-94F8-3A538C1D7EC5',
                 'control_point_id' => '231',
                 'mission_id' => 'FA60045C-C4FD-457F-905E-5DB6D5260066',
@@ -355,8 +355,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-08-18 06:24:14.0390000',
                 'deleted_at' => NULL,
             ),
-            12 => 
-            array (
+            12 =>
+            array(
                 'id' => 'C0BA854C-CFFE-4D1D-93D0-3FC0A389ED7E',
                 'control_point_id' => '228',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -383,8 +383,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:14:21.0000000',
                 'deleted_at' => NULL,
             ),
-            13 => 
-            array (
+            13 =>
+            array(
                 'id' => '0D6A2F62-5BE1-4E23-980C-46E67A069003',
                 'control_point_id' => '225',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -411,8 +411,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:12:46.0000000',
                 'deleted_at' => NULL,
             ),
-            14 => 
-            array (
+            14 =>
+            array(
                 'id' => '7B6BD1F5-361D-4F72-A811-4C226A50CB48',
                 'control_point_id' => '228',
                 'mission_id' => 'FA60045C-C4FD-457F-905E-5DB6D5260066',
@@ -439,8 +439,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-08-18 06:24:14.0450000',
                 'deleted_at' => NULL,
             ),
-            15 => 
-            array (
+            15 =>
+            array(
                 'id' => '63BF29B8-3DF6-4336-B960-4D481AA70248',
                 'control_point_id' => '231',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -467,8 +467,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:15:13.0000000',
                 'deleted_at' => NULL,
             ),
-            16 => 
-            array (
+            16 =>
+            array(
                 'id' => '890C7613-8EF1-4DCF-8416-5684DCD63E35',
                 'control_point_id' => '40',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -495,8 +495,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:10:05.0000000',
                 'deleted_at' => NULL,
             ),
-            17 => 
-            array (
+            17 =>
+            array(
                 'id' => '95164E15-D1A4-4171-83BF-7D8D2841D483',
                 'control_point_id' => '232',
                 'mission_id' => 'FA60045C-C4FD-457F-905E-5DB6D5260066',
@@ -523,8 +523,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-08-18 10:24:51.7950000',
                 'deleted_at' => NULL,
             ),
-            18 => 
-            array (
+            18 =>
+            array(
                 'id' => 'EAA1EBA8-4316-4793-9E98-802EF3855BCA',
                 'control_point_id' => '229',
                 'mission_id' => 'FA60045C-C4FD-457F-905E-5DB6D5260066',
@@ -551,8 +551,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-08-18 06:24:14.0530000',
                 'deleted_at' => NULL,
             ),
-            19 => 
-            array (
+            19 =>
+            array(
                 'id' => 'F36988C4-31EE-4131-BDA1-8E9D1C4FDE35',
                 'control_point_id' => '226',
                 'mission_id' => 'FA60045C-C4FD-457F-905E-5DB6D5260066',
@@ -579,14 +579,14 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-08-18 07:31:37.6600000',
                 'deleted_at' => NULL,
             ),
-            20 => 
-            array (
+            20 =>
+            array(
                 'id' => 'B178DEA1-4FF2-4564-9681-96EE70D59A40',
                 'control_point_id' => '41',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
                 'ci_report' => '<p class="ql-align-justify">Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words,</p>',
                 'cdc_report' => NULL,
-            'recovery_plan' => '<p class="ql-align-justify">Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p>',
+                'recovery_plan' => '<p class="ql-align-justify">Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p>',
                 'score' => '4',
                 'major_fact' => '0',
                 'metadata' => NULL,
@@ -607,8 +607,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:10:21.0000000',
                 'deleted_at' => NULL,
             ),
-            21 => 
-            array (
+            21 =>
+            array(
                 'id' => '3F0F923B-B8C0-446B-A64C-9B97BEE5F6B7',
                 'control_point_id' => '232',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -635,8 +635,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:15:29.0000000',
                 'deleted_at' => NULL,
             ),
-            22 => 
-            array (
+            22 =>
+            array(
                 'id' => 'A55E1B56-C9A5-4DB3-9571-AAE3E3581E4D',
                 'control_point_id' => '226',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -663,8 +663,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:12:55.0000000',
                 'deleted_at' => NULL,
             ),
-            23 => 
-            array (
+            23 =>
+            array(
                 'id' => '99FEF425-0334-402B-8233-C7BF66EF8AE3',
                 'control_point_id' => '42',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -691,8 +691,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:10:36.0000000',
                 'deleted_at' => NULL,
             ),
-            24 => 
-            array (
+            24 =>
+            array(
                 'id' => 'F9EC6653-E9F9-4636-A3EF-CE2506E5A45A',
                 'control_point_id' => '227',
                 'mission_id' => 'FA60045C-C4FD-457F-905E-5DB6D5260066',
@@ -719,8 +719,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-08-18 06:24:14.0590000',
                 'deleted_at' => NULL,
             ),
-            25 => 
-            array (
+            25 =>
+            array(
                 'id' => 'F698DE98-9A20-43C1-91BC-D0826F24CF7A',
                 'control_point_id' => '37',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -747,8 +747,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:08:37.0000000',
                 'deleted_at' => NULL,
             ),
-            26 => 
-            array (
+            26 =>
+            array(
                 'id' => '7C572204-8D55-47E4-BD5B-DF8BD3D711B4',
                 'control_point_id' => '34',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -775,8 +775,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:06:37.0000000',
                 'deleted_at' => NULL,
             ),
-            27 => 
-            array (
+            27 =>
+            array(
                 'id' => 'BB683238-16CA-4048-AA8B-E549097645D3',
                 'control_point_id' => '45',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -803,8 +803,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:12:10.0000000',
                 'deleted_at' => NULL,
             ),
-            28 => 
-            array (
+            28 =>
+            array(
                 'id' => 'A2B82B60-DC57-4551-AD02-ECC619676501',
                 'control_point_id' => '229',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -831,17 +831,17 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:14:30.0000000',
                 'deleted_at' => NULL,
             ),
-            29 => 
-            array (
+            29 =>
+            array(
                 'id' => '2FE98D6F-13F5-4E83-8685-F1D8DC39A225',
                 'control_point_id' => '44',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
-            'ci_report' => '<p class="ql-align-justify">Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p>',
+                'ci_report' => '<p class="ql-align-justify">Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p>',
                 'cdc_report' => NULL,
-            'recovery_plan' => '<p class="ql-align-justify">Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p>',
+                'recovery_plan' => '<p class="ql-align-justify">Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p>',
                 'score' => '3',
                 'major_fact' => '0',
-            'metadata' => '[[{"label": "Journée de comptabilisation", "rules": ["required", "date"], "accounting_day": "2023-07-06"}, {"label": "Constat", "rules": ["required"], "Constat": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered"}], [{"label": "Journée de comptabilisation", "rules": ["required", "date"], "accounting_day": "2023-07-07"}, {"label": "Constat", "rules": ["required"], "Constat": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \\"de Finibus Bonorum et Malorum\\" (The Extremes of Good and Evil) b"}], [{"label": "Journée de comptabilisation", "rules": ["required", "date"], "accounting_day": "2023-06-26"}, {"label": "Constat", "rules": ["required"], "Constat": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \\"de Finibus Bonorum et Malorum\\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum,"}]]',
+                'metadata' => '[[{"label": "Journée de comptabilisation", "rules": ["required", "date"], "accounting_day": "2023-07-06"}, {"label": "Constat", "rules": ["required"], "Constat": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered"}], [{"label": "Journée de comptabilisation", "rules": ["required", "date"], "accounting_day": "2023-07-07"}, {"label": "Constat", "rules": ["required"], "Constat": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \\"de Finibus Bonorum et Malorum\\" (The Extremes of Good and Evil) b"}], [{"label": "Journée de comptabilisation", "rules": ["required", "date"], "accounting_day": "2023-06-26"}, {"label": "Constat", "rules": ["required"], "Constat": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \\"de Finibus Bonorum et Malorum\\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum,"}]]',
                 'assigned_to_ci_id' => NULL,
                 'assigned_to_cc_id' => NULL,
                 'controlled_by_ci_id' => '45',
@@ -859,8 +859,8 @@ class MissionDetailsTableSeeder extends Seeder
                 'updated_at' => '2023-07-30 12:11:43.0000000',
                 'deleted_at' => NULL,
             ),
-            30 => 
-            array (
+            30 =>
+            array(
                 'id' => '0737B2A8-61EC-48CA-8F16-FA5BD8C0CDBE',
                 'control_point_id' => '36',
                 'mission_id' => 'A515650D-1702-4236-A439-4944783AC815',
@@ -888,7 +888,5 @@ class MissionDetailsTableSeeder extends Seeder
                 'deleted_at' => NULL,
             ),
         ));
-        
-        
     }
 }

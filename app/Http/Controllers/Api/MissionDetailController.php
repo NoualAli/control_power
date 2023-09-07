@@ -182,7 +182,6 @@ class MissionDetailController extends Controller
      */
     private function storeFiles(array $files, MissionDetail $detail)
     {
-        // $files = !isset($data['media']) ?: $data['media'];
         if (is_array($files)) {
             $media = Media::whereIn('id', $files)->get();
             foreach ($media as $file) {
@@ -228,7 +227,7 @@ class MissionDetailController extends Controller
 
             // Vidé les champs report, recovery_plan, metadata
             if (isset($data['score']) && $data['score'] == 1) {
-                $data['report'] = null;
+                // $data['report'] = null;
                 $data['recovery_plan'] = null;
                 $data['metadata'] = null;
             }
@@ -262,13 +261,13 @@ class MissionDetailController extends Controller
             if (hasRole('ci')) {
                 $newData['controlled_by_ci_at'] = now();
                 $newData['controlled_by_ci_id'] = auth()->user()->id;
-                if ($detail->is_controlled_by_ci) {
+                if ($detail->major_fact) {
                     unset($newData['major_fact']);
                 }
             } elseif (hasRole('cdc')) {
                 $newData['controlled_by_cdc_at'] = now();
                 $newData['controlled_by_cdc_id'] = auth()->user()->id;
-                if ($detail->is_controlled_by_ci) {
+                if ($detail->is_controlled_by_ci && $detail->major_fact) {
                     unset($newData['major_fact']);
                 }
             } elseif (hasRole('cc')) {
@@ -292,7 +291,6 @@ class MissionDetailController extends Controller
             if ($detail->is_dispatched) {
                 unset($newData['major_fact']);
             }
-            // dd($newData);
 
             $detail->update($newData);
 
@@ -320,6 +318,7 @@ class MissionDetailController extends Controller
         $agency = $details->relationUniqueData('agency', 'full_name');
         $mission = $details->relationUniqueData('mission', 'reference');
         $campaign = $details->relationUniqueData('campaign', 'reference');
+        // dd(compact('mission', 'family', 'domain', 'process', 'agency', 'campaign', 'dre'));
         return compact('mission', 'family', 'domain', 'process', 'agency', 'campaign', 'dre');
     }
 }

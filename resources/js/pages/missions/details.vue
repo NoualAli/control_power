@@ -5,6 +5,10 @@
                 <NLColumn lg="1" />
                 <NLColumn lg="11">
                     <div class="tags">
+                        <button class="btn btn-info" @click.prevent="showDocumentation" v-if="process?.media?.length"
+                            title="Afficher la documentation du processus">
+                            <i class="las la-file icon"></i>
+                        </button>
                         <span class="tag"><i class="las la-tag icon mr-1"></i> {{ process?.family?.name }}</span>
                         <span class="tag"><i class="las la-tags icon mr-1"></i> {{ process?.domain?.name }}</span>
                         <span class="tag"><i class="las la-project-diagram icon mr-1"></i> {{ process?.name }}</span>
@@ -23,7 +27,7 @@
                             </NLFlex>
                         </div>
                         <div v-if="detail.score" class="box border-1 border-solid"
-                            :class="[{ 'border-success': detail.score == 1 }, { 'border-warning': [2, 3, 4].includes(Number(detail.score)) && !detail.major_fact }, { 'border-danger': detail.major_fact }]">
+                            :class="[{ 'border-success': detail?.score == 1 && !detail?.major_fact }, { 'border-warning': [2, 3, 4].includes(Number(detail?.score)) && !detail?.major_fact }, { 'border-danger': detail?.major_fact }]">
                             <NLGrid>
                                 <!-- Control Point name -->
                                 <NLColumn>
@@ -156,6 +160,9 @@
         <!-- Régularization du point de contrôle -->
         <MissionRegularizationForm :detail="rowSelected" :show="modals.regularize" @success="success" @close="close"
             :key="forceReload" />
+
+        <!-- Points de contrôle et documentations du procéssus -->
+        <ProcessInformationsModal :process="process" :show="modals.processInformations" @close="close" />
     </ContentBody>
 </template>
 
@@ -163,13 +170,15 @@
 import MissionDetailForm from '../../forms/MissionDetailForm'
 import MissionDetailModal from '../../Modals/MissionDetailModal'
 import MissionRegularizationForm from '../../forms/MissionRegularizationForm'
+import ProcessInformationsModal from '../../Modals/ProcessInformationsModal'
 import { mapGetters } from 'vuex'
 import { user } from '../../plugins/user'
 export default {
     components: {
         MissionDetailForm,
         MissionDetailModal,
-        MissionRegularizationForm
+        MissionRegularizationForm,
+        ProcessInformationsModal
     },
     emits: [ 'loading' ],
     layout: 'MainLayout',
@@ -185,9 +194,10 @@ export default {
             modals: {
                 show: false,
                 edit: false,
-                regularize: false
+                regularize: false,
+                processInformations: false,
             },
-            currentUser: null
+            currentUser: null,
         }
     },
     computed: {
@@ -222,6 +232,10 @@ export default {
                 }
                 this.$store.dispatch('settings/updatePageLoading', false)
             })
+        },
+
+        showDocumentation() {
+            this.modals.processInformations = true
         },
 
         /**

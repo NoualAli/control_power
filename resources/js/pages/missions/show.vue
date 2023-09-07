@@ -168,7 +168,7 @@
                 </NLColumn>
 
                 <NLColumn>
-                    <h2>Statistiques</h2>
+                    <h2>Statistiques de base</h2>
                 </NLColumn>
                 <NLColumn lg="4">
                     <span class="text-bold">
@@ -237,7 +237,7 @@
                     <div class="divider"></div>
                 </NLColumn>
                 <NLColumn>
-                    <h2>Contrôleurs et Validateurs</h2>
+                    <h2>Intervenants</h2>
                 </NLColumn>
                 <NLColumn lg="3">
                     <span class="text-bold">
@@ -334,7 +334,7 @@
             <button
                 v-if="mission?.current.progress_status == 100 && !mission?.current.cdc_report_exists && mission?.current?.is_validated_by_ci && can('create_cdc_report')"
                 class="btn btn-info" @click="showCommentForm('cdc_report')">
-                Ajouter votre rapport
+                Ajouter votre conclusion
             </button>
             <button
                 v-if="mission?.current.is_validated_by_ci && !mission?.current.is_validated_by_cdc && mission?.current.cdc_report_exists && can('validate_cdc_report')"
@@ -396,15 +396,15 @@
             <!-- View report -->
             <button v-if="mission?.current.cdc_report_exists && is('cdc')" class="btn btn-info"
                 @click="showCommentForm('cdc_report', true)">
-                Rapport de la mission
+                Conclusion de la mission
             </button>
             <button v-if="mission?.current.is_validated_by_cdc && is(['dcp', 'cdcr', 'cc'])" class="btn btn-info"
                 @click="showCommentForm('cdc_report', true)">
-                Rapport de la mission
+                Conclusion de la mission
             </button>
             <button v-if="mission?.current.is_validated_by_dcp && is(['dg', 'cdrcp', 'da', 'ig', 'der'])"
                 class="btn btn-info" @click="showCommentForm('cdc_report', true)">
-                Rapport de la mission
+                Conclusion de la mission
             </button>
 
             <!-- View ci comment -->

@@ -24,9 +24,14 @@ class MissionReportGeneratedEvent implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct(Mission $mission)
+    // public function __construct(Mission $mission)
+    // {
+    //     $this->mission = $mission;
+    // }
+    public function __construct(Mission $mission, User $user)
     {
         $this->mission = $mission;
+        $this->user = $user;
     }
 
     /**
@@ -36,8 +41,14 @@ class MissionReportGeneratedEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        // return new Channel('mission.report.generated.' . $this->mission->id);
-        return new PrivateChannel('mission.report.generated.' . $this->mission->id);
+        $missions = $this->missions()->where('campagin_id', '!=', 1)?->pluck('id')->toArray() ?: [];
+        $check = hasRole(['cdcr', 'dcp', 'dg', 'sg', 'cdrcp', 'ig']) || in_array($this->mission->id, $missions);
+
+        if ($check) {
+            return new Channel('mission.report.generated.' . $this->user->id);
+        }
+        // return new PrivateChannel('mission.report.generated.' . $this->mission->id);
+        // return new PrivateChannel('mission.report.generated.' . $this->user->id);
     }
 
     /**

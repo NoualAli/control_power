@@ -15,7 +15,12 @@ class MissionReportGeneratedChannel
      */
     public function join(User $user, Mission $mission)
     {
-        $missions = $user->missions()?->pluck('id')->toArray() ?: [];
+        $missions = $user->missions()->where('campagin_id', '!=', 1)?->pluck('id')->toArray() ?: [];
         return hasRole(['cdcr', 'dcp', 'dg', 'sg', 'cdrcp', 'ig']) || in_array($mission->id, $missions);
     }
+    // public function join(User $user)
+    // {
+    //     // $missions = $user->missions()?->pluck('id')->toArray() ?: [];
+    //     return auth()->check() && auth()->user()->id == $user->id;
+    // }
 }

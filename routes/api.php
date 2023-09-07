@@ -83,7 +83,7 @@ Route::group(['middleware' => 'auth:api'], function () {
      */
     Route::prefix('references')->group(function () {
         Route::get('/pcf', [ReferenceController::class, 'pcf']);
-        Route::get('/pcf/{controlPoint}', [ReferenceController::class, 'show']);
+        Route::get('/pcf/{process}', [ReferenceController::class, 'show']);
     });
 
     /**

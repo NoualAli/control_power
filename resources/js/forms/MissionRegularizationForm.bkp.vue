@@ -24,8 +24,8 @@
                     <NLTextarea v-model="form.reason" :name="'reason'" label="Cause" :form="form" length="1000"
                         placeholder="Décrivez la cause" label-required />
                 </NLColumn>
-                <NLColumn v-if="!form.regularized && form.type == 'Action à engagée'">
-                    <NLTextarea v-model="form.action_to_be_taken" :name="'action_to_be_taken'" label="Action à engagée"
+                <NLColumn v-if="!form.regularized && form.type == 'Action à engager'">
+                    <NLTextarea v-model="form.action_to_be_taken" :name="'action_to_be_taken'" label="Action à engager"
                         placeholder="Décrivez l'action à engagée" :form="form" length="3000" label-required />
                 </NLColumn>
                 <NLColumn>
@@ -85,8 +85,8 @@ export default {
                     label: 'Cause'
                 },
                 {
-                    id: 'Action à engagée',
-                    label: 'Action à engagée'
+                    id: 'Action à engager',
+                    label: 'Action à engager'
                 }
             ],
             form: new Form({

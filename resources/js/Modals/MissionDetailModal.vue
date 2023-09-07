@@ -125,7 +125,7 @@
                         class="p-4 has-border-radius-1 border-1 border-solid my-6"
                         :class="[{ 'border-success': regularization.is_regularized }, { 'border-warning': !regularization.is_regularized }]">
                         <NLColumn>
-                            <label class="label">Action à engagée</label>
+                            <label class="label">Action à engager</label>
                             <div v-html="regularization.action_to_be_taken" class="mt-3"></div>
                         </NLColumn>
                         <NLColumn v-if="regularization.media.length">

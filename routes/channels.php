@@ -27,4 +27,6 @@ use Illuminate\Support\Facades\Broadcast;
 //     // return hasRole(['cdcr', 'dcp', 'dg', 'sg', 'cdrcp', $user]) || in_array($id, $user->missions()->pluck('id')->toArray());
 // });
 
-Broadcast::channel('mission.report.generated.{mission}', MissionReportGeneratedChannel::class);
+// Broadcast::channel('mission.report.generated.{mission}', MissionReportGeneratedChannel::class);
+// Broadcast::channel('mission.report.generated.{user}', MissionReportGeneratedChannel::class);
+Broadcast::channel('mission.report.generated', MissionReportGeneratedChannel::class);

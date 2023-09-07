@@ -99,11 +99,11 @@ class GenerateMissionReportPdf implements ShouldQueue
                 $notify = $notify->merge($mission->dcpControllers)->merge($mission->dreControllers);
                 $end = now();
                 $difference = $end->diffInRealMilliseconds($start);
+                // event(new MissionReportGeneratedEvent($mission));
                 foreach ($notify as $user) {
                     // event(new MissionReportGeneratedEvent($mission, $user));
                     Notification::send($user, new ReportNotification($mission));
                 }
-                event(new MissionReportGeneratedEvent($mission));
             } else {
                 redirect($this->filepath());
             }

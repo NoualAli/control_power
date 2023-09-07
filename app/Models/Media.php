@@ -26,7 +26,7 @@ class Media extends BaseModel
     protected $appends = ['link', 'type', 'path', 'icon', 'is_owner'];
 
     protected $casts = [
-        'payload' => 'array'
+        'payload' => 'object'
     ];
 
     /**
@@ -80,6 +80,9 @@ class Media extends BaseModel
                 $icon = 'las la-file-image';
                 break;
             case 'svg':
+                $icon = 'las la-file-image';
+                break;
+            case 'tif':
                 $icon = 'las la-file-image';
                 break;
             case 'xls':

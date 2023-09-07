@@ -211,9 +211,9 @@ export default {
             this.form.id = this.commentExists ? this.mission?.cdc_report?.id : null
             this.form.content = this.content
 
-            this.title = 'Rapport du chef de département sur la mission ' + this.mission?.reference
+            this.title = 'Conclusion du chef de département sur la mission ' + this.mission?.reference
             this.fields.content = {
-                label: 'Votre rapport',
+                label: 'Votre conclusion',
                 placeholder: 'Ecrivez votre rapport',
                 name: 'content'
             }

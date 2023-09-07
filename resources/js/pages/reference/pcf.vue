@@ -1,12 +1,27 @@
 <template>
     <ContentBody>
-        <NLDatatable :columns="columns" :details="details" :filters="filters" title="Références PCF"
+        <NLDatatable :columns="columns" :details="details" :filters="filters" :actions="actions" title="Références PCF"
             urlPrefix="references/pcf" @action="handleActions" @show="handleActions"
             @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
+
+        <ProcessInformationsModal :process="currentProcess" :show="!!currentProcess" @close="close" />
     </ContentBody>
 </template>
 <script>
+import ProcessInformationsModal from '../../Modals/ProcessInformationsModal'
+import NLColumn from '../../components/Grid/NLColumn'
+import NLGrid from '../../components/Grid/NLGrid'
+import NLListItem from '../../components/List/NLListItem'
+import NLList from '../../components/List/NLList'
+import NLModal from '../../components/NLModal'
 export default {
+    components: {
+        ProcessInformationsModal,
+        NLColumn,
+        NLGrid,
+        NLListItem,
+        NLList, NLModal
+    },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     created() {
@@ -14,6 +29,7 @@ export default {
     },
     data() {
         return {
+            currentProcess: null,
             columns: [
                 {
                     label: 'Famille',
@@ -30,13 +46,6 @@ export default {
                     field: 'process_name',
                     filterable: 'process_id',
                 },
-                {
-                    label: 'Point de contrôle',
-                    field: 'control_point_name',
-                    sortBy: 'name',
-                    length: 75,
-                    sortable: true
-                }
             ],
             filters: {
                 family: {
@@ -53,14 +62,6 @@ export default {
                     data: null,
                     value: null,
                     dependsOn: 'family'
-                },
-                process: {
-                    label: 'Processus',
-                    name: 'process',
-                    multiple: true,
-                    data: null,
-                    value: null,
-                    dependsOn: 'domain'
                 }
             },
             details: [
@@ -74,23 +75,32 @@ export default {
                 },
                 {
                     label: 'Processus',
-                    field: 'process.name',
-                },
-                {
-                    label: 'Point de contrôle',
                     field: 'name',
                 },
                 {
-                    label: 'Notations',
-                    field: 'scores_str',
-                    isHtml: true,
-                },
+                    label: 'Points de contrôle',
+                    field: 'control_points.name',
+                    hasMany: true
+                }
             ],
+            actions: {
+                show: {
+                    show: true,
+                    apply: this.show
+                },
+            }
         }
     },
     methods: {
         handleActions(e) {
             console.log(e);
+        },
+        show(item) {
+            this.currentProcess = item.item
+            // this.$api.get('processes/' + item.item.id).then(response => this.currentProcess = response.data)
+        },
+        close() {
+            this.currentProcess = null
         }
     }
 }

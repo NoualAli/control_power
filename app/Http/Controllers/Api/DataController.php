@@ -104,9 +104,9 @@ class DataController extends Controller
      */
     private function missionsState(): array
     {
-        $missions = $this->getMissions();
+        $missions = $this->getMissions()->select('m.id');
         if (!hasRole(['cc'])) {
-            $missions = $missions->join('mission_details as md', 'm.id', 'md.mission_id')->groupBy('m.id');
+            $missions = $missions->leftJoin('mission_details as md', 'm.id', 'md.mission_id')->groupBy('m.id');
         }
 
         $today = today()->format('Y-m-d');
@@ -135,10 +135,10 @@ class DataController extends Controller
 
         $todo = (clone $missions)
             ->whereNull('md.controlled_by_ci_id')
-            ->whereNull('m.cdc_validation_by_id')
-            ->whereDate('m.programmed_start', '>', $today)
-            ->whereDate('m.programmed_end', '<=', $today)
+            ->whereDate('m.programmed_start', '<=', $today)
+            // ->groupBy('m.id')
             ->get()->count();
+        // dd($todo, $active, $done, $delay);
         return compact('delay', 'active', 'todo', 'done');
     }
 

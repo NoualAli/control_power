@@ -278,7 +278,7 @@
                                             </td>
                                         </tr>
                                         @php
-                                            $totalItems = $item->inline_metadata->count() - 1;
+                                            $totalItems = $item?->inline_metadata?->count() - 1;
                                             $currentIndex = 0;
                                         @endphp
                                         @foreach ($item->inline_metadata as $key => $rows)
@@ -309,7 +309,7 @@
                                 @endif
                             </div>
                             {{-- Supporting documents --}}
-                            @if ($item->images->count())
+                            @if ($item?->images?->count())
                                 <h4>Pièces justificatifs</h4>
                                 @foreach ($item->media as $file)
                                     <div class="img-container">
@@ -325,7 +325,7 @@
             @endforeach
         </div>
         <div class="container">
-            <h2>Rapport du chef de département</h2>
+            <h2>Conclusion du chef de département</h2>
             {!! $mission->cdc_report->content !!}
         </div>
     </main>
