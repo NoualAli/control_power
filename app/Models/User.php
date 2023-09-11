@@ -38,10 +38,10 @@ class User extends Authenticatable implements JWTSubject
         'password',
         'last_name',
         'first_name',
-        'role_id',
-        'dre_id',
         'phone',
-        'must_change_password'
+        'must_change_password',
+        'active_role_id',
+        'gender',
     ];
 
     /**
@@ -89,7 +89,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function getPermissionsArrAttribute()
     {
-        return $this->roles->pluck('permissions')->flatten()->pluck('name')->toArray();
+        return $this->roles->pluck('permissions')->flatten()->pluck('code')->toArray();
     }
     public function getAbbreviatedNameAttribute()
     {

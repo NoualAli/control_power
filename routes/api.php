@@ -17,7 +17,6 @@ use App\Http\Controllers\Api\MissionController;
 use App\Http\Controllers\Api\MissionDetailController;
 use App\Http\Controllers\Api\MissionCommentController;
 use App\Http\Controllers\Api\NotificationController;
-use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\ProcessController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Auth\LoginController;
@@ -26,6 +25,7 @@ use App\Http\Controllers\Api\Settings\PasswordController;
 use App\Http\Controllers\Api\Settings\ProfileController;
 use App\Http\Controllers\Api\ReferenceController;
 use App\Http\Controllers\Api\MissionDetailRegularizationController;
+use App\Http\Controllers\Api\ModuleController;
 use App\Http\Controllers\Api\Settings\SettingController;
 use Illuminate\Support\Facades\Route;
 
@@ -58,13 +58,10 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::delete('{role}', 'destroy');
     });
 
-    // Permissions routes
-    Route::prefix('permissions')->controller(PermissionController::class)->group(function () {
+    // Modules routes
+    Route::prefix('modules')->controller(ModuleController::class)->group(function () {
         Route::get('/', 'index');
-        Route::get('{permission}', 'show');
-        Route::post('/', 'store');
-        Route::put('{permission}', 'update');
-        Route::delete('{permission}', 'destroy');
+        Route::put('/', 'manage');
     });
 
     // Users

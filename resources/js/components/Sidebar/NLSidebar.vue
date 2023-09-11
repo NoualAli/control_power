@@ -9,10 +9,7 @@
             <NLSidebarItem label="Tableau de bord" route="home" iconName="la-tachometer-alt" />
             <NLSidebarItem label="Utilisateurs" route="users-index" iconName="la-users" v-if="can('view_page_users')" />
             <NLSidebarItem label="Roles" route="roles-index" iconName="la-user-shield" v-if="can('view_page_roles')" />
-            <NLSidebarItem label="Permissions" route="permissions-index" iconName="la-user-cog"
-                v-if="can('view_page_permissions')" />
-            <!-- <NLSidebarSubmenu label="Gestion utilisateurs" iconName="la-users-cog">
-            </NLSidebarSubmenu> -->
+            <NLSidebarItem label="Modules" route="modules-index" iconName="la-user-cog" v-if="can('view_page_modules')" />
             <NLSidebarItem label="Dre" route="dre-index" iconName="la-building" v-if="can('view_page_dres')" />
             <NLSidebarItem label="Agences" route="agencies-index" iconName="la-landmark" v-if="can('view_page_agencies')" />
             <NLSidebarItem label="Catégories" route="categories-index" iconName="la-landmark"

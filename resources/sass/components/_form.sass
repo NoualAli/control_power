@@ -220,7 +220,7 @@ form
                             left: 50%
                             transform: translate(-50%,-50%)
     & .input-checkable
-        // display: none
+        display: none
 .is-password-input
     display: flex
     justify-content: center
@@ -468,3 +468,17 @@ input[type="date"]::-webkit-inner-spin-button,
     color: $white !important
     font-weight: 700
     transition: .1s ease
+
+.select-box
+    border-radius: $form-radius
+    padding: $input-padding
+    cursor: pointer
+    box-shadow: $input-shadow
+    display: block
+    width: 100%
+    border: $input-border
+    transition: .2s ease-in-out
+    &:hover
+        background-color: $primary-extra-light
+    &.is-selected
+        background-color: $primary-extra-light

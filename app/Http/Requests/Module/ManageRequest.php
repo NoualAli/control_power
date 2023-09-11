@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Permission;
+namespace App\Http\Requests\Module;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRequest extends FormRequest
+class ManageRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class StoreRequest extends FormRequest
      */
     public function authorize()
     {
-        return isAbleTo('create_permission');
+        return isAbleTo('manage_modules');
     }
 
     /**
@@ -24,9 +24,9 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'unique:permissions', 'string', 'max:30'],
-            'roles' => ['required', 'array'],
-            'roles.*' => ['exists:roles,id']
+            'role' => ['required', 'exists:roles,id'],
+            'permissions' => ['required', 'array'],
+            'permissions.*' => ['exists:permissions,id'],
         ];
     }
 }

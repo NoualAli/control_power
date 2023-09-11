@@ -33,6 +33,9 @@
 // Text, Backgrounds & Borders
 .no-bg
     background: transparent !important
+
+.shadowless
+    box-shadow: none !important
 @each $value in $text-weight
     .text-#{$value}
         font-weight: $value

@@ -64,7 +64,7 @@ export const actions = {
             delete user.dres_str
             localStorage.setItem('user', JSON.stringify(user))
             localStorage.setItem('roles', JSON.stringify(data.roles.map(role => role.code)))
-            localStorage.setItem('permissions', JSON.stringify(data.roles.map(role => role.permissions.map(permission => permission.name))[ 0 ]))
+            localStorage.setItem('permissions', JSON.stringify(data.roles.map(role => role.permissions.map(permission => permission.code))[ 0 ]))
             localStorage.setItem('dres', JSON.stringify(data.dres.map(dre => dre.full_name)))
             if (data.dres?.agencies) {
                 localStorage.setItem('agencies', JSON.stringify(data.dres?.map(dre => dre?.agencies?.map(agency => agency.full_name))[ 0 ]))

@@ -7,7 +7,6 @@ use App\Models\Agency;
 use App\Models\ControlCampaign;
 use App\Models\Dre;
 use App\Models\Mission;
-use App\Models\Process;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -25,19 +24,18 @@ class DatabaseSeeder extends Seeder
         Excel::import(new ControlPointsImport, public_path('pcf.xlsx'));
 
         if (env('DB_CONNECTION') == 'mysql') {
-            $this->call(UsersTableSeeder::class);
-        } else {
-            DB::unprepared('SET IDENTITY_INSERT users ON');
-            $this->call(UsersTableSeeder::class);
-            DB::unprepared('SET IDENTITY_INSERT users OFF');
-        }
-
-        if (env('DB_CONNECTION') == 'mysql') {
             $this->call(RolesTableSeeder::class);
         } else {
             DB::unprepared('SET IDENTITY_INSERT roles ON');
             $this->call(RolesTableSeeder::class);
             DB::unprepared('SET IDENTITY_INSERT roles OFF');
+        }
+        if (env('DB_CONNECTION') == 'mysql') {
+            $this->call(ModulesTableSeeder::class);
+        } else {
+            DB::unprepared('SET IDENTITY_INSERT modules ON');
+            $this->call(ModulesTableSeeder::class);
+            DB::unprepared('SET IDENTITY_INSERT modules OFF');
         }
 
         if (env('DB_CONNECTION') == 'mysql') {
@@ -48,7 +46,17 @@ class DatabaseSeeder extends Seeder
             DB::unprepared('SET IDENTITY_INSERT permissions OFF');
         }
 
+        if (env('DB_CONNECTION') == 'mysql') {
+            $this->call(UsersTableSeeder::class);
+        } else {
+            DB::unprepared('SET IDENTITY_INSERT users ON');
+            $this->call(UsersTableSeeder::class);
+            DB::unprepared('SET IDENTITY_INSERT users OFF');
+        }
+
+
         $this->call(RoleHasPermissionsTableSeeder::class);
+
         $this->call(UserHasRolesTableSeeder::class);
 
         if (env('DB_CONNECTION') == 'mysql') {
@@ -80,8 +88,8 @@ class DatabaseSeeder extends Seeder
         $this->call(UserHasAgenciesTableSeeder::class);
 
         if (env('DB_CONNECTION') == 'mysql') {
-            $this->call(ControlCampaignsTableSeeder::class);
-            $this->call(ControlCampaignProcessesTableSeeder::class);
+            // $this->call(ControlCampaignsTableSeeder::class);
+            // $this->call(ControlCampaignProcessesTableSeeder::class);
             // $this->call(MissionsTableSeeder::class);
             // $this->call(MissionDetailsTableSeeder::class);
             // $this->call(MediaTableSeeder::class);
@@ -103,7 +111,7 @@ class DatabaseSeeder extends Seeder
         $this->call(MediaTableSeeder::class);
         // $this->call(MissionHasControllersTableSeeder::class);
         // $this->call(CommentsTableSeeder::class);
-        $this->generateFakeMissions();
+        // $this->generateFakeMissions();
     }
 
     private function generateFakeMissions()

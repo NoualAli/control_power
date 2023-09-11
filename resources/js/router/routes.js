@@ -120,38 +120,16 @@ export default [
         }
     },
     /**
-       * Permissions
-       */
+    * Modules
+    */
     {
-        path: '/admin/permissions',
-        name: 'permissions-index',
-        component: page('admin/permissions/index.vue'),
+        path: '/admin/modules',
+        name: 'modules-index',
+        component: page('admin/modules/index.vue'),
         meta: {
             breadcrumb: {
                 parent: 'roles-index',
-                label: 'Permissions'
-            }
-        }
-    },
-    {
-        path: '/admin/permissions/create',
-        name: 'permissions-create',
-        component: page('admin/permissions/create.vue'),
-        meta: {
-            breadcrumb: {
-                label: 'Nouvelle permission',
-                parent: 'permissions-index'
-            }
-        }
-    },
-    {
-        path: '/admin/permissions/edit/:permission',
-        name: 'permissions-edit',
-        component: page('admin/permissions/edit.vue'),
-        meta: {
-            breadcrumb: {
-                label: 'Edition permission',
-                parent: 'permissions-index'
+                label: 'Modules'
             }
         }
     },
