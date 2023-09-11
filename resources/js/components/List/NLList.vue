@@ -1,11 +1,11 @@
 <template>
-  <Grid extraClass="list">
-    <slot></slot>
-  </Grid>
+    <NLGrid extraClass="list">
+        <slot></slot>
+    </NLGrid>
 </template>
 
 <script>
 export default {
-  name: "NLList",
+    name: "NLList",
 }
 </script>
