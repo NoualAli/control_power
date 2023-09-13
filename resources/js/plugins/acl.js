@@ -1,5 +1,6 @@
 import api from './api'
 import { hasRole, isAbleTo } from './user'
+import { ls_get } from './crypto'
 
 // app.mixin() there is no longer mixin in vue
 // gotta find a solution for such
@@ -24,7 +25,7 @@ export const aclMixin = {
 const directives = {
     'can-hide': {
         bind: function (el, binding, vnode) {
-            const permissions = JSON.parse(localStorage.getItem('permissions')) || []
+            const permissions = JSON.parse(ls_get('permissions')) || []
             const abilities = (binding.value || '').split(/\s*,\s*/)
             abilities.forEach(ability => {
                 if (!Object.prototype.hasOwnProperty.call(permissions, ability.trim())) {
@@ -36,7 +37,7 @@ const directives = {
     'can-strict': {
         bind: function (el, binding, vnode) {
             const can = []
-            const permissions = JSON.parse(localStorage.getItem('permissions')) || []
+            const permissions = JSON.parse(ls_get('permissions')) || []
             const abilities = (binding.value || '').split(/\s*,\s*/)
             const vifDirective = checkVIfDire(vnode, binding)
             abilities.forEach(ability => {
@@ -48,7 +49,7 @@ const directives = {
         },
         update: function (el, binding, vnode) {
             const can = []
-            const permissions = JSON.parse(localStorage.getItem('permissions')) || []
+            const permissions = JSON.parse(ls_get('permissions')) || []
             const abilities = (binding.value || '').split(/\s*,\s*/)
             const vifDirective = checkVIfDire(vnode, binding)
             abilities.forEach(ability => {
@@ -61,7 +62,7 @@ const directives = {
     },
     'has-role': {
         bind: function (el, binding, vnode) {
-            const roles = JSON.parse(localStorage.getItem('roles')) || []
+            const roles = JSON.parse(ls_get('roles')) || []
             const data = (binding.value || '').split(/\s*,\s*/)
             const vifDirective = checkVIfDire(vnode, binding)
             const hasRole = data.some(item => roles.some(role => role.code === item.trim()))
@@ -70,7 +71,7 @@ const directives = {
             }
         },
         update: function (el, binding, vnode) {
-            const roles = JSON.parse(localStorage.getItem('roles')) || []
+            const roles = JSON.parse(ls_get('roles')) || []
             const data = (binding.value || '').split(/\s*,\s*/)
             const hasRole = data.some(item => roles.some(role => role.code === item.trim()))
             const vifDirective = checkVIfDire(vnode, binding)

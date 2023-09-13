@@ -1,5 +1,6 @@
 import api from '../../plugins/api'
 import Cookies from 'js-cookie'
+import { ls_set } from '../../plugins/crypto'
 
 // state
 export const state = {
@@ -62,17 +63,17 @@ export const actions = {
             delete user.permissions_arr
             delete user.authorizations
             delete user.roles
-            localStorage.setItem('user', JSON.stringify(user))
-            localStorage.setItem('role', user?.role?.code)
-            localStorage.setItem('permissions', JSON.stringify(data.roles.map(role => role.permissions.map(permission => permission.code))[ 0 ]))
-            localStorage.setItem('dres', JSON.stringify(data.dres.map(dre => dre.full_name)))
+            ls_set('user', JSON.stringify(user))
+            ls_set('role', user?.role?.code)
+            ls_set('permissions', JSON.stringify(data.roles.map(role => role.permissions.map(permission => permission.code))[ 0 ]))
+            ls_set('dres', JSON.stringify(data.dres.map(dre => dre.full_name)))
             if (data.dres?.agencies) {
-                localStorage.setItem('agencies', JSON.stringify(data.dres?.map(dre => dre?.agencies?.map(agency => agency.full_name))[ 0 ]))
+                ls_set('agencies', JSON.stringify(data.dres?.map(dre => dre?.agencies?.map(agency => agency.full_name))[ 0 ]))
             } else {
-                localStorage.setItem('agencies', JSON.stringify([]))
+                ls_set('agencies', JSON.stringify([]))
             }
             if (data.missions_without_report) {
-                localStorage.setItem('missions_without_report', JSON.stringify(data.missions_without_report))
+                ls_set('missions_without_report', JSON.stringify(data.missions_without_report))
             }
             delete user.role
             delete user.dres

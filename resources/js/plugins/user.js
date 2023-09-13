@@ -1,26 +1,27 @@
+import { ls_get } from './crypto'
 /* eslint-disable eqeqeq */
 export function user() {
-    return JSON.parse(localStorage.getItem('user')) || []
+    return JSON.parse(ls_get('user')) || []
 }
 
 export function getRoles() {
-    return JSON.parse(localStorage.getItem('roles')) || []
+    return JSON.parse(ls_get('roles')) || []
 }
 
 export function getRole() {
-    return localStorage.getItem('role') || null
+    return ls_get('role') || null
 }
 
 export function getPermissions() {
-    return JSON.parse(localStorage.getItem('permissions')) || []
+    return JSON.parse(ls_get('permissions')) || []
 }
 
 export function getDres() {
-    return JSON.parse(localStorage.getItem('dres')) || []
+    return JSON.parse(ls_get('dres')) || []
 }
 
 export function getAgencies() {
-    return JSON.parse(localStorage.getItem('agencies')) || []
+    return JSON.parse(ls_get('agencies')) || []
 }
 
 export function isAbleTo($abilities = String | Array) {

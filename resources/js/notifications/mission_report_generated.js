@@ -1,6 +1,7 @@
 import { user } from '~/plugins/user'
 import store from "~/store"
 import * as $swal from '~/plugins/swal'
+import { ls_get } from '~/plugins/crypto'
 
 let missionsWithoutReports = user().missions_without_report
 
@@ -39,7 +40,7 @@ let missionsWithoutReports = user().missions_without_report
 
 
 // Subscribe to missions witout report channel
-window.Echo.channel('mission.report.generated.' + JSON.parse(localStorage.getItem('user'))?.id)
+window.Echo.channel('mission.report.generated.' + JSON.parse(ls_get('user'))?.id)
     .listen('.MissionReportGenerated', (data) => {
         // console.log('Event received:', data);
 

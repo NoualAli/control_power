@@ -37,6 +37,7 @@
 <script>
 import Form from 'vform'
 import { mapGetters } from 'vuex'
+import { ls_get } from '../../../plugins/crypto'
 export default {
     layout: 'auth',
     // middleware: 'auth',
@@ -59,7 +60,7 @@ export default {
 
     methods: {
         renew() {
-            const user = JSON.parse(localStorage.getItem('user'))
+            const user = JSON.parse(ls_get('user'))
             this.form.patch('settings/password/' + user?.id).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
