@@ -58,12 +58,12 @@ export const actions = {
         try {
             const { data } = await api.get('user')
             const user = { ...data }
-            delete user.roles
-            delete user.roles_str
-            delete user.dres
             delete user.dres_str
+            delete user.permissions_arr
+            delete user.authorizations
+            delete user.roles
             localStorage.setItem('user', JSON.stringify(user))
-            localStorage.setItem('roles', JSON.stringify(data.roles.map(role => role.code)))
+            localStorage.setItem('role', user?.role?.code)
             localStorage.setItem('permissions', JSON.stringify(data.roles.map(role => role.permissions.map(permission => permission.code))[ 0 ]))
             localStorage.setItem('dres', JSON.stringify(data.dres.map(dre => dre.full_name)))
             if (data.dres?.agencies) {
@@ -74,6 +74,8 @@ export const actions = {
             if (data.missions_without_report) {
                 localStorage.setItem('missions_without_report', JSON.stringify(data.missions_without_report))
             }
+            delete user.role
+            delete user.dres
             commit('FETCH_USER_SUCCESS', { user: data })
         } catch (e) {
             console.error(e)
@@ -101,7 +103,7 @@ export const actions = {
             await api.post('logout').then(() => {
                 localStorage.removeItem('user')
                 localStorage.removeItem('permissions')
-                localStorage.removeItem('roles')
+                localStorage.removeItem('role')
                 localStorage.removeItem('dres')
                 localStorage.removeItem('agencies')
                 localStorage.removeItem('missions_without_report')

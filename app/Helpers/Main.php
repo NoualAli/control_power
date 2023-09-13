@@ -2,6 +2,7 @@
 
 use App\Models\ControlCampaign;
 use App\Models\Domain;
+use App\Models\Dre;
 use App\Models\Family;
 use App\Models\Mission;
 use App\Models\User;
@@ -60,15 +61,11 @@ if (!function_exists('hasRole')) {
     function hasRole(string|array $roles, ?User $user = null): bool
     {
         $user = $user ? $user : auth()->user();
-        $userRoles = $user->roles->pluck('code')->toArray();
+        $role = $user->role->code;
         if (is_array($roles)) {
-            $hasRole = [];
-            foreach ($roles as $role) {
-                array_push($hasRole, in_array($role, $userRoles));
-            }
-            return in_array(true, $hasRole);
+            return in_array($role, $roles);
         } else {
-            return in_array($roles, $userRoles);
+            return $role == $roles;
         }
     }
 }
@@ -355,6 +352,40 @@ if (!function_exists('getMissionProcesses')) {
             ->groupBy('f.id', 'd.id', 'p.id', 'p.name', 'd.name', 'f.name')
             ->where('m.id', $mission->id);
         return $processes;
+    }
+}
+
+if (!function_exists('loadAgencies')) {
+    /**
+     * @param array $data
+     *
+     * @return array
+     */
+    function loadAgencies(string|int|array $data)
+    {
+        if (is_array($data)) {
+            $data = Arr::flatten(array_map(function ($item) {
+                $item = explode('-', $item);
+                $ids = [];
+                if ($item[0] == 'd') {
+                    $ids = array_merge(Dre::findOrFail($item[1])->agencies->pluck('id')->toArray(), $ids);
+                } else {
+                    $ids = array_merge($ids, [intval($item[0])]);
+                }
+                return $ids;
+            }, $data));
+        } elseif (is_integer($data)) {
+            $ids = [];
+            $data = array_merge($ids, [intval($data)]);
+        } elseif (is_string($data) && str_starts_with($data, 'd-')) {
+            $ids = [];
+            $data = explode('-', $data);
+            $data = array_merge(Dre::findOrFail($data[1])->agencies->pluck('id')->toArray(), $ids);
+        }
+        $data = Validator::make($data, [
+            '*' => 'exists:agencies,id'
+        ])->validated();
+        return $data;
     }
 }
 

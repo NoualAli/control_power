@@ -24,7 +24,7 @@ class ModulesTableSeeder extends Seeder
                 'code' => 'data_management',
                 'description' => NULL,
                 'id' => 1,
-                'name' => 'Gestion des données directrice',
+                'name' => 'Gestion des données directrices',
             ),
             1 => 
             array (

@@ -42,6 +42,7 @@ class User extends Authenticatable implements JWTSubject
         'must_change_password',
         'active_role_id',
         'gender',
+        'is_active'
     ];
 
     /**
@@ -63,20 +64,26 @@ class User extends Authenticatable implements JWTSubject
     protected $casts = [
         'email_verified_at' => 'datetime',
         'must_change_password' => 'boolean',
+        'is_active' => 'boolean',
+        'gender' => 'integer',
     ];
 
     public $searchable = ['last_name', 'first_name', 'username', 'email', 'phone'];
 
-    protected $appends = ['full_name', 'abbreviated_name', 'roles_str', 'dres_str', 'authorizations', 'permissions_arr'];
+    protected $appends = ['full_name', 'abbreviated_name', 'dres_str', 'gender_str', 'martial_status', 'full_name_with_martial', 'authorizations', 'permissions_arr'];
 
     /**
      * Getters
      */
-    // public function getMissionsWithoutReportAttribute()
-    // {
-    //     $missions = !hasRole(['cdcr', 'dcp', 'dg', 'ig', 'sg', 'cdrcp']) ? $this->missions : Mission::all();
-    //     return $missions->filter(fn ($mission) => !$mission->pdf_report_exists)->pluck('id')->toArray();
-    // }
+    public function getGenderStrAttribute()
+    {
+        return $this->gender == 1 ? 'Homme' : 'Femme';
+    }
+
+    public function getMartialStatusAttribute()
+    {
+        return $this->gender == 1 ? 'Mr' : 'Mme';
+    }
 
     public function getAuthorizationsAttribute()
     {
@@ -99,6 +106,12 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->first_name && $this->last_name ? ucfirst(strtolower($this->first_name)) . ' ' . ucfirst(strtolower($this->last_name)) : $this->username;
     }
+
+    public function getFullNameWithMartialAttribute()
+    {
+        return $this->full_name ? $this->martial_status . ' ' . $this->full_name : null;
+    }
+
     public function getUsernameAttribute($username)
     {
         return strtoupper($username);
@@ -328,8 +341,11 @@ class User extends Authenticatable implements JWTSubject
 
     public function scopeWhereRoles(Builder $query, $roles)
     {
-        return $query->whereHas('roles', function ($query) use ($roles) {
-            return $query->whereIn('code', $roles);
+        return $query->whereHas('role', function ($query) use ($roles) {
+            if (is_array($roles)) {
+                return $query->whereIn('code', $roles);
+            }
+            return $query->where('code', $roles);
         });
     }
 }

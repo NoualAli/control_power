@@ -30,28 +30,46 @@
                     <NLInput v-model="form.phone" :form="form" name="phone" label="N° de téléphone" type="phone" />
                 </NLColumn>
 
-                <!-- Dres -->
+                <!-- Role -->
                 <NLColumn lg="6" md="6">
-                    <NLSelect v-model="form.dres" :form="form" name="dres" label="DRE" :options="dresList"
-                        placeholder="Choisissez une DRE" :multiple="true" />
+                    <NLSelect v-model="form.role" :form="form" name="role" label="Rôle" placeholder="Choisissez un rôle"
+                        :options="rolesList" labelRequired />
                 </NLColumn>
 
-                <!-- Roles -->
+                <!-- Dres / Agencies -->
+                <NLColumn lg="6" md="6" v-if="[11, 13, 6, 5].includes(form.role)">
+                    <NLSelect v-model="form.agencies" :form="form" name="agencies" label="DRE / Agences" :options="dresList"
+                        placeholder="Choisissez une DRE / Agence" :multiple="dreOptions.selectMultiple"
+                        :disableBranchNodes="dreOptions.disableBranchNodes" />
+                </NLColumn>
+
+                <!-- Gender -->
+                <NLColumn lg="6" md="6">
+                    <NLSelect v-model="form.gender" :form="form" name="gender" label="Genre"
+                        placeholder="Choisissez un genre" :options="gendersList" labelRequired />
+                </NLColumn>
+
                 <NLColumn>
-                    <NLSelect v-model="form.roles" :form="form" name="roles" label="Rôles" placeholder="Choisissez un rôle"
-                        :options="rolesList" :multiple="true" />
+                    <NLGrid>
+                        <!-- Password -->
+                        <NLColumn lg="4" md="4">
+                            <NLInput v-model="form.password" :form="form" label="Mot de passe" name="password"
+                                type="password" label-required />
+                        </NLColumn>
+                        <!-- Password Confirmation -->
+                        <NLColumn lg="4" md="4">
+                            <NLInput v-model="form.password_confirmation" :form="form" label="Confirmation du mot de passe"
+                                name="password_confirmation" type="password" label-required />
+                        </NLColumn>
+                    </NLGrid>
                 </NLColumn>
 
-                <!-- Password -->
-                <NLColumn lg="4" md="4">
-                    <NLInput v-model="form.password" :form="form" label="Mot de passe" name="password" type="password"
-                        label-required />
+                <!-- Active -->
+                <NLColumn v-if="showIsActiveSwitch">
+                    <NLSwitch v-model="form.is_active" name="is_active" :form="form" label="Le compte est activé ?"
+                        type="is-success" />
                 </NLColumn>
-                <!-- Password Confirmation -->
-                <NLColumn lg="4" md="4">
-                    <NLInput v-model="form.password_confirmation" :form="form" label="Confirmation du mot de passe"
-                        name="password_confirmation" type="password" label-required />
-                </NLColumn>
+
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
                         <NLButton :loading="form.busy" label="Ajouter" />
@@ -65,6 +83,7 @@
 <script>
 import { Form } from 'vform'
 import { mapGetters } from 'vuex'
+import { hasRole } from '../../../plugins/user'
 export default {
     layout: 'MainLayout',
     middleware: [ 'auth', 'admin' ],
@@ -78,11 +97,66 @@ export default {
                 gender: null,
                 password: null,
                 password_confirmation: null,
-                roles: [],
-                dres: []
+                role: null,
+                agencies: [],
+                is_active: false,
+                gender: 1,
             }),
             dresList: [],
-            rolesList: []
+            rolesList: [],
+            gendersList: [
+                {
+                    label: 'Homme',
+                    id: 1
+                },
+                {
+                    label: 'Femme',
+                    id: 2
+                }
+            ],
+            dreOptions: {
+                selectMultiple: false,
+                disableBranchNodes: false,
+            },
+            showIsActiveSwitch: hasRole('root'),
+        }
+    },
+    watch: {
+        /**
+         * Manage DRE display and options
+         * @param {Numeric | null} newValue
+         * @param {Numeric|null} oldValue
+         */
+        "form.role"(newValue, oldValue) {
+            // 11 -> da -> accès à une seule agence à la fois -> Selection agence uniquement
+            // 6 -> ci -> accès à toutes les agences -> Selection agence uniquement
+            // 13 -> dre -> accès à toutes les agences -> Selection DRE uniquement
+            // 5 -> cdc -> accès à toutes les agences -> Selection DRE uniquement
+            this.form.agencies = null
+            this.dreOptions = {
+                selectMultiple: false,
+                disableBranchNodes: false,
+            }
+            if (newValue !== oldValue) {
+                if ([ 13, 5 ].includes(newValue)) {
+                    this.dresList.forEach(dre => delete dre.children)
+                }
+
+                if (newValue == 6) {
+                    this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
+                        this.dresList = this.dres.all
+                    })
+                    this.form.agencies = []
+                    this.dreOptions.selectMultiple = true
+                }
+
+                if (newValue == 11) {
+                    this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
+                        this.dresList = this.dres.all
+                    })
+                    this.dreOptions.disableBranchNodes = true
+                }
+            }
         }
     },
     computed: mapGetters({

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\User;
 
 use App\Rules\IsAlgerianPhoneNumber;
+use App\Rules\UniqueUserRole;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
@@ -24,16 +25,38 @@ class StoreRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        // dd('est');
+        $rules = [
             'username' => ['required', 'string', 'max:30', 'unique:users'],
             'email' => ['required', 'email:filter', 'unique:users', 'max:100'],
             'first_name' => ['nullable', 'string', 'max:50'],
             'last_name' => ['nullable', 'string', 'max:50'],
             'phone' => ['nullable', new IsAlgerianPhoneNumber],
             'password' => ['nullable', 'string', 'min:6', 'confirmed'],
-            'roles' => ['required', 'array'],
-            'roles.*' => ['exists:roles,id'],
-            'dres' => ['nullable', 'array'],
+            'role' => ['required', 'exists:roles,id', new UniqueUserRole(request('agencies'))],
+            'is_active' => ['required', 'boolean'],
+            'gender' => ['required', 'integer', 'in:1,2']
+        ];
+        $role = request()->role;
+
+        if (in_array($role, [13, 5])) {
+            $rules['agencies'] = ['required', 'string'];
+        }
+
+        if ($role == 6) {
+            $rules['agencies'] = ['required', 'array'];
+        }
+
+        if ($role == 11) {
+            $rules['agencies'] = ['required', 'exists:agencies,id'];
+        }
+        return $rules;
+    }
+
+    public function messages()
+    {
+        return [
+            'gender.in' => 'Le champ :attribute doit être Homme ou Femme'
         ];
     }
 }

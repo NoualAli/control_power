@@ -16,11 +16,9 @@
 </template>
 
 <script>
-import Avatar from '../../../components/Avatar.vue'
-import { user } from '../../../plugins/user'
+import { hasRole, user } from '../../../plugins/user'
 import api from '../../../plugins/api'
 export default {
-    components: { Avatar },
     layout: 'MainLayout',
     middleware: [ 'auth', 'admin' ],
     created() {
@@ -49,8 +47,21 @@ export default {
                     field: 'dres'
                 },
                 {
-                    label: 'Rôles',
-                    field: 'roles',
+                    label: 'Rôle',
+                    field: 'role',
+                },
+                {
+                    label: 'Actif',
+                    field: 'is_active',
+                    isHtml: true,
+                    methods: {
+                        showField(item) {
+                            if (item.is_active) {
+                                return '<i class="las la-check-circle icon text-success"></i>'
+                            }
+                            return '<i class="las la-times-circle icon text-danger"></i>'
+                        }
+                    }
                 }
             ],
             details: [
@@ -60,7 +71,11 @@ export default {
                 },
                 {
                     label: 'Nom complet',
-                    field: 'full_name'
+                    field: 'full_name_with_martial'
+                },
+                {
+                    label: 'Genre',
+                    field: 'gender_str'
                 },
                 {
                     label: 'Adresse email',
@@ -75,16 +90,22 @@ export default {
                     field: 'dres_str'
                 },
                 {
-                    label: 'Rôles',
-                    field: 'roles_str'
-                }
+                    label: 'Rôle',
+                    field: 'role.name'
+                },
             ],
             actions: {
-                edit: (item) => {
-                    return !this.isCurrent(item) && this.can('edit_user') && !item.roles.includes('root')
+                edit: {
+                    show: (item) => {
+                        return !this.isCurrent(item) && this.can('edit_user') && item?.role_code !== 'root'
+                    },
+                    apply: this.edit
                 },
-                delete: (item) => {
-                    return !this.isCurrent(item) && this.can('delete_user') && !item.roles.includes('root')
+                delete: {
+                    show: (item) => {
+                        return !this.isCurrent(item) && this.can('delete_user') && item?.role_code !== 'root' && hasRole('root')
+                    },
+                    apply: this.destroy
                 }
             }
         }
@@ -99,25 +120,25 @@ export default {
         },
         /**
          * Redirige vers la page d'edition
-         * @param {Object} item
+         * @param {Object} e
          */
-        edit(item) {
-            this.$router.push({ name: 'users-edit', params: { user: item.id } })
+        edit(e) {
+            return this.$router.push({ name: 'users-edit', params: { user: e.item.id } })
         },
 
         /**
          * Supprime la ressource
-         * @param {Object} item
+         * @param {Object} e
          */
-        destroy(item) {
-            this.$swal.confirm_destroy().then((action) => {
+        destroy(e) {
+            return this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
-                    api.delete('users/' + item.id).then(response => {
+                    return api.delete('users/' + e.item.id).then(response => {
                         if (response.data.status) {
                             this.forceReload += 1
-                            this.$swal.toast_success(response.data.message)
+                            return this.$swal.toast_success(response.data.message)
                         } else {
-                            this.$swal.toast_error(response.data.message)
+                            return this.$swal.toast_error(response.data.message)
                         }
                     })
                 }

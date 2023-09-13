@@ -89,28 +89,27 @@ class UserController extends Controller
             $data = $request->validated();
             DB::transaction(function () use ($data) {
                 $data['password'] = isset($data['password']) && !empty($data['password']) ? Hash::make($data['password'])  : Hash::make('Azerty123');
+                $data['active_role_id'] = $data['role'];
+                $role = $data['role'];
+                unset($data['role']);
                 $user = User::create($data);
-                if (isset($data['dres'])) {
-                    $dres = $data['dres'];
-                    $agencies = $this->loadAgencies($dres);
-                    unset($data['dres']);
+                if (isset($data['agencies'])) {
+                    $agencies = $data['agencies'];
+                    $agencies = loadAgencies($agencies);
+                    unset($data['agencies']);
                     $user->agencies()->sync($agencies);
                 }
-                $roles = $data['roles'];
-                unset($data['roles']);
-                $user->roles()->sync($roles);
+                $user->roles()->attach([$role]);
             });
             return response()->json([
                 'message' => CREATE_SUCCESS,
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $code);
+            ], 500);
         }
     }
 
@@ -123,7 +122,8 @@ class UserController extends Controller
     public function show(User $user)
     {
         isAbleOrAbort('view_user');
-        return response()->json($user->load('agencies'));
+        $user->unsetRelations();
+        return response()->json($user->load(['role', 'dres', 'agencies']));
     }
 
     /**
@@ -138,16 +138,17 @@ class UserController extends Controller
         try {
             $data = $request->validated();
             DB::transaction(function () use ($data, $user) {
-                $roles = $data['roles'];
-                unset($data['roles']);
+                $data['active_role_id'] = $data['role'];
+                $role = $data['role'];
+                unset($data['role']);
 
                 $user->update($data);
-                $user->roles()->sync($roles);
+                $user->roles()->attach([$role]);
 
-                if (isset($data['dres'])) {
-                    $dres = $data['dres'];
-                    $agencies = $this->loadAgencies($dres);
-                    unset($data['dres']);
+                if (isset($data['agencies'])) {
+                    $agencies = $data['agencies'];
+                    $agencies = loadAgencies($agencies);
+                    unset($data['agencies']);
                     $user->agencies()->sync($agencies);
                 }
             });
@@ -201,6 +202,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         isAbleOrAbort('delete_user');
+        abort_if(!hasRole('root'), 401);
         try {
             $user->delete();
             return response()->json([
@@ -215,23 +217,5 @@ class UserController extends Controller
                 'status' => false
             ], $code);
         }
-    }
-
-    private function loadAgencies(array $data)
-    {
-        $data = Arr::flatten(array_map(function ($item) {
-            $item = explode('-', $item);
-            $ids = [];
-            if ($item[0] == 'd') {
-                $ids = array_merge(Dre::findOrFail($item[1])->agencies->pluck('id')->toArray(), $ids);
-            } else {
-                $ids = array_merge($ids, [intval($item[0])]);
-            }
-            return $ids;
-        }, $data));
-        $data = Validator::make($data, [
-            '*' => 'exists:agencies,id'
-        ])->validated();
-        return $data;
     }
 }

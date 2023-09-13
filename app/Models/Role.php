@@ -32,8 +32,15 @@ class Role extends BaseModel
      */
     public function getFullNameAttribute()
     {
-        return $this->name . ' (' . $this->code . ')';
+        return strtoupper($this->code) . ' - ' . $this->name;
     }
+
+    public function getNameAttribute($name)
+    {
+        $name = implode(' ', array_map(fn ($item) => ucfirst(strtolower($item)), explode(' ', $name)));
+        return $name;
+    }
+
     public function getPermissionsStrAttribute()
     {
         $permissions = $this->permissions->pluck('name')->flatten()->toArray();

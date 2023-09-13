@@ -4,7 +4,7 @@
         <Treeselect :id="getId" v-bind="$attrs" ref="treeselect" v-model="selected" :key="forcedKey"
             :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" :value="modelValue" :name="name"
             :multiple="multiple" :options="options" :placeholder="placeholder" :loading-text="loadingText"
-            :no-options-text="noOptionsText" search-nested :disable-branch-nodes="disableBranchNodes" />
+            :no-options-text="noOptionsText" search-nested :disable-branch-nodes="disableBranchNodes" :showCount="true" />
     </InputContainer>
 </template>
 

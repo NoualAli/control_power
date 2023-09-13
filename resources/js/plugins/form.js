@@ -19,11 +19,10 @@ instance.interceptors.response.use(response => response, error => {
     const status = error?.response?.status
     let message = error?.response?.data?.message
     const title = status + ' ' + error?.response?.statusText
-    if (status === 401 && store.getters[ 'auth/check' ]) {
-        swal.alert_error(message, title)
+    if (status === 401) {
+        swal.alert_error(message, "Erreur 401")
             .then(() => {
                 store.commit('auth/LOGOUT')
-                location.reload()
             })
     }
     if (status === 422) {
