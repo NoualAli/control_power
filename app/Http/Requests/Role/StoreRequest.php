@@ -13,7 +13,7 @@ class StoreRequest extends FormRequest
      */
     public function authorize()
     {
-        return isAbleTo('create_role');
+        return isAbleTo('create_role') && hasRole('root');
     }
 
     /**
@@ -26,8 +26,8 @@ class StoreRequest extends FormRequest
         return [
             'name' => ['required', 'unique:roles', 'string', 'max:50'],
             'code' => ['required', 'unique:roles', 'string', 'max:10'],
-            'permissions' => ['required', 'array'],
-            'permissions.*' => ['exists:permissions,id']
+            // 'permissions' => ['required', 'array'],
+            // 'permissions.*' => ['exists:permissions,id']
         ];
     }
 }

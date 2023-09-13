@@ -13,7 +13,7 @@ class UpdateRequest extends FormRequest
      */
     public function authorize()
     {
-        return isAbleTo('edit_role');
+        return isAbleTo('edit_role') && hasRole('root');
     }
 
     /**
@@ -28,8 +28,8 @@ class UpdateRequest extends FormRequest
         return [
             'name' => ['required', 'unique:roles,name,' . $id . ',id', 'string', 'max:50'],
             'code' => ['required', 'unique:roles,code,' . $id . ',id', 'string', 'max:10'],
-            'permissions' => ['required', 'array'],
-            'permissions.*' => ['exists:permissions,id']
+            // 'permissions' => ['required', 'array'],
+            // 'permissions.*' => ['exists:permissions,id']
         ];
     }
 }

@@ -178,6 +178,9 @@ class UserController extends Controller
         try {
             $data = $request->validated();
             $user->password = Hash::make($data['password']);
+            if (auth()->user()->id !== $user->id) {
+                $user->must_change_password = true;
+            }
             $user->save();
             return response()->json([
                 'message' => UPDATE_PASSWORD_SUCCESS,
