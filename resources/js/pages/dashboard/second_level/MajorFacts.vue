@@ -168,6 +168,7 @@ export default {
         circularChartOptions: { type: Object, required: false },
         chartOptions: { type: Object, required: false },
         horizontalBarOptions: { type: Object, required: false },
+        onlyCurrentCampaign: { type: Boolean, required: false, default: true }
     },
     data() {
         return {
@@ -189,7 +190,7 @@ export default {
     methods: {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
-            this.$store.dispatch('statistics/fetchMajorFacts').then(() => {
+            this.$store.dispatch('statistics/fetchMajorFacts', this.onlyCurrentCampaign).then(() => {
                 this.tables.domains = this.majorFacts.data.domainsMajorFacts
                 this.tables.missions = this.majorFacts.data.missionsMajorFacts
                 this.tables.campaigns = this.majorFacts.data.campaignsMajorFacts

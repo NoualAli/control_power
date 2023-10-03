@@ -566,8 +566,12 @@ class DataController extends Controller
     private function getCampaigns()
     {
         $campaigns = DB::table('control_campaigns as c')
-            ->select('c.reference as campaign')
+            ->select('c.reference as campaign', 'c.id as campaign_id')
             ->join('missions as m', 'c.id', 'm.control_campaign_id');
+
+        // if (request()->has('onlyCurrentCampaign')) {
+        //     $campaigns = $this->getCampaigns()->whereNotNull('validated_at')->orderBy('id', 'DESC')->first();
+        // }
 
         $user = auth()->user();
         if (hasRole('ci')) {
@@ -582,7 +586,7 @@ class DataController extends Controller
             $campaigns = $campaigns->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
         }
 
-        $campaigns = $campaigns->whereNotNull('validated_at')->groupBy('c.reference');
+        $campaigns = $campaigns->whereNotNull('validated_at')->groupBy('c.reference', 'c.id');
         return $campaigns;
     }
 
@@ -593,16 +597,24 @@ class DataController extends Controller
      */
     private function getDetails()
     {
-        $columns = ['m.id', 'm.reference', DB::raw('CONCAT(d.code, " - ", d.name) as dre'), DB::raw('CONCAT(a.code, " - ", a.name) as agency'), 'md.score'];
+        $columns = ['m.id', 'm.reference', DB::raw('CONCAT(d.code, " - ", d.name) as dre'), DB::raw('CONCAT(a.code, " - ", a.name) as agency'), 'md.score', 'm.control_campaign_id'];
         if (env('DB_CONNECTION') == 'sqlsrv') {
-            $columns = ['m.id', 'm.reference', DB::raw("CONCAT(d.code, ' - ', d.name) as dre"), DB::raw("CONCAT(a.code, ' - ', a.name) as agency"), 'md.score'];
+            $columns = ['m.id', 'm.reference', DB::raw("CONCAT(d.code, ' - ', d.name) as dre"), DB::raw("CONCAT(a.code, ' - ', a.name) as agency"), 'md.score', 'm.control_campaign_id'];
         }
+
         $details = DB::table('mission_details as md')
             ->select($columns)
             ->whereNotNull('md.score')
             ->join('missions as m', 'm.id', 'md.mission_id')
             ->join('agencies as a', 'a.id', 'm.agency_id')
             ->join('dres as d', 'd.id', 'a.dre_id');
+
+        if (request()->has('onlyCurrentCampaign')) {
+            $currentCampaign = $this->getCampaigns()->whereNotNull('validated_at')->orderBy('c.id', 'DESC')->first();
+            if ($currentCampaign) {
+                $details = $details->where('m.control_campaign_id', $currentCampaign?->campaign_id);
+            }
+        }
         $user = auth()->user();
         if (hasRole('ci')) {
             $details = $details->join('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')->where('mhc.user_id', $user->id);
@@ -625,14 +637,21 @@ class DataController extends Controller
      */
     private function getMissions()
     {
-        $columns = ['m.id', 'm.reference', DB::raw('CONCAT(d.code, " - ", d.name) as dre'), DB::raw('CONCAT(a.code, " - ", a.name) as agency')];
+        $columns = ['m.id', 'm.reference', DB::raw('CONCAT(d.code, " - ", d.name) as dre'), DB::raw('CONCAT(a.code, " - ", a.name) as agency'), 'm.control_campaign_id'];
         if (env('DB_CONNECTION') == 'sqlsrv') {
-            $columns = ['m.id', 'm.reference', DB::raw("CONCAT(d.code, ' - ', d.name) as dre"), DB::raw("CONCAT(a.code, ' - ', a.name) as agency")];
+            $columns = ['m.id', 'm.reference', DB::raw("CONCAT(d.code, ' - ', d.name) as dre"), DB::raw("CONCAT(a.code, ' - ', a.name) as agency"), 'm.control_campaign_id'];
         }
         $missions = DB::table('missions as m')
             ->select($columns)
             ->join('agencies as a', 'a.id', 'm.agency_id')
             ->join('dres as d', 'd.id', 'a.dre_id');
+
+        if (request()->has('onlyCurrentCampaign')) {
+            $currentCampaign = $this->getCampaigns()->whereNotNull('validated_at')->orderBy('c.id', 'DESC')->first();
+            if ($currentCampaign) {
+                $missions = $missions->where('m.control_campaign_id', $currentCampaign?->campaign_id);
+            }
+        }
         $user = auth()->user();
         if (hasRole('ci')) {
             $missions = $missions->join('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')->where('mhc.user_id', $user->id);

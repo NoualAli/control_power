@@ -119,6 +119,7 @@ export default {
         circularChartOptions: { type: Object, required: false },
         chartOptions: { type: Object, required: false },
         horizontalBarOptions: { type: Object, required: false },
+        onlyCurrentCampaign: { type: Boolean, required: false, default: true }
     },
     data() {
         return {
@@ -138,7 +139,7 @@ export default {
     methods: {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
-            this.$store.dispatch('statistics/fetchScores').then(() => {
+            this.$store.dispatch('statistics/fetchScores', this.onlyCurrentCampaign).then(() => {
                 this.charts.globalScores = this.scores.data.globalScores
                 this.charts.avgScoreByFamily = this.scores.data.avgScoreByFamily
                 this.tables.avgScoreByDre = this.scores.data.avgScoreByDre

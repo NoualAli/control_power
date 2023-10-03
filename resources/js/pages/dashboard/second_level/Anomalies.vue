@@ -169,6 +169,7 @@ export default {
         circularChartOptions: { type: Object, required: false },
         chartOptions: { type: Object, required: false },
         horizontalBarOptions: { type: Object, required: false },
+        onlyCurrentCampaign: { type: Boolean, required: false, default: true }
     },
     data() {
         return {
@@ -190,7 +191,7 @@ export default {
     methods: {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
-            this.$store.dispatch('statistics/fetchAnomalies').then(() => {
+            this.$store.dispatch('statistics/fetchAnomalies', this.onlyCurrentCampaign).then(() => {
                 this.tables.domains = this.anomalies.data.domainsAnomalies
                 this.tables.missions = this.anomalies.data.missionsAnomalies
                 this.tables.campaigns = this.anomalies.data.campaignsAnomalies
