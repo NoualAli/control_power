@@ -105,40 +105,17 @@ class DataController extends Controller
     private function missionsState(): array
     {
         $missions = $this->getMissions()->select('m.id');
-        if (!hasRole(['cc'])) {
-            $missions = $missions->leftJoin('mission_details as md', 'm.id', 'md.mission_id')->groupBy('m.id');
-        }
-
         $today = today()->format('Y-m-d');
-
-        $active = (clone $missions)
-            ->whereNotNull('md.controlled_by_ci_id')
-            ->whereNull('m.cdc_validation_by_id')
-            ->whereDate('m.programmed_start', '<=', $today)
-            ->whereDate('m.programmed_end', '<', $today)
-            ->get()->count();
-
-        $delay = (clone $missions)
-            ->where(function ($query) {
-                $query->whereNull('m.cdc_validation_by_id')->orWhereNull('md.controlled_by_ci_id');
-            })
-            ->whereDate('m.programmed_end', '<', $today)
-            ->get()->count();
-
-        $done = (clone $missions);
-        if (hasRole('cdc')) {
-            $done = $done->whereNotNull('m.ci_validation_by_id');
-        } else {
-            $done = $done->whereNotNull('m.cdc_validation_by_id');
-        }
-        $done = $done->get()->count();
-
-        $todo = (clone $missions)
-            ->whereNull('md.controlled_by_ci_id')
-            ->whereDate('m.programmed_start', '<=', $today)
-            // ->groupBy('m.id')
-            ->get()->count();
-        // dd($todo, $active, $done, $delay);
+        $missions = $missions->select(
+            DB::raw('SUM(CASE WHEN m.current_state = 1 THEN 1 ELSE 0 END) as todo'),
+            DB::raw('SUM(CASE WHEN m.current_state = 2 THEN 1 ELSE 0 END) as active'),
+            DB::raw('SUM(CASE WHEN m.current_state = 9 THEN 1 ELSE 0 END) as delay'),
+            DB::raw('SUM(CASE WHEN m.current_state = 5 OR m.current_state = 6 OR m.current_state = 7 OR m.current_state = 8 THEN 1 ELSE 0 END) as done'),
+        )->get()->first();
+        $todo = $missions->todo;
+        $done = $missions->done;
+        $delay = $missions->delay;
+        $active = $missions->active;
         return compact('delay', 'active', 'todo', 'done');
     }
 
@@ -202,12 +179,12 @@ class DataController extends Controller
     private function avgScoreByFamily(): array
     {
         $families = $this->getDetails()
-            ->select(['f.name as family', DB::raw('FORMAT(AVG(score), 2) as score')])
+            ->select(['f.name as family', DB::raw('CAST(ROUND(AVG(CAST(md.score AS DECIMAL(10, 2))), 2) AS VARCHAR(10)) as avg_score')])
             ->join('control_points as cp', 'cp.id', 'md.control_point_id')
             ->join('processes as p', 'p.id', 'cp.process_id')
             ->join('domains as dm', 'dm.id', 'p.domain_id')
             ->join('families as f', 'f.id', 'dm.family_id')
-            ->groupBy(['family'])->get()->map(fn ($data) => [$data->family => $data->score])->collapse();
+            ->groupBy(['f.name'])->get()->map(fn ($data) => [$data->family => number_format($data->avg_score, 2)])->collapse();
         $labels = $families->keys();
 
         extract($this->defaultColors());
@@ -231,11 +208,11 @@ class DataController extends Controller
     private function avgScoreByDomain(): array
     {
         $domains = $this->getDetails()
-            ->select(['dm.name as domain', DB::raw('FORMAT(AVG(score), 2) as avg_score')])
+            ->select(['dm.name as domain', DB::raw('CAST(ROUND(AVG(CAST(md.score AS DECIMAL(10, 2))), 2) AS VARCHAR(10)) as avg_score')])
             ->join('control_points as cp', 'cp.id', 'md.control_point_id')
             ->join('processes as p', 'p.id', 'cp.process_id')
             ->join('domains as dm', 'dm.id', 'p.domain_id')
-            ->groupBy(['domain'])->orderBy('avg_score', 'ASC')->get()->toArray();
+            ->groupBy(['dm.name'])->orderBy('avg_score', 'DESC')->get()->map(fn ($item) => ['domain' => $item->domain, 'avg_score' => number_format($item->avg_score, 2)])->toArray();
         return $domains;
     }
 
@@ -251,10 +228,10 @@ class DataController extends Controller
         $achievments = [];
         foreach ($missions as $dre => $missions) {
             $dreMissions = DB::table('dres as d')
-                ->select(DB::raw('CONCAT(d.code, " - ", d.name) as dre_name'), DB::raw('CONCAT(a.code, " - ", a.name) as agency_name'), 'm.reference')
+                ->select(DB::raw("CONCAT(d.code, ' - ', d.name) as dre_name"), DB::raw("CONCAT(a.code, ' - ', a.name) as agency_name"), 'm.reference')
                 ->leftJoin('agencies as a', 'a.dre_id', 'd.id')
                 ->join('missions as m', 'm.agency_id', 'a.id')
-                ->where(DB::raw(('CONCAT(d.code, " - ", d.name)')), $dre);
+                ->where(DB::raw("CONCAT(d.code, ' - ', d.name)"), $dre);
             $totalAchieved = (clone $dreMissions)->whereNotNull('m.cdc_validation_by_id')->count();
             $total = (clone $dreMissions)->count();
             $rate = $total ? number_format(($totalAchieved * 100) / $total, 2) : 0;
@@ -311,7 +288,7 @@ class DataController extends Controller
             $missions = $missions->join('mission_details as md', 'md.mission_id', 'm.id');
         }
         $missions = $missions->where('md.score', '>', 1)
-            ->groupBy(['m.id'])
+            ->groupBy(['m.reference'])
             ->orderBy('total_anomalies', 'DESC')
             ->take(10)
             ->get()
@@ -351,7 +328,7 @@ class DataController extends Controller
             ->join('domains as dm', 'dm.id', '=', 'p.domain_id')
             ->join('families as f', 'f.id', '=', 'dm.family_id')
             ->where('md.score', '>', 1)
-            ->groupBy('family')
+            ->groupBy('f.name')
             ->orderBy('count', 'DESC')
             ->get();
         $anomalies = $anomalies->mapWithKeys(function ($data, $key) {
@@ -386,7 +363,7 @@ class DataController extends Controller
             ->join('processes as p', 'p.id', '=', 'cp.process_id')
             ->join('domains as dm', 'dm.id', '=', 'p.domain_id')
             ->where('md.score', '>', 1)
-            ->groupBy('domain')
+            ->groupBy('dm.name')
             ->orderBy('total_anomalies', 'DESC')
             ->take(10)
             ->get();
@@ -403,7 +380,7 @@ class DataController extends Controller
         $anomalies = $this->getDetails()
             ->select(DB::raw('COUNT(*) as count'), 'd.name as dre')
             ->where('md.score', '>', 1)
-            ->groupBy('dre')
+            ->groupBy('d.name')
             ->get()->mapWithKeys(function ($data, $key) {
                 $dre = $data->dre;
                 return [$dre => $data->count];
@@ -430,9 +407,9 @@ class DataController extends Controller
     private function agenciesAnomalies(): array
     {
         $anomalies = $this->getDetails()
-            ->select(DB::raw('COUNT(*) as total_anomalies'), DB::raw('CONCAT(a.code, " - ", a.name) as agency'))
+            ->select(DB::raw('COUNT(*) as total_anomalies'), DB::raw("CONCAT(a.code, ' - ', a.name) as agency"))
             ->where('md.score', '>', 1)
-            ->groupBy('agency')
+            ->groupBy(DB::raw("CONCAT(a.code, ' - ', a.name)"))
             ->orderBy('total_anomalies', 'DESC')
             ->take(10)
             ->get()->toArray();
@@ -452,7 +429,7 @@ class DataController extends Controller
         }
         $missions = $missions
             ->where('md.major_fact', true)
-            ->groupBy('m.id')
+            ->groupBy('m.reference')
             ->orderBy('total_major_facts', 'DESC')
             ->take(10)
             ->get()
@@ -491,7 +468,7 @@ class DataController extends Controller
             ->join('domains as dm', 'dm.id', '=', 'p.domain_id')
             ->join('families as f', 'f.id', '=', 'dm.family_id')
             ->where('md.major_fact', true)
-            ->groupBy('family')
+            ->groupBy('f.name')
             ->orderBy('count', 'DESC')
             ->get();
 
@@ -527,7 +504,7 @@ class DataController extends Controller
             ->join('processes as p', 'p.id', '=', 'cp.process_id')
             ->join('domains as dm', 'dm.id', '=', 'p.domain_id')
             ->where('md.major_fact', true)
-            ->groupBy('domain')
+            ->groupBy('dm.name')
             ->orderBy('total_major_facts', 'DESC')
             ->take(10)
             ->get();
@@ -545,7 +522,7 @@ class DataController extends Controller
         $majorFacts = $this->getDetails()
             ->select(DB::raw('COUNT(md.id) as count'), 'd.name as dre')
             ->where('md.major_fact', true)
-            ->groupBy('dre')
+            ->groupBy('d.name')
             ->get()->mapWithKeys(function ($data, $key) {
                 $dre = $data->dre;
                 return [$dre => $data->count];
@@ -572,9 +549,9 @@ class DataController extends Controller
     private function agenciesMajorFacts(): array
     {
         $majorFacts = $this->getDetails()
-            ->select(DB::raw('COUNT(*) as total_major_facts'), DB::raw('CONCAT(a.code, " - ", a.name) as agency'))
+            ->select(DB::raw('COUNT(*) as total_major_facts'), DB::raw("CONCAT(a.code, ' - ', a.name) as agency"))
             ->where('md.major_fact', true)
-            ->groupBy('agency')
+            ->groupBy(DB::raw("CONCAT(a.code, ' - ', a.name)"))
             ->orderBy('total_major_facts', 'DESC')
             ->take(10)
             ->get()->toArray();
@@ -605,7 +582,7 @@ class DataController extends Controller
             $campaigns = $campaigns->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
         }
 
-        $campaigns = $campaigns->whereNotNull('validated_at')->groupBy('campaign');
+        $campaigns = $campaigns->whereNotNull('validated_at')->groupBy('c.reference');
         return $campaigns;
     }
 
@@ -616,8 +593,12 @@ class DataController extends Controller
      */
     private function getDetails()
     {
+        $columns = ['m.id', 'm.reference', DB::raw('CONCAT(d.code, " - ", d.name) as dre'), DB::raw('CONCAT(a.code, " - ", a.name) as agency'), 'md.score'];
+        if (env('DB_CONNECTION') == 'sqlsrv') {
+            $columns = ['m.id', 'm.reference', DB::raw("CONCAT(d.code, ' - ', d.name) as dre"), DB::raw("CONCAT(a.code, ' - ', a.name) as agency"), 'md.score'];
+        }
         $details = DB::table('mission_details as md')
-            ->select(['m.id', 'm.reference', DB::raw('CONCAT(d.code, " - ", d.name) as dre'), DB::raw('CONCAT(a.code, " - ", a.name) as agency'), 'md.score'])
+            ->select($columns)
             ->whereNotNull('md.score')
             ->join('missions as m', 'm.id', 'md.mission_id')
             ->join('agencies as a', 'a.id', 'm.agency_id')
@@ -644,8 +625,12 @@ class DataController extends Controller
      */
     private function getMissions()
     {
+        $columns = ['m.id', 'm.reference', DB::raw('CONCAT(d.code, " - ", d.name) as dre'), DB::raw('CONCAT(a.code, " - ", a.name) as agency')];
+        if (env('DB_CONNECTION') == 'sqlsrv') {
+            $columns = ['m.id', 'm.reference', DB::raw("CONCAT(d.code, ' - ', d.name) as dre"), DB::raw("CONCAT(a.code, ' - ', a.name) as agency")];
+        }
         $missions = DB::table('missions as m')
-            ->select(['m.id', 'm.reference', DB::raw('CONCAT(d.code, " - ", d.name) as dre'), DB::raw('CONCAT(a.code, " - ", a.name) as agency')])
+            ->select($columns)
             ->join('agencies as a', 'a.id', 'm.agency_id')
             ->join('dres as d', 'd.id', 'a.dre_id');
         $user = auth()->user();
