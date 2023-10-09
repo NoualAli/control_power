@@ -8,17 +8,16 @@
     <li><a href="./README.md#prérequis">Prérequis</a></li>
     <li><a href="./README.md#installation-des-drivers-mssql-server-pour-php">Installation des drivers MSSQL Server pour PHP</a></li>
     <li><a href="./README.md#installation-de-lapplication">Installation de l'application</a></li>
-    <ul>
-        <li><a href="./README.md#clonage-du-repo">Clonage du repo</a></li>
-        <li><a href="./README.md#installation-des-dépendences-laravel">Installation des dépendences laravel</a></li>
-        <li><a href="./README.md#installtion-et-compilation-des-dépendences-javascript-et-css">Installtion et compilation des dépendences javascript et css</a></li>
-        <li><a href="./README.md#migration-des-tables-de-la-base-de-données">Migration des tables de la base de données</a></li>
-        <li><a href="./README.md#lancement-du-serveur-interne-de-php">Lancement du serveur interne de php</a></li>
-    </ul>
     <li><a href="./README.md#modifier-le-fichier-phpini">Modifier le fichier php.ini</a></li>
     <ul>
         <li><a href="./README.md#activer-le-support-de-microsoft-sql-server">Activer le support de Microsoft SQL Server</a></li>
         <li><a href="./README.md#augmenter-la-capacité-de-memory_limit-et-max_execution_time">Augmenter la capacité de memory_limit et max_execution_time</a></li>
+    </ul>
+    <li><a href="./README.md#installation-de-lapplication">Installation des modules IIS</a></li>
+    <ul>
+        <li><a href="./README.md#clonage-du-repo">Clonage du repo</a></li>
+        <li><a href="./README.md#installation-des-dépendences-laravel">Installation des dépendences laravel</a></li>
+        <li><a href="./README.md#installation-et-compilation-des-dépendences-javascript-et-css">Installation et compilation des dépendences javascript et css</a></li>
     </ul>
 </ul>
 
@@ -61,6 +60,15 @@
 </ul>
 
 **Augmenter la capacité de ces deux clé vous éviteras tout problème avec la génération des rapports de mission**
+
+## Installation du module url_rewrite IIS + configuration
+Télécharger le module <a href="https://www.iis.net/downloads/microsoft/url-rewrite">URL REWRITE</a> depuis le site officiel du fournisseur puis lancer l'installation.
+Après installation redémarrer le serveur web.
+
+**Ajouté le document (point d'entrer) par défaut comme suit "index.php"**
+**Activé le module fastCGI si il ne l'est pas par défaut**
+
+
     
 ## Installation de l'application
 
@@ -74,7 +82,7 @@ git clone https://github.com/NoualAli/power_control
 composer install
 ```
 
-#### Installtion et compilation des dépendences javascript et css
+#### Installation et compilation des dépendences javascript et css
 - **Mode développement**
 ```batch
 npm install | npm run dev
@@ -83,15 +91,3 @@ npm install | npm run dev
 ```batch
 npm install | npm run build
 ```
-
-#### Migration des tables de la base de données
-```batch
-php artisan migrate
-```
-**Note: la documentation assume que vous avez déjà une base de données créée et fonctionnelle**
-
-#### Lancement du serveur interne de php
-```batch
-php artisan serve
-```
-**Uniquement en mode développement**
