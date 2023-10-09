@@ -7,13 +7,13 @@
 <ul>
     <li><a href="./README.md#prérequis">Prérequis</a></li>
     <li><a href="./README.md#installation-des-drivers-mssql-server-pour-php">Installation des drivers MSSQL Server pour PHP</a></li>
-    <li><a href="./README.md#installation-de-lapplication">Installation de l'application</a></li>
     <li><a href="./README.md#modifier-le-fichier-phpini">Modifier le fichier php.ini</a></li>
     <ul>
         <li><a href="./README.md#activer-le-support-de-microsoft-sql-server">Activer le support de Microsoft SQL Server</a></li>
         <li><a href="./README.md#augmenter-la-capacité-de-memory_limit-et-max_execution_time">Augmenter la capacité de memory_limit et max_execution_time</a></li>
     </ul>
     <li><a href="./README.md#installation-de-lapplication">Installation des modules IIS</a></li>
+    <li><a href="./README.md#installation-de-lapplication">Installation de l'application</a></li>
     <ul>
         <li><a href="./README.md#clonage-du-repo">Clonage du repo</a></li>
         <li><a href="./README.md#installation-des-dépendences-laravel">Installation des dépendences laravel</a></li>
