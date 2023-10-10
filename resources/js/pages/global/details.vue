@@ -16,7 +16,7 @@
     </ContentBody>
 </template>
 <script>
-import { hasRole } from '../../plugins/user'
+import { hasRole, user } from '../../plugins/user'
 import Alert from '../../components/Alert'
 import MissionDetailModal from '../../Modals/MissionDetailModal'
 import MissionDetailForm from '../../forms/MissionDetailForm'
@@ -32,44 +32,77 @@ export default {
             columns: [
                 {
                     label: 'CDC-ID',
-                    field: 'cdc_reference'
+                    field: 'campaign',
+                    sortable: true,
                 },
                 {
                     label: 'RAP-ID',
-                    field: 'mission_reference'
+                    field: 'mission',
+                    sortable: true,
                 },
                 {
                     label: 'DRE',
-                    field: 'dre_full_name',
-                    hide: hasRole([ 'cdc', 'ci', 'da', 'dre' ])
+                    field: 'dre',
+                    hide: hasRole([ 'cdc', 'ci', 'da', 'dre' ]),
+                    sortable: true,
                 },
                 {
                     label: 'Agence',
-                    field: 'agency_full_name'
+                    field: 'agency',
+                    hide: hasRole([ 'da' ]),
+                    sortable: true,
                 },
                 {
                     label: 'Famille',
-                    field: 'family_name'
+                    field: 'family',
+                    sortable: true,
+                    length: 50,
                 },
                 {
                     label: 'Domaine',
-                    field: 'domain_name'
+                    field: 'domain',
+                    sortable: true,
+                    length: 30,
                 },
                 {
                     label: 'Processus',
-                    field: 'process_name'
+                    field: 'process',
+                    sortable: true,
+                    length: 50,
                 },
                 {
                     label: 'Point de contrôle',
-                    field: 'control_point_name',
-                    length: 50
+                    field: 'control_point',
+                    length: 50,
+                    sortable: true,
                 },
                 {
                     label: 'Notation',
                     field: 'score',
                     align: 'center',
                     hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
+                    sortable: true,
                     isHtml: true,
+                    methods: {
+                        showField(item) {
+                            // console.log(item.score);
+                            const score = item.score;
+                            let style = ''
+                            if (score == 1) {
+                                style = 'is-success';
+                            } else if (score == 2) {
+                                style = 'is-info';
+                            } else if (score == 3) {
+                                style = 'is-warning';
+                            } else if (score == 4) {
+                                style = 'is-danger';
+                            } else {
+                                style = 'is-grey';
+                            }
+
+                            return '<div class="tag ' + style + '">' + score + '</div>';
+                        }
+                    }
                 },
                 {
                     label: 'Etat',
@@ -93,13 +126,6 @@ export default {
                     data: null,
                     value: null
                 },
-                mission: {
-                    label: 'Mission',
-                    cols: 3,
-                    multiple: true,
-                    data: null,
-                    value: null
-                },
                 dre: {
                     label: 'DRE',
                     cols: 3,
@@ -110,6 +136,13 @@ export default {
                 },
                 agency: {
                     label: 'Agence',
+                    cols: 3,
+                    multiple: true,
+                    data: null,
+                    value: null
+                },
+                mission: {
+                    label: 'Mission',
                     cols: 3,
                     multiple: true,
                     data: null,
@@ -167,7 +200,7 @@ export default {
                         }
                     ],
                     value: null,
-                    hide: !hasRole([ 'dcp', 'cdcr', 'cc' ])
+                    hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
                 }
             },
         }

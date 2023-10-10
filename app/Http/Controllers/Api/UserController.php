@@ -8,13 +8,10 @@ use App\Http\Requests\User\UpdateUserInfoRequest;
 use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Resources\LoginHistoryResource;
 use App\Http\Resources\UserResource;
-use App\Models\Dre;
-use App\Models\Mission;
 use App\Models\User;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -25,8 +22,10 @@ class UserController extends Controller
     {
         $user = auth()->user();
         if (!hasRole(['admin', 'root'])) {
-            $missions = !hasRole(['cdcr', 'dcp', 'dg', 'ig', 'sg', 'cdrcp', 'der']) ? $user->missions()->get() : Mission::all();
-            $missions = $missions->filter(fn ($mission) => !$mission->pdf_report_exists)->pluck('id')->toArray();
+            // $missions = !hasRole(['cdcr', 'dcp', 'dg', 'ig', 'sg', 'cdrcp', 'der']) ? $user->missions()->with([])->get() : Mission::with([])->get();
+            // $missions = getMissions()->get();
+            // $missions = $missions->filter(fn ($mission) => !$mission->pdf_report_exists)->pluck('id')->toArray();
+            $missions = getMissions()->get()->filter(fn ($mission) => Storage::fileExists('exported\campaigns\\' . $mission->campaign . '\\missions\\' . $mission->reference . '.pdf'));
             $user['missions_without_report'] = $missions;
         }
         return response()->json($user);
@@ -45,8 +44,24 @@ class UserController extends Controller
     public function index()
     {
         isAbleOrAbort('view_user');
-        $users = User::with(['dres', 'roles']);
-
+        $users = User::with(['dres', 'role']);
+        // $users = DB::table('users as u')
+        //     ->select([
+        //         'u.id',
+        //         'u.username',
+        //         DB::raw('CONCAT(u.last_name, " ", u.first_name) AS full_name'),
+        //         'u.email',
+        //         'u.is_active',
+        //         'r.name as r_name',
+        //         'r.code as r_code',
+        //         'dres',
+        //     ])
+        //     ->leftJoin('roles as r', 'r.id', '=', 'u.active_role_id')
+        //     ->leftJoin(DB::raw('(SELECT uha.user_id, GROUP_CONCAT(DISTINCT CONCAT(d.code, " - ", d.name) ORDER BY d.code ASC SEPARATOR ", ") AS dres
+        // FROM user_has_agencies as uha
+        // LEFT JOIN agencies as a ON a.id = uha.agency_id
+        // LEFT JOIN dres as d ON d.id = a.dre_id
+        // GROUP BY uha.user_id) as dres'), 'dres.user_id', '=', 'u.id');
         $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
@@ -60,9 +75,12 @@ class UserController extends Controller
 
         if ($sort) {
             $users = $users->sortByMultiple($sort);
+            // $users = orderByMultiple($users, $sort);
         }
+
         if ($search) {
             $users = $users->search($search);
+            // $users = search($users, $search);
         }
 
         if ($fetchAll) {

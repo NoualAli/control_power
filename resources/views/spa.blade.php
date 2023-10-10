@@ -62,7 +62,7 @@
         window.app_url = '{{ env('APP_url') }}';
         window.app_port = '{{ env('APP_port') }}';
     </script>
-    <script src="//{{ env('APP_HOST') }}:{{ env('LARAVEL_WEBSOCKETS_PORT') }}/socket.io/socket.io.js"></script>
+    {{-- <script src="//{{ env('APP_HOST') }}:{{ env('LARAVEL_WEBSOCKETS_PORT') }}/socket.io/socket.io.js"></script> --}}
     {{-- <script src="{{ url('/js/echo-realtime.js') }}" type="text/javascript"></script> --}}
     <script src="{{ $appJs }}"></script>
 </body>

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Events\MissionReportGeneratedEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Mission\AssignToCCRequest;
 use App\Http\Requests\Mission\StoreRequest;
@@ -19,19 +18,12 @@ use App\Notifications\Mission\AssignationRemoved;
 use App\Notifications\Mission\Assigned;
 use App\Notifications\Mission\Updated;
 use App\Notifications\Mission\Validated;
-use App\Notifications\ReportNotification;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Foundation\Bus\PendingDispatch;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 
 class MissionController extends Controller
@@ -52,29 +44,28 @@ class MissionController extends Controller
         $fetchAll = request('fetchAll', false);
 
         try {
-            $missions = $this->getMissions();
-
+            $missions = getMissions();
             $campaignId = request('campaign_id', null);
             $campaignId = request('campaignId', $campaignId);
             if ($campaignId) {
                 $missions = $missions->where('control_campaign_id', $campaignId);
             }
             if ($fetchFilters) {
-                return $this->getFilters($missions);
+                return $this->filters($missions);
             }
 
             if ($sort) {
                 $missions = $missions->sortByMultiple($sort);
             } else {
-                $missions = $missions->orderBy('created_at', 'DESC');
+                $missions = $missions->orderBy('m.created_at', 'DESC');
             }
 
             if ($search) {
-                $missions = $missions->search($search);
+                $missions = $missions->search(['m.reference'], $search);
             }
 
             if ($filter) {
-                $missions = $missions->filter($filter);
+                $missions = $this->filter($missions, $filter);
             }
 
             if ($fetchAll) {
@@ -101,9 +92,6 @@ class MissionController extends Controller
     {
         isAbleOrAbort('view_mission');
         $currentUser = auth()->user();
-        // $missions = $currentUser->missions()?->pluck('id')->toArray() ?: [];
-        // // dd(in_array($mission->id, $missions));
-        // // dd($missions);
         $dreControllers = $mission->dreControllers->pluck('id')->toArray();
         $dcpControllers = $mission->dcpControllers->pluck('id')->toArray();
         $agencies = $currentUser->agencies->pluck('id')->toArray();
@@ -128,7 +116,6 @@ class MissionController extends Controller
         if (!hasRole(['cdc', 'ci'])) {
             $mission->makeHidden('ci_report');
         }
-
         $mission = $mission->load([
             'agency',
             'dre',
@@ -315,11 +302,22 @@ class MissionController extends Controller
         try {
             $attributes = $this->validationAttributes($mission, $type);
             abort_if(!$attributes['isAbleOrAbort'], 500);
-
             return DB::transaction(function () use ($mission, $attributes, $type) {
+                if ($attributes['validationByColumn'] == 'ci_validation_by_id') {
+                    $missionState = 4;
+                } elseif ($attributes['validationByColumn'] == 'cdc_validation_by_id') {
+                    $missionState = 5;
+                } elseif ($attributes['validationByColumn'] == 'cdcr_validation_by_id') {
+                    $missionState = 6;
+                } elseif ($attributes['validationByColumn'] == 'dcp_validation_by_id') {
+                    $missionState = 7;
+                } elseif ($attributes['validationByColumn'] == 'da_validation_by_id') {
+                    $missionState = 8;
+                }
                 $mission->update([
                     $attributes['validationAtColumn'] => now(),
                     $attributes['validationByColumn'] => auth()->user()->id,
+                    'current_state' => $missionState
                 ]);
                 if ($attributes['notify'] instanceof Collection) {
                     foreach ($attributes['notify'] as $user) {
@@ -327,6 +325,9 @@ class MissionController extends Controller
                     }
                 } else {
                     Notification::send($attributes['notify'], new Validated($mission, $type));
+                }
+                if (hasRole('dcp')) {
+                    GenerateMissionReportPdf::dispatch($mission);
                 }
                 return response()->json([
                     'message' => MISSION_VALIDATION_SUCCESS,
@@ -414,7 +415,6 @@ class MissionController extends Controller
             if (!Cache::has('mission_report_generated_' . $mission->reference)) {
                 Cache::rememberForever('mission_report_generated_' . $mission->reference, fn () => true);
                 $this->generateReport($mission);
-                // ('mission_report_generated_' . $mission->reference, 'mission_report_generated_' . $mission->reference);
             } else {
                 return $this->exportReport($mission);
             }
@@ -458,52 +458,7 @@ class MissionController extends Controller
      */
     private function generateReport(Mission $mission)
     {
-        // $metadata = $mission->details()->whereNotNull('metadata')->first()->metadata;
-        // if ($metadata) {
-        //     echo '<div class="page-break-after-always"></div>';
-        //     echo '<tr>';
-        //     echo '<td colspan="4" class="text-center bg-gray">';
-        //     echo '<b>Constats liés à l\'échantillonage</b>';
-        //     echo '</td>';
-        //     echo '</tr>';
-
-        //     foreach ($metadata as $item) {
-        //         $currentIndex = 1;
-
-        //         foreach ($item as $parsed) {
-        //             $parsed = json_decode(json_encode($parsed), true);
-        //             $keys = array_keys($parsed);
-        //             $count = count($item);
-        //             // dd($parsed[$keys[1]], $keys[1]);
-        //             echo '<tr class="metadata-row ' . ($currentIndex == $count ? 'border-bottom' : null) . '">';
-        //             echo '<th class="margin-cell"></th>';
-        //             echo '<th>' . $parsed[$keys[0]] . '</th>';
-        //             echo '<td>' . $parsed[$keys[1]] . '</td>';
-        //             echo '<th class="margin-cell"></th>';
-        //             echo '</tr>';
-
-        //             $currentIndex += 1;
-        //         }
-        //     }
-        // }
         return GenerateMissionReportPdf::dispatch($mission);
-    }
-
-    /**
-     * Fetch missions filters
-     *
-     * @param Illuminate\Database\Eloquent\Builder|null $missions
-     *
-     * @return array
-     */
-    public function getFilters(Builder $missions = null)
-    {
-        $missions = $missions ?? $this->getMissions();
-        $dre_controllers = $missions->relationUniqueData('dreControllers', 'full_name', 'id');
-        $dre = $missions->relationUniqueData('dre', 'name', 'id', 'full_name');
-        $agency = $missions->relationUniqueData('agency', 'name', 'id', 'full_name');
-        $campaign = $missions->relationUniqueData('campaign', 'reference');
-        return compact('dre', 'agency', 'campaign', 'dre_controllers');
     }
 
     /**
@@ -536,25 +491,54 @@ class MissionController extends Controller
         isAbleOrAbort(['create_missions', 'edit_mission']);
         $agencies = [];
         $controllers = [];
+        $campaigns = DB::table('control_campaigns as cc');
+        abort_if(!$campaigns->count(), 423, 'Aucune campagne de contrôle n\'existe encore');
+        $currentCampaign = (clone $campaigns)->select(
+            'cc.reference',
+            'cc.id',
+            'cc.validated_by_id',
+            'cc.description',
+            DB::raw('CONVERT(NVARCHAR(10), start_date, 105) as start_date'),
+            DB::raw('CONVERT(NVARCHAR(10), end_date, 105) as end_date'),
+            DB::raw('DATEDIFF(day, CAST(GETDATE() AS DATE),start_date) as remaining_days_before_start'),
+            DB::raw('DATEDIFF(day, end_date, CAST(GETDATE() AS DATE)) as remaining_days_before_end'),
+            DB::raw('(CASE WHEN cc.validated_at IS NOT NULL THEN 1 ELSE 0 END) AS is_validated')
+        )->orderBy('created_at', 'DESC')->first();
 
-        abort_if(!ControlCampaign::count(), 423, 'Aucune campagne de contrôle n\'existe encore');
-        $currentCampaign = ControlCampaign::current();
+        $currentCampaign->remaining_days_before_start_str = $this->remainingDaysBeforeStartStr($currentCampaign->remaining_days_before_start, $currentCampaign->remaining_days_before_end);
+        $currentCampaign->remaining_days_before_end_str = $this->remainingDaysBeforeEndStr($currentCampaign->remaining_days_before_end);
+
         abort_if(!$currentCampaign->validated_by_id, 403);
-        $campaigns = formatForSelect(ControlCampaign::validated()->orderBy('reference', 'DESC')->get()->toArray(), 'reference');
+        $campaigns = (clone $campaigns)->select('cc.reference', 'cc.id')->whereNotNull('validated_by_id')->orderBy('reference', 'DESC')->get()->map(fn ($item) => ['reference' => $item->reference, 'id' => $item->id])->toArray();
+        $campaigns = formatForSelect($campaigns, 'reference');
+
         if (request()->has('campaign_id')) {
             $user = auth()->user();
-            $currentCampaign = ControlCampaign::findOrFail(request()->campaign_id)->load(['missions']);
-            $missions = $currentCampaign?->missions;
-            $agencies = $user->agencies()->with('users')->get();
 
-            $controllers = (clone $agencies)->pluck('users')->flatten()->filter(function ($user) use ($missions) {
-                return $user->isAbleTo('control_agency') && $user->id !== auth()->user()->id;
-            })->unique('id')->flatten()->toArray();
-            $controllers = formatForSelect($controllers, 'full_name');
+            $missions = DB::table('missions as m')->where('control_campaign_id', $currentCampaign->id)->get();
+            $missionsAgency = (clone $missions)->pluck('agency_id')->toArray();
 
-            $agencies = formatForSelect(($user->dres)->pluck('agencies')->flatten()->filter(function ($agency) use ($missions) {
-                return !in_array($agency?->id, $missions->pluck('agency')->flatten()->pluck('id')->toArray());
-            })->flatten()->toArray(), 'full_name');
+            $agencies = DB::table('agencies as a')->select('a.id', DB::raw("CONCAT(a.code, ' - ', a.name) as full_name"))->leftJoin('user_has_agencies as uha', 'a.id', 'uha.agency_id')->where('uha.user_id', $user->id)->get();
+
+            $controllers = DB::table('users as u')->select('u.id', 'u.username')
+                ->leftJoin('mission_has_controllers as mhc', 'mhc.user_id', 'u.id')
+                ->leftJoin('missions as m', 'mhc.mission_id', 'm.id')
+                ->where('mhc.control_agency', true)
+                ->whereIn('m.agency_id', (clone $agencies)->pluck('id'))
+                ->get();
+
+            // Format controllers array before serve
+            $controllers = $controllers->filter(function ($user) {
+                return $user->id !== auth()->user()->id;
+            })->flatten()->map(fn ($item) => ['id' => $item->id, 'username' => $item->username])->unique('id')->toArray();
+            $controllers = formatForSelect($controllers, 'username');
+
+            // Format agencies array before serve
+            $agencies = $agencies->filter(function ($agency) use ($missionsAgency) {
+                return !in_array($agency?->id, $missionsAgency);
+            })->flatten()->map(fn ($item) => ['id' => $item->id, 'full_name' => $item->full_name])->toArray();
+
+            $agencies = formatForSelect($agencies, 'full_name');
         }
         return compact('agencies', 'campaigns', 'controllers', 'currentCampaign');
     }
@@ -735,6 +719,100 @@ class MissionController extends Controller
         // elseif (hasRole(['da', 'dre'])) {
         //     $missions = auth()->user()->missions()->hasDcpValidation();
         // }
+        return $missions;
+    }
+
+    /**
+     * @return string
+     */
+    private function remainingDaysBeforeStartStr($remaining_days_before_start, $remaining_days_before_end): string
+    {
+        $remainingDays = $remaining_days_before_start > 1 ? $remaining_days_before_start . ' jours' : $remaining_days_before_start . ' jour';
+
+        if ($remaining_days_before_start < 0 && $remaining_days_before_end) {
+            return 'En cours';
+        }
+        return $remaining_days_before_end ? $remainingDays : '-';
+    }
+
+    /**
+     * @return string
+     */
+    private function remainingDaysBeforeEndStr($remaining_days_before_end): string
+    {
+        $remainingDays = $remaining_days_before_end < 1 ? abs($remaining_days_before_end) . ' jours' : abs($remaining_days_before_end) . ' jour';
+        return $remaining_days_before_end ? $remainingDays : '-';
+    }
+
+    /**
+     * Get details filters data
+     *
+     * @param Builder $missions
+     *
+     * @return array
+     */
+    public function filters(Builder $missions): array
+    {
+        $missions = $missions->get();
+
+        $dre = [];
+        $agency = [];
+        $campaign = formatForSelect(getControlCampaigns()->get()->map(fn ($item) => ['id' => $item->id, 'reference' => $item->reference])->toArray(), 'reference');
+        $mission = [];
+        if (isset(request()->filter['campaign'])) {
+
+            $campaigns = explode(',', request()->filter['campaign']);
+
+            $dre = getDre()
+                ->join('agencies as a', 'd.id', 'a.dre_id')
+                ->join('missions as m', 'm.agency_id', 'a.id')
+                ->whereIn('m.control_campaign_id', $campaigns)
+                ->having(DB::raw('COUNT(m.id)'), '>', 0)
+                ->get()
+                ->map(fn ($item) => ['id' => $item->id, 'full_name' => $item->full_name])->toArray();
+            $dre = formatForSelect($dre, 'full_name');
+
+            if (isset(request()->filter['dre'])) {
+                $dres = explode(',', request()->filter['dre']);
+                $agency = getAgencies()
+                    ->join('missions as m', 'm.agency_id', 'a.id')
+                    ->whereIn('dre_id', $dres)
+                    ->having(DB::raw('COUNT(m.id)'), '>', 0)
+                    ->get()
+                    ->map(fn ($item) => ['id' => $item->id, 'full_name' => $item->full_name])->toArray();
+                $agency = formatForSelect($agency, 'full_name');
+            }
+        }
+
+        return compact('campaign', 'dre', 'agency');
+    }
+
+    /**
+     * Filter data
+     *
+     * @param Builder $missions
+     * @param array $filter
+     *
+     * @return Builder
+     */
+    public function filter(Builder $missions, array $filter): Builder
+    {
+        if (isset($filter['campaign'])) {
+            $values = explode(',', $filter['campaign']);
+            $missions = $missions->whereIn('control_campaign_id', $values);
+        }
+
+        if (isset($filter['dre'])) {
+            $values = explode(',', $filter['dre']);
+            $missions = $missions->whereIn('dre_id', $values);
+        }
+
+        if (isset($filter['agency'])) {
+            $values = explode(',', $filter['agency']);
+            $missions = $missions->whereIn('agency_id', $values);
+        }
+
+
         return $missions;
     }
 }

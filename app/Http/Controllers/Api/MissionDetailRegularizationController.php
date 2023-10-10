@@ -24,7 +24,7 @@ class MissionDetailRegularizationController extends Controller
         try {
             $data = $request->validated();
 
-            $res = DB::transaction(function () use ($data) {
+            $res = DB::transaction(function () use ($data, $detail) {
                 $data['created_by_id'] = auth()->user()->id;
                 $data['created_at'] = now();
                 $media = [];
@@ -38,6 +38,9 @@ class MissionDetailRegularizationController extends Controller
                     foreach ($media as $item) {
                         $item->update(['attachable_id' => $regularization->id]);
                     }
+                }
+                if ($regularization->is_regularized) {
+                    $detail->update(['is_regularized' => true]);
                 }
                 return $regularization;
             });

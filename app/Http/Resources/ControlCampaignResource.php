@@ -20,13 +20,35 @@ class ControlCampaignResource extends JsonResource
             'created_by_id' => $this->created_by_id,
             'validated_by_id' => $this->validated_by_id,
             'reference' => $this->reference,
-            'start' => $this->start,
-            'end' => $this->end,
+            'start' => $this->start_date,
+            'end' => $this->end_date,
             'remaining_days_before_start' => $this->remaining_days_before_start,
             'remaining_days_before_end' => $this->remaining_days_before_end,
-            'remaining_days_before_start_str' => $this->remaining_days_before_start_str,
-            'remaining_days_before_end_str' => $this->remaining_days_before_end_str,
+            'remaining_days_before_start_str' => $this->remainingDaysBeforeStartStr(),
+            'remaining_days_before_end_str' => $this->remainingDaysBeforeEndStr(),
             'is_validated' => $this->is_validated
         ];
+    }
+
+    /**
+     * @return string
+     */
+    private function remainingDaysBeforeStartStr(): string
+    {
+        if ($this->remaining_days_before_start <= 0 && $this->remaining_days_before_end > 0) {
+            return 'En cours';
+        } else {
+            $remainingDays = $this->remaining_days_before_start > 1 ? $this->remaining_days_before_start . ' jours' : $this->remaining_days_before_start . ' jour';
+            return $this->remaining_days_before_end > 0 ? $remainingDays : '-';
+        }
+    }
+
+    /**
+     * @return string
+     */
+    private function remainingDaysBeforeEndStr(): string
+    {
+        $remainingDays = $this->remaining_days_before_end > 1 ? $this->remaining_days_before_end . ' jours' : $this->remaining_days_before_end . ' jour';
+        return $this->remaining_days_before_end > 0 ? $remainingDays : '-';
     }
 }

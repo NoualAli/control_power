@@ -46,4 +46,4 @@ app.config.errorHandler = (err, vm, info) => {
 app.mount('#app')
 
 require('./bootstrap')
-require('./echo-realtime')
+// require('./echo-realtime')

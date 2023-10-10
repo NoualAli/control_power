@@ -44,7 +44,7 @@
                 v-if="type == 'cdc_report' && !isValidated && commentExists && !editMode && canCreateComment && isReadonly"
                 class="btn btn-warning has-icon" @click.prevent="switchEditMode()">
                 <i class="las la-edit icon" />
-                Editer le rapport
+                Editer la conclusion
             </button>
         </template>
     </NLModal>
@@ -214,7 +214,7 @@ export default {
             this.title = 'Conclusion du chef de département sur la mission ' + this.mission?.reference
             this.fields.content = {
                 label: 'Votre conclusion',
-                placeholder: 'Ecrivez votre rapport',
+                placeholder: 'Ecrivez votre conclusion',
                 name: 'content'
             }
         },

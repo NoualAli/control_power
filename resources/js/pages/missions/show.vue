@@ -32,64 +32,6 @@
                 <NLColumn>
                     <h2>Informations de base</h2>
                 </NLColumn>
-                <!-- <NLColumn lg="4">
-                    <NLGrid gap="6">
-                        <NLColumn>
-                            <span class="text-bold">
-                                Mission:
-                            </span>
-                            <span>
-                                {{ mission?.current?.reference }}
-                            </span>
-                        </NLColumn>
-                        <NLColumn>
-                            <span class="text-bold">
-                                DRE:
-                            </span>
-                            <span>
-                                {{ mission?.current?.dre.full_name }}
-                            </span>
-                        </NLColumn>
-                        <NLColumn>
-                            <span class="text-bold">
-                                Début:
-                            </span>
-                            <span>
-                                {{ mission?.current?.programmed_start + ' / ' +
-                                    mission?.current?.remaining_days_before_start_str }}
-                            </span>
-                        </NLColumn>
-                    </NLGrid>
-                </NLColumn>
-                <NLColumn lg="4">
-                    <NLGrid gap="6">
-                        <NLColumn>
-                            <span class="text-bold">
-                                Campagne:
-                            </span>
-                            <span>
-                                {{ mission?.current?.campaign.reference }}
-                            </span>
-                        </NLColumn>
-                        <NLColumn>
-                            <span class="text-bold">
-                                Agence:
-                            </span>
-                            <span>
-                                {{ mission?.current?.agency.full_name }}
-                            </span>
-                        </NLColumn>
-                        <NLColumn>
-                            <span class="text-bold">
-                                Fin:
-                            </span>
-                            <span>
-                                {{ mission?.current?.end + ' / ' +
-                                    mission?.current?.remaining_days_before_end_str }}
-                            </span>
-                        </NLColumn>
-                    </NLGrid>
-                </NLColumn> -->
 
                 <NLColumn lg="3">
                     <span class="text-bold">
@@ -320,12 +262,12 @@
         <!-- Actions -->
         <!-- , 'dg', 'ig', 'sg', 'cdrcp', 'der' -->
         <div class="d-flex align-items gap-2">
-            <button
+            <!-- <button
                 v-if="mission?.current?.is_validated_by_dcp && is(['dcp']) && showGenerateReportBtn && !mission?.current?.pdf_report_exists"
                 class="btn btn-pdf has-icon" @click.prevent="generateReport()">
                 <i class="las la-file-pdf icon" />
                 Générer le rapport
-            </button>
+            </button> -->
             <button v-if="mission?.current?.pdf_report_exists" class="btn btn-pdf has-icon" @click="exportReport()">
                 <i class="las la-file-pdf icon" />
                 Exporter le rapport

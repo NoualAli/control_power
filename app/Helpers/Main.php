@@ -8,9 +8,14 @@ use App\Models\Mission;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
+use Illuminate\Contracts\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -307,7 +312,7 @@ if (!function_exists('generateCDCRef')) {
     {
         $reference = '';
         $date = $date ? Carbon::parse($date)->format('Y') : today()->format('Y');
-        $cdc = ControlCampaign::whereYear('start', $date);
+        $cdc = ControlCampaign::whereYear('start_date', $date);
         if ($validate) {
             $reference = 'CDC-' . $date . '-' . addZero($cdc->validated()->count() + 1);
         } else {
@@ -341,7 +346,7 @@ if (!function_exists('getMissionProcesses')) {
             AVG(md.score) as avg_score,
             COUNT(md.id) AS total_mission_details,
             SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) AS scored_mission_details,
-            FORMAT((COUNT(CASE WHEN score IN (2, 3, 4) THEN 1 ELSE NULL END) * 100) / COUNT(md.id),2) AS anomalies_rate,
+            (COUNT(CASE WHEN score IN (2, 3, 4) THEN 1 ELSE NULL END) * 100) / COUNT(md.id) AS anomalies_rate,
             (count(md.score) * 100) / COUNT(md.id) AS progress_status
         ");
         $processes = $processes->join('control_points as cp', 'p.id', '=', 'cp.process_id')
@@ -413,5 +418,19 @@ if (!function_exists('recursivelyToArray')) {
 
             return $item;
         })->toArray();
+    }
+}
+
+if (!function_exists('rememberKeyForCache')) {
+    function rememberKeyForCache(?string $suffix = null)
+    {
+        return 'user_' . auth()->user()->id . '_' . $suffix;
+        // $url = request()->url();
+        // $queryParams = request()->query();
+        // ksort($queryParams);
+        // $queryString = http_build_query($queryParams);
+        // $fullUrl = "{$url}?{$queryString}";
+        // $rememberKey = sha1($fullUrl);
+        // return $prefix ? $prefix . '_user_' . auth()->user()->id . '_' . $rememberKey : '_user_' . auth()->user()->id . $rememberKey;
     }
 }

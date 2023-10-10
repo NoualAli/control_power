@@ -43,7 +43,8 @@ class MissionDetail extends BaseModel
         'controlled_by_cdcr_id',
         'controlled_by_dcp_id',
         'major_fact_dispatched_at',
-        'regularization_id'
+        'regularization_id',
+        'is_regularized',
     ];
 
     protected $filter = 'App\Filters\MissionDetail';

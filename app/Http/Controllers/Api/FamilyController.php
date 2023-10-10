@@ -124,7 +124,7 @@ class FamilyController extends Controller
      */
     public function destroy(Family $family): JsonResponse
     {
-        isAbleOrAbort('delete_familly');
+        isAbleOrAbort('delete_family');
         try {
             $family->delete();
             return response()->json([

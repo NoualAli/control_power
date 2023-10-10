@@ -24,14 +24,14 @@ class CreateControlCampaignsTable extends Migration
 
             if (env('DB_CONNECTION') == 'mysql') {
                 $table->timestamp('validated_at')->nullable();
-                $table->timestamp('start');
-                $table->timestamp('end');
+                $table->timestamp('start_date');
+                $table->timestamp('end_date');
                 $table->timestamps();
                 $table->softDeletes('deleted_at');
             } else {
                 $table->timestamp('validated_at', 7)->nullable();
-                $table->timestamp('start', 7);
-                $table->timestamp('end', 7);
+                $table->timestamp('start_date', 7);
+                $table->timestamp('end_date', 7);
                 $table->timestamps(7);
                 $table->softDeletes('deleted_at', 7);
             }

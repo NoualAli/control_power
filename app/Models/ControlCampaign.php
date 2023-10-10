@@ -18,8 +18,8 @@ class ControlCampaign extends BaseModel
 
     protected $fillable = [
         'description',
-        'start',
-        'end',
+        'start_date',
+        'end_date',
         'reference',
         'created_by_id',
         'validated_by_id',

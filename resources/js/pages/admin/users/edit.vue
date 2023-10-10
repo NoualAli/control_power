@@ -15,6 +15,12 @@
                             <NLInput v-model="form.last_name" :form="form" name="last_name" label="Nom de famille" />
                         </NLColumn>
 
+                        <!-- Registration number -->
+                        <NLColumn lg="6" md="6">
+                            <NLInput v-model="form.registration_number" :form="form" name="registration_number"
+                                label="Matricule" type="number" label-required length="4" />
+                        </NLColumn>
+
                         <!-- Username -->
                         <NLColumn lg="6" md="6">
                             <NLInput v-model="form.username" :form="form" name="username" label="Nom d'utilisateur"
@@ -99,7 +105,7 @@ import { mapGetters } from 'vuex'
 import { hasRole } from '../../../plugins/user'
 export default {
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     data() {
         return {
             form: new Form({
@@ -113,6 +119,7 @@ export default {
                 is_active: true,
                 gender: true,
                 is_active: true,
+                registration_number: null,
             }),
             passwordForm: new Form({
                 password: null,

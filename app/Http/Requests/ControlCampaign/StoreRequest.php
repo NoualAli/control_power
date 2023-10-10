@@ -26,8 +26,8 @@ class StoreRequest extends FormRequest
     {
         return [
             'description' => ['required', 'string', 'max:3000'],
-            'start' => ['required', 'date', new CheckCampaignDate],
-            'end' => ['required', 'date', 'after:start', new CheckCampaignDate],
+            'start_date' => ['required', 'date', new CheckCampaignDate],
+            'end_date' => ['required', 'date', 'after:start', new CheckCampaignDate],
             'pcf' => ['required', 'array'],
             'validate' => ['required', 'boolean'],
         ];

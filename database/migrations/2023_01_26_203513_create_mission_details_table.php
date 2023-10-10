@@ -22,6 +22,7 @@ class CreateMissionDetailsTable extends Migration
             $table->text('recovery_plan')->nullable();
             $table->tinyInteger('score')->nullable();
             $table->boolean('major_fact')->default(false);
+            $table->boolean('is_regularized')->default(false);
             $table->json('metadata')->nullable();
 
             $table->foreignId('assigned_to_ci_id')->nullable()->constrained('users');

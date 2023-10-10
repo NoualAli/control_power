@@ -65,11 +65,6 @@ export default {
                     length: 50
                 },
                 {
-                    label: 'Etat',
-                    field: 'is_regularized_str',
-                    hide: hasRole([ 'cc', 'cdcr', 'cdc', 'ci' ])
-                },
-                {
                     label: 'Transmis le',
                     field: 'is_dispatched',
                     hide: hasRole([ 'cc', 'cdcr', 'cdc', 'ci' ])
@@ -91,13 +86,6 @@ export default {
                     data: null,
                     value: null
                 },
-                mission: {
-                    label: 'Mission',
-                    cols: 3,
-                    multiple: true,
-                    data: null,
-                    value: null
-                },
                 dre: {
                     label: 'DRE',
                     cols: 3,
@@ -108,6 +96,13 @@ export default {
                 },
                 agency: {
                     label: 'Agence',
+                    cols: 3,
+                    multiple: true,
+                    data: null,
+                    value: null
+                },
+                mission: {
+                    label: 'Mission',
                     cols: 3,
                     multiple: true,
                     data: null,
@@ -165,9 +160,94 @@ export default {
                         }
                     ],
                     value: null,
-                    hide: !hasRole([ 'dcp', 'cdcr', 'cc' ])
+                    hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
                 }
             },
+            // filters: {
+            //     campaign: {
+            //         label: 'Campagne de contrôle',
+            //         cols: 3,
+            //         multiple: true,
+            //         data: null,
+            //         value: null
+            //     },
+            //     mission: {
+            //         label: 'Mission',
+            //         cols: 3,
+            //         multiple: true,
+            //         data: null,
+            //         value: null
+            //     },
+            //     dre: {
+            //         label: 'DRE',
+            //         cols: 3,
+            //         multiple: true,
+            //         data: null,
+            //         value: null,
+            //         hide: hasRole([ 'cdc', 'ci', 'da', 'dre' ])
+            //     },
+            //     agency: {
+            //         label: 'Agence',
+            //         cols: 3,
+            //         multiple: true,
+            //         data: null,
+            //         value: null
+            //     },
+            //     family: {
+            //         label: 'Famille',
+            //         multiple: true,
+            //         data: null,
+            //         value: null
+            //     },
+            //     domain: {
+            //         label: 'Domaine',
+            //         multiple: true,
+            //         data: null,
+            //         value: null
+            //     },
+            //     process: {
+            //         label: 'Processus',
+            //         multiple: true,
+            //         data: null,
+            //         value: null
+            //     },
+            //     is_regularized: {
+            //         label: 'Régularisation',
+            //         multiple: false,
+            //         value: null,
+            //         hide: hasRole([ 'cdc', 'ci' ]),
+            //         data: [
+            //             {
+            //                 id: 'Non levée',
+            //                 label: 'Non levée'
+            //             },
+            //             {
+            //                 id: 'Levée',
+            //                 label: 'Levée'
+            //             }
+            //         ]
+            //     },
+            //     score: {
+            //         label: 'Notation',
+            //         multiple: true,
+            //         data: [
+            //             {
+            //                 id: 2,
+            //                 label: 2
+            //             },
+            //             {
+            //                 id: 3,
+            //                 label: 3
+            //             },
+            //             {
+            //                 id: 4,
+            //                 label: 4
+            //             }
+            //         ],
+            //         value: null,
+            //         hide: !hasRole([ 'dcp', 'cdcr', 'cc' ])
+            //     }
+            // },
         }
     },
     created() {

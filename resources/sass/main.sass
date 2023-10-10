@@ -402,10 +402,10 @@ ul
         &::before
             background-color: $danger
             width: 50%
-    &.done
-        border-color: darken($info, 10)
+    &.first-validation
+        border-color: darken($success, 10)
         &::before
-            background-color: $info
+            background-color: $success
     &.late
         border-color: darken($danger, 10)
         &::before
@@ -415,7 +415,7 @@ ul
     &.validated
         color: $white !important
         border-color: darken($success, 10)
-    &.first-validation
+    &.second-validation
         color: $white !important
         border-color: darken($success, 10)
         &::before
@@ -429,7 +429,7 @@ ul
             left: 50%
             transform: translate(-50%, -50%)
             font-weight: 900
-    &.second-validation
+    &.done
         color: $white !important
         border-color: darken($success, 10)
         &::before

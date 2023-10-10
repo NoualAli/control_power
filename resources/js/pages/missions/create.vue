@@ -70,7 +70,7 @@
                                 Début
                             </span>
                             <span class="list-item-content">
-                                {{ currentCampaign?.start + ' / ' +
+                                {{ currentCampaign?.start_date + ' / ' +
                                     currentCampaign?.remaining_days_before_start_str }}
                             </span>
                         </div>
@@ -79,7 +79,7 @@
                                 Fin
                             </span>
                             <span class="list-item-content">
-                                {{ currentCampaign?.end + ' / ' +
+                                {{ currentCampaign?.end_date + ' / ' +
                                     currentCampaign?.remaining_days_before_end_str }}
                             </span>
                         </div>
@@ -158,7 +158,7 @@ export default {
                 this.controllersList = this.config?.config.controllers
                 this.campaignsList = this.config?.config.campaigns
                 this.currentCampaign = this.config?.config.currentCampaign
-                this.form.programmed_start = this.currentCampaign.start.split('-').reverse().join('-')
+                this.form.programmed_start = this.currentCampaign.start_date.split('-').reverse().join('-')
                 // this.form.programmed_end = this.addDays(this.form.programmed_start, 15)
                 this.form.control_campaign_id = this.currentCampaign?.id
                 this.currentCampaignReference = this.config?.config.currentCampaign.reference

@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Models\ControlCampaign;
 use App\Models\Mission;
+use App\Models\MissionDetail;
 use App\Observers\CampaignObserver;
+use App\Observers\MissionDetailObserver;
 use App\Observers\MissionObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -34,5 +36,6 @@ class EventServiceProvider extends ServiceProvider
     {
         ControlCampaign::observe(CampaignObserver::class);
         Mission::observe(MissionObserver::class);
+        MissionDetail::observe(MissionDetailObserver::class);
     }
 }

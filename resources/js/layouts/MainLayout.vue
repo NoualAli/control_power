@@ -107,11 +107,11 @@ export default {
             this.totalUnreadNotifications = this.notifications.totalUnread
         })
     },
-    updated() {
-        this.$store.dispatch('notifications/fetchTotalUnreadNotifications').then(() => {
-            this.totalUnreadNotifications = this.notifications.totalUnread
-        })
-    },
+    // updated() {
+    //     this.$store.dispatch('notifications/fetchTotalUnreadNotifications').then(() => {
+    //         this.totalUnreadNotifications = this.notifications.totalUnread
+    //     })
+    // },
     methods: {
         toggleSidebar() {
             this.$store.dispatch('sidebar/toggleSidebar')

@@ -23,7 +23,9 @@ class CreateUsersTable extends Migration
             $table->string('avatar')->nullable();
             $table->tinyInteger('gender')->default(1);
             $table->string('password')->nullable();
+            $table->string('active_post')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->integer('registration_number')->nullable();
             $table->rememberToken();
             if (env('DB_CONNECTION') == 'mysql') {
                 $table->timestamps();

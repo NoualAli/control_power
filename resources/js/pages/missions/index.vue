@@ -46,18 +46,13 @@ export default {
                     field: 'agency'
                 },
                 {
-                    label: 'Contrôle sur place par',
-                    field: 'dre_controllers_str',
-                    hide: hasRole([ 'ci' ])
-                },
-                {
                     label: 'Date début',
-                    field: 'start',
+                    field: 'start_date',
                     sortable: true,
                 },
                 {
                     label: 'Date fin',
-                    field: 'end',
+                    field: 'end_date',
                     sortable: true,
                 },
                 {
@@ -66,23 +61,24 @@ export default {
                     hide: hasRole([ 'cdc', 'ci' ]),
                     isHtml: true,
                     align: 'center',
+                    sortable: true,
                     methods: {
                         showField(item) {
                             const score = Number(item.avg_score)
-                            let style = 'text-dark text-bold'
-                            if (score === 1) {
-                                style = 'bg-success text-white text-bold'
-                            } else if (score === 2) {
-                                style = 'bg-info text-white text-bold'
-                            } else if (score === 3) {
-                                style = 'bg-warning text-bold'
-                            } else if (score === 4) {
-                                style = 'bg-danger text-white text-bold'
+                            let style = 'text-dark'
+                            if (score >= 1 && score < 2) {
+                                style = 'bg-success text-white'
+                            } else if (score >= 2 && score < 3) {
+                                style = 'bg-info text-white'
+                            } else if (score >= 3 && score < 4) {
+                                style = 'bg-warning'
+                            } else if (score >= 4) {
+                                style = 'bg-danger text-white'
                             } else {
-                                style = 'bg-grey text-dark text-bold'
+                                style = 'bg-grey text-dark'
                             }
                             return `<div class="container">
-                                        <div class="has-border-radius py-1 text-center ${style}">${score}</div>
+                                        <div class="has-border-radius text-small py-1 text-bold text-center ${style}">${score}</div>
                                     </div>`
                         }
                     }
@@ -94,25 +90,34 @@ export default {
                     align: 'center',
                     methods: {
                         showField(item) {
-                            let state = 'done'
-                            if (item.state === 'En cours') {
+                            let state = 'todo'
+                            let title = 'à réaliser'
+                            if (item.current_state === 2) {
                                 state = 'inProgress'
-                            } else if (item.state === 'À réaliser') {
+                                title = 'En cours'
+                            } else if (item.current_state === 1) {
                                 state = 'todo'
-                            } else if (item.state === 'Réliser') {
+                                title = 'à réaliser'
+                            } else if (item.current_state === 8) {
                                 state = 'done'
-                            } else if (item.state === 'En retard') {
+                                title = 'Réaliser'
+                            } else if (item.current_state === 9) {
                                 state = 'late'
-                            } else if (item.state === 'Validé et envoyé') {
-                                state = 'validated'
-                            } else if (item.state === 'En attente de validation') {
+                                title = 'En retard'
+                            } else if (item.current_state === 4) {
+                                state = 'En attente de validation CDC'
+                            } else if (item.current_state === 5) {
                                 state = 'pending-validation'
-                            } else if (item.state === '1ère validation') {
+                                title = 'En attente de validation CDCR'
+                            } else if (item.current_state === 6) {
                                 state = 'first-validation'
-                            } else if (item.state === '2ème validation') {
+                                title = 'En attente de validation DCP'
+                            } else if (item.current_state === 7) {
                                 state = 'second-validation'
+                                title = 'Réaliser et valider'
                             }
-                            return `<div class="container" title="${item.state}">
+
+                            return `<div class="container" title="${title}">
                                         <div class="mission-state ${state}"></div>
                                     </div>`
                         }
@@ -120,8 +125,9 @@ export default {
                 },
                 {
                     label: 'Taux de progression',
-                    field: 'progress_status',
+                    field: 'progress_rate',
                     align: 'center',
+                    sortable: true,
                     methods: {
                         showField(item) {
                             return item.progress_status + '%'
@@ -180,32 +186,24 @@ export default {
                     data: null,
                     value: null
                 },
-                dre_controllers: {
-                    label: 'Contrôleurs',
-                    cols: 3,
-                    multiple: true,
-                    data: null,
-                    value: null,
-                    hide: !hasRole([ 'ci' ])
-                },
-                between: {
-                    cols: 3,
-                    value: [],
-                    type: 'date-range',
-                    // cols: 'col-lg-6',
-                    attributes: {
-                        start: {
-                            cols: 'col-lg-6',
-                            label: 'De',
-                            value: null
-                        },
-                        end: {
-                            cols: 'col-lg-6',
-                            label: 'À',
-                            value: null
-                        }
-                    }
-                }
+                // between: {
+                //     cols: 3,
+                //     value: [],
+                //     type: 'date-range',
+                //     // cols: 'col-lg-6',
+                //     attributes: {
+                //         start: {
+                //             cols: 'col-lg-6',
+                //             label: 'De',
+                //             value: null
+                //         },
+                //         end: {
+                //             cols: 'col-lg-6',
+                //             label: 'À',
+                //             value: null
+                //         }
+                //     }
+                // }
             },
         }
     },

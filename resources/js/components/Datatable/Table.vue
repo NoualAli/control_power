@@ -3,7 +3,7 @@
     <NLFlex extraClass="my-6">
         <NLHeading type="2">{{ title }}</NLHeading>
         <NLFlex>
-            <SearchBar @search="(e) => this.$emit('search', e)" />
+            <SearchBar @search="(e) => this.$emit('search', e)" v-if="isSearchable" />
             <button class="btn btn-filter" :class="{ 'btn-danger': filterIsOpen, 'btn-info': !filterIsOpen }"
                 v-if="hasFilters" @click.stop="(e) => this.handleFilterState(e)">
                 <i class="las la-filter icon" v-if="!filterIsOpen"></i>
@@ -59,6 +59,7 @@ export default {
         isLoading: { type: Boolean, required: false, default: true },
         title: { type: [ String, null ], default: null },
         filters: { type: [ Object, Array ], required: false, default: () => { } },
+        isSearchable: { type: Boolean, require: false, default: true },
     },
     data() {
         return {

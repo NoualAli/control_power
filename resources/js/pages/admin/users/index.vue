@@ -20,7 +20,7 @@ import { hasRole, user } from '../../../plugins/user'
 import api from '../../../plugins/api'
 export default {
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     created() {
         this.$store.dispatch('settings/updatePageLoading', true)
     },
@@ -97,7 +97,11 @@ export default {
             actions: {
                 edit: {
                     show: (item) => {
-                        return !this.isCurrent(item) && this.can('edit_user') && item?.role_code !== 'root'
+                        let condition = !this.isCurrent(item) && this.can('edit_user') && item?.role_code !== 'root'
+                        if (hasRole('cdcr')) {
+                            return condition && ![ 'admin', 'root', 'dg', 'ig', 'sg', 'dcp', 'cdrcp', 'der' ].includes(item.role_code)
+                        }
+                        return condition
                     },
                     apply: this.edit
                 },

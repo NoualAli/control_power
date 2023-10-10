@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class UsersTableSeeder extends Seeder
 {
@@ -14,13 +16,13 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        
+
 
         \DB::table('users')->delete();
-        
-        \DB::table('users')->insert(array (
-            0 => 
-            array (
+
+        $data = array(
+            0 =>
+            array(
                 'active_role_id' => 1,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -37,8 +39,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'ROOT',
             ),
-            1 => 
-            array (
+            1 =>
+            array(
                 'active_role_id' => 4,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -55,8 +57,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-12 17:17:52',
                 'username' => 'H.BELLOUNDJA',
             ),
-            2 => 
-            array (
+            2 =>
+            array(
                 'active_role_id' => 7,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -73,8 +75,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'Z.BENMADI',
             ),
-            3 => 
-            array (
+            3 =>
+            array(
                 'active_role_id' => 3,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -91,8 +93,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-12 17:30:49',
                 'username' => 'c.bechiri',
             ),
-            4 => 
-            array (
+            4 =>
+            array(
                 'active_role_id' => 8,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -109,8 +111,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-12 17:30:27',
                 'username' => 'f.naitslimane',
             ),
-            5 => 
-            array (
+            5 =>
+            array(
                 'active_role_id' => 2,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -127,8 +129,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-12 17:29:48',
                 'username' => 'm.lebbou',
             ),
-            6 => 
-            array (
+            6 =>
+            array(
                 'active_role_id' => 9,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -145,8 +147,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-12 17:29:22',
                 'username' => 'h.benhouhou',
             ),
-            7 => 
-            array (
+            7 =>
+            array(
                 'active_role_id' => 14,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -163,8 +165,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-12 17:29:07',
                 'username' => 'd.benabdi',
             ),
-            8 => 
-            array (
+            8 =>
+            array(
                 'active_role_id' => 12,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -181,8 +183,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DER',
             ),
-            9 => 
-            array (
+            9 =>
+            array(
                 'active_role_id' => 10,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -199,8 +201,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'M.TOUAHRI',
             ),
-            10 => 
-            array (
+            10 =>
+            array(
                 'active_role_id' => 10,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -217,8 +219,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'CC',
             ),
-            11 => 
-            array (
+            11 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -235,8 +237,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-709',
             ),
-            12 => 
-            array (
+            12 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -253,8 +255,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-386',
             ),
-            13 => 
-            array (
+            13 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -271,8 +273,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-387',
             ),
-            14 => 
-            array (
+            14 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -289,8 +291,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-335',
             ),
-            15 => 
-            array (
+            15 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -307,8 +309,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-336',
             ),
-            16 => 
-            array (
+            16 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -325,8 +327,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-340',
             ),
-            17 => 
-            array (
+            17 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -343,8 +345,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-710',
             ),
-            18 => 
-            array (
+            18 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -361,8 +363,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-713',
             ),
-            19 => 
-            array (
+            19 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -379,8 +381,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-250',
             ),
-            20 => 
-            array (
+            20 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -397,8 +399,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-251',
             ),
-            21 => 
-            array (
+            21 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -415,8 +417,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-410',
             ),
-            22 => 
-            array (
+            22 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -433,8 +435,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-411',
             ),
-            23 => 
-            array (
+            23 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -451,8 +453,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-412',
             ),
-            24 => 
-            array (
+            24 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -469,8 +471,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-413',
             ),
-            25 => 
-            array (
+            25 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -487,8 +489,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-414',
             ),
-            26 => 
-            array (
+            26 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -505,8 +507,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-415',
             ),
-            27 => 
-            array (
+            27 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -523,8 +525,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-512',
             ),
-            28 => 
-            array (
+            28 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -541,8 +543,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-514',
             ),
-            29 => 
-            array (
+            29 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -559,8 +561,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-526',
             ),
-            30 => 
-            array (
+            30 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:28',
@@ -577,8 +579,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-525',
             ),
-            31 => 
-            array (
+            31 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -595,8 +597,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-529',
             ),
-            32 => 
-            array (
+            32 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -613,8 +615,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-531',
             ),
-            33 => 
-            array (
+            33 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -631,8 +633,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-533',
             ),
-            34 => 
-            array (
+            34 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -649,8 +651,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-527',
             ),
-            35 => 
-            array (
+            35 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -667,8 +669,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-528',
             ),
-            36 => 
-            array (
+            36 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -685,8 +687,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-530',
             ),
-            37 => 
-            array (
+            37 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -703,8 +705,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-532',
             ),
-            38 => 
-            array (
+            38 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -721,8 +723,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-725',
             ),
-            39 => 
-            array (
+            39 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -739,8 +741,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-727',
             ),
-            40 => 
-            array (
+            40 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -757,8 +759,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-730',
             ),
-            41 => 
-            array (
+            41 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -775,8 +777,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-900',
             ),
-            42 => 
-            array (
+            42 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -793,8 +795,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-951',
             ),
-            43 => 
-            array (
+            43 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -811,8 +813,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-952',
             ),
-            44 => 
-            array (
+            44 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -829,8 +831,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-953',
             ),
-            45 => 
-            array (
+            45 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -847,8 +849,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-954',
             ),
-            46 => 
-            array (
+            46 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -865,8 +867,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-955',
             ),
-            47 => 
-            array (
+            47 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -883,8 +885,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-957',
             ),
-            48 => 
-            array (
+            48 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -901,8 +903,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:48',
                 'username' => 'DA-958',
             ),
-            49 => 
-            array (
+            49 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -919,8 +921,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-960',
             ),
-            50 => 
-            array (
+            50 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -937,8 +939,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-962',
             ),
-            51 => 
-            array (
+            51 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -955,8 +957,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-963',
             ),
-            52 => 
-            array (
+            52 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -973,8 +975,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-965',
             ),
-            53 => 
-            array (
+            53 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -991,8 +993,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-966',
             ),
-            54 => 
-            array (
+            54 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -1009,8 +1011,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-967',
             ),
-            55 => 
-            array (
+            55 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -1027,8 +1029,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-969',
             ),
-            56 => 
-            array (
+            56 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -1045,8 +1047,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-460',
             ),
-            57 => 
-            array (
+            57 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -1063,8 +1065,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-462',
             ),
-            58 => 
-            array (
+            58 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -1081,8 +1083,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-576',
             ),
-            59 => 
-            array (
+            59 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -1099,8 +1101,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-577',
             ),
-            60 => 
-            array (
+            60 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -1117,8 +1119,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-578',
             ),
-            61 => 
-            array (
+            61 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -1135,8 +1137,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-643',
             ),
-            62 => 
-            array (
+            62 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -1153,8 +1155,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-581',
             ),
-            63 => 
-            array (
+            63 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -1171,8 +1173,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-582',
             ),
-            64 => 
-            array (
+            64 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -1189,8 +1191,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-583',
             ),
-            65 => 
-            array (
+            65 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:29',
@@ -1207,8 +1209,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-584',
             ),
-            66 => 
-            array (
+            66 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1225,8 +1227,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-642',
             ),
-            67 => 
-            array (
+            67 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1243,8 +1245,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-580',
             ),
-            68 => 
-            array (
+            68 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1261,8 +1263,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-291',
             ),
-            69 => 
-            array (
+            69 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1279,8 +1281,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-292',
             ),
-            70 => 
-            array (
+            70 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1297,8 +1299,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-294',
             ),
-            71 => 
-            array (
+            71 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1315,8 +1317,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-295',
             ),
-            72 => 
-            array (
+            72 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1333,8 +1335,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-296',
             ),
-            73 => 
-            array (
+            73 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1351,8 +1353,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-297',
             ),
-            74 => 
-            array (
+            74 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1369,8 +1371,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-301',
             ),
-            75 => 
-            array (
+            75 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1387,8 +1389,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-473',
             ),
-            76 => 
-            array (
+            76 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1405,8 +1407,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-941',
             ),
-            77 => 
-            array (
+            77 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1423,8 +1425,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-943',
             ),
-            78 => 
-            array (
+            78 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1441,8 +1443,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-944',
             ),
-            79 => 
-            array (
+            79 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1459,8 +1461,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-945',
             ),
-            80 => 
-            array (
+            80 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1477,8 +1479,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-946',
             ),
-            81 => 
-            array (
+            81 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1495,8 +1497,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-947',
             ),
-            82 => 
-            array (
+            82 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1513,8 +1515,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-948',
             ),
-            83 => 
-            array (
+            83 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1531,8 +1533,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-832',
             ),
-            84 => 
-            array (
+            84 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1549,8 +1551,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-833',
             ),
-            85 => 
-            array (
+            85 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1567,8 +1569,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-835',
             ),
-            86 => 
-            array (
+            86 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1585,8 +1587,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-840',
             ),
-            87 => 
-            array (
+            87 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1603,8 +1605,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-841',
             ),
-            88 => 
-            array (
+            88 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1621,8 +1623,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-843',
             ),
-            89 => 
-            array (
+            89 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1639,8 +1641,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-844',
             ),
-            90 => 
-            array (
+            90 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1657,8 +1659,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-845',
             ),
-            91 => 
-            array (
+            91 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1675,8 +1677,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-846',
             ),
-            92 => 
-            array (
+            92 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1693,8 +1695,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-848',
             ),
-            93 => 
-            array (
+            93 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1711,8 +1713,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-850',
             ),
-            94 => 
-            array (
+            94 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1729,8 +1731,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-834',
             ),
-            95 => 
-            array (
+            95 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1747,8 +1749,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-482',
             ),
-            96 => 
-            array (
+            96 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1765,8 +1767,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-485',
             ),
-            97 => 
-            array (
+            97 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1783,8 +1785,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-487',
             ),
-            98 => 
-            array (
+            98 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1801,8 +1803,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-489',
             ),
-            99 => 
-            array (
+            99 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1819,8 +1821,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-488',
             ),
-            100 => 
-            array (
+            100 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1837,8 +1839,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-743',
             ),
-            101 => 
-            array (
+            101 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:30',
@@ -1855,8 +1857,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-744',
             ),
-            102 => 
-            array (
+            102 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -1873,8 +1875,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-810',
             ),
-            103 => 
-            array (
+            103 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -1891,8 +1893,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-811',
             ),
-            104 => 
-            array (
+            104 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -1909,8 +1911,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-812',
             ),
-            105 => 
-            array (
+            105 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -1927,8 +1929,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-813',
             ),
-            106 => 
-            array (
+            106 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -1945,8 +1947,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-814',
             ),
-            107 => 
-            array (
+            107 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -1963,8 +1965,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-815',
             ),
-            108 => 
-            array (
+            108 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -1981,8 +1983,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-816',
             ),
-            109 => 
-            array (
+            109 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -1999,8 +2001,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-612',
             ),
-            110 => 
-            array (
+            110 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -2017,8 +2019,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-613',
             ),
-            111 => 
-            array (
+            111 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -2035,8 +2037,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-616',
             ),
-            112 => 
-            array (
+            112 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -2053,8 +2055,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-619',
             ),
-            113 => 
-            array (
+            113 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -2071,8 +2073,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-624',
             ),
-            114 => 
-            array (
+            114 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -2089,8 +2091,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-625',
             ),
-            115 => 
-            array (
+            115 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -2107,8 +2109,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-634',
             ),
-            116 => 
-            array (
+            116 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -2125,8 +2127,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-636',
             ),
-            117 => 
-            array (
+            117 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -2143,8 +2145,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-637',
             ),
-            118 => 
-            array (
+            118 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -2161,8 +2163,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-647',
             ),
-            119 => 
-            array (
+            119 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -2179,8 +2181,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-648',
             ),
-            120 => 
-            array (
+            120 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -2197,8 +2199,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-633',
             ),
-            121 => 
-            array (
+            121 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -2215,8 +2217,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-638',
             ),
-            122 => 
-            array (
+            122 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -2233,8 +2235,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-427',
             ),
-            123 => 
-            array (
+            123 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -2251,8 +2253,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-428',
             ),
-            124 => 
-            array (
+            124 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -2269,8 +2271,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-436',
             ),
-            125 => 
-            array (
+            125 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -2287,8 +2289,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-438',
             ),
-            126 => 
-            array (
+            126 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -2305,8 +2307,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-439',
             ),
-            127 => 
-            array (
+            127 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:31',
@@ -2323,8 +2325,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-440',
             ),
-            128 => 
-            array (
+            128 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2341,8 +2343,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-441',
             ),
-            129 => 
-            array (
+            129 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2359,8 +2361,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-444',
             ),
-            130 => 
-            array (
+            130 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2377,8 +2379,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-630',
             ),
-            131 => 
-            array (
+            131 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2395,8 +2397,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-430',
             ),
-            132 => 
-            array (
+            132 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2413,8 +2415,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-431',
             ),
-            133 => 
-            array (
+            133 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2431,8 +2433,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-437',
             ),
-            134 => 
-            array (
+            134 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2449,8 +2451,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-442',
             ),
-            135 => 
-            array (
+            135 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2467,8 +2469,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-445',
             ),
-            136 => 
-            array (
+            136 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2485,8 +2487,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-653',
             ),
-            137 => 
-            array (
+            137 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2503,8 +2505,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-654',
             ),
-            138 => 
-            array (
+            138 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2521,8 +2523,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-849',
             ),
-            139 => 
-            array (
+            139 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2539,8 +2541,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-851',
             ),
-            140 => 
-            array (
+            140 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2557,8 +2559,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-858',
             ),
-            141 => 
-            array (
+            141 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2575,8 +2577,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-632',
             ),
-            142 => 
-            array (
+            142 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2593,8 +2595,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-640',
             ),
-            143 => 
-            array (
+            143 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2611,8 +2613,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-631',
             ),
-            144 => 
-            array (
+            144 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2629,8 +2631,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-641',
             ),
-            145 => 
-            array (
+            145 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2647,8 +2649,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-173',
             ),
-            146 => 
-            array (
+            146 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2665,8 +2667,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-644',
             ),
-            147 => 
-            array (
+            147 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2683,8 +2685,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-645',
             ),
-            148 => 
-            array (
+            148 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2701,8 +2703,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-646',
             ),
-            149 => 
-            array (
+            149 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2719,8 +2721,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-649',
             ),
-            150 => 
-            array (
+            150 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:32',
@@ -2737,8 +2739,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-650',
             ),
-            151 => 
-            array (
+            151 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -2755,8 +2757,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-651',
             ),
-            152 => 
-            array (
+            152 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -2773,8 +2775,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-356',
             ),
-            153 => 
-            array (
+            153 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -2791,8 +2793,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-585',
             ),
-            154 => 
-            array (
+            154 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -2809,8 +2811,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-586',
             ),
-            155 => 
-            array (
+            155 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -2827,8 +2829,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-589',
             ),
-            156 => 
-            array (
+            156 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -2845,8 +2847,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-587',
             ),
-            157 => 
-            array (
+            157 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -2863,8 +2865,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-588',
             ),
-            158 => 
-            array (
+            158 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -2881,8 +2883,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-671',
             ),
-            159 => 
-            array (
+            159 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -2899,8 +2901,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-0',
             ),
-            160 => 
-            array (
+            160 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -2917,8 +2919,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-590',
             ),
-            161 => 
-            array (
+            161 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -2935,8 +2937,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-315',
             ),
-            162 => 
-            array (
+            162 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -2953,8 +2955,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-316',
             ),
-            163 => 
-            array (
+            163 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -2971,8 +2973,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-321',
             ),
-            164 => 
-            array (
+            164 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -2989,8 +2991,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-323',
             ),
-            165 => 
-            array (
+            165 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -3007,8 +3009,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-325',
             ),
-            166 => 
-            array (
+            166 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -3025,8 +3027,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-491',
             ),
-            167 => 
-            array (
+            167 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -3043,8 +3045,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-483',
             ),
-            168 => 
-            array (
+            168 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -3061,8 +3063,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-484',
             ),
-            169 => 
-            array (
+            169 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -3079,8 +3081,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-486',
             ),
-            170 => 
-            array (
+            170 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -3097,8 +3099,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-800',
             ),
-            171 => 
-            array (
+            171 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -3115,8 +3117,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-842',
             ),
-            172 => 
-            array (
+            172 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -3133,8 +3135,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-599',
             ),
-            173 => 
-            array (
+            173 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -3151,8 +3153,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-602',
             ),
-            174 => 
-            array (
+            174 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:33',
@@ -3169,8 +3171,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-605',
             ),
-            175 => 
-            array (
+            175 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3187,8 +3189,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-629',
             ),
-            176 => 
-            array (
+            176 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3205,8 +3207,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-162',
             ),
-            177 => 
-            array (
+            177 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3223,8 +3225,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-620',
             ),
-            178 => 
-            array (
+            178 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3241,8 +3243,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-627',
             ),
-            179 => 
-            array (
+            179 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3259,8 +3261,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-628',
             ),
-            180 => 
-            array (
+            180 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3277,8 +3279,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-608',
             ),
-            181 => 
-            array (
+            181 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3295,8 +3297,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-601',
             ),
-            182 => 
-            array (
+            182 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3313,8 +3315,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-603',
             ),
-            183 => 
-            array (
+            183 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3331,8 +3333,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-607',
             ),
-            184 => 
-            array (
+            184 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3349,8 +3351,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-609',
             ),
-            185 => 
-            array (
+            185 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3367,8 +3369,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-610',
             ),
-            186 => 
-            array (
+            186 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3385,8 +3387,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-611',
             ),
-            187 => 
-            array (
+            187 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3403,8 +3405,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-635',
             ),
-            188 => 
-            array (
+            188 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3421,8 +3423,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-614',
             ),
-            189 => 
-            array (
+            189 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3439,8 +3441,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-615',
             ),
-            190 => 
-            array (
+            190 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3457,8 +3459,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-617',
             ),
-            191 => 
-            array (
+            191 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3475,8 +3477,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-621',
             ),
-            192 => 
-            array (
+            192 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3493,8 +3495,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-622',
             ),
-            193 => 
-            array (
+            193 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3511,8 +3513,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-623',
             ),
-            194 => 
-            array (
+            194 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3529,8 +3531,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-626',
             ),
-            195 => 
-            array (
+            195 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3547,8 +3549,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-260',
             ),
-            196 => 
-            array (
+            196 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3565,8 +3567,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-262',
             ),
-            197 => 
-            array (
+            197 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:34',
@@ -3583,8 +3585,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-268',
             ),
-            198 => 
-            array (
+            198 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3601,8 +3603,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-272',
             ),
-            199 => 
-            array (
+            199 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3619,8 +3621,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-275',
             ),
-            200 => 
-            array (
+            200 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3637,8 +3639,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-276',
             ),
-            201 => 
-            array (
+            201 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3655,8 +3657,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-277',
             ),
-            202 => 
-            array (
+            202 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3673,8 +3675,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-278',
             ),
-            203 => 
-            array (
+            203 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3691,8 +3693,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-279',
             ),
-            204 => 
-            array (
+            204 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3709,8 +3711,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-338',
             ),
-            205 => 
-            array (
+            205 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3727,8 +3729,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-701',
             ),
-            206 => 
-            array (
+            206 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3745,8 +3747,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-702',
             ),
-            207 => 
-            array (
+            207 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3763,8 +3765,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-703',
             ),
-            208 => 
-            array (
+            208 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3781,8 +3783,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-901',
             ),
-            209 => 
-            array (
+            209 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3799,8 +3801,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-704',
             ),
-            210 => 
-            array (
+            210 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3817,8 +3819,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-705',
             ),
-            211 => 
-            array (
+            211 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3835,8 +3837,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-706',
             ),
-            212 => 
-            array (
+            212 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3853,8 +3855,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-707',
             ),
-            213 => 
-            array (
+            213 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3871,8 +3873,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-708',
             ),
-            214 => 
-            array (
+            214 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3889,8 +3891,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-711',
             ),
-            215 => 
-            array (
+            215 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3907,8 +3909,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-712',
             ),
-            216 => 
-            array (
+            216 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3925,8 +3927,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-540',
             ),
-            217 => 
-            array (
+            217 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3943,8 +3945,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-545',
             ),
-            218 => 
-            array (
+            218 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3961,8 +3963,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-546',
             ),
-            219 => 
-            array (
+            219 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3979,8 +3981,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-548',
             ),
-            220 => 
-            array (
+            220 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -3997,8 +3999,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-921',
             ),
-            221 => 
-            array (
+            221 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:35',
@@ -4015,8 +4017,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-871',
             ),
-            222 => 
-            array (
+            222 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4033,8 +4035,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-876',
             ),
-            223 => 
-            array (
+            223 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4051,8 +4053,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-877',
             ),
-            224 => 
-            array (
+            224 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4069,8 +4071,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-878',
             ),
-            225 => 
-            array (
+            225 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4087,8 +4089,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-869',
             ),
-            226 => 
-            array (
+            226 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4105,8 +4107,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-724',
             ),
-            227 => 
-            array (
+            227 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4123,8 +4125,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-726',
             ),
-            228 => 
-            array (
+            228 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4141,8 +4143,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-728',
             ),
-            229 => 
-            array (
+            229 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4159,8 +4161,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-771',
             ),
-            230 => 
-            array (
+            230 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4177,8 +4179,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-773',
             ),
-            231 => 
-            array (
+            231 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4195,8 +4197,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-774',
             ),
-            232 => 
-            array (
+            232 =>
+            array(
                 'active_role_id' => 11,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4213,8 +4215,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DA-920',
             ),
-            233 => 
-            array (
+            233 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4231,8 +4233,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DRE-BISKRA',
             ),
-            234 => 
-            array (
+            234 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4249,8 +4251,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DRE-BECHAR',
             ),
-            235 => 
-            array (
+            235 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4267,8 +4269,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DRE-TLEMCEN',
             ),
-            236 => 
-            array (
+            236 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4285,8 +4287,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:49',
                 'username' => 'DRE-ORAN',
             ),
-            237 => 
-            array (
+            237 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4303,8 +4305,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'DRE-TIZI-OUZOU',
             ),
-            238 => 
-            array (
+            238 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4321,8 +4323,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'DRE-OUARGLA',
             ),
-            239 => 
-            array (
+            239 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4339,8 +4341,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'DRE-CONSTANTINE',
             ),
-            240 => 
-            array (
+            240 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4357,8 +4359,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'DRE-ANNABA',
             ),
-            241 => 
-            array (
+            241 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:36',
@@ -4375,8 +4377,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'DRE-GARIDI',
             ),
-            242 => 
-            array (
+            242 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:37',
@@ -4393,8 +4395,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'DRE-KOLEA',
             ),
-            243 => 
-            array (
+            243 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:37',
@@ -4411,8 +4413,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'DRE-BLIDA',
             ),
-            244 => 
-            array (
+            244 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:37',
@@ -4429,8 +4431,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'DRE-ROUIBA',
             ),
-            245 => 
-            array (
+            245 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:37',
@@ -4447,8 +4449,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'DRE-BEJAIA',
             ),
-            246 => 
-            array (
+            246 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:37',
@@ -4465,8 +4467,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'DRE-TEBESSA',
             ),
-            247 => 
-            array (
+            247 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:37',
@@ -4483,8 +4485,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'DRE-BOUZAREAH',
             ),
-            248 => 
-            array (
+            248 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:37',
@@ -4501,8 +4503,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'DRE-EL-BIAR',
             ),
-            249 => 
-            array (
+            249 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:37',
@@ -4519,8 +4521,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'DRE-CHLEF',
             ),
-            250 => 
-            array (
+            250 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:37',
@@ -4537,8 +4539,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'DRE-SETIF',
             ),
-            251 => 
-            array (
+            251 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:37',
@@ -4555,8 +4557,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'DRE-MOSTAGANEM',
             ),
-            252 => 
-            array (
+            252 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:37',
@@ -4573,8 +4575,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'DRE-SIDI-BEL-ABBES',
             ),
-            253 => 
-            array (
+            253 =>
+            array(
                 'active_role_id' => 13,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:37',
@@ -4591,8 +4593,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'DRE-GHARDAIA',
             ),
-            254 => 
-            array (
+            254 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:37',
@@ -4609,8 +4611,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-BISKRA',
             ),
-            255 => 
-            array (
+            255 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:37',
@@ -4627,8 +4629,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-BECHAR',
             ),
-            256 => 
-            array (
+            256 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:37',
@@ -4645,8 +4647,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-TLEMCEN',
             ),
-            257 => 
-            array (
+            257 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:37',
@@ -4663,8 +4665,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-ORAN',
             ),
-            258 => 
-            array (
+            258 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:38',
@@ -4681,8 +4683,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-TIZI-OUZOU',
             ),
-            259 => 
-            array (
+            259 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:38',
@@ -4699,8 +4701,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-OUARGLA',
             ),
-            260 => 
-            array (
+            260 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:38',
@@ -4717,8 +4719,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-CONSTANTINE',
             ),
-            261 => 
-            array (
+            261 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:38',
@@ -4735,8 +4737,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-ANNABA',
             ),
-            262 => 
-            array (
+            262 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:38',
@@ -4753,8 +4755,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-GARIDI',
             ),
-            263 => 
-            array (
+            263 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:38',
@@ -4771,8 +4773,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-KOLEA',
             ),
-            264 => 
-            array (
+            264 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:38',
@@ -4789,8 +4791,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-BLIDA',
             ),
-            265 => 
-            array (
+            265 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:38',
@@ -4807,8 +4809,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-ROUIBA',
             ),
-            266 => 
-            array (
+            266 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:38',
@@ -4825,8 +4827,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-BEJAIA',
             ),
-            267 => 
-            array (
+            267 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:38',
@@ -4843,8 +4845,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-TEBESSA',
             ),
-            268 => 
-            array (
+            268 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:38',
@@ -4861,8 +4863,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-BOUZAREAH',
             ),
-            269 => 
-            array (
+            269 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:38',
@@ -4879,8 +4881,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-EL-BIAR',
             ),
-            270 => 
-            array (
+            270 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:38',
@@ -4897,8 +4899,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-CHLEF',
             ),
-            271 => 
-            array (
+            271 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:38',
@@ -4915,8 +4917,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-SETIF',
             ),
-            272 => 
-            array (
+            272 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:39',
@@ -4933,8 +4935,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-MOSTAGANEM',
             ),
-            273 => 
-            array (
+            273 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:39',
@@ -4951,8 +4953,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-SIDI-BEL-ABBES',
             ),
-            274 => 
-            array (
+            274 =>
+            array(
                 'active_role_id' => 5,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:39',
@@ -4969,8 +4971,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CDC-GHARDAIA',
             ),
-            275 => 
-            array (
+            275 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:39',
@@ -4987,8 +4989,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-BISKRA',
             ),
-            276 => 
-            array (
+            276 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:39',
@@ -5005,8 +5007,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-BECHAR',
             ),
-            277 => 
-            array (
+            277 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:39',
@@ -5023,8 +5025,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-TLEMCEN',
             ),
-            278 => 
-            array (
+            278 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:39',
@@ -5041,8 +5043,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-ORAN',
             ),
-            279 => 
-            array (
+            279 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:39',
@@ -5059,8 +5061,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-TIZI-OUZOU',
             ),
-            280 => 
-            array (
+            280 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:39',
@@ -5077,8 +5079,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-OUARGLA',
             ),
-            281 => 
-            array (
+            281 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:39',
@@ -5095,8 +5097,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-CONSTANTINE',
             ),
-            282 => 
-            array (
+            282 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:39',
@@ -5113,8 +5115,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-ANNABA',
             ),
-            283 => 
-            array (
+            283 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:39',
@@ -5131,8 +5133,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-GARIDI',
             ),
-            284 => 
-            array (
+            284 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:39',
@@ -5149,8 +5151,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-KOLEA',
             ),
-            285 => 
-            array (
+            285 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:39',
@@ -5167,8 +5169,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-BLIDA',
             ),
-            286 => 
-            array (
+            286 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:40',
@@ -5185,8 +5187,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-ROUIBA',
             ),
-            287 => 
-            array (
+            287 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:40',
@@ -5203,8 +5205,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-BEJAIA',
             ),
-            288 => 
-            array (
+            288 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:40',
@@ -5221,8 +5223,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-TEBESSA',
             ),
-            289 => 
-            array (
+            289 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:40',
@@ -5239,8 +5241,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-BOUZAREAH',
             ),
-            290 => 
-            array (
+            290 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:40',
@@ -5257,8 +5259,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-EL-BIAR',
             ),
-            291 => 
-            array (
+            291 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:40',
@@ -5275,8 +5277,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-CHLEF',
             ),
-            292 => 
-            array (
+            292 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:40',
@@ -5293,8 +5295,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-SETIF',
             ),
-            293 => 
-            array (
+            293 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:40',
@@ -5311,8 +5313,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-MOSTAGANEM',
             ),
-            294 => 
-            array (
+            294 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:40',
@@ -5329,8 +5331,8 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-SIDI-BEL-ABBES',
             ),
-            295 => 
-            array (
+            295 =>
+            array(
                 'active_role_id' => 6,
                 'avatar' => NULL,
                 'created_at' => '2023-08-20 16:45:40',
@@ -5347,8 +5349,10 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2023-09-11 21:13:50',
                 'username' => 'CI-GHARDAIA',
             ),
-        ));
-        
-        
+        );
+
+        foreach ($data as $user) {
+            DB::table('users')->insert($user);
+        }
     }
 }

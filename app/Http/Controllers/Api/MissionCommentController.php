@@ -44,6 +44,12 @@ class MissionCommentController extends Controller
                 $validationAtColumn = $attributes['validationAtColumn'];
                 $validationByIdColumn = $attributes['validationByIdColumn'];
                 $message = $attributes['message'];
+                $missionState = 2;
+                if ($type == 'ci_report') {
+                    $missionState = 3;
+                } elseif ('cdc_report') {
+                    $missionState = 4;
+                }
 
                 if ($comment && !$validated) {
                     $comment->update([
@@ -58,6 +64,11 @@ class MissionCommentController extends Controller
                 }
 
                 if ($validated) {
+                    if ($type == 'ci_report') {
+                        $missionState = 4;
+                    } elseif ('cdc_report') {
+                        $missionState = 5;
+                    }
                     $users = $this->getUsers($mission, $type);
                     $this->notifyUsers($mission, $users, $type);
                     $mission->update([
@@ -66,6 +77,7 @@ class MissionCommentController extends Controller
                     ]);
                 }
 
+                $mission->update(['current_state' => $missionState]);
                 return response()->json([
                     'message' => $message,
                     'status' => true,

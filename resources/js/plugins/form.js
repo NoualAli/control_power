@@ -4,6 +4,8 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import store from '~/store'
 import * as swal from '../plugins/swal'
+import { encryptData } from './crypto'
+
 
 const instance = axios.create({
     headers: {
@@ -99,7 +101,11 @@ instance.interceptors.request.use(request => {
     }
 
     // request.headers['X-Socket-Id'] = Echo.socketId()
-
+    // Encrypt the request data
+    // if (request.data) {
+    //     request.data = encryptData(JSON.stringify(request.data));
+    //     console.log(request.data);
+    // }
     return request
 })
 

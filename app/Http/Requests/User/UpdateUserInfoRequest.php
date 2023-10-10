@@ -34,7 +34,8 @@ class UpdateUserInfoRequest extends FormRequest
             'phone' => ['nullable', new IsAlgerianPhoneNumber],
             'role' => ['required', 'exists:roles,id', new UniqueUserRole(request('agencies'), $id)],
             'is_active' => ['required', 'boolean'],
-            'gender' => ['required', 'integer', 'in:1,2']
+            'gender' => ['required', 'integer', 'in:1,2'],
+            'registration_number' => ['required', 'numeric', 'unique:users,registration_number,' . $id . ',id', 'digits:4'],
         ];
         $role = request()->role;
 

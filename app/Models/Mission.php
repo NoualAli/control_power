@@ -13,12 +13,10 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Znck\Eloquent\Traits\BelongsToThrough;
-
-use function PHPUnit\Framework\isEmpty;
+use Illuminate\Support\Str;
 
 class Mission extends BaseModel
 {
@@ -52,7 +50,7 @@ class Mission extends BaseModel
         'cdcr_validation_at',
         'dcp_validation_at',
         'da_validation_at',
-        'state',
+        'current_state',
     ];
 
     protected $hidden = [
@@ -160,7 +158,7 @@ class Mission extends BaseModel
 
     public function getReportNameAttribute()
     {
-        $reference = str_replace('/', '-', $this->reference) . '-' . str_replace(' ', '', $this->agency->name);
+        $reference = Str::slug($this->reference . '-' . $this->agency->name);
         return strtolower('rapport_mission-' . $reference);
     }
 
@@ -204,7 +202,6 @@ class Mission extends BaseModel
         $sum = round($details->sum('score'));
         $count = $details->count();
         return $sum > 0 && $count > 0 ? addZero(round($sum / $count)) : 0;
-        // return addZero($details->avg('score'));
     }
 
     public function getDreControllersStrAttribute()

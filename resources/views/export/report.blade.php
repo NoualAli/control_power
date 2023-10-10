@@ -43,7 +43,7 @@
                         2<sup>e</sup> NIVEAU <b>"{{ str_replace('cdc', '', $campaign->reference) }}"</b>
                     </p>
                 </span>
-                <p class="year">{{ Carbon\Carbon::parse($campaign->start)->format('Y') }}</p>
+                <p class="year">{{ Carbon\Carbon::parse($campaign->start_date)->format('Y') }}</p>
                 <p class="report-title">
                     <b>RAPPORT</b><br>
                     DE MISSION

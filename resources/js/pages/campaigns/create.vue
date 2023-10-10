@@ -11,10 +11,12 @@
                         label-required />
                 </NLColumn>
                 <NLColumn lg="4" md="6">
-                    <NLInput v-model="form.start" :form="form" name="start" label="Date début" type="date" label-required />
+                    <NLInput v-model="form.start_date" :form="form" name="start_date" label="Date début" type="date"
+                        label-required />
                 </NLColumn>
                 <NLColumn lg="4" md="6">
-                    <NLInput v-model="form.end" :form="form" name="end" label="Date fin" type="date" label-required />
+                    <NLInput v-model="form.end_date" :form="form" name="end_date" label="Date fin" type="date"
+                        label-required />
                 </NLColumn>
                 <NLColumn>
                     <NLSelect v-model="form.pcf" :form="form" name="pcf" :options="pcfList" label="PCF" :multiple="true"
@@ -48,8 +50,8 @@ export default {
             showValidation: false,
             form: new Form({
                 description: '',
-                start: null,
-                end: null,
+                start_date: null,
+                end_date: null,
                 validate: false,
                 pcf: []
             })

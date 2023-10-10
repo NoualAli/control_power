@@ -90,6 +90,11 @@ api.interceptors.request.use(request => {
         request.headers[ 'Accept-Language' ] = locale
     }
 
+    // Encrypt the request data
+    // if (request.data) {
+    //     request.data = encryptData(JSON.stringify(request.data));
+    //     console.log(request.data);
+    // }
     // request.headers['X-Socket-Id'] = Echo.socketId()
 
     return request

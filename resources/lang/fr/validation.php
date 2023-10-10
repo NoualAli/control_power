@@ -234,7 +234,8 @@ return [
         'major_fact' => 'fait majeur',
         'programmed_end' => 'date fin',
         'programmed_start' => 'date début',
-        'category_id' => "catégorie"
+        'category_id' => "catégorie",
+        'registration_number' => 'matricule'
     ],
 
 ];

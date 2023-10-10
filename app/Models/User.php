@@ -42,7 +42,8 @@ class User extends Authenticatable implements JWTSubject
         'must_change_password',
         'active_role_id',
         'gender',
-        'is_active'
+        'is_active',
+        'registration_number'
     ];
 
     /**
