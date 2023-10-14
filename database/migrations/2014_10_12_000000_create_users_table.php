@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class CreateUsersTable extends Migration
@@ -27,6 +28,7 @@ class CreateUsersTable extends Migration
             $table->boolean('is_active')->default(true);
             $table->integer('registration_number')->nullable();
             $table->rememberToken();
+
             if (env('DB_CONNECTION') == 'mysql') {
                 $table->timestamps();
             } else {

@@ -112,7 +112,7 @@ class MissionDetailAssigned extends Notification
             ->line($this->getContent())
             ->line('Pour plus d\'informations veuillez vous rendre sur l\'application')
             ->action('Voir la mission', $this->getUrl())
-            ->line('Merci d\'utiliser PowerControl')
+            ->line('Merci d\'utiliser ControlPower')
             ->success();
 
         // return (new MailMessage)
@@ -123,7 +123,7 @@ class MissionDetailAssigned extends Notification
         //     ->view('email_views.processes_list')
         //     ->with(['htmlContent' => 'test'])
         //     ->action('Voir la mission', $this->getUrl())
-        //     ->line('Merci d\'utiliser PowerControl')
+        //     ->line('Merci d\'utiliser ControlPower')
         //     ->success();
     }
 

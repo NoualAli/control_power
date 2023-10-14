@@ -41,13 +41,13 @@ class RolesTableSeeder extends Seeder
             array(
                 'code' => 'cdcr',
                 'id' => 4,
-                'name' => 'Chef de département de contrôle réseau',
+                'name' => 'Chef de département contrôle réseau',
             ),
             4 =>
             array(
                 'code' => 'cdc',
                 'id' => 5,
-                'name' => 'Chef de département de contrôle',
+                'name' => 'Chef de département contrôle',
             ),
             5 =>
             array(
@@ -89,13 +89,13 @@ class RolesTableSeeder extends Seeder
             array(
                 'code' => 'der',
                 'id' => 12,
-                'name' => 'Direction encadrement réseau',
+                'name' => 'Directeur encadrement réseau',
             ),
             12 =>
             array(
                 'code' => 'dre',
                 'id' => 13,
-                'name' => 'Direction réseau exploitation',
+                'name' => 'Directeur réseau exploitation',
             ),
             13 =>
             array(

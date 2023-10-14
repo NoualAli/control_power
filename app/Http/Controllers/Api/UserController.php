@@ -9,8 +9,10 @@ use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Resources\LoginHistoryResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Notifications\UserCreatedNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
@@ -45,6 +47,7 @@ class UserController extends Controller
     {
         isAbleOrAbort('view_user');
         $users = User::with(['dres', 'role']);
+
         // $users = DB::table('users as u')
         //     ->select([
         //         'u.id',
@@ -62,6 +65,7 @@ class UserController extends Controller
         // LEFT JOIN agencies as a ON a.id = uha.agency_id
         // LEFT JOIN dres as d ON d.id = a.dre_id
         // GROUP BY uha.user_id) as dres'), 'dres.user_id', '=', 'u.id');
+        // dd($users->get());
         $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);

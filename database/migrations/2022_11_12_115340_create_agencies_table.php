@@ -15,7 +15,7 @@ class CreateAgenciesTable extends Migration
     {
         Schema::create('agencies', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+            $table->string('name');
             $table->unsignedInteger('code')->unique();
             $table->foreignId('dre_id');
             $table->foreign('dre_id')->on('dres')->references('id')->onDelete('cascade')->onUpdate('cascade');

@@ -33,6 +33,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $fillable = [
+        'id',
         'username',
         'email',
         'password',
@@ -43,7 +44,8 @@ class User extends Authenticatable implements JWTSubject
         'active_role_id',
         'gender',
         'is_active',
-        'registration_number'
+        'registration_number',
+        'active_post'
     ];
 
     /**
@@ -71,7 +73,7 @@ class User extends Authenticatable implements JWTSubject
 
     public $searchable = ['last_name', 'first_name', 'username', 'email', 'phone'];
 
-    protected $appends = ['full_name', 'abbreviated_name', 'dres_str', 'gender_str', 'martial_status', 'full_name_with_martial', 'authorizations', 'permissions_arr'];
+    protected $appends = ['full_name', 'abbreviated_name', 'dres_str', 'gender_str', 'martial_status', 'full_name_with_martial', 'authorizations', 'permissions_arr', 'agencies_str'];
 
     /**
      * Getters

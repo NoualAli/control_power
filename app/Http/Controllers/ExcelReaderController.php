@@ -2,266 +2,404 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\AgenciesImport;
 use App\Imports\ControlPointsImport;
-use App\Imports\DocImport;
+use App\Imports\DreImport;
 use App\Imports\ReferencesImport;
-use App\Models\Agency;
-use App\Models\Dre;
+use App\Imports\UsersImport;
 use App\Models\User;
-use DragonCode\Support\Facades\Helpers\Arr;
+use App\Notifications\UserCreatedNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Notification;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ExcelReaderController extends Controller
 {
+    /**
+     * Load references informations with their media
+     *
+     * @return void
+     */
     public function loadReferences()
     {
-        $media = DB::table('media')->where('extension', 'docx')->delete();
+        $this->resetTable('media');
         try {
-            // Excel::import(new ReferencesImport, public_path('references-list.xlsx'));
-            Excel::import(new DocImport, public_path('references-list (2).xlsx'));
+            Excel::import(new ReferencesImport, public_path('data/references-list.xlsx'));
         } catch (\Throwable $th) {
             dd($th->getMessage(), $th->getLine());
         }
     }
 
+    /**
+     * Load PCF in database
+     *
+     * @return void
+     */
     public function loadPCF()
     {
-        Excel::import(new ControlPointsImport, public_path('pcf.xlsx'));
+        $this->resetTable('families', true);
+        try {
+            Excel::import(new ControlPointsImport, public_path('data/pcf.xlsx'));
+        } catch (\Throwable $th) {
+            dd($th->getMessage(), $th->getLine());
+        }
     }
 
-    public function createUsers()
+    /**
+     * Load users in database
+     *
+     * @return void
+     */
+    public function loadUsers()
     {
+        $this->resetTable('users', true);
+        try {
+            $this->createInitialUsers();
+            Excel::import(new UsersImport, public_path('data/users.xlsx'));
+        } catch (\Throwable $th) {
+            dd($th->getMessage(), $th->getLine());
+        }
+    }
 
-        $password = Hash::make('123456');
+    /**
+     * Load DRE in database
+     *
+     * @return void
+     */
+    public function loadDre()
+    {
+        $this->resetTable('dres', true);
+        try {
+            Excel::import(new DreImport, public_path('data/dre.xlsx'));
+        } catch (\Throwable $th) {
+            dd($th->getMessage(), $th->getLine());
+        }
+    }
+
+    /**
+     * Load agencies in database
+     *
+     * @return void
+     */
+    public function loadAgencies()
+    {
+        $this->resetTable('agencies', true);
+        try {
+            Excel::import(new AgenciesImport, public_path('data/agencies.xlsx'));
+        } catch (\Throwable $th) {
+            dd($th->getMessage(), $th->getLine());
+        }
+    }
+
+    /**
+     * Load initial users in database
+     *
+     * @return void
+     */
+    private function createInitialUsers()
+    {
         $mustChangePassword = false;
         $i = 0;
-
         DB::unprepared('SET IDENTITY_INSERT users ON');
         $i += 1;
+        $password = $this->generatePassword();
         $root = User::create([
             'id' => $i,
             'username' => 'ROOT',
-            'email' => 'nldev@bna.dz',
-            'password' => $password,
+            'first_name' => 'Ali',
+            'last_name' => 'Noual',
+            'email' => 'a.noual@bna.dz',
+            'password' => Hash::make($password),
+            'active_role_id' => 1,
+            'gender' => 1,
             'must_change_password' => $mustChangePassword
         ]);
-
         $root->roles()->sync([1]);
+        DB::unprepared('SET IDENTITY_INSERT users OFF');
+
+        DB::unprepared('SET IDENTITY_INSERT users ON');
+        $i += 1;
+        // $password = $this->generatePassword();
+        $password = '123456';
+        $cdcr = User::create([
+            'id' => $i,
+            'username' => 'H.BELLOUNDJA',
+            'first_name' => 'Hassiba',
+            'last_name' => 'Belloundja',
+            'email' => 'H.BELLOUNDJA@bna.dz',
+            'password' => Hash::make($password),
+            'active_role_id' => 4,
+            'gender' => 2,
+            'must_change_password' => $mustChangePassword
+        ]);
+        $cdcr->roles()->sync([4]);
+        DB::unprepared('SET IDENTITY_INSERT users OFF');
+        try {
+            Notification::send($cdcr, new UserCreatedNotification($cdcr, $password));
+        } catch (\Throwable $th) {
+            dd($cdcr, $th->getMessage());
+        }
+
+        DB::unprepared('SET IDENTITY_INSERT users ON');
+        $i += 1;
+        $password = $this->generatePassword();
+        $admin = User::create([
+            'id' => $i,
+            'username' => 'Z.BENMADI',
+            'first_name' => 'Zakarya',
+            'last_name' => 'Benmadi',
+            'email' => 'Z.BENMADI@bna.dz',
+            'password' => Hash::make($password),
+            'active_role_id' => 7,
+            'gender' => 1,
+            'must_change_password' => $mustChangePassword
+        ]);
+        $admin->roles()->sync([7]);
+        DB::unprepared('SET IDENTITY_INSERT users OFF');
+        try {
+            Notification::send($admin, new UserCreatedNotification($admin, $password));
+        } catch (\Throwable $th) {
+            dd($admin, $th->getMessage());
+        }
+
+        DB::unprepared('SET IDENTITY_INSERT users ON');
+        $i += 1;
+        // $password = $this->generatePassword();
+        $password = '123456';
+        $dcp = User::create([
+            'id' => $i,
+            'first_name' => 'Chiraz',
+            'last_name' => 'Bechiri',
+            'username' => 'DCP',
+            'email' => 'DCPermanent@bna.dz',
+            'password' => Hash::make($password),
+            'active_role_id' => 3,
+            'gender' => 2,
+            // 'must_change_password' => $mustChangePassword
+            'must_change_password' => false
+        ]);
+        $dcp->roles()->sync([3]);
+        DB::unprepared('SET IDENTITY_INSERT users OFF');
+        try {
+            Notification::send($dcp, new UserCreatedNotification($dcp, $password));
+        } catch (\Throwable $th) {
+            dd($dcp, $th->getMessage());
+        }
+
+        DB::unprepared('SET IDENTITY_INSERT users ON');
+        $i += 1;
+        $password = $this->generatePassword();
+        $cdrcp = User::create([
+            'id' => $i,
+            'first_name' => 'Fazia',
+            'last_name' => 'Nait Slimane',
+            'username' => 'CDRCP',
+            'email' => 'DRCP@bna.dz',
+            'password' => Hash::make($password),
+            'active_role_id' => 8,
+            'gender' => 2,
+            'must_change_password' => $mustChangePassword
+        ]);
+        $cdrcp->roles()->sync([8]);
+        DB::unprepared('SET IDENTITY_INSERT users OFF');
+        try {
+            Notification::send($cdrcp, new UserCreatedNotification($cdrcp, $password));
+        } catch (\Throwable $th) {
+            dd($cdrcp, $th->getMessage());
+        }
+
+        DB::unprepared('SET IDENTITY_INSERT users ON');
+        $i += 1;
+        $password = $this->generatePassword();
+        $dg = User::create([
+            'id' => $i,
+            'username' => 'DG',
+            'first_name' => 'Mohamed Lamine',
+            'last_name' => 'Lebbou',
+            'email' => 'DG@bna.dz',
+            'password' => Hash::make($password),
+            'active_role_id' => 2,
+            'gender' => 1,
+            'must_change_password' => $mustChangePassword
+        ]);
+        $dg->roles()->sync([2]);
+        DB::unprepared('SET IDENTITY_INSERT users OFF');
+        try {
+            Notification::send($dg, new UserCreatedNotification($dg, $password));
+        } catch (\Throwable $th) {
+            dd($dg, $th->getMessage());
+        }
+
+        DB::unprepared('SET IDENTITY_INSERT users ON');
+        $i += 1;
+        $password = $this->generatePassword();
+        $dga = User::create([
+            'id' => $i,
+            'username' => 'DGA',
+            'first_name' => 'Brahim',
+            'last_name' => 'Boudjelida',
+            'email' => 'DGA@bna.dz',
+            'password' => Hash::make($password),
+            'active_role_id' => 2,
+            'gender' => 1,
+            'must_change_password' => $mustChangePassword
+        ]);
+        $dga->roles()->sync([2]);
+        DB::unprepared('SET IDENTITY_INSERT users OFF');
+        try {
+            Notification::send($dga, new UserCreatedNotification($dga, $password));
+        } catch (\Throwable $th) {
+            dd($dga, $th->getMessage());
+        }
+
+        DB::unprepared('SET IDENTITY_INSERT users ON');
+        $i += 1;
+        $password = $this->generatePassword();
+        $ig = User::create([
+            'id' => $i,
+            'username' => 'IG',
+            'first_name' => 'Benhouhou',
+            'last_name' => 'Hacène',
+            'email' => 'IG@bna.dz',
+            'password' => Hash::make($password),
+            'active_role_id' => 9,
+            'gender' => 1,
+            'must_change_password' => $mustChangePassword
+        ]);
+        $ig->roles()->sync([9]);
+        DB::unprepared('SET IDENTITY_INSERT users OFF');
+        try {
+            Notification::send($ig, new UserCreatedNotification($ig, $password));
+        } catch (\Throwable $th) {
+            dd($ig, $th->getMessage());
+        }
+
+        DB::unprepared('SET IDENTITY_INSERT users ON');
+        $i += 1;
+        $password = $this->generatePassword();
+        $sg = User::create([
+            'id' => $i,
+            'username' => 'SG',
+            'first_name' => 'Benabdi',
+            'last_name' => 'Dine',
+            'email' => 'SG@bna.dz',
+            'password' => Hash::make($password),
+            'active_role_id' => 2,
+            'gender' => 1,
+            'must_change_password' => $mustChangePassword
+        ]);
+        $sg->roles()->sync([2]);
+        DB::unprepared('SET IDENTITY_INSERT users OFF');
+        try {
+            Notification::send($sg, new UserCreatedNotification($sg, $password));
+        } catch (\Throwable $th) {
+            dd($sg, $th->getMessage());
+        }
+
+        DB::unprepared('SET IDENTITY_INSERT users ON');
+        $i += 1;
+        $password = $this->generatePassword();
+        $der = User::create([
+            'id' => $i,
+            'username' => 'DER',
+            'first_name' => 'Halima',
+            'last_name' => 'Layadi',
+            'email' => 'DER@bna.dz',
+            'password' => Hash::make($password),
+            'active_role_id' => 12,
+            'gender' => 2,
+            'must_change_password' => $mustChangePassword
+        ]);
+        $der->roles()->sync([12]);
+        DB::unprepared('SET IDENTITY_INSERT users OFF');
+        try {
+            Notification::send($der, new UserCreatedNotification($der, $password));
+        } catch (\Throwable $th) {
+            dd($der, $th->getMessage());
+        }
+
+        DB::unprepared('SET IDENTITY_INSERT users ON');
+        $i += 1;
+        $password = $this->generatePassword();
+        $cc = User::create([
+            'id' => $i,
+            'username' => 'M.TOUAHRI',
+            'first_name' => 'Mohamed',
+            'last_name' => 'Touahri',
+            'email' => 'M.TOUAHRI@bna.dz',
+            'password' => Hash::make($password),
+            'active_role_id' => 10,
+            'gender' => 1,
+            'must_change_password' => $mustChangePassword
+        ]);
+        $cc->roles()->sync([10]);
+        DB::unprepared('SET IDENTITY_INSERT users OFF');
+        try {
+            Notification::send($cc, new UserCreatedNotification($cc, $password));
+        } catch (\Throwable $th) {
+            dd($cc, $th->getMessage());
+        }
+
+        $this->createUsersTest($i);
+    }
+
+    /**
+     * Reset specified table
+     *
+     * @param string $tableName
+     * @param bool $resetAutoIncrement
+     *
+     * @return void
+     */
+    private function resetTable(string $tableName, bool $resetAutoIncrement = false)
+    {
+        DB::table($tableName)->delete();
+        if ($resetAutoIncrement) {
+            DB::statement('DBCC CHECKIDENT ("' . $tableName . '", RESEED, 0)');
+        }
+    }
+
+    private function createUsersTest($i)
+    {
+        $password = '123456';
+        DB::unprepared('SET IDENTITY_INSERT users ON');
+        $i += 1;
+        $cdc = User::create([
+            'id' => $i,
+            'username' => 'CDC-GARIDI',
+            'email' => 'cdc-test@test.dz',
+            'password' => Hash::make($password),
+            'active_role_id' => 5,
+            'must_change_password' => false
+        ]);
+        $cdc->roles()->sync([5]);
         DB::unprepared('SET IDENTITY_INSERT users OFF');
 
         DB::unprepared('SET IDENTITY_INSERT users ON');
         $i += 1;
         $cdcr = User::create([
             'id' => $i,
-            'username' => 'H.BELLOUNDJA',
-            'email' => 'H.BELLOUNDJA@bna.dz',
-            'password' => $password,
-            'must_change_password' => $mustChangePassword
+            'username' => 'CI-GARIDI',
+            'email' => 'ci-test@test.dz',
+            'password' => Hash::make($password),
+            'active_role_id' => 6,
+            // 'must_change_password' => $mustChangePassword,
+            'must_change_password' => false
         ]);
-
-        $cdcr->roles()->sync([4]);
+        $cdcr->roles()->sync([6]);
         DB::unprepared('SET IDENTITY_INSERT users OFF');
-
-        DB::unprepared('SET IDENTITY_INSERT users ON');
-        $i += 1;
-        $admin = User::create([
-            'id' => $i,
-            'username' => 'Z.BENMADI',
-            'email' => 'Z.BENMADI@bna.dz',
-            'password' => $password,
-            'must_change_password' => $mustChangePassword
-        ]);
-        $admin->roles()->sync([7]);
-        DB::unprepared('SET IDENTITY_INSERT users OFF');
-
-        DB::unprepared('SET IDENTITY_INSERT users ON');
-        $i += 1;
-        $dcp = User::create([
-            'id' => $i,
-            'username' => 'DCP',
-            'email' => 'DCPermanent@bna.dz',
-            'password' => $password,
-            'must_change_password' => $mustChangePassword
-        ]);
-        $dcp->roles()->sync([3]);
-        DB::unprepared('SET IDENTITY_INSERT users OFF');
-
-        DB::unprepared('SET IDENTITY_INSERT users ON');
-        $i += 1;
-        $cdrcp = User::create([
-            'id' => $i,
-            'username' => 'CDRCP',
-            'email' => 'DRCP@bna.dz',
-            'password' => $password,
-            'must_change_password' => $mustChangePassword
-        ]);
-        $cdrcp->roles()->sync([8]);
-        DB::unprepared('SET IDENTITY_INSERT users OFF');
-
-        DB::unprepared('SET IDENTITY_INSERT users ON');
-        $i += 1;
-        $dg = User::create([
-            'id' => $i,
-            'username' => 'DG',
-            'email' => 'DG@bna.dz',
-            'password' => $password,
-            'must_change_password' => $mustChangePassword
-        ]);
-        $dg->roles()->sync([2]);
-        DB::unprepared('SET IDENTITY_INSERT users OFF');
-
-        DB::unprepared('SET IDENTITY_INSERT users ON');
-        $i += 1;
-        $ig = User::create([
-            'id' => $i,
-            'username' => 'IG',
-            'email' => 'IG@bna.dz',
-            'password' => $password,
-            'must_change_password' => $mustChangePassword
-        ]);
-
-        $ig->roles()->sync([9]);
-        DB::unprepared('SET IDENTITY_INSERT users OFF');
-
-        DB::unprepared('SET IDENTITY_INSERT users ON');
-        $i += 1;
-        $sg = User::create([
-            'id' => $i,
-            'username' => 'SG',
-            'email' => 'SG@bna.dz',
-            'password' => $password,
-            'must_change_password' => $mustChangePassword
-        ]);
-        $sg->roles()->sync([2]);
-        DB::unprepared('SET IDENTITY_INSERT users OFF');
-
-        DB::unprepared('SET IDENTITY_INSERT users ON');
-        $i += 1;
-        $der = User::create([
-            'id' => $i,
-            'username' => 'DER',
-            'email' => 'DER@bna.dz',
-            'password' => $password,
-            'must_change_password' => $mustChangePassword
-        ]);
-        $der->roles()->sync([12]);
-        DB::unprepared('SET IDENTITY_INSERT users OFF');
-
-        DB::unprepared('SET IDENTITY_INSERT users ON');
-        $i += 1;
-        $cc = User::create([
-            'id' => $i,
-            'username' => 'M.TOUAHRI',
-            'email' => 'M.TOUAHRI@bna.dz',
-            'password' => $password,
-            'must_change_password' => $mustChangePassword
-        ]);
-        $cc->roles()->sync([10]);
-        DB::unprepared('SET IDENTITY_INSERT users OFF');
-
-        DB::unprepared('SET IDENTITY_INSERT users ON');
-        $i += 1;
-        $cc = User::create([
-            'id' => $i,
-            'username' => 'CC',
-            'email' => 'CC@bna.dz',
-            'password' => $password,
-            'must_change_password' => $mustChangePassword
-        ]);
-        $cc->roles()->sync([10]);
-        DB::unprepared('SET IDENTITY_INSERT users OFF');
-
-        foreach (Agency::all() as $agency) {
-            DB::unprepared('SET IDENTITY_INSERT users ON');
-            $i += 1;
-            $username = 'DA-' . $agency->code;
-            $email = $username . '@bna.dz';
-            $user = [
-                'id' => $i,
-                'username' => $username,
-                'email' => $email,
-                'password' => $password,
-                'must_change_password' => $mustChangePassword,
-            ];
-            $user = User::create($user);
-            $user->agencies()->sync([$agency->id]);
-            $user->roles()->sync([11]);
-            DB::unprepared('SET IDENTITY_INSERT users OFF');
-        }
-        foreach (Dre::all() as $dre) {
-            DB::unprepared('SET IDENTITY_INSERT users ON');
-            $i += 1;
-            $username = 'DRE-' . strtoupper(\Str::slug(str_replace('DRE ', '', $dre->name)));
-            $email = $username . '@bna.dz';
-            $user = [
-                'id' => $i,
-                'username' => $username,
-                'email' => $email,
-                'password' => $password,
-                'must_change_password' => $mustChangePassword,
-            ];
-            $user = User::create($user);
-            $agencies = $dre->agencies()->pluck('id')->toArray();
-            $user->agencies()->sync($agencies);
-            $user->roles()->sync([13]);
-            DB::unprepared('SET IDENTITY_INSERT users OFF');
-        }
-        foreach (Dre::all() as $dre) {
-            DB::unprepared('SET IDENTITY_INSERT users ON');
-            $i += 1;
-            $username = 'CDC-' .  strtoupper(\Str::slug(str_replace('DRE ', '', $dre->name)));
-            $email = $username . '@bna.dz';
-            $user = [
-                'id' => $i,
-                'username' => $username,
-                'email' => $email,
-                'password' => $password,
-                'must_change_password' => $mustChangePassword,
-            ];
-            $user = User::create($user);
-            $agencies = $dre->agencies()->pluck('id')->toArray();
-            $user->agencies()->sync($agencies);
-            $user->roles()->sync([5]);
-            DB::unprepared('SET IDENTITY_INSERT users OFF');
-        }
-
-        foreach (Dre::all() as $dre) {
-            DB::unprepared('SET IDENTITY_INSERT users ON');
-            $i += 1;
-            $username = 'CI-' . strtoupper(\Str::slug(str_replace('DRE ', '', $dre->name)));
-            $email = $username . '@bna.dz';
-            $user = [
-                'id' => $i,
-                'username' => $username,
-                'email' => $email,
-                'password' => $password,
-                'must_change_password' => $mustChangePassword,
-            ];
-            $user = User::create($user);
-            $agencies = $dre->agencies()->pluck('id')->toArray();
-            $user->agencies()->sync($agencies);
-            $user->roles()->sync([6]);
-            DB::unprepared('SET IDENTITY_INSERT users OFF');
-        }
     }
-    private function loadAgencies(array $data)
+
+    private function generatePassword($length = 6)
     {
-        $data = Arr::flatten(array_map(function ($item) {
-            $item = explode('-', $item);
-            $ids = [];
-            if ($item[0] == 'd') {
-                $ids = array_merge(Dre::findOrFail($item[1])->agencies->pluck('id')->toArray(), $ids);
-            } else {
-                $ids = array_merge($ids, [intval($item[0])]);
-            }
-            return $ids;
-        }, $data));
-        $data = Validator::make($data, [
-            '*' => 'exists:agencies,id'
-        ])->validated();
-        return $data;
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $string = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $string .= $characters[mt_rand(0, strlen($characters) - 1)];
+        }
+
+        return $string;
     }
 }

@@ -92,7 +92,7 @@ class Unregularized extends Notification
             ->lines($this->getContent())
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
             ->action('Voir le point de contrôle', $this->getUrl())
-            ->line('Merci d\'utiliser PowerControl!')
+            ->line('Merci d\'utiliser ControlPower!')
             ->error();
     }
 

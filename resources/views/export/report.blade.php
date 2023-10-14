@@ -69,7 +69,7 @@
                     <b>Validé par</b> {{ $mission->cdc_report?->creator->full_name }}
                 </div>
 
-                <img src="{{ $appBrandMonochrome }}" alt="PowerControlMonochrome" class="power-control-monochrome">
+                <img src="{{ $appBrandMonochrome }}" alt="ControlPowerMonochrome" class="power-control-monochrome">
             </main>
         </div>
     </section>

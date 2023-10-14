@@ -88,7 +88,7 @@ class DatabaseSeeder extends Seeder
             DB::unprepared('SET IDENTITY_INSERT agencies OFF');
         }
 
-        $this->call(UserHasAgenciesTableSeeder::class);
+        // $this->call(UserHasAgenciesTableSeeder::class);
 
         if (env('DB_CONNECTION') == 'mysql') {
             // $this->call(ControlCampaignsTableSeeder::class);

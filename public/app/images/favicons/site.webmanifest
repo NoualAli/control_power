@@ -1,6 +1,6 @@
 {
-    "name": "PowerControl",
-    "short_name": "PowerControl",
+    "name": "ControlPower",
+    "short_name": "ControlPower",
     "icons": [
         {
             "src": "android-chrome-192x192.png",

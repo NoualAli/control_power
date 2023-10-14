@@ -26,9 +26,9 @@ class ReferencesImport implements ToModel, WithHeadingRow
         $process = isset($row['processus']) && !empty($row['processus']) && $domain?->id ? $domain?->processes()->where('name', trim($row['processus']))->first() : null;
         $type = isset($row['type']) && !empty($row['type']) && in_array($row['type'], ['Circulaire', 'Lettre-circulaire', 'Note']) ? ucfirst(strtolower($row['type'])) : null;
         // dd($row['familles'], $family, $row['domaines'], $domain, $row['processus'], $process, isset($row['domaines']) && !empty($row['domaines']) && $family?->id);
-        if (!$family || !$domain || !$process) {
-            // dd($row, $family,  $domain, $process, $domain?->processes->pluck('name'));
-        }
+        // if (!$family || !$domain || !$process) {
+        // dd($row, $family,  $domain, $process, $domain?->processes->pluck('name'));
+        // }
         // Check if family, domain, process and type are not null
         // to perform copy of file and store it into database
         try {
@@ -49,9 +49,9 @@ class ReferencesImport implements ToModel, WithHeadingRow
                         }
                     }
                 }
-                $full_path = 'archive\\' . $type . '\\' . $file_name;
+                $full_path = 'data\\documents\\' . $type . '\\' . $file_name;
                 $fileExtension = $this->getExtension($full_path);
-                $full_path = 'archive\\' . $type . '\\' . $file_name . '.' . $fileExtension;
+                $full_path = 'data\\documents\\' . $type . '\\' . $file_name . '.' . $fileExtension;
                 $full_path_hashed = $folder . '\\' . $hash_name . '.' . $fileExtension;
                 $attachableType = Process::class;
                 $attachableId = $process->id;

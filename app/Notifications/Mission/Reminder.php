@@ -144,7 +144,7 @@ class Reminder extends Notification
             ->line($this->getEndingLine())
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
             ->action('Voir La mission', $this->getUrl())
-            ->line('Merci d\'utiliser PowerControl!')
+            ->line('Merci d\'utiliser ControlPower!')
             ->success();
     }
 

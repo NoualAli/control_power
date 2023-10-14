@@ -83,7 +83,7 @@ class AssignationRemoved extends Notification
             ->subject($this->getTitle())
             ->line($this->getContent())
             ->action('Voir la mission', $this->getUrl())
-            ->line('Merci d\'utiliser PowerControl')
+            ->line('Merci d\'utiliser ControlPower')
             ->success();
     }
 

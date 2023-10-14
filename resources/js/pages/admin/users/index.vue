@@ -43,6 +43,11 @@ export default {
                     sortable: true
                 },
                 {
+                    label: 'N° de téléphone',
+                    field: 'phone',
+                    sortable: true
+                },
+                {
                     label: 'DRE',
                     field: 'dres'
                 },
@@ -88,6 +93,10 @@ export default {
                 {
                     label: 'DRE',
                     field: 'dres_str'
+                },
+                {
+                    label: 'Agences',
+                    field: 'agencies_str'
                 },
                 {
                     label: 'Rôle',

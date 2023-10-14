@@ -87,7 +87,7 @@ class Assigned extends Notification
             ->line($startLine)
             ->line($endLine)
             ->action('Voir la mission', $this->getUrl())
-            ->line('Merci d\'utiliser PowerControl')
+            ->line('Merci d\'utiliser ControlPower')
             ->success();
     }
 
