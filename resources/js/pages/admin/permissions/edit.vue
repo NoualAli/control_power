@@ -1,11 +1,16 @@
 <template>
-    <div v-if="can('edit_familly')">
+    <div v-if="can('edit_permission')">
         <ContentBody>
             <NLForm :action="update" :form="form">
                 <!-- Name -->
                 <NLColumn lg="6" md="6">
-                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required
-                        placeholder="Veuillez saisir le nom de famille" />
+                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required />
+                </NLColumn>
+
+                <!-- Rôles -->
+                <NLColumn lg="6" md="6">
+                    <NLSelect v-model="form.roles" :form="form" name="roles" label="Rôles" :options="rolesList"
+                        :multiple="true" label-required />
                 </NLColumn>
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
@@ -20,40 +25,43 @@
 <script>
 import { Form } from 'vform'
 import { mapGetters } from 'vuex'
+
 export default {
     layout: 'MainLayout',
     middleware: [ 'auth', 'admin' ],
     computed: {
         ...mapGetters({
-            family: 'families/current'
+            permission: 'permissions/current',
+            roles: 'roles/all'
         })
     },
     created() {
         this.$store.dispatch('settings/updatePageLoading', true)
-        this.$store.dispatch('families/fetch', { id: this.$route.params.family }).then(() => {
-            const data = this.family.current
-            this.form.fill(data)
-            this.$store.dispatch('settings/updatePageLoading', false)
+        this.$store.dispatch('roles/fetchAll').then(() => {
+            this.rolesList = this.roles.all
+            this.$store.dispatch('permissions/fetch', this.$route.params.permission).then(() => {
+                const data = this.permission.current
+                this.form.fill(data)
+                this.form.roles = this.permission.current.roles.map(item => item.id)
+                this.$store.dispatch('settings/updatePageLoading', false)
+            })
         })
     },
     data() {
         return {
+            rolesList: [],
             form: new Form({
                 name: '',
-                code: ''
+                roles: []
             })
         }
     },
     methods: {
         update() {
-<<<<<<< HEAD:resources/js/pages/admin/families/edit.vue
-            this.form.put('families/' + this.$route.params.family).then(response => {
-=======
-            this.form.put('famillies/' + this.$route.params.familly).then(response => {
->>>>>>> master:resources/js/pages/admin/famillies/edit.vue
+            this.form.put('permissions/' + this.$route.params.permission).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
-                    this.$router.push({ name: 'families-index' })
+                    this.$router.push({ name: 'permissions-index' })
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }

@@ -66,6 +66,7 @@ export default {
         },
         login() {
             // Submit the form.
+<<<<<<< HEAD
             this.form.post('login').then(response => {
                 // Save the token.
                 this.$store.dispatch('auth/saveToken', {
@@ -84,6 +85,13 @@ export default {
                 // Fetch the user.
             }).catch(error => {
                 console.log(error.data);
+=======
+            const { data } = await this.form.post('login')
+            // Save the token.
+            this.$store.dispatch('auth/saveToken', {
+                token: data.token,
+                remember: this.remember
+>>>>>>> master
             })
 
         },

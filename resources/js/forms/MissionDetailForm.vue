@@ -316,7 +316,10 @@ export default {
          * Save detail
          */
         save() {
+<<<<<<< HEAD
             this.formIsLoading = true
+=======
+>>>>>>> master
             this.form.post('missions/details/' + this.data.mission_id).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)

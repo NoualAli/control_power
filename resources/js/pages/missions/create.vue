@@ -54,7 +54,10 @@
                 <NLColumn>
                     <!-- Submit Button -->
                     <NLFlex lgJustifyContent="end">
-                        <NLButton :loading="formIsLoading" label="Ajouter" />
+                        <<<<<<< HEAD <NLButton :loading="formIsLoading" label="Ajouter" />
+                        =======
+                        <NLButton :loading="form.busy" label="Ajouter" />
+                        >>>>>>> master
                     </NLFlex>
                 </NLColumn>
             </NLForm>

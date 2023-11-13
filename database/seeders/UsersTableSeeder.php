@@ -14,16 +14,17 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        
+
 
         \DB::table('users')->delete();
-        
-        \DB::table('users')->insert(array (
-            0 => 
-            array (
+
+        \DB::table('users')->insert(array(
+            0 =>
+            array(
                 'id' => '1',
                 'username' => 'ROOT',
                 'first_name' => 'Ali',
+                'id' => 1,
                 'last_name' => 'Noual',
                 'email' => 'a.noual@bna.dz',
                 'phone' => NULL,
@@ -39,8 +40,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '0',
                 'active_role_id' => '1',
             ),
-            1 => 
-            array (
+            1 =>
+            array(
                 'id' => '2',
                 'username' => 'H.BELLOUNDJA',
                 'first_name' => 'Hassiba',
@@ -59,8 +60,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '0',
                 'active_role_id' => '4',
             ),
-            2 => 
-            array (
+            2 =>
+            array(
                 'id' => '3',
                 'username' => 'Z.BENMADI',
                 'first_name' => 'Zakarya',
@@ -79,8 +80,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '0',
                 'active_role_id' => '7',
             ),
-            3 => 
-            array (
+            3 =>
+            array(
                 'id' => '4',
                 'username' => 'DCP',
                 'first_name' => 'Chiraz',
@@ -99,13 +100,18 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '0',
                 'active_role_id' => '3',
             ),
-            4 => 
-            array (
+            4 =>
+            array(
                 'id' => '5',
                 'username' => 'CDRCP',
                 'first_name' => 'Fazia',
                 'last_name' => 'Nait Slimane',
                 'email' => 'DRCP@bna.dz',
+                'first_name' => 'Fazia',
+                'id' => 3,
+                'last_name' => 'Nait Slimane',
+                'must_change_password' => 0,
+                'password' => '$2y$10$XlA2e5zgUQpDAsRw8VSNX.d7eRQfNWEwt86aBLencrgmxlUzBQlya',
                 'phone' => NULL,
                 'avatar' => NULL,
                 'gender' => '2',
@@ -119,8 +125,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '0',
                 'active_role_id' => '8',
             ),
-            5 => 
-            array (
+            5 =>
+            array(
                 'id' => '6',
                 'username' => 'DG',
                 'first_name' => 'Mohamed Lamine',
@@ -139,8 +145,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '0',
                 'active_role_id' => '2',
             ),
-            6 => 
-            array (
+            6 =>
+            array(
                 'id' => '7',
                 'username' => 'DGA',
                 'first_name' => 'Brahim',
@@ -159,8 +165,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '0',
                 'active_role_id' => '2',
             ),
-            7 => 
-            array (
+            7 =>
+            array(
                 'id' => '8',
                 'username' => 'IG',
                 'first_name' => 'Benhouhou',
@@ -179,8 +185,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '0',
                 'active_role_id' => '9',
             ),
-            8 => 
-            array (
+            8 =>
+            array(
                 'id' => '9',
                 'username' => 'SG',
                 'first_name' => 'Benabdi',
@@ -199,8 +205,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '0',
                 'active_role_id' => '2',
             ),
-            9 => 
-            array (
+            9 =>
+            array(
                 'id' => '10',
                 'username' => 'DER',
                 'first_name' => 'Halima',
@@ -219,8 +225,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '0',
                 'active_role_id' => '12',
             ),
-            10 => 
-            array (
+            10 =>
+            array(
                 'id' => '11',
                 'username' => 'M.TOUAHRI',
                 'first_name' => 'Mohamed',
@@ -239,8 +245,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '0',
                 'active_role_id' => '10',
             ),
-            11 => 
-            array (
+            11 =>
+            array(
                 'id' => '12',
                 'username' => 'CDC-GARIDI',
                 'first_name' => NULL,
@@ -259,8 +265,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '0',
                 'active_role_id' => '5',
             ),
-            12 => 
-            array (
+            12 =>
+            array(
                 'id' => '13',
                 'username' => 'CI-GARIDI',
                 'first_name' => NULL,
@@ -279,8 +285,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '0',
                 'active_role_id' => '6',
             ),
-            13 => 
-            array (
+            13 =>
+            array(
                 'id' => '14',
                 'username' => 'H.LAROUSSI',
                 'first_name' => 'HACENE',
@@ -299,8 +305,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            14 => 
-            array (
+            14 =>
+            array(
                 'id' => '15',
                 'username' => 'N.KHALFA',
                 'first_name' => 'NADJIB',
@@ -319,8 +325,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            15 => 
-            array (
+            15 =>
+            array(
                 'id' => '16',
                 'username' => 'H.CHENNAI',
                 'first_name' => 'HANI',
@@ -339,8 +345,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            16 => 
-            array (
+            16 =>
+            array(
                 'id' => '17',
                 'username' => 'K.HATTAB',
                 'first_name' => 'KELTOUM',
@@ -359,8 +365,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            17 => 
-            array (
+            17 =>
+            array(
                 'id' => '18',
                 'username' => 'M.DJOUAMA',
                 'first_name' => 'MOHAMED BRAHIM',
@@ -379,8 +385,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            18 => 
-            array (
+            18 =>
+            array(
                 'id' => '19',
                 'username' => 'F.BENBOUZA',
                 'first_name' => 'FARES',
@@ -399,8 +405,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            19 => 
-            array (
+            19 =>
+            array(
                 'id' => '20',
                 'username' => 'M.ATIA',
                 'first_name' => 'MED.SADEK AMINE',
@@ -419,8 +425,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            20 => 
-            array (
+            20 =>
+            array(
                 'id' => '21',
                 'username' => 'H.HALITIM',
                 'first_name' => 'HABIBA',
@@ -439,8 +445,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            21 => 
-            array (
+            21 =>
+            array(
                 'id' => '22',
                 'username' => 'A.SAHNOUNE',
                 'first_name' => 'ABDESLEM',
@@ -459,8 +465,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            22 => 
-            array (
+            22 =>
+            array(
                 'id' => '23',
                 'username' => 'W.MABROUKI',
                 'first_name' => 'WALID',
@@ -479,8 +485,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            23 => 
-            array (
+            23 =>
+            array(
                 'id' => '24',
                 'username' => 'W.HAMMI',
                 'first_name' => 'WALID',
@@ -499,8 +505,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            24 => 
-            array (
+            24 =>
+            array(
                 'id' => '25',
                 'username' => 'A.BOUCHENTOUF',
                 'first_name' => 'ABDELMADJID',
@@ -519,8 +525,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            25 => 
-            array (
+            25 =>
+            array(
                 'id' => '26',
                 'username' => 'A.AMARI',
                 'first_name' => 'ABDELKARIM',
@@ -539,8 +545,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            26 => 
-            array (
+            26 =>
+            array(
                 'id' => '27',
                 'username' => 'M.BENKABOU',
                 'first_name' => 'MOHAMMED CHAKIB',
@@ -559,8 +565,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            27 => 
-            array (
+            27 =>
+            array(
                 'id' => '28',
                 'username' => 'H.ZIANE',
                 'first_name' => 'HICHAM',
@@ -579,8 +585,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            28 => 
-            array (
+            28 =>
+            array(
                 'id' => '29',
                 'username' => 'F.DENNAI',
                 'first_name' => 'FATIMA',
@@ -599,8 +605,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            29 => 
-            array (
+            29 =>
+            array(
                 'id' => '30',
                 'username' => 'A.KHERBOUCHI',
                 'first_name' => 'AHMED EL AMINE',
@@ -619,8 +625,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            30 => 
-            array (
+            30 =>
+            array(
                 'id' => '31',
                 'username' => 'A.TADJEDDINE',
                 'first_name' => 'ABDELDJEBBAR',
@@ -639,8 +645,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            31 => 
-            array (
+            31 =>
+            array(
                 'id' => '32',
                 'username' => 'A.BOUDJEMAA',
                 'first_name' => 'AHMED',
@@ -659,8 +665,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            32 => 
-            array (
+            32 =>
+            array(
                 'id' => '33',
                 'username' => 'H.BENALLAL',
                 'first_name' => 'HAMID',
@@ -679,8 +685,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            33 => 
-            array (
+            33 =>
+            array(
                 'id' => '34',
                 'username' => 'M.BAKHOU',
                 'first_name' => 'MOHAMED',
@@ -699,8 +705,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            34 => 
-            array (
+            34 =>
+            array(
                 'id' => '35',
                 'username' => 'A.BENLAKHDAR',
                 'first_name' => 'ABDELGHANI',
@@ -719,8 +725,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            35 => 
-            array (
+            35 =>
+            array(
                 'id' => '36',
                 'username' => 'A.MAHMOUD',
                 'first_name' => 'AMINA',
@@ -739,8 +745,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            36 => 
-            array (
+            36 =>
+            array(
                 'id' => '37',
                 'username' => 'A.MESSADI',
                 'first_name' => 'ABDELKADER',
@@ -750,7 +756,7 @@ class UsersTableSeeder extends Seeder
                 'avatar' => NULL,
                 'gender' => '1',
                 'password' => '$2y$10$TvbjZlB4h/oLph1cr9ZUO.YJgwLWejd/bQY5P.Gyjmq2XnoK.aQtG',
-            'active_post' => 'DIRECTEUR DE L\'agence timimoun actuelement chargé de l’intérim de l\'agence adrar ( momentanément )',
+                'active_post' => 'DIRECTEUR DE L\'agence timimoun actuelement chargé de l’intérim de l\'agence adrar ( momentanément )',
                 'is_active' => '1',
                 'registration_number' => NULL,
                 'remember_token' => NULL,
@@ -759,8 +765,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            37 => 
-            array (
+            37 =>
+            array(
                 'id' => '38',
                 'username' => 'T.DJAMILA',
                 'first_name' => 'TLHAOUI',
@@ -770,7 +776,7 @@ class UsersTableSeeder extends Seeder
                 'avatar' => NULL,
                 'gender' => '2',
                 'password' => '$2y$10$5E/zSnmSNS1WEEboiykPeurkkJEYYBXSYjiTLjOS8NvI7Jsbz.ycm',
-            'active_post' => 'chargé de l’intérim de l\'agence timimoun ( momentanément )',
+                'active_post' => 'chargé de l’intérim de l\'agence timimoun ( momentanément )',
                 'is_active' => '1',
                 'registration_number' => NULL,
                 'remember_token' => NULL,
@@ -779,8 +785,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            38 => 
-            array (
+            38 =>
+            array(
                 'id' => '39',
                 'username' => 'N.DERRAGUI',
                 'first_name' => 'NASSIMA',
@@ -799,8 +805,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            39 => 
-            array (
+            39 =>
+            array(
                 'id' => '40',
                 'username' => 'R.BERRAHIL',
                 'first_name' => 'RAHMOUNA',
@@ -819,8 +825,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            40 => 
-            array (
+            40 =>
+            array(
                 'id' => '41',
                 'username' => 'S.ALICHAOUCHE',
                 'first_name' => 'SIDI MOHAMED',
@@ -839,8 +845,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            41 => 
-            array (
+            41 =>
+            array(
                 'id' => '42',
                 'username' => 'S.BENMANSOUR',
                 'first_name' => 'SIDI MOHAMED EL HABIB',
@@ -859,8 +865,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            42 => 
-            array (
+            42 =>
+            array(
                 'id' => '43',
                 'username' => 'R.MEDJAHED',
                 'first_name' => 'RACHIDA',
@@ -879,8 +885,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            43 => 
-            array (
+            43 =>
+            array(
                 'id' => '44',
                 'username' => 'D.HANAFI',
                 'first_name' => 'DJILLALI',
@@ -899,8 +905,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            44 => 
-            array (
+            44 =>
+            array(
                 'id' => '45',
                 'username' => 'S.SAIDOUNI',
                 'first_name' => 'SIDI MOHAMED',
@@ -919,8 +925,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            45 => 
-            array (
+            45 =>
+            array(
                 'id' => '46',
                 'username' => 'H.HOUTI',
                 'first_name' => 'HAKIMA',
@@ -939,8 +945,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            46 => 
-            array (
+            46 =>
+            array(
                 'id' => '47',
                 'username' => 'H.BOUCHOUR',
                 'first_name' => 'HOCINE',
@@ -959,8 +965,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            47 => 
-            array (
+            47 =>
+            array(
                 'id' => '48',
                 'username' => 'A.HADJABDERRAHMANE',
                 'first_name' => 'AMEUR',
@@ -979,8 +985,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            48 => 
-            array (
+            48 =>
+            array(
                 'id' => '49',
                 'username' => 'N.BENSNOUCI',
                 'first_name' => 'NASERDDINE',
@@ -999,8 +1005,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            49 => 
-            array (
+            49 =>
+            array(
                 'id' => '50',
                 'username' => 'N.BENSLIMANE',
                 'first_name' => 'NASERDDINE',
@@ -1019,8 +1025,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            50 => 
-            array (
+            50 =>
+            array(
                 'id' => '51',
                 'username' => 'M.GHELLAMALLAH',
                 'first_name' => 'MOHAMED',
@@ -1039,8 +1045,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            51 => 
-            array (
+            51 =>
+            array(
                 'id' => '52',
                 'username' => 'N.SOUMMAR',
                 'first_name' => 'NOUREDDINE',
@@ -1059,8 +1065,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            52 => 
-            array (
+            52 =>
+            array(
                 'id' => '53',
                 'username' => 'A.MECHERNENE',
                 'first_name' => 'ABDELHAFID',
@@ -1079,8 +1085,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            53 => 
-            array (
+            53 =>
+            array(
                 'id' => '54',
                 'username' => 'D.CHACHAOUA',
                 'first_name' => 'DJELLOUL',
@@ -1099,8 +1105,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            54 => 
-            array (
+            54 =>
+            array(
                 'id' => '55',
                 'username' => 'R.DJEGHDI',
                 'first_name' => 'RACHID',
@@ -1119,8 +1125,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            55 => 
-            array (
+            55 =>
+            array(
                 'id' => '56',
                 'username' => 'K.DERBAL',
                 'first_name' => 'KADDOUR',
@@ -1139,8 +1145,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            56 => 
-            array (
+            56 =>
+            array(
                 'id' => '57',
                 'username' => 'M.LAHMAR',
                 'first_name' => 'MHAMED',
@@ -1159,8 +1165,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            57 => 
-            array (
+            57 =>
+            array(
                 'id' => '58',
                 'username' => 'L.GOUANED',
                 'first_name' => 'LATIFA',
@@ -1179,8 +1185,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            58 => 
-            array (
+            58 =>
+            array(
                 'id' => '59',
                 'username' => 'N.ZEGGAI',
                 'first_name' => 'NOUREDDINE',
@@ -1199,8 +1205,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            59 => 
-            array (
+            59 =>
+            array(
                 'id' => '60',
                 'username' => 'D.BOULAI',
                 'first_name' => 'DJMAILA',
@@ -1219,8 +1225,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            60 => 
-            array (
+            60 =>
+            array(
                 'id' => '61',
                 'username' => 'A.AZZOUZ',
                 'first_name' => 'ABDELKRIM',
@@ -1239,8 +1245,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            61 => 
-            array (
+            61 =>
+            array(
                 'id' => '62',
                 'username' => 'Y.AOUCHICHE',
                 'first_name' => 'YAMINA',
@@ -1259,8 +1265,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            62 => 
-            array (
+            62 =>
+            array(
                 'id' => '63',
                 'username' => 'F.BOUAZZA',
                 'first_name' => 'FOUZIA SOUAD',
@@ -1279,8 +1285,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            63 => 
-            array (
+            63 =>
+            array(
                 'id' => '64',
                 'username' => 'F.HAMADA',
                 'first_name' => 'FATIMA ZOHRA',
@@ -1299,8 +1305,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            64 => 
-            array (
+            64 =>
+            array(
                 'id' => '65',
                 'username' => 'F.BEDDEK',
                 'first_name' => 'FARIDA',
@@ -1319,8 +1325,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            65 => 
-            array (
+            65 =>
+            array(
                 'id' => '66',
                 'username' => 'M.KERROUMI',
                 'first_name' => 'MOHAMED',
@@ -1339,8 +1345,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            66 => 
-            array (
+            66 =>
+            array(
                 'id' => '67',
                 'username' => 'A.BENSETTITI',
                 'first_name' => 'AMMAR',
@@ -1359,8 +1365,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            67 => 
-            array (
+            67 =>
+            array(
                 'id' => '68',
                 'username' => 'A.BELKHIR',
                 'first_name' => 'AMINA',
@@ -1379,8 +1385,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            68 => 
-            array (
+            68 =>
+            array(
                 'id' => '69',
                 'username' => 'I.ZELMAT',
                 'first_name' => 'ISMAIL',
@@ -1399,8 +1405,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            69 => 
-            array (
+            69 =>
+            array(
                 'id' => '70',
                 'username' => 'S.MADOUI',
                 'first_name' => 'SOUAD',
@@ -1419,8 +1425,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            70 => 
-            array (
+            70 =>
+            array(
                 'id' => '71',
                 'username' => 'M.DRIOUA',
                 'first_name' => 'MOHAMED',
@@ -1439,8 +1445,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            71 => 
-            array (
+            71 =>
+            array(
                 'id' => '72',
                 'username' => 'S.HACHEMAOUI',
                 'first_name' => 'SAID',
@@ -1459,8 +1465,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            72 => 
-            array (
+            72 =>
+            array(
                 'id' => '73',
                 'username' => 'F.ABBAS',
                 'first_name' => 'FATMA',
@@ -1479,8 +1485,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            73 => 
-            array (
+            73 =>
+            array(
                 'id' => '74',
                 'username' => 'S.AZZAOUI',
                 'first_name' => 'SARA',
@@ -1499,8 +1505,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            74 => 
-            array (
+            74 =>
+            array(
                 'id' => '75',
                 'username' => 'O.HAFFAR',
                 'first_name' => 'OTHMANE',
@@ -1519,8 +1525,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            75 => 
-            array (
+            75 =>
+            array(
                 'id' => '76',
                 'username' => 'D.BENAMAR',
                 'first_name' => 'DALILA',
@@ -1539,8 +1545,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            76 => 
-            array (
+            76 =>
+            array(
                 'id' => '77',
                 'username' => 'C.ATTOU',
                 'first_name' => 'CHARAF EDDINE',
@@ -1559,8 +1565,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            77 => 
-            array (
+            77 =>
+            array(
                 'id' => '78',
                 'username' => 'N.OSMANI',
                 'first_name' => 'NEDJMA',
@@ -1579,8 +1585,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            78 => 
-            array (
+            78 =>
+            array(
                 'id' => '79',
                 'username' => 'M.ATTAB',
                 'first_name' => 'MAKHLOUF',
@@ -1599,8 +1605,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            79 => 
-            array (
+            79 =>
+            array(
                 'id' => '80',
                 'username' => 'M.OUCHEBBOUK',
                 'first_name' => 'MADJID',
@@ -1619,8 +1625,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            80 => 
-            array (
+            80 =>
+            array(
                 'id' => '81',
                 'username' => 'M.ASLI',
                 'first_name' => 'MOHAND AKLI',
@@ -1639,8 +1645,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            81 => 
-            array (
+            81 =>
+            array(
                 'id' => '82',
                 'username' => 'A.SAHEB',
                 'first_name' => 'ACHOUR',
@@ -1659,8 +1665,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            82 => 
-            array (
+            82 =>
+            array(
                 'id' => '83',
                 'username' => 'S.TOUBAL',
                 'first_name' => 'SOUAD',
@@ -1679,8 +1685,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            83 => 
-            array (
+            83 =>
+            array(
                 'id' => '84',
                 'username' => 'R.YESSAD',
                 'first_name' => 'RABéA',
@@ -1699,8 +1705,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            84 => 
-            array (
+            84 =>
+            array(
                 'id' => '85',
                 'username' => 'M.MECIEL',
                 'first_name' => 'MOHAMED',
@@ -1719,8 +1725,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            85 => 
-            array (
+            85 =>
+            array(
                 'id' => '86',
                 'username' => 'M.FODIL',
                 'first_name' => 'MOHAMED',
@@ -1739,8 +1745,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            86 => 
-            array (
+            86 =>
+            array(
                 'id' => '87',
                 'username' => 'A.CHEBALLAH',
                 'first_name' => 'AOMAR',
@@ -1759,8 +1765,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            87 => 
-            array (
+            87 =>
+            array(
                 'id' => '88',
                 'username' => 'K.BOUDALI',
                 'first_name' => 'KAMEL',
@@ -1779,8 +1785,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            88 => 
-            array (
+            88 =>
+            array(
                 'id' => '89',
                 'username' => 'H.FEDDAK',
                 'first_name' => 'HOCINE',
@@ -1799,8 +1805,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            89 => 
-            array (
+            89 =>
+            array(
                 'id' => '90',
                 'username' => 'N.SAIDI',
                 'first_name' => 'NOUSSIA',
@@ -1819,8 +1825,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            90 => 
-            array (
+            90 =>
+            array(
                 'id' => '91',
                 'username' => 'M.SAHRAOUI',
                 'first_name' => 'MOHAMED',
@@ -1839,8 +1845,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            91 => 
-            array (
+            91 =>
+            array(
                 'id' => '92',
                 'username' => 'Z.MOULOUDI',
                 'first_name' => 'ZOHRA',
@@ -1859,8 +1865,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            92 => 
-            array (
+            92 =>
+            array(
                 'id' => '93',
                 'username' => 'C.ZABAR',
                 'first_name' => 'CHABANE',
@@ -1879,8 +1885,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            93 => 
-            array (
+            93 =>
+            array(
                 'id' => '94',
                 'username' => 'A.KARA',
                 'first_name' => 'ALI',
@@ -1899,8 +1905,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            94 => 
-            array (
+            94 =>
+            array(
                 'id' => '95',
                 'username' => 'R.CHOUBANE',
                 'first_name' => 'RACHID',
@@ -1919,8 +1925,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            95 => 
-            array (
+            95 =>
+            array(
                 'id' => '96',
                 'username' => 'A.HADDADOU',
                 'first_name' => 'AHMED',
@@ -1939,8 +1945,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            96 => 
-            array (
+            96 =>
+            array(
                 'id' => '97',
                 'username' => 'S.MEFATIH',
                 'first_name' => 'SAID',
@@ -1959,8 +1965,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            97 => 
-            array (
+            97 =>
+            array(
                 'id' => '98',
                 'username' => 'N.BELKSEIR',
                 'first_name' => 'NADIA',
@@ -1979,8 +1985,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            98 => 
-            array (
+            98 =>
+            array(
                 'id' => '99',
                 'username' => 'A.BENACHOUR',
                 'first_name' => 'ABDELLAH',
@@ -1999,8 +2005,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            99 => 
-            array (
+            99 =>
+            array(
                 'id' => '100',
                 'username' => 'H.ROUIBEH',
                 'first_name' => 'HADJ',
@@ -2019,8 +2025,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            100 => 
-            array (
+            100 =>
+            array(
                 'id' => '101',
                 'username' => 'H.ZERARI',
                 'first_name' => 'HICHEM',
@@ -2039,8 +2045,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            101 => 
-            array (
+            101 =>
+            array(
                 'id' => '102',
                 'username' => 'M.FATAH',
                 'first_name' => 'MOHAMED',
@@ -2059,8 +2065,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            102 => 
-            array (
+            102 =>
+            array(
                 'id' => '103',
                 'username' => 'A.BELKSEIR',
                 'first_name' => 'AHCENE',
@@ -2079,8 +2085,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            103 => 
-            array (
+            103 =>
+            array(
                 'id' => '104',
                 'username' => 'A.AICHE',
                 'first_name' => 'ALI',
@@ -2099,8 +2105,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            104 => 
-            array (
+            104 =>
+            array(
                 'id' => '105',
                 'username' => 'S.TAGGABOU',
                 'first_name' => 'SALMA',
@@ -2119,8 +2125,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            105 => 
-            array (
+            105 =>
+            array(
                 'id' => '106',
                 'username' => 'M.SAADOUDI',
                 'first_name' => 'MED REDHA',
@@ -2139,8 +2145,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            106 => 
-            array (
+            106 =>
+            array(
                 'id' => '107',
                 'username' => 'F.BEREHAIL',
                 'first_name' => 'FARES',
@@ -2159,8 +2165,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            107 => 
-            array (
+            107 =>
+            array(
                 'id' => '108',
                 'username' => 'Y.BELALIA',
                 'first_name' => 'YACINE',
@@ -2179,8 +2185,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            108 => 
-            array (
+            108 =>
+            array(
                 'id' => '109',
                 'username' => 'M.SEMRANI',
                 'first_name' => 'MOHAMED',
@@ -2199,8 +2205,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            109 => 
-            array (
+            109 =>
+            array(
                 'id' => '110',
                 'username' => 'H.LARGUECHE',
                 'first_name' => 'HAMZA',
@@ -2219,8 +2225,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            110 => 
-            array (
+            110 =>
+            array(
                 'id' => '111',
                 'username' => 'B.OUARET',
                 'first_name' => 'BOUDJEMAA',
@@ -2239,8 +2245,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            111 => 
-            array (
+            111 =>
+            array(
                 'id' => '112',
                 'username' => 'A.BOUGHAZI',
                 'first_name' => 'ABDELHAK',
@@ -2259,8 +2265,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            112 => 
-            array (
+            112 =>
+            array(
                 'id' => '113',
                 'username' => 'B.DEFFOUN',
                 'first_name' => 'BELYAMINE',
@@ -2279,8 +2285,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            113 => 
-            array (
+            113 =>
+            array(
                 'id' => '114',
                 'username' => 'I.BOUDIAF',
                 'first_name' => 'IBTIHADJ',
@@ -2299,8 +2305,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            114 => 
-            array (
+            114 =>
+            array(
                 'id' => '115',
                 'username' => 'L.HADJI',
                 'first_name' => 'LOTFI',
@@ -2319,8 +2325,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            115 => 
-            array (
+            115 =>
+            array(
                 'id' => '116',
                 'username' => 'C.BOUHALFA',
                 'first_name' => 'CHOUAIB',
@@ -2339,8 +2345,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            116 => 
-            array (
+            116 =>
+            array(
                 'id' => '117',
                 'username' => 'L.DJEBARA',
                 'first_name' => 'LYES',
@@ -2359,8 +2365,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            117 => 
-            array (
+            117 =>
+            array(
                 'id' => '118',
                 'username' => 'M.BENSAID',
                 'first_name' => 'MEHDI',
@@ -2379,8 +2385,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            118 => 
-            array (
+            118 =>
+            array(
                 'id' => '119',
                 'username' => 'A.BOUKHETOUTA',
                 'first_name' => 'ABDELKADER',
@@ -2399,8 +2405,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            119 => 
-            array (
+            119 =>
+            array(
                 'id' => '120',
                 'username' => 'S.ARROUDJI',
                 'first_name' => 'SALIM',
@@ -2419,8 +2425,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            120 => 
-            array (
+            120 =>
+            array(
                 'id' => '121',
                 'username' => 'O.TOUBANE',
                 'first_name' => 'OMAR',
@@ -2439,8 +2445,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            121 => 
-            array (
+            121 =>
+            array(
                 'id' => '122',
                 'username' => 'I.ALIOUA',
                 'first_name' => 'ISSAM',
@@ -2459,8 +2465,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            122 => 
-            array (
+            122 =>
+            array(
                 'id' => '123',
                 'username' => 'G.BOULBASSIR',
                 'first_name' => 'GHANIA',
@@ -2479,8 +2485,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            123 => 
-            array (
+            123 =>
+            array(
                 'id' => '124',
                 'username' => 'R.DEBBACHE',
                 'first_name' => 'RIAD',
@@ -2499,8 +2505,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            124 => 
-            array (
+            124 =>
+            array(
                 'id' => '125',
                 'username' => 'M.BENBOUDJEMAA',
                 'first_name' => 'MOHAMES',
@@ -2519,8 +2525,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            125 => 
-            array (
+            125 =>
+            array(
                 'id' => '126',
                 'username' => 'S.AISSANI',
                 'first_name' => 'SOUHEIR',
@@ -2539,8 +2545,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            126 => 
-            array (
+            126 =>
+            array(
                 'id' => '127',
                 'username' => 'R.KHECHIB',
                 'first_name' => 'RABAH',
@@ -2559,8 +2565,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            127 => 
-            array (
+            127 =>
+            array(
                 'id' => '128',
                 'username' => 'S.HAMOUDA',
                 'first_name' => 'SAMIA',
@@ -2579,8 +2585,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            128 => 
-            array (
+            128 =>
+            array(
                 'id' => '129',
                 'username' => 'H.BRAHMI',
                 'first_name' => 'HABIBA',
@@ -2599,8 +2605,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            129 => 
-            array (
+            129 =>
+            array(
                 'id' => '130',
                 'username' => 'A.FARFAR',
                 'first_name' => 'AZZEDINE',
@@ -2619,8 +2625,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            130 => 
-            array (
+            130 =>
+            array(
                 'id' => '131',
                 'username' => 'A.BOUGHAREB',
                 'first_name' => 'ALI',
@@ -2639,8 +2645,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            131 => 
-            array (
+            131 =>
+            array(
                 'id' => '132',
                 'username' => 'A.MADI',
                 'first_name' => 'ABDELHAFID',
@@ -2659,8 +2665,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            132 => 
-            array (
+            132 =>
+            array(
                 'id' => '133',
                 'username' => 'S.ASSAM',
                 'first_name' => 'SARA',
@@ -2679,8 +2685,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            133 => 
-            array (
+            133 =>
+            array(
                 'id' => '134',
                 'username' => 'N.TABLIT',
                 'first_name' => 'NAIMA',
@@ -2699,8 +2705,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            134 => 
-            array (
+            134 =>
+            array(
                 'id' => '135',
                 'username' => 'N.YAHIAOUI',
                 'first_name' => 'NASSIMA',
@@ -2719,8 +2725,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            135 => 
-            array (
+            135 =>
+            array(
                 'id' => '136',
                 'username' => 'R.MAATOUGUI',
                 'first_name' => 'RYM',
@@ -2739,8 +2745,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            136 => 
-            array (
+            136 =>
+            array(
                 'id' => '137',
                 'username' => 'A.GUETTAR',
                 'first_name' => 'AHMED',
@@ -2759,8 +2765,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            137 => 
-            array (
+            137 =>
+            array(
                 'id' => '138',
                 'username' => 'M.BENMARS',
                 'first_name' => 'MOHAMED NACER',
@@ -2779,8 +2785,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            138 => 
-            array (
+            138 =>
+            array(
                 'id' => '139',
                 'username' => 'K.BOUHADIBA',
                 'first_name' => 'KHALED',
@@ -2799,8 +2805,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            139 => 
-            array (
+            139 =>
+            array(
                 'id' => '140',
                 'username' => 'L.BOUZERED',
                 'first_name' => 'LEILA',
@@ -2819,8 +2825,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            140 => 
-            array (
+            140 =>
+            array(
                 'id' => '141',
                 'username' => 'N.BENCHETTAH',
                 'first_name' => 'NAFISSA',
@@ -2839,8 +2845,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            141 => 
-            array (
+            141 =>
+            array(
                 'id' => '142',
                 'username' => 'N.MIZIRI',
                 'first_name' => 'NAHLA',
@@ -2859,8 +2865,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            142 => 
-            array (
+            142 =>
+            array(
                 'id' => '143',
                 'username' => 'M.SIFI',
                 'first_name' => 'MOURAD',
@@ -2879,8 +2885,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            143 => 
-            array (
+            143 =>
+            array(
                 'id' => '144',
                 'username' => 'S.AMMARI',
                 'first_name' => 'SEHIM',
@@ -2899,8 +2905,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            144 => 
-            array (
+            144 =>
+            array(
                 'id' => '145',
                 'username' => 'M.CHABI',
                 'first_name' => 'MOHAMED',
@@ -2919,8 +2925,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            145 => 
-            array (
+            145 =>
+            array(
                 'id' => '146',
                 'username' => 'A.HAMLA',
                 'first_name' => 'AMANI',
@@ -2939,8 +2945,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            146 => 
-            array (
+            146 =>
+            array(
                 'id' => '147',
                 'username' => 'M.LAOUBI',
                 'first_name' => 'MOUNIR',
@@ -2959,8 +2965,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            147 => 
-            array (
+            147 =>
+            array(
                 'id' => '148',
                 'username' => 'M.BOUFAS',
                 'first_name' => 'MOULDI',
@@ -2979,8 +2985,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            148 => 
-            array (
+            148 =>
+            array(
                 'id' => '149',
                 'username' => 'A.MAHRI',
                 'first_name' => 'AMEL',
@@ -2999,8 +3005,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            149 => 
-            array (
+            149 =>
+            array(
                 'id' => '150',
                 'username' => 'M.MALDJI',
                 'first_name' => 'MALIKA',
@@ -3019,8 +3025,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '0',
                 'active_role_id' => '5',
             ),
-            150 => 
-            array (
+            150 =>
+            array(
                 'id' => '151',
                 'username' => 'A.BEHIDJ',
                 'first_name' => 'AMEL',
@@ -3039,8 +3045,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            151 => 
-            array (
+            151 =>
+            array(
                 'id' => '152',
                 'username' => 'A.ALLAOUA',
                 'first_name' => 'AMEL',
@@ -3059,8 +3065,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            152 => 
-            array (
+            152 =>
+            array(
                 'id' => '153',
                 'username' => 'S.DJELLALI',
                 'first_name' => 'SIHEM',
@@ -3079,8 +3085,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            153 => 
-            array (
+            153 =>
+            array(
                 'id' => '154',
                 'username' => 'L.MERRAH',
                 'first_name' => 'LYNDA',
@@ -3099,8 +3105,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            154 => 
-            array (
+            154 =>
+            array(
                 'id' => '155',
                 'username' => 'L.ADRIR',
                 'first_name' => 'LIES',
@@ -3119,8 +3125,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            155 => 
-            array (
+            155 =>
+            array(
                 'id' => '156',
                 'username' => 'N.RAHMOUN',
                 'first_name' => 'NEDJM EDDINE',
@@ -3139,8 +3145,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            156 => 
-            array (
+            156 =>
+            array(
                 'id' => '157',
                 'username' => 'F.AITIGRINE',
                 'first_name' => 'FAZIA',
@@ -3159,8 +3165,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            157 => 
-            array (
+            157 =>
+            array(
                 'id' => '158',
                 'username' => 'M.LAKEHAL',
                 'first_name' => 'MEROUANE',
@@ -3179,8 +3185,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            158 => 
-            array (
+            158 =>
+            array(
                 'id' => '159',
                 'username' => 'M.BAHIH',
                 'first_name' => 'MOHAMED',
@@ -3199,8 +3205,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            159 => 
-            array (
+            159 =>
+            array(
                 'id' => '160',
                 'username' => 'F.CHEIKHI',
                 'first_name' => 'FATMA',
@@ -3219,8 +3225,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            160 => 
-            array (
+            160 =>
+            array(
                 'id' => '161',
                 'username' => 'O.SEMAI',
                 'first_name' => 'OUSSAMA',
@@ -3239,8 +3245,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            161 => 
-            array (
+            161 =>
+            array(
                 'id' => '162',
                 'username' => 'O.ABBOUT',
                 'first_name' => 'OUSSAMA',
@@ -3259,8 +3265,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            162 => 
-            array (
+            162 =>
+            array(
                 'id' => '163',
                 'username' => 'I.BENZADI',
                 'first_name' => 'IDRIS',
@@ -3279,8 +3285,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            163 => 
-            array (
+            163 =>
+            array(
                 'id' => '164',
                 'username' => 'R.KHENIOU',
                 'first_name' => 'REDOUANE',
@@ -3299,8 +3305,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            164 => 
-            array (
+            164 =>
+            array(
                 'id' => '165',
                 'username' => 'K.LIMAN',
                 'first_name' => 'KENZA',
@@ -3319,8 +3325,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            165 => 
-            array (
+            165 =>
+            array(
                 'id' => '166',
                 'username' => 'A.GARIDI',
                 'first_name' => 'AMINE',
@@ -3339,8 +3345,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            166 => 
-            array (
+            166 =>
+            array(
                 'id' => '167',
                 'username' => 'H.TABET',
                 'first_name' => 'HABIBA',
@@ -3359,8 +3365,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            167 => 
-            array (
+            167 =>
+            array(
                 'id' => '168',
                 'username' => 'A.AMRI',
                 'first_name' => 'AMINE',
@@ -3379,8 +3385,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            168 => 
-            array (
+            168 =>
+            array(
                 'id' => '169',
                 'username' => 'S.BOUREGHDA',
                 'first_name' => 'SELMA MANEL',
@@ -3399,8 +3405,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            169 => 
-            array (
+            169 =>
+            array(
                 'id' => '170',
                 'username' => 'A.HAMOUCHE',
                 'first_name' => 'ABDELKADER',
@@ -3419,8 +3425,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            170 => 
-            array (
+            170 =>
+            array(
                 'id' => '171',
                 'username' => 'R.BERKANE',
                 'first_name' => 'RACHIDA',
@@ -3439,8 +3445,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            171 => 
-            array (
+            171 =>
+            array(
                 'id' => '172',
                 'username' => 'H.AHBAB',
                 'first_name' => 'HANANE',
@@ -3450,7 +3456,7 @@ class UsersTableSeeder extends Seeder
                 'avatar' => NULL,
                 'gender' => '2',
                 'password' => '$2y$10$kd6VMHd4Ssw7RuwV2qGxYuiZe1WJHz3Dv9wOcAIfSHS62wkolhYkC',
-            'active_post' => '(Chargé d\'études)',
+                'active_post' => '(Chargé d\'études)',
                 'is_active' => '1',
                 'registration_number' => NULL,
                 'remember_token' => NULL,
@@ -3459,8 +3465,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            172 => 
-            array (
+            172 =>
+            array(
                 'id' => '173',
                 'username' => 'O.BOUDIF',
                 'first_name' => 'OMAR',
@@ -3479,8 +3485,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            173 => 
-            array (
+            173 =>
+            array(
                 'id' => '174',
                 'username' => 'M.AITSAID',
                 'first_name' => 'MASSIKA',
@@ -3499,8 +3505,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            174 => 
-            array (
+            174 =>
+            array(
                 'id' => '175',
                 'username' => 'L.FOURA',
                 'first_name' => 'LYES',
@@ -3519,8 +3525,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            175 => 
-            array (
+            175 =>
+            array(
                 'id' => '176',
                 'username' => 'A.MEFTI',
                 'first_name' => 'ABOUBEKR',
@@ -3539,8 +3545,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            176 => 
-            array (
+            176 =>
+            array(
                 'id' => '177',
                 'username' => 'O.SARI',
                 'first_name' => 'OMAR',
@@ -3559,8 +3565,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            177 => 
-            array (
+            177 =>
+            array(
                 'id' => '178',
                 'username' => 'A.OTSMANE',
                 'first_name' => 'AHMED',
@@ -3579,8 +3585,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            178 => 
-            array (
+            178 =>
+            array(
                 'id' => '179',
                 'username' => 'S.CHAMBAZI',
                 'first_name' => 'SORAYA',
@@ -3599,8 +3605,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            179 => 
-            array (
+            179 =>
+            array(
                 'id' => '180',
                 'username' => 'M.ABDELAZZIZI',
                 'first_name' => 'MOHAMED',
@@ -3619,8 +3625,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            180 => 
-            array (
+            180 =>
+            array(
                 'id' => '181',
                 'username' => 'S.BENSLAMA',
                 'first_name' => 'SAMIR',
@@ -3639,8 +3645,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            181 => 
-            array (
+            181 =>
+            array(
                 'id' => '182',
                 'username' => 'N.SEDRAIA',
                 'first_name' => 'NAIMA',
@@ -3659,8 +3665,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            182 => 
-            array (
+            182 =>
+            array(
                 'id' => '183',
                 'username' => 'D.ABBAS',
                 'first_name' => 'DAHMANE',
@@ -3679,8 +3685,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            183 => 
-            array (
+            183 =>
+            array(
                 'id' => '184',
                 'username' => 'M.NASSANE',
                 'first_name' => 'MESSAOUDA',
@@ -3699,8 +3705,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            184 => 
-            array (
+            184 =>
+            array(
                 'id' => '185',
                 'username' => 'A.CHEMIL',
                 'first_name' => 'AKLI',
@@ -3719,8 +3725,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            185 => 
-            array (
+            185 =>
+            array(
                 'id' => '186',
                 'username' => 'F.BOUHADA',
                 'first_name' => 'FAROUK',
@@ -3739,8 +3745,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            186 => 
-            array (
+            186 =>
+            array(
                 'id' => '187',
                 'username' => 'R.REBBOUH',
                 'first_name' => 'RAMZA',
@@ -3759,8 +3765,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            187 => 
-            array (
+            187 =>
+            array(
                 'id' => '188',
                 'username' => 'A.DJENADI',
                 'first_name' => 'ABOUBAKER',
@@ -3779,8 +3785,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            188 => 
-            array (
+            188 =>
+            array(
                 'id' => '189',
                 'username' => 'M.MELOUANE',
                 'first_name' => 'MAHMOUD',
@@ -3799,8 +3805,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            189 => 
-            array (
+            189 =>
+            array(
                 'id' => '190',
                 'username' => 'R.REKABI',
                 'first_name' => 'REDHA',
@@ -3819,8 +3825,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            190 => 
-            array (
+            190 =>
+            array(
                 'id' => '191',
                 'username' => 'M.FADLI',
                 'first_name' => 'MUSTAPHA',
@@ -3839,8 +3845,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            191 => 
-            array (
+            191 =>
+            array(
                 'id' => '192',
                 'username' => 'N.ZEGGANE',
                 'first_name' => 'NACIMA',
@@ -3859,8 +3865,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            192 => 
-            array (
+            192 =>
+            array(
                 'id' => '193',
                 'username' => 'I.KHITOUS',
                 'first_name' => 'ILHEM',
@@ -3879,8 +3885,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            193 => 
-            array (
+            193 =>
+            array(
                 'id' => '194',
                 'username' => 'A.KHEIREDDINE',
                 'first_name' => 'AMINA',
@@ -3899,8 +3905,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            194 => 
-            array (
+            194 =>
+            array(
                 'id' => '195',
                 'username' => 'M.EZZRAIMI',
                 'first_name' => 'MED TAHAR',
@@ -3919,8 +3925,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            195 => 
-            array (
+            195 =>
+            array(
                 'id' => '196',
                 'username' => 'A.BENSALEM',
                 'first_name' => 'AHMED',
@@ -3939,8 +3945,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            196 => 
-            array (
+            196 =>
+            array(
                 'id' => '197',
                 'username' => 'A.ZIANE',
                 'first_name' => 'AHCENE',
@@ -3959,8 +3965,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            197 => 
-            array (
+            197 =>
+            array(
                 'id' => '198',
                 'username' => 'H.ZEGHDAR',
                 'first_name' => 'HADIA',
@@ -3979,8 +3985,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            198 => 
-            array (
+            198 =>
+            array(
                 'id' => '199',
                 'username' => 'A.TELI',
                 'first_name' => 'AMEUR',
@@ -3999,8 +4005,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            199 => 
-            array (
+            199 =>
+            array(
                 'id' => '200',
                 'username' => 'M.LAGHOUATI',
                 'first_name' => 'MOHAMED',
@@ -4019,8 +4025,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            200 => 
-            array (
+            200 =>
+            array(
                 'id' => '201',
                 'username' => 'L.DERBALI',
                 'first_name' => 'LAKHDAR',
@@ -4039,8 +4045,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            201 => 
-            array (
+            201 =>
+            array(
                 'id' => '202',
                 'username' => 'S.BOUGUERN',
                 'first_name' => 'SADEK NAZIM',
@@ -4059,8 +4065,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            202 => 
-            array (
+            202 =>
+            array(
                 'id' => '203',
                 'username' => 'N.FODIL',
                 'first_name' => 'NOURREDINE',
@@ -4079,8 +4085,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            203 => 
-            array (
+            203 =>
+            array(
                 'id' => '204',
                 'username' => 'A.LAADJAL',
                 'first_name' => 'ALI',
@@ -4099,8 +4105,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            204 => 
-            array (
+            204 =>
+            array(
                 'id' => '205',
                 'username' => 'W.BENOUALA',
                 'first_name' => 'WAHIBA',
@@ -4119,8 +4125,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            205 => 
-            array (
+            205 =>
+            array(
                 'id' => '206',
                 'username' => 'F.OUTALEB',
                 'first_name' => 'FAHIMA',
@@ -4139,8 +4145,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            206 => 
-            array (
+            206 =>
+            array(
                 'id' => '207',
                 'username' => 'N.BEHLOUL',
                 'first_name' => 'NABIL',
@@ -4159,8 +4165,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            207 => 
-            array (
+            207 =>
+            array(
                 'id' => '208',
                 'username' => 'A.BENCHOUK',
                 'first_name' => 'ABDELGHANI',
@@ -4179,8 +4185,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            208 => 
-            array (
+            208 =>
+            array(
                 'id' => '209',
                 'username' => 'H.BOUTER',
                 'first_name' => 'HAFID',
@@ -4199,8 +4205,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            209 => 
-            array (
+            209 =>
+            array(
                 'id' => '210',
                 'username' => 'M.KARA',
                 'first_name' => 'MOHAMED ALI',
@@ -4219,8 +4225,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            210 => 
-            array (
+            210 =>
+            array(
                 'id' => '211',
                 'username' => 'C.GHOUALEM',
                 'first_name' => 'CHERIFA',
@@ -4239,8 +4245,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            211 => 
-            array (
+            211 =>
+            array(
                 'id' => '212',
                 'username' => 'S.SOUFI',
                 'first_name' => 'SAMIRA',
@@ -4259,8 +4265,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            212 => 
-            array (
+            212 =>
+            array(
                 'id' => '213',
                 'username' => 'S.BENKHEZNA',
                 'first_name' => 'SAMIA',
@@ -4279,8 +4285,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            213 => 
-            array (
+            213 =>
+            array(
                 'id' => '214',
                 'username' => 'R.BOUDALI',
                 'first_name' => 'RIAD',
@@ -4299,8 +4305,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            214 => 
-            array (
+            214 =>
+            array(
                 'id' => '215',
                 'username' => 'N.AMMI',
                 'first_name' => 'NASSIM',
@@ -4319,8 +4325,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            215 => 
-            array (
+            215 =>
+            array(
                 'id' => '216',
                 'username' => 'L.ALLAM',
                 'first_name' => 'LYES',
@@ -4339,8 +4345,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            216 => 
-            array (
+            216 =>
+            array(
                 'id' => '217',
                 'username' => 'T.CHABOU',
                 'first_name' => 'TAKIEDDINE',
@@ -4359,8 +4365,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            217 => 
-            array (
+            217 =>
+            array(
                 'id' => '218',
                 'username' => 'Y.OMARI',
                 'first_name' => 'YASMINE',
@@ -4379,8 +4385,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            218 => 
-            array (
+            218 =>
+            array(
                 'id' => '219',
                 'username' => 'M.GUEDDOU',
                 'first_name' => 'MEHDI',
@@ -4399,8 +4405,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            219 => 
-            array (
+            219 =>
+            array(
                 'id' => '220',
                 'username' => 'M.TOUATI',
                 'first_name' => 'MOHAND OUALI',
@@ -4419,8 +4425,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            220 => 
-            array (
+            220 =>
+            array(
                 'id' => '221',
                 'username' => 'D.HADDOUCHE',
                 'first_name' => 'DJOUDI',
@@ -4439,8 +4445,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            221 => 
-            array (
+            221 =>
+            array(
                 'id' => '222',
                 'username' => 'Z.MADDI',
                 'first_name' => 'ZAHIR',
@@ -4459,8 +4465,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            222 => 
-            array (
+            222 =>
+            array(
                 'id' => '223',
                 'username' => 'B.BOUKHAROUBENE',
                 'first_name' => 'BOUBEKEUR',
@@ -4479,8 +4485,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            223 => 
-            array (
+            223 =>
+            array(
                 'id' => '224',
                 'username' => 'D.KERNOU',
                 'first_name' => 'DJAMAL',
@@ -4499,8 +4505,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            224 => 
-            array (
+            224 =>
+            array(
                 'id' => '225',
                 'username' => 'L.DJOUDER',
                 'first_name' => 'LOTFI',
@@ -4519,8 +4525,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            225 => 
-            array (
+            225 =>
+            array(
                 'id' => '226',
                 'username' => 'C.RAHMOUNE',
                 'first_name' => 'CHERIFA',
@@ -4539,8 +4545,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            226 => 
-            array (
+            226 =>
+            array(
                 'id' => '227',
                 'username' => 'L.AMZAL',
                 'first_name' => 'LYES',
@@ -4559,8 +4565,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            227 => 
-            array (
+            227 =>
+            array(
                 'id' => '228',
                 'username' => 'H.MAHDI',
                 'first_name' => 'HAMID',
@@ -4579,8 +4585,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            228 => 
-            array (
+            228 =>
+            array(
                 'id' => '229',
                 'username' => 'M.MESSAOUDENE',
                 'first_name' => 'MUSTAPHA',
@@ -4599,8 +4605,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            229 => 
-            array (
+            229 =>
+            array(
                 'id' => '230',
                 'username' => 'M.SEGHIRAT',
                 'first_name' => 'MED LAMINE',
@@ -4610,7 +4616,7 @@ class UsersTableSeeder extends Seeder
                 'avatar' => NULL,
                 'gender' => '1',
                 'password' => '$2y$10$IY.HMKNv3CSCVdSpq6kjpeq5HxXV2.dKCa8Ty2VOHkcNha9UoxEkK',
-            'active_post' => '(Chef de Secteur Chargé du Dpt Contrôle )',
+                'active_post' => '(Chef de Secteur Chargé du Dpt Contrôle )',
                 'is_active' => '1',
                 'registration_number' => NULL,
                 'remember_token' => NULL,
@@ -4619,8 +4625,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            230 => 
-            array (
+            230 =>
+            array(
                 'id' => '231',
                 'username' => 'B.OULADHADDAR',
                 'first_name' => 'BACHIR',
@@ -4630,7 +4636,7 @@ class UsersTableSeeder extends Seeder
                 'avatar' => NULL,
                 'gender' => '1',
                 'password' => '$2y$10$H2uCvn/r.KEr6ifSaOjxBegGKjls/ocG4/ToVLHHo6LUFDiRVdsbq',
-            'active_post' => '(Chargé d\'études)',
+                'active_post' => '(Chargé d\'études)',
                 'is_active' => '1',
                 'registration_number' => NULL,
                 'remember_token' => NULL,
@@ -4639,8 +4645,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            231 => 
-            array (
+            231 =>
+            array(
                 'id' => '232',
                 'username' => 'I.OMAROUYOUB',
                 'first_name' => 'ILYES',
@@ -4650,7 +4656,7 @@ class UsersTableSeeder extends Seeder
                 'avatar' => NULL,
                 'gender' => '1',
                 'password' => '$2y$10$QNkRPjaK2QMDLU0P4Fl7UeFPfv2m1CA8Na.O2MNwnvB6T5iBNpqHi',
-            'active_post' => '(Chargé d\'études)',
+                'active_post' => '(Chargé d\'études)',
                 'is_active' => '1',
                 'registration_number' => NULL,
                 'remember_token' => NULL,
@@ -4659,8 +4665,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            232 => 
-            array (
+            232 =>
+            array(
                 'id' => '233',
                 'username' => 'A.MEDKOUR',
                 'first_name' => 'AHMED ISHAK',
@@ -4670,7 +4676,7 @@ class UsersTableSeeder extends Seeder
                 'avatar' => NULL,
                 'gender' => '1',
                 'password' => '$2y$10$ZiyOe/WEimbElv/AbebSA.NnwrSK2vMkC5ejeZe4iT5E79oecypBG',
-            'active_post' => '(Chargé d\'études)',
+                'active_post' => '(Chargé d\'études)',
                 'is_active' => '1',
                 'registration_number' => NULL,
                 'remember_token' => NULL,
@@ -4679,8 +4685,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            233 => 
-            array (
+            233 =>
+            array(
                 'id' => '234',
                 'username' => 'M.ACHOUR',
                 'first_name' => 'MOUNIR',
@@ -4699,8 +4705,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            234 => 
-            array (
+            234 =>
+            array(
                 'id' => '235',
                 'username' => 'I.HABES',
                 'first_name' => 'IMAD',
@@ -4719,8 +4725,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            235 => 
-            array (
+            235 =>
+            array(
                 'id' => '236',
                 'username' => 'A.YOUNES',
                 'first_name' => 'ABDELKRIM',
@@ -4739,8 +4745,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            236 => 
-            array (
+            236 =>
+            array(
                 'id' => '237',
                 'username' => 'M.BEYOUD',
                 'first_name' => 'MUSTAFA',
@@ -4759,8 +4765,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            237 => 
-            array (
+            237 =>
+            array(
                 'id' => '238',
                 'username' => 'D.BOUGHOUFALA',
                 'first_name' => 'DALILA',
@@ -4779,8 +4785,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            238 => 
-            array (
+            238 =>
+            array(
                 'id' => '239',
                 'username' => 'H.CHERBAL',
                 'first_name' => 'HAKIM',
@@ -4799,8 +4805,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            239 => 
-            array (
+            239 =>
+            array(
                 'id' => '240',
                 'username' => 'N.LACHI',
                 'first_name' => 'NOUH',
@@ -4819,8 +4825,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            240 => 
-            array (
+            240 =>
+            array(
                 'id' => '241',
                 'username' => 'A.CHOUABAH',
                 'first_name' => 'ALA EDDINE',
@@ -4839,8 +4845,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            241 => 
-            array (
+            241 =>
+            array(
                 'id' => '242',
                 'username' => 'K.DJEBBARI',
                 'first_name' => 'KHAMIS',
@@ -4859,8 +4865,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            242 => 
-            array (
+            242 =>
+            array(
                 'id' => '243',
                 'username' => 'F.MENAKH',
                 'first_name' => 'FOUAD',
@@ -4879,8 +4885,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            243 => 
-            array (
+            243 =>
+            array(
                 'id' => '244',
                 'username' => 'C.BOUKHARI',
                 'first_name' => 'CHERIFA',
@@ -4899,8 +4905,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            244 => 
-            array (
+            244 =>
+            array(
                 'id' => '245',
                 'username' => 'N.RAIS',
                 'first_name' => 'NESRINE',
@@ -4919,8 +4925,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            245 => 
-            array (
+            245 =>
+            array(
                 'id' => '246',
                 'username' => 'A.BENBOUCHAMA',
                 'first_name' => 'ABDELKADER',
@@ -4939,8 +4945,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            246 => 
-            array (
+            246 =>
+            array(
                 'id' => '247',
                 'username' => 'C.DJABELKHEIR',
                 'first_name' => 'CHAWKI',
@@ -4959,8 +4965,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            247 => 
-            array (
+            247 =>
+            array(
                 'id' => '248',
                 'username' => 'N.BOUMARAF',
                 'first_name' => 'NADIA',
@@ -4979,8 +4985,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            248 => 
-            array (
+            248 =>
+            array(
                 'id' => '249',
                 'username' => 'M.FARES',
                 'first_name' => 'MOHAMED',
@@ -4999,8 +5005,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            249 => 
-            array (
+            249 =>
+            array(
                 'id' => '250',
                 'username' => 'D.HARKAT',
                 'first_name' => 'DJAMEL',
@@ -5019,8 +5025,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            250 => 
-            array (
+            250 =>
+            array(
                 'id' => '251',
                 'username' => 'A.SOUIDANI',
                 'first_name' => 'ASMA',
@@ -5039,8 +5045,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            251 => 
-            array (
+            251 =>
+            array(
                 'id' => '252',
                 'username' => 'S.ATMANIA',
                 'first_name' => 'SOUMAIA',
@@ -5059,8 +5065,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            252 => 
-            array (
+            252 =>
+            array(
                 'id' => '253',
                 'username' => 'D.HAMIDENE',
                 'first_name' => 'DOUNIA',
@@ -5079,8 +5085,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            253 => 
-            array (
+            253 =>
+            array(
                 'id' => '254',
                 'username' => 'H.KAMLI',
                 'first_name' => 'HANANE',
@@ -5099,8 +5105,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            254 => 
-            array (
+            254 =>
+            array(
                 'id' => '255',
                 'username' => 'S.DJERMANE',
                 'first_name' => 'SAMI',
@@ -5119,8 +5125,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            255 => 
-            array (
+            255 =>
+            array(
                 'id' => '256',
                 'username' => 'N.LARIBI',
                 'first_name' => 'NASSIMA',
@@ -5139,8 +5145,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            256 => 
-            array (
+            256 =>
+            array(
                 'id' => '257',
                 'username' => 'A.MAMERI',
                 'first_name' => 'AMINA',
@@ -5159,8 +5165,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            257 => 
-            array (
+            257 =>
+            array(
                 'id' => '258',
                 'username' => 'K.BEDOUANI',
                 'first_name' => 'KHALED',
@@ -5179,8 +5185,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            258 => 
-            array (
+            258 =>
+            array(
                 'id' => '259',
                 'username' => 'B.MOUFFOK',
                 'first_name' => 'BILLEL',
@@ -5199,8 +5205,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            259 => 
-            array (
+            259 =>
+            array(
                 'id' => '260',
                 'username' => 'S.BEGRICHE',
                 'first_name' => 'SARA',
@@ -5219,8 +5225,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            260 => 
-            array (
+            260 =>
+            array(
                 'id' => '261',
                 'username' => 'M.KHALFOUNI',
                 'first_name' => 'MED LAMINE',
@@ -5239,8 +5245,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            261 => 
-            array (
+            261 =>
+            array(
                 'id' => '262',
                 'username' => 'M.YAKHLEF',
                 'first_name' => 'MOUNA',
@@ -5259,8 +5265,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            262 => 
-            array (
+            262 =>
+            array(
                 'id' => '263',
                 'username' => 'S.MENAD',
                 'first_name' => 'SAMIR',
@@ -5279,8 +5285,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            263 => 
-            array (
+            263 =>
+            array(
                 'id' => '264',
                 'username' => 'B.DJOUADJ',
                 'first_name' => 'BRAHIM',
@@ -5299,8 +5305,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            264 => 
-            array (
+            264 =>
+            array(
                 'id' => '265',
                 'username' => 'L.HAICHEUR',
                 'first_name' => 'LILA',
@@ -5319,8 +5325,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            265 => 
-            array (
+            265 =>
+            array(
                 'id' => '266',
                 'username' => 'L.MECHTA',
                 'first_name' => 'LAMYA',
@@ -5339,8 +5345,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            266 => 
-            array (
+            266 =>
+            array(
                 'id' => '267',
                 'username' => 'R.MOKHBAT',
                 'first_name' => 'RAMZI',
@@ -5359,8 +5365,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            267 => 
-            array (
+            267 =>
+            array(
                 'id' => '268',
                 'username' => 'I.LABIOD',
                 'first_name' => 'IBTISSEM',
@@ -5379,8 +5385,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            268 => 
-            array (
+            268 =>
+            array(
                 'id' => '269',
                 'username' => 'S.SAHOUANE',
                 'first_name' => 'SAFIA',
@@ -5399,8 +5405,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            269 => 
-            array (
+            269 =>
+            array(
                 'id' => '270',
                 'username' => 'N.AITBRAHIM',
                 'first_name' => 'NAIMA',
@@ -5419,8 +5425,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            270 => 
-            array (
+            270 =>
+            array(
                 'id' => '271',
                 'username' => 'S.MERGHIT',
                 'first_name' => 'SOUMIA',
@@ -5439,8 +5445,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            271 => 
-            array (
+            271 =>
+            array(
                 'id' => '272',
                 'username' => 'F.RABEHI',
                 'first_name' => 'FARIDA',
@@ -5459,8 +5465,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            272 => 
-            array (
+            272 =>
+            array(
                 'id' => '273',
                 'username' => 'A.SOUANEF',
                 'first_name' => 'ASMA SELMA',
@@ -5479,8 +5485,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            273 => 
-            array (
+            273 =>
+            array(
                 'id' => '274',
                 'username' => 'F.KHEYAR',
                 'first_name' => 'FARID',
@@ -5499,8 +5505,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            274 => 
-            array (
+            274 =>
+            array(
                 'id' => '275',
                 'username' => 'H.BOUTAYA',
                 'first_name' => 'HADJER',
@@ -5510,7 +5516,7 @@ class UsersTableSeeder extends Seeder
                 'avatar' => NULL,
                 'gender' => '2',
                 'password' => '$2y$10$U1V6j93ulvSxFHFqQrMzDea.PfZh2luVsJ2tVxm/.OrdcqULVsmwC',
-            'active_post' => 'chargée d\'étude NII (sédentaire)',
+                'active_post' => 'chargée d\'étude NII (sédentaire)',
                 'is_active' => '1',
                 'registration_number' => NULL,
                 'remember_token' => NULL,
@@ -5519,8 +5525,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            275 => 
-            array (
+            275 =>
+            array(
                 'id' => '276',
                 'username' => 'F.DJERIR',
                 'first_name' => 'FARID',
@@ -5530,7 +5536,7 @@ class UsersTableSeeder extends Seeder
                 'avatar' => NULL,
                 'gender' => '1',
                 'password' => '$2y$10$C04tliLErKEvGy1YgODUN.hlUe3IX7g8KyxWd8N/X7Atl/kvpKcNW',
-            'active_post' => 'chargée d\'étude NII (sédentaire)',
+                'active_post' => 'chargée d\'étude NII (sédentaire)',
                 'is_active' => '1',
                 'registration_number' => NULL,
                 'remember_token' => NULL,
@@ -5539,8 +5545,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            276 => 
-            array (
+            276 =>
+            array(
                 'id' => '277',
                 'username' => 'N.KEDIDAH',
                 'first_name' => 'NOURDINE',
@@ -5550,7 +5556,7 @@ class UsersTableSeeder extends Seeder
                 'avatar' => NULL,
                 'gender' => '1',
                 'password' => '$2y$10$J/tswdsCm0CxHFJ3dtXJZe9miMQw3/ePgzWV2sT0Kzbex6lWnwNTe',
-            'active_post' => 'Ex Directeur d\'agence chargée d\'etudes technique ple (sédentaire)',
+                'active_post' => 'Ex Directeur d\'agence chargée d\'etudes technique ple (sédentaire)',
                 'is_active' => '1',
                 'registration_number' => NULL,
                 'remember_token' => NULL,
@@ -5559,8 +5565,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            277 => 
-            array (
+            277 =>
+            array(
                 'id' => '278',
                 'username' => 'S.BENSMAINE',
                 'first_name' => 'SOFIANE',
@@ -5579,8 +5585,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            278 => 
-            array (
+            278 =>
+            array(
                 'id' => '279',
                 'username' => 'N.MELAH',
                 'first_name' => 'NESRINE',
@@ -5599,8 +5605,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            279 => 
-            array (
+            279 =>
+            array(
                 'id' => '280',
                 'username' => 'H.ABDELRAHIM',
                 'first_name' => 'HICHEM',
@@ -5619,8 +5625,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            280 => 
-            array (
+            280 =>
+            array(
                 'id' => '281',
                 'username' => 'A.TOUBALSEGHIR',
                 'first_name' => 'AMEL',
@@ -5639,8 +5645,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            281 => 
-            array (
+            281 =>
+            array(
                 'id' => '282',
                 'username' => 'N.DJABRI',
                 'first_name' => 'NAWEL',
@@ -5659,8 +5665,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            282 => 
-            array (
+            282 =>
+            array(
                 'id' => '283',
                 'username' => 'N.BOUTELHIG',
                 'first_name' => 'NADIA',
@@ -5679,8 +5685,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            283 => 
-            array (
+            283 =>
+            array(
                 'id' => '284',
                 'username' => 'H.DERRAR',
                 'first_name' => 'HASSIBA',
@@ -5699,8 +5705,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            284 => 
-            array (
+            284 =>
+            array(
                 'id' => '285',
                 'username' => 'H.HENANOU',
                 'first_name' => 'HICHEM',
@@ -5719,8 +5725,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            285 => 
-            array (
+            285 =>
+            array(
                 'id' => '286',
                 'username' => 'F.BOUCHELIT',
                 'first_name' => 'FAIZA',
@@ -5739,8 +5745,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            286 => 
-            array (
+            286 =>
+            array(
                 'id' => '287',
                 'username' => 'K.BENSAFI',
                 'first_name' => 'KARIMA',
@@ -5759,8 +5765,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            287 => 
-            array (
+            287 =>
+            array(
                 'id' => '288',
                 'username' => 'A.MANSOUR',
                 'first_name' => 'AHMED',
@@ -5779,8 +5785,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            288 => 
-            array (
+            288 =>
+            array(
                 'id' => '289',
                 'username' => 'Y.AIYACHE',
                 'first_name' => 'YOUCEF',
@@ -5799,8 +5805,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            289 => 
-            array (
+            289 =>
+            array(
                 'id' => '290',
                 'username' => 'K.TABET',
                 'first_name' => 'KAMEL',
@@ -5819,8 +5825,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            290 => 
-            array (
+            290 =>
+            array(
                 'id' => '291',
                 'username' => 'S.NAAS',
                 'first_name' => 'SID AHMED',
@@ -5839,8 +5845,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            291 => 
-            array (
+            291 =>
+            array(
                 'id' => '292',
                 'username' => 'A.ZIDANE',
                 'first_name' => 'ALI',
@@ -5859,8 +5865,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            292 => 
-            array (
+            292 =>
+            array(
                 'id' => '293',
                 'username' => 'I.ZEMRI',
                 'first_name' => 'IMANE',
@@ -5879,8 +5885,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            293 => 
-            array (
+            293 =>
+            array(
                 'id' => '294',
                 'username' => 'S.BENGHALIA',
                 'first_name' => 'SAMIR',
@@ -5899,8 +5905,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            294 => 
-            array (
+            294 =>
+            array(
                 'id' => '295',
                 'username' => 'F.BATEL',
                 'first_name' => 'FATIMA ZOHRA',
@@ -5919,8 +5925,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            295 => 
-            array (
+            295 =>
+            array(
                 'id' => '296',
                 'username' => 'M.MODERRESS',
                 'first_name' => 'MOHAMMED',
@@ -5939,8 +5945,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            296 => 
-            array (
+            296 =>
+            array(
                 'id' => '297',
                 'username' => 'H.BENSAHA',
                 'first_name' => 'HAMZA',
@@ -5959,8 +5965,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            297 => 
-            array (
+            297 =>
+            array(
                 'id' => '298',
                 'username' => 'M.AYOUAZ',
                 'first_name' => 'MOHAMMED EL FASSI',
@@ -5979,8 +5985,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            298 => 
-            array (
+            298 =>
+            array(
                 'id' => '299',
                 'username' => 'M.BENAZZOUZI',
                 'first_name' => 'MUSTAPHA',
@@ -5999,8 +6005,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            299 => 
-            array (
+            299 =>
+            array(
                 'id' => '300',
                 'username' => 'A.CHERIT',
                 'first_name' => 'ABDELKADER',
@@ -6019,8 +6025,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            300 => 
-            array (
+            300 =>
+            array(
                 'id' => '301',
                 'username' => 'A.DILMI',
                 'first_name' => 'AMALE',
@@ -6039,8 +6045,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            301 => 
-            array (
+            301 =>
+            array(
                 'id' => '302',
                 'username' => 'M.SOUMATIA',
                 'first_name' => 'MOHAMED',
@@ -6059,8 +6065,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            302 => 
-            array (
+            302 =>
+            array(
                 'id' => '303',
                 'username' => 'S.BOUTALBI',
                 'first_name' => 'SLIMANE',
@@ -6079,8 +6085,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            303 => 
-            array (
+            303 =>
+            array(
                 'id' => '304',
                 'username' => 'B.DJAFRI',
                 'first_name' => 'BELKACEM',
@@ -6099,8 +6105,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            304 => 
-            array (
+            304 =>
+            array(
                 'id' => '305',
                 'username' => 'A.KERROUCHE',
                 'first_name' => 'ABDELKARIM',
@@ -6119,8 +6125,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            305 => 
-            array (
+            305 =>
+            array(
                 'id' => '306',
                 'username' => 'H.TOULMIT',
                 'first_name' => 'HACENE',
@@ -6139,8 +6145,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            306 => 
-            array (
+            306 =>
+            array(
                 'id' => '307',
                 'username' => 'B.ZELLAGUI',
                 'first_name' => 'BELGACEM',
@@ -6159,8 +6165,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            307 => 
-            array (
+            307 =>
+            array(
                 'id' => '308',
                 'username' => 'A.NOUAR',
                 'first_name' => 'ABIR',
@@ -6179,8 +6185,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            308 => 
-            array (
+            308 =>
+            array(
                 'id' => '309',
                 'username' => 'K.FOUDI',
                 'first_name' => 'KAMEL',
@@ -6199,8 +6205,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            309 => 
-            array (
+            309 =>
+            array(
                 'id' => '310',
                 'username' => 'N.TAIBI',
                 'first_name' => 'NAWEL',
@@ -6219,8 +6225,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            310 => 
-            array (
+            310 =>
+            array(
                 'id' => '311',
                 'username' => 'M.MAIZA',
                 'first_name' => 'MAHMOUD',
@@ -6239,8 +6245,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            311 => 
-            array (
+            311 =>
+            array(
                 'id' => '312',
                 'username' => 'S.KHALEF',
                 'first_name' => 'SALIM',
@@ -6259,8 +6265,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            312 => 
-            array (
+            312 =>
+            array(
                 'id' => '313',
                 'username' => 'A.FELLAH',
                 'first_name' => 'ABDELKARIM',
@@ -6279,8 +6285,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            313 => 
-            array (
+            313 =>
+            array(
                 'id' => '314',
                 'username' => 'N.BOUTI',
                 'first_name' => 'NABIL',
@@ -6299,8 +6305,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            314 => 
-            array (
+            314 =>
+            array(
                 'id' => '315',
                 'username' => 'H.GHANEM',
                 'first_name' => 'HAKIMA',
@@ -6319,8 +6325,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            315 => 
-            array (
+            315 =>
+            array(
                 'id' => '316',
                 'username' => 'N.BOUSNINA',
                 'first_name' => 'NABIL',
@@ -6339,8 +6345,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            316 => 
-            array (
+            316 =>
+            array(
                 'id' => '317',
                 'username' => 'Y.SAIDI',
                 'first_name' => 'YOUCEF LOTFI',
@@ -6359,8 +6365,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            317 => 
-            array (
+            317 =>
+            array(
                 'id' => '318',
                 'username' => 'B.BOUTITAOU',
                 'first_name' => 'BILAL',
@@ -6379,8 +6385,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            318 => 
-            array (
+            318 =>
+            array(
                 'id' => '319',
                 'username' => 'R.SAHLI',
                 'first_name' => 'RADHIA',
@@ -6399,8 +6405,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            319 => 
-            array (
+            319 =>
+            array(
                 'id' => '320',
                 'username' => 'H.HAIF',
                 'first_name' => 'HICHEM',
@@ -6419,8 +6425,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            320 => 
-            array (
+            320 =>
+            array(
                 'id' => '321',
                 'username' => 'R.BENBADISS',
                 'first_name' => 'RAMZI',
@@ -6439,8 +6445,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            321 => 
-            array (
+            321 =>
+            array(
                 'id' => '322',
                 'username' => 'B.CHERIF',
                 'first_name' => 'BENAOUDA',
@@ -6459,8 +6465,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            322 => 
-            array (
+            322 =>
+            array(
                 'id' => '323',
                 'username' => 'A.LEBNI',
                 'first_name' => 'AHMED',
@@ -6479,8 +6485,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            323 => 
-            array (
+            323 =>
+            array(
                 'id' => '324',
                 'username' => 'N.ADDA',
                 'first_name' => 'NAIMA',
@@ -6499,8 +6505,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            324 => 
-            array (
+            324 =>
+            array(
                 'id' => '325',
                 'username' => 'C.MOUSSA',
                 'first_name' => 'CHEMS EDDINE',
@@ -6519,8 +6525,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            325 => 
-            array (
+            325 =>
+            array(
                 'id' => '326',
                 'username' => 'Y.DERBAL',
                 'first_name' => 'YASSINE',
@@ -6539,8 +6545,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            326 => 
-            array (
+            326 =>
+            array(
                 'id' => '327',
                 'username' => 'S.TEMMIM',
                 'first_name' => 'SALIMA',
@@ -6559,8 +6565,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            327 => 
-            array (
+            327 =>
+            array(
                 'id' => '328',
                 'username' => 'A.AITAMRANE',
                 'first_name' => 'ABDELAZIZ',
@@ -6579,8 +6585,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            328 => 
-            array (
+            328 =>
+            array(
                 'id' => '329',
                 'username' => 'N.TORKI',
                 'first_name' => 'NAWEL',
@@ -6599,8 +6605,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            329 => 
-            array (
+            329 =>
+            array(
                 'id' => '330',
                 'username' => 'A.BENCHIKOU',
                 'first_name' => 'ABDELKRIM',
@@ -6619,8 +6625,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            330 => 
-            array (
+            330 =>
+            array(
                 'id' => '331',
                 'username' => 'H.CHAIBRAHIM',
                 'first_name' => 'HADJ',
@@ -6639,8 +6645,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            331 => 
-            array (
+            331 =>
+            array(
                 'id' => '332',
                 'username' => 'A.MEDEGHRI',
                 'first_name' => 'ABDELKRIM',
@@ -6659,8 +6665,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            332 => 
-            array (
+            332 =>
+            array(
                 'id' => '333',
                 'username' => 'A.BENSALLAH',
                 'first_name' => 'AHMED',
@@ -6679,8 +6685,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            333 => 
-            array (
+            333 =>
+            array(
                 'id' => '334',
                 'username' => 'M.ADDA',
                 'first_name' => 'MOHAMED',
@@ -6699,8 +6705,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            334 => 
-            array (
+            334 =>
+            array(
                 'id' => '335',
                 'username' => 'S.MESSAOUD',
                 'first_name' => 'SLIMANE',
@@ -6719,8 +6725,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            335 => 
-            array (
+            335 =>
+            array(
                 'id' => '336',
                 'username' => 'M.BENBERNOU',
                 'first_name' => 'MUSTAPHA HADI',
@@ -6739,8 +6745,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            336 => 
-            array (
+            336 =>
+            array(
                 'id' => '337',
                 'username' => 'C.TAMIMALLAM',
                 'first_name' => 'CHEIKH',
@@ -6759,8 +6765,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            337 => 
-            array (
+            337 =>
+            array(
                 'id' => '338',
                 'username' => 'N.BELAIMECHE',
                 'first_name' => 'NOUREDDINE',
@@ -6779,8 +6785,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '5',
             ),
-            338 => 
-            array (
+            338 =>
+            array(
                 'id' => '339',
                 'username' => 'M.MRABENT',
                 'first_name' => 'MADJID',
@@ -6799,8 +6805,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            339 => 
-            array (
+            339 =>
+            array(
                 'id' => '340',
                 'username' => 'F.GUEROUACHE',
                 'first_name' => 'FETHI',
@@ -6819,8 +6825,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '6',
             ),
-            340 => 
-            array (
+            340 =>
+            array(
                 'id' => '341',
                 'username' => 'M.SOUIAH',
                 'first_name' => 'MOKHTAR',
@@ -6839,8 +6845,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            341 => 
-            array (
+            341 =>
+            array(
                 'id' => '342',
                 'username' => 'M.GUEHAM',
                 'first_name' => 'MOHAMED',
@@ -6859,8 +6865,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            342 => 
-            array (
+            342 =>
+            array(
                 'id' => '343',
                 'username' => 'Z.ABAKIL',
                 'first_name' => 'ZOHRA',
@@ -6879,8 +6885,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            343 => 
-            array (
+            343 =>
+            array(
                 'id' => '344',
                 'username' => 'S.MAACHOU',
                 'first_name' => 'SAMIRA',
@@ -6899,8 +6905,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            344 => 
-            array (
+            344 =>
+            array(
                 'id' => '345',
                 'username' => 'F.BEKKAYE',
                 'first_name' => 'FATIMA',
@@ -6919,8 +6925,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            345 => 
-            array (
+            345 =>
+            array(
                 'id' => '346',
                 'username' => 'W.BENBAYER',
                 'first_name' => 'WAFAA',
@@ -6939,8 +6945,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            346 => 
-            array (
+            346 =>
+            array(
                 'id' => '347',
                 'username' => 'M.ZOURGUI',
                 'first_name' => 'MOHAMED',
@@ -6959,8 +6965,8 @@ class UsersTableSeeder extends Seeder
                 'must_change_password' => '1',
                 'active_role_id' => '11',
             ),
-            347 => 
-            array (
+            347 =>
+            array(
                 'id' => '348',
                 'username' => 'A.BELKHADEM',
                 'first_name' => 'ABDELKADER',
@@ -6980,7 +6986,5 @@ class UsersTableSeeder extends Seeder
                 'active_role_id' => '11',
             ),
         ));
-        
-        
     }
 }

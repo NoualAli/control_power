@@ -166,7 +166,10 @@ export default {
          * Update mission
          */
         update() {
+<<<<<<< HEAD
             this.formIsLoading = true
+=======
+>>>>>>> master
             this.form.put('missions/' + this.mission.current.id).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)

@@ -145,13 +145,12 @@ class DataController extends Controller
             [
                 'axis' => 'y',
                 "label" => "Classement des notations",
-                "data" => $details->values(),
+                "data" => [],
                 'backgroundColor' => $backgroundColor,
                 'borderColor' => $borderColor,
                 'borderWidth' => $borderWidth,
             ]
         ];
-        return compact('labels', 'datasets');
     }
 
     /**
@@ -616,6 +615,7 @@ class DataController extends Controller
             }
         }
         $user = auth()->user();
+<<<<<<< HEAD
         if (hasRole('ci')) {
             $details = $details->join('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')->where('mhc.user_id', $user->id);
         } elseif (hasRole('cdc')) {
@@ -626,6 +626,17 @@ class DataController extends Controller
             $details = $details->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
         } elseif (hasRole('dre')) {
             $details = $details->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
+=======
+        $details = MissionDetail::whereNotNull('score');
+        if (hasRole(['dcp', 'dg', 'cdcr'])) {
+            $details = $details;
+        } elseif (hasRole(['cdc', 'cc', 'ci'])) {
+            $details = $user->details();
+        } elseif (hasRole(['cdrcp', 'der'])) {
+            $details = $details->hasDcpValidation();
+        } elseif (hasRole(['dre', 'da'])) {
+            $details = $user->details()->hasDcpValidation();
+>>>>>>> master
         }
         return $details;
     }
