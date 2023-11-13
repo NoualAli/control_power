@@ -2,11 +2,11 @@
 
 use App\Models\ControlCampaign;
 use App\Models\Domain;
-use App\Models\Familly;
+use App\Models\Dre;
+use App\Models\Family;
 use App\Models\Mission;
 use App\Models\User;
 use Carbon\Carbon;
-use Carbon\CarbonImmutable;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -60,15 +60,11 @@ if (!function_exists('hasRole')) {
     function hasRole(string|array $roles, ?User $user = null): bool
     {
         $user = $user ? $user : auth()->user();
-        $userRoles = $user->roles->pluck('code')->toArray();
+        $role = $user->role->code;
         if (is_array($roles)) {
-            $hasRole = [];
-            foreach ($roles as $role) {
-                array_push($hasRole, in_array($role, $userRoles));
-            }
-            return in_array(true, $hasRole);
+            return in_array($role, $roles);
         } else {
-            return in_array($roles, $userRoles);
+            return $role == $roles;
         }
     }
 }
@@ -234,18 +230,18 @@ if (!function_exists('getPCF')) {
     /**
      * Fetch and format PCF array
      *
-     * @param Familly|null $famillies
+     * @param Family|null $families
      *
      * @return array
      */
-    function getPCF(?Familly $famillies = null): array
+    function getPCF(?Family $families = null): array
     {
-        $famillies = $famillies ? $famillies : new Familly;
-        $famillies = $famillies->orderBy('id', 'ASC')->with(['domains' => fn ($domain) => $domain->with(['processes' => fn ($process) => $process->without('control_points')])])->get()->toArray();
-        return array_map(function ($familly) {
+        $families = $families ? $families : new Family;
+        $families = $families->orderBy('id', 'ASC')->with(['domains' => fn ($domain) => $domain->with(['processes' => fn ($process) => $process->without('control_points')])])->get()->toArray();
+        return array_map(function ($family) {
             return [
-                'id' => 'f-' . $familly['id'] . '-' . $familly['name'],
-                'label' => $familly['name'],
+                'id' => 'f-' . $family['id'] . '-' . $family['name'],
+                'label' => $family['name'],
                 'children' => array_map(function ($domain) {
                     return [
                         'id' => 'd-' . $domain['id'] . '-' . $domain['name'],
@@ -257,9 +253,9 @@ if (!function_exists('getPCF')) {
                             ];
                         }, $domain['processes'])
                     ];
-                }, $familly['domains'])
+                }, $family['domains'])
             ];
-        }, $famillies);
+        }, $families);
     }
 }
 
@@ -280,7 +276,7 @@ if (!function_exists('pcfToProcesses')) {
                 if ($item[0] == 'd') {
                     $ids = array_merge(Domain::findOrFail($item[1])->processes->pluck('id')->toArray(), $ids);
                 } elseif ($item[0] == 'f') {
-                    $ids = array_merge(Familly::findOrFail($item[1])->processes->pluck('id')->toArray(), $ids);
+                    $ids = array_merge(Family::findOrFail($item[1])->processes->pluck('id')->toArray(), $ids);
                 } else {
                     $ids = array_merge($ids, [intval($item[0])]);
                 }
@@ -289,6 +285,7 @@ if (!function_exists('pcfToProcesses')) {
             $pcf = Validator::make($pcf, [
                 '*' => 'exists:processes,id'
             ])->validated();
+            // dd($pcf);
 
             return $pcf;
         }
@@ -309,7 +306,7 @@ if (!function_exists('generateCDCRef')) {
     {
         $reference = '';
         $date = $date ? Carbon::parse($date)->format('Y') : today()->format('Y');
-        $cdc = ControlCampaign::whereYear('start', $date);
+        $cdc = ControlCampaign::whereYear('start_date', $date);
         if ($validate) {
             $reference = 'CDC-' . $date . '-' . addZero($cdc->validated()->count() + 1);
         } else {
@@ -337,20 +334,57 @@ if (!function_exists('getMissionProcesses')) {
             f.name as family,
             f.id as family_id,
             d.id as domain_id,
+            CASE WHEN COUNT(CASE WHEN md.major_fact > 0 THEN 1 ELSE NULL END) > 0 THEN 'Oui' ELSE 'Non' END AS major_fact,
+            COUNT(CASE WHEN score IN (2, 3, 4) THEN 1 ELSE NULL END) AS total_anomalies,
             COUNT(cp.id) as control_points_count,
             AVG(md.score) as avg_score,
-            FORMAT(MAX(md.controlled_at), 'dd-MM-yyyy') AS controlled_at,
             COUNT(md.id) AS total_mission_details,
             SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) AS scored_mission_details,
+            (COUNT(CASE WHEN score IN (2, 3, 4) THEN 1 ELSE NULL END) * 100) / COUNT(md.id) AS anomalies_rate,
             (count(md.score) * 100) / COUNT(md.id) AS progress_status
         ");
-        return $processes->join('control_points as cp', 'p.id', '=', 'cp.process_id')
+        $processes = $processes->join('control_points as cp', 'p.id', '=', 'cp.process_id')
             ->join('domains as d', 'd.id', '=', 'p.domain_id')
-            ->join('famillies as f', 'f.id', '=', 'd.familly_id')
+            ->join('families as f', 'f.id', '=', 'd.family_id')
             ->join('mission_details as md', 'cp.id', '=', 'md.control_point_id')
             ->join('missions as m', 'm.id', '=', 'md.mission_id')
             ->groupBy('f.id', 'd.id', 'p.id', 'p.name', 'd.name', 'f.name')
             ->where('m.id', $mission->id);
+        return $processes;
+    }
+}
+
+if (!function_exists('loadAgencies')) {
+    /**
+     * @param array $data
+     *
+     * @return array
+     */
+    function loadAgencies(string|int|array $data)
+    {
+        if (is_array($data)) {
+            $data = Arr::flatten(array_map(function ($item) {
+                $item = explode('-', $item);
+                $ids = [];
+                if ($item[0] == 'd') {
+                    $ids = array_merge(Dre::findOrFail($item[1])->agencies->pluck('id')->toArray(), $ids);
+                } else {
+                    $ids = array_merge($ids, [intval($item[0])]);
+                }
+                return $ids;
+            }, $data));
+        } elseif (is_integer($data)) {
+            $ids = [];
+            $data = array_merge($ids, [intval($data)]);
+        } elseif (is_string($data) && str_starts_with($data, 'd-')) {
+            $ids = [];
+            $data = explode('-', $data);
+            $data = array_merge(Dre::findOrFail($data[1])->agencies->pluck('id')->toArray(), $ids);
+        }
+        $data = Validator::make($data, [
+            '*' => 'exists:agencies,id'
+        ])->validated();
+        return $data;
     }
 }
 
@@ -378,5 +412,19 @@ if (!function_exists('recursivelyToArray')) {
 
             return $item;
         })->toArray();
+    }
+}
+
+if (!function_exists('rememberKeyForCache')) {
+    function rememberKeyForCache(?string $suffix = null)
+    {
+        return 'user_' . auth()->user()->id . '_' . $suffix;
+        // $url = request()->url();
+        // $queryParams = request()->query();
+        // ksort($queryParams);
+        // $queryString = http_build_query($queryParams);
+        // $fullUrl = "{$url}?{$queryString}";
+        // $rememberKey = sha1($fullUrl);
+        // return $prefix ? $prefix . '_user_' . auth()->user()->id . '_' . $rememberKey : '_user_' . auth()->user()->id . $rememberKey;
     }
 }

@@ -1,10 +1,10 @@
 <template>
     <Table :key="key" :filters="filters" :isLoading="isLoading" @search="(e) => this.loadData({ search: e })" :title="title"
-        @toggleFilter="toggleFilterState">
+        @toggleFilter="toggleFilterState" :isSearchable="isSearchable">
         <template #filter>
             <!-- Table filters -->
-            <NLFilter :filters="filters" v-if="hasFilters" :isOpen="filterIsOpen" :customUrl="filtersCustomUrl"
-                :urlPrefix="filtersUrlPrefix" :parentUrlPrefix="urlPrefix" @filtered="(e) => this.loadData({ filters: e })"
+            <NLFilter :filters="filters" :isOpen="filterIsOpen" :customUrl="filtersCustomUrl" :urlPrefix="filtersUrlPrefix"
+                :parentUrlPrefix="urlPrefix" @filtered="(e) => this.loadData({ filters: e })"
                 @unloaded="() => this.loadData({ page: 1 })" />
         </template>
         <template #head>
@@ -30,6 +30,7 @@
                     {{ noDataText }}
                 </TableData>
             </TableRow>
+
             <template v-for="(value, row) in values" :key="'tr-' + row">
                 <TableRow>
                     <!-- Table data toggle details -->
@@ -51,8 +52,9 @@
                         <slot name="actions-after" :item="value" :callback="handleCustomAction"></slot>
                     </TableData>
                 </TableRow>
+
+                <!-- Detail row -->
                 <Transition>
-                    <!-- Detail row -->
                     <DetailsRow :item="value" :columns="details" :span="detailsRowSpan" :rowId="rowId"
                         :customUrl="detailsCustomUrl" :urlPrefix="detailsUrlPrefix" :parentUrlPrefix="urlPrefix"
                         v-if="detailIsActive(value)" />
@@ -97,6 +99,8 @@ export default {
         detailsUrlPrefix: { type: String, required: false, default: null },
         filtersCustomUrl: { type: String, default: null, required: false },
         filtersUrlPrefix: { type: String, required: false, default: null },
+        isSearchable: { type: Boolean, required: false, default: true },
+        refresh: { type: Number, required: false, default: 0 },
     },
     data() {
         return {
@@ -111,7 +115,15 @@ export default {
             activeDetailsRows: [],
             filterIsOpen: false,
             activeFilters: {},
-            key: 1
+            key: 1,
+            forceFilterReload: 0
+        }
+    },
+    watch: {
+        refresh(newVal, oldVal) {
+            if (newVal !== oldVal) {
+                this.loadData({ page: this.page, perPage: this.perPage, search: this.search, sorting: this.sorting, filters: this.activeFilters })
+            }
         }
     },
     computed: {
@@ -175,7 +187,7 @@ export default {
         }
     },
     created() {
-        this.loadData({ page: 1, perPage: 10 })
+        // this.loadData({ page: 1, perPage: 10 })
     },
     unmounted() {
         this.data = null
@@ -186,7 +198,7 @@ export default {
          *
          * @param {Object} params
          * @param {Number} params.page // current active page
-         * @param {Number} params.perPage // amout of data showed per page
+         * @param {Number} params.perPage // amount of data showed per page
          * @param {String} params.search // searched valued
          * @param {Object} params.sorting // key for column -> value for direction
          * @param {Object} param.filters // active filters
@@ -206,6 +218,7 @@ export default {
             }).catch(error => {
                 this.isLoading = false
             })
+
         },
 
         /**

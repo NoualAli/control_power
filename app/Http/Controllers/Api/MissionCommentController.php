@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\MissionState;
 use App\Http\Controllers\Controller;
 use App\Models\Mission;
 use App\Http\Requests\Mission\Report\StoreRequest;
@@ -24,6 +25,7 @@ class MissionCommentController extends Controller
     public function store(StoreRequest $request, Mission $mission)
     {
         $data = $request->validated();
+        // dd($data);
         $type = $data['type'];
         if ($type == 'cdc_report') {
             isAbleOrAbort(['create_cdc_report', 'validate_cdc_report']);
@@ -58,12 +60,18 @@ class MissionCommentController extends Controller
                 }
 
                 if ($validated) {
+                    if ($type == 'ci_report') {
+                        $missionState = MissionState::PENDING_CDC_VALIDATION;
+                    } elseif ('cdc_report') {
+                        $missionState = MissionState::PENDING_CDCR_VALIDATION;
+                    }
                     $users = $this->getUsers($mission, $type);
                     $this->notifyUsers($mission, $users, $type);
                     $mission->update([
                         $validationByIdColumn => auth()->user()->id,
                         $validationAtColumn => now()
                     ]);
+                    $mission->update(['current_state' => $missionState]);
                 }
 
                 return response()->json([
@@ -99,7 +107,7 @@ class MissionCommentController extends Controller
             case 'cdc_report':
                 $validationByIdColumn = 'cdc_validation_by_id';
                 $validationAtColumn = 'cdc_validation_at';
-                $message = $update ? 'Votre rapport a été mis à jour avec succès' : 'Votre rapport a été créé avec succès';
+                $message = $update ? 'Votre conclusion a été mis à jour avec succès' : 'Votre conclusion a été créé avec succès';
                 break;
             default:
                 $validationByIdColumn = 'ci_validation_by_id';

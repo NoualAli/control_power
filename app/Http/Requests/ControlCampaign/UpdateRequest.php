@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\ControlCampaign;
 
+use App\Rules\MaxLengthQuill;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateRequest extends FormRequest
@@ -25,9 +26,9 @@ class UpdateRequest extends FormRequest
     {
         $id = request()->campaign->id;
         return [
-            'description' => ['required', 'string', 'max:3000'],
-            'start' => ['required', 'date'],
-            'end' => ['required', 'date', 'after:start'],
+            'description' => ['required', 'string', new MaxLengthQuill(3000)],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date', 'after:start'],
             'pcf' => ['required', 'array'],
         ];
     }

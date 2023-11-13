@@ -54,7 +54,6 @@ class LoginController extends Controller
         $token = (string) $this->guard()->getToken();
         $expiration = $this->guard()->getPayload()->get('exp');
         $loginInformations = $this->storeLoginInformations($request, auth()->user());
-
         return response()->json([
             'user' => auth()->user(),
             'token' => $token,
@@ -146,6 +145,7 @@ class LoginController extends Controller
                 'user_id' => $user->id,
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
+                'last_activity' => now(),
             ]);
         } catch (\Throwable $th) {
             //throw $th;

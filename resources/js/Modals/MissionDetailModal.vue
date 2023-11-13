@@ -36,7 +36,7 @@
                         </NLColumn>
                         <NLColumn lg="6">
                             <span class="label">Famille: </span>
-                            <span>{{ row?.familly?.name }}</span>
+                            <span>{{ row?.family?.name }}</span>
                         </NLColumn>
                         <NLColumn lg="6">
                             <span class="label">Domaine: </span>
@@ -102,13 +102,16 @@
                         <!-- Report -->
                         <NLColumn>
                             <span class="label">Constat: </span>
-                            <span>{{ row?.report || '-' }}</span>
+                            <span v-html="row?.report || '-'" class="content my-2 text-normal"></span>
+                            <span>
+                                {{ row?.cdc_report?.length ? '(Modifier par CDC)' : '' }}
+                            </span>
                         </NLColumn>
 
                         <!-- Recovery plan -->
                         <NLColumn>
                             <span class="label">Plan de redressement: </span>
-                            <span>{{ row?.recovery_plan || '-' }}</span>
+                            <span v-html="row?.recovery_plan || '-'" class="content my-2 text-normal"></span>
                         </NLColumn>
                     </NLGrid>
                 </NLColumn>
@@ -119,55 +122,33 @@
                 </NLColumn>
 
                 <!-- Regularization -->
-                <NLColumn v-if="row?.score > 1 && row?.regularization?.regularized" class="list-item box ">
-                    <div class="list-item-content no-bg grid">
+                <NLColumn class="box" v-if="row.show_regularizations">
+                    <h2>Historique des actions de régularisation</h2>
+                    <NLGrid gap="6" v-if="row?.regularizations?.length" v-for="regularization in row?.regularizations"
+                        class="p-4 has-border-radius-1 border-1 border-solid my-6"
+                        :class="[{ 'border-success': regularization.is_regularized }, { 'border-warning': !regularization.is_regularized }]">
                         <NLColumn>
-                            <h2>Régularisation
-                                <i class="las la-check-circle text-success" v-if="row?.regularization?.regularized"></i>
-                                <i class="las la-exclamation-circle text-warning" v-else></i>
-                            </h2>
+                            <label class="label">Action à engager</label>
+                            <div v-html="regularization.action_to_be_taken" class="mt-3"></div>
                         </NLColumn>
-                        <NLColumn sm="4" lg="4" md="4">
-                            <b>Etat:</b>
+                        <NLColumn v-if="regularization.media.length">
+                            <NLFile v-model="regularization.media_array" label="Pièces jointes" readonly isFlat />
                         </NLColumn>
-                        <NLColumn sm="8" lg="8" md="8">
-                            {{ row?.regularization?.regularized }}
+                        <NLColumn>
+                            <NLFlex lgJustifyContent="end">
+                                {{ regularization.created_at }}
+                            </NLFlex>
                         </NLColumn>
-
-                        <NLColumn v-if="row?.regularization?.reason" sm="4" lg="4" md="4">
-                            <b>Cause:</b>
-                        </NLColumn>
-                        <NLColumn v-if="row?.regularization?.reason" sm="8" lg="8" md="8">
-                            {{ row?.regularization?.reason }}
-                        </NLColumn>
-
-                        <NLColumn v-if="row?.regularization?.action_to_be_taken" sm="4" lg="4" md="4">
-                            <b>Actions à engagé:</b>
-                        </NLColumn>
-                        <NLColumn v-if="row?.regularization?.action_to_be_taken" sm="8" lg="8" md="8">
-                            {{ row?.regularization?.action_to_be_taken }}
-                        </NLColumn>
-
-                        <NLColumn v-if="row?.regularization?.committed_action" sm="4" lg="4" md="4">
-                            <b>Actions engagé:</b>
-                        </NLColumn>
-                        <NLColumn v-if="row?.regularization?.committed_action" sm="8" lg="8" md="8">
-                            {{ row?.regularization?.committed_action }}
-                        </NLColumn>
-
-                        <NLColumn v-if="row?.regularization?.regularized_at" sm="4" lg="4" md="4">
-                            <b>Date Régularisation:</b>
-                        </NLColumn>
-                        <NLColumn v-if="row?.regularization?.regularized_at" sm="8" lg="8" md="8">
-                            {{ row?.regularization?.regularized_at }}
-                        </NLColumn>
+                    </NLGrid>
+                    <div class="text-center text-bold my-6" v-else>
+                        Aucune entrée
                     </div>
                 </NLColumn>
             </NLGrid>
         </template>
         <template #footer>
             <!-- CI -->
-            <button v-if="!row?.mission?.is_validated_by_ci && !row?.major_fact && can('create_ci_report')"
+            <button v-if="currentMode == 1 && !row?.mission?.is_validated_by_ci && !row?.major_fact && is('ci')"
                 class="btn btn-warning has-icon" @click="showForm(row, 'edit')">
                 <i class="las la-pen icon" />
                 Modifier
@@ -175,15 +156,34 @@
 
             <!-- CDC -->
             <button
-                v-if="!row?.mission?.is_validated_by_cdc && !row?.major_fact && row?.mission?.is_validated_by_ci && can('create_cdc_report,validate_cdc_report')"
+                v-if="currentMode == 2 && !row?.mission?.is_validated_by_cdc && !row?.major_fact && row?.mission?.is_validated_by_ci && is('cdc')"
                 class="btn btn-warning has-icon" @click="showForm(row, 'edit')">
                 <i class="las la-pen icon" />
                 Modifier
             </button>
+            <button
+                v-if="(currentMode == 2 && !row?.mission?.is_validated_by_dcp && !row?.miss0ion?.is_validated_by_cdcr && !row?.major_fact_dispatched_to_dcp_at && !row.regularization && [2, 3, 4].includes(Number(row?.score)) && row?.major_fact && is('cdc'))"
+                class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
+                <i class="las la-pen icon" />
+                Traiter
+            </button>
+            <button v-if="currentMode == 2 && !row?.major_fact_dispatched_to_dcp_at && row?.major_fact && is('cdc')"
+                class="btn btn-info has-icon" @click.prevent="notify(row)">
+                <i class="las la-bell icon" />
+                Notifier
+            </button>
 
             <!-- CDCR -->
             <button
-                v-if="(!row?.mission?.is_validated_by_cdcr && !row?.major_fact_dispatched_at && row?.mission?.is_validated_by_cdc && [2, 3, 4].includes(Number(row?.score))) || (row?.major_fact && !row?.major_fact_dispatched_at && [3, 4].includes(Number(row?.score))) && can('make_first_validation,process_mission')"
+                v-if="(currentMode == 4 && (row?.mission?.has_dcp_controllers ? row?.mission?.is_validated_by_cc && !row?.mission?.is_validated_by_cdcr : !row?.mission?.is_validated_by_cdcr) && !row?.major_fact_dispatched_at && row?.mission?.is_validated_by_cdc && [2, 3, 4].includes(Number(row?.score))) || (row?.major_fact && !row?.major_fact_dispatched_at && [2, 3, 4].includes(Number(row?.score))) && is('cdcr')"
+                class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
+                <i class="las la-pen icon" />
+                Traiter
+            </button>
+
+            <!-- CC -->
+            <button
+                v-if="currentMode == 3 && !row?.major_fact_dispatched_at && row.assigned_to_cc_id == currentUser.id && !row?.mission?.is_validated_by_cc && [2, 3, 4].includes(Number(row?.score)) && is('cc')"
                 class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <i class="las la-pen icon" />
                 Traiter
@@ -191,21 +191,23 @@
 
             <!-- DCP -->
             <button
-                v-if="(!row?.mission?.is_validated_by_dcp && row?.mission?.is_validated_by_cdcr && !row?.major_fact_dispatched_at && !row.regularization && [2, 3, 4].includes(Number(row?.score)) || (row?.major_fact && !row?.major_fact_dispatched_at && [3, 4].includes(Number(row?.score)))) && can('make_second_validation')"
+                v-if="(currentMode == 5 && !row?.mission?.is_validated_by_dcp && row?.mission?.is_validated_by_cdcr && !row?.major_fact_dispatched_at && !row.regularization && [2, 3, 4].includes(Number(row?.score)) || (row?.major_fact && !row?.major_fact_dispatched_at && [2, 3, 4].includes(Number(row?.score)))) && is('dcp')"
                 class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <i class="las la-pen icon" />
                 Traiter
             </button>
-            <button v-if="!row?.major_fact_dispatched_at && row?.major_fact && can('dispatch_major_fact')"
+            <button
+                v-if="currentMode == 5 && !row?.major_fact_dispatched_at && row?.major_fact && row?.major_fact_dispatched_to_dcp_at && is('dcp')"
                 class="btn btn-info has-icon" @click.prevent="notify(row)">
                 <i class="las la-bell icon" />
                 Notifier
             </button>
+
             <!-- Agency director -->
             <button
-                v-if="row?.mission?.is_validated_by_dcp && !row?.regularization?.regularized_at && !row?.major_fact && row?.score !== 1 && can('regularize_mission_detail')"
+                v-if="currentMode == 6 && row?.mission?.is_validated_by_dcp && !row?.major_fact && !row?.is_regularized && Number(row?.score) !== 1 && is('da')"
                 class="btn btn-warning has-icon" @click="showForm(row, 'regularization')">
-                <i class="las la-pen icon" />
+                <i class="las la-check icon" />
                 Régulariser
             </button>
         </template>
@@ -214,6 +216,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { hasRole } from '../plugins/user';
 export default {
     name: 'MissionDetailModal',
     emits: [ 'close', 'showForm' ],
@@ -247,6 +250,8 @@ export default {
                 keys: null
             },
             isLoading: false,
+            currentMode: 1,
+            currentUser: null,
         }
     },
 
@@ -276,10 +281,25 @@ export default {
         initData() {
             this.isLoading = true
             if (this.rowSelected?.id && this.isLoading && !this.row) {
+                this.currentUser = user()
                 this.$store.dispatch('details/fetch', this.rowSelected.id).then(() => {
                     this.row = this.detail.detail
                     this.currentMetadata.keys = Object.keys(this.row.parsed_metadata)
                     this.isLoading = false
+                    if (hasRole([ 'ci' ])) {
+                        this.currentMode = 1 // Execution mode
+                    } else if (hasRole('cdc')) {
+                        this.currentMode = 2 // Revision mode
+                    } else if (hasRole('cc')) {
+                        this.currentMode = 3 // First processing mode
+                    } else if (hasRole('cdcr')) {
+                        this.currentMode = 4 // Second processing mode
+                    } else if (hasRole('dcp')) {
+                        this.currentMode = 5 // Third processing mode
+                    } else {
+                        this.currentMode = 6 // Readonly mode
+                    }
+                    // console.log(this.currentMode);
                 }).catch(error => console.log(error))
             }
         },

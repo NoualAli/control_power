@@ -8,6 +8,10 @@
                     class="btn btn-info">
                     Ajouter
                 </router-link>
+                <a href="/excel-export?export=control_points" target="_blank" class="btn btn-excel has-icon">
+                    <i class="las la-file-excel icon" />
+                    Exporter
+                </a>
             </template>
         </ContentHeader>
         <ContentBody>
@@ -31,7 +35,7 @@ export default {
             columns: [
                 {
                     label: 'Famille',
-                    field: 'familly_name'
+                    field: 'family_name'
                 },
                 {
                     label: 'Domaine',
@@ -55,7 +59,7 @@ export default {
             details: [
                 {
                     label: 'Famille',
-                    field: 'familly.name'
+                    field: 'family.name'
                 },
                 {
                     label: 'Domaine',
@@ -102,7 +106,7 @@ export default {
                     multiple: true,
                     data: null,
                     value: null,
-                    dependsOn: 'familly'
+                    dependsOn: 'family'
                 },
                 process: {
                     label: 'Processus',

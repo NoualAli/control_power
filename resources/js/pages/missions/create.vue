@@ -47,13 +47,17 @@
 
                 <!-- Note -->
                 <NLColumn>
-                    <NLWyswyg v-model="form.note" :form="form" name="note" label="Note" placeholder="Ajouter une note" />
+                    <NLWyswyg v-model="form.note" :form="form" name="note" label="Note" :length="1000"
+                        placeholder="Ajouter une note" />
                 </NLColumn>
 
                 <NLColumn>
                     <!-- Submit Button -->
                     <NLFlex lgJustifyContent="end">
+                        <<<<<<< HEAD <NLButton :loading="formIsLoading" label="Ajouter" />
+                        =======
                         <NLButton :loading="form.busy" label="Ajouter" />
+                        >>>>>>> master
                     </NLFlex>
                 </NLColumn>
             </NLForm>
@@ -69,7 +73,7 @@
                                 Début
                             </span>
                             <span class="list-item-content">
-                                {{ currentCampaign?.start + ' / ' +
+                                {{ currentCampaign?.start_date + ' / ' +
                                     currentCampaign?.remaining_days_before_start_str }}
                             </span>
                         </div>
@@ -78,7 +82,7 @@
                                 Fin
                             </span>
                             <span class="list-item-content">
-                                {{ currentCampaign?.end + ' / ' +
+                                {{ currentCampaign?.end_date + ' / ' +
                                     currentCampaign?.remaining_days_before_end_str }}
                             </span>
                         </div>
@@ -103,6 +107,7 @@ export default {
     middleware: [ 'auth' ],
     data() {
         return {
+            formIsLoading: false,
             campaignId: null,
             form: new Form({
                 note: null,
@@ -129,9 +134,9 @@ export default {
         'form.control_campaign_id': function (newVal, oldVal) {
             if (newVal !== oldVal && newVal !== null && newVal !== undefined) this.initData()
         },
-        'form.programmed_start': function (newVal, oldVal) {
-            if (newVal !== oldVal && newVal) this.form.programmed_end = this.addDays(newVal, 15)
-        },
+        // 'form.programmed_start': function (newVal, oldVal) {
+        //     if (newVal !== oldVal && newVal) this.form.programmed_end = this.addDays(newVal, 15)
+        // },
         currentCampaignReference: function (newVal, oldVal) {
             if (newVal !== oldVal) {
                 this.currentCampaignReference = newVal
@@ -157,8 +162,8 @@ export default {
                 this.controllersList = this.config?.config.controllers
                 this.campaignsList = this.config?.config.campaigns
                 this.currentCampaign = this.config?.config.currentCampaign
-                this.form.programmed_start = this.currentCampaign.start.split('-').reverse().join('-')
-                this.form.programmed_end = this.addDays(this.form.programmed_start, 15)
+                this.form.programmed_start = this.currentCampaign.start_date.split('-').reverse().join('-')
+                // this.form.programmed_end = this.addDays(this.form.programmed_start, 15)
                 this.form.control_campaign_id = this.currentCampaign?.id
                 this.currentCampaignReference = this.config?.config.currentCampaign.reference
                 const length = this.$breadcrumbs.value.length
@@ -180,6 +185,7 @@ export default {
          * Création de la mission
          */
         create() {
+            this.formIsLoading = true
             this.form.post('missions').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
@@ -188,8 +194,10 @@ export default {
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }
+                this.formIsLoading = false
             }).catch(error => {
                 console.log(error)
+                this.formIsLoading = false
             })
         }
     }

@@ -144,7 +144,7 @@ class Reminder extends Notification
             ->line($this->getEndingLine())
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
             ->action('Voir La mission', $this->getUrl())
-            ->line('Merci d\'utiliser PowerControl!')
+            ->line('Merci d\'utiliser ControlPower!')
             ->success();
     }
 
@@ -161,7 +161,7 @@ class Reminder extends Notification
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
             'title' => $this->getTitle(),
-            'emitted_by' => auth()->user()->full_name,
+            'emitted_by' => auth()->user()->username,
         ];
     }
 }

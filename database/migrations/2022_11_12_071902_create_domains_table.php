@@ -16,9 +16,9 @@ class CreateDomainsTable extends Migration
         Schema::create('domains', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->foreignId('familly_id');
+            $table->foreignId('family_id');
 
-            $table->foreign('familly_id')->on('famillies')->references('id')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('family_id')->on('families')->references('id')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

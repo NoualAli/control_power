@@ -1,11 +1,16 @@
 <template>
     <InputContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired" :length="length"
-        :current-length="currentLength">
-        <VueEditor :id="getId" v-model="currentValue" :editor-toolbar="editorSettings" class="input"
+        :current-length="currentLength" v-if="!readonly">
+        <VueEditor :id="getId" :editor-toolbar="editorSettings" class="input"
             :class="[{ 'is-danger': form?.errors.has(name) }]" :name="name" :autocomplete="autocomplete"
-            :autofocus="autofocus" :max-length="length" :placeholder="placeholder || label" :value="currentValue"
-            :help-text="helpText" v-bind="$attrs" @input="onInput($event)" @ready="quill => { editorQuill = quill }" />
+            :autofocus="autofocus" v-model="currentValue" :max-length="length" :placeholder="placeholder || label"
+            :value="currentValue" :help-text="helpText" @textChange="onInput" v-bind="$attrs"
+            @ready="quill => { editorQuill = quill }" />
     </InputContainer>
+    <NLContainer isFluid v-else>
+        <label class="label">{{ label }}</label>
+        <div class="content text-normal my-2" v-html="currentValue"></div>
+    </NLContainer>
 </template>
 <script>
 import InputContainer from './InputContainer'
@@ -15,6 +20,7 @@ export default {
     components: {
         InputContainer, VueEditor
     },
+    emits: [ 'update:modelValue' ],
     props: {
         form: { type: Object, required: false },
         autocomplete: { type: String, default: 'off' },
@@ -25,7 +31,7 @@ export default {
         label: { type: String, default: '' },
         labelRequired: { type: Boolean, default: false },
         placeholder: { type: String, default: '' },
-        modelValue: { type: [ String, Number ], default: '' },
+        modelValue: { type: [ String, Number, null ], default: null },
         readonly: { type: Boolean, default: false },
         length: { type: [ Number, null ], default: null },
         helpText: { type: String, default: null }
@@ -38,7 +44,7 @@ export default {
             currentValue: this.modelValue,
             editorSettings: [
                 [ { header: [ 1, 2, 3, 4, 5, 6, false ] } ],
-                // [ { 'font': [] } ],
+                // [ { 'font': [ 'Archivo' ] } ],
                 [ { size: [ 'small', 'medium', 'large' ] } ],
                 [ { align: [] } ],
                 [ { list: 'ordered' }, { list: 'bullet' } ],
@@ -47,7 +53,11 @@ export default {
                 [ { script: 'sub' }, { script: 'super' } ],
                 [ { indent: '-1' }, { indent: '+1' } ],
                 [ { direction: 'ltr' }, { direction: 'rtl' } ],
-                [ { color: [] }, { background: [] } ]
+                [
+                    { color: [ '#000000', '#fcfcfc', '#FAFAFA', '#D9D9D9', '#717171', '#2d3436', '#3D4756', '#363636', '#3D2E2C', '#125741', '#b18028', '#CC0000', '#ff4444', '#ffbb33', '#FF8800', '#00C851', '#007E33', '#33b5e5', '#0099CC', 'transparent' ] },
+                    { background: [ '#000000', '#fcfcfc', '#FAFAFA', '#D9D9D9', '#717171', '#2d3436', '#3D4756', '#363636', '#3D2E2C', '#125741', '#b18028', '#CC0000', '#ff4444', '#ffbb33', '#FF8800', '#00C851', '#007E33', '#33b5e5', '#0099CC', 'transparent' ] }
+                ],
+                [ 'clean' ]
             ]
         }
     },
@@ -74,6 +84,7 @@ export default {
                 if (newValue && (newValue !== oldValue)) {
                     this.currentValue = newValue
                     this.forcedKey = 1
+                    this.$emit('update:modelValue', this.trim(newValue))
                 }
             }
         }
@@ -96,9 +107,9 @@ export default {
         onInput(value) {
             // Should review this part
             // cause it's not being called at any moment
-            this.currentValue = value
+            // this.currentValue = value
             this.currentLength = this.editorQuill.getLength() - 1
-            this.$emit('update:modelValue', this.trim(this.currentValue))
+            // this.$emit('update:modelValue', this.trim(this.currentValue))
         },
         /**
          * @param {HTMLDOMElement} html

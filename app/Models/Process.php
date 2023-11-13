@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\HasMedia;
+use App\Traits\IsFilterable;
 use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,7 +13,9 @@ use Znck\Eloquent\Traits\BelongsToThrough;
 
 class Process extends BaseModel
 {
-    use HasFactory, IsSearchable, IsSortable, BelongsToThrough, HasRelationships;
+    use HasFactory, IsSearchable, IsSortable, BelongsToThrough, HasRelationships, HasMedia, IsFilterable;
+
+    protected $filter = 'App\Filters\PCF';
 
     protected $fillable = [
         'name',
@@ -22,9 +26,11 @@ class Process extends BaseModel
 
     // public $withCount = ['control_points'];
 
-    // public $with = ['domain', 'control_points', 'familly'];
+    // public $with = ['domain', 'control_points', 'family'];
 
     protected $searchable = ['name'];
+
+    // public $appends = ['media'];
 
     /**
      * Getters
@@ -45,9 +51,9 @@ class Process extends BaseModel
     {
         return $this->hasMany(ControlPoint::class);
     }
-    public function familly()
+    public function family()
     {
-        return $this->belongsToThrough(Familly::class, Domain::class);
+        return $this->belongsToThrough(Family::class, Domain::class);
     }
     public function details()
     {

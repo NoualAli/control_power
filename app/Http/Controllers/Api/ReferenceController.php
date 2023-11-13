@@ -6,14 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PCFResource;
 use App\Models\ControlPoint;
 use App\Models\Domain;
-use App\Models\Familly;
+use App\Models\Family;
 use App\Models\Process;
 
 class ReferenceController extends Controller
 {
     public function pcf()
     {
-        $controlPoints = ControlPoint::with(['familly', 'process', 'domain']);
+        $controlPoints = Process::with(['family', 'domain', 'media']);
 
         $filter = request('filter', null);
         $search = request('search', null);
@@ -41,21 +41,21 @@ class ReferenceController extends Controller
         return PCFResource::collection($controlPoints->paginate($perPage)->onEachSide(1));
     }
 
-    public function show(ControlPoint $controlPoint)
+    public function show(Process $process)
     {
-        $controlPoint->unsetRelations();
-        $controlPoint->load(['familly', 'domain', 'process']);
-        return $controlPoint->only(['familly', 'domain', 'process', 'name', 'id']);
+        $process->unsetRelations();
+        $process->load(['family', 'domain', 'control_points']);
+        return $process->only(['family', 'domain', 'name', 'id', 'control_points']);
     }
 
     private function filtersData()
     {
         // dd(request()->all());
         $filters = request('filter', false);
-        $families = $filters ? $filters?->familly : false;
+        $families = $filters ? $filters?->family : false;
         $domains = $filters ? $filters->domain : false;
 
-        $family = formatForSelect(Familly::all()->toArray());
+        $family = formatForSelect(Family::all()->toArray());
 
         $domain = formatForSelect(Domain::all()->toArray());
         $process = formatForSelect(Process::all()->toArray());

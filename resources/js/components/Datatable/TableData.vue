@@ -1,10 +1,11 @@
 <template>
-    <td :class="tdClass" v-if="!hide" :data-th="label" :colspan="colspan" :align="align">
+    <td :class="tdClass" v-if="!hide" :data-th="label" :colspan="colspan" :align="align" :title="getField()"
+        :style="{ 'max-width': length }">
         <slot :class="childClass"></slot>
 
         <span :class="childClass" v-html="showField" v-if="isHtml"></span>
 
-        <span :class="childClass" v-else>
+        <span :class="childClass" title="" v-else>
             {{ showField }}
         </span>
     </td>
@@ -131,8 +132,8 @@ export default {
                 } else {
                     field = this.item[ this.field ] !== undefined ? this.item[ this.field ] : '-'
                 }
-                return field
             }
+            return field
         },
         /**
          * Truncate string for max length

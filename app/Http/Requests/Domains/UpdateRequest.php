@@ -26,7 +26,7 @@ class UpdateRequest extends FormRequest
         $id = request()->domain->id;
         return [
             'name' => ['required', 'unique:domains,name,' . $id . ',id', 'string', 'max:255'],
-            'familly_id' => ['required', 'exists:famillies,id'],
+            'family_id' => ['required', 'exists:families,id'],
         ];
     }
 }

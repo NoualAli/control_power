@@ -104,7 +104,7 @@ class Reminder extends Notification
     {
         $remainingDays = $this->campaign->remaining_days_before_start;
         $startingSuffix = $this->campaign->remaining_days_before_start > 1 ? ' jours' : ' jour';
-        $startingLine = 'La campagne débutera le ' . $this->campaign->start . ' dans exactement ' . $this->campaign->remaining_days_before_start . $startingSuffix;
+        $startingLine = 'La campagne débutera le ' . $this->campaign->start_date . ' dans exactement ' . $this->campaign->remaining_days_before_start . $startingSuffix;
 
         if ($remainingDays == 0 || $remainingDays < 0) {
             $startingLine = '';
@@ -122,7 +122,7 @@ class Reminder extends Notification
     {
         $remainingDays = $this->campaign->remaining_days_before_end;
         $endingSuffix = $this->campaign->remaining_days_before_end > 1 ? ' jours' : ' jour';
-        $endingLine = 'La campagne se terminera le ' . $this->campaign->end . ' dans exactement ' . $this->campaign->remaining_days_before_end . $endingSuffix;
+        $endingLine = 'La campagne se terminera le ' . $this->campaign->end_date . ' dans exactement ' . $this->campaign->remaining_days_before_end . $endingSuffix;
         if (!$remainingDays) {
             $endingLine = '';
         }
@@ -144,7 +144,7 @@ class Reminder extends Notification
             ->line($this->getEndingLine())
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
             ->action('Voir la campagne de contrôle', $this->getUrl())
-            ->line('Merci d\'utiliser PowerControl!')
+            ->line('Merci d\'utiliser ControlPower!')
             ->success();
     }
 

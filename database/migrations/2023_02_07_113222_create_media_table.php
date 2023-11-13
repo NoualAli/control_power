@@ -14,13 +14,14 @@ class CreateMediaTable extends Migration
     public function up()
     {
         Schema::create('media', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('original_name');
             $table->string('hash_name');
             $table->string('folder');
             $table->string('extension');
             $table->string('mimetype');
             $table->string('size');
+            $table->json('payload')->nullable();
             $table->string('attachable_type');
             $table->string('attachable_id', 36)->nullable();
             $table->foreignId('uploaded_by_id')->nullable();

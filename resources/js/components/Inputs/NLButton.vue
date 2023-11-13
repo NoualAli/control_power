@@ -1,14 +1,22 @@
 <template>
-    <button class="btn my-2" :class="[{ 'is-loading': loading }, finalType]" :disabled="loading">
-        <span class="btn-loader">Envoie en cours</span>
-        <span class="btn-text">
-            {{ label }}
-        </span>
+    <button class="btn" :class="[{ 'is-loading': loading }, finalType]" :disabled="loading">
+        <NLFlex alignItems="center" justifyContent="start" lgJustifyContent="start" gap="2">
+            <slot v-if="!loading"></slot>
+            <NLFlex lgJustifyContent="start" v-if="loading">
+                <i class="las la-spinner la-spin icon"></i>
+                <span class="btn-loader">Envoie en cours</span>
+            </NLFlex>
+            <span class="btn-text" v-else>
+                {{ label }}
+            </span>
+        </NLFlex>
     </button>
 </template>
 
 <script>
+import NLFlex from '../Grid/NLFlex'
 export default {
+    components: { NLFlex },
     name: 'NLButton',
     props: {
         loading: { type: Boolean, default: false },

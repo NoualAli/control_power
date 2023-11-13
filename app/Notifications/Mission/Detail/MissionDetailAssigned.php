@@ -58,7 +58,7 @@ class MissionDetailAssigned extends Notification
     private function getContent(): string
     {
         $totalProcesses = $this->processes->count();
-        $content = $totalProcesses > 1 ? "Des processus vous on était affectés" : "Un processus vous a étaient affecter";
+        $content = $totalProcesses > 1 ? "Des processus vous on était affectés" : "Un processus vous a était affecté";
         $content .= " pour traitement dans la mission " . $this->mission->reference;
         return $content;
     }
@@ -71,7 +71,7 @@ class MissionDetailAssigned extends Notification
     private function getTitle(): string
     {
         $totalProcesses = $this->processes->count();
-        return $totalProcesses > 1 ? 'Assignation des processus de la mission ' . $this->mission->reference : 'Assignation d\'un processus de la mission ' . $this->mission->reference;
+        return $totalProcesses > 1 ? 'Assignation des processus dans la mission ' . $this->mission->reference : 'Assignation d\'un processus dans la mission ' . $this->mission->reference;
     }
 
     /**
@@ -92,8 +92,8 @@ class MissionDetailAssigned extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail', 'database'];
         if (app()->environment('production')) {
+            return ['mail', 'database'];
         }
         return ['database'];
     }
@@ -112,7 +112,7 @@ class MissionDetailAssigned extends Notification
             ->line($this->getContent())
             ->line('Pour plus d\'informations veuillez vous rendre sur l\'application')
             ->action('Voir la mission', $this->getUrl())
-            ->line('Merci d\'utiliser PowerControl')
+            ->line('Merci d\'utiliser ControlPower')
             ->success();
 
         // return (new MailMessage)
@@ -123,7 +123,7 @@ class MissionDetailAssigned extends Notification
         //     ->view('email_views.processes_list')
         //     ->with(['htmlContent' => 'test'])
         //     ->action('Voir la mission', $this->getUrl())
-        //     ->line('Merci d\'utiliser PowerControl')
+        //     ->line('Merci d\'utiliser ControlPower')
         //     ->success();
     }
 
@@ -140,7 +140,7 @@ class MissionDetailAssigned extends Notification
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
             'title' => $this->getTitle(),
-            'emitted_by' => auth()->user()->full_name,
+            'emitted_by' => auth()->user()->username,
         ];
     }
 }

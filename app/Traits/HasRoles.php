@@ -49,4 +49,9 @@ trait HasRoles
     {
         return $this->belongsToMany(Role::class, 'user_has_roles');
     }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'active_role_id');
+    }
 }

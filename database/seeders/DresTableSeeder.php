@@ -34,7 +34,7 @@ class DresTableSeeder extends Seeder
             2 => 
             array (
                 'id' => '3',
-                'name' => 'DRE TLEMCEN',
+                'name' => 'DRE  TLEMCEN',
                 'code' => '181',
             ),
             3 => 
@@ -46,7 +46,7 @@ class DresTableSeeder extends Seeder
             4 => 
             array (
                 'id' => '5',
-                'name' => 'DRE TIZI OUZOU',
+                'name' => 'DRE TIZI-OUZOU',
                 'code' => '183',
             ),
             5 => 
@@ -100,50 +100,50 @@ class DresTableSeeder extends Seeder
             13 => 
             array (
                 'id' => '14',
-                'name' => 'DRE TEBESSA',
-                'code' => '193',
+                'name' => 'DRE GHARDAIA',
+                'code' => '192',
             ),
             14 => 
             array (
                 'id' => '15',
-                'name' => 'DRE BOUZAREAH',
-                'code' => '194',
+                'name' => 'DRE TEBESSA',
+                'code' => '193',
             ),
             15 => 
             array (
                 'id' => '16',
-                'name' => 'DRE EL BIAR',
-                'code' => '195',
+                'name' => 'DRE BOUZAREAH',
+                'code' => '194',
             ),
             16 => 
             array (
                 'id' => '17',
-                'name' => 'DRE CHLEF',
-                'code' => '196',
+                'name' => 'DRE EL BIAR',
+                'code' => '195',
             ),
             17 => 
             array (
                 'id' => '18',
-                'name' => 'DRE SETIF',
-                'code' => '197',
+                'name' => 'DRE CHLEF',
+                'code' => '196',
             ),
             18 => 
             array (
                 'id' => '19',
-                'name' => 'DRE MOSTAGANEM',
-                'code' => '198',
+                'name' => 'DRE SETIF',
+                'code' => '197',
             ),
             19 => 
             array (
                 'id' => '20',
-                'name' => 'DRE SIDI BEL-ABBES',
-                'code' => '199',
+                'name' => 'DRE MOSTAGANEM',
+                'code' => '198',
             ),
             20 => 
             array (
                 'id' => '21',
-                'name' => 'DRE Ghardaïa',
-                'code' => '192',
+                'name' => 'DRE SIDI BEL ABESS',
+                'code' => '199',
             ),
         ));
         

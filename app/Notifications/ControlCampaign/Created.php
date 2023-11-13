@@ -82,8 +82,8 @@ class Created extends Notification
     {
         $startingSuffix = $this->campaign->remaining_days_before_start > 1 ? ' jours' : ' jour';
         $endingSuffix = $this->campaign->remaining_days_before_end > 1 ? ' jours' : ' jour';
-        $startingLine = 'La campagne débutera le ' . $this->campaign->start . ' dans exactement ' . $this->campaign->remaining_days_before_start . $startingSuffix;
-        $endingLine = 'La campagne se terminera le ' . $this->campaign->end . ' dans exactement ' . $this->campaign->remaining_days_before_end . $endingSuffix;
+        $startingLine = 'La campagne débutera le ' . $this->campaign->start_date . ' dans exactement ' . $this->campaign->remaining_days_before_start . $startingSuffix;
+        $endingLine = 'La campagne se terminera le ' . $this->campaign->end_date . ' dans exactement ' . $this->campaign->remaining_days_before_end . $endingSuffix;
 
         return (new MailMessage)
             ->subject($this->getTitle($notifiable))
@@ -92,7 +92,7 @@ class Created extends Notification
             ->line($endingLine)
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
             ->action('Voir la campagne de contrôle', $this->getUrl())
-            ->line('Merci d\'utiliser PowerControl!')
+            ->line('Merci d\'utiliser ControlPower!')
             ->success();
     }
 
@@ -109,7 +109,7 @@ class Created extends Notification
             'url' => $this->getUrl(),
             'content' => $this->getContent($notifiable),
             'title' => $this->getTitle($notifiable),
-            'emitted_by' => auth()->user()->full_name
+            'emitted_by' => auth()->user()->full_name_with_martial_with_martial
         ];
     }
 }

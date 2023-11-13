@@ -17,6 +17,12 @@ class CreateUserHasRoles extends Migration
             $table->foreignId('user_id');
             $table->foreignId('role_id');
 
+            if (env('DB_CONNECTION') == 'mysql') {
+                $table->timestamps();
+            } else {
+                $table->timestamps(7);
+            }
+
             $table->foreign('user_id')->on('users')->references('id')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('role_id')->on('roles')->references('id')->onDelete('cascade')->onUpdate('cascade');
         });

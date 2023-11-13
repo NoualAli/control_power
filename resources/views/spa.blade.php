@@ -24,8 +24,8 @@
     <link rel="manifest" href="{{ asset('app/images/favicons/site.webmanifest') }}">
     <link rel="mask-icon" href="{{ asset('app/images/favicons/safari-pinned-tab.svg') }}" color="#313131">
     <link rel="shortcut icon" href="{{ asset('app/images/favicons/favicon.ico') }}">
-    <meta name="apple-mobile-web-app-title" content="PowerControl">
-    <meta name="application-name" content="PowerControl">
+    <meta name="apple-mobile-web-app-title" content="ControlPower">
+    <meta name="application-name" content="ControlPower">
     <meta name="msapplication-TileColor" content="#fcfcfc">
     <meta name="msapplication-config" content="{{ asset('app/images/favicons/browserconfig.xml') }}">
     <meta name="theme-color" content="#ffffff">
@@ -52,10 +52,18 @@
             console.clear()
             console.log('%c Stop!', 'color: #f00; font-size: 60px; font-weight: bold;');
             console.log(
-                '%c Il s’agit d’une fonctionnalité de navigateur conçue pour les développeurs. Si quelqu’un vous a invité(e) à copier-coller quelque chose ici pour activer une fonctionnalité ou soit-disant pirater le compte d’un tiers, sachez que c’est une escroquerie permettant à cette personne d’accéder à votre compte. \nToute action ayant pour but de porter préjudice à l\'application PowerControl ou aux serveurs de la BNA sera automatiquement considérée comme une cybercriminalité et sera punie par la loi.',
+                '%c Il s’agit d’une fonctionnalité de navigateur conçue pour les développeurs. Si quelqu’un vous a invité(e) à copier-coller quelque chose ici pour activer une fonctionnalité ou soit-disant pirater le compte d’un tiers, sachez que c’est une escroquerie permettant à cette personne d’accéder à votre compte. \nToute action ayant pour but de porter préjudice à l\'application ControlPower ou aux serveurs de la BNA sera automatiquement considérée comme une cybercriminalité et sera punie par la loi.',
                 'font-size: 25px;');
         </script>
     @endif
+    <script>
+        window.laravel_echo_port = '{{ env('LARAVEL_WEBSOCKETS_PORT') }}';
+        window.app_host = '{{ env('APP_HOST') }}';
+        window.app_url = '{{ env('APP_url') }}';
+        window.app_port = '{{ env('APP_port') }}';
+    </script>
+    {{-- <script src="//{{ env('APP_HOST') }}:{{ env('LARAVEL_WEBSOCKETS_PORT') }}/socket.io/socket.io.js"></script> --}}
+    {{-- <script src="{{ url('/js/echo-realtime.js') }}" type="text/javascript"></script> --}}
     <script src="{{ $appJs }}"></script>
 </body>
 

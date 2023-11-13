@@ -13,7 +13,7 @@ class Domain extends BaseModel
 
     protected $fillable = [
         'name',
-        'familly_id',
+        'family_id',
     ];
 
     public $timestamps = false;
@@ -28,9 +28,9 @@ class Domain extends BaseModel
     /**
      * Relationships
      */
-    public function familly()
+    public function family()
     {
-        return $this->belongsTo(Familly::class);
+        return $this->belongsTo(Family::class);
     }
     public function processes()
     {

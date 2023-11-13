@@ -1,4 +1,4 @@
-<template>
+<template @keypress="handleKeyboard">
     <NLModal :show="show" @isExpanded="handleDetailForm" @close="close">
         <template #title>
             <small>
@@ -8,7 +8,7 @@
         <template #default>
             <NLForm :form="form" :action="save" v-if="!isLoading">
                 <!-- Major fact -->
-                <NLColumn v-if="data?.control_point?.has_major_fact">
+                <NLColumn v-if="data?.control_point?.has_major_fact && ([2, 3, 4]).includes(Number(form.score))">
                     <NLSwitch type="is-danger" v-model="form.major_fact" :name="'major_fact'" :form="form"
                         label="Fait majeur" />
                 </NLColumn>
@@ -23,7 +23,7 @@
                         </NLColumn>
                         <!-- Metadata -->
                         <NLColumn
-                            v-if="data?.control_point.fields && Number(form.score) > 1 && [1, 2].includes(form.currentMode)"
+                            v-if="data?.control_point.fields && Number(form.score) > 0 && [1, 2].includes(form.currentMode)"
                             extraClass="mb-4">
                             <div class="repeater">
                                 <h2 class="mb-6">
@@ -87,7 +87,7 @@
                                 </NLGrid>
                                 <!-- Add new row -->
                                 <div class="d-flex justify-start align-center">
-                                    <span class="btn" @click="addRow(data?.control_point.fields)">
+                                    <span class="btn" @click="addRow(data?.control_point.fields)" title="alt + '+'">
                                         <i class="las la-plus" />
                                     </span>
                                 </div>
@@ -132,7 +132,7 @@
 
                         <!-- Report -->
                         <NLColumn>
-                            <NLTextarea v-model="form.report" :name="'report'" label="Constat" :form="form"
+                            <NLWyswyg :length="1000" v-model="form.report" :name="'report'" label="Constat" :form="form"
                                 :placeholder="![1, 2, 3, 4].includes(Number(form.score)) && !form.major_fact ? 'Constat' : 'Ajouter votre constat'"
                                 :label-required="[1, 2, 3, 4].includes(Number(form.score)) || form.major_fact"
                                 :readonly="![1, 2].includes(form.currentMode)"
@@ -141,8 +141,8 @@
 
                         <!-- Recovery plan -->
                         <NLColumn>
-                            <NLTextarea v-model="form.recovery_plan" :name="'recovery_plan'" label="Plan de redressement"
-                                :form="form"
+                            <NLWyswyg :length="1000" v-model="form.recovery_plan" :name="'recovery_plan'"
+                                label="Plan de redressement" :form="form"
                                 :placeholder="![2, 3, 4].includes(Number(form.score)) && !form.major_fact ? '' : 'Ajouter votre plan de redressement'"
                                 :label-required="[2, 3, 4].includes(Number(form.score)) || form.major_fact"
                                 :disabled="![2, 3, 4].includes(Number(form.score)) && !form.major_fact" />
@@ -151,25 +151,18 @@
                 </NLColumn>
                 <!-- Media (attachements) -->
                 <NLColumn :lg="isContainerExpanded ? 4 : 12">
-                    <NLFile v-model="form.media" :name="'media'" label="Pièces jointes"
-                        attachable-type="App\Models\MissionDetail" :attachable-id="form.detail" :form="form" multiple
-                        :canDelete="canDeleteMedia" />
+                    <NLFile @uploaded="handleMedia" @deleted="handleMedia" @loaded="handleMedia" v-model="form.media"
+                        :name="'media'" label="Pièces jointes" attachable-type="App\Models\MissionDetail"
+                        :attachable-id="form.detail" :form="form" multiple :canDelete="canDeleteMedia"
+                        :readonly="![1, 2].includes(form.currentMode)" />
                 </NLColumn>
             </NLForm>
-
             <!-- Loader -->
-            <div class="component-loader-container" v-else>
-                <div class="component-loader"></div>
-                <div class="component-loader-text">
-                    Chargement en cours
-                </div>
-            </div>
+            <NLComponentLoader :isLoading="isLoading" />
         </template>
+        <!-- Submit Button -->
         <template #footer>
-            <!-- Submit Button -->
-            <div class="col-12 d-flex justify-end align-center">
-                <NLButton :loading="form.busy" label="Enregistrer" @click="save" />
-            </div>
+            <NLButton :loading="formIsLoading" label="Enregistrer" @click="save" v-if="!isLoading" />
         </template>
     </NLModal>
 </template>
@@ -179,10 +172,11 @@ import NLForm from '../components/NLForm';
 import { Form } from 'vform';
 import { mapGetters } from 'vuex';
 import { hasRole } from '../plugins/user';
+import NLComponentLoader from '../components/NLComponentLoader'
 export default {
     name: 'MissionDetailForm',
     emits: [ 'success', 'close' ],
-    components: { NLForm },
+    components: { NLForm, NLComponentLoader },
     props: {
         data: { type: [ Object, null ], required: true },
         show: { type: Boolean, default: false },
@@ -205,6 +199,9 @@ export default {
             return false
         }
     },
+    mounted() {
+        this.handleKeyboard()
+    },
     watch: {
         'form.major_fact': function (newValue, oldValue) {
             if (newValue) {
@@ -224,11 +221,12 @@ export default {
     },
     data() {
         return {
+            formIsLoading: false,
             form: new Form({
                 currentMode: 1,
                 mission: null,
                 process: null,
-                media: [],
+                media: {},
                 detail: null,
                 report: null,
                 recovery_plan: null,
@@ -244,6 +242,28 @@ export default {
         }
     },
     methods: {
+        handleMedia(files) {
+            this.form.media = files
+        },
+
+        handleKeyboard() {
+            window.addEventListener('keyup', e => {
+                if (this.data?.control_point?.fields && Number(this.form.score) > 1 && [ 1, 2 ].includes(this.form.currentMode)) {
+                    if (e.key == '+' && e.altKey) {
+                        e.preventDefault()
+                        this.addRow(this.data?.control_point.fields)
+                    }
+                    if (e.key == '-' && e.altKey) {
+                        e.preventDefault()
+                        const totalData = Object.values(this.form.metadata).length
+                        if (totalData) {
+                            const index = totalData - 1
+                            this.removeRow(index)
+                        }
+                    }
+                }
+            })
+        },
         handleDetailForm(e) {
             this.isContainerExpanded = e
         },
@@ -276,6 +296,7 @@ export default {
                 } else {
                     this.form.currentMode = 6 // Readonly mode
                 }
+
                 this.currentMission = detail.mission
                 this.form.mission = detail.mission_id
                 this.form.process = Number(detail.control_point.process_id)
@@ -295,6 +316,10 @@ export default {
          * Save detail
          */
         save() {
+<<<<<<< HEAD
+            this.formIsLoading = true
+=======
+>>>>>>> master
             this.form.post('missions/details/' + this.data.mission_id).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
@@ -302,12 +327,15 @@ export default {
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }
+                this.formIsLoading = false
             }).catch(error => {
                 let message = error.message
                 if (error.response.status === 422) {
                     message = 'Les données fournies sont invalides.'
                 }
                 this.$swal.toast_error(message)
+                this.formIsLoading = false
+
             })
         },
         /**
@@ -367,7 +395,7 @@ export default {
          * @param {Number} row
          * @param {Number} field
          */
-        removeRow(row, field) {
+        removeRow(field) {
             this.form.metadata.splice(field, 1)
         },
         /**

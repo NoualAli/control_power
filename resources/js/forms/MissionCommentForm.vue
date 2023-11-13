@@ -6,48 +6,74 @@
             </small>
         </template>
         <template #default>
+            <!-- Edit view -->
             <NLForm :form="form" :action="save" v-if="!isReadonly && !isLoading">
                 <NLColumn>
-                    <NLWyswyg v-model="form.content" :name="fields.content.name" :form="form" :label="fields.content.label"
-                        :placeholder="fields.content.placeholder" labelRequired />
+                    <NLWyswyg :length="3000" v-model="form.content" :name="fields.content.name" :form="form"
+                        :label="fields.content.label" :placeholder="fields.content.placeholder" labelRequired />
+                </NLColumn>
+                <NLColumn>
+                    <!-- CDC -->
+                    <NLFile v-if="form.currentMode == 2" @uploaded="handleMedia" @deleted="handleMedia"
+                        @loaded="handleMedia" v-model="form.closing_report" :name="'closing_report'" label="PV de clôture"
+                        attachable-type="App\Models\Mission" :attachable-id="mission.id" :form="form"
+                        folder="closing_report" accepted="jpg,jpeg,png" :canDelete="canDeleteMedia()"
+                        :readonly="![1, 2].includes(form.currentMode)" multiple labelRequired
+                        :helpText="'- Uniquement les fichiers de type jpg,jpeg,png sont accéptés\n- Chaque fichier ne doit pas dépassé 2Mo soit 2048Ko'" />
+                    <!-- CI -->
+                    <NLFile v-if="form.currentMode == 1" @uploaded="handleMedia" @deleted="handleMedia"
+                        @loaded="handleMedia" v-model="form.mission_order" name="mission_order" label="Ordre de mission"
+                        attachable-type="App\Models\Mission" :attachable-id="mission.id" :form="form" folder="mission_order"
+                        accepted="jpg,jpeg,png" placeholder="Téléverser votre ordre de mission"
+                        :canDelete="canDeleteMedia()" :readonly="![1, 2].includes(form.currentMode)" multiple labelRequired
+                        :helpText="'- Uniquement les fichiers de type jpg,jpeg,png sont accéptés\n- Chaque fichier ne doit pas dépassé 2Mo soit 2048Ko'" />
                 </NLColumn>
                 <NLColumn>
                     <NLSwitch type="is-success" v-model="form.validated" :name="fields.validated.name" :form="form"
                         :label="fields.validated.label" />
                 </NLColumn>
             </NLForm>
-            <NLContainer class="content" v-if="isReadonly && !isLoading" isFluid v-html="content"></NLContainer>
+
+            <!-- Readonly view -->
+            <NLGrid v-if="isReadonly && !isLoading">
+                <NLColumn>
+                    <NLContainer class="content box text-normal" v-if="isReadonly && !isLoading" isFluid v-html="content()"
+                        :key="forceReload">
+                    </NLContainer>
+                </NLColumn>
+                <NLColumn>
+                    <NLFile v-model="form[fields.file.name]" v-if="form[fields.file.name] && isReadonly && !isLoading"
+                        :name="fields.file.name" :label="fields.file.label" attachable-type="App\Models\Mission"
+                        :attachable-id="mission.id" :form="form" :readonly="true" />
+
+                </NLColumn>
+            </NLGrid>
 
             <!-- Loader -->
-            <div class="component-loader-container" v-else>
-                <div class="component-loader"></div>
-                <div class="component-loader-text">
-                    Chargement en cours
-                </div>
-            </div>
+            <NLComponentLoader :isLoading="isLoading" />
         </template>
         <template #footer>
-            <NLFlex v-if="isValidated">
+            <NLFlex v-if="isValidated()">
                 <span>
                     Date de validation:
                 </span>
                 <span>
-                    {{ validatedAt }}
+                    {{ validatedAt() }}
                 </span>
             </NLFlex>
             <!-- Submit Button -->
             <NLButton v-if="!isReadonly && !isLoading" :loading="form.busy" label="Enregistrer" @click="save" />
             <button
-                v-if="type == 'ci_report' && !isValidated && commentExists && !editMode && canCreateComment && isReadonly"
+                v-if="type == 'ci_report' && !isValidated() && commentExists() && !editMode && canCreateComment() && isReadonly"
                 class="btn btn-warning has-icon" @click.prevent="switchEditMode()">
                 <i class="las la-edit icon" />
                 Editer le compte-rendu
             </button>
             <button
-                v-if="type == 'cdc_report' && !isValidated && commentExists && !editMode && canCreateComment && isReadonly"
+                v-if="type == 'cdc_report' && !isValidated() && commentExists() && !editMode && canCreateComment() && isReadonly"
                 class="btn btn-warning has-icon" @click.prevent="switchEditMode()">
                 <i class="las la-edit icon" />
-                Editer le rapport
+                Editer la conclusion
             </button>
         </template>
     </NLModal>
@@ -57,27 +83,129 @@
 import NLForm from '../components/NLForm';
 import { Form } from 'vform';
 import api from '../plugins/api';
+import NLComponentLoader from '../components/NLComponentLoader'
+import { hasRole } from '../plugins/user';
+
 export default {
     name: 'MissionDetailForm',
     emits: [ 'success', 'close' ],
-    components: { NLForm },
+    components: { NLForm, NLComponentLoader },
     props: {
         show: { type: Boolean, default: false },
         type: { type: [ String, null ], required: true },
-        mission: { type: [ Object, null ], required: true },
+        missionId: { type: [ String, null ], required: true },
         readonly: { type: Boolean, required: true },
     },
     watch: {
         show(newValue, oldValue) {
             if (newValue && newValue !== oldValue) {
                 this.initData()
+                this.forcedKey += 1
             } else {
+                this.forcedKey += 1
                 this.form.reset()
+                this.mission = {}
                 this.isLoading = false
             }
-        }
+        },
     },
     computed: {
+        // canDeleteMedia() {
+        //     if (this.form.currentMode == 1) {
+        //         return !this.mission.is_validated_by_ci
+        //     } else if (this.form.currentMode == 2) {
+        //         return !this.mission.is_validated_by_cdc
+        //     }
+        //     return false
+        // },
+        // canCreateComment() {
+        //     if (this.type == 'ci_report') {
+        //         return this.can('create_ci_report')
+        //     } else if (this.type == 'cdc_report') {
+        //         return this.can('create_cdc_report')
+        //     }
+        //     return false
+        // },
+        // commentExists() {
+        //     return !!this.mission[ this.type ]
+        // },
+        // content() {
+        //     return this.mission[ this.type ]?.content
+        // },
+        // validatedAt() {
+        //     if (this.type == 'ci_report') {
+        //         return this.mission?.ci_validation_at
+        //     } else if (this.type == 'cdc_report') {
+        //         return this.mission?.cdc_validation_at
+        //     }
+        //     return false
+        // },
+        // isValidated() {
+        //     if (this.type == 'ci_report') {
+        //         return this.mission?.is_validated_by_ci ? true : false
+        //     } else if (this.type == 'cdc_report') {
+        //         return this.mission?.is_validated_by_cdc ? true : false
+        //     }
+        //     return false
+        // }
+    },
+    // created() {
+    //     console.log(this.show, this.type, this.missionId, this.readonly);
+    // },
+    data() {
+        return {
+            form: new Form({
+                currentMode: 1,
+                content: null,
+                id: null,
+                type: null,
+                validated: false,
+                mission_order: {},
+                closing_report: {},
+            }),
+            mission: {},
+            forcedKey: 1,
+            isContainerExpanded: false,
+            isLoading: false,
+            isReadonly: this.readonly,
+            editMode: false,
+            comment: this.mission?.comment,
+            forceReload: 1,
+            fields: {
+                content: {
+                    label: 'Votre compte-rendu',
+                    placeholder: 'Ecrivez votre compte-rendu',
+                    name: 'content'
+                },
+                validated: {
+                    label: 'Validé ?',
+                    name: 'validated'
+                },
+
+                file: {
+                    label: 'Ordre de mission',
+                    name: 'mission_order'
+                },
+            },
+            title: null,
+        }
+    },
+    methods: {
+        handleMedia(files) {
+            if (this.form.currentMode == 1) {
+                this.form.mission_order = files
+            } else if (this.form.currentMode == 2) {
+                this.form.closing_report = files
+            }
+        },
+        canDeleteMedia() {
+            if (this.form.currentMode == 1) {
+                return !this.mission.is_validated_by_ci
+            } else if (this.form.currentMode == 2) {
+                return !this.mission.is_validated_by_cdc
+            }
+            return false
+        },
         canCreateComment() {
             if (this.type == 'ci_report') {
                 return this.can('create_ci_report')
@@ -107,36 +235,7 @@ export default {
                 return this.mission?.is_validated_by_cdc ? true : false
             }
             return false
-        }
-    },
-    data() {
-        return {
-            form: new Form({
-                content: null,
-                id: null,
-                type: null,
-                validated: false,
-            }),
-            isContainerExpanded: false,
-            isLoading: false,
-            isReadonly: this.readonly,
-            editMode: false,
-            comment: this.mission?.comment,
-            fields: {
-                content: {
-                    label: 'Votre compte-rendu',
-                    placeholder: 'Ecrivez votre compte-rendu',
-                    name: 'content'
-                },
-                validated: {
-                    label: 'Validé ?',
-                    name: 'validated'
-                },
-            },
-            title: null,
-        }
-    },
-    methods: {
+        },
         /**
          * Handle container expansion
          *
@@ -149,34 +248,47 @@ export default {
         /**
          * Initialize data
          */
-        initData() {
+        initData(forceReload = false) {
             this.isLoading = !this.isLoading
             this.isReadonly = true
             this.editMode = false
-            if (this.commentExists) {
-                api.get('comments/' + this.mission[ this.type ]?.id).then((response) => {
-                    this.comment = response.data
-                    this.isLoading = false
-                })
-            } else {
-                this.isReadonly = false
-                this.editMode = true
-            }
+            api.get('missions/' + this.missionId).then((response) => {
+                this.mission = response.data
 
-            this.showCommentForm(this.type, this.isReadonly)
-            this.isLoading = !this.isLoading
+                if (hasRole([ 'ci' ])) {
+                    this.form.currentMode = 1 // Execution mode
+                } else if (hasRole('cdc')) {
+                    this.form.currentMode = 2 // Revision mode
+                } else {
+                    this.form.currentMode = 3
+                }
+                if (this.commentExists()) {
+                    api.get('comments/' + this.mission[ this.type ]?.id).then((response) => {
+                        this.comment = response.data
+                        if (forceReload) {
+                            this.forceReload += 1
+                        }
+                        this.isLoading = false
+                    })
+                } else {
+                    this.isReadonly = false
+                    this.editMode = true
+                }
+                this.showCommentForm(this.type, this.isReadonly, this.mission)
+                this.isLoading = false
+            })
         },
 
         /**
          * Show mission comment (ci opinion, cdc report)
          */
-        showCommentForm(type, readonly = false) {
+        showCommentForm(type, readonly = false, mission) {
             if (type == 'cdc_report') {
-                this.showCdcReport(readonly)
+                this.showCdcReport(mission)
             }
 
             if (type == 'ci_report') {
-                this.showCiReport(readonly)
+                this.showCiReport(mission)
             }
         },
 
@@ -184,34 +296,48 @@ export default {
          * Initialize ci report data
          *
          */
-        showCiReport() {
-            this.form.validated = this.mission?.is_validated_by_ci
+        showCiReport(mission) {
+            this.form.validated = mission?.is_validated_by_ci
             this.form.type = 'ci_report'
-            this.form.id = this.commentExists ? this.mission?.ci_report?.id : null
-            this.form.content = this.content
+            this.form.id = this.commentExists() ? mission?.ci_report?.id : null
+            this.form.content = this.content()
+            this.form.mission_order = Object.assign({}, mission?.mission_order?.map((order) => order.id))
 
-            this.title = 'Compte-rendu du contrôleur sur la mission ' + this.mission?.reference
+            this.title = 'Compte-rendu du contrôleur sur la mission ' + mission?.reference
             this.fields.content = {
                 label: 'Votre compte-rendu',
                 placeholder: 'Ecrivez votre compte-rendu',
                 name: 'content'
             }
+
+            this.fields.file = {
+                label: 'Ordre de mission',
+                name: 'mission_order',
+            }
+            // console.log(this.form);
+            // console.log(this.form.mission_order);
         },
         /**
          * Initialize cdc report data
          *
          */
-        showCdcReport() {
-            this.form.validated = this.mission?.is_validated_by_cdc
+        showCdcReport(mission) {
+            this.form.validated = mission?.is_validated_by_cdc
             this.form.type = 'cdc_report'
-            this.form.id = this.commentExists ? this.mission?.cdc_report?.id : null
-            this.form.content = this.content
+            this.form.id = this.commentExists() ? mission?.cdc_report?.id : null
+            this.form.content = this.content()
+            this.form.closing_report = Object.assign({}, mission?.closing_report?.map((report) => report.id))
 
-            this.title = 'Rapport du chef de département sur la mission ' + this.mission?.reference
+            this.title = 'Conclusion du chef de département sur la mission ' + mission?.reference
             this.fields.content = {
-                label: 'Votre rapport',
-                placeholder: 'Ecrivez votre rapport',
+                label: 'Votre conclusion',
+                placeholder: 'Ecrivez votre conclusion',
                 name: 'content'
+            }
+
+            this.fields.file = {
+                label: 'PV de clôture',
+                name: 'closing_report'
             }
         },
         /**
@@ -231,7 +357,7 @@ export default {
          * @param {String} type
          */
         switchReadonlyMode() {
-            this.initData()
+            this.initData(true)
             this.editMode = false
             this.isReadonly = true
         },
@@ -240,20 +366,19 @@ export default {
          * Save comment
          */
         save() {
-            this.isLoading = !this.isLoading
+            // console.log('test');
+            // this.isLoading = true
             this.form.post('missions/' + this.mission?.id + '/comments').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
-                    // this.editMode = false
-                    // this.isReadonly = true
-                    // this.close(this.form.type, true)
                     this.switchReadonlyMode()
                     this.$emit('success')
-                    this.isLoading = !this.isLoading
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }
+                // this.isLoading = false
             }).catch(error => {
+                // this.isLoading = false
                 console.log(error)
             })
         },

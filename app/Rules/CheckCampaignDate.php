@@ -37,10 +37,9 @@ class CheckCampaignDate implements Rule
      */
     public function passes($attribute, $value)
     {
-        $this->lastCampaign = ControlCampaign::whereYear('start', Carbon::parse(request()->start)->format('Y'))->orderBy('start', 'ASC')->first();
-        // dd($this->lastCampaign);
+        $this->lastCampaign = ControlCampaign::whereYear('start_date', Carbon::parse(request()->start_date)->format('Y'))->orderBy('start_date', 'ASC')->first();
         if ($this->lastCampaign instanceof ControlCampaign) {
-            $this->endDate = Carbon::parse($this->lastCampaign?->end);
+            $this->endDate = Carbon::parse($this->lastCampaign?->end_date);
             return Carbon::parse($this->endDate)->diffInDays($value, false) > 0;
         }
         return true;
@@ -53,6 +52,6 @@ class CheckCampaignDate implements Rule
      */
     public function message()
     {
-        return 'Le champs :attribute doit être supèrieur à la date de fin de la dernière campagne ' . $this->lastCampaign->reference . ' donc supèrieur à ' . $this->endDate->format('d-m-Y') . ' .';
+        return 'Le champ :attribute doit être supèrieur à la date de fin de la dernière campagne ' . $this->lastCampaign->reference . ' donc supèrieur à ' . $this->endDate->format('d-m-Y') . ' .';
     }
 }

@@ -9,18 +9,18 @@
     @for $i from 1 through 12
         &>.col-#{$i}
             grid-column: span $i
-            height: 100%
+            height: auto
             width: 100%
     @media (min-width: $mobile)
         @for $i from 1 through 12
             &>.col-#{$i}
                 grid-column: span $i
-                height: 100%
+                height: auto
                 width: 100%
     @each $breakpoint in $breakpoints-list
         @media (min-width: nth($breakpoint, 2))
             @for $i from 1 through 12
                 &>.col-#{nth($breakpoint, 1)}-#{$i}
                     grid-column: span $i
-                    height: 100%
+                    height: auto
                     width: 100%

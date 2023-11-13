@@ -15,6 +15,7 @@ class Agency extends BaseModel
         'name',
         'code',
         'dre_id',
+        'category_id'
     ];
 
     protected $perPage = 10;

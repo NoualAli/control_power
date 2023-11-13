@@ -1,10 +1,11 @@
 @php
     $appCss = env('APP_URL') . '/special_styles/report.css';
     $qlCss = env('APP_URL') . '/special_styles/ql.css';
-    $appBrand = public_path('app\images\brand.svg');
+    $appBrand = storage_path('images\brand.png');
     $bnaLogo = public_path('app\images\bna_logo.svg');
     $coverPageImg = public_path('app\images\report_cover_page.png');
     $appBrandMonochrome = public_path('app\images\brand_monochrome.png');
+    // dd(storage_path('app\images\brand.svg'))
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -21,10 +22,11 @@
 </head>
 
 <body>
+    {{-- Landing page --}}
     <section>
         <div class="page no-padding">
             <main class="page-body no-padding">
-                <img src="{{ $coverPageImg }}" class="cover-page-img">
+                <img src="{{ $coverPageImg }}" class="cover-page-img" />
                 <img src="{{ $bnaLogo }}" class="no-padding cover-page-logo">
                 <div class="first-section-text">
                     <p>Division Risques et Contrôle Permanant - <b>DRCP</b></p>
@@ -38,7 +40,7 @@
                         2<sup>e</sup> NIVEAU <b>"{{ str_replace('cdc', '', $campaign->reference) }}"</b>
                     </p>
                 </span>
-                <p class="year">{{ Carbon\Carbon::parse($campaign->start)->format('Y') }}</p>
+                <p class="year">{{ Carbon\Carbon::parse($campaign->start_date)->format('Y') }}</p>
                 <p class="report-title">
                     <b>RAPPORT</b><br>
                     DE MISSION
@@ -58,39 +60,37 @@
 
                 <div class="controlled_by">
                     <b>Contrôlé par</b> {{ $mission->controllers[0]->full_name }}
-                    {{-- <div class="controller">
-
-                </div> --}}
                 </div>
 
                 <div class="validated_by">
-                    <b>Validé par</b> {{ $mission->creator->full_name }}
-                    {{-- <div class="validator">
-
-                </div> --}}
+                    <b>Validé par</b> {{ $mission->cdc_report?->creator->full_name }}
                 </div>
 
-                <img src="{{ $appBrandMonochrome }}" alt="PowerControlMonochrome" class="power-control-monochrome">
+                <img src="{{ $appBrandMonochrome }}" alt="ControlPowerMonochrome" class="power-control-monochrome">
             </main>
         </div>
     </section>
 
-
+    {{-- Sections header --}}
     <header class="page-header">
         <div class="container">
             <img src="{{ $bnaLogo }}" class="bna-logo" alt="Banque National D'Algérie">
 
             <div class="text-content">
-                <p>Direction du Contrôle Permanent</p>
                 <p>Division Risques et Contrôle Permanent</p>
+                <p>Direction du Contrôle Permanent</p>
             </div>
         </div>
     </header>
+
+    {{-- Sections footer --}}
     <footer class="page-footer">
         <div class="container">
             <img src="{{ $appBrand }}" class="app-brand" alt="Control Power">
         </div>
     </footer>
+
+    {{-- Main content --}}
     <main class="page-body report-area">
         <div class="container">
             <h1>Introduction</h1>
@@ -102,6 +102,7 @@
                 Ci-après les familles, domaines et processus à contrôler:
             </p>
             <br>
+
             <ul class="table-of-content">
                 @foreach ($details as $family => $familyData)
                     <li><a href="#{{ $family }}">Famille: {!! ucfirst(strtolower($family)) !!}</a></li>
@@ -131,7 +132,9 @@
                     <br>
                 @endforeach
             </ul>
+
             <div class="page-break-after-always"></div>
+
             <h2>Fiche technique</h2>
             <br>
             <div class="table-container">
@@ -162,17 +165,19 @@
                     </tr>
                     <tr>
                         <td>Contrôle sur place</td>
-                        <td>{{ $mission->agency_controllers_str }}</td>
+                        <td>{{ $mission->dre_controllers_str }}</td>
                     </tr>
                     <tr>
                         <td>Validé par</td>
-                        <td>{{ $mission->dre_report->creator->full_name }}</td>
+                        <td>{{ $mission->cdc_report?->creator->full_name }}</td>
                     </tr>
                 </table>
             </div>
             <br>
+
             <h2>Chiffres clés</h2>
             <br>
+
             <div class="table-container">
                 <table>
                     <tr>
@@ -199,6 +204,7 @@
                 </table>
             </div>
             <div class="page-break-before-always"></div>
+
             @foreach ($details as $family => $familyData)
                 <h2 id="{{ $family }}">Famille: {!! $family !!}</h2>
                 @php
@@ -244,7 +250,6 @@
                                             <th>Fait majeur</th>
                                             <td
                                                 class="{{ $item->major_fact ? 'text-danger' : null }} {{ $item->major_fact ? 'has-major_fact' : 'no-major_fact' }}">
-                                                {{-- {!! $item->major_fact ? '❌ Oui' : '✔️ Non' !!} --}}
                                                 {{ $item->major_fact ? 'Oui' : 'Non' }}
                                             </td>
                                             <th class="margin-cell"></th>
@@ -252,66 +257,87 @@
                                         <tr>
                                             <th class="margin-cell"></th>
                                             <th>Constat</th>
-                                            <td>{{ $item->report ?? '-' }}</td>
+                                            <td>{!! $item->report ?? '-' !!}</td>
                                             <th class="margin-cell"></th>
                                         </tr>
                                         @if ($item->score != 1)
                                             <tr>
                                                 <th class="margin-cell"></th>
                                                 <th>Plan de redressement</th>
-                                                <td>{{ $item->recovery_plan }}</td>
+                                                <td>{!! $item->recovery_plan !!}</td>
                                                 <th class="margin-cell"></th>
                                             </tr>
                                         @endif
-                                        @if ($item->metadata)
-                                            <tr>
-                                                <td colspan="4" class="text-center bg-gray">
-                                                    <b>Constats liés à l'échantillonage</b>
-                                                </td>
-                                            </tr>
-                                            @foreach ($item->metadata as $metadata)
-                                                @php
-                                                    $currentIndex = 1;
-                                                @endphp
-                                                @foreach ($metadata as $parsed)
-                                                    @php
-                                                        $parsed = json_decode(json_encode($parsed), true);
-                                                        $keys = array_keys($parsed);
-                                                        $count = count($metadata);
-                                                    @endphp
-                                                    <tr
-                                                        class="metadata-row {{ $currentIndex == $count ? 'border-bottom' : null }}">
-                                                        <th class="margin-cell"></th>
-                                                        <th>
-                                                            {{ $parsed[$keys[1]] }}
-                                                        </th>
-                                                        <td>
-                                                            {{ $parsed[$keys[0]] }}
-                                                        </td>
-                                                        <th class="margin-cell"></th>
-                                                    </tr>
-                                                    @php
-                                                        $currentIndex += 1;
-                                                    @endphp
-                                                @endforeach
-                                            @endforeach
-                                        @endif
                                     </tbody>
                                 </table>
-                            </div>
-                            @foreach ($item->media as $file)
-                                @if (in_array($file->extension, ['jpg', 'jpeg', 'png', 'svg']))
-                                    <img src="{{ $file->link }}" alt="{{ $file->original_name }}" class="media">
+
+                                {{-- Metadata --}}
+                                @if ($item->metadata !== null)
+                                    <table>
+                                        <tr>
+                                            <td colspan="4" class="text-center bg-gray">
+                                                <b>Constats liés à l'échantillonage</b>
+                                            </td>
+                                        </tr>
+                                        @php
+                                            $totalItems = $item?->inline_metadata?->count() - 1;
+                                            $currentIndex = 0;
+                                        @endphp
+                                        @foreach ($item->inline_metadata as $key => $rows)
+                                            @php
+                                                $totalRows = $rows->count();
+                                                $currentRow = 1;
+                                            @endphp
+                                            @foreach ($rows as $row)
+                                                <tr
+                                                    class="metadata-row {{ $totalRows == $currentRow && $totalItems !== $currentIndex ? 'border-bottom' : null }}">
+                                                    <th class="margin-cell"></th>
+                                                    <th>
+                                                        {{ $row->label }}
+                                                    </th>
+                                                    <td>
+                                                        {{ $row->value }}
+                                                    </td>
+                                                    <th class="margin-cell"></th>
+                                                    @php
+                                                        $currentRow += 1;
+                                                    @endphp
+                                            @endforeach
+                                            @php
+                                                $currentIndex += 1;
+                                            @endphp
+                                        @endforeach
+                                    </table>
                                 @endif
-                            @endforeach
+                            </div>
+                            {{-- Supporting documents --}}
+                            @if ($item?->images?->count())
+                                <h4>Pièces justificatifs</h4>
+                                @foreach ($item->media as $file)
+                                    <div class="img-container">
+                                        <img src="{{ $file->link }}" alt="{{ $file->original_name }}"
+                                            class="img">
+                                    </div>
+                                @endforeach
+                            @endif
                         @endforeach
                     @endforeach
                 @endforeach
-                <div class="page-break-after-always"></div>
+                <div class="page-break-before-always"></div>
             @endforeach
-
-            <h2>Rapport du chef de département</h2>
-            {!! $mission->dre_report->content !!}
+        </div>
+        <div class="container">
+            <h2>Conclusion du chef de département</h2>
+            {!! $mission->cdc_report->content !!}
+            <h2>PV de clôture</h2>
+            @if ($mission->closingReport)
+                @foreach ($mission->closingReport as $report)
+                    <div class="img-container">
+                        <img src="{{ $report->link }}" alt="{{ $report->original_name }}"
+                            class="img">
+                    </div>
+                @endforeach
+            @endif
         </div>
     </main>
 </body>

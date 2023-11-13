@@ -19,6 +19,11 @@ trait HasDres
         $dres = implode(', ', $this->dres->pluck('name')->toArray());
         return !empty($dres) ? $dres : '-';
     }
+    public function getAgenciesStrAttribute()
+    {
+        $agencies = implode(', ', $this->agencies->pluck('name')->toArray());
+        return !empty($agencies) ? $agencies : '-';
+    }
     public function getAgenciesArrAttribute()
     {
         return $this->agencies?->pluck('id')->toArray();

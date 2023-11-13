@@ -1,8 +1,8 @@
 <template>
     <ContentBody>
         <NLDatatable :columns="columns" :actions="actions" :filters="filters" @show="show"
-            title="Anomalie • Notation • Plan de redressement" urlPrefix="details" :key="forceReload"
-            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
+            title="Anomalie • Notation • Plan de redressement" urlPrefix="details"
+            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" :refresh="refresh" />
 
         <!-- View control point informations -->
         <MissionDetailModal :rowSelected="rowSelected" :show="modals.show" @showForm="showForm" @close="close" />
@@ -11,12 +11,11 @@
         <MissionDetailForm :data="rowSelected" :show="modals.edit" @success="success" @close="close" />
 
         <!-- Régularization du point de contrôle -->
-        <MissionRegularizationForm :data="rowSelected" :show="modals.regularize" @success="success" @close="close"
-            :key="forceReload" />
+        <MissionRegularizationForm :detail="rowSelected" :show="modals.regularize" @success="success" @close="close" />
     </ContentBody>
 </template>
 <script>
-import { hasRole } from '../../plugins/user'
+import { hasRole, user } from '../../plugins/user'
 import Alert from '../../components/Alert'
 import MissionDetailModal from '../../Modals/MissionDetailModal'
 import MissionDetailForm from '../../forms/MissionDetailForm'
@@ -28,53 +27,91 @@ export default {
     data: () => {
         return {
             rowSelected: null,
-            forceReload: 1,
+            refresh: 0,
             columns: [
                 {
                     label: 'CDC-ID',
-                    field: 'cdc_reference'
+                    field: 'campaign',
+                    sortable: true,
                 },
                 {
                     label: 'RAP-ID',
-                    field: 'mission_reference'
+                    field: 'mission',
+                    sortable: true,
                 },
                 {
                     label: 'DRE',
-                    field: 'dre_full_name',
-                    hide: hasRole([ 'cdc', 'ci', 'da', 'dre' ])
+                    field: 'dre',
+                    hide: hasRole([ 'cdc', 'ci', 'da', 'dre' ]),
+                    sortable: true,
                 },
                 {
                     label: 'Agence',
-                    field: 'agency_full_name'
+                    field: 'agency',
+                    hide: hasRole([ 'da' ]),
+                    sortable: true,
                 },
                 {
                     label: 'Famille',
-                    field: 'familly_name'
+                    field: 'family',
+                    sortable: true,
+                    length: 50,
                 },
                 {
                     label: 'Domaine',
-                    field: 'domain_name'
+                    field: 'domain',
+                    sortable: true,
+                    length: 30,
                 },
                 {
                     label: 'Processus',
-                    field: 'process_name'
+                    field: 'process',
+                    sortable: true,
+                    length: 50,
                 },
                 {
                     label: 'Point de contrôle',
-                    field: 'control_point_name',
-                    length: 50
+                    field: 'control_point',
+                    length: 50,
+                    sortable: true,
                 },
                 {
                     label: 'Notation',
                     field: 'score',
                     align: 'center',
-                    hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
+                    hide: hasRole([ 'cdc', 'ci' ]),
+                    sortable: true,
                     isHtml: true,
+                    methods: {
+                        showField(item) {
+                            // console.log(item.score);
+                            const score = item.score;
+                            let style = ''
+                            if (score == 1) {
+                                style = 'is-success';
+                            } else if (score == 2) {
+                                style = 'is-info';
+                            } else if (score == 3) {
+                                style = 'is-warning';
+                            } else if (score == 4) {
+                                style = 'is-danger';
+                            } else {
+                                style = 'is-grey';
+                            }
+
+                            return '<div class="tag ' + style + '">' + score + '</div>';
+                        }
+                    }
+                },
+                {
+                    label: 'Contrôlé',
+                    field: 'is_controlled',
+                    hide: !hasRole([ 'cdc', 'ci', 'cdcr', 'cc', 'dcp' ])
                 },
                 {
                     label: 'Etat',
-                    field: 'is_regularized',
-                    hide: hasRole([ 'cdc', 'ci' ])
+                    field: 'is_regularized_str',
+                    // hide: hasRole([ 'cdc', 'ci' ])
                 }
             ],
             actions: {
@@ -93,13 +130,6 @@ export default {
                     data: null,
                     value: null
                 },
-                mission: {
-                    label: 'Mission',
-                    cols: 3,
-                    multiple: true,
-                    data: null,
-                    value: null
-                },
                 dre: {
                     label: 'DRE',
                     cols: 3,
@@ -110,6 +140,13 @@ export default {
                 },
                 agency: {
                     label: 'Agence',
+                    cols: 3,
+                    multiple: true,
+                    data: null,
+                    value: null
+                },
+                mission: {
+                    label: 'Mission',
                     cols: 3,
                     multiple: true,
                     data: null,
@@ -137,7 +174,7 @@ export default {
                     label: 'Régularisation',
                     multiple: false,
                     value: null,
-                    hide: hasRole([ 'cdc', 'ci' ]),
+                    // hide: hasRole([ 'cdc', 'ci' ]),
                     data: [
                         {
                             id: 'Non levée',
@@ -167,7 +204,7 @@ export default {
                         }
                     ],
                     value: null,
-                    hide: !hasRole([ 'dcp', 'cdcr', 'cc' ])
+                    hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
                 }
             },
         }
@@ -182,7 +219,12 @@ export default {
          * @param {*} e
          */
         success(e) {
-            this.close(true)
+            this.refresh += 1
+            const row = this.rowSelected
+            this.modals.edit = false
+            this.modals.regularize = false
+            this.close()
+            this.show(row)
         },
         /**
         * Affiche le modal des informations du point de contrôle
@@ -217,20 +259,15 @@ export default {
         },
 
         /**
-         * Ferme la boite modal des détails du point de contrôle
+         * Handle close event
          */
-        close(forceReload = false) {
-            this.$store.dispatch('settings/updatePageLoading', true)
+        close() {
             for (const key in this.modals) {
                 if (Object.hasOwnProperty.call(this.modals, key)) {
                     this.modals[ key ] = false
                 }
             }
             this.rowSelected = null
-            if (forceReload) {
-                this.forceReload += 1
-            }
-            this.$store.dispatch('settings/updatePageLoading', false)
         },
         /**
          * @param {Object} Object

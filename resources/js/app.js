@@ -14,6 +14,7 @@ import '~/components'
 import './plugins/charts'
 import { useComponents } from './components'
 import { aclMixin, defineDirectives } from './plugins/acl.js'
+
 window.Swal = Swal
 window.api = api
 window.user = user
@@ -22,9 +23,9 @@ app.use(store)
 app.use(router)
 app.use(createVueMetaManager(false, { ...defaultConfig, meta: { tag: 'meta', nameless: true } })) // gotta update meta and use it differently
 app.use(pluginVueMeta) // gotta update meta and use it differently
-app.use(LoadingPlugin, {
-    'is-full-page': true
-}, {})
+// app.use(LoadingPlugin, {
+//     'is-full-page': true
+// }, {})
 
 app.use(Vue3Breadcrumbs, { includeComponent: true })
 
@@ -46,3 +47,4 @@ app.config.errorHandler = (err, vm, info) => {
 app.mount('#app')
 
 require('./bootstrap')
+// require('./echo-realtime')

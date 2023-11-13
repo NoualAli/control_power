@@ -4,17 +4,19 @@
             <NLForm :action="create" :form="form">
                 <NLColumn>
                     <NLWyswyg v-model="form.description" :form="form" name="description" label="Description"
-                        placeholder="Ajouter une description" label-required />
+                        placeholder="Ajouter une description" label-required :length="3000" />
                 </NLColumn>
                 <NLColumn lg="4">
                     <NLInput name="reference" :value="nextReference?.nextReference" :form="form" label="Référence" readonly
                         label-required />
                 </NLColumn>
                 <NLColumn lg="4" md="6">
-                    <NLInput v-model="form.start" :form="form" name="start" label="Date début" type="date" label-required />
+                    <NLInput v-model="form.start_date" :form="form" name="start_date" label="Date début" type="date"
+                        label-required />
                 </NLColumn>
                 <NLColumn lg="4" md="6">
-                    <NLInput v-model="form.end" :form="form" name="end" label="Date fin" type="date" label-required />
+                    <NLInput v-model="form.end_date" :form="form" name="end_date" label="Date fin" type="date"
+                        label-required />
                 </NLColumn>
                 <NLColumn>
                     <NLSelect v-model="form.pcf" :form="form" name="pcf" :options="pcfList" label="PCF" :multiple="true"
@@ -27,7 +29,7 @@
                 <!-- Submit Button -->
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
-                        <NLButton :loading="form.busy" label="Ajouter" />
+                        <NLButton :loading="formIsLoading" label="Ajouter" />
                     </NLFlex>
                 </NLColumn>
             </NLForm>
@@ -44,19 +46,20 @@ export default {
     middleware: [ 'auth' ],
     data() {
         return {
+            formIsLoading: false,
             pcfList: [],
             showValidation: false,
             form: new Form({
                 description: '',
-                start: null,
-                end: null,
+                start_date: null,
+                end_date: null,
                 validate: false,
                 pcf: []
             })
         }
     },
     computed: mapGetters({
-        famillies: 'famillies/all',
+        families: 'families/all',
         nextReference: 'campaigns/nextReference'
     }),
     created() {
@@ -72,13 +75,16 @@ export default {
             this.form.reset()
         },
         create() {
+            this.formIsLoading = true
             this.form.post('campaigns').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.form.reset()
                     this.fetchNextReference()
+                    this.formIsLoading = false
                 } else {
                     this.$swal.alert_error(response.data.message)
+                    this.formIsLoading = false
                 }
             }).catch(error => {
                 console.log(error)
@@ -88,8 +94,8 @@ export default {
          * Récupère la liste des familles -> domaines -> processus
          */
         loadPFC() {
-            this.$store.dispatch('famillies/fetchAll', true).then(() => {
-                this.pcfList = this.famillies.all
+            this.$store.dispatch('families/fetchAll', true).then(() => {
+                this.pcfList = this.families.all
                 this.$store.dispatch('campaigns/fetchNextReference').then(() => this.$store.dispatch('settings/updatePageLoading', false))
             })
         }

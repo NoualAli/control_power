@@ -3,87 +3,112 @@
         <template #title>
             Informations de la campagne de contrôle
         </template>
-        <template class="d-flex justify-between align-center gap-3 mb-9" v-if="!pageLoadingState" #actions>
-            <NLFlex lgJustifyContent="end" extraClass="w-100" v-if="forcedRerenderKey !== -1">
-                <router-link v-if="can('view_mission')"
-                    :to="{ name: 'campaign-missions', params: { campaignId: campaign?.current?.id } }" class="btn">
-                    Missions
-                </router-link>
-                <router-link
-                    v-if="(campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign')) && !campaign?.current.is_validated"
-                    class="btn btn-warning" :to="{ name: 'campaigns-edit', params: { campaignId: campaign?.current?.id } }">
-                    <i class="las la-edit icon" />
-                </router-link>
-                <button
-                    v-if="(campaign?.current?.remaining_days_before_start > 5 && can('delete_control_campaign')) && !campaign?.current.is_validated"
-                    class="btn btn-danger" @click.stop="destroy">
-                    <i class="las la-trash icon" />
-                </button>
-                <button v-if="!campaign?.current?.validated_by_id && can('validate_control_campaign')"
-                    class="btn btn-info has-icon" @click.stop="validate(campaign?.current)">
-                    <i class="las la-check icon" />
-                </button>
-            </NLFlex>
+        <template #actions>
+            <router-link v-if="can('view_mission')"
+                :to="{ name: 'campaign-missions', params: { campaignId: campaign?.current?.id } }" class="btn">
+                Missions
+            </router-link>
+            <router-link
+                v-if="(campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign')) && !campaign?.current.is_validated"
+                class="btn btn-warning" :to="{ name: 'campaigns-edit', params: { campaignId: campaign?.current?.id } }">
+                <i class="las la-edit icon" />
+            </router-link>
+            <button
+                v-if="(campaign?.current?.remaining_days_before_start > 5 && can('delete_control_campaign')) && !campaign?.current.is_validated"
+                class="btn btn-danger has-icon" @click.stop="destroy" :loading="destroyInProgress" label="Supprimer">
+                <i class="las la-trash icon" />
+            </button>
+            <NLButton v-if="!campaign?.current?.validated_by_id && can('validate_control_campaign')" class="btn btn-info"
+                @click.stop="validate(campaign?.current)" :loading="validationInProgress" label="Valider">
+                <i class="las la-check icon has-icon" />
+            </NLButton>
         </template>
     </ContentHeader>
     <ContentBody v-if="can('view_control_campaign')">
         <!-- Control campaign informations -->
         <div class="box mb-10">
-            <div class="grid gap-12">
-                <div class="col-12 col-lg-4">
+            <NLGrid class="grid gap-12">
+                <NLColumn lg="4">
                     <span class="text-bold">
                         Référence:
                     </span>
-                    <span class="text-bold">
-                        {{ campaign?.current?.reference }}
+                    <span>
+                        {{ reference }}
                     </span>
-                </div>
-                <div v-has-role="'cdcr,dcp'" class="col-12 col-lg-4">
+                </NLColumn>
+                <NLColumn v-if="is('cdcr,dcp')" lg="4">
                     <span class="text-bold">
                         Etat:
                     </span>
                     <span>
-                        {{ campaign?.current?.validated_by_id ? 'Validé' : 'En attente de validation' }}
+                        {{ state }}
                     </span>
-                </div>
-                <div class="col-12 col-lg-4">
-                    <div class="grid">
-                        <div class="col-12 grid">
-                            <div class="col-12 col-lg-6">
-                                <span class="text-bold">
-                                    Début:
-                                </span>
-                                <span>
-                                    {{ campaign?.current?.start + ' / ' +
-                                        campaign?.current?.remaining_days_before_start_str }}
-                                </span>
-                            </div>
-                            <div class="col-12 col-lg-6">
-                                <span class="text-bold">
-                                    Fin:
-                                </span>
-                                <span>
-                                    {{ campaign?.current?.end + ' / ' +
-                                        campaign?.current?.remaining_days_before_end_str }}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12">
+                </NLColumn>
+                <NLColumn lg="4">
+                    <NLGrid class="grid">
+                        <NLColumn>
+                            <NLGrid>
+                                <NLColumn lg="6">
+                                    <span class="text-bold">
+                                        Début:
+                                    </span>
+                                    <span>
+                                        {{ start }}
+                                    </span>
+                                </NLColumn>
+                                <NLColumn lg="6">
+                                    <span class="text-bold">
+                                        Fin:
+                                    </span>
+                                    <span>
+                                        {{ end }}
+                                    </span>
+                                </NLColumn>
+                            </NLGrid>
+                        </NLColumn>
+                    </NLGrid>
+                </NLColumn>
+                <NLColumn lg="12">
+                    <NLGrid>
+                        <NLColumn lg="4">
+                            <span class="text-bold">
+                                Total missions:
+                            </span>
+                            <span>
+                                {{ totalMissions }}
+                            </span>
+                        </NLColumn>
+
+                        <NLColumn lg="4">
+                            <span class="text-bold">
+                                Total validées:
+                            </span>
+                            <span>
+                                {{ totalValidatedMissionsWithPercent }}
+                            </span>
+                        </NLColumn>
+                    </NLGrid>
+                </NLColumn>
+                <NLColumn>
                     <span class="text-bold">
                         Description:
                     </span>
                     <br>
-                    <div v-if="campaign?.current?.description !== '-'" class="mt-2 content"
+                    <div v-if="campaign?.current?.description !== '-'" class="mt-2 content text-normal"
                         v-html="campaign?.current?.description" />
                     <span v-else />
-                </div>
-            </div>
+                </NLColumn>
+            </NLGrid>
         </div>
-
+        <div class="d-flex align-items gap-2" v-if="isDcp && totalMissions == totalValidatedMissions">
+            <a :href="'/excel-export?export=synthesis' + campaign?.current?.id" target="_blank"
+                class="btn btn-excel has-icon">
+                <i class="las la-file-excel icon" />
+                Exporter la synthèse
+            </a>
+        </div>
         <!-- Processes List -->
-        <NLDatatable v-if="campaign?.current?.id" :columns="columns" :details="details" :filters="filters"
+        <NLDatatable :key="renderKey" v-if="campaign?.current?.id" :columns="columns" :details="details"
             title="Liste des processus" :urlPrefix="'campaigns/processes/' + campaign?.current?.id"
             detailsUrlPrefix="processes" @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
             <template #actions-before="{ item, callback }"
@@ -99,16 +124,18 @@
 <script>
 import { mapGetters } from 'vuex'
 import api from '../../plugins/api'
+import { hasRole } from '../../plugins/user'
 export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     data() {
         return {
-            forcedRerenderKey: -1,
+            renderKey: 0,
+            validationInProgress: false,
             columns: [
                 {
                     label: 'Famille',
-                    field: 'familly_name'
+                    field: 'family_name'
                 },
                 {
                     label: 'Domaine',
@@ -130,39 +157,80 @@ export default {
                     hasMany: true
                 }
             ],
-            filters: {
-                family: {
-                    label: 'Famille',
-                    name: 'family',
-                    multiple: true,
-                    data: null,
-                    value: null
-                },
-                domain: {
-                    label: 'Domaine',
-                    name: 'domain',
-                    multiple: true,
-                    data: null,
-                    value: null,
-                    dependsOn: 'familly'
-                },
-            },
+            // filters: {
+            //     family: {
+            //         label: 'Famille',
+            //         name: 'family',
+            //         multiple: true,
+            //         data: null,
+            //         value: null
+            //     },
+            //     domain: {
+            //         label: 'Domaine',
+            //         name: 'domain',
+            //         multiple: true,
+            //         data: null,
+            //         value: null,
+            //         dependsOn: 'family'
+            //     },
+            // },
+            isDcp: null,
         }
     },
     computed: {
         ...mapGetters({
             campaign: 'campaigns/current'
-        })
-    },
-    watch: {
-        campaign: {
-            immediate: true,
-            deep: true,
-            handler(newValue, oldValue) {
-                if (newValue) {
-                    this.forcedRerenderKey = newValue.current.id
-                }
+        }),
+        reference() {
+            return this.campaign?.current?.reference
+        },
+        state() {
+            return this.campaign?.current?.is_validated ? 'Validé' : 'En attente de validation'
+        },
+        start() {
+            let startDate = this.campaign?.current?.start_date
+            let remainingDaysBeforeStart = Math.abs(this.campaign?.current?.remaining_days_before_start)
+            let sufix = ''
+
+            if (remainingDaysBeforeStart == 1) {
+                sufix = ' / ' + remainingDaysBeforeStart + ' jour'
+            } else if (remainingDaysBeforeStart > 1) {
+                sufix = ' / ' + remainingDaysBeforeStart + ' jours'
+            } else if (remainingDaysBeforeStart == 0) {
+                sufix = ' / Aujourd\'hui'
             }
+
+            return startDate + sufix
+        },
+
+        end() {
+            let endDate = this.campaign?.current?.end_date
+            let remainingDaysBeforeEnd = this.campaign?.current?.remaining_days_before_end
+            let sufix = ''
+            if (remainingDaysBeforeEnd == 1) {
+                sufix = ' / ' + remainingDaysBeforeEnd + ' jour'
+            } else if (remainingDaysBeforeEnd > 1) {
+                sufix = ' / ' + remainingDaysBeforeEnd + ' jours'
+            } else if (remainingDaysBeforeEnd == 0) {
+                sufix = ' / Aujourd\'hui'
+            }
+
+            return endDate + sufix
+        },
+
+        totalMissions() {
+            return this.campaign?.current?.total_missions
+        },
+
+        totalValidatedMissions() {
+            return this.campaign?.current?.total_mission_validated
+        },
+
+        totalValidatedMissionsWithPercent() {
+            let totalValidatedMissions = this.campaign?.current?.total_mission_validated
+            let totalMissions = this.campaign?.current?.total_missions
+            let percent = ((100 * totalValidatedMissions) / totalMissions).toFixed(2)
+            return totalValidatedMissions > 0 ? totalValidatedMissions + ' (' + percent + '%)' : '0%'
         }
     },
 
@@ -172,6 +240,7 @@ export default {
     methods: {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
+            this.isDcp = hasRole('dcp')
             this.close()
             const campaignId = this.$route.params.campaignId
             this.$store.dispatch('campaigns/fetch', { campaignId }).then(() => {
@@ -179,7 +248,8 @@ export default {
                 if (this.$breadcrumbs.value[ length - 1 ].label === 'Détails campagne') {
                     this.$breadcrumbs.value[ length - 1 ].label = 'Détails campagne ' + this.campaign.current?.reference
                 }
-                this.$store.dispatch('settings/updatePageLoading', false)
+                this.renderKey += 1
+                // this.$store.dispatch('settings/updatePageLoading', false)
             })
         },
         loadControlPoints(process) {
@@ -193,34 +263,44 @@ export default {
         validate(item) {
             this.$swal.confirm({ title: 'Validation', message: 'Validation de la campagne de contrôle ' + item.reference, icon: 'success' }).then(response => {
                 if (response.isConfirmed) {
+                    this.validationInProgress = true
                     api.put('campaigns/' + item.id + '/validate').then(response => {
                         if (response.data.status) {
                             this.initData()
+                            this.$store.dispatch('settings/updatePageLoading', false)
                             this.$swal.toast_success(response.data.message)
+                            this.validationInProgress = false
                         } else {
                             this.$swal.toast_error(response.data.message)
+                            this.validationInProgress = false
                         }
                     })
                 }
             }).catch(error => {
                 this.$swal.alert_error(error)
+                this.validationInProgress = false
             })
         },
+
         /**
          * Delete campaign
          */
         destroy(e) {
+            this.destroyInProgress = true
             this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
                     api.delete('campaigns/' + this.campaign?.current?.id).then(response => {
                         if (response.data.status) {
                             this.$swal.toast_success(response.data.message)
                             this.$router.push({ name: 'campaigns' })
+                            this.destroyInProgress = false
                         } else {
                             this.$swal.alert_error(response.data.message)
+                            this.destroyInProgress = false
                         }
                     }).catch(error => {
                         console.log(error)
+                        this.destroyInProgress = false
                     })
                 }
             })

@@ -1,6 +1,3 @@
-<!-- eslint-disable vue/multi-word-component-names -->
-<!-- eslint-disable vue/valid-model-definition -->
-<!-- eslint-disable vue/multi-word-component-names -->
 <template>
     <NLGrid class="box auth-box grid" gap="6">
         <NLColumn class="auth-box__header">
@@ -28,7 +25,7 @@
                 </NLFlex>
             </form>
         </NLColumn>
-        <NLColumn class="text-center d-block">
+        <NLColumn class="text-center d-block d-lg-none">
             &copy; {{ currentYear }} - Tous droits réservés - BNA
         </NLColumn>
     </NLGrid>
@@ -43,7 +40,7 @@ import Form from 'vform'
 export default {
     components: { NLInput, NLButton },
     layout: 'auth',
-    // middleware: 'guest',
+    middleware: 'guest',
 
     metaInfo() {
         return { title: 'Connexion' }
@@ -67,19 +64,37 @@ export default {
             const mailFormat = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/
             return login.match(mailFormat) ? 'email' : 'username'
         },
-        async login() {
+        login() {
             // Submit the form.
+<<<<<<< HEAD
+            this.form.post('login').then(response => {
+                // Save the token.
+                this.$store.dispatch('auth/saveToken', {
+                    token: response.data.token,
+                    remember: this.remember
+                })
+                this.$store.dispatch('auth/fetchUser').then(() => {
+                    if (this.user.is_active) {
+                        return this.redirect(this.user.must_change_password)
+                    } else {
+                        this.$store.dispatch('auth/logout')
+                        return this.$swal.alert_error("Votre compte est suspendu temporairement, veuillez contacter les administrateurs pour plus d'informations !", "Erreur 401")
+                    }
+                })
+
+                // Fetch the user.
+            }).catch(error => {
+                console.log(error.data);
+=======
             const { data } = await this.form.post('login')
             // Save the token.
             this.$store.dispatch('auth/saveToken', {
                 token: data.token,
                 remember: this.remember
+>>>>>>> master
             })
 
-            // Fetch the user.
-            this.$store.dispatch('auth/fetchUser').then(() => this.redirect(this.user.must_change_password))
         },
-
         redirect(mustChangePassword) {
             if (mustChangePassword) {
                 this.$router.push({ name: 'password.new' })

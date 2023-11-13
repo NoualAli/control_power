@@ -1,8 +1,7 @@
 <template>
     <Transition name="modal">
-        <div class="modal" v-if="show" @keyup.esc="close"
-            :class="{ 'active': isOpen, 'reduced': isReduced, 'expanded': isExpanded }">
-            <div class="modal-overlay" @click.stop="(e) => close(e, true)"></div>
+        <div class="modal" v-if="show" :class="{ 'active': isOpen, 'reduced': isReduced, 'expanded': isExpanded }">
+            <div class="modal-overlay" @click.stop="close"></div>
             <div class="modal-card">
                 <header class="modal-header">
                     <NLGrid extraClass="w-100">
@@ -13,12 +12,12 @@
                         </NLColumn>
                         <NLColumn lg="1" sm="1" md="1" extraClass="d-flex align-center justify-end">
                             <NLFlex alignItems="center" lgJustifyContent="end" justifyContent="end" gap="3">
-                                <i class="las la-expand icon modal-action-icon modal-expand-button" @click="handleExpansion"
-                                    v-if="!isExpanded" title="Agrandir"></i>
+                                <i class="las la-expand icon modal-action-icon modal-expand-button"
+                                    @click.prevent="handleExpansion" v-if="!isExpanded" title="Agrandir (alt + e)"></i>
                                 <i class="las la-compress icon modal-action-icon modal-reduce-button"
-                                    @click="handleExpansion" v-else title="Minimiser"></i>
-                                <i class="las la-times icon modal-action-icon modal-close-button"
-                                    @click="(e) => close(e, true)" title="Fermer"></i>
+                                    @click.prevent="handleExpansion" v-else title="Minimiser (alt + e)"></i>
+                                <i class="las la-times icon modal-action-icon modal-close-button" @click.stop="close"
+                                    title="Fermer (échape)"></i>
                             </NLFlex>
                         </NLColumn>
                     </NLGrid>
@@ -32,7 +31,7 @@
                         </div>
                     </div>
                 </main>
-                <footer class="modal-footer">
+                <footer class="modal-footer" v-if="showFooter">
                     <NLColumn extraClass="d-flex justify-end align-center gap-2" v-if="!isLoading">
                         <slot name="footer"></slot>
                     </NLColumn>
@@ -66,9 +65,11 @@ export default {
     watch: {
         show() {
             if (!this.show) {
-                window.removeEventListener('keyup', this.close)
+                window.removeEventListener('keydown', this)
             } else {
-                window.addEventListener('keyup', this.close)
+                window.addEventListener('keydown', (e) => {
+                    this.handleKeyboard(e)
+                })
             }
         }
     },
@@ -80,14 +81,22 @@ export default {
         this.setShowSlots()
     },
     methods: {
-        close(e, close = false) {
-            if (e?.key === 'Escape' || close) {
-                this.$emit('close')
+        handleKeyboard(e) {
+            if (e.key === 'e' && e.altKey) {
+                e.preventDefault()
+                this.handleExpansion()
             }
+            if (e.key === 'Escape') {
+                e.preventDefault()
+                this.close()
+            }
+        },
+        close() {
+            this.$emit('close')
         },
         setShowSlots() {
             this.showFooter = this.$slots.footer
-            console.log(this.$slots.footer()[ 0 ].children.default());
+            // console.log(this.$slots.footer()[ 0 ].children.default());
         },
         handleExpansion() {
             this.isExpanded = !this.isExpanded

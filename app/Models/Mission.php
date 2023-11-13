@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasDates;
+use App\Traits\HasMedia;
 use App\Traits\HasScopes;
 use App\Traits\HasUuid;
 use App\Traits\IsCommentable;
@@ -13,15 +14,14 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Znck\Eloquent\Traits\BelongsToThrough;
-
-use function PHPUnit\Framework\isEmpty;
+use Illuminate\Support\Str;
 
 class Mission extends BaseModel
 {
-    use HasFactory, BelongsToThrough, HasRelationships, SoftDeletes, IsSearchable, IsSortable, HasUuid, HasDates, HasScopes, IsFilterable, IsCommentable;
+    use HasFactory, BelongsToThrough, HasRelationships, SoftDeletes, IsSearchable, IsSortable, HasUuid, HasDates, HasScopes, IsFilterable, IsCommentable, HasMedia;
 
     protected $filter = 'App\Filters\Mission';
 
@@ -39,21 +39,23 @@ class Mission extends BaseModel
         'programmed_end',
         'reel_start',
         'reel_end',
+        'ci_validation_by_id',
+        'cdc_validation_by_id',
+        'cc_validation_by_id',
         'cdcr_validation_by_id',
         'dcp_validation_by_id',
-        'cdc_validation_by_id',
-        'ci_validation_by_id',
-        'cc_validation_by_id',
-        'cdcr_validation_at',
-        'dcp_validation_at',
+        'da_validation_by_id',
+        'ci_validation_at',
         'cdc_validation_at',
         'cc_validation_at',
-        'ci_validation_at',
-        'state',
+        'cdcr_validation_at',
+        'dcp_validation_at',
+        'da_validation_at',
+        'current_state',
     ];
 
     protected $hidden = [
-        'dcp_validation_by_id', 'cdcr_validation_by_id', 'cdc_validation_by_id', 'ci_validation_by_id', 'cc_validation_by_id'
+        'dcp_validation_by_id', 'cdcr_validation_by_id', 'cdc_validation_by_id', 'ci_validation_by_id', 'cc_validation_by_id', 'da_validation_by_id'
     ];
 
     protected $appends = [
@@ -62,20 +64,31 @@ class Mission extends BaseModel
         'remaining_days_before_start_str',
         'remaining_days_before_end_str',
         'progress_status',
-        'realisation_state',
+        'regularization_status',
         'avg_score',
         'end',
+        'start',
+        'has_dcp_controllers',
         'dcp_controllers_str',
         'dre_controllers_str',
-        'is_validated_by_dcp',
-        'is_validated_by_cdcr',
-        'is_validated_by_cdc',
         'is_validated_by_ci',
+        'is_validated_by_cdc',
         'is_validated_by_cc',
+        'is_validated_by_cdcr',
+        'is_validated_by_dcp',
+        'is_validated_by_da',
         'ci_report_exists',
         'cdc_report_exists',
         'ci_report',
-        'cdc_report'
+        'cdc_report',
+        'pdf_report_exists',
+        'report_name',
+        'total_anomalies',
+        'anomalies_rate',
+        'total_details',
+        'has_major_facts',
+        'total_major_facts',
+        'is_late',
     ];
 
     protected $casts = [
@@ -92,18 +105,124 @@ class Mission extends BaseModel
     /**
      * Getters
      */
+
+    // public function getMissionOrderFileAttribute()
+    // {
+    //     return $this->missionOrder;
+    // }
+    public function getIsLateAttribute()
+    {
+        // DB::raw('(CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) > 15 OR reel_end > programmed_end THEN 1 ELSE 0 END) as is_late')
+        // return Carbon::parse($this->progremmed_end)->diffInDays(today()) > 15 || $this->reel_end > $this->programmed_end;
+        $programmedEnd = Carbon::parse($this->programmed_end);
+        $reelEnd = Carbon::parse($this->reel_end);
+        $cdcrValidationAt = Carbon::parse($this->cdcr_validation_at);
+        $ccValidationAt = Carbon::parse($this->cc_validation_at);
+        $dcpValidationAt = Carbon::parse($this->dcp_validation_at);
+        $daValidationAt = Carbon::parse($this->da_validation_at);
+        $today = today();
+        $isLate = false;
+        // dd($reelEnd->diffInDays($programmedEnd), $reelEnd, $programmedEnd, $programmedEnd->diffInDays($today) < 15);
+        if ($programmedEnd->diffInDays($today) < 15 && $reelEnd->diffInDays($programmedEnd) < 0) {
+            $isLate =  true;
+        }
+        // dd($isLate);
+        return $isLate;
+
+        // if (hasRole(['ci', 'cdc'])) {
+        // }elseif(hasRole('CDCR')){
+
+        // }elseif(hasRole('DCP')){
+
+        // }elseif(hasRole('DA')){
+
+        // }
+    }
+
+
+
+    /**
+     * @return int
+     */
+    public function getRemainingDaysBeforeStartAttribute(): int
+    {
+        $today = today();
+        $startAttribute = $this->startAttribute ?? 'start';
+        $start = $this->$startAttribute ? $today->diffInDays($this->$startAttribute, false) : 0;
+        return $start >= 0 && $this->progress_status !== 0 ? $start : 0;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRemainingDaysBeforeEndStrAttribute(): string
+    {
+        $remainingDays = $this->remaining_days_before_end > 1 ? $this->remaining_days_before_end . ' jours' : $this->remaining_days_before_end . ' jour';
+        return $this->remaining_days_before_end ? $remainingDays : '-';
+    }
+
+    public function getTotalAnomaliesAttribute()
+    {
+        return $this->details()->whereAnomaly()->count();
+    }
+
+    public function getAnomaliesRateAttribute()
+    {
+        $anomalies = ($this->total_anomalies * 100);
+        return $anomalies ? number_format($anomalies  / $this->total_details, 2) : 0;
+    }
+
+    public function getTotalDetailsAttribute()
+    {
+        return $this->details()->count();
+    }
+
+    public function getHasMajorFactsAttribute()
+    {
+        return (bool) $this->total_major_facts;
+    }
+
+    public function getTotalMajorFactsAttribute()
+    {
+        return $this->details()->onlyMajorFacts()->count();
+    }
+
+    public function getPdfReportExistsAttribute()
+    {
+        return Storage::fileExists('exported\campaigns\\' . $this->campaign->reference . '\\missions\\' . $this->report_name . '.pdf');
+    }
+
+    public function getReportNameAttribute()
+    {
+        $reference = Str::slug($this->reference . '-' . $this->agency->name);
+        return strtolower('rapport_mission-' . $reference);
+    }
+
+    public function getReportPathAttribute()
+    {
+        return 'exported/campaigns/' . $this->campaign->reference . '/missions/' . $this->report_name . '.pdf';
+    }
+
     public function getEndAttribute()
     {
-        $date = $this->reel_end ?? $this->programmed_end;
+        $date = $this->reel_end ?: $this->programmed_end;
         return $date->format('d-m-Y');
     }
+
+    public function getStartAttribute()
+    {
+        $date = $this->reel_start ?: $this->programmed_start;
+        // $date = $this->programmed_start;
+        return $date->format('d-m-Y');
+    }
+
     public function getHasDcpControllersAttribute()
     {
-        return $this->dcpControllers->count();
+        return (bool) $this->dcpControllers->count();
     }
     public function getHasDreControllersAttribute()
     {
-        return $this->dreControllers->count();
+        return (bool) $this->dreControllers->count();
     }
 
     public function getReferenceAttribute($reference)
@@ -120,7 +239,6 @@ class Mission extends BaseModel
         $sum = round($details->sum('score'));
         $count = $details->count();
         return $sum > 0 && $count > 0 ? addZero(round($sum / $count)) : 0;
-        // return addZero($details->avg('score'));
     }
 
     public function getDreControllersStrAttribute()
@@ -137,8 +255,16 @@ class Mission extends BaseModel
     {
         $totalDetails = $this->details()->count();
         $totalFinishedDetails = $this->details()->controlled()->count();
-        // dd($totalFinishedDetails, $totalDetails);
+
         return $totalFinishedDetails ? number_format($totalFinishedDetails * 100 / $totalDetails) : 0;
+    }
+
+    public function getRegularizationStatusAttribute()
+    {
+        $totalDetails = $this->details()->count();
+        $totalRegularized = $this->details()->onlyRegularized()->count();
+
+        return $totalRegularized ? number_format($totalRegularized * 100 / $totalDetails) : 0;
     }
 
     public function getCiReportExistsAttribute()
@@ -176,66 +302,71 @@ class Mission extends BaseModel
         return $cc_validation_at ? Carbon::parse($cc_validation_at)->format('d-m-Y') : null;
     }
 
-    public function getIsValidatedByCdcrAttribute()
-    {
-        return boolval($this->cdcr_validation_at);
-    }
-
-    public function getIsValidatedByDcpAttribute()
-    {
-        return boolval($this->dcp_validation_at);
-    }
 
     public function getIsValidatedByCiAttribute()
     {
-        // dd(boolval($this->ci_validation_at), $this->ci_validation_at);
-        return boolval($this->ci_validation_at);
+        return boolval($this->ci_validation_at) && boolval($this->ci_validation_by_id);
     }
 
     public function getIsValidatedByCdcAttribute()
     {
-        return boolval($this->cdc_validation_at);
+        return boolval($this->cdc_validation_at) && boolval($this->cdc_validation_by_id);
     }
 
     public function getIsValidatedByCcAttribute()
     {
-        return boolval($this->cc_validation_at);
+        return boolval($this->cc_validation_at) && boolval($this->cc_validation_by_id);
     }
 
-    public function getRealisationStateAttribute()
+    public function getIsValidatedByCdcrAttribute()
     {
-        $today = now();
-        $start = $this->programmed_start;
-        $end = $this->programmed_end;
-        $progressStatus = intval($this->progress_status);
-        $startDiff = $today->diffInDays($start, false);
-        $endDiff = $today->diffInDays($end, false);
-        $totalControlled = $this->details()->controlled()->count();
-        // dd($startDiff <= 0, $endDiff >= 0, $progressStatus < 100, $totalControlled);
-        // dd($startDiff, $progressStatus, $totalControlled);
-        if ($startDiff >= 0 && $progressStatus == 0 && !$totalControlled) {
-            $state = 'À réaliser';
-        } else if ($startDiff < 0 && $progressStatus == 0 && !$totalControlled) {
-            $state = 'En retard';
-        } else if ($startDiff <= 0 && $endDiff >= 0 && $progressStatus < 100 && $totalControlled) {
-            $state = 'En cours';
-        } else if ($progressStatus >= 100 && ($this->ci_report_exists && $this->is_validated_by_ci && (!$this->cdc_report_exists || ($this->cdc_report_exists && !$this->is_validated_by_cdc)) || !$this->ci_report_exists)) {
-            $state = 'En attente de validation';
-        } else if ($progressStatus >= 100 && $this->is_validated_by_cdc && !$this->is_validated_by_cdcr) {
-            $state = 'Validé et envoyé';
-        } else if ($progressStatus >= 100 && $this->is_validated_by_cdc && $this->is_validated_by_cdcr && !$this->is_validated_by_dcp) {
-            $state = '1ère validation';
-        } else if ($progressStatus >= 100 && $this->is_validated_by_cdc && $this->is_validated_by_dcp) {
-            $state = '2ème validation';
-        } else if ($endDiff < 0 && $progressStatus < 100 && (!$this->is_validated_by_ci || !$this->is_validated_by_cdc)) {
-            $state = 'En retard';
-        } elseif ($progressStatus && $totalControlled) {
-            return 'En cours';
-        } else {
-            $state = 'Indéterminé';
-        }
-        return $state;
+        return boolval($this->cdcr_validation_at) && boolval($this->cdcr_validation_by_id);
     }
+
+    public function getIsValidatedByDcpAttribute()
+    {
+        return boolval($this->dcp_validation_at) && boolval($this->dcp_validation_by_id);
+    }
+
+    public function getIsValidatedByDaAttribute()
+    {
+        return boolval($this->da_validation_at) && boolval($this->dcp_validation_by_id);
+    }
+
+    // public function getRealisationStateAttribute()
+    // {
+    //     // $today = now();
+    //     // $start = $this->programmed_start;
+    //     // $end = $this->programmed_end;
+    //     // $progressStatus = intval($this->progress_status);
+    //     // $startDiff = $today->diffInDays($start, false);
+    //     // $endDiff = $today->diffInDays($end, false);
+    //     // $totalControlled = $this->details()->controlled()->count();
+    //     // // dd($startDiff <= 0, $endDiff >= 0, $progressStatus < 100, $totalControlled);
+    //     // // dd($startDiff, $progressStatus, $totalControlled);
+    //     // if ($startDiff >= 0 && $progressStatus == 0 && !$totalControlled) {
+    //     //     $state = 'À réaliser';
+    //     // } else if ($startDiff < 0 && $progressStatus == 0 && !$totalControlled) {
+    //     //     $state = 'En retard';
+    //     // } else if ($startDiff <= 0 && $endDiff >= 0 && $progressStatus < 100 && $totalControlled) {
+    //     //     $state = 'En cours';
+    //     // } else if ($progressStatus >= 100 && ($this->ci_report_exists && $this->is_validated_by_ci && (!$this->cdc_report_exists || ($this->cdc_report_exists && !$this->is_validated_by_cdc)) || !$this->ci_report_exists)) {
+    //     //     $state = 'En attente de validation';
+    //     // } else if ($progressStatus >= 100 && $this->is_validated_by_cdc && !$this->is_validated_by_cdcr) {
+    //     //     $state = 'Validé et envoyé';
+    //     // } else if ($progressStatus >= 100 && $this->is_validated_by_cdc && $this->is_validated_by_cdcr && !$this->is_validated_by_dcp) {
+    //     //     $state = '1ère validation';
+    //     // } else if ($progressStatus >= 100 && $this->is_validated_by_cdc && $this->is_validated_by_dcp) {
+    //     //     $state = '2ème validation';
+    //     // } else if ($endDiff < 0 && $progressStatus < 100 && (!$this->is_validated_by_ci || !$this->is_validated_by_cdc)) {
+    //     //     $state = 'En retard';
+    //     // } elseif ($progressStatus && $totalControlled) {
+    //     //     return 'En cours';
+    //     // } else {
+    //     //     $state = 'Indéterminé';
+    //     // }
+    //     // return $state;
+    // }
 
     public function getCdcReportAttribute()
     {
@@ -256,16 +387,13 @@ class Mission extends BaseModel
     }
     public function dreControllers()
     {
-        return $this->controllers()->wherePivot('control_agency', true);
+        return $this->belongsToMany(User::class, 'mission_has_controllers')->withPivot('control_agency');
     }
 
     public function dcpControllers()
     {
-        return $this->controllers()->wherePivot('control_agency', false);
-        // return $this->belongsToThrough(User::class);
-        // return $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->missions());
-        // return $this->belongsToMany(User::class, MissionDetail::class, 'mission_id');
-        // return $this->controllers()->wherePivot('control_agency', false);
+
+        return $this->hasManyThrough(User::class, MissionDetail::class, 'mission_id', 'id', 'id', 'assigned_to_cc_id')->distinct();
     }
 
     public function creator()
@@ -289,6 +417,19 @@ class Mission extends BaseModel
         return $this->hasMany(MissionDetail::class);
     }
 
+    public function ciValidator()
+    {
+        return $this->belongsTo(User::class, 'ci_validation_by_id');
+    }
+    public function cdcValidator()
+    {
+        return $this->belongsTo(User::class, 'cdc_validation_by_id');
+    }
+
+    public function ccValidator()
+    {
+        return $this->belongsTo(User::class, 'cc_validation_by_id');
+    }
     public function cdcrValidator()
     {
         return $this->belongsTo(User::class, 'cdcr_validation_by_id');
@@ -299,20 +440,21 @@ class Mission extends BaseModel
         return $this->belongsTo(User::class, 'dcp_validation_by_id');
     }
 
-    public function cdcValidator()
+    public function daRegularizator()
     {
-        return $this->belongsTo(User::class, 'cdc_validation_by_id');
+        return $this->belongsTo(User::class, 'da_validation_by_id');
     }
 
-    public function ciValidator()
+    public function missionOrder()
     {
-        return $this->belongsTo(User::class, 'ci_validation_by_id');
+        return $this->morphMany(Media::class, 'attachable')->where('folder', 'uploads/mission_order');
     }
 
-    public function ccValidator()
+    public function closingReport()
     {
-        return $this->belongsTo(User::class, 'cc_validation_by_id');
+        return $this->morphMany(Media::class, 'attachable')->where('folder', 'uploads/closing_report');
     }
+
 
     /**
      * Scopes
@@ -451,7 +593,7 @@ class Mission extends BaseModel
      */
     public function notDispatchedProcesses(?string $concerned = null)
     {
-        $notDispatchedProcesses = $this->details()->notDispatched($concerned)->without(['familly', 'domain', 'controlPoint', 'media'])->with(['process' => fn ($process) => $process->pluck('processes.id', 'processes.name')->toArray()])->get()->pluck('process');
+        $notDispatchedProcesses = $this->details()->notDispatched($concerned)->without(['family', 'domain', 'controlPoint', 'media'])->with(['process' => fn ($process) => $process->pluck('processes.id', 'processes.name')->toArray()])->get()->pluck('process');
         $notDispatchedProcesses = getMissionProcesses($this)->get()->filter(function ($item) use ($notDispatchedProcesses) {
             $notDispatchedProcesses = array_unique($notDispatchedProcesses->pluck('id')->toArray());
             return in_array($item->process_id, $notDispatchedProcesses);
@@ -459,6 +601,7 @@ class Mission extends BaseModel
 
         $pcf = recursive_collect(getPcf());
         $filteredCollection = $pcf->map(function ($family) use ($notDispatchedProcesses) {
+            $family['checkable'] = false;
             $family['children'] = $family['children']->filter(function ($domain) use ($notDispatchedProcesses) {
                 $domain['children'] = $domain['children']->filter(function ($process) use ($notDispatchedProcesses) {
                     return in_array($process['id'], $notDispatchedProcesses);
@@ -473,58 +616,5 @@ class Mission extends BaseModel
         });
 
         return recursivelyToArray($filteredCollection->values());
-    }
-
-    /**
-     * Fetch not yet dispatched processes
-     *
-     * @return array
-     */
-    public function dispatchedProcesses(?string $concerned = null)
-    {
-
-        dd($this->dcpControllers);
-        // $users = DB::table($this->getTable())->selectRaw('m.id, d.id,d.mission_id,d.assigned_to_' . $concerned . '._id,p.id,p.name,CONCAT(u.firstname, u.lastname) as full_name,u.id')
-        //     ->join('users', 'u.id', '=', 'd.assigned_to_' . $concerned)
-        //     ->join('mission_details', 'm.id', '=', 'd.mission_id')
-        //     ->where('m.id', "$this->id")
-        //     ->groupBy('u.id');
-        $users = DB::table($this->getTable())
-            ->selectRaw('m.id, d.id, d.mission_id, d.assigned_to_' . $concerned . '_id, p.id, p.name, CONCAT(u.first_name, u.last_name) AS full_name, u.id')
-            ->join('users AS u', 'u.id', '=', 'd.assigned_to_' . $concerned . '_id')
-            ->join('mission_details AS d', function ($join) use ($concerned) {
-                $join->on('m.id', '=', 'd.mission_id')
-                    ->whereNull('d.assigned_to_' . $concerned . '_id');
-            })
-            ->where('m.id', $this->id)
-            ->groupBy('u.id')
-            ->get();
-
-        dd($users);
-
-        // $dipatchedProcesses = $this->details()->dispatched($concerned)
-        // ->without(['familly', 'domain', 'controlPoint', 'media'])->with(['dcpController', 'process' => fn ($process) => $process->pluck('processes.id', 'processes.name')->toArray()])->get()->groupBy('dcpController.full_name');
-        // dd($dipatchedProcesses);
-        // $dipatchedProcesses = getMissionProcesses($this)->get()->filter(function ($item) use ($dipatchedProcesses) {
-        //     $dipatchedProcesses = array_unique($dipatchedProcesses->pluck('id')->toArray());
-        //     return in_array($item->process_id, $dipatchedProcesses);
-        // });
-
-        // $pcf = recursive_collect(getPcf());
-        // $filteredCollection = $pcf->map(function ($family) use ($dipatchedProcesses) {
-        //     $family['children'] = $family['children']->filter(function ($domain) use ($dipatchedProcesses) {
-        //         $domain['children'] = $domain['children']->filter(function ($process) use ($dipatchedProcesses) {
-        //             return in_array($process['id'], $dipatchedProcesses);
-        //         });
-
-        //         return count($domain['children']) > 0;
-        //     });
-
-        //     return $family;
-        // })->filter(function ($item) {
-        //     return count($item['children']) > 0;
-        // });
-
-        // return recursivelyToArray($filteredCollection->values());
     }
 }

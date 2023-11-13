@@ -2,7 +2,7 @@
 <template>
     <ContentBody>
         <NLDatatable :columns="columns" :actions="actions" :filters="filters" title="Faits majeurs"
-            urlPrefix="details/major-facts" @show="show" :key="forceReload"
+            urlPrefix="details/major-facts" @show="show" :refresh="refresh"
             @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
 
         <!-- View control point informations -->
@@ -28,7 +28,7 @@ export default {
     data: () => {
         return {
             rowSelected: null,
-            forceReload: 1,
+            refresh: 0,
             columns: [
                 {
                     label: 'CDC-ID',
@@ -49,7 +49,7 @@ export default {
                 },
                 {
                     label: 'Famille',
-                    field: 'familly_name'
+                    field: 'family_name'
                 },
                 {
                     label: 'Domaine',
@@ -63,11 +63,6 @@ export default {
                     label: 'Point de contrôle',
                     field: 'control_point_name',
                     length: 50
-                },
-                {
-                    label: 'Etat',
-                    field: 'is_regularized',
-                    hide: hasRole([ 'cc', 'cdcr', 'cdc', 'ci' ])
                 },
                 {
                     label: 'Transmis le',
@@ -91,13 +86,6 @@ export default {
                     data: null,
                     value: null
                 },
-                mission: {
-                    label: 'Mission',
-                    cols: 3,
-                    multiple: true,
-                    data: null,
-                    value: null
-                },
                 dre: {
                     label: 'DRE',
                     cols: 3,
@@ -108,6 +96,13 @@ export default {
                 },
                 agency: {
                     label: 'Agence',
+                    cols: 3,
+                    multiple: true,
+                    data: null,
+                    value: null
+                },
+                mission: {
+                    label: 'Mission',
                     cols: 3,
                     multiple: true,
                     data: null,
@@ -165,7 +160,7 @@ export default {
                         }
                     ],
                     value: null,
-                    hide: !hasRole([ 'dcp', 'cdcr', 'cc' ])
+                    hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
                 }
             },
         }
@@ -180,6 +175,7 @@ export default {
          * @param {*} e
          */
         success(e) {
+            this.refresh += 1
             this.close()
         },
         /**
@@ -217,18 +213,13 @@ export default {
         /**
          * Ferme la boite modal des détails du point de contrôle
          */
-        close(forceReload = false) {
-            this.$store.dispatch('settings/updatePageLoading', true)
+        close() {
             for (const key in this.modals) {
                 if (Object.hasOwnProperty.call(this.modals, key)) {
                     this.modals[ key ] = false
                 }
             }
             this.rowSelected = null
-            if (forceReload) {
-                this.forceReload += 1
-            }
-            this.$store.dispatch('settings/updatePageLoading', false)
         },
         /**
          * @param {Object} Object

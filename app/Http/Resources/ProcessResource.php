@@ -14,12 +14,13 @@ class ProcessResource extends JsonResource
      */
     public function toArray($request)
     {
+        // dd($this);
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'name' => isset($this?->name) ? $this?->name : $this->process,
             'control_points_count' => $this->control_points_count,
-            'domain_name' => $this->domain->name,
-            'familly_name' => $this->familly->name,
+            'domain_name' => isset($this?->domain?->name) ? $this?->domain?->name : $this->domain,
+            'family_name' => isset($this?->family?->name) ? $this?->family?->name : $this->family,
         ];
     }
 }

@@ -21,7 +21,7 @@ class LoginHistoryResource extends JsonResource
             'browser' => $this->browser,
             'browser_version' => $this->browser_version,
             'platform' => $this->platform,
-            'platform_version' => $this->platform,
+            'platform_version' => $this->platform_version,
             'last_activity' => $this->last_activity,
             'ip_address' => $this->ip_address,
         ];

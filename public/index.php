@@ -31,6 +31,26 @@ define('IMAGE_TYPES', ['jpeg', 'jpg', 'png', 'gif', 'tif', 'bmp', 'ico', 'psd', 
 define('NOTIFICATION_SUCCESS', 'Notification envoyé avec succès.');
 define('MISSION_VALIDATION_SUCCESS', 'La mission a été valider avec succès');
 define('MISSION_VALIDATION_ERROR', 'Une erreur est survenu lors de la tentative de validation de la mission, si le problème persiste contacter votre administrateur.');
+
+// HTTP ERRORS
+define('BAD_REQUEST', 400);
+define('UNAUTHENTICATED', 401);
+define('FORBIDDEN', 403);
+define('NOT_FOUND', 404);
+define('METHOD_NOT_ALLOWED', 405);
+define('REQUEST_TIMEOUT', 408);
+define('TOO_MANY_REQUESTS', 429);
+
+// Mission Statuses
+define('TODO', ['key' => 1, 'value' => 'À réaliser']);
+define('ACTIVE', ['key' => 2, 'value' => 'En cours de réalisation']);
+define('WATING_CDC_VALIDATION', ['key' => 3, 'value' => 'En attente de validation CDC']);
+define('WATING_CDCR_VALIDATION', ['key' => 4, 'value' => 'En attente de validation CDCR']);
+define('WATING_CC_VALIDATION', ['key' => 5, 'value' => 'En attente de validation CC']);
+define('WATING_DCP_VALIDATION', ['key' => 6, 'value' => 'En attente de validation DCP']);
+define('WATING_DA_VALIDATION', ['key' => 7, 'value' => 'En attente de validation DA']);
+define('DONE', ['key' => 8, 'value' => 'Réalisée et validée']);
+
 /*
 |--------------------------------------------------------------------------
 | Check If Application Is Under Maintenance

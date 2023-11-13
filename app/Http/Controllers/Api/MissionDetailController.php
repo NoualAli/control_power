@@ -10,6 +10,8 @@ use App\Models\MissionDetail;
 use App\Models\User;
 use App\Notifications\Mission\MajorFact\Detected;
 use App\Traits\UploadFiles;
+use Carbon\Carbon;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
@@ -29,36 +31,31 @@ class MissionDetailController extends Controller
         $sort = request('sort', null);
         $fetchFilters = request()->has('fetchFilters');
         $perPage = request('perPage', 10);
-        $fetchAll = request()->has('fetchAll');
+
+        $details = getMissionAnomalies();
 
         try {
             if ($fetchFilters) {
-                return $this->detailFilters();
+                return $this->filters($details);
             }
-            $details = $this->details();
             if (request()->has('campaign_id')) {
                 $details = $details->where('control_campaign_id', request()->campaign_id);
             }
             if ($sort) {
                 $details = $details->sortByMultiple($sort);
             } else {
-                $details = $details->orderBy('created_at', 'DESC');
+                $details = $details->orderBy('md.created_at', 'DESC');
             }
 
             if ($search) {
-                $details = $details->search($search);
+                $details = $details->search(['cp.name'], $search);
             }
 
             if ($filter) {
-                $details = $details->filter($filter);
+                $details = $this->filter($details, $filter);
             }
 
-            if ($fetchAll) {
-                $details = $details->get()->pluck('reference', 'id');
-            } else {
-                $details = MissionDetailResource::collection($details->paginate($perPage)->onEachSide(1));
-            }
-
+            $details = MissionDetailResource::collection($details->paginate($perPage)->onEachSide(1));
             return $details;
         } catch (\Throwable $th) {
             return response()->json([
@@ -67,10 +64,11 @@ class MissionDetailController extends Controller
             ], 500);
         }
     }
+
     private function details()
     {
         $details = MissionDetail::with([
-            'controlPoint'  => fn ($query) => $query->with(['process'  => fn ($query) => $query->with(['domain'  => fn ($query) => $query->with('familly')])]),
+            'controlPoint'  => fn ($query) => $query->with(['process'  => fn ($query) => $query->with(['domain'  => fn ($query) => $query->with('family')])]),
             'agency'  => fn ($query) => $query->with('dre'),
             'mission' => fn ($query) => $query->with(['campaign'])
         ]);
@@ -82,12 +80,14 @@ class MissionDetailController extends Controller
             $details = $details->hasCdcValidation();
         } elseif (hasRole(['cdc', 'cc', 'ci'])) {
             $details = $user->details()->controlled();
-        } elseif (hasRole(['dg', 'cdrcp', 'der'])) {
+        } elseif (hasRole(['dg', 'cdrcp', 'der', 'deac', 'dga'])) {
             $details = $details->hasDcpValidation();
         } elseif (hasRole('dre')) {
             $details = $user->details()->hasDcpValidation();
         } elseif (hasRole('da')) {
             $details = $user->details()->hasDcpValidation();
+        } else {
+            $details = $details;
         }
         return $details->whereAnomaly()->withoutMajorFacts();
     }
@@ -111,7 +111,9 @@ class MissionDetailController extends Controller
                 unset($data['detail']);
                 $this->updateDetail($data, $detail);
                 $this->storeFiles($files, $detail);
-                $this->notifyMajorFact($detail);
+                if (hasRole('ci')) {
+                    $this->notifyMajorFact($detail);
+                }
             });
             return response()->json([
                 'message' => 'Les renseignements sur le point de contrôle sont sauvegardés avec succès.',
@@ -128,7 +130,12 @@ class MissionDetailController extends Controller
     public function show(MissionDetail $detail)
     {
         $detail->unsetRelations();
-        $detail->load('regularization', 'mission', 'media', 'dre', 'agency', 'campaign', 'familly', 'domain', 'process', 'controlPoint');
+        $diffInDays = Carbon::parse($detail->mission->dcp_validation_at)->diffInDays(today());
+        $detail->show_regularizations = $diffInDays >= 11 || $detail->mission->is_validated_by_da || hasRole('da');
+        if ($detail->show_regularization) {
+            $detail->load('regularizations');
+        }
+        $detail->load('mission', 'media', 'dre', 'agency', 'campaign', 'family', 'domain', 'process', 'controlPoint');
         return $detail;
     }
 
@@ -180,7 +187,6 @@ class MissionDetailController extends Controller
      */
     private function storeFiles(array $files, MissionDetail $detail)
     {
-        // $files = !isset($data['media']) ?: $data['media'];
         if (is_array($files)) {
             $media = Media::whereIn('id', $files)->get();
             foreach ($media as $file) {
@@ -199,10 +205,10 @@ class MissionDetailController extends Controller
      *
      * @param App\Models\MissionDetail $detail
      */
-    private function notifyMajorFact(MissionDetail $detail, $roles = ['dcp', 'cdcr'])
+    private function notifyMajorFact(MissionDetail $detail, $roles = ['cdc'])
     {
         if ($detail->major_fact) {
-            $users = User::all()->filter(fn ($user) => hasRole($roles, $user) || $detail->mission->creator->id == $user->id);
+            $users = User::all()->filter(fn ($user) => hasRole($roles, $user) && $detail->mission->creator->id == $user->id);
             foreach ($users as $user) {
                 if (!$user->notifications()->where('data->detail_id', $detail->id)->count()) {
                     Notification::send($user, new Detected($detail));
@@ -225,16 +231,12 @@ class MissionDetailController extends Controller
             $currentMode = $data['currentMode'];
 
             // Vidé les champs report, recovery_plan, metadata
-            if (isset($data['score']) && !in_array($data['score'], [4, 3, 2, 1])) {
-                $data['report'] = null;
+            if (isset($data['score']) && $data['score'] == 1) {
+                // $data['report'] = null;
                 $data['recovery_plan'] = null;
-                $data['metadata'] = null;
+                // $data['metadata'] = null;
             }
-            // Mettre la note max si jamais il y'a un fait majeur
-            if (isset($data['major_fact']) && !empty($data['major_fact'])) $data['score'] = max(array_keys($detail->controlPoint->scores_arr));
-            // $controlledAt = !$detail->controlled_at && $currentMode == 1  ? now() : null;
 
-            // $controlledByCIId = $currentMode == 1 ? auth()->user()->id : null;
             $reportColumn = null;
             if (isset($data['report'])) {
                 if (hasRole('ci')) {
@@ -247,42 +249,65 @@ class MissionDetailController extends Controller
             }
 
             // Mise à jour des informations dans la base de données
-            $metadata = isset($data['metadata']) && !empty($data['metadata']) ? $data['metadata'] : $detail->metadata;
+            $metadata = isset($data['metadata']) && !empty($data['metadata']) ? $data['metadata'] : null;
             $newData = [
                 'major_fact' => $data['major_fact'],
                 'score' => isset($data['score']) ? $data['score'] : $detail->score,
-                'recovery_plan' => isset($data['recovery_plan']) ? $data['recovery_plan'] : $detail->recovery_plan,
+                'recovery_plan' => isset($data['recovery_plan']) ? $data['recovery_plan'] : null,
                 'metadata' => $metadata,
             ];
+
+            // Mettre la note max si jamais il y'a un fait majeur
+            if (isset($newData['major_fact']) && !empty($newData['major_fact']) && $newData['major_fact']) {
+                $newData['score'] = max(array_keys($detail->controlPoint->scores_arr));
+                $newData['major_fact_detected_at'] = now();
+            }
+
+            // dd(hasRole(['cdcr', 'dcp']) && !$newData['major_fact']);
+            if (hasRole(['cdcr', 'dcp']) && !$newData['major_fact']) {
+                $newData['major_fact_dispatched_to_dcp_at'] = null;
+            }
 
             if ($reportColumn) {
                 $newData[$reportColumn] = isset($data['report']) ? $data['report'] : $detail->report;
             }
 
-            if ($currentMode == 1) {
-                $newData['controlled_at'] = now();
+            if (hasRole('ci')) {
+                $newData['controlled_by_ci_at'] = now();
                 $newData['controlled_by_ci_id'] = auth()->user()->id;
-                if ($detail->is_controlled) {
+                if ($detail->major_fact) {
                     unset($newData['major_fact']);
                 }
-            }
-
-            if ($detail->is_dispatched) {
-                unset($newData['major_fact']);
-            }
-
-            if ($currentMode == 3) {
+            } elseif (hasRole('cdc')) {
+                $newData['controlled_by_cdc_at'] = now();
+                $newData['controlled_by_cdc_id'] = auth()->user()->id;
+                // if ($detail->is_controlled_by_ci && $detail->major_fact) {
+                //     unset($newData['major_fact']);
+                // }
+            } elseif (hasRole('cc')) {
                 $newData['controlled_by_cc_at'] = now();
                 $newData['controlled_by_cc_id'] = auth()->user()->id;
                 if ($detail->is_controlled_by_cc) {
                     unset($newData['major_fact']);
                 }
+            } elseif (hasRole('cdcr')) {
+                $newData['controlled_by_cdcr_at'] = now();
+                $newData['controlled_by_cdcr_id'] = auth()->user()->id;
+            } elseif (hasRole('dcp')) {
+                $newData['controlled_by_dcp_at'] = now();
+                $newData['controlled_by_dcp_id'] = auth()->user()->id;
+            } else {
+                abort(500, 'Le rôle de l\'utilisateur n\'est pas pri en charge.');
             }
 
+            // if ($detail->is_dispatched) {
+            //     unset($newData['major_fact']);
+            // }
+            // dd($newData);
             $detail->update($newData);
 
             // Mise à jour de la date réel du début de la mission
-            if ($currentMode == 1 && !$detail->reel_start) {
+            if ($currentMode == 1 && !$detail->reel_start && $detail->mission->details()->controlled()->count() == 1) {
                 $detail->mission->update(['reel_start' => now()]);
             }
 
@@ -295,16 +320,138 @@ class MissionDetailController extends Controller
         });
     }
 
-    public function detailFilters()
+    /**
+     * Get details filters data
+     *
+     * @param Builder $details
+     *
+     * @return array
+     */
+    public function filters(Builder $details): array
     {
-        $details = $this->details();
-        $family = $details->relationUniqueData('familly');
-        $domain = $details->relationUniqueData('domain');
-        $process = $details->relationUniqueData('process');
-        $dre = $details->relationUniqueData('dre', 'full_name');
-        $agency = $details->relationUniqueData('agency', 'full_name');
-        $mission = $details->relationUniqueData('mission', 'reference');
-        $campaign = $details->relationUniqueData('campaign', 'reference');
-        return compact('mission', 'family', 'domain', 'process', 'agency', 'campaign', 'dre');
+        $details = $details->get();
+
+        $families = (clone $details)->groupBy('family')->keys();
+        $family = getFamilies()->whereIn('name', $families)->get()->map(fn ($item) => ['id' => $item->id, 'label' => $item->name])->toArray();
+        $domain = [];
+        $process = [];
+        $dre = [];
+        $agency = [];
+        $campaign = formatForSelect(getControlCampaigns()->get()->map(fn ($item) => ['id' => $item->id, 'reference' => $item->reference])->toArray(), 'reference');
+        $mission = [];
+        if (isset(request()->filter['campaign'])) {
+
+            $campaigns = explode(',', request()->filter['campaign']);
+
+            $dre = getDre()
+                ->join('agencies as a', 'd.id', 'a.dre_id')
+                ->join('missions as m', 'm.agency_id', 'a.id')
+                ->join('mission_details as md', 'md.mission_id', 'm.id')
+                ->whereIn('md.score', [2, 3, 4])
+                ->whereIn('m.control_campaign_id', $campaigns)
+                ->get()
+                ->map(fn ($item) => ['id' => $item->id, 'full_name' => $item->full_name])->toArray();
+            $dre = formatForSelect($dre, 'full_name');
+
+            if (isset(request()->filter['dre'])) {
+                $dres = explode(',', request()->filter['dre']);
+                $agency = getAgencies()
+                    ->join('missions as m', 'm.agency_id', 'a.id')
+                    ->join('mission_details as md', 'md.mission_id', 'm.id')
+                    ->whereIn('md.score', [2, 3, 4])
+                    ->whereIn('dre_id', $dres)
+                    ->get()
+                    ->map(fn ($item) => ['id' => $item->id, 'full_name' => $item->full_name])->toArray();
+                $agency = formatForSelect($agency, 'full_name');
+
+                if (isset(request()->filter['agency'])) {
+                    $agencies = explode(',', request()->filter['agency']);
+                    $mission = getMissions()
+                        ->whereIn('md.score', [2, 3, 4])
+                        ->whereIn('control_campaign_id', $campaigns)
+                        ->whereIn('agency_id', $agencies)
+                        ->get()->map(fn ($item) => ['id' => $item->id, 'reference' => $item->reference])->toArray();
+                    $mission = formatForSelect($mission, 'reference');
+                }
+            }
+        }
+
+        if (isset(request()->filter['family'])) {
+            $families = explode(',', request()->filter['family']);
+
+            $domain = getDomains()
+                ->whereIn('family_id', $families)
+                ->get()
+                ->map(fn ($item) => ['id' => $item->id, 'label' => $item->name])
+                ->toArray();
+
+            if (isset(request()->filter['domain'])) {
+                $domains = explode(',', request()->filter['domain']);
+                $process = getProcesses()
+                    ->whereIn('domain_id', $domains)
+                    ->get()
+                    ->map(fn ($item) => ['id' => $item->id, 'label' => $item->name])
+                    ->toArray();
+            }
+        }
+
+        return compact('mission', 'campaign', 'dre', 'agency', 'family', 'domain', 'process');
+    }
+
+    /**
+     * Filter data
+     *
+     * @param Builder $details
+     * @param array $filter
+     *
+     * @return Builder
+     */
+    public function filter(Builder $details, array $filter): Builder
+    {
+        if (isset($filter['campaign'])) {
+            $values = explode(',', $filter['campaign']);
+            $details = $details->whereIn('control_campaign_id', $values);
+        }
+
+        if (isset($filter['mission'])) {
+            $values = explode(',', $filter['mission']);
+            $details = $details->whereIn('mission_id', $values);
+        }
+
+        if (isset($filter['score'])) {
+            $values = explode(',', $filter['score']);
+            $details = $details->whereIn('score', $values);
+        }
+
+        if (isset($filter['dre'])) {
+            $values = explode(',', $filter['dre']);
+            $details = $details->whereIn('dre_id', $values);
+        }
+
+        if (isset($filter['agency'])) {
+            $values = explode(',', $filter['agency']);
+            $details = $details->whereIn('agency_id', $values);
+        }
+
+        if (isset($filter['family'])) {
+            $values = explode(',', $filter['family']);
+            $details = $details->whereIn('family_id', $values);
+        }
+
+        if (isset($filter['domain'])) {
+            $values = explode(',', $filter['domain']);
+            $details = $details->whereIn('domain_id', $values);
+        }
+
+        if (isset($filter['process'])) {
+            $values = explode(',', $filter['process']);
+            $details = $details->whereIn('process_id', $values);
+        }
+
+        if (isset($filter['is_regularized'])) {
+            $value = $filter['is_regularized'] == 'Non levée' ? 0 : 1;
+            $details = $details->where('is_regularized', $value);
+        }
+        return $details;
     }
 }

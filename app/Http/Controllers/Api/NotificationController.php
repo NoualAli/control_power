@@ -25,6 +25,11 @@ class NotificationController extends Controller
         $perPage = request('perPage', 10);
         $fetchAll = request()->has('fetchAll');
         try {
+            if (request()->has('withCount')) {
+                $totalUnread = auth()->user()->unreadNotifications()->count();
+                return response()->json($totalUnread);
+                // return compact('notifications', 'totalUnread');
+            }
             $notifications = auth()->user()->notifications();
 
             if (request()->has('order')) {
@@ -45,10 +50,6 @@ class NotificationController extends Controller
                 $notifications = $notifications->get()->pluck('reference', 'id');
             } else {
                 $notifications = NotificationResource::collection($notifications->paginate($perPage)->onEachSide(1));
-            }
-            if (request()->has('withCount')) {
-                $totalUnread = auth()->user()->unreadNotifications()->count();
-                return compact('notifications', 'totalUnread');
             }
             return $notifications;
         } catch (\Throwable $th) {
@@ -97,13 +98,20 @@ class NotificationController extends Controller
     public function dispatchMajorFact(MissionDetail $majorFact)
     {
         try {
-            $roles = ['ig', 'dg', 'cdrcp', 'der'];
-            $users = User::whereRoles($roles)->get();
-            // $users = User::whereRoles(['dg', 'cdrcp', 'ig', 'sg', 'der']);
-            // $users = User::whereRoles(['dre', 'cdc'])->whereRelation('agencies', 'agencies.id', $majorFact->mission->agency_id)->get()->merge($users->get());
-            foreach ($users as $user) {
-                $majorFact->update(['major_fact_dispatched_at' => now()]);
-                Notification::send($user, new Detected($majorFact));
+            if (hasRole('cdc')) {
+                $users = User::whereRoles(['cdcr', 'dcp'])->where('is_active', true)->get();
+                foreach ($users as $user) {
+                    $majorFact->update(['major_fact_dispatched_to_dcp_at' => now()]);
+                    Notification::send($user, new Detected($majorFact));
+                }
+            } else {
+                $roles = ['cdrcp', 'ig'];
+                $users = User::whereRoles($roles)->where('is_active', true)->get();
+                $users = User::whereRoles(['dre', 'da'])->whereRelation('agencies', 'agencies.id', $majorFact->mission->agency_id)->get()->merge($users);
+                foreach ($users as $user) {
+                    $majorFact->update(['major_fact_dispatched_at' => now()]);
+                    Notification::send($user, new Detected($majorFact));
+                }
             }
             return response()->json([
                 'message' => NOTIFICATION_SUCCESS,

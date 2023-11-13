@@ -2,18 +2,17 @@
     <InputContainer :id="getId" :name="name" :form="form" :label="label" :label-required="labelRequired"
         :help-text="helpText">
         <input v-if="!readonly" :id="getId" type="file" :name="name" :multiple="multiple" :accept="accept"
-            class="file-input" @change="onChange($event)">
-        <div :class="[{ 'is-danger': form?.errors.has(name), 'has-files': hasFiles, 'is-readonly': readonly }, 'file-input-area']"
+            class="file-input" @input="onChange($event)">
+        <div :class="[{ 'is-danger': form?.errors.has(name), 'has-files': hasFiles, 'is-readonly': readonly, 'is-flat': isFlat }, 'file-input-area']"
             :draggable="true" @dragover="dragover" @dragleave="dragleave" @drop="drop"
             @click.stop="openFileBrowser($event)">
             <p v-if="!inProgress && !readonly" class="text-medium file-uploader">
                 {{ placeholder }} <i class="las la-cloud-upload-alt text-large" />
             </p>
             <p v-if="inProgress" class="text-medium file-uploader">
-                <i class="las la-spinner la-spin text-large" /> {{ visibleLoadingText }}{{ progress }}
-                <span v-if="progress">%</span>
+                <i class="las la-spinner la-spin text-large" /> {{ visibleLoadingText }}{{ progress }} %
             </p>
-            <div class="files-list list text-medium" @click.stop="(e) => e.stopPropagation()">
+            <div class="files-list list text-medium" @click.stop="(e) => e.stopPropagation()" v-if="getFilesList.length">
                 <div v-for="(file, index) in getFilesList" :key="name + '-' + index" class="list-item my-1">
                     <div class="grid gap-4 list-item-content" @click.stop="">
                         <div class="col-11 d-flex justify-between align-center">
@@ -27,13 +26,16 @@
                             <a :href="file.link" :download="file.name">
                                 <i class="las la-download text-info icon" />
                             </a>
-                            <i v-if="canDelete && !readonly && isOwner" class="las la-trash text-danger icon is-clickable"
-                                @click.stop="deleteItem(file, index)" />
+                            <i v-if="canDelete && file.isOwner && !readonly"
+                                class="las la-trash text-danger icon is-clickable" @click.stop="deleteItem(file, index)" />
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <!-- <p v-if="!readonly">
+            Les extensions de fichiers acceptés sont: {{ accepted }}
+        </p> -->
     </InputContainer>
 </template>
 
@@ -51,45 +53,47 @@ export default {
         placeholder: { type: String, default: 'Téléverser des fichiers' },
         loadingText: { type: String, default: 'Téléversement en cours... ' },
         multiple: { type: Boolean, default: false },
-        modelValue: { type: [ String, Array ], default: () => [] },
+        modelValue: { type: [ String, Array, Object, null ], default: () => { } },
         attachableType: { type: String, default: '' },
         attachableId: { type: [ String, Number ], default: '' },
         accepted: { type: String, default: 'jpg,jpeg,png,doc,docx,xls,xlsx,pdf' },
         helpText: { type: String, default: null },
         canDelete: { type: Boolean, default: true },
-        readonly: { type: Boolean, default: false }
+        readonly: { type: Boolean, default: false },
+        isFlat: { type: Boolean, default: false },
+        folder: { type: String, default: '' }
     },
-    emits: [ 'change' ],
+    emits: [ 'change:modelValue' ],
     data() {
         return {
             isDragging: false,
             inProgress: false,
             progress: 0,
             files: [],
-            visibleLoadingText: this.loadingText
+            isReadonly: false,
+            visibleLoadingText: this.loadingText,
         }
     },
     computed: {
         hasFiles() {
             return this.files.length
         },
-        isOwner() {
-            return Number(this.files[ 0 ].uploaded_by_id) == user().id
-        },
         accept() {
             return this.accepted.split(',').map(accept => '.' + accept).join(',')
         },
         getFilesList() {
-            return [ ...this.files ].map((file) => {
+            let files = Object.values(this.files).map((file) => {
                 return {
-                    id: file.id,
-                    name: file.original_name,
-                    size: file.size,
-                    type: file.type,
-                    link: file.link,
-                    icon: file.icon,
-                }
-            })
+                    id: file?.id,
+                    name: file?.original_name,
+                    size: file?.size,
+                    type: file?.type,
+                    link: file?.link,
+                    icon: file?.icon,
+                    isOwner: file?.is_owner,
+                };
+            });
+            return files
         },
         getId() {
             if (this.id) {
@@ -104,11 +108,19 @@ export default {
     watch: {
         modelValue(newVal, oldVal) {
             if (newVal !== oldVal) this.loadFiles(newVal.join(','))
-        }
+        },
     },
-    created() {
-        if (!this.files.length) {
-            this.loadFiles(this.modelValue.join(','))
+    // created() {
+    //     if (Object.values(this.modelValue).length) {
+    //         this.loadFiles(Object.values(this.modelValue).join(','))
+    //         this.switchToReadonly()
+    //     }
+    // },
+
+    mounted() {
+        this.isReadonly = this.readonly
+        if (Object.values(this.modelValue).length) {
+            this.loadFiles(Object.values(this.modelValue).join(','))
         }
     },
     methods: {
@@ -118,8 +130,10 @@ export default {
          * @param {*} $event
          */
         onChange($event) {
-            this.inProgress = true
-            this.upload($event.target.files)
+            if ($event.target.files.length && !this.readonly) {
+                this.inProgress = true
+                this.upload($event.target.files, $event)
+            }
         },
         /**
          * Handle dragover event
@@ -143,7 +157,9 @@ export default {
         drop($event) {
             this.isDragging = false
             $event.preventDefault()
-            this.upload($event.dataTransfer.files)
+            if (!this.readonly) {
+                this.upload($event.dataTransfer.files)
+            }
         },
         /**
          * Open file browser programatically
@@ -151,7 +167,9 @@ export default {
          * @param {*} $event
          */
         openFileBrowser($event) {
-            $event.target.parentNode.parentNode.querySelector('input[type=file]').click()
+            if (!this.readonly) {
+                $event.target.parentNode.parentNode.querySelector('input[type=file]').click()
+            }
         },
         /**
          * Fetch exesting files
@@ -159,19 +177,25 @@ export default {
          * @param {String} filesStr
          */
         loadFiles(filesStr) {
-            this.progress = ''
-            this.isLoading = !this.isLoading
-            this.inProgress = !this.inProgress
-            this.visibleLoadingText = 'Récupération des fichiers en cours...'
-            this.$api.get('upload?media=' + filesStr, {
+            this.progress = '';
+            this.isLoading = !this.isLoading;
+            this.inProgress = !this.inProgress;
+            this.visibleLoadingText = 'Récupération des fichiers en cours...';
+            let url = 'upload';
+            if (!([ null, '', undefined ]).includes(filesStr)) {
+                url += '?media=' + filesStr;
+            }
+            this.$api.get(url, {
                 onDownloadProgress: progressEvent => this.setProgress(progressEvent)
             }).then(response => {
-                this.files = response.data
-                this.inProgress = !this.inProgress
-                this.isLoading = !this.isLoading
+                this.files = response.data;
+                this.inProgress = !this.inProgress;
+                this.isLoading = !this.isLoading;
+                const files = { ...this.files.map((file) => file.id) }
+                this.$emit('loaded', files);
             }).catch(error => {
-                console.error(error)
-            })
+                console.error(error);
+            });
         },
         /**
          * Delete file from server
@@ -182,49 +206,82 @@ export default {
         deleteItem(file, index) {
             this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
-                    this.$api.delete('upload/' + file.id).then(response => {
-                        this.files.splice(index, 1)
-                        this.inProgress = false
-                        this.$emit('change', this.files.map(file => file.id))
-                    }).catch(error => {
-                        this.inProgress = false
-                        console.error(error)
-                    })
+                    if (index !== -1) {
+                        this.$api.delete('upload/' + file.id).then(response => {
+                            this.files.splice(index, 1);
+                            const files = { ...this.files.map((file) => file.id) }
+                            this.$emit('deleted', files);
+                            this.inProgress = false;
+                        }).catch(error => {
+                            this.inProgress = false
+                            console.error(error)
+                        })
+                    }
                 }
-            })
+            });
         },
         /**
          * Upload files to server
          *
          * @param {Array} files
          */
-        upload(files) {
-            this.visibleLoadingText = this.loadingText
-            const data = new FormData()
-            for (let i = 0; i < files.length; i++) {
-                data.append('media[]', files[ i ])
-            }
+        upload(files, $event) {
+            try {
+                if (!this.readonly) {
+                    this.visibleLoadingText = this.loadingText
+                    const data = new FormData()
 
-            if (files.length) {
-                data.append('accepted', this.accepted)
-                data.append('attachable[id]', this.attachableId)
-                data.append('attachable[type]', this.attachableType)
-                this.$api.post('upload', data, {
-                    onUploadProgress: progressEvent => this.setProgress(progressEvent)
-                }).then(response => {
-                    this.inProgress = false
-                    this.files.push(...response.data)
-                    const files = this.files.map((file) => file.id)
-                    this.$emit('change', files)
-                }).catch(error => {
-                    this.inProgress = false
-                    console.error(error)
-                })
+                    if (this.multiple) {
+                        for (let i = 0; i < files.length; i++) {
+                            data.append(`${this.name}[]`, files[ i ])
+                        }
+                    } else {
+                        data.append(this.name, files[ 0 ])
+                    }
+
+                    if (files.length) {
+                        data.append('accepted', this.accepted)
+                        data.append('attachable[id]', this.attachableId)
+                        data.append('attachable[type]', this.attachableType)
+                        data.append('folder', 'uploads/' + this.folder)
+                        this.$api.post('upload', data, {
+                            onUploadProgress: (progressEvent) => this.setProgress(progressEvent)
+                        }).then(response => {
+                            this.inProgress = false
+                            this.files.push(...response.data)
+                            const files = { ...this.files.map((file) => file.id) }
+                            this.$emit('uploaded', files)
+                            $event.target.value = ''
+
+                        }).catch(error => {
+                            this.inProgress = false
+                            let i = 0
+
+                            for (const key in error?.response?.data?.errors) {
+                                if (Object.hasOwnProperty.call(error.response.data.errors, key)) {
+                                    const element = error.response.data.errors[ key ];
+                                    console.log(element[ 0 ].replace(`du champ ${this.name}.${i}`, `${i + 1} du champ ${this.label.toLowerCase()}`));
+                                    this.form.errors.set(this.name, element[ 0 ].replace(`du champ ${this.name}.${i}`, `${i + 1} du champ ${this.label.toLowerCase()}`))
+                                    i += 1
+                                }
+                            }
+                        })
+                    }
+                }
+            } catch (error) {
+                alert(error)
             }
         },
+
+        /**
+         * Handle upload progress status
+         * @param {*} progressEvent
+         */
         setProgress(progressEvent) {
-            if (this.progressEvent?.total) {
+            if (progressEvent?.total) {
                 this.progress = Math.round((progressEvent.loaded * 100) / progressEvent?.total)
+            } else {
+                this.progress = '0'
             }
         }
     }

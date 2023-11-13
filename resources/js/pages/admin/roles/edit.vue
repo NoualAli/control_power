@@ -12,10 +12,10 @@
                 </NLColumn>
 
                 <!-- Permissions -->
-                <NLColumn lg="6" md="6">
+                <!-- <NLColumn lg="6" md="6">
                     <NLSelect v-model="form.permissions" :form="form" name="permissions" label="Permissions"
                         :options="permissionsList" :multiple="true" label-required />
-                </NLColumn>
+                </NLColumn> -->
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
                         <NLButton :loading="form.busy" label="Mettre à jour" />
@@ -34,24 +34,24 @@ export default {
     middleware: [ 'auth', 'admin' ],
     computed: {
         ...mapGetters({
-            permissions: 'permissions/all',
+            // permissions: 'permissions/all',
             role: 'roles/current'
         })
     },
     created() {
         this.$store.dispatch('settings/updatePageLoading', true)
         this.$store.dispatch('permissions/fetchAll').then(() => {
-            this.permissions.all.forEach(permission => {
-                permission = {
-                    id: permission.id,
-                    label: permission.name
-                }
-                this.permissionsList.push(permission)
-            })
+            // this.permissions.all.forEach(permission => {
+            //     permission = {
+            //         id: permission.id,
+            //         label: permission.name
+            //     }
+            //     this.permissionsList.push(permission)
+            // })
             this.$store.dispatch('roles/fetch', this.$route.params.role).then(() => {
                 const data = this.role.current
                 this.form.fill(data)
-                this.form.permissions = this.role.current.permissions.map(item => item.id)
+                // this.form.permissions = this.role.current.permissions.map(item => item.id)
                 this.$store.dispatch('settings/updatePageLoading', false)
             })
         })
@@ -62,7 +62,7 @@ export default {
             form: new Form({
                 name: '',
                 code: '',
-                permissions: []
+                // permissions: []
             })
         }
     },

@@ -4,17 +4,19 @@
             <NLForm :action="update" :form="form">
                 <!-- Familliies -->
                 <NLColumn lg="6" md="6">
-                    <NLSelect v-model="form.familly_id" :form="form" name="familly_id" label="Famille"
-                        :options="familliesList" label-required :multiple="false" />
+                    <NLSelect v-model="form.family_id" :form="form" name="family_id" label="Famille"
+                        :options="familliesList" label-required :multiple="false"
+                        placeholder="Veuillez choisir une famille" />
                 </NLColumn>
                 <!-- Domains -->
                 <NLColumn lg="6" md="6">
                     <NLSelect v-model="form.domain_id" :form="form" name="domain_id" label="Domaine" :options="domainsList"
-                        label-required :multiple="false" />
+                        label-required :multiple="false" placeholder="Veuillez choisir un domaine" />
                 </NLColumn>
                 <!-- Name -->
                 <NLColumn lg="6" md="6">
-                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required />
+                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required
+                        placeholder="Veuillez saisir le nom de processus" />
                 </NLColumn>
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
@@ -35,12 +37,12 @@ export default {
     computed: {
         ...mapGetters({
             process: 'processes/current',
-            familly: 'famillies/domains',
-            famillies: 'famillies/all'
+            family: 'families/domains',
+            families: 'families/all'
         })
     },
     watch: {
-        'form.familly_id': function (newVal, oldVal) {
+        'form.family_id': function (newVal, oldVal) {
             if (newVal !== oldVal) { this.loadDomains(newVal) }
         }
     },
@@ -53,7 +55,7 @@ export default {
             domainsList: [],
             form: new Form({
                 name: null,
-                familly_id: null,
+                family_id: null,
                 domain_id: null
             })
         }
@@ -62,20 +64,20 @@ export default {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
             this.$store.dispatch('processes/fetch', { id: this.$route.params.process }).then(() => {
-                this.$store.dispatch('famillies/fetchAll', false).then(() => {
-                    this.familliesList = this.famillies.all
-                    this.loadDomains(this.form.familly_id)
+                this.$store.dispatch('families/fetchAll', false).then(() => {
+                    this.familliesList = this.families.all
+                    this.loadDomains(this.form.family_id)
                 })
                 this.form.name = this.process.current.name
-                this.form.familly_id = this.process.current.familly.id
+                this.form.family_id = this.process.current.family.id
                 this.form.domain_id = this.process.current.domain_id
                 this.$store.dispatch('settings/updatePageLoading', false)
             })
         },
         loadDomains(value) {
             if (value) {
-                this.$store.dispatch('famillies/fetch', { id: value, onlyDomains: true }).then(() => {
-                    this.domainsList = this.familly.domains
+                this.$store.dispatch('families/fetch', { id: value, onlyDomains: true }).then(() => {
+                    this.domainsList = this.family.domains
                 })
             } else {
                 this.domainsList = []

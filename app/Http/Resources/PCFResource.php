@@ -16,11 +16,12 @@ class PCFResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'familly_name' => $this->familly->name,
+            'family_name' => $this->family->name,
             'domain_name' => $this->domain->name,
-            'process_name' => $this->process->name,
-            'control_point_name' => $this->name,
-            'scores_str' => $this->scores_str
+            'process_name' => $this->name,
+            'media' => $this->media
+            // 'control_point_name' => $this->name,
+            // 'scores_str' => $this->scores_str,
         ];
     }
 }

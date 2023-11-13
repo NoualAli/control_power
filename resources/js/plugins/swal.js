@@ -14,10 +14,11 @@ export function confirm({ icon = 'question', title = '', message = '', showConfi
         position: 'center',
         confirmButtonColor: '#00C851',
         cancelButtonColor: '#CC0000',
+        confirmButtonText: 'Ok',
+        cancelButtonText: 'Annuler',
         showConfirmButton,
         showCancelButton,
-        cancelButtonText: 'Annuler',
-        text: message
+        html: message
     })
 }
 
@@ -94,19 +95,30 @@ export function confirm_update(message = 'Voulez-vous enregistrer vos modificati
  *
  * @return {any}
  */
-export function toast({ icon = 'question', title = '', message = '' }) {
+export function toast({ icon = 'question', title = '', message = '', target = '' }) {
     Swal.fire({
         toast: true,
         icon,
         title,
         position: 'bottom-right',
         timer: 5000,
+        showCloseButton: true,
         timerProgressBar: true,
         showConfirmButton: false,
         text: message,
+        width: '27rem',
         didOpen: (toast) => {
+            if (target) {
+                toast.classList.add('is-clickable')
+            }
             toast.addEventListener('mouseenter', Swal.stopTimer)
             toast.addEventListener('mouseleave', Swal.resumeTimer)
+            toast.addEventListener('click', () => {
+                if (target !== '' && target !== null) {
+                    window.location.href = target
+                    toast.remove(); // Remove the toast after it's clicked
+                }
+            });
         }
     })
 }
@@ -118,8 +130,8 @@ export function toast({ icon = 'question', title = '', message = '' }) {
  *
  * @return {any}
  */
-export function toast_success(message = '') {
-    return toast({ icon: 'success', title: 'Succès', message })
+export function toast_success(message = '', title = 'Succès', target = '') {
+    return toast({ icon: 'success', title, message, target })
 }
 
 /**
@@ -129,8 +141,8 @@ export function toast_success(message = '') {
  *
  * @return {any}
  */
-export function toast_error(message = 'Une erreur est survenue') {
-    return toast({ icon: 'error', title: 'Erreur', message })
+export function toast_error(message = 'Une erreur est survenue', title = 'Erreur', target = '') {
+    return toast({ icon: 'error', title, message, target })
 }
 
 export function alert_status(error) {
@@ -161,15 +173,3 @@ export function loading(progress, message = 'Chargement en cours...') {
         }
     })
 }
-// const swal = {
-//   confirm,
-//   alert_success,
-//   alert_error,
-//   confirm_destroy,
-//   confirm_update,
-//   toast,
-//   toast_success,
-//   toast_error,
-//   alert_status,
-//   loading
-// }

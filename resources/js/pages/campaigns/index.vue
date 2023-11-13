@@ -29,6 +29,7 @@ export default {
     middleware: [ 'auth' ],
     data() {
         return {
+            yearsList: [],
             columns: [
                 {
                     label: 'Référence',
@@ -37,12 +38,12 @@ export default {
                 },
                 {
                     label: 'Date début',
-                    field: 'start',
+                    field: 'start_date',
                     sortable: true
                 },
                 {
                     label: 'Date fin',
-                    field: 'end',
+                    field: 'end_date',
                     sortable: true
                 },
                 {
@@ -83,61 +84,58 @@ export default {
                 }
             },
             filters: {
-                reference: {
-                    label: 'Année',
-                    data: this.yearsList,
-                    value: null,
-                },
                 validated: {
                     label: 'Etat',
                     hide: !hasRole([ 'dcp', 'cdcr' ]),
                     data: [
                         {
-                            id: 0,
+                            id: "En attente de validation",
                             label: 'En attente de validation'
                         },
                         {
-                            id: 1,
+                            id: "Validé",
                             label: 'Validé'
                         }
                     ],
                     value: null
                 },
-                between: {
-                    value: [],
-                    type: 'date-range',
-                    cols: 'col-lg-4',
-                    attributes: {
-                        start: {
-                            cols: 'col-lg-6',
-                            label: 'De',
-                            value: null
-                        },
-                        end: {
-                            cols: 'col-lg-6',
-                            label: 'À',
-                            value: null
-                        }
-                    }
-                }
+                // between: {
+                //     value: null,
+                //     type: 'date-range',
+                //     cols: '6',
+                //     attributes: {
+                //         start: {
+                //             cols: 'col-lg-4',
+                //             label: 'De',
+                //             value: null
+                //         },
+                //         end: {
+                //             cols: 'col-lg-4',
+                //             label: 'À',
+                //             value: null
+                //         }
+                //     }
+                // }
             },
         }
     },
     created() {
+        this.initYearsList()
         this.$store.dispatch('settings/updatePageLoading', true)
     },
     computed: {
-        yearsList() {
-            let start = 2023
-            const currentYear = this.currentYear
-            const years = []
-            for (start; start <= currentYear; start++) {
-                years.push({ id: start, label: start })
-            }
-            return years
-        }
     },
     methods: {
+        initYearsList() {
+            let start = 2023
+            const currentYear = this.currentYear
+            this.yearsList = []
+            for (start; start <= currentYear; start++) {
+                this.yearsList.push({ id: start, label: start })
+            }
+
+            return this.yearsList
+        },
         /**
          * Affiche une campagne de contrôle
          *

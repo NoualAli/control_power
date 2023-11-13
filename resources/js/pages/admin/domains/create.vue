@@ -5,12 +5,14 @@
             <NLForm :action="create" :form="form">
                 <!-- Familliies -->
                 <NLColumn lg="6" md="6">
-                    <NLSelect v-model="form.familly_id" :form="form" name="familly_id" label="Famille"
-                        :options="familliesList" label-required :multiple="false" />
+                    <NLSelect v-model="form.family_id" :form="form" name="family_id" label="Famille"
+                        :options="familliesList" label-required :multiple="false"
+                        placeholder="Veuillez choisir une famille" />
                 </NLColumn>
                 <!-- Name -->
                 <NLColumn lg="6" md="6">
-                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required />
+                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required
+                        placeholder="Veuillez saisir le nom de domaine" />
                 </NLColumn>
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
@@ -33,19 +35,19 @@ export default {
             familliesList: [],
             form: new Form({
                 name: null,
-                familly_id: null
+                family_id: null
             })
         }
     },
     computed: {
         ...mapGetters({
-            famillies: 'famillies/all'
+            families: 'families/all'
         })
     },
     created() {
         this.$store.dispatch('settings/updatePageLoading', true)
-        this.$store.dispatch('famillies/fetchAll', false).then(() => {
-            this.familliesList = this.famillies.all
+        this.$store.dispatch('families/fetchAll', false).then(() => {
+            this.familliesList = this.families.all
             this.$store.dispatch('settings/updatePageLoading', false)
         })
     },

@@ -36,6 +36,8 @@
                     <router-link :key="totalUnreadNotifications" :to="{ name: 'notifications' }"
                         class="notification-link has-icon" :class="{ 'notified': totalUnreadNotifications > 0 }">
                         <i class="las la-bell icon" :class="{ 'la-spin': totalUnreadNotifications > 0 }" />
+                        <!-- <span class="has-border-radius-half p-1 text-small text-white bg-danger">{{
+                            totalUnreadNotifications }}</span> -->
                     </router-link>
                     <router-link :to="{ name: 'bugs-index' }" class="has-icon">
                         <i class="las la-bug icon" />
@@ -63,6 +65,7 @@ import NLSidebar from '../components/Sidebar/NLSidebar'
 import Child from '../components/Child'
 import { mapGetters } from 'vuex'
 import NLPageLoader from '../components/NLPageLoader'
+import store from '~/store'
 export default {
     name: 'MainLayout',
     components: {
@@ -76,31 +79,39 @@ export default {
             totalUnreadNotifications: 0
         }
     },
-    computed: mapGetters({
-        showSidebar: 'sidebar/showSidebar',
-        user: 'auth/user',
-        notifications: 'notifications/unread',
-        pageLoadingState: 'settings/pageIsLoading'
-    }),
+    computed: {
+        ...mapGetters({
+            showSidebar: 'sidebar/showSidebar',
+            user: 'auth/user',
+            notifications: 'notifications/totalUnread',
+            pageLoadingState: 'settings/pageIsLoading',
+        }),
+    },
     watch: {
+        "notifications.totalUnread"(newValue, oldValue) {
+            if (newValue !== this.totalUnreadNotifications) {
+                this.totalUnreadNotifications = newValue
+            }
+
+        },
         $route(to, from) {
             if (to.path !== '/login') {
-                this.$store.dispatch('notifications/fetchUnreadNotifications').then(() => {
-                    this.totalUnreadNotifications = this.notifications.unread.totalUnread
+                this.$store.dispatch('notifications/fetchTotalUnreadNotifications').then(() => {
+                    this.totalUnreadNotifications = this.notifications.totalUnread
                 })
             }
-        }
+        },
     },
     created() {
-        this.$store.dispatch('notifications/fetchUnreadNotifications').then(() => {
-            this.totalUnreadNotifications = this.notifications.unread.totalUnread
+        this.$store.dispatch('notifications/fetchTotalUnreadNotifications').then(() => {
+            this.totalUnreadNotifications = this.notifications.totalUnread
         })
     },
-    updated() {
-        this.$store.dispatch('notifications/fetchUnreadNotifications').then(() => {
-            this.totalUnreadNotifications = this.notifications.unread.totalUnread
-        })
-    },
+    // updated() {
+    //     this.$store.dispatch('notifications/fetchTotalUnreadNotifications').then(() => {
+    //         this.totalUnreadNotifications = this.notifications.totalUnread
+    //     })
+    // },
     methods: {
         toggleSidebar() {
             this.$store.dispatch('sidebar/toggleSidebar')

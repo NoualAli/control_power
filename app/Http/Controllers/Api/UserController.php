@@ -8,12 +8,15 @@ use App\Http\Requests\User\UpdateUserInfoRequest;
 use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Resources\LoginHistoryResource;
 use App\Http\Resources\UserResource;
-use App\Models\Dre;
 use App\Models\User;
-use Illuminate\Support\Arr;
+use App\Notifications\UserCreatedNotification;
+use App\Notifications\UserInforUpdatedNotification;
+use App\Notifications\UserInfoUpdatedNotification;
+use App\Notifications\UserPasswordUpdatedNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -22,7 +25,15 @@ class UserController extends Controller
      */
     public function current()
     {
-        return response()->json(auth()->user());
+        $user = auth()->user();
+        if (!hasRole(['admin', 'root'])) {
+            // $missions = !hasRole(['cdcr', 'dcp', 'dg', 'ig', 'sg', 'cdrcp', 'der', 'deac', 'dga']) ? $user->missions()->with([])->get() : Mission::with([])->get();
+            // $missions = getMissions()->get();
+            // $missions = $missions->filter(fn ($mission) => !$mission->pdf_report_exists)->pluck('id')->toArray();
+            $missions = getMissions()->get()->filter(fn ($mission) => Storage::fileExists('exported\campaigns\\' . $mission->campaign . '\\missions\\' . $mission->reference . '.pdf'));
+            $user['missions_without_report'] = $missions;
+        }
+        return response()->json($user);
     }
 
     public function loginsHistory()
@@ -38,8 +49,10 @@ class UserController extends Controller
     public function index()
     {
         isAbleOrAbort('view_user');
-        $users = User::with(['dres', 'roles']);
-
+        $users = User::with(['dres', 'role', 'last_login']);
+        // foreach ($users->whereNot('active_role_id', 1)->get() as $user) {
+        //     $user->update(['password' => Hash::make('123456')]);
+        // }
         $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
@@ -53,9 +66,12 @@ class UserController extends Controller
 
         if ($sort) {
             $users = $users->sortByMultiple($sort);
+            // $users = orderByMultiple($users, $sort);
         }
+
         if ($search) {
             $users = $users->search($search);
+            // $users = search($users, $search);
         }
 
         if ($fetchAll) {
@@ -81,29 +97,32 @@ class UserController extends Controller
         try {
             $data = $request->validated();
             DB::transaction(function () use ($data) {
+                $firstLoginPassword = $data['password'];
                 $data['password'] = isset($data['password']) && !empty($data['password']) ? Hash::make($data['password'])  : Hash::make('Azerty123');
+                $data['active_role_id'] = $data['role'];
+                $role = $data['role'];
+                unset($data['role']);
                 $user = User::create($data);
-                if (isset($data['dres'])) {
-                    $dres = $data['dres'];
-                    $agencies = $this->loadAgencies($dres);
-                    unset($data['dres']);
+                if (isset($data['agencies'])) {
+                    $agencies = $data['agencies'];
+                    $agencies = loadAgencies($agencies);
+                    unset($data['agencies']);
                     $user->agencies()->sync($agencies);
                 }
-                $roles = $data['roles'];
-                unset($data['roles']);
-                $user->roles()->sync($roles);
+                $user->roles()->attach([$role]);
+                if ($user->is_active) {
+                    Notification::send($user, new UserCreatedNotification($user, $firstLoginPassword));
+                }
             });
             return response()->json([
                 'message' => CREATE_SUCCESS,
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $code);
+            ], 500);
         }
     }
 
@@ -116,7 +135,8 @@ class UserController extends Controller
     public function show(User $user)
     {
         isAbleOrAbort('view_user');
-        return response()->json($user->load('agencies'));
+        $user->unsetRelations();
+        return response()->json($user->load(['role', 'dres', 'agencies', 'last_login']));
     }
 
     /**
@@ -130,31 +150,71 @@ class UserController extends Controller
     {
         try {
             $data = $request->validated();
+
             DB::transaction(function () use ($data, $user) {
-                $roles = $data['roles'];
-                unset($data['roles']);
+                // $keys = array_keys($data);
+                // $updatedInformations = [];
+                // $userCurrentInformations = $user->only([
+                //     "username",
+                //     "email",
+                //     "first_name",
+                //     "last_name",
+                //     "phone",
+                //     "role",
+                //     "is_active",
+                //     "gender",
+                //     "registration_number",
+                //     "agencies"
+                // ]);
+                // foreach ($keys as $key) {
+                //     $oldValue = $userCurrentInformations[$key];
+                //     $newValue = $data[$key];
+                //     if ($key == 'agencies') {
+                //         if (in_array($newValue, $oldValue->pluck('id')->toArray())) {
+                //             $oldValue = $newValue;
+                //         }
+                //     }
+                //     if ($key == 'role') {
+                //         if ($newValue == (int) $oldValue->id) {
+                //             $oldValue = $newValue;
+                //         }
+                //     }
+
+                //     if ($oldValue !== $newValue) {
+                //         $updatedInformations[$key] = ['oldValue' => $oldValue, 'newValue' => $newValue];
+                //     }
+                // }
+                $data['active_role_id'] = $data['role'];
+                $role = $data['role'];
+                unset($data['role']);
 
                 $user->update($data);
-                $user->roles()->sync($roles);
+                $user->roles()->attach([$role]);
 
-                if (isset($data['dres'])) {
-                    $dres = $data['dres'];
-                    $agencies = $this->loadAgencies($dres);
-                    unset($data['dres']);
-                    $user->agencies()->sync($agencies);
+                if (isset($data['agencies'])) {
+                    $agencies = $data['agencies'];
+                    $agenciesId = [];
+                    if (is_array($agencies)) {
+                        foreach ($agencies as $agency) {
+                            array_push($agenciesId, $agency);
+                        }
+                    } else {
+                        array_push($agenciesId, $data['agencies']);
+                    }
+                    unset($data['agencies']);
+                    $user->agencies()->sync($agenciesId);
                 }
+                // Notification::send($user, new UserInfoUpdatedNotification($user, $updatedInformations));
             });
             return response()->json([
                 'message' => UPDATE_SUCCESS,
                 'status' => true
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $code);
+            ], 500);
         }
     }
 
@@ -168,13 +228,29 @@ class UserController extends Controller
     public function updatePassword(UpdateUserPasswordRequest $request, User $user)
     {
         try {
-            $data = $request->validated();
-            $user->password = Hash::make($data['password']);
-            $user->save();
-            return response()->json([
-                'message' => UPDATE_PASSWORD_SUCCESS,
-                'status' => true
-            ]);
+            return DB::transaction(function () use ($request, $user) {
+                $data = $request->validated();
+                $user->password = Hash::make($data['password']);
+                if (auth()->user()->id !== $user->id) {
+                    $user->must_change_password = true;
+                }
+                if ($user->save()) {
+                    Notification::send($user, new UserPasswordUpdatedNotification($user, $data['password']));
+                    return response()->json([
+                        'message' => UPDATE_PASSWORD_SUCCESS,
+                        'status' => true
+                    ]);
+                }
+                return response()->json([
+                    'message' => UPDATE_PASSWORD_ERROR,
+                    'status' => false
+                ]);
+            });
+
+            // return response()->json([
+            //     'message' => UPDATE_PASSWORD_SUCCESS,
+            //     'status' => true
+            // ]);
         } catch (\Throwable $th) {
             $code = $th->getCode() ?: 500;
 
@@ -194,6 +270,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         isAbleOrAbort('delete_user');
+        // abort_if(!hasRole('root'), 401);
         try {
             $user->delete();
             return response()->json([
@@ -208,23 +285,5 @@ class UserController extends Controller
                 'status' => false
             ], $code);
         }
-    }
-
-    private function loadAgencies(array $data)
-    {
-        $data = Arr::flatten(array_map(function ($item) {
-            $item = explode('-', $item);
-            $ids = [];
-            if ($item[0] == 'd') {
-                $ids = array_merge(Dre::findOrFail($item[1])->agencies->pluck('id')->toArray(), $ids);
-            } else {
-                $ids = array_merge($ids, [intval($item[0])]);
-            }
-            return $ids;
-        }, $data));
-        $data = Validator::make($data, [
-            '*' => 'exists:agencies,id'
-        ])->validated();
-        return $data;
     }
 }

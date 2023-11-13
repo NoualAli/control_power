@@ -13,10 +13,10 @@
                 </NLColumn>
 
                 <!-- Permissions -->
-                <NLColumn lg="6" md="6">
+                <!-- <NLColumn lg="6" md="6">
                     <NLSelect v-model="form.permissions" :form="form" name="permissions" label="Permissions"
                         :options="permissionsList" :multiple="true" label-required />
-                </NLColumn>
+                </NLColumn> -->
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
                         <NLButton :loading="form.busy" label="Ajouter" />
@@ -39,28 +39,28 @@ export default {
             form: new Form({
                 name: '',
                 code: '',
-                permissions: []
+                // permissions: []
             })
         }
     },
-    computed: {
-        ...mapGetters({
-            permissions: 'permissions/all'
-        })
-    },
-    created() {
-        this.$store.dispatch('settings/updatePageLoading', true)
-        this.$store.dispatch('permissions/fetchAll').then(() => {
-            this.permissions.all.forEach(permission => {
-                permission = {
-                    id: permission.id,
-                    label: permission.name
-                }
-                this.permissionsList.push(permission)
-            })
-            this.$store.dispatch('settings/updatePageLoading', false)
-        })
-    },
+    // computed: {
+    //     ...mapGetters({
+    //         permissions: 'permissions/all'
+    //     })
+    // },
+    // created() {
+    //     this.$store.dispatch('settings/updatePageLoading', true)
+    //     this.$store.dispatch('permissions/fetchAll').then(() => {
+    //         this.permissions.all.forEach(permission => {
+    //             permission = {
+    //                 id: permission.id,
+    //                 label: permission.name
+    //             }
+    //             this.permissionsList.push(permission)
+    //         })
+    //         this.$store.dispatch('settings/updatePageLoading', false)
+    //     })
+    // },
 
     methods: {
         create() {

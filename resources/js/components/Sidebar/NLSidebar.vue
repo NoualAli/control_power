@@ -9,15 +9,12 @@
             <NLSidebarItem label="Tableau de bord" route="home" iconName="la-tachometer-alt" />
             <NLSidebarItem label="Utilisateurs" route="users-index" iconName="la-users" v-if="can('view_page_users')" />
             <NLSidebarItem label="Roles" route="roles-index" iconName="la-user-shield" v-if="can('view_page_roles')" />
-            <NLSidebarItem label="Permissions" route="permissions-index" iconName="la-user-cog"
-                v-if="can('view_page_permissions')" />
-            <!-- <NLSidebarSubmenu label="Gestion utilisateurs" iconName="la-users-cog">
-            </NLSidebarSubmenu> -->
+            <NLSidebarItem label="Modules" route="modules-index" iconName="la-user-cog" v-if="can('view_page_modules')" />
             <NLSidebarItem label="Dre" route="dre-index" iconName="la-building" v-if="can('view_page_dres')" />
             <NLSidebarItem label="Agences" route="agencies-index" iconName="la-landmark" v-if="can('view_page_agencies')" />
             <NLSidebarItem label="Catégories" route="categories-index" iconName="la-landmark"
                 v-if="can('view_page_categories')" />
-            <NLSidebarItem label="Familles" route="famillies-index" iconName="la-tag" v-if="can('view_page_families')" />
+            <NLSidebarItem label="Familles" route="families-index" iconName="la-tag" v-if="can('view_page_families')" />
             <NLSidebarItem label="Domaines" route="domains-index" iconName="la-tags" v-if="can('view_page_domains')" />
             <NLSidebarItem label="Processus" route="processes-index" iconName="la-project-diagram"
                 v-if="can('view_page_processes')" />
@@ -35,6 +32,7 @@
                 iconName="la-stack-overflow" v-if="can('view_page_mission_details')" />
             <NLSidebarItem label="Faits majeur" route="major-facts" iconName="la-exclamation-triangle"
                 v-if="can('view_page_major_facts')" />
+            <NLSidebarItem label="Backup DB" route="admin-backup-db" v-if="is('root')" iconName="la-database" />
             <!-- <NLSidebarItem label="Bugs" route="bugs-index" iconName="la-bug" /> -->
             <!-- <NLSidebarItem label="Validation des rapports" route="missions-not-validated" iconName="la-clipboard-check"
                 v-if="can('validate_report')" /> -->
@@ -53,12 +51,19 @@
         </div>
 
         <div class="sidebar-footer">
-            <a href="logout" @click.prevent="logout" class="sidebar-item logout-btn">
-                <i class="las la-sign-out-alt sidebar-icon"></i>
-                <span class="sidebar-icon_text">
+            <a href="logout" @click.prevent="logout" class="sidebar-item logout-btn" :class="{ 'is-loading': isLogout }"
+                v-if="!isLogout">
+                <i class="las la-sign-out-alt sidebar-icon" v-if="!isLogout"></i>
+                <i class="las la-spinner la-spin sidebar-icon" v-else></i>
+                <span class="sidebar-icon_text" v-if="!isLogout">
                     Déconnexion
                 </span>
+                <span class="sidebar-icon_text" v-else>Déconnexion en cours</span>
             </a>
+            <div class="sidebar-item logout-btn" :class="{ 'is-loading': isLogout }" v-else>
+                <i class="las la-spinner la-spin sidebar-icon"></i>
+                <span class="sidebar-icon_text">Déconnexion en cours</span>
+            </div>
         </div>
     </div>
 </template>
@@ -70,38 +75,21 @@ import NLSidebarSubmenu from './NLSidebarSubmenu.vue'
 export default {
     name: "NLSidebar",
     components: { NLSidebarItem, NLSidebarSubmenu },
-    // data() {
-    //     return {
-    //         unreadMajorFacts: 0
-    //     }
-    // },
-    watch: {
-        // $route(to, from) {
-        //   this.dispatch('notifications/fetchTotalUnreadMajorFacts').then(() => {
-        //     this.unreadMajorFacts = this.$store.getters[ 'notifications/total_unread_major_facts' ].total_unread_major_facts
-        //   })
-        // },
-        // unreadMajorFacts: (newVal, oldVal) => {
-        //   if (newVal !== oldVal) {
-        //     this.$store.dispatch('notifications/fetchTotalUnreadMajorFacts').then(() => {
-        //       // this.unreadMajorFacts = newVal
-        //     })
-        //   }
-        // }
+    data() {
+        return {
+            isLogout: false
+        }
     },
     methods: {
         async logout() {
+            this.isLogout = true
             // Log out the user.
             await this.$store.dispatch('auth/logout')
 
+            localStorage.clear()
             // Redirect to login.
             this.$router.push({ name: 'login' })
         }
     }
-    // created() {
-    //   this.$store.dispatch('notifications/fetchTotalUnreadMajorFacts').then(() => {
-    //     this.unreadMajorFacts = this.$store.getters[ 'notifications/total_unread_major_facts' ].total_unread_major_facts
-    //   })
-    // },
 }
 </script>

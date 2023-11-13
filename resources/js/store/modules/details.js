@@ -7,12 +7,16 @@ export const state = {
     config: null,
     global: null,
     majorFacts: null,
+    regularizations: null,
     flters: null,
 }
 
 export const mutations = {
     FETCH_PAGINATED(state, data) {
         state.paginated = data
+    },
+    FETCH_REGULARIZATIONS(state, data) {
+        state.regularizations = data
     },
     FETCH_ALL(state, data) {
         state.all = data
@@ -39,6 +43,14 @@ export const actions = {
         try {
             const { data } = await api.get('missions/details/' + detailId)
             commit('FETCH', { detail: data })
+        } catch (error) {
+            console.error(error);
+        }
+    },
+    async fetchRegularizations({ commit }, detailId) {
+        try {
+            const { data } = await api.get('regularize/' + detailId + '/history')
+            commit('FETCH_REGULARIZATIONS', { regularizations: data })
         } catch (error) {
             console.error(error);
         }
@@ -90,4 +102,5 @@ export const getters = {
     global: state => state.global,
     majorFacts: state => state.majorFacts,
     filters: state => state.filters,
+    regularizations: state => state.regularizations
 }

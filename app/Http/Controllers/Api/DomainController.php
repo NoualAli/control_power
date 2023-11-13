@@ -19,7 +19,7 @@ class DomainController extends Controller
      */
     public function index()
     {
-        $domains = Domain::with('familly')->withCount('processes');
+        $domains = Domain::with('family')->withCount('processes');
 
         $filter = request('filter', null);
         $search = request('search', null);
@@ -78,7 +78,7 @@ class DomainController extends Controller
     {
         $domains = explode(',', $domain);
         $onlyProcesses = request()->has('onlyProcesses');
-        $data = $onlyProcesses ? formatForSelect(Process::whereIn('domain_id', $domains)->get()->toArray()) : Domain::findOrFail($domain)->load('familly');
+        $data = $onlyProcesses ? formatForSelect(Process::whereIn('domain_id', $domains)->get()->toArray()) : Domain::findOrFail($domain)->load('family');
         return response()->json($data);
     }
 

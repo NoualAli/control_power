@@ -17,7 +17,7 @@ class ControlPointResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'familly_name' => $this->familly->name,
+            'family_name' => $this->family->name,
             'domain_name' => $this->domain->name,
             'process_name' => $this->process->name,
             'major_fact' => $this->major_fact_str,

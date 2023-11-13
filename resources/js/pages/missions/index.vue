@@ -19,6 +19,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { hasRole } from '../../plugins/user'
+import * as MissionState from '../../store/global/MissionStates'
 export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],
@@ -46,18 +47,13 @@ export default {
                     field: 'agency'
                 },
                 {
-                    label: 'Contrôle sur place par',
-                    field: 'agency_controllers_str',
-                    hide: hasRole([ 'ci' ])
-                },
-                {
                     label: 'Date début',
-                    field: 'start',
+                    field: 'start_date',
                     sortable: true,
                 },
                 {
                     label: 'Date fin',
-                    field: 'end',
+                    field: 'end_date',
                     sortable: true,
                 },
                 {
@@ -66,62 +62,89 @@ export default {
                     hide: hasRole([ 'cdc', 'ci' ]),
                     isHtml: true,
                     align: 'center',
+                    sortable: true,
                     methods: {
                         showField(item) {
                             const score = Number(item.avg_score)
-                            let style = 'text-dark text-bold'
-                            if (score === 1) {
-                                style = 'bg-success text-white text-bold'
-                            } else if (score === 2) {
-                                style = 'bg-info text-white text-bold'
-                            } else if (score === 3) {
-                                style = 'bg-warning text-bold'
-                            } else if (score === 4) {
-                                style = 'bg-danger text-white text-bold'
+                            let style = 'text-dark'
+                            if (score >= 1 && score < 2) {
+                                style = 'bg-success text-white'
+                            } else if (score >= 2 && score < 3) {
+                                style = 'bg-info text-white'
+                            } else if (score >= 3 && score < 4) {
+                                style = 'bg-warning'
+                            } else if (score >= 4) {
+                                style = 'bg-danger text-white'
                             } else {
-                                style = 'bg-grey text-dark text-bold'
+                                style = 'bg-grey text-dark'
                             }
                             return `<div class="container">
-                                        <div class="has-border-radius py-1 text-center ${style}">${score}</div>
+                                        <div class="has-border-radius text-small py-1 text-bold text-center ${style}">${score}</div>
                                     </div>`
                         }
                     }
                 },
                 {
                     label: 'État',
-                    field: 'state',
+                    field: 'current_state',
                     isHtml: true,
                     align: 'center',
+                    sortable: true,
                     methods: {
                         showField(item) {
-                            let state = 'done'
-                            if (item.state === 'En cours') {
-                                state = 'inProgress'
-                            } else if (item.state === 'À réaliser') {
-                                state = 'todo'
-                            } else if (item.state === 'Réliser') {
-                                state = 'done'
-                            } else if (item.state === 'En retard') {
-                                state = 'late'
-                            } else if (item.state === 'Validé et envoyé') {
-                                state = 'validated'
-                            } else if (item.state === 'En attente de validation') {
-                                state = 'pending-validation'
-                            } else if (item.state === '1ère validation') {
-                                state = 'first-validation'
-                            } else if (item.state === '2ème validation') {
-                                state = 'second-validation'
+                            let title = ''
+                            let state = ''
+                            let is_late = Boolean(item.is_late) ? 'is-late' : ''
+
+                            switch (Number(item.current_state)) {
+                                case 1:
+                                    title = MissionState.TODO_STR
+                                    state = MissionState.TODO_CLASS
+                                    break;
+                                case 2:
+                                    title = MissionState.ACTIVE_STR
+                                    state = MissionState.ACTIVE_CLASS
+                                    break;
+                                case 3:
+                                    title = MissionState.PENDING_CDC_VALIDATION_STR
+                                    state = MissionState.PENDING_CDC_VALIDATION_CLASS
+                                    break;
+                                case 4:
+                                    title = MissionState.PENDING_CC_VALIDATION_STR
+                                    state = MissionState.PENDING_CC_VALIDATION_CLASS
+                                    break;
+                                case 5:
+                                    title = MissionState.PENDING_CDCR_VALIDATION_STR
+                                    state = MissionState.PENDING_CDCR_VALIDATION_CLASS
+                                    break;
+                                case 6:
+                                    title = MissionState.PENDING_DCP_VALIDATION_STR
+                                    state = MissionState.PENDING_DCP_VALIDATION_CLASS
+                                    break;
+                                case 7:
+                                    title = MissionState.PENDING_DA_VALIDATION_STR
+                                    state = MissionState.PENDING_DA_VALIDATION_CLASS
+                                    break;
+                                case 8:
+                                    title = MissionState.DONE_STR
+                                    state = MissionState.DONE_CLASS
+                                    break;
+                                default:
+                                    title = MissionState.TODO_STR
+                                    state = MissionState.TODO_CLASS
+                                    break;
                             }
-                            return `<div class="container" title="${item.state}">
-                                        <div class="mission-state ${state}"></div>
+                            return `<div class="container" title="${title}">
+                                        <div class="mission-state ${state} ${is_late}"></div>
                                     </div>`
                         }
                     }
                 },
                 {
                     label: 'Taux de progression',
-                    field: 'progress_status',
+                    field: 'progress_rate',
                     align: 'center',
+                    sortable: true,
                     methods: {
                         showField(item) {
                             return item.progress_status + '%'
@@ -134,12 +157,12 @@ export default {
                     show: (item) => {
                         if (hasRole([ 'cdc', 'ci' ])) {
                             return this.can('view_mission')
-                        } else if (hasRole([ 'dcp', 'cdcr' ])) {
-                            return this.can('view_mission') && item.progress_status.toString() === '100' && item?.is_validated_by_cdc
-                        } else if (hasRole([ 'da', 'dg', 'cdrcp', 'ig', 'der' ])) {
-                            return this.can('view_mission') && item.progress_status.toString() === '100' && item?.is_validated_by_dcp
+                        } else if (hasRole([ 'cdcr', 'cc' ])) {
+                            return this.can('view_mission') && item.progress_status.toString() === '100' && Number(item?.is_validated_by_cdc) == 1
+                        } else if (hasRole('dcp')) {
+                            return this.can('view_mission') && item.progress_status.toString() === '100' && Number(item?.is_validated_by_cdcr) == 1
                         } else {
-                            return this.can('view_mission') && item.progress_status.toString() === '100'
+                            return this.can('view_mission') && item.progress_status.toString() === '100' && Number(item?.is_validated_by_dcp) == 1
                         }
                     },
                     apply: this.show
@@ -171,7 +194,7 @@ export default {
                     multiple: true,
                     data: null,
                     value: null,
-                    hide: !hasRole([ 'cdc', 'ci' ])
+                    hide: hasRole([ 'cdc', 'ci' ])
                 },
                 agency: {
                     label: 'Agence',
@@ -180,32 +203,105 @@ export default {
                     data: null,
                     value: null
                 },
-                dre_controllers: {
-                    label: 'Contrôleurs',
+                current_state: {
+                    label: 'État',
                     cols: 3,
                     multiple: true,
-                    data: null,
-                    value: null,
-                    hide: !hasRole([ 'ci' ])
-                },
-                between: {
-                    cols: 3,
-                    value: [],
-                    type: 'date-range',
-                    // cols: 'col-lg-6',
-                    attributes: {
-                        start: {
-                            cols: 'col-lg-6',
-                            label: 'De',
-                            value: null
+                    data: [
+                        {
+                            id: MissionState.TODO,
+                            label: MissionState.TODO_STR
                         },
-                        end: {
-                            cols: 'col-lg-6',
-                            label: 'À',
-                            value: null
+                        {
+                            id: MissionState.ACTIVE,
+                            label: MissionState.ACTIVE_STR
+                        },
+                        {
+                            id: MissionState.PENDING_CDC_VALIDATION,
+                            label: MissionState.PENDING_CDC_VALIDATION_STR
+                        },
+                        {
+                            id: MissionState.PENDING_CC_VALIDATION,
+                            label: MissionState.PENDING_CC_VALIDATION_STR
+                        },
+                        {
+                            id: MissionState.PENDING_CDCR_VALIDATION,
+                            label: MissionState.PENDING_CDCR_VALIDATION_STR
+                        },
+                        {
+                            id: MissionState.PENDING_DCP_VALIDATION,
+                            label: MissionState.PENDING_DCP_VALIDATION_STR
+                        },
+                        {
+                            id: MissionState.PENDING_DA_VALIDATION,
+                            label: MissionState.PENDING_DA_VALIDATION_STR
+                        },
+                        {
+                            id: MissionState.DONE,
+                            label: MissionState.DONE_STR
                         }
-                    }
-                }
+                    ]
+                },
+
+                progress_status: {
+                    label: 'Taux de progression',
+                    cols: 3,
+                    data: [
+                        {
+                            id: '-20',
+                            label: '< 20%'
+                        },
+                        {
+                            id: '-40',
+                            label: '>= 20% et < 40%'
+                        },
+
+                        {
+                            id: '-60',
+                            label: '>= 40% et < 60%'
+                        },
+
+                        {
+                            id: '-80',
+                            label: '>= 60% et < 80%'
+                        },
+
+                        {
+                            id: '-100',
+                            label: '>= 80% et < 100%'
+                        },
+                        {
+                            id: '100',
+                            label: '= 100%'
+                        },
+                    ],
+                    value: null
+                },
+
+                avg_score: {
+                    label: 'Moyenne',
+                    cols: 3,
+                    data: [
+                        {
+                            id: 'score >= 1 AND score < 2',
+                            label: 'Entre 1 et 2'
+                        },
+                        {
+                            id: 'score >= 2 AND score < 3',
+                            label: 'Entre 2 et 3'
+                        },
+                        {
+                            id: 'score >= 3 AND score < 4',
+                            label: 'Entre 3 et 4'
+                        },
+                        {
+                            id: 'score = 4',
+                            label: '>= 4'
+                        },
+                    ],
+                    value: null,
+                    hide: hasRole([ 'cdc', 'ci' ]),
+                },
             },
         }
     },
@@ -218,7 +314,6 @@ export default {
     methods: {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
-            console.log(this.$store.getters[ 'settings/pageIsLoading' ]);
             const length = this.$breadcrumbs.value.length
             if (this.$route.params.campaignId) {
                 this.$store.dispatch('campaigns/fetch', { campaignId: this.$route.params.campaignId }).then((data) => {

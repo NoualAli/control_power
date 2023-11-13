@@ -12,6 +12,7 @@ use App\Models\Process;
 use App\Models\User;
 use App\Notifications\ControlCampaign\Created;
 use App\Notifications\ControlCampaign\Deleted;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
@@ -31,24 +32,25 @@ class ControlCampaignController extends Controller
         $fetchFilters = request()->has('fetchFilters');
         $perPage = request('perPage', 10);
         $fetchAll = request()->has('fetchAll');
-        $campaigns = new ControlCampaign();
+
+        $campaigns = getControlCampaigns();
 
         if (!hasRole(['dcp', 'cdcr'])) {
-            $campaigns = hasRole(['ci', 'cc']) ? auth()->user()->campaigns() : $campaigns->validated();
+            $campaigns = hasRole(['ci', 'cc']) ? $campaigns : $campaigns->whereNotNull('validated_at');
         }
 
         if ($sort) {
             $campaigns = $campaigns->sortByMultiple($sort);
         } else {
-            $campaigns = $campaigns->orderBy('created_at', 'DESC');
+            $campaigns = $campaigns->orderBy('c.created_at', 'DESC');
         }
 
         if ($search) {
-            $campaigns = $campaigns->search($search);
+            $campaigns = $campaigns->search(['c.reference'], $search);
         }
 
         if ($filter) {
-            $campaigns = $campaigns->filter($filter);
+            $campaigns = $this->filter($campaigns, $filter);
         }
 
         if ($fetchAll) {
@@ -56,6 +58,7 @@ class ControlCampaignController extends Controller
         } else {
             $campaigns = ControlCampaignResource::collection($campaigns->paginate($perPage)->onEachSide(1));
         }
+        // dd($campaigns);
         return $campaigns;
     }
 
@@ -71,14 +74,15 @@ class ControlCampaignController extends Controller
     /**
      * Get a specific campaign
      */
-    public function show(ControlCampaign $campaign)
+    public function show(int $campaign)
     {
         isAbleOrAbort(['view_control_campaign']);
-        abort_if(!($campaign->validated_by_id || hasRole(['dcp', 'cdcr'])), 401, __('unauthorized'));
-
+        $campaign = getControlCampaigns()->where('c.id', $campaign)->addSelect('c.description')->groupBy('c.description')->first();
+        abort_if(!($campaign->validated_by_id || hasRole(['dcp', 'cdcr'])), 403, __('unauthorized'));
+        // dd(getControlCampaigns()->where('c.id', $campaign->id)->addSelect('c.description')->groupBy('c.description')->first());
         if (request()->has('edit')) {
             $condition = $campaign->remaining_days_before_start > 5 || !$campaign->validated_by_id;
-            abort_if(!$condition, 401, __('unauthorized'));
+            abort_if(!$condition, 403, __('unauthorized'));
             $campaign->load('processes');
         }
         return $campaign;
@@ -106,7 +110,7 @@ class ControlCampaignController extends Controller
             $processes = pcfToProcesses($data['pcf']);
             $data['validated_by_id'] = isset($data['validate']) && boolval($data['validate']) ? auth()->user()->id : null;
             $data['validated_at'] = isset($data['validate']) && boolval($data['validate']) ? now() : null;
-            $data['reference'] = generateCDCRef($data['validate'], $data['start']);
+            $data['reference'] = generateCDCRef($data['validate'], $data['start_date']);
             unset($data['pcf'], $data['validate']);
             $campaign = DB::transaction(function () use ($data, $processes) {
                 $campaign = auth()->user()->campaigns()->create($data);
@@ -115,7 +119,7 @@ class ControlCampaignController extends Controller
                     $campaign->processes()->attach($process);
                 }
                 if ($campaign->validated_by_id) {
-                    $roles = ['cdc', 'dg', 'cdrcp', 'der', 'dre', 'ig', 'cdcr'];
+                    $roles = ['cdc', 'cdrcp', 'dre', 'cdcr'];
                     $users = User::whereRoles($roles)->get();
                     foreach ($users as $user) {
                         Notification::send($user, new Created($campaign));
@@ -189,8 +193,8 @@ class ControlCampaignController extends Controller
         abort_if($campaign->validated_by_id, 401);
         try {
             DB::transaction(function () use ($campaign) {
-                $campaign->update(['validated_by_id' => auth()->user()->id, 'validated_at' => now(), 'reference' => generateCDCRef(true, $campaign->start)]);
-                $roles = ['cdc', 'dg', 'cdrcp', 'der', 'dre', 'ig', 'cdcr'];
+                $campaign->update(['validated_by_id' => auth()->user()->id, 'validated_at' => now(), 'reference' => generateCDCRef(true, $campaign->start_date)]);
+                $roles = ['cdc', 'cdrcp', 'dre', 'cdcr'];
                 $users = User::whereRoles($roles)->get();
                 foreach ($users as $user) {
                     Notification::send($user, new Created($campaign));
@@ -220,9 +224,9 @@ class ControlCampaignController extends Controller
         try {
             if ($campaign->delete()) {
                 if ($campaign->validated_at) {
-                    $roles = ['cdc', 'dg', 'cdrcp', 'der', 'dre', 'ig'];
+                    $roles = ['cdc', 'cdrcp', 'dre'];
                     if (!hasRole('cdcr')) {
-                        $roles = ['cdc', 'dg', 'cdrcp', 'der', 'dre', 'ig', 'cdcr'];
+                        $roles = ['cdc', 'cdrcp', 'dre', 'cdcr'];
                     }
                     $users = User::whereRoles($roles)->get();
                     foreach ($users as $user) {
@@ -282,32 +286,56 @@ class ControlCampaignController extends Controller
     /**
      * Get campaign processes list
      */
-    public function processes(ControlCampaign $campaign)
+    public function processes(int $campaign)
     {
+        $campaign = getControlCampaigns()->where('c.id', $campaign)->select(['c.id', DB::raw('(CASE WHEN c.validated_at IS NOT NULL THEN 1 ELSE 0 END) AS is_validated')])->first();
 
-        abort_if(!($campaign->validated_by_id || hasRole(['dcp', 'cdcr'])), 401, __('unauthorized'));
-        $campaign->load(['processes' => fn ($query) => $query->with(['familly', 'domain'])]);
-        $processes = $campaign->processes();
+        abort_if(!($campaign->is_validated || hasRole(['dcp', 'cdcr'])), 401, __('unauthorized'));
+
+        $processes = getControlCampaignProcesses($campaign);
         $search = request('search', false);
-        $fetchFilters = request()->has('fetchFilters');
-        if ($fetchFilters) {
-            return $this->processesFilters($processes);
-        } else {
-            $processes = $processes->withCount('control_points')->get();
-        }
-        if ($search) {
-            $processes = $processes->filter(fn ($process) => preg_match('/' . strtolower($search) . '/', strtolower($process->name)));
-        }
+        // $fetchFilters = request()->has('fetchFilters');
         $perPage = request('perPage', 10);
-        return ProcessResource::collection(paginate($processes, '/api/campaigns/processes/' . $campaign->id, $perPage));
+
+        // if ($fetchFilters) {
+        //     return $this->processesFilters($processes);
+        // }
+        if ($search) {
+            $processes = $processes->search(['p.name', 'd.name', 'f.name'], $search);
+        }
+
+        return ProcessResource::collection($processes->paginate($perPage)->onEachSide(1));
     }
 
     private function processesFilters($processes)
     {
         // dd($processes);
-        $family = $processes->relationUniqueData('familly');
+        $family = $processes->relationUniqueData('family');
         $domain = $processes->relationUniqueData('domain');
         // dd(compact('family', 'domain'));
         return compact('family', 'domain');
+    }
+
+    /**
+     * Filter data
+     *
+     * @param Builder $missions
+     * @param array $filter
+     *
+     * @return Builder
+     */
+    public function filter(Builder $missions, array $filter): Builder
+    {
+        if (isset($filter['validated'])) {
+            $value = $filter['validated'];
+            if ($value == 'En attente de validation') {
+                $missions = $missions->whereNull('validated_at');
+            } elseif ($value == 'Validé') {
+                $missions = $missions->whereNotNull('validated_at');
+            } else {
+                abort(422, "La valeur " . $value . " n'est pas une valeur valide.");
+            }
+        }
+        return $missions;
     }
 }

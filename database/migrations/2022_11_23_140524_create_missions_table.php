@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class CreateMissionsTable extends Migration
@@ -18,6 +17,8 @@ class CreateMissionsTable extends Migration
             $table->uuid('id')->primary();
             $table->string('reference')->unique();
             $table->text('note')->nullable();
+            $table->tinyInteger('current_state')->default(1);
+            $table->tinyInteger('level')->default(2);
 
             // Relationships
             $table->foreignId('control_campaign_id');
@@ -41,7 +42,7 @@ class CreateMissionsTable extends Migration
                 $table->timestamp('dcp_validation_at')->nullable();
                 $table->timestamps();
                 $table->softDeletes('deleted_at');
-            }else{
+            } else {
                 // Dates
                 $table->timestamp('programmed_start', 7);
                 $table->timestamp('programmed_end', 7);
@@ -54,7 +55,6 @@ class CreateMissionsTable extends Migration
                 $table->timestamp('dcp_validation_at', 7)->nullable();
                 $table->timestamps(7);
                 $table->softDeletes('deleted_at', 7);
-
             }
 
             $table->foreign('control_campaign_id')->on('control_campaigns')->references('id')->onDelete('cascade')->onUpdate('cascade');

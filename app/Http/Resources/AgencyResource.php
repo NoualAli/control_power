@@ -18,7 +18,6 @@ class AgencyResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'code' => $this->code,
-            'full_name' => $this->full_name,
             'category' => $this->category->name,
             'dre_full_name'  => $this->dre->full_name,
         ];

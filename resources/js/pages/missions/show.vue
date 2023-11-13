@@ -1,13 +1,13 @@
 <template>
-    <ContentHeader v-if="can('view_mission') && forcedRerenderKey !== -1" :key="forcedRerenderKey">
+    <ContentHeader v-if="can('view_mission')">
         <template #title>
-            Informations de la mission
+            Mission {{ mission?.current?.reference }}
         </template>
         <template class="d-flex justify-between align-center gap-3 mb-9" v-if="!pageLoadingState" #actions>
             <NLFlex lgJustifyContent="end" extraClass="w-100">
                 <router-link v-if="can('view_control_campaign,view_page_control_campaigns')"
                     :to="{ name: 'campaign', params: { campaignId: mission?.current.campaign.id } }" class="btn">
-                    Campagne de contrôle
+                    {{ mission?.current?.campaign?.reference }}
                 </router-link>
                 <router-link v-if="mission?.current?.remaining_days_before_start > 5 && can('edit_mission')"
                     class="btn btn-warning" :to="{ name: 'missions-edit', params: { missionId: mission?.current.id } }">
@@ -16,10 +16,10 @@
             </NLFlex>
         </template>
     </ContentHeader>
-    <ContentBody v-if="can('view_mission') && forcedRerenderKey !== -1" :key="forcedRerenderKey">
+    <ContentBody v-if="can('view_mission')">
 
         <!-- Mission informations -->
-        <div class="box mb-10" v-if="!pageLoadingState">
+        <div class="box mb-10">
             <Alert v-if="mission?.current?.remaining_days_before_start > 0" type="is-info" isInline extraClass="mb-6">
                 <p>
                     Nous vous informons que la mission débutera le <b>{{ mission?.current?.start }}</b> dans exactement
@@ -28,96 +28,66 @@
                 </p>
             </Alert>
             <NLGrid gap="6">
-                <NLColumn lg="4">
-                    <NLGrid gap="6">
-                        <NLColumn>
-                            <span class="text-bold">
-                                Mission:
-                            </span>
-                            <span>
-                                {{ mission?.current?.reference }}
-                            </span>
-                        </NLColumn>
-                        <NLColumn>
-                            <span class="text-bold">
-                                DRE:
-                            </span>
-                            <span>
-                                {{ mission?.current?.dre.full_name }}
-                            </span>
-                        </NLColumn>
-                        <NLColumn>
-                            <span class="text-bold">
-                                Début:
-                            </span>
-                            <span>
-                                {{ mission?.current?.programmed_start + ' / ' +
-                                    mission?.current?.remaining_days_before_start_str }}
-                            </span>
-                        </NLColumn>
-                    </NLGrid>
+                <!-- Basic informations -->
+                <NLColumn>
+                    <h2>Informations de base</h2>
                 </NLColumn>
-                <NLColumn lg="4">
-                    <NLGrid gap="6">
-                        <NLColumn>
-                            <span class="text-bold">
-                                Campagne:
-                            </span>
-                            <span>
-                                {{ mission?.current?.campaign.reference }}
-                            </span>
-                        </NLColumn>
-                        <NLColumn>
-                            <span class="text-bold">
-                                Agence:
-                            </span>
-                            <span>
-                                {{ mission?.current?.agency.full_name }}
-                            </span>
-                        </NLColumn>
-                        <NLColumn>
-                            <span class="text-bold">
-                                Fin:
-                            </span>
-                            <span>
-                                {{ mission?.current?.end + ' / ' +
-                                    mission?.current?.remaining_days_before_end_str }}
-                            </span>
-                        </NLColumn>
-                    </NLGrid>
+
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Mission:
+                    </span>
+                    <span>
+                        {{ mission?.current?.reference }}
+                    </span>
                 </NLColumn>
-                <NLColumn lg="4">
-                    <NLGrid gap="6">
-                        <NLColumn>
-                            <span class="text-bold">
-                                Contrôleurs dcp:
-                            </span>
-                            <span v-if="mission?.current?.dcp_controllers.length">
-                                <ul class="d-inline-block ml-6">
-                                    <li v-for="controller in mission?.current?.dcp_controllers"
-                                        :key="'dcp-controller-' + controller.id">
-                                        {{ controller.full_name }}
-                                    </li>
-                                </ul>
-                            </span>
-                            <span v-else>-</span>
-                        </NLColumn>
-                        <NLColumn>
-                            <span class="text-bold">
-                                Contrôleurs dre:
-                            </span>
-                            <span>
-                                <ul class="d-inline-block ml-6">
-                                    <li v-for="controller in mission?.current?.dre_controllers"
-                                        :key="'dre_controller-' + controller.id">
-                                        {{ controller.full_name }}
-                                    </li>
-                                </ul>
-                            </span>
-                        </NLColumn>
-                    </NLGrid>
+
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Campagne:
+                    </span>
+                    <span>
+                        {{ mission?.current?.campaign?.reference }}
+                    </span>
                 </NLColumn>
-                <NLColumn lg="4">
+
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Dre:
+                    </span>
+                    <span>
+                        {{ mission?.current?.dre?.full_name }}
+                    </span>
+                </NLColumn>
+
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Agence:
+                    </span>
+                    <span>
+                        {{ mission?.current?.agency?.full_name }}
+                    </span>
+                </NLColumn>
+
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Début:
+                    </span>
+                    <span>
+                        {{ mission?.current?.start }} / {{ mission?.current?.remaining_days_before_start_str }}
+                    </span>
+                </NLColumn>
+
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Fin:
+                    </span>
+                    <span>
+                        {{ mission?.current?.end }} / {{ mission?.current?.remaining_days_before_end_str }}
+                    </span>
+                </NLColumn>
+
+                <NLColumn lg="3">
                     <span class="text-bold">
                         Taux de progression:
                     </span>
@@ -125,12 +95,61 @@
                         {{ mission?.current?.progress_status }}%
                     </span>
                 </NLColumn>
-                <NLColumn lg="4">
+                <NLColumn lg="3">
                     <span class="text-bold">
                         Statut:
                     </span>
                     <span>
-                        {{ mission?.current?.realisation_state }}
+                        {{ current_state_str }}
+                    </span>
+                </NLColumn>
+
+                <!-- Statistics -->
+                <NLColumn>
+                    <div class="divider"></div>
+                </NLColumn>
+
+                <NLColumn>
+                    <h2>Statistiques de base</h2>
+                </NLColumn>
+                <NLColumn lg="4">
+                    <span class="text-bold">
+                        Taux d'anomalie:
+                    </span>
+                    <span>
+                        {{ mission?.current?.anomalies_rate }}%
+                    </span>
+                </NLColumn>
+                <NLColumn lg="4">
+                    <span class="text-bold">
+                        Total anomalies:
+                    </span>
+                    <span>
+                        {{ mission?.current?.total_anomalies || '-' }}
+                    </span>
+                </NLColumn>
+                <NLColumn lg="4">
+                    <span class="text-bold">
+                        Total points à controlé:
+                    </span>
+                    <span>
+                        {{ mission?.current?.total_details }}
+                    </span>
+                </NLColumn>
+                <NLColumn lg="4">
+                    <span class="text-bold">
+                        Faits majeur détéctés:
+                    </span>
+                    <span>
+                        {{ mission?.current?.has_major_facts ? 'Oui' : 'Non' }}
+                    </span>
+                </NLColumn>
+                <NLColumn lg="4">
+                    <span class="text-bold">
+                        Total faits majeurs:
+                    </span>
+                    <span>
+                        {{ mission?.current?.total_major_facts || '-' }}
                     </span>
                 </NLColumn>
                 <NLColumn lg="4">
@@ -138,130 +157,233 @@
                         Moyenne:
                     </span>
                     <span>
-                        {{ mission?.current?.avg_score }}
+                        {{ mission?.current?.avg_score || '-' }}
                     </span>
                 </NLColumn>
-                <NLColumn lg="4" v-if="mission?.current?.cdcr_validation_at">
-                    <span class="text-bold">
-                        1<sup>ère</sup> validation
-                    </span>
-                    <span>
-                        {{ mission?.current?.cdcr_validation_at }}
-                    </span>
+
+                <!-- CDC Note -->
+                <NLColumn>
+                    <div class="divider"></div>
                 </NLColumn>
-                <NLColumn lg="4" v-if="mission?.current?.cdcr_validation_at">
-                    <span class="text-bold">
-                        Validé par:
-                    </span>
-                    <span>
-                        {{ mission?.current?.cdcr_validator?.full_name }}
-                    </span>
-                </NLColumn>
-                <NLColumn lg="4" extraClass="d-none d-lg-block" />
-                <NLColumn lg="4" v-if="mission?.current?.dcp_validation_at">
-                    <span class="text-bold">
-                        2<sup>ème</sup> validation
-                    </span>
-                    <span>
-                        {{ mission?.current?.dcp_validation_at }}
-                    </span>
-                </NLColumn>
-                <NLColumn lg="4" v-if="mission?.current?.dcp_validation_at">
-                    <span class="text-bold">
-                        Validé par:
-                    </span>
-                    <span>
-                        {{ mission?.current?.dcp_validator?.full_name }}
-                    </span>
+
+                <NLColumn>
+                    <h2>Note du chef de département de contrôle DRE:</h2>
                 </NLColumn>
                 <NLColumn>
-                    <span class="text-bold">
-                        Note:
-                    </span>
-                    <div v-if="mission?.current?.note" class="mt-2 content" v-html="mission?.current?.note" />
+                    <div v-if="mission?.current?.note" class="content text-normal" v-html="mission?.current?.note" />
                     <span v-else>-</span>
+                </NLColumn>
+
+                <!-- Signatures -->
+                <NLColumn>
+                    <div class="divider"></div>
+                </NLColumn>
+                <NLColumn>
+                    <h2>Intervenants</h2>
+                </NLColumn>
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Contrôleurs DRE:
+                    </span>
+                    {{ mission?.current?.dre_controllers_str || '-' }}
+                </NLColumn>
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Contrôlé le:
+                    </span>
+                    {{ mission?.current?.ci_validation_at || '-' }}
+                </NLColumn>
+
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Validé par:
+                    </span>
+                    {{ mission?.current?.cdc_validator?.full_name || '-' }}
+                </NLColumn>
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Validé le:
+                    </span>
+                    {{ mission?.current?.cdc_validation_at || '-' }}
+                </NLColumn>
+
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Contrôleurs DCP:
+                    </span>
+                    {{ mission?.current?.dcp_controllers_str || '-' }}
+                </NLColumn>
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Contrôlé le:
+                    </span>
+                    {{ mission?.current?.cc_validation_at || '-' }}
+                </NLColumn>
+
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Validé par:
+                    </span>
+                    {{ mission?.current?.cdcr_validator?.full_name || '-' }}
+                </NLColumn>
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        1<sup>ère</sup> validation:
+                    </span>
+                    {{ mission?.current?.cdcr_validation_at || '-' }}
+                </NLColumn>
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Validé par:
+                    </span>
+                    {{ mission?.current?.dcp_validator?.full_name || '-' }}
+                </NLColumn>
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        2<sup>ème</sup> validation:
+                    </span>
+                    {{ mission?.current?.dcp_validation_at || '-' }}
+                </NLColumn>
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Régularisé par:
+                    </span>
+                    {{ mission?.current?.da_regularizator?.full_name || '-' }}
+                </NLColumn>
+                <NLColumn lg="3">
+                    <span class="text-bold">
+                        Régularisé le
+                    </span>
+                    {{ mission?.current?.da_validation_at || '-' }}
                 </NLColumn>
             </NLGrid>
         </div>
 
-        <!-- Actions -->
-        <div class="d-flex align-items gap-2" v-if="!pageLoadingState">
-            <button v-if="mission?.current?.is_validated_by_dcp && is(['dcp', 'dg', 'ig', 'sg', 'cdrcp', 'der'])"
-                class="btn btn-pdf has-icon" @click="exportReport(false)">
-                <i class="las la-file-contract icon" />
-                Exporter le rapport
-            </button>
-            <!-- CDC -->
-            <button
-                v-if="mission?.current.progress_status == 100 && !mission?.current.cdc_report_exists && mission?.current?.is_validated_by_ci && can('create_cdc_report')"
-                class="btn btn-info" @click="showCommentForm('cdc_report')">
-                Ajouter votre rapport
-            </button>
-            <button
-                v-if="mission?.current.is_validated_by_ci && !mission?.current.is_validated_by_cdc && mission?.current.cdc_report_exists && can('validate_cdc_report')"
-                class="btn btn-success" @click.prevent="validateMission('cdc_report')">
-                Valider la mission
-            </button>
+        <NLFlex lgJustifyContent="start" gap="2">
+            <!-- Actions -->
+            <NLFlex lgJustifyContent="start" gap="2">
+                <button v-if="mission?.current?.pdf_report_exists" class="btn btn-pdf has-icon" @click="exportReport()">
+                    <i class="las la-file-pdf icon" />
+                    Exporter le rapport
+                </button>
 
-            <!-- CI -->
-            <button
-                v-if="mission?.current.progress_status == 100 && !mission?.current.is_validated_by_ci && mission?.current?.ci_report_exists && can('validate_ci_report')"
-                class="btn btn-success" @click.prevent="validateMission('ci_report')">
-                Valider la mission
-            </button>
+                <!-- View report -->
+                <button
+                    v-if="mission?.current.is_validated_by_cdc && is(['dcp', 'cdcr', 'cc', 'dg', 'cdrcp', 'da', 'ig', 'der', 'deac', 'dga'])"
+                    class="btn btn-info has-icon" @click="showCommentForm('cdc_report', true)">
+                    <i class="las la-file-alt icon" />
+                    Conclusion de la mission
+                </button>
 
-            <button
-                v-if="!mission?.current?.ci_report_exists && !mission?.current?.cdc_report_exists && mission?.current?.progress_status == 100 && can('create_ci_report')"
-                class="btn btn-info" @click="showCommentForm('ci_report')">
-                Ajouter votre compte-rendu
-            </button>
+                <!-- Download files -->
+                <button v-if="mission?.current.is_validated_by_cdc" class="btn btn-info has-icon" @click="downloadZip()">
+                    <i class="las la-file-archive icon" />
+                    Pièces jointes
+                </button>
+            </NLFlex>
 
-            <!-- CDCR -->
-            <button
-                v-if="!mission?.current.is_validated_by_cdcr && mission.current.is_validated_by_cdc && can('make_first_validation')"
-                class="btn btn-success" @click.prevent="validateMission('cdcr')">
-                Valider la mission
-            </button>
-            <button
-                v-if="!mission?.current.is_validated_by_cdcr && mission.current.is_validated_by_cdc && can('assign_mission_processing')"
-                class="btn btn-success" @click.prevent="showDispatchForm">
-                Assigné
-            </button>
+            <NLFlex lgJustifyContent="start" gap="2" v-if="is('root')">
+                <button
+                    v-if="mission?.current?.is_validated_by_dcp && showGenerateReportBtn && !mission?.current?.pdf_report_exists"
+                    class="btn btn-pdf has-icon" @click.prevent="generateReport()">
+                    <i class="las la-file-pdf icon" />
+                    Regénérer le rapport
+                </button>
+            </NLFlex>
 
-            <!-- DCP -->
-            <button
-                v-if="mission?.current.is_validated_by_cdcr && !mission?.current.is_validated_by_dcp && can('make_second_validation')"
-                class="btn btn-success" @click.prevent="validateMission('dcp')">
-                Valider la mission
-            </button>
+            <NLFlex lgJustifyContent="start" gap="2" v-if="is('ci')">
+                <button
+                    v-if="mission?.current.progress_status == 100 && !mission?.current.is_validated_by_ci && mission?.current?.ci_report_exists"
+                    class="btn btn-success has-icon" @click.prevent="validateMission('ci')">
+                    <i class="las la-check-circle icon" />
+                    Valider la mission
+                </button>
+                <button v-if="mission?.current?.ci_report_exists" class="btn btn-info has-icon"
+                    @click="showCommentForm('ci_report', true)">
+                    <i class="las la-file-alt icon" />
+                    Compte-rendu de la mission
+                </button>
+                <button
+                    v-if="!mission?.current?.ci_report_exists && !mission?.current?.cdc_report_exists && mission?.current?.progress_status == 100"
+                    class="btn btn-info has-icon" @click="showCommentForm('ci_report')">
+                    <i class="las la-file-medical icon" />
+                    Ajouter votre compte-rendu
+                </button>
+            </NLFlex>
 
-            <!-- View report -->
-            <button v-if="mission?.current.cdc_report_exists && is('cdc')" class="btn btn-info"
-                @click="showCommentForm('cdc_report', true)">
-                Rapport de la mission
-            </button>
-            <button v-if="mission?.current.is_validated_by_cdc && is(['dcp', 'cdcr', 'cc'])" class="btn btn-info"
-                @click="showCommentForm('cdc_report', true)">
-                Rapport de la mission
-            </button>
-            <button v-if="mission?.current.is_validated_by_dcp && is(['dg', 'cdrcp', 'da', 'ig', 'der'])"
-                class="btn btn-info" @click="showCommentForm('cdc_report', true)">
-                Rapport de la mission
-            </button>
+            <NLFlex lgJustifyContent="start" gap="2" v-if="is('cdc')">
+                <button
+                    v-if="mission?.current.progress_status == 100 && !mission?.current.cdc_report_exists && mission?.current?.is_validated_by_ci"
+                    class="btn btn-info has-icon" @click="showCommentForm('cdc_report')">
+                    <i class="las la-file-medical icon" />
+                    Ajouter votre conclusion
+                </button>
+                <button
+                    v-if="mission?.current.is_validated_by_ci && !mission?.current.is_validated_by_cdc && mission?.current.cdc_report_exists"
+                    class="btn btn-success has-icon" @click.prevent="validateMission('cdc')">
+                    <i class="las la-check-circle icon" />
+                    Valider la mission
+                </button>
+                <button v-if="mission?.current.cdc_report_exists" class="btn btn-info has-icon"
+                    @click="showCommentForm('cdc_report', true)">
+                    <i class="las la-file-alt icon" />
+                    Conclusion de la mission
+                </button>
+                <button v-if="mission?.current.is_validated_by_ci" class="btn btn-info has-icon"
+                    @click="showCommentForm('ci_report', true)">
+                    <i class="las la-file-alt icon" />
+                    Compte-rendu de la mission
+                </button>
+            </NLFlex>
 
-            <!-- View ci comment -->
-            <button v-if="mission?.current.is_validated_by_ci && is('cdc')" class="btn btn-info"
-                @click="showCommentForm('ci_report', true)">
-                Compte rendu de la mission
-            </button>
-            <button v-if="mission?.current?.ci_report_exists && is('ci')" class="btn btn-info"
-                @click="showCommentForm('ci_report', true)">
-                Compte rendu de la mission
-            </button>
-        </div>
+            <NLFlex lgJustifyContent="start" gap="2" v-if="is('cdcr')">
+                <button
+                    v-if="mission?.current.is_validated_by_cdc && (mission?.current?.has_dcp_controllers ? mission?.current?.is_validated_by_cc && !mission?.current.is_validated_by_cdcr : !mission?.current.is_validated_by_cdcr)"
+                    class="btn btn-success has-icon" @click.prevent="validateMission('cdcr')">
+                    <i class="las la-check icon" />
+                    Valider la mission
+                </button>
+                <button
+                    v-if="(mission?.current?.has_dcp_controllers ? !mission?.current?.is_validated_by_cc && !mission?.current.is_validated_by_cdcr : !mission?.current.is_validated_by_cdcr) && mission?.current.is_validated_by_cdc"
+                    class="btn btn-success has-icon" @click.prevent="showDispatchForm">
+                    <span v-if="!mission?.current?.dcp_controllers?.length">
+                        Déléguer
+                    </span>
+                    <span v-else>
+                        Modifier l'assignation
+                    </span>
+                </button>
+            </NLFlex>
 
-        <NLDatatable v-if="mission?.current?.id && !pageLoadingState" :columns="columns" :details="details"
-            :filters="filters" title="Liste des processus" :urlPrefix="'missions/' + mission?.current?.id + '/processes'"
+            <NLFlex lgJustifyContent="start" gap="2" v-if="is('cc')">
+                <button
+                    v-if="!mission?.current?.is_validated_by_cc && mission?.current?.is_validated_by_cdc && mission?.current?.dcp_controllers?.some((controller) => controller.id = currentUser.id)"
+                    class="btn btn-success has-icon" @click.prevent="validateMission('cc')">
+                    <i class="las la-check-circle icon" />
+                    Valider la mission
+                </button>
+            </NLFlex>
+
+            <NLFlex lgJustifyContent="start" gap="2" v-if="is('dcp')">
+                <button v-if="mission?.current.is_validated_by_cdcr && !mission?.current.is_validated_by_dcp"
+                    class="btn btn-success has-icon" @click.prevent="validateMission('dcp')">
+                    <i class="las la-check-double icon" />
+                    Valider la mission
+                </button>
+            </NLFlex>
+
+            <NLFlex lgJustifyContent="start" gap="2" v-if="is('da')">
+                <button
+                    v-if="mission?.current?.is_validated_by_dcp && !mission?.current?.is_validated_by_da && mission?.current?.regularization_status == 100"
+                    class="btn btn-success has-icon" @click.prevent="validateMission('da')">
+                    <i class="las la-check-circle icon" />
+                    Valider la mission
+                </button>
+            </NLFlex>
+        </NLFlex>
+
+        <NLDatatable v-if="mission?.current?.id" :columns="columns" :details="details" :filters="filters"
+            title="Liste des processus" :urlPrefix="'missions/' + mission?.current?.id + '/processes'"
             detailsUrlPrefix="processes">
             <template #actions-after="{ item }">
                 <button
@@ -274,13 +396,13 @@
         </NLDatatable>
 
         <!-- Mission comment -->
-        <MissionCommentForm :type="commentType" :mission="mission.current" :readonly="commentReadonly"
+        <MissionCommentForm v-if="mission" :type="commentType" :missionId="mission?.current?.id" :readonly="commentReadonly"
             :show="modals.comment" @success="success" @close="close" />
 
         <!-- Assign mission processing -->
-        <MissionAssignationDetailsForm :mission="mission.current" type="cc"
-            :title="'Assigné le traitement des anomalies de la mission' + mission?.current?.reference"
-            :show="modals.dispatch" @success="success" @close="close" v-if="!pageLoadingState" />
+        <MissionAssignationDetailsForm v-if="mission" :mission="mission?.current" type="cc"
+            :title="'Assigné le traitement des anomalies de la mission ' + mission?.current?.reference"
+            :show="modals.dispatch" @success="success" @close="close({ type: 'dispatch' })" />
     </ContentBody>
 </template>
 
@@ -290,7 +412,7 @@ import MissionAssignationDetailsForm from '../../forms/MissionAssignationDetails
 import { mapGetters } from 'vuex'
 import { Form } from 'vform'
 import api from '../../plugins/api'
-import { hasRole } from '../../plugins/user'
+import { hasRole, user } from '../../plugins/user'
 export default {
     components: {
         MissionCommentForm,
@@ -300,22 +422,26 @@ export default {
     middleware: [ 'auth' ],
     data() {
         return {
-            forcedRerenderKey: -1,
             controllersList: [],
             commentType: null,
             commentReadonly: false,
+            showGenerateReportBtn: false,
+            currentUser: null,
             columns: [
                 {
                     label: 'Famille',
-                    field: 'familly'
+                    field: 'family',
+                    sortable: true,
                 },
                 {
                     label: 'Domaine',
-                    field: 'domain'
+                    field: 'domain',
+                    sortable: true,
                 },
                 {
                     label: 'Processus',
-                    field: 'name'
+                    field: 'name',
+                    sortable: true,
                 },
                 {
                     label: 'Total points de contrôle',
@@ -324,23 +450,29 @@ export default {
                     sortable: true,
                 },
                 {
-                    label: 'Taux de progression',
-                    field: 'progress_status',
+                    label: 'Total anomalies',
+                    field: 'total_anomalies',
                     align: 'center',
                     sortable: true,
-                    hide: !hasRole([ 'ci', 'cdc' ]),
+                },
+                {
+                    label: 'Taux d\'anomalies',
+                    field: 'anomalies_rate',
+                    align: 'center',
+                    sortable: true,
                     methods: {
                         showField(item) {
-                            return item.progress_status + '%'
+                            return item.anomalies_rate + '%'
                         }
                     }
                 },
                 {
-                    label: 'Moyenne',
+                    label: 'Note moyenne',
                     field: 'avg_score',
                     hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
                     isHtml: true,
                     align: 'center',
+                    sortable: true,
                     methods: {
                         showField(item) {
                             const score = Number(item.avg_score)
@@ -359,7 +491,25 @@ export default {
                             return `<div class="has-border-radius py-2 px-4 text-center d-inline-block ${style}">${score}</div>`
                         }
                     }
-                }
+                },
+                {
+                    label: 'Fait majeur',
+                    field: 'major_fact',
+                    align: 'center',
+                    sortable: true,
+                },
+                {
+                    label: 'Taux de progression',
+                    field: 'progress_status',
+                    align: 'center',
+                    sortable: true,
+                    hide: !hasRole([ 'ci', 'cdc' ]),
+                    methods: {
+                        showField(item) {
+                            return item.progress_status + '%'
+                        }
+                    }
+                },
             ],
             details: [
                 {
@@ -391,7 +541,6 @@ export default {
                 dispatch: false
             },
             forms: {
-                // comment: {},
                 dispatch: new Form({
                     controllers: []
                 }),
@@ -403,16 +552,48 @@ export default {
             mission: 'missions/current',
             pageLoadingState: 'settings/pageIsLoading',
         }),
-    },
-    watch: {
-        mission: {
-            immediate: true,
-            deep: true,
-            handler(newValue, oldValue) {
-                if (newValue) {
-                    this.forcedRerenderKey = newValue.current.id
-                }
+        current_state_str() {
+            const TODO_STR = 'À réaliser';
+            const ACTIVE_STR = 'En cours';
+            const PENDING_CDC_VALIDATION_STR = 'En attente de validation CDC';
+            const PENDING_CC_VALIDATION_STR = 'En attente de validation CC';
+            const PENDING_CDCR_VALIDATION_STR = 'En attente de validation CDCR';
+            const PENDING_DCP_VALIDATION_STR = 'En attente de validation DCP';
+            const PENDING_DA_VALIDATION_STR = 'En attente de validation DA';
+            const DONE_STR = 'Réalisée, validée et régularisée';
+            let status = ''
+            let is_late = this.mission?.current?.is_late ? ' / En retard' : ''
+
+            switch (Number(this.mission?.current?.current_state)) {
+                case 1:
+                    status = TODO_STR
+                    break;
+                case 2:
+                    status = ACTIVE_STR
+                    break;
+                case 3:
+                    status = PENDING_CDC_VALIDATION_STR
+                    break;
+                case 4:
+                    status = PENDING_CC_VALIDATION_STR
+                    break;
+                case 5:
+                    status = PENDING_CDCR_VALIDATION_STR
+                    break;
+                case 6:
+                    status = PENDING_DCP_VALIDATION_STR
+                    break;
+                case 7:
+                    status = PENDING_DA_VALIDATION_STR
+                    break;
+                case 8:
+                    status = DONE_STR
+                    break;
+                default:
+                    status = TODO_STR
+                    break;
             }
+            return status + is_late
         }
     },
     created() {
@@ -421,24 +602,35 @@ export default {
     methods: {
         /**
          * Export or Preview report
-         *
-         * @param {Boolean} preview
          */
-        exportReport(preview) {
-            let url = '/api/missions/' + this.mission.current.id + '/export?type=pdf'
-            if (preview) {
-                url += '&mode=preview'
-            } else {
-                url += '&mode=download'
-            }
-            window.open(url)
+        generateReport() {
+            this.showGenerateReportBtn = false
+            this.$api.get('missions/' + this.mission?.current?.id + '/report?action=generate').then((response) => {
+                this.$swal.alert_success('La génération du rapport de la mission ' + this.mission?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.', 'Génération du rapport PDF')
+            }).catch((error) => {
+                console.log(error);
+            })
+        },
+        /**
+         * Download mission's and detail's media
+         *
+         */
+        downloadZip() {
+            window.open('/zip/Mission/' + this.mission?.current?.id)
+        },
+        /**
+         * Export or Preview report
+         *
+         */
+        exportReport() {
+            window.open('/missions/' + this.mission?.current?.id + '/report?action=export')
         },
 
         /**
          * Dispatch mission
          */
         dispatchMission() {
-            this.forms.dispatch.put('missions/' + this.mission.current.id + '/assign').then(response => {
+            this.forms.dispatch.put('missions/' + this.mission?.current?.id + '/assign').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.initData()
@@ -454,18 +646,9 @@ export default {
          * Show dispatch mission form to cc
          */
         showDispatchForm() {
-            // const filters = {
-            //     roles_codes: 'cc'
-            // }
-            // this.$store.dispatch('users/fetchAll', filters).then(() => {
-            //     this.controllersList = this.users.all
-            //     this.forms.dispatch.controllers = this.mission.current.dcp_controllers.map(controller => controller.id)
-            // })
-            // this.$sotre.dispatch('missions/fetch', { missionId: this.mission.id, onlyProcesses: true }).then(() => {
-            //     console.log(this.current);
-            // }).catch(error => console.log(error))
             this.modals.dispatch = true
         },
+
         /**
          * Show mission comment (ci opinion, cdc report)
          */
@@ -478,11 +661,12 @@ export default {
                 this.showCiReport(readonly)
             }
         },
+
         /**
-                 * Initialize ci opinion data
-                 *
-                 * @param {Boolean} readonly
-                 */
+         * Initialize ci opinion data
+         *
+         * @param {Boolean} readonly
+         */
         showCiReport(readonly) {
             this.modals.comment = true
             this.commentType = 'ci_report'
@@ -499,15 +683,19 @@ export default {
             this.commentType = 'cdc_report'
             this.commentReadonly = readonly
         },
+
         /**
          * Validate mission
          */
         validateMission(type) {
-            this.$swal.confirm({ title: 'Mission ' + this.mission.current.reference, message: 'Vous êtes sur de vouloir valider la mission ' + this.mission.current.reference }).then((action) => {
+            this.$swal.confirm({ title: 'Mission ' + this.mission?.current.reference, message: 'Vous êtes sur de vouloir valider la mission ' + this.mission?.current.reference }).then((action) => {
                 if (action.isConfirmed) {
-                    api.put('/missions/' + this.mission.current.id + '/validate/' + type).then(response => {
+                    api.put('/missions/' + this.mission?.current.id + '/validate/' + type).then(response => {
                         if (response.data.status) {
                             this.$swal.toast_success(response.data.message)
+                            if (type == 'dcp') {
+                                this.$swal.alert_success('La génération du rapport de la mission ' + this.mission?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.', 'Génération du rapport PDF')
+                            }
                             this.initData()
                         } else {
                             this.$swal.alert_error(response.data.message)
@@ -524,7 +712,11 @@ export default {
          */
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
+            this.currentUser = user()
             this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId }).then(() => {
+                this.$api.get('missions/' + this.mission?.current?.id + '/report/check-if-is-generated').then((response) => {
+                    this.showGenerateReportBtn = !response.data
+                })
                 const length = this.$breadcrumbs.value.length
                 if (this.$breadcrumbs.value[ length - 1 ].label === 'Mission') { this.$breadcrumbs.value[ length - 1 ].label = 'Mission ' + this.mission?.current?.reference }
                 this.$store.dispatch('settings/updatePageLoading', false)
@@ -539,8 +731,9 @@ export default {
         showProcess(item) {
             item = item?.item?.id ? item.item : item
             name = 'mission-details'
-            return this.$router.push({ name, params: { missionId: this.mission.current.id, processId: item.id } })
+            return this.$router.push({ name, params: { missionId: this.mission?.current.id, processId: item.id } })
         },
+
         /**
          * Destroy mission
          */
@@ -560,6 +753,7 @@ export default {
                 }
             })
         },
+
         /**
          * Close modals
          */
@@ -580,9 +774,9 @@ export default {
                         this.showCdcReport(true)
                     }
                 }
-                console.log('reloaded');
             }
         },
+
         /**
          * Handle success event
          */

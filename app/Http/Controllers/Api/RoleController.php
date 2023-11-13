@@ -57,7 +57,7 @@ class RoleController extends Controller
                 'name' => $data['name'],
                 'code' => $data['code']
             ]);
-            $role->permissions()->sync($data['permissions']);
+            // $role->permissions()->sync($data['permissions']);
 
             return response()->json([
                 'message' => CREATE_SUCCESS,
@@ -99,7 +99,7 @@ class RoleController extends Controller
                 'code' => $data['code']
             ]);
 
-            $role->permissions()->sync($data['permissions']);
+            // $role->permissions()->sync($data['permissions']);
             return response()->json([
                 'message' => UPDATE_SUCCESS,
                 'status' => true,
@@ -121,6 +121,7 @@ class RoleController extends Controller
     public function destroy(Role $role): JsonResponse
     {
         isAbleOrAbort('delete_role');
+        abort_if(!hasRole('root'), 401);
         try {
             $role->delete();
             return response()->json([

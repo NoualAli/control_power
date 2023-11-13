@@ -1,6 +1,6 @@
 <template>
     <div class="container-fluid text-center d-flex full-center is-column">
-        <img src="/images/404.svg" class="vh-lg-70 vh-50 vw-100" alt="">
+        <img src="/app/images/404.svg" class="vh-lg-70 vh-50 vw-100" alt="">
         <div class="links">
             <router-link :to="{ name: 'home' }" class="btn has-icon text-bold">
                 <i class="las la-hand-point-left icon"></i>
@@ -14,6 +14,9 @@
 <script>
 export default {
     name: 'NotFound',
-    layout: 'backend'
+    layout: 'MainLayout',
+    created() {
+        this.$store.dispatch('settings/updatePageLoading', false)
+    }
 }
 </script>

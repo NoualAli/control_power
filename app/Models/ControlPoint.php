@@ -27,7 +27,7 @@ class ControlPoint extends BaseModel
 
     protected $perPage = 10;
 
-    protected $searchable = ['name', 'domain.name', 'familly.name', 'process.name'];
+    protected $searchable = ['name', 'domain.name', 'family.name', 'process.name'];
 
     protected $appends = ['scores_str', 'major_fact_str'];
 
@@ -50,11 +50,29 @@ class ControlPoint extends BaseModel
     {
         $scores = $this->scores;
         $scores_str = '';
-        $containerStart = '<div class="d-flex justify-start align-center gap-2 my-2">';
+        $containerStart = '<div class="tags gap-2 my-2 w-100">';
         $containerEnd = '</div>';
         if (is_array($scores)) {
             foreach ($scores as $score) {
-                $scores_str .= '<span class="tag"><b>' . $score[1]->label . ':</b> ' . $score[0]->score . '</span>';
+                $tagType = '';
+                switch ($score[0]->score) {
+                    case 1:
+                        $tagType = 'is-success';
+                        break;
+                    case 2:
+                        $tagType = 'is-info';
+                        break;
+                    case 3:
+                        $tagType = 'is-warning';
+                        break;
+                    case 4:
+                        $tagType = 'is-danger';
+                        break;
+                    default:
+                        $tagType = 'is-primary';
+                        break;
+                }
+                $scores_str .= '<div class="tag ' . $tagType . '"><b>' . $score[1]->label . ':</b> ' . $score[0]->score . '</div>';
             }
         }
         return $containerStart . $scores_str . $containerEnd;
@@ -72,12 +90,24 @@ class ControlPoint extends BaseModel
         return $scores_arr;
     }
 
+    public function getScoresArrNumAttribute()
+    {
+        $scores = $this->scores;
+        $scores_arr = [];
+        if (is_array($scores)) {
+            foreach ($scores as $score) {
+                array_push($scores_arr, intval($score[0]->score));
+            }
+        }
+        return $scores_arr;
+    }
+
     /**
      * Relationships
      */
-    public function familly()
+    public function family()
     {
-        return $this->belongsToThrough(Familly::class, [Domain::class, Process::class]);
+        return $this->belongsToThrough(Family::class, [Domain::class, Process::class]);
     }
     public function process()
     {

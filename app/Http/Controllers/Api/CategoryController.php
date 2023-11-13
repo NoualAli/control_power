@@ -154,8 +154,8 @@ class CategoryController extends Controller
      */
     private function loadProcesses($families)
     {
-        return Process::whereHas('familly', function ($query) use ($families) {
-            return $query->whereIn('famillies.id', $families);
+        return Process::whereHas('family', function ($query) use ($families) {
+            return $query->whereIn('families.id', $families);
         })->get();
     }
 }

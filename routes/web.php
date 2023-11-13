@@ -1,8 +1,10 @@
 <?php
 
-use App\Http\Controllers\Api\ControlCompaignController;
-use App\Http\Controllers\ExcelReaderController;
-use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\Api\BackupController;
+use App\Http\Controllers\Api\MissionController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\ZipController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,8 +18,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/excel-reader', ExcelReaderController::class);
-
-Route::get('/artisan', function () {
-    Artisan::call('optimize:clear');
+Route::prefix('excel-export')->controller(ExportController::class)->group(function () {
+    Route::get('/', 'export');
 });
+
+Route::prefix('backup-db')->controller(BackupController::class)->group(function () {
+    Route::get('{filname}', 'download');
+});
+
+Route::prefix('zip')->controller(ZipController::class)->group(function () {
+    Route::get('{type}/{id}', 'download');
+});
+
+Route::prefix('missions')->controller(MissionController::class)->group(function () {
+    Route::get('/{mission}/report', 'handleReport');
+});
+
+Route::get('logout', [LoginController::class, 'logout']);

@@ -18,8 +18,8 @@ class ControlCampaign extends BaseModel
 
     protected $fillable = [
         'description',
-        'start',
-        'end',
+        'start_date',
+        'end_date',
         'reference',
         'created_by_id',
         'validated_by_id',
@@ -44,6 +44,14 @@ class ControlCampaign extends BaseModel
     /**
      * Getters
      */
+    public function getStartDateAttribute($start_date){
+        return \Carbon\Carbon::parse($start_date)->format('d-m-Y');
+    }
+
+    public function getEndDateAttribute($end_date){
+        return \Carbon\Carbon::parse($end_date)->format('d-m-Y');
+    }
+
     public function getIsValidatedAttribute()
     {
         return boolval($this->validated_at) && boolval($this->validated_by_id);

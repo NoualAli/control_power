@@ -11,7 +11,7 @@ class IsRegularized extends QueryFilter implements FilterContract
     {
         if ($value == 'Levée') {
             $this->query->onlyRegularized();
-        } else {
+        } else if ($value == 'Non levée') {
             $this->query->onlyUnregularized();
         }
     }

@@ -5,17 +5,19 @@
             <NLForm :action="update" :form="form">
                 <NLColumn>
                     <NLWyswyg v-model="form.description" :form="form" name="description" label="Description"
-                        placeholder="Ajouter une description" label-required />
+                        placeholder="Ajouter une description" label-required :length="3000" />
                 </NLColumn>
                 <NLColumn lg="4">
                     <NLInput name="reference" :value="form.reference" :form="form" label="Référence" readonly
                         label-required />
                 </NLColumn>
                 <NLColumn lg="4" md="6">
-                    <NLInput v-model="form.start" :form="form" name="start" label="Date début" type="date" label-required />
+                    <NLInput v-model="form.start_date" :form="form" name="start_date" label="Date début" type="date"
+                        label-required />
                 </NLColumn>
                 <NLColumn lg="4" md="6">
-                    <NLInput v-model="form.end" :form="form" name="end" label="Date fin" type="date" label-required />
+                    <NLInput v-model="form.end_date" :form="form" name="end_date" label="Date fin" type="date"
+                        label-required />
                 </NLColumn>
                 <NLColumn>
                     <NLSelect v-if="!readonly.pcf" v-model="form.pcf" :form="form" name="pcf" :options="pcfList" label="PCF"
@@ -25,7 +27,7 @@
                 <!-- Submit Button -->
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
-                        <NLButton :loading="form.busy" label="Mettre à jour" />
+                        <NLButton :loading="formIsLoading" label="Mettre à jour" />
                     </NLFlex>
                 </NLColumn>
             </NLForm>
@@ -42,10 +44,11 @@ export default {
     data() {
         return {
             forcedRerenderKey: -1,
+            formIsLoading: false,
             pcfList: [],
             readonly: {
-                start: true,
-                end: true,
+                start_date: true,
+                end_date: true,
                 pcf: true
             },
             form: new Form({
@@ -58,7 +61,7 @@ export default {
         }
     },
     computed: mapGetters({
-        famillies: 'famillies/all',
+        families: 'families/all',
         campaign: 'campaigns/current'
     }),
     watch: {
@@ -84,11 +87,12 @@ export default {
          */
         update() {
             // console.log(this.$route.params.campaignId)
-
+            this.formIsLoading = true
             this.form.put('campaigns/' + this.$route.params.campaignId).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.$router.push({ name: 'campaign', params: { campaignId: this.$route.params.campaignId } })
+                    this.formIsLoading = false
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }
@@ -100,9 +104,9 @@ export default {
          * Récupère la liste des familles -> domaines -> processus
          */
         loadPFC() {
-            this.$store.dispatch('famillies/fetchAll', true).then(() => {
-                // console.log(typeof this.famillies.all)
-                this.pcfList = this.famillies.all
+            this.$store.dispatch('families/fetchAll', true).then(() => {
+                // console.log(typeof this.families.all)
+                this.pcfList = this.families.all
             })
         },
         initData() {
@@ -111,14 +115,14 @@ export default {
                 if (this.campaign?.current?.validated_by_id) {
                     this.$router.push({ name: 'campaigns' })
                 }
-                this.readonly.start = this.campaign?.current?.remaining_days_before_start <= 5
-                this.readonly.end = this.campaign?.current?.remaining_days_before_start <= 5
+                this.readonly.start_date = this.campaign?.current?.remaining_days_before_start <= 5
+                this.readonly.end_date = this.campaign?.current?.remaining_days_before_start <= 5
                 this.readonly.pcf = this.campaign?.current?.remaining_days_before_start <= 5
                 this.loadPFC()
                 this.form.description = this.campaign?.current?.description
                 this.form.reference = this.campaign?.current?.reference
-                this.form.start = this.campaign?.current?.start.split('-').reverse().join('-')
-                this.form.end = this.campaign?.current?.end.split('-').reverse().join('-')
+                this.form.start_date = this.campaign?.current?.start_date.split('-').reverse().join('-')
+                this.form.end_date = this.campaign?.current?.end_date.split('-').reverse().join('-')
                 this.form.pcf = this.campaign?.current?.processes.map((process) => process.id)
                 const length = this.$breadcrumbs.value.length
                 if (this.$breadcrumbs.value[ length - 1 ].label === 'Détails campagne') {

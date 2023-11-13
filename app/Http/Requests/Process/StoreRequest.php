@@ -24,7 +24,7 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'familly_id' => ['required', 'exists:famillies,id'],
+            'family_id' => ['required', 'exists:families,id'],
             'domain_id' => ['required', 'exists:domains,id'],
             'name' => ['required', 'string', 'max:255', 'unique:processes']
         ];

@@ -33,15 +33,21 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $fillable = [
+        'id',
         'username',
         'email',
         'password',
         'last_name',
         'first_name',
-        'role_id',
-        'dre_id',
         'phone',
-        'must_change_password'
+        'must_change_password',
+        'active_role_id',
+        'gender',
+        'is_active',
+        'registration_number',
+        'active_post',
+        'first_login_password',
+        'is_notified',
     ];
 
     /**
@@ -62,16 +68,39 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'created_at' => 'datetime',
         'must_change_password' => 'boolean',
+        'is_active' => 'boolean',
+        'gender' => 'integer',
     ];
 
     public $searchable = ['last_name', 'first_name', 'username', 'email', 'phone'];
 
-    protected $appends = ['full_name', 'abbreviated_name', 'roles_str', 'dres_str', 'authorizations', 'permissions_arr'];
+    protected $appends = ['full_name', 'abbreviated_name', 'dres_str', 'gender_str', 'martial_status', 'full_name_with_martial', 'authorizations', 'permissions_arr', 'agencies_str'];
 
     /**
      * Getters
      */
+    // public function getRegistrationNumberAttribute()
+    // {
+    //     return str_pad($this->registration_number, 5, '0', STR_PAD_LEFT);
+    // }
+
+    public function getCreatedAtAttribute($created_at)
+    {
+        return \Carbon\Carbon::parse($created_at)->format('d-m-Y');
+    }
+
+    public function getGenderStrAttribute()
+    {
+        return $this->gender == 1 ? 'Homme' : 'Femme';
+    }
+
+    public function getMartialStatusAttribute()
+    {
+        return $this->gender == 1 ? 'Mr' : 'Mme';
+    }
+
     public function getAuthorizationsAttribute()
     {
         $authorizations = [];
@@ -83,7 +112,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function getPermissionsArrAttribute()
     {
-        return $this->roles->pluck('permissions')->flatten()->pluck('name')->toArray();
+        return $this->roles->pluck('permissions')->flatten()->pluck('code')->toArray();
     }
     public function getAbbreviatedNameAttribute()
     {
@@ -93,6 +122,12 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->first_name && $this->last_name ? ucfirst(strtolower($this->first_name)) . ' ' . ucfirst(strtolower($this->last_name)) : $this->username;
     }
+
+    public function getFullNameWithMartialAttribute()
+    {
+        return $this->full_name ? $this->martial_status . ' ' . $this->full_name : null;
+    }
+
     public function getUsernameAttribute($username)
     {
         return strtoupper($username);
@@ -142,8 +177,9 @@ class User extends Authenticatable implements JWTSubject
             return $this->hasMany(Mission::class, 'created_by_id');
         } elseif (hasRole('ci')) {
             return $this->belongsToMany(Mission::class, 'mission_has_controllers');
-        } elseif (hasRole('cc', $this)) {
-            return $this->hasManyThrough(Mission::class, MissionDetail::class, 'assigned_to_cc_id');
+        } elseif (hasRole('cc')) {
+            return Mission::whereRelation('details', 'assigned_to_cc_id', $this->id)->distinct();
+            return $this->hasManyThrough(Mission::class, MissionDetail::class, 'mission_details.assigned_to_cc_id', 'missions.id', 'users.id', 'mission_details.mission_id')->distinct('id');
         } elseif (hasRole(['da', 'dre'])) {
             return $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->missions());
         }
@@ -164,16 +200,16 @@ class User extends Authenticatable implements JWTSubject
         }
     }
 
-    public function details()
+    public function details(User $user = null)
     {
         try {
-            if (hasRole('ci')) {
+            if (hasRole('ci', $user)) {
                 return $this->hasManyDeep(MissionDetail::class, [MissionHasController::class, Mission::class]);
-            } else if (hasRole('cc')) {
+            } else if (hasRole('cc', $user)) {
                 return $this->hasMany(MissionDetail::class, 'assigned_to_cc_id');
-            } elseif (hasRole('cdc')) {
+            } elseif (hasRole('cdc', $user)) {
                 return $this->hasManyDeep(MissionDetail::class, [Mission::class], ['created_by_id']);
-            } elseif (hasRole(['da', 'dre'])) {
+            } elseif (hasRole(['da', 'dre'], $user)) {
                 return $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->details());
             }
         } catch (\Throwable $th) {
@@ -200,6 +236,11 @@ class User extends Authenticatable implements JWTSubject
     public function logins()
     {
         return $this->hasMany(Login::class);
+    }
+
+    public function last_login()
+    {
+        return $this->hasOne(Login::class)->orderBy('last_activity', 'DESC');
     }
 
     public function bugs()
@@ -321,8 +362,11 @@ class User extends Authenticatable implements JWTSubject
 
     public function scopeWhereRoles(Builder $query, $roles)
     {
-        return $query->whereHas('roles', function ($query) use ($roles) {
-            return $query->whereIn('code', $roles);
+        return $query->whereHas('role', function ($query) use ($roles) {
+            if (is_array($roles)) {
+                return $query->whereIn('code', $roles);
+            }
+            return $query->where('code', $roles);
         });
     }
 }

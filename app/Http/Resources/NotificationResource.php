@@ -17,7 +17,7 @@ class NotificationResource extends JsonResource
     {
         $createdAt = $this->created_at ? Carbon::parse($this->created_at)->diffForHumans() : '-';
         $readAt = $this->read_at ? Carbon::parse($this->read_at)->diffForHumans() : null;
-        $content = isset($this->data['content']) ? $this->data['content'] : '-';
+        $short_content = isset($this->data['short_content']) ? $this->data['short_content'] : $this->data['content'];
         $title = isset($this->data['title']) ? $this->data['title'] : '-';
         $routeName = isset($this->data['routeName']) ? $this->data['routeName'] : '-';
         $paramNames = isset($this->data['paramNames']) ? $this->data['paramNames'] : '-';
@@ -26,7 +26,7 @@ class NotificationResource extends JsonResource
         $emitted_by = isset($this->data['emitted_by']) ? $this->data['emitted_by'] : '-';
         return [
             'id' => $this->id,
-            'content' => $content,
+            'short_content' => $short_content,
             'title' => $title,
             'created_at' => $createdAt,
             'read_at' => $readAt,

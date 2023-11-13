@@ -18,3 +18,18 @@
     &::after
         background: linear-gradient(to left, rgba(240,240,240,0),$dracula)
         margin-left: 4vh
+
+.divider
+    position: relative
+    width: 95%
+    margin: 10px auto
+    &::after
+        content: ''
+        position: absolute
+        width: 100%
+        background-color: $primary
+        height: 2px
+        border-radius: 50%
+        @for $i from 2 through 10
+            & .is-#{$i}
+                height: $i*.25

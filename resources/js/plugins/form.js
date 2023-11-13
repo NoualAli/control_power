@@ -4,6 +4,8 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import store from '~/store'
 import * as swal from '../plugins/swal'
+import { encryptData } from './crypto'
+
 
 const instance = axios.create({
     headers: {
@@ -19,11 +21,10 @@ instance.interceptors.response.use(response => response, error => {
     const status = error?.response?.status
     let message = error?.response?.data?.message
     const title = status + ' ' + error?.response?.statusText
-    if (status === 401 && store.getters[ 'auth/check' ]) {
-        swal.alert_error(message, title)
+    if (status === 401) {
+        swal.alert_error(message, "Erreur 401")
             .then(() => {
                 store.commit('auth/LOGOUT')
-                location.reload()
             })
     }
     if (status === 422) {
@@ -100,7 +101,11 @@ instance.interceptors.request.use(request => {
     }
 
     // request.headers['X-Socket-Id'] = Echo.socketId()
-
+    // Encrypt the request data
+    // if (request.data) {
+    //     request.data = encryptData(JSON.stringify(request.data));
+    //     console.log(request.data);
+    // }
     return request
 })
 

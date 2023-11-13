@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
 class Media extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, HasUuid;
 
     protected $fillable = [
         'original_name',
@@ -19,9 +20,14 @@ class Media extends BaseModel
         'attachable_type',
         'attachable_id',
         'uploaded_by_id',
+        'payload'
     ];
 
-    protected $appends = ['link', 'type', 'path', 'icon'];
+    protected $appends = ['link', 'type', 'path', 'icon', 'is_owner'];
+
+    protected $casts = [
+        'payload' => 'object'
+    ];
 
     /**
      * @return string
@@ -76,6 +82,9 @@ class Media extends BaseModel
             case 'svg':
                 $icon = 'las la-file-image';
                 break;
+            case 'tif':
+                $icon = 'las la-file-image';
+                break;
             case 'xls':
                 $icon = 'las la-file-excel text-office-excel';
                 break;
@@ -99,6 +108,12 @@ class Media extends BaseModel
                 break;
         }
         return $icon;
+    }
+
+    public function getIsOwnerAttribute()
+    {
+        return true;
+        // return auth()->user()->id == $this->uploaded_by_id;
     }
 
     /**

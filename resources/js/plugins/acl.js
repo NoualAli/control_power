@@ -1,268 +1,115 @@
-// import { define } from "vue";
 import api from './api'
 import { hasRole, isAbleTo } from './user'
+import { ls_get } from './crypto'
 
-// const app = window.$app
 // app.mixin() there is no longer mixin in vue
 // gotta find a solution for such
 export const aclMixin = {
-  computed: {
-    can () {
-      return (permissions) => {
-        return isAbleTo(permissions)
-      }
-    },
-    is () {
-      return (roles) => {
-        return hasRole(roles)
-      }
+    computed: {
+        can() {
+            return (permissions) => {
+                return isAbleTo(permissions)
+            }
+        },
+        is() {
+            return (roles) => {
+                return hasRole(roles)
+            }
+        }
     }
-  }
 }
 /**
  * v-can: Check user abilities to determine if he can perform or not some action
 */
 
 const directives = {
-  'can': {
-    bind: function (el, binding, vnode) {
-      const can = []
-      const permissions = JSON.parse(localStorage.getItem('permissions')) || []
-      const abilities = (binding.value || '').split(/\s*,\s*/)
-      const vifDirective = checkVIfDire(vnode, binding)
-      abilities.forEacg(ability => {
-        can.push(!Object.prototype.hasOwnProperty.call(permissions, ability.trim()) || vifDirective)
-      })
-      if (can.every(value => value === true)) {
-        customComment(vnode, el)
-      }
-    },
-    update: function (el, binding, vnode) {
-      const can = []
-      const permissions = JSON.parse(localStorage.getItem('permissions')) || []
-      const abilities = (binding.value || '').split(/\s*,\s*/)
-      const vifDirective = checkVIfDire(vnode, binding)
-      abilities.forEacg(ability => {
-        can.push(!Object.prototype.hasOwnProperty.call(permissions, ability.trim()))
-      })
-      if (vifDirective || can.every(value => value === true)) {
-        customComment(vnode, el)
-      }
-    }
-  },
-  'can-hide': {
-    bind: function (el, binding, vnode) {
-      const permissions = JSON.parse(localStorage.getItem('permissions')) || []
-      const abilities = (binding.value || '').split(/\s*,\s*/)
-      abilities.forEach(ability => {
-        if (!Object.prototype.hasOwnProperty.call(permissions, ability.trim())) {
-          el.style.display = 'none'
+    'can-hide': {
+        bind: function (el, binding, vnode) {
+            const permissions = JSON.parse(ls_get('permissions')) || []
+            const abilities = (binding.value || '').split(/\s*,\s*/)
+            abilities.forEach(ability => {
+                if (!Object.prototype.hasOwnProperty.call(permissions, ability.trim())) {
+                    el.style.display = 'none'
+                }
+            })
         }
-      })
-    }
-  },
-  'can-strict': {
-    bind: function (el, binding, vnode) {
-      const can = []
-      const permissions = JSON.parse(localStorage.getItem('permissions')) || []
-      const abilities = (binding.value || '').split(/\s*,\s*/)
-      const vifDirective = checkVIfDire(vnode, binding)
-      abilities.forEach(ability => {
-        can.push(!Object.prototype.hasOwnProperty.call(permissions, ability.trim()) && vifDirective)
-      })
-      if (can.every(value => value === true)) {
-        customComment(vnode, el)
-      }
     },
-    update: function (el, binding, vnode) {
-      const can = []
-      const permissions = JSON.parse(localStorage.getItem('permissions')) || []
-      const abilities = (binding.value || '').split(/\s*,\s*/)
-      const vifDirective = checkVIfDire(vnode, binding)
-      abilities.forEach(ability => {
-        can.push(!Object.prototype.hasOwnProperty.call(permissions, ability.trim()) && vifDirective)
-      })
-      if (can.every(value => value === true)) {
-        customComment(vnode, el)
-      }
-    }
-  },
-  'has-role': {
-    bind: function (el, binding, vnode) {
-      const roles = JSON.parse(localStorage.getItem('roles')) || []
-      const data = (binding.value || '').split(/\s*,\s*/)
-      const vifDirective = checkVIfDire(vnode, binding)
-      const hasRole = data.some(item => roles.some(role => role.code === item.trim()))
-      if (!hasRole && !vifDirective) {
-        customComment(vnode, el)
-      }
+    'can-strict': {
+        bind: function (el, binding, vnode) {
+            const can = []
+            const permissions = JSON.parse(ls_get('permissions')) || []
+            const abilities = (binding.value || '').split(/\s*,\s*/)
+            const vifDirective = checkVIfDire(vnode, binding)
+            abilities.forEach(ability => {
+                can.push(!Object.prototype.hasOwnProperty.call(permissions, ability.trim()) && vifDirective)
+            })
+            if (can.every(value => value === true)) {
+                customComment(vnode, el)
+            }
+        },
+        update: function (el, binding, vnode) {
+            const can = []
+            const permissions = JSON.parse(ls_get('permissions')) || []
+            const abilities = (binding.value || '').split(/\s*,\s*/)
+            const vifDirective = checkVIfDire(vnode, binding)
+            abilities.forEach(ability => {
+                can.push(!Object.prototype.hasOwnProperty.call(permissions, ability.trim()) && vifDirective)
+            })
+            if (can.every(value => value === true)) {
+                customComment(vnode, el)
+            }
+        }
     },
-    update: function (el, binding, vnode) {
-      const roles = JSON.parse(localStorage.getItem('roles')) || []
-      const data = (binding.value || '').split(/\s*,\s*/)
-      const hasRole = data.some(item => roles.some(role => role.code === item.trim()))
-      const vifDirective = checkVIfDire(vnode, binding)
-      if (!hasRole && !vifDirective) {
-        customComment(vnode, el)
-      }
-    }
-  },
-  'is-current-user': {
-    bind: function (el, binding, vnode) {
-      hide(binding, el)
-      const user = binding.value
-      api.get('user').then((response) => {
-        if (response.data.id !== user) {
-          customComment(vnode, el)
-        } else {
-          show(binding, el)
+    'has-role': {
+        bind: function (el, binding, vnode) {
+            const roles = JSON.parse(ls_get('roles')) || []
+            const data = (binding.value || '').split(/\s*,\s*/)
+            const vifDirective = checkVIfDire(vnode, binding)
+            const hasRole = data.some(item => roles.some(role => role.code === item.trim()))
+            if (!hasRole && !vifDirective) {
+                customComment(vnode, el)
+            }
+        },
+        update: function (el, binding, vnode) {
+            const roles = JSON.parse(ls_get('roles')) || []
+            const data = (binding.value || '').split(/\s*,\s*/)
+            const hasRole = data.some(item => roles.some(role => role.code === item.trim()))
+            const vifDirective = checkVIfDire(vnode, binding)
+            if (!hasRole && !vifDirective) {
+                customComment(vnode, el)
+            }
         }
-      })
-    }
-  },
-  'is-not-current-user': {
-    bind: function (el, binding, vnode) {
-      hide(binding, el)
-      const user = binding.value
-      api.get('user').then((response) => {
-        if (response.data.id === user) {
-          customComment(vnode, el)
-        } else {
-          show(binding, el)
+    },
+    'is-current-user': {
+        bind: function (el, binding, vnode) {
+            hide(binding, el)
+            const user = binding.value
+            api.get('user').then((response) => {
+                if (response.data.id !== user) {
+                    customComment(vnode, el)
+                } else {
+                    show(binding, el)
+                }
+            })
         }
-      })
+    },
+    'is-not-current-user': {
+        bind: function (el, binding, vnode) {
+            hide(binding, el)
+            const user = binding.value
+            api.get('user').then((response) => {
+                if (response.data.id === user) {
+                    customComment(vnode, el)
+                } else {
+                    show(binding, el)
+                }
+            })
+        }
     }
-  }
 }
 
-// Vue.directive('can', {
-//   bind: function (el, binding, vnode) {
-//     let can = []
-//     const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
-//     const abilities = (binding.value || '').split(/\s*,\s*/);
-//     const vifDirective = checkVIfDire(vnode, binding)
-//     abilities.some(ability => {
-//       can.push(!Object.prototype.hasOwnProperty.call(permissions, ability.trim()) || vifDirective)
-//     });
-//     if (can.every(value => value === true)) {
-//       customComment(vnode, el)
-//     }
-//     return
-//   },
-//   update: function (el, binding, vnode) {
-//     let can = []
-//     const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
-//     const abilities = (binding.value || '').split(/\s*,\s*/);
-//     const vifDirective = checkVIfDire(vnode, binding)
-//     abilities.some(ability => {
-//       can.push(!Object.prototype.hasOwnProperty.call(permissions, ability.trim()))
-//     });
-//     if (vifDirective || can.every(value => value === true)) {
-//       customComment(vnode, el)
-//     }
-//     return
-//   },
-// })
-
-// Vue.directive('can-hide', {
-//   bind: function (el, binding, vnode) {
-//     const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
-//     const abilities = (binding.value || '').split(/\s*,\s*/);
-//     abilities.forEach(ability => {
-//       if (!Object.prototype.hasOwnProperty.call(permissions, ability.trim())) {
-//         el.style.display = 'none';
-//       }
-//     });
-//   }
-// });
-
-// Vue.directive('can-strict', {
-//   bind: function (el, binding, vnode) {
-//     let can = []
-//     const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
-//     const abilities = (binding.value || '').split(/\s*,\s*/);
-//     const vifDirective = checkVIfDire(vnode, binding)
-//     abilities.every(ability => {
-//       can.push(!Object.prototype.hasOwnProperty.call(permissions, ability.trim()) && vifDirective)
-//     });
-//     if (can.every(value => value === true)) {
-//       customComment(vnode, el)
-//     }
-//     return
-//   },
-//   update: function (el, binding, vnode) {
-//     let can = []
-//     const permissions = JSON.parse(localStorage.getItem('permissions')) || [];
-//     const abilities = (binding.value || '').split(/\s*,\s*/);
-//     const vifDirective = checkVIfDire(vnode, binding)
-//     abilities.every(ability => {
-//       can.push(!Object.prototype.hasOwnProperty.call(permissions, ability.trim()) && vifDirective)
-//     });
-//     if (can.every(value => value === true)) {
-//       customComment(vnode, el)
-//     }
-//     return
-//   },
-// })
-
-// /**
-//  * v-has-role: Check user roles to determine if he can perform or not some action
-//  */
-// Vue.directive('has-role', {
-//   bind: function (el, binding, vnode) {
-//     const roles = JSON.parse(localStorage.getItem('roles')) || [];
-//     const data = (binding.value || '').split(/\s*,\s*/);
-//     const vifDirective = checkVIfDire(vnode, binding)
-//     const hasRole = data.some(item => roles.some(role => role.code === item.trim()));
-//     if (!hasRole && !vifDirective) {
-//       customComment(vnode, el)
-//     }
-//     return
-//   },
-//   update: function (el, binding, vnode) {
-//     const roles = JSON.parse(localStorage.getItem('roles')) || [];
-//     const data = (binding.value || '').split(/\s*,\s*/);
-//     const hasRole = data.some(item => roles.some(role => role.code === item.trim()));
-//     const vifDirective = checkVIfDire(vnode, binding)
-//     if (!hasRole && !vifDirective) {
-//       customComment(vnode, el)
-//     }
-//     return
-//   }
-// })
-
-// Vue.directive('is-current-user', {
-//   bind: function (el, binding, vnode) {
-//     hide(binding, el)
-//     const user = binding.value;
-//     api.get('user').then((response) => {
-//       if (response.data.id !== user) {
-//         customComment(vnode, el)
-//       } else {
-//         show(binding, el)
-//       }
-//     })
-//     return
-//   }
-// })
-
-// Vue.directive('is-not-current-user', {
-//   bind: function (el, binding, vnode) {
-//     hide(binding, el)
-//     const user = binding.value;
-//     api.get('user').then((response) => {
-//       if (response.data.id == user) {
-//         customComment(vnode, el)
-//       } else {
-//         show(binding, el)
-//       }
-//     })
-//     return
-//   }
-// })
-
-function getVIfDireRes (binding) {
-  return !!binding.value
+function getVIfDireRes(binding) {
+    return !!binding.value
 }
 
 /**
@@ -273,8 +120,8 @@ function getVIfDireRes (binding) {
  *
  * @return {Boolean}
  */
-function checkVIfDire (vnode, binding) {
-  return getVIfDireRes(binding) ? vnode.data.directives.some((directive) => directive.name === 'if') : false
+function checkVIfDire(vnode, binding) {
+    return getVIfDireRes(binding) ? vnode.data.directives.some((directive) => directive.name === 'if') : false
 }
 /**
  * Create a custom comment
@@ -284,27 +131,27 @@ function checkVIfDire (vnode, binding) {
  *
  * @return {void}
  */
-function customComment (vnode, el) {
-  const comment = document.createComment(' ')
-  Object.defineProperty(comment, 'setAttribute', {
-    value: () => undefined
-  })
-  vnode.elm = comment
-  vnode.text = ' '
-  vnode.isComment = true
-  vnode.context = undefined
-  vnode.tag = undefined
-  vnode.data.directives = undefined
+function customComment(vnode, el) {
+    const comment = document.createComment(' ')
+    Object.defineProperty(comment, 'setAttribute', {
+        value: () => undefined
+    })
+    vnode.elm = comment
+    vnode.text = ' '
+    vnode.isComment = true
+    vnode.context = undefined
+    vnode.tag = undefined
+    vnode.data.directives = undefined
 
-  if (vnode.componentInstance) {
-    vnode.componentInstance.$el.classList.add('d-none')
-    vnode.componentInstance.$el.style = 'display:none !important'
-    vnode.componentInstance.$el = comment
-  }
+    if (vnode.componentInstance) {
+        vnode.componentInstance.$el.classList.add('d-none')
+        vnode.componentInstance.$el.style = 'display:none !important'
+        vnode.componentInstance.$el = comment
+    }
 
-  if (el.parentNode) {
-    el.parentNode.replaceChild(comment, el)
-  }
+    if (el.parentNode) {
+        el.parentNode.replaceChild(comment, el)
+    }
 }
 
 /**
@@ -314,12 +161,12 @@ function customComment (vnode, el) {
  *
  * @return {void}
  */
-function hide (binding, el) {
-  const element = el.nodeType === 1 ? el : null
-  if (element) {
-    element.classList.add('d-none')
-    element.style = 'display:none !important'
-  }
+function hide(binding, el) {
+    const element = el.nodeType === 1 ? el : null
+    if (element) {
+        element.classList.add('d-none')
+        element.style = 'display:none !important'
+    }
 }
 
 /**
@@ -329,20 +176,20 @@ function hide (binding, el) {
  *
  * @return {void}
  */
-function show (binding, el) {
-  const element = el.nodeType === 1 ? el : null
-  if (element) {
-    element.classList.remove('d-none')
-    element.style = ''
-  }
+function show(binding, el) {
+    const element = el.nodeType === 1 ? el : null
+    if (element) {
+        element.classList.remove('d-none')
+        element.style = ''
+    }
 }
 
 // function isHtmlTag (element) {
 //   return /^<([a-zA-Z0-9]+)(\s[^>]*|\/>|>)/i.test(element)
 // }
 
-export function defineDirectives (app) {
-  for (const directive in directives) {
-    app.directive(directive, directives[directive])
-  }
+export function defineDirectives(app) {
+    for (const directive in directives) {
+        app.directive(directive, directives[ directive ])
+    }
 }
