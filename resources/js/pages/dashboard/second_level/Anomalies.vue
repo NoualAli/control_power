@@ -43,7 +43,7 @@
         <!-- 10 domaines contenant un nombre d'anomalies élevé -->
         <NLColumn lg="6">
             <div class="box">
-                <h2>Les 10 Domaines contenant un nombre d'anomalies élevé</h2>
+                <h2>Les 10 Domaines contenant un nombre d'anomalies élevées</h2>
                 <div class="table-container" v-if="tables.domains.length">
                     <table>
                         <thead>
@@ -70,7 +70,7 @@
         <!-- 10 agences contenant un nombre d'anomalies élevé -->
         <NLColumn lg="6">
             <div class="box">
-                <h2>Les 10 Agences contenant un nombre d'anomalies élevé</h2>
+                <h2>Les 10 Agences contenant un nombre d'anomalies élevées</h2>
                 <div class="table-container" v-if="tables.agencies.length">
                     <table>
                         <thead>
@@ -97,7 +97,7 @@
         <!-- 10 missions contenant un nombre d'anomalies élevé -->
         <NLColumn lg="6">
             <div class="box">
-                <h2>Les 10 Missions contenant un nombre d'anomalies élevé</h2>
+                <h2>Les 10 Missions contenant un nombre d'anomalies élevées</h2>
                 <div class="table-container" v-if="tables.missions.length">
                     <table>
                         <thead>
@@ -124,7 +124,7 @@
         <!-- 10 missions contenant un nombre d'anomalies élevé -->
         <NLColumn lg="6">
             <div class="box">
-                <h2>Les 10 Campagnes de contrôle contenant un nombre d'anomalies élevé</h2>
+                <h2>Les 10 Campagnes de contrôle contenant un nombre d'anomalies élevées</h2>
                 <div class="table-container" v-if="tables.campaigns.length">
                     <table>
                         <thead>
@@ -169,7 +169,8 @@ export default {
         circularChartOptions: { type: Object, required: false },
         chartOptions: { type: Object, required: false },
         horizontalBarOptions: { type: Object, required: false },
-        onlyCurrentCampaign: { type: Boolean, required: false, default: true }
+        onlyCurrentCampaign: { type: Boolean, required: false, default: true },
+        userRole: { type: String, required: false, default: null }
     },
     data() {
         return {

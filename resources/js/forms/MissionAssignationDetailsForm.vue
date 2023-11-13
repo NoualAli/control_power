@@ -33,7 +33,7 @@
         </template>
         <template #footer>
             <!-- Submit Button -->
-            <NLButton :loading="form.busy" label="Enregistrer" @click.stop="save" />
+            <NLButton :loading="formIsLoading" label="Enregistrer" @click.stop="save" />
         </template>
     </NLModal>
 </template>
@@ -73,6 +73,7 @@ export default {
     },
     data() {
         return {
+            formIsLoading: false,
             form: new Form({
                 controller: null,
                 pcf: [],
@@ -165,6 +166,7 @@ export default {
          * Save assignation
          */
         save() {
+            this.formIsLoading = true
             this.form.post('missions/' + this.mission?.id + '/assign/' + this.type).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
@@ -175,8 +177,10 @@ export default {
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }
+                this.formIsLoading = false
             }).catch(error => {
                 console.log(error)
+                this.formIsLoading = false
             })
         },
     }

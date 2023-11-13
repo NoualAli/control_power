@@ -5,12 +5,22 @@
                 <router-link v-if="can('create_process')" :to="{ name: 'processes-create' }" class="btn btn-info">
                     Ajouter
                 </router-link>
+                <a href="/excel-export?export=processes" target="_blank" class="btn btn-excel has-icon">
+                    <i class="las la-file-excel icon" />
+                    Exporter
+                </a>
             </template>
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" title="Liste des processus" urlPrefix="processes"
                 @edit="edit" @delete="destroy" :key="froceReload"
-                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
+                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
+                <template #actions-before="{ item }">
+                    <a class="btn btn-excel" :href="'/excel-export?export=processes&id=' + item.id" target="_blank">
+                        <i class="las la-file-excel icon" />
+                    </a>
+                </template>
+            </NLDatatable>
         </ContentBody>
     </div>
 </template>

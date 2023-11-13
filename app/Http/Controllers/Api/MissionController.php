@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\MissionState;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Mission\AssignToCCRequest;
 use App\Http\Requests\Mission\StoreRequest;
@@ -44,7 +45,13 @@ class MissionController extends Controller
         $fetchAll = request('fetchAll', false);
 
         try {
+
             $missions = getMissions();
+            // foreach ($missions->get() as $mission) {
+            //     $mission = Mission::findOrFail($mission->id);
+            //     $mission->update(['reel_start' => $mission->details()->orderBy('controlled_by_ci_at', 'ASC')->first()->controlled_by_ci_at]);
+            // }
+            // dd($missions->get());
             $campaignId = request('campaign_id', null);
             $campaignId = request('campaignId', $campaignId);
             if ($campaignId) {
@@ -57,7 +64,8 @@ class MissionController extends Controller
             if ($sort) {
                 $missions = $missions->sortByMultiple($sort);
             } else {
-                $missions = $missions->orderBy('m.created_at', 'DESC');
+                $missions = $missions->orderBy('m.current_state', 'DESC');
+                // $missions = $missions->orderBy('created_at', 'DESC');
             }
 
             if ($search) {
@@ -73,6 +81,7 @@ class MissionController extends Controller
             } else {
                 $missions = MissionResource::collection($missions->paginate($perPage)->onEachSide(1));
             }
+
             return $missions;
         } catch (\Throwable $th) {
             return response()->json([
@@ -91,6 +100,7 @@ class MissionController extends Controller
     public function show(Mission $mission)
     {
         isAbleOrAbort('view_mission');
+        // dd($mission->load(['closingReport']));
         $currentUser = auth()->user();
         $dreControllers = $mission->dreControllers->pluck('id')->toArray();
         $dcpControllers = $mission->dcpControllers->pluck('id')->toArray();
@@ -101,8 +111,9 @@ class MissionController extends Controller
             || $mission->created_by_id == $currentUser->id
             || (hasRole(['dcp']) && $mission->is_validated_by_cdcr)
             || (hasRole(['cdcr']) && $mission->is_validated_by_cdc)
-            || (hasRole(['dg', 'cdrcp', 'ig', 'der', 'sg']) && $mission->is_validated_by_dcp)
+            || (hasRole(['dg', 'cdrcp', 'ig', 'der', 'sg', 'deac', 'dga']) && $mission->is_validated_by_dcp)
             || (hasRole(['dre', 'da']) && in_array($mission->agency->id, $agencies) && $mission->is_validated_by_dcp)
+            || hasRole('root')
         );
         abort_if(!$condition, 401, __('unauthorized'));
         if (!isAbleTo('view_opinion')) {
@@ -127,8 +138,11 @@ class MissionController extends Controller
             'cdcrValidator',
             'dcpValidator',
             'daRegularizator',
-            'campaign' => fn ($campaign) => $campaign->select('reference', 'id')->without('processes')
+            'campaign' => fn ($campaign) => $campaign->select('reference', 'id')->without('processes'),
+            'missionOrder',
+            'closingReport'
         ])->unsetRelation('details');
+        // dd($mission);
         $mission->makeHidden(['dcp_validation_by_id', 'cdcr_validation_by_id', 'cdc_validation_by_id', 'ci_validation_by_id', 'cc_validation_by_id', 'agency_id', 'control_campaign_id', 'created_by_id']);
 
         return $mission;
@@ -161,6 +175,7 @@ class MissionController extends Controller
                     'programmed_end' => $data['programmed_end'],
                     'note' => $data['note'],
                 ]);
+                // dd($controlPoints);
                 $mission->dreControllers()->attach($data['controllers']);
                 $mission->details()->createMany($controlPoints);
                 foreach ($mission->dreControllers as $controller) {
@@ -259,8 +274,9 @@ class MissionController extends Controller
             || $mission->created_by_id == $currentUser->id
             || (hasRole(['dcp']) && $mission->is_validated_by_cdcr)
             || (hasRole(['cdcr']) && $mission->is_validated_by_cdc)
-            || (hasRole(['dg', 'cdrcp', 'ig', 'der', 'sg']) && $mission->is_validated_by_dcp)
+            || (hasRole(['dg', 'cdrcp', 'ig', 'der', 'sg', 'deac', 'dga']) && $mission->is_validated_by_dcp)
             || (hasRole(['dre', 'da']) && in_array($mission->agency->id, $agencies) && $mission->is_validated_by_dcp)
+            || hasRole('root')
         );
         abort_if(!$condition, 401, __('unauthorized'));
         $details = $mission->details()->with('controlPoint')->orderBy('control_point_id');
@@ -301,30 +317,21 @@ class MissionController extends Controller
     {
         try {
             $attributes = $this->validationAttributes($mission, $type);
-            abort_if(!$attributes['isAbleOrAbort'], 500);
+            abort_if(!$attributes['isAbleOrAbort'], FORBIDDEN);
             return DB::transaction(function () use ($mission, $attributes, $type) {
-                if ($attributes['validationByColumn'] == 'ci_validation_by_id') {
-                    $missionState = 4;
-                } elseif ($attributes['validationByColumn'] == 'cdc_validation_by_id') {
-                    $missionState = 5;
-                } elseif ($attributes['validationByColumn'] == 'cdcr_validation_by_id') {
-                    $missionState = 6;
-                } elseif ($attributes['validationByColumn'] == 'dcp_validation_by_id') {
-                    $missionState = 7;
-                } elseif ($attributes['validationByColumn'] == 'da_validation_by_id') {
-                    $missionState = 8;
-                }
                 $mission->update([
                     $attributes['validationAtColumn'] => now(),
                     $attributes['validationByColumn'] => auth()->user()->id,
-                    'current_state' => $missionState
+                    'current_state' => $attributes['missionState']
                 ]);
-                if ($attributes['notify'] instanceof Collection) {
-                    foreach ($attributes['notify'] as $user) {
-                        Notification::send($user, new Validated($mission, $type));
+                if (!hasRole('dcp')) {
+                    if ($attributes['notify'] instanceof Collection) {
+                        foreach ($attributes['notify'] as $user) {
+                            Notification::send($user, new Validated($mission, $type));
+                        }
+                    } else {
+                        Notification::send($attributes['notify'], new Validated($mission, $type));
                     }
-                } else {
-                    Notification::send($attributes['notify'], new Validated($mission, $type));
                 }
                 if (hasRole('dcp')) {
                     GenerateMissionReportPdf::dispatch($mission);
@@ -356,49 +363,55 @@ class MissionController extends Controller
                 $validationByColumn = 'ci_validation_by_id';
                 $isAbleOrAbort = hasRole('ci') && $mission->dreControllers->contains('id', auth()->user()->id);
                 $notify = $mission->creator;
+                $missionState = MissionState::PENDING_CDC_VALIDATION;
                 break;
             case 'cdc_report':
                 $validationAtColumn = 'cdc_validation_at';
                 $validationByColumn = 'cdc_validation_by_id';
                 $isAbleOrAbort = hasRole('cdc') && $mission->created_by_id == auth()->user()->id;
                 $notify = User::whereRoles(['cdcr'])->get();
+                $missionState = MissionState::PENDING_CDCR_VALIDATION;
                 break;
             case 'cdcr':
                 $validationAtColumn = 'cdcr_validation_at';
                 $validationByColumn = 'cdcr_validation_by_id';
                 $isAbleOrAbort = hasRole('cdcr');
                 $notify = User::whereRoles(['dcp'])->get();
+                $missionState = MissionState::PENDING_DCP_VALIDATION;
                 break;
             case 'cc':
                 $validationAtColumn = 'cc_validation_at';
                 $validationByColumn = 'cc_validation_by_id';
                 $isAbleOrAbort = hasRole('cc') && $mission->dcpControllers->contains('id', auth()->user()->id);
                 $notify = User::whereRoles(['cdcr'])->get();
+                $missionState = MissionState::PENDING_CDCR_VALIDATION;
                 break;
             case 'dcp':
                 $validationAtColumn = 'dcp_validation_at';
                 $validationByColumn = 'dcp_validation_by_id';
                 $isAbleOrAbort = hasRole('dcp');
-                $notify = User::whereRoles(['cdcr', 'dg', 'cdrcp', 'ig', 'sg', 'der']);
-                $notify = User::whereRoles(['da', 'dre'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($notify->get());
+                $missionState = MissionState::PENDING_DA_VALIDATION;
+                $notify = [];
                 break;
             case 'da':
                 $validationAtColumn = 'da_validation_at';
                 $validationByColumn = 'da_validation_by_id';
                 $isAbleOrAbort = hasRole('da') && auth()->user()->hasAgencies($mission->agency_id) && isAbleTo('regularize_mission_detail');
-                $notify = User::whereRoles(['cdcr', 'dg', 'cdrcp', 'ig', 'sg', 'der']);
+                $notify = User::whereRoles(['cdcr', 'cdrcp', 'der']);
                 $notify = User::whereRoles(['dre'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($notify->get());
                 $notify = $notify->merge($mission->dcpControllers)->merge($mission->dreControllers);
+                $missionState = MissionState::DONE;
                 break;
             default:
                 $validationAtColumn = 'ci_validation_at';
                 $validationByColumn = 'ci_validation_by_id';
                 $isAbleOrAbort = hasRole('ci') && $mission->dreControllers->contains('id', auth()->user()->id);
                 $notify = $mission->creator;
+                $missionState = MissionState::PENDING_CDC_VALIDATION;
                 break;
         }
 
-        return compact('validationAtColumn', 'validationByColumn', 'isAbleOrAbort', 'notify');
+        return compact('validationAtColumn', 'validationByColumn', 'isAbleOrAbort', 'notify', 'missionState');
     }
 
     /**
@@ -518,13 +531,20 @@ class MissionController extends Controller
             $missions = DB::table('missions as m')->where('control_campaign_id', $currentCampaign->id)->get();
             $missionsAgency = (clone $missions)->pluck('agency_id')->toArray();
 
-            $agencies = DB::table('agencies as a')->select('a.id', DB::raw("CONCAT(a.code, ' - ', a.name) as full_name"))->leftJoin('user_has_agencies as uha', 'a.id', 'uha.agency_id')->where('uha.user_id', $user->id)->get();
+            $agencies = DB::table('agencies as a')->select(
+                'a.id',
+                DB::raw("CONCAT(a.code, ' - ', a.name) as full_name")
+            )
+                ->leftJoin('user_has_agencies as uha', 'a.id', 'uha.agency_id')
+                ->where('uha.user_id', $user->id)->get();
 
             $controllers = DB::table('users as u')->select('u.id', 'u.username')
-                ->leftJoin('mission_has_controllers as mhc', 'mhc.user_id', 'u.id')
-                ->leftJoin('missions as m', 'mhc.mission_id', 'm.id')
-                ->where('mhc.control_agency', true)
-                ->whereIn('m.agency_id', (clone $agencies)->pluck('id'))
+                ->leftJoin('user_has_agencies as uha', 'u.id', 'uha.user_id')
+                ->leftJoin('roles as r', 'u.active_role_id', 'r.id')
+                ->whereIn('uha.agency_id', (clone $agencies)->pluck('id')->toArray())
+                ->where('r.code', 'ci')
+                ->groupBy('u.id', 'u.username')
+                ->where('u.is_active', true)
                 ->get();
 
             // Format controllers array before serve
@@ -572,6 +592,12 @@ class MissionController extends Controller
                 $removedControllers = User::whereIn('id', $removedControllers)->get();
                 foreach ($removedControllers as $controller) {
                     Notification::send($controller, new AssignationRemoved($mission));
+                }
+
+                if ($mission->dcpControllers->count()) {
+                    $mission->update(['current_state' => MissionState::PENDING_CC_VALIDATION]);
+                } else {
+                    $mission->update(['current_state' => MissionState::PENDING_CDCR_VALIDATION]);
                 }
             });
             return response()->json([
@@ -701,28 +727,6 @@ class MissionController extends Controller
     }
 
     /**
-     * Fetch user mission
-     *
-     * @return Illuminate\Database\Eloquent\Builder
-     */
-    private function getMissions()
-    {
-        $missions = new Mission();
-        if (hasRole(['dcp', 'cdcr', 'dg', 'cdrcp', 'der', 'sg'])) {
-            $missions = $missions;
-        } elseif (hasRole(['cdc', 'cc', 'ci', 'dre', 'da'])) {
-            $missions = auth()->user()->missions();
-        }
-        // elseif (hasRole(['cdrcp', 'der'])) {
-        //     $missions = $missions->hasDcpValidation();
-        // }
-        // elseif (hasRole(['da', 'dre'])) {
-        //     $missions = auth()->user()->missions()->hasDcpValidation();
-        // }
-        return $missions;
-    }
-
-    /**
      * @return string
      */
     private function remainingDaysBeforeStartStr($remaining_days_before_start, $remaining_days_before_end): string
@@ -812,7 +816,42 @@ class MissionController extends Controller
             $missions = $missions->whereIn('agency_id', $values);
         }
 
+        if (isset($filter['current_state'])) {
+            $values = explode(',', $filter['current_state']);
+            $missions = $missions->whereIn('current_state', $values);
+        }
 
+        if (isset($filter['progress_status'])) {
+            $filterValue = $filter['progress_status'];
+            $column = DB::raw('SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) * 100 / COUNT(md.id)');
+            if ($filterValue == '-20') {
+                $missions = $missions->havingRaw("$column <= 20");
+            } elseif ($filterValue == '-40') {
+                $missions = $missions->havingRaw("$column >= 20 AND $column < 40");
+            } elseif ($filterValue == '-60') {
+                $missions = $missions->havingRaw("$column >= 40 AND $column < 60");
+            } elseif ($filterValue == '-80') {
+                $missions = $missions->havingRaw("$column >= 60 AND $column < 80");
+            } elseif ($filterValue == '-100') {
+                $missions = $missions->havingRaw("$column >= 80 AND $column < 100");
+            } elseif ($filterValue == '100') {
+                $missions = $missions->havingRaw("$column = 100");
+            }
+        }
+
+        if (isset($filter['avg_score'])) {
+            $filterValue = $filter['avg_score'];
+            $column = DB::raw('CAST(ROUND(AVG(CAST(md.score AS DECIMAL(10, 2))), 2) AS DECIMAL(10, 2))');
+            if ($filterValue == 'score >= 1 AND score < 2') {
+                $missions = $missions->havingRaw("$column >= 1 AND $column < 2");
+            } elseif ($filterValue == 'score >= 2 AND score < 3') {
+                $missions = $missions->havingRaw("$column >= 2 AND $column < 3");
+            } elseif ($filterValue == 'score >= 3 AND score < 4') {
+                $missions = $missions->havingRaw("$column >= 3 AND $column < 4");
+            } elseif ($filterValue == 'score >= 4') {
+                $missions = $missions->havingRaw("$column >= 4");
+            }
+        }
         return $missions;
     }
 }

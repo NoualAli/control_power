@@ -5,6 +5,10 @@
                 <router-link v-if="can(['create_agency'])" :to="{ name: 'agencies-create' }" class="btn btn-info">
                     Ajouter
                 </router-link>
+                <a href="/excel-export?export=agencies" target="_blank" class="btn btn-excel has-icon">
+                    <i class="las la-file-excel icon" />
+                    Exporter
+                </a>
             </template>
             <template #title>
                 Liste des agences

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasDates;
+use App\Traits\HasMedia;
 use App\Traits\HasScopes;
 use App\Traits\HasUuid;
 use App\Traits\IsCommentable;
@@ -20,7 +21,7 @@ use Illuminate\Support\Str;
 
 class Mission extends BaseModel
 {
-    use HasFactory, BelongsToThrough, HasRelationships, SoftDeletes, IsSearchable, IsSortable, HasUuid, HasDates, HasScopes, IsFilterable, IsCommentable;
+    use HasFactory, BelongsToThrough, HasRelationships, SoftDeletes, IsSearchable, IsSortable, HasUuid, HasDates, HasScopes, IsFilterable, IsCommentable, HasMedia;
 
     protected $filter = 'App\Filters\Mission';
 
@@ -64,7 +65,6 @@ class Mission extends BaseModel
         'remaining_days_before_end_str',
         'progress_status',
         'regularization_status',
-        'realisation_state',
         'avg_score',
         'end',
         'start',
@@ -87,7 +87,8 @@ class Mission extends BaseModel
         'anomalies_rate',
         'total_details',
         'has_major_facts',
-        'total_major_facts'
+        'total_major_facts',
+        'is_late',
     ];
 
     protected $casts = [
@@ -104,6 +105,41 @@ class Mission extends BaseModel
     /**
      * Getters
      */
+
+    // public function getMissionOrderFileAttribute()
+    // {
+    //     return $this->missionOrder;
+    // }
+    public function getIsLateAttribute()
+    {
+        // DB::raw('(CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) > 15 OR reel_end > programmed_end THEN 1 ELSE 0 END) as is_late')
+        // return Carbon::parse($this->progremmed_end)->diffInDays(today()) > 15 || $this->reel_end > $this->programmed_end;
+        $programmedEnd = Carbon::parse($this->programmed_end);
+        $reelEnd = Carbon::parse($this->reel_end);
+        $cdcrValidationAt = Carbon::parse($this->cdcr_validation_at);
+        $ccValidationAt = Carbon::parse($this->cc_validation_at);
+        $dcpValidationAt = Carbon::parse($this->dcp_validation_at);
+        $daValidationAt = Carbon::parse($this->da_validation_at);
+        $today = today();
+        $isLate = false;
+        // dd($reelEnd->diffInDays($programmedEnd), $reelEnd, $programmedEnd, $programmedEnd->diffInDays($today) < 15);
+        if ($programmedEnd->diffInDays($today) < 15 && $reelEnd->diffInDays($programmedEnd) < 0) {
+            $isLate =  true;
+        }
+        // dd($isLate);
+        return $isLate;
+
+        // if (hasRole(['ci', 'cdc'])) {
+        // }elseif(hasRole('CDCR')){
+
+        // }elseif(hasRole('DCP')){
+
+        // }elseif(hasRole('DA')){
+
+        // }
+    }
+
+
 
     /**
      * @return int
@@ -176,6 +212,7 @@ class Mission extends BaseModel
     public function getStartAttribute()
     {
         $date = $this->reel_start ?: $this->programmed_start;
+        // $date = $this->programmed_start;
         return $date->format('d-m-Y');
     }
 
@@ -296,40 +333,40 @@ class Mission extends BaseModel
         return boolval($this->da_validation_at) && boolval($this->dcp_validation_by_id);
     }
 
-    public function getRealisationStateAttribute()
-    {
-        $today = now();
-        $start = $this->programmed_start;
-        $end = $this->programmed_end;
-        $progressStatus = intval($this->progress_status);
-        $startDiff = $today->diffInDays($start, false);
-        $endDiff = $today->diffInDays($end, false);
-        $totalControlled = $this->details()->controlled()->count();
-        // dd($startDiff <= 0, $endDiff >= 0, $progressStatus < 100, $totalControlled);
-        // dd($startDiff, $progressStatus, $totalControlled);
-        if ($startDiff >= 0 && $progressStatus == 0 && !$totalControlled) {
-            $state = 'À réaliser';
-        } else if ($startDiff < 0 && $progressStatus == 0 && !$totalControlled) {
-            $state = 'En retard';
-        } else if ($startDiff <= 0 && $endDiff >= 0 && $progressStatus < 100 && $totalControlled) {
-            $state = 'En cours';
-        } else if ($progressStatus >= 100 && ($this->ci_report_exists && $this->is_validated_by_ci && (!$this->cdc_report_exists || ($this->cdc_report_exists && !$this->is_validated_by_cdc)) || !$this->ci_report_exists)) {
-            $state = 'En attente de validation';
-        } else if ($progressStatus >= 100 && $this->is_validated_by_cdc && !$this->is_validated_by_cdcr) {
-            $state = 'Validé et envoyé';
-        } else if ($progressStatus >= 100 && $this->is_validated_by_cdc && $this->is_validated_by_cdcr && !$this->is_validated_by_dcp) {
-            $state = '1ère validation';
-        } else if ($progressStatus >= 100 && $this->is_validated_by_cdc && $this->is_validated_by_dcp) {
-            $state = '2ème validation';
-        } else if ($endDiff < 0 && $progressStatus < 100 && (!$this->is_validated_by_ci || !$this->is_validated_by_cdc)) {
-            $state = 'En retard';
-        } elseif ($progressStatus && $totalControlled) {
-            return 'En cours';
-        } else {
-            $state = 'Indéterminé';
-        }
-        return $state;
-    }
+    // public function getRealisationStateAttribute()
+    // {
+    //     // $today = now();
+    //     // $start = $this->programmed_start;
+    //     // $end = $this->programmed_end;
+    //     // $progressStatus = intval($this->progress_status);
+    //     // $startDiff = $today->diffInDays($start, false);
+    //     // $endDiff = $today->diffInDays($end, false);
+    //     // $totalControlled = $this->details()->controlled()->count();
+    //     // // dd($startDiff <= 0, $endDiff >= 0, $progressStatus < 100, $totalControlled);
+    //     // // dd($startDiff, $progressStatus, $totalControlled);
+    //     // if ($startDiff >= 0 && $progressStatus == 0 && !$totalControlled) {
+    //     //     $state = 'À réaliser';
+    //     // } else if ($startDiff < 0 && $progressStatus == 0 && !$totalControlled) {
+    //     //     $state = 'En retard';
+    //     // } else if ($startDiff <= 0 && $endDiff >= 0 && $progressStatus < 100 && $totalControlled) {
+    //     //     $state = 'En cours';
+    //     // } else if ($progressStatus >= 100 && ($this->ci_report_exists && $this->is_validated_by_ci && (!$this->cdc_report_exists || ($this->cdc_report_exists && !$this->is_validated_by_cdc)) || !$this->ci_report_exists)) {
+    //     //     $state = 'En attente de validation';
+    //     // } else if ($progressStatus >= 100 && $this->is_validated_by_cdc && !$this->is_validated_by_cdcr) {
+    //     //     $state = 'Validé et envoyé';
+    //     // } else if ($progressStatus >= 100 && $this->is_validated_by_cdc && $this->is_validated_by_cdcr && !$this->is_validated_by_dcp) {
+    //     //     $state = '1ère validation';
+    //     // } else if ($progressStatus >= 100 && $this->is_validated_by_cdc && $this->is_validated_by_dcp) {
+    //     //     $state = '2ème validation';
+    //     // } else if ($endDiff < 0 && $progressStatus < 100 && (!$this->is_validated_by_ci || !$this->is_validated_by_cdc)) {
+    //     //     $state = 'En retard';
+    //     // } elseif ($progressStatus && $totalControlled) {
+    //     //     return 'En cours';
+    //     // } else {
+    //     //     $state = 'Indéterminé';
+    //     // }
+    //     // return $state;
+    // }
 
     public function getCdcReportAttribute()
     {
@@ -406,6 +443,16 @@ class Mission extends BaseModel
     public function daRegularizator()
     {
         return $this->belongsTo(User::class, 'da_validation_by_id');
+    }
+
+    public function missionOrder()
+    {
+        return $this->morphMany(Media::class, 'attachable')->where('folder', 'uploads/mission_order');
+    }
+
+    public function closingReport()
+    {
+        return $this->morphMany(Media::class, 'attachable')->where('folder', 'uploads/closing_report');
     }
 
 

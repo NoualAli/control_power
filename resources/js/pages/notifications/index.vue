@@ -42,7 +42,7 @@ export default {
                 },
                 {
                     label: 'Contenu',
-                    field: 'content',
+                    field: 'short_content',
                     isHtml: true,
                     extraClass: {
                         td: (item) => {

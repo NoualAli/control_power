@@ -20,14 +20,18 @@ class ControlPointsImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         $family = isset($row['familles']) && !empty($row['familles']) ? Family::where('name', $row['familles'])->firstOrCreate(['name' => trim($row['familles'])]) : null;
-        $domain = isset($row['domaine']) && !empty($row['domaine']) && $family?->id ? Domain::where('name', $row['domaine'])->where('family_id', $family?->id)->firstOrCreate(['name' => trim($row['domaine']), 'family_id' => $family?->id]) : null;
+        $domain = isset($row['domaines']) && !empty($row['domaines']) && $family?->id ? Domain::where('name', $row['domaines'])->where('family_id', $family?->id)->firstOrCreate(['name' => trim($row['domaines']), 'family_id' => $family?->id]) : null;
         $process = isset($row['processus']) && !empty($row['processus']) && $domain?->id ? Process::where('name', $row['processus'])->where('domain_id', $domain?->id)->firstOrCreate(['name' => trim($row['processus']), 'domain_id' => $domain?->id]) : null;
+        // dd($row, $family, $domain, $process);
         try {
             DB::transaction(function ()  use ($row, $process) {
-                if ($process->id) {
+                if ($process?->id) {
                     $name = trim($row['points_de_controle']);
                     $process_id = $process?->id;
                     $scores = isset($row['notations']) && !empty($row['notations']) ? json_decode($row['notations']) : null;
+                    if (is_null($scores)) {
+                        dd($row);
+                    }
                     $fields = isset($row['metadonnees']) && !empty($row['metadonnees']) ? json_decode($row['metadonnees']) : null;
                     $has_major_fact = isset($row['faits_majeur']) && !empty($row['faits_majeur']) ? boolval($row['faits_majeur']) : false;
 
@@ -36,7 +40,7 @@ class ControlPointsImport implements ToModel, WithHeadingRow
                 }
             });
         } catch (\Throwable $th) {
-            dd($th->getMessage(), $th->getLine(), $row, $process);
+            dd($th->getMessage(), $th->getLine(), $row, $family, $domain, $process);
         }
     }
 }

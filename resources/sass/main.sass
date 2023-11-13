@@ -388,36 +388,50 @@ ul
         width: 100%
         height: 100%
         background-color: $white
+    &.is-late
+        border-color: darken($danger, 10) !important
     &.todo
         border-color: darken($info, 10)
-    &.todo-late
-        border-color: darken($danger, 10)
-    &.inProgress
+        &.is-late
+            border-color: darken($danger, 10)
+    &.active
         border-color: darken($info, 10)
         &::before
             background-color: $info
             width: 50%
-    &.inProgress-late
-        border-color: darken($danger, 10)
-        &::before
-            background-color: $danger
-            width: 50%
-    &.first-validation
+        &.is-late
+            &::before
+                background-color: $danger !important
+    &.pending-validation-cdc
+        border: 3px solid $success
+        background-color: $success
+        &.is-late
+            &::before
+                background-color: $danger !important
+    &.pending-validation-cc
+        border-style: dashed
         border-color: darken($success, 10)
         &::before
             background-color: $success
-    &.late
-        border-color: darken($danger, 10)
-        &::before
-            background-color: $danger
-    &.pending-validation
+        &.is-late
+            &::before
+                background-color: $danger
+    &.pending-validation-cdcr
         border-color: darken($warning, 10)
-    &.validated
+    &.pending-validation-dcp
+        border-color: darken($success, 10)
+        &::before
+            background-color: $success
+            width: 50%
+        &.is-late
+            &::before
+                background-color: $danger
+    &.pending-validation-da
         color: $white !important
         border-color: darken($success, 10)
-    &.second-validation
-        color: $white !important
-        border-color: darken($success, 10)
+        &.is-late
+            &::before
+                background-color: $danger
         &::before
             background-color: $success
         &::after

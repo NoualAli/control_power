@@ -18,7 +18,7 @@
                         <!-- Registration number -->
                         <NLColumn lg="6" md="6">
                             <NLInput v-model="form.registration_number" :form="form" name="registration_number"
-                                label="Matricule" type="number" label-required length="4" />
+                                label="Matricule" type="number" length="5" />
                         </NLColumn>
 
                         <!-- Username -->
@@ -141,7 +141,7 @@ export default {
                 selectMultiple: false,
                 disableBranchNodes: false,
             },
-            showIsActiveSwitch: hasRole('root'),
+            showIsActiveSwitch: hasRole([ 'root', 'admin' ]),
         }
     },
     computed: mapGetters({

@@ -27,7 +27,7 @@
                             </NLFlex>
                         </div>
                         <div v-if="detail.score" class="box border-1 border-solid"
-                            :class="[{ 'border-success': detail?.score == 1 && !detail?.major_fact }, { 'border-warning': [2, 3, 4].includes(Number(detail?.score)) && !detail?.major_fact }, { 'border-danger': detail?.major_fact }]">
+                            :class="[{ 'border-success': detail?.score == 1 && !detail?.major_fact }, { 'border-warning': [3].includes(Number(detail?.score)) && !detail?.major_fact }, { 'border-warning': [4].includes(Number(detail?.score)) && !detail?.major_fact }, { 'border-info': [2].includes(Number(detail?.score)) && !detail?.major_fact }, { 'border-dark-grey': [4].includes(Number(detail?.score)) && !detail?.major_fact }, { 'border-danger': detail?.major_fact }]">
                             <NLGrid>
                                 <!-- Control Point name -->
                                 <NLColumn>
@@ -35,10 +35,10 @@
                                 </NLColumn>
 
                                 <!-- Major fact -->
-                                <NLColumn lg="4">
+                                <NLColumn lg="4" v-if="Number(detail?.score) !== 5">
                                     <b>Fait majeur:</b>
                                 </NLColumn>
-                                <NLColumn lg="8">
+                                <NLColumn lg="8" v-if="Number(detail?.score) !== 5">
                                     <span v-if="!detail?.major_fact">
                                         <i class="las la-check-circle icon text-success" />
                                         Non
@@ -50,27 +50,28 @@
                                 </NLColumn>
 
                                 <!-- Score -->
-                                <NLColumn lg="4">
+                                <NLColumn lg="4" v-if="Number(detail?.score) !== 5">
                                     <b>Appréciation:</b>
                                 </NLColumn>
-                                <NLColumn lg="8">
+                                <NLColumn lg="8" v-if="Number(detail?.score) !== 5">
                                     {{ detail?.appreciation }}
                                 </NLColumn>
 
                                 <!-- Report -->
-                                <NLColumn lg="4">
+                                <NLColumn lg="4" v-if="Number(detail?.score) !== 5">
                                     <b>Constat:</b>
                                 </NLColumn>
-                                <NLColumn lg="8" v-html="detail?.report || '-'"></NLColumn>
-
+                                <NLColumn lg="8" v-if="Number(detail?.score) !== 5" v-html="detail?.report || '-'">
+                                </NLColumn>
                                 <!-- Recovery plan -->
-                                <NLColumn lg="4">
+                                <NLColumn lg="4" v-if="Number(detail?.score) !== 5">
                                     <b>Plan de redressement:</b>
                                 </NLColumn>
-                                <NLColumn lg="8" v-html="detail?.recovery_plan || '-'"></NLColumn>
+                                <NLColumn lg="8" v-if="Number(detail?.score) !== 5" v-html="detail?.recovery_plan || '-'">
+                                </NLColumn>
 
                                 <!-- Regularization -->
-                                <NLColumn v-if="detail?.regularization?.regularized">
+                                <NLColumn v-if="detail?.regularization?.regularized && Number(detail?.score) !== 5">
                                     <NLGrid>
                                         <NLColumn lg="4">
                                             <b>Régularisation:</b>
@@ -82,7 +83,7 @@
                                 </NLColumn>
 
                                 <!-- Actions -->
-                                <NLColumn extraClass="d-flex justify-end align-center">
+                                <NLColumn extraClass="d-flex justify-end align-center" v-if="Number(detail?.score) !== 5">
                                     <NLFlex gap="2">
                                         <button class="btn btn-info has-icon" @click="show(detail)">
                                             <i class="las la-eye icon" />
@@ -136,7 +137,7 @@
 
                                         <!-- Agency director -->
                                         <button
-                                            v-if="mission?.is_validated_by_dcp && !detail?.is_regularized && !detail?.major_fact && detail?.score !== 1 && can('regularize_mission_detail')"
+                                            v-if="mission?.is_validated_by_dcp && !detail?.is_regularized && !detail?.major_fact && Number(detail?.score) !== 1 && can('regularize_mission_detail')"
                                             class="btn btn-warning has-icon" @click="regularize(detail)">
                                             <i class="las la-check icon" />
                                             Régulariser
@@ -215,22 +216,23 @@ export default {
         /**
          * Initialize data
          */
-        initData() {
+        initData(reloadAll = true) {
             this.close()
             const length = this.$breadcrumbs.value.length
-            this.currentUser = user()
-            this.$store.dispatch('settings/updatePageLoading', true)
+            if (reloadAll) {
+                this.currentUser = user()
+                this.$store.dispatch('settings/updatePageLoading', true)
+            }
             this.$store.dispatch('missions/fetchDetails', { missionId: this.$route.params.missionId, processId: this.$route.params.processId }).then(() => {
                 this.details = this.config.detailsConfig.details
                 this.mission = this.config.detailsConfig.mission
                 this.process = this.config.detailsConfig.process
                 this.mode = this.config.detailsConfig.mode
-                if (this.$breadcrumbs.value[ length - 3 ].label === 'Mission') { this.$breadcrumbs.value[ length - 3 ].label = 'Mission ' + this.mission?.reference }
-                if (this.$breadcrumbs.value[ length - 1 ].label === 'Exécution de la mission') {
-                    this.$breadcrumbs.value[ length - 2 ].label = ''
+                if (reloadAll) {
                     this.$breadcrumbs.value[ length - 1 ].label = this.process?.name
+                    this.$breadcrumbs.value[ length - 3 ].label = 'Mission ' + this.mission?.reference
+                    this.$store.dispatch('settings/updatePageLoading', false)
                 }
-                this.$store.dispatch('settings/updatePageLoading', false)
             })
         },
 
@@ -291,7 +293,7 @@ export default {
          * Handle success event
          */
         success() {
-            this.initData()
+            this.initData(false)
         },
 
         /**

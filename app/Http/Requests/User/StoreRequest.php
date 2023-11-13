@@ -36,7 +36,7 @@ class StoreRequest extends FormRequest
             'role' => ['required', 'exists:roles,id', new UniqueUserRole(request('agencies'))],
             'is_active' => ['required', 'boolean'],
             'gender' => ['required', 'integer', 'in:1,2'],
-            'registration_number' => ['required', 'unique:users', 'numeric', 'digits:4']
+            'registration_number' => ['nullable', 'unique:users', 'numeric', 'digits:5']
         ];
         $role = request()->role;
 

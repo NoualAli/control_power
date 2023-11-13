@@ -1,15 +1,11 @@
 @php
     $appCss = env('APP_URL') . '/special_styles/report.css';
     $qlCss = env('APP_URL') . '/special_styles/ql.css';
-    $appBrand = public_path('app\images\brand.svg');
+    $appBrand = storage_path('images\brand.png');
     $bnaLogo = public_path('app\images\bna_logo.svg');
     $coverPageImg = public_path('app\images\report_cover_page.png');
     $appBrandMonochrome = public_path('app\images\brand_monochrome.png');
-    // $appBrand = '';
-    // $bnaLogo = '';
-    // $coverPageImg = '';
-    // $appBrandMonochrome = '';
-    // dd('test');
+    // dd(storage_path('app\images\brand.svg'))
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -26,6 +22,7 @@
 </head>
 
 <body>
+    {{-- Landing page --}}
     <section>
         <div class="page no-padding">
             <main class="page-body no-padding">
@@ -74,21 +71,26 @@
         </div>
     </section>
 
+    {{-- Sections header --}}
     <header class="page-header">
         <div class="container">
             <img src="{{ $bnaLogo }}" class="bna-logo" alt="Banque National D'Algérie">
 
             <div class="text-content">
-                <p>Direction du Contrôle Permanent</p>
                 <p>Division Risques et Contrôle Permanent</p>
+                <p>Direction du Contrôle Permanent</p>
             </div>
         </div>
     </header>
+
+    {{-- Sections footer --}}
     <footer class="page-footer">
         <div class="container">
             <img src="{{ $appBrand }}" class="app-brand" alt="Control Power">
         </div>
     </footer>
+
+    {{-- Main content --}}
     <main class="page-body report-area">
         <div class="container">
             <h1>Introduction</h1>
@@ -327,6 +329,15 @@
         <div class="container">
             <h2>Conclusion du chef de département</h2>
             {!! $mission->cdc_report->content !!}
+            <h2>PV de clôture</h2>
+            @if ($mission->closingReport)
+                @foreach ($mission->closingReport as $report)
+                    <div class="img-container">
+                        <img src="{{ $report->link }}" alt="{{ $report->original_name }}"
+                            class="img">
+                    </div>
+                @endforeach
+            @endif
         </div>
     </main>
 </body>

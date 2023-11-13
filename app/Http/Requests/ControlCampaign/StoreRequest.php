@@ -3,6 +3,7 @@
 namespace App\Http\Requests\ControlCampaign;
 
 use App\Rules\CheckCampaignDate;
+use App\Rules\MaxLengthQuill;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
@@ -25,7 +26,7 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'description' => ['required', 'string', 'max:3000'],
+            'description' => ['required', 'string', new MaxLengthQuill(3000)],
             'start_date' => ['required', 'date', new CheckCampaignDate],
             'end_date' => ['required', 'date', 'after:start', new CheckCampaignDate],
             'pcf' => ['required', 'array'],

@@ -45,6 +45,6 @@ class IncludedInsideCDCDate implements Rule
      */
     public function message()
     {
-        return 'Le champs :attribute doit être une date incluse entre le ' . $this->campaign->start_date . ' et le ' . $this->campaign->end_date;
+        return 'Le champs :attribute doit être une date incluse entre le ' . Carbon::parse($this->campaign->start_date)->format('d-m-Y') . ' et le ' . Carbon::parse($this->campaign->end_date)->format('d-m-Y');
     }
 }

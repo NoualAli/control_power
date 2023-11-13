@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Dusk\DuskServiceProvider;
+// use Martinezart87\CustomSqlServerConnector\CustomSqlServerConnector;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -53,6 +53,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        // $this->app->bind('db.connector.sqlsrv', CustomSqlServerConnector::class);
+
         if ($this->app->environment('local', 'testing') && class_exists(DuskServiceProvider::class)) {
             $this->app->register(DuskServiceProvider::class);
         }

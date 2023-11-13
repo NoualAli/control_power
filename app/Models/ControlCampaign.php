@@ -44,6 +44,14 @@ class ControlCampaign extends BaseModel
     /**
      * Getters
      */
+    public function getStartDateAttribute($start_date){
+        return \Carbon\Carbon::parse($start_date)->format('d-m-Y');
+    }
+
+    public function getEndDateAttribute($end_date){
+        return \Carbon\Carbon::parse($end_date)->format('d-m-Y');
+    }
+
     public function getIsValidatedAttribute()
     {
         return boolval($this->validated_at) && boolval($this->validated_by_id);

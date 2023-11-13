@@ -38,12 +38,12 @@ export default {
                 },
                 {
                     label: 'Date début',
-                    field: 'start',
+                    field: 'start_date',
                     sortable: true
                 },
                 {
                     label: 'Date fin',
-                    field: 'end',
+                    field: 'end_date',
                     sortable: true
                 },
                 {

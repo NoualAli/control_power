@@ -25,7 +25,11 @@ class BugController extends Controller
         $perPage = request('perPage', 10);
 
         // $bugs = Bug::with('creator');
-        $bugs = auth()->user()->bugs();
+        if (hasRole(['root', 'admin'])) {
+            $bugs = new Bug();
+        } else {
+            $bugs = auth()->user()->bugs();
+        }
         // dd($bugs);
         if ($fetchFilters) {
             return $this->filters();

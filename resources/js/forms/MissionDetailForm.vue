@@ -8,7 +8,7 @@
         <template #default>
             <NLForm :form="form" :action="save" v-if="!isLoading">
                 <!-- Major fact -->
-                <NLColumn v-if="data?.control_point?.has_major_fact && ([2, 3, 4]).includes(form.score)">
+                <NLColumn v-if="data?.control_point?.has_major_fact && ([2, 3, 4]).includes(Number(form.score))">
                     <NLSwitch type="is-danger" v-model="form.major_fact" :name="'major_fact'" :form="form"
                         label="Fait majeur" />
                 </NLColumn>
@@ -23,7 +23,7 @@
                         </NLColumn>
                         <!-- Metadata -->
                         <NLColumn
-                            v-if="data?.control_point.fields && Number(form.score) > 1 && [1, 2].includes(form.currentMode)"
+                            v-if="data?.control_point.fields && Number(form.score) > 0 && [1, 2].includes(form.currentMode)"
                             extraClass="mb-4">
                             <div class="repeater">
                                 <h2 class="mb-6">
@@ -151,9 +151,10 @@
                 </NLColumn>
                 <!-- Media (attachements) -->
                 <NLColumn :lg="isContainerExpanded ? 4 : 12">
-                    <NLFile v-model="form.media" :name="'media'" label="Pièces jointes"
-                        attachable-type="App\Models\MissionDetail" :attachable-id="form.detail" :form="form" multiple
-                        :canDelete="canDeleteMedia" :readonly="![1, 2].includes(form.currentMode)" />
+                    <NLFile @uploaded="handleMedia" @deleted="handleMedia" @loaded="handleMedia" v-model="form.media"
+                        :name="'media'" label="Pièces jointes" attachable-type="App\Models\MissionDetail"
+                        :attachable-id="form.detail" :form="form" multiple :canDelete="canDeleteMedia"
+                        :readonly="![1, 2].includes(form.currentMode)" />
                 </NLColumn>
             </NLForm>
             <!-- Loader -->
@@ -161,7 +162,7 @@
         </template>
         <!-- Submit Button -->
         <template #footer>
-            <NLButton :loading="form.busy" label="Enregistrer" @click="save" v-if="!isLoading" />
+            <NLButton :loading="formIsLoading" label="Enregistrer" @click="save" v-if="!isLoading" />
         </template>
     </NLModal>
 </template>
@@ -220,11 +221,12 @@ export default {
     },
     data() {
         return {
+            formIsLoading: false,
             form: new Form({
                 currentMode: 1,
                 mission: null,
                 process: null,
-                media: [],
+                media: {},
                 detail: null,
                 report: null,
                 recovery_plan: null,
@@ -240,6 +242,10 @@ export default {
         }
     },
     methods: {
+        handleMedia(files) {
+            this.form.media = files
+        },
+
         handleKeyboard() {
             window.addEventListener('keyup', e => {
                 if (this.data?.control_point?.fields && Number(this.form.score) > 1 && [ 1, 2 ].includes(this.form.currentMode)) {
@@ -290,6 +296,7 @@ export default {
                 } else {
                     this.form.currentMode = 6 // Readonly mode
                 }
+
                 this.currentMission = detail.mission
                 this.form.mission = detail.mission_id
                 this.form.process = Number(detail.control_point.process_id)
@@ -309,6 +316,7 @@ export default {
          * Save detail
          */
         save() {
+            this.formIsLoading = true
             this.form.post('missions/details/' + this.data.mission_id).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
@@ -316,12 +324,15 @@ export default {
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }
+                this.formIsLoading = false
             }).catch(error => {
                 let message = error.message
                 if (error.response.status === 422) {
                     message = 'Les données fournies sont invalides.'
                 }
                 this.$swal.toast_error(message)
+                this.formIsLoading = false
+
             })
         },
         /**

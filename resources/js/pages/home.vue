@@ -28,22 +28,23 @@
         </NLGrid>
 
         <!-- Suivi de la réalisation des missions -->
-        <Missions v-if="currentSection == 'realisationStates'" :circularChartOptions="circularChartOptions"
-            @savePNG="savePNG" />
+        <Missions v-if="currentSection == 'realisationStates'" :userRole="userRole"
+            :circularChartOptions="circularChartOptions" @savePNG="savePNG" />
 
 
         <!-- Scores -->
-        <Scores v-if="currentSection == 'scores'" :circularChartOptions="circularChartOptions" @savePNG="savePNG"
-            :horizontalBarOptions="horizontalBarOptions" />
+        <Scores v-if="currentSection == 'scores'" :userRole="userRole" :circularChartOptions="circularChartOptions"
+            @savePNG="savePNG" :horizontalBarOptions="horizontalBarOptions" />
 
         <!-- Anomalies -->
-        <Anomalies v-if="currentSection == 'anomalies'" :circularChartOptions="circularChartOptions" @savePNG="savePNG" />
+        <Anomalies v-if="currentSection == 'anomalies'" :userRole="userRole" :circularChartOptions="circularChartOptions"
+            @savePNG="savePNG" />
 
         <!-- Major facts -->
-        <MajorFacts v-if="currentSection == 'majorFacts'" :circularChartOptions="circularChartOptions" @savePNG="savePNG"
-            :horizontalBarOptions="horizontalBarOptions" />
+        <MajorFacts v-if="currentSection == 'majorFacts'" :userRole="userRole" :circularChartOptions="circularChartOptions"
+            @savePNG="savePNG" :horizontalBarOptions="horizontalBarOptions" />
 
-        <NLGrid gap="6" v-if="currentSection == 'regularizations'" />
+        <!-- <NLGrid gap="6" v-if="currentSection == 'regularizations'" /> -->
     </ContentBody>
 </template>
 
@@ -52,6 +53,7 @@ import Anomalies from './dashboard/second_level/Anomalies'
 import MajorFacts from './dashboard/second_level/MajorFacts'
 import Scores from './dashboard/second_level/Scores'
 import Missions from './dashboard/second_level/Missions'
+import { user } from '../plugins/user'
 export default {
     components: {
         Anomalies,
@@ -64,6 +66,7 @@ export default {
     data() {
         return {
             currentSection: null,
+            userRole: null,
         }
     },
     computed: {
@@ -99,6 +102,7 @@ export default {
     },
     created() {
         this.setCurrentSection('realisationStates')
+        this.userRole = user()?.role?.code
     },
     methods: {
         /**
@@ -109,17 +113,6 @@ export default {
          * @return {void}
          */
         setCurrentSection(section) {
-            // if (this.currentSection !== section) {
-            //     if (section === 'scores') {
-            //         this.currentSection = section
-            //     } else if (section === 'majorFacts') {
-            //         this.currentSection = section
-            //     } else if (section === 'anomalies') {
-            //         this.currentSection = section
-            //     } else if (section === 'regularizations') {
-            //     }
-            // } else {
-            // }
             this.currentSection = section
             this.$store.dispatch('settings/updatePageLoading', false)
         },

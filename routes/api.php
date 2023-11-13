@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\DataController;
 use App\Http\Controllers\Api\AgencyController;
+use App\Http\Controllers\Api\BackupController;
 use App\Http\Controllers\Api\BugController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CommentController;
@@ -22,7 +23,6 @@ use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\Settings\PasswordController;
-use App\Http\Controllers\Api\Settings\ProfileController;
 use App\Http\Controllers\Api\ReferenceController;
 use App\Http\Controllers\Api\MissionDetailRegularizationController;
 use App\Http\Controllers\Api\ModuleController;
@@ -47,9 +47,15 @@ Route::group(['middleware' => 'auth:api'], function () {
 
     Route::group(['middleware' => 'is_active'], function () {
 
-        Route::patch('settings/profile/{user}', [ProfileController::class, 'update']);
+        // Route::patch('settings/profile/{user}', [ProfileController::class, 'update']);
         Route::patch('settings/password/{user}', [PasswordController::class, 'update']);
         Route::get('settings/laravel/rules', [SettingController::class, 'getValidationRules']);
+
+        Route::prefix('backup-db')->controller(BackupController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::delete('{filename}', 'destroy');
+        });
 
         // Roles routes
         Route::prefix('roles')->controller(RoleController::class)->group(function () {

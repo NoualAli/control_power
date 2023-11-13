@@ -35,12 +35,12 @@ class UpdateUserInfoRequest extends FormRequest
             'role' => ['required', 'exists:roles,id', new UniqueUserRole(request('agencies'), $id)],
             'is_active' => ['required', 'boolean'],
             'gender' => ['required', 'integer', 'in:1,2'],
-            'registration_number' => ['required', 'numeric', 'unique:users,registration_number,' . $id . ',id', 'digits:4'],
+            'registration_number' => ['nullable', 'numeric', 'unique:users,registration_number,' . $id . ',id', 'max_digits:5'],
         ];
         $role = request()->role;
 
         if (in_array($role, [13, 5])) {
-            $rules['agencies'] = ['required', 'string'];
+            $rules['agencies'] = ['required', 'array'];
         }
 
         if ($role == 6) {

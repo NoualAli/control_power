@@ -27,7 +27,7 @@
                 <!-- Submit Button -->
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
-                        <NLButton :loading="form.busy" label="Mettre à jour" />
+                        <NLButton :loading="formIsLoading" label="Mettre à jour" />
                     </NLFlex>
                 </NLColumn>
             </NLForm>
@@ -44,6 +44,7 @@ export default {
     data() {
         return {
             forcedRerenderKey: -1,
+            formIsLoading: false,
             pcfList: [],
             readonly: {
                 start_date: true,
@@ -86,11 +87,12 @@ export default {
          */
         update() {
             // console.log(this.$route.params.campaignId)
-
+            this.formIsLoading = true
             this.form.put('campaigns/' + this.$route.params.campaignId).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.$router.push({ name: 'campaign', params: { campaignId: this.$route.params.campaignId } })
+                    this.formIsLoading = false
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }

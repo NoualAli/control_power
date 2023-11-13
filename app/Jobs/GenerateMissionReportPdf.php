@@ -57,7 +57,6 @@ class GenerateMissionReportPdf implements ShouldQueue
             $mission = $this->mission;
             $start = now();
             $mission->unsetRelations();
-            // $mission->load(['details' => fn ($query) => $query->whereIn('score', [1, 2, 3, 4])->get()->groupBy('family.name'), 'campaign']);
             $mission->load(['details', 'campaign']);
             $details = $mission->details()->whereIn('score', [1, 2, 3, 4])->get()->groupBy('family.name');
             $campaign = $mission->campaign;
@@ -92,10 +91,8 @@ class GenerateMissionReportPdf implements ShouldQueue
                 $content = $pdf->download()->getOriginalContent();
 
                 Storage::put($this->filepath(), $content);
-                // $this->response['message'] = 'Fichier générer avec succès !';
-                // $this->response['status'] = true;
-                $notify = User::whereRoles(['cdcr', 'dg', 'cdrcp', 'ig', 'sg', 'der', 'dcp']);
-                $notify = User::whereRoles(['dre'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($notify->get());
+                $notify = User::whereRoles(['cdcr', 'cdrcp', 'dcp']);
+                $notify = User::whereRoles(['dre', 'da'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($notify->get());
                 $notify = $notify->merge($mission->dcpControllers)->merge($mission->dreControllers);
                 $end = now();
                 $difference = $end->diffInRealMilliseconds($start);

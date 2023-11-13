@@ -4,7 +4,7 @@
             :class="{ 'text-danger': form?.errors.has(name), 'is-required': labelRequired }">
             {{ label }}
         </label>
-        <i v-if="helpText" class="las la-exclamation-circle text-medium help-text" :class="{ 'ml-4': labelRequired }"
+        <i v-if="helpText" class="las la-question-circle text-medium help-text" :class="{ 'ml-4': labelRequired }"
             :title="helpText" />
         <slot />
         <div class="d-flex justify-end align-center is-column is-lg-row"

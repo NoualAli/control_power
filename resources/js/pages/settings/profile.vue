@@ -1,34 +1,34 @@
 <template>
     <NLGrid>
-        <NLColumn>
-            <NLForm :action="updateProfile" :form="infoForm">
+        <!-- <NLColumn> -->
+        <!-- <NLForm :action="updateProfile" :form="infoForm">
                 <NLColumn>
                     <h2>Mettez à jour vos informations</h2>
-                </NLColumn>
+                </NLColumn> -->
 
-                <!-- Username -->
-                <NLColumn lg="4" md="6">
+        <!-- Username -->
+        <!-- <NLColumn lg="4" md="6">
                     <NLInput v-model="infoForm.username" :form="infoForm" name="username" label="Nom d'utilisateur"
                         readonly />
-                </NLColumn>
+                </NLColumn> -->
 
-                <!-- Firstname -->
-                <NLColumn lg="4" md="6">
+        <!-- Firstname -->
+        <!-- <NLColumn lg="4" md="6">
                     <NLInput v-model="infoForm.first_name" :form="infoForm" name="firstname" label="Prénom" />
-                </NLColumn>
+                </NLColumn> -->
 
-                <!-- Lastname -->
-                <NLColumn lg="4" md="6">
+        <!-- Lastname -->
+        <!-- <NLColumn lg="4" md="6">
                     <NLInput v-model="infoForm.last_name" :form="infoForm" name="last_name" label="Nom de famille" />
-                </NLColumn>
+                </NLColumn> -->
 
-                <!-- Phone -->
-                <NLColumn lg="6" md="6">
+        <!-- Phone -->
+        <!-- <NLColumn lg="6" md="6">
                     <NLInput v-model="infoForm.phone" :form="infoForm" name="phone" label="N° de téléphone" type="phone" />
-                </NLColumn>
+                </NLColumn> -->
 
-                <!-- Email -->
-                <NLColumn lg="6" md="6">
+        <!-- Email -->
+        <!-- <NLColumn lg="6" md="6">
                     <NLInput v-model="infoForm.email" :form="infoForm" name="email" label="Adresse e-mail" label-required
                         type="email" />
                 </NLColumn>
@@ -37,8 +37,8 @@
                         <NLButton :loading="infoForm.busy" label="Mettre à jour" @click.prevent="updateProfile" />
                     </NLFlex>
                 </NLColumn>
-            </NLForm>
-        </NLColumn>
+            </NLForm> -->
+        <!-- </NLColumn> -->
 
         <NLColumn>
             <NLForm :action="updatePassword" :form="passwordForm">

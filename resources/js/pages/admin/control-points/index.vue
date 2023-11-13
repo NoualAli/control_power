@@ -8,6 +8,10 @@
                     class="btn btn-info">
                     Ajouter
                 </router-link>
+                <a href="/excel-export?export=control_points" target="_blank" class="btn btn-excel has-icon">
+                    <i class="las la-file-excel icon" />
+                    Exporter
+                </a>
             </template>
         </ContentHeader>
         <ContentBody>

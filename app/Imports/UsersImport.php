@@ -33,8 +33,9 @@ class UsersImport implements ToModel, WithHeadingRow
                 $phone = !\Str::startsWith(trim($phone, " \t\n\r\0\x0B\u{A0}"), '0') ? '0' . trim($phone) : $phone;
                 $agencies = !empty($row['indice_agence']) && !empty($row['agence']) ?
                     Agency::where('name', trim($row['agence']))->where('code', $row['indice_agence'])->get()->pluck('id') :
-                    Dre::where('name', trim($row['dre']))->where('code', $row['indice_dre'])->first()->agencies->pluck('id');
+                    Dre::where('name', trim($row['dre']))->where('code', $row['indice_dre'])->first()?->agencies?->pluck('id');
                 $password = $this->generatePassword();
+
 
                 if ($role) {
                     $user = [
@@ -49,16 +50,23 @@ class UsersImport implements ToModel, WithHeadingRow
                         'is_active' => true,
                         'must_change_password' => true,
                         'password' => Hash::make($password),
+                        'first_login_password' => $password,
+                        'is_notified' => false
                     ];
 
                     $userExists = User::where('first_name', $user['first_name'])->where('last_name', $user['last_name'])->count();
+                    // if ($userExists !== null) {
+                    //     $userExists->delete();
+                    // }
                     if (!$userExists && !empty($first_name) && !empty($last_name)) {
                         $user = User::create($user);
                         $user->roles()->attach([$role->id]);
                         $user->agencies()->sync($agencies);
                         try {
                             if ($user->username !== 'ROOT') {
-                                Notification::send($user, new UserCreatedNotification($user, $password));
+                                // Notification::send($user, new UserCreatedNotification($user, $password));
+                                $user->notify(new UserCreatedNotification($user, $password));
+                                $user->update(['is_notified' => true]);
                             }
                         } catch (\Throwable $th) {
                             dd($user, $th->getMessage());
@@ -79,7 +87,6 @@ class UsersImport implements ToModel, WithHeadingRow
         for ($i = 0; $i < $length; $i++) {
             $string .= $characters[mt_rand(0, strlen($characters) - 1)];
         }
-
         return $string;
     }
 }

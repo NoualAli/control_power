@@ -31,9 +31,8 @@ class UniqueUserRole implements Rule
         if (request()->role == 11 && is_numeric($value)) {
             $this->agency = Agency::findOrFail($value);
         }
-        if (in_array(request()->role, [13, 5]) && str_starts_with($value, 'd-')) {
-            $dre = (int) str_replace('d-', '', $value);
-            $this->dre = Dre::findOrFail($dre);
+        if (in_array(request()->role, [13, 5])) {
+            $this->dre = $this->user->dres->last();
         }
     }
 
@@ -47,7 +46,7 @@ class UniqueUserRole implements Rule
     public function passes($attribute, $value)
     {
         $this->role = Role::findOrFail($value);
-        if (in_array($value, [2, 3, 4, 8, 9, 12, 14])) {
+        if (in_array($value, [2, 3, 4, 8, 9, 12, 14, 15, 16])) {
             $users = User::where('active_role_id', $value)->where('is_active', true);
             if ($this->user) {
                 $users = $users->where('id', '!=', $this->user->id);

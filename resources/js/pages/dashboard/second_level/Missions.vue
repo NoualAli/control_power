@@ -40,7 +40,7 @@
         </NLColumn>
 
         <!-- Situation des rapports -->
-        <NLColumn lg="4">
+        <NLColumn lg="4" v-if="userRole !== 'ci'">
             <div class="box">
                 <div class="d-flex align-center justify-between">
                     <h2>Situation des rapports</h2>
@@ -63,7 +63,7 @@
         </NLColumn>
 
         <!-- Classement des DRE par taux de réalisation des missions -->
-        <NLColumn lg="8" extraClass="box">
+        <NLColumn lg="8" extraClass="box" v-if="userRole !== 'ci'">
             <h2>Classement des DRE par taux de réalisation des missions</h2>
             <div class="table-container" v-if="tables.dresClassificationByAchievementRate.length">
                 <table>
@@ -113,7 +113,8 @@ export default {
         circularChartOptions: { type: Object, required: false },
         chartOptions: { type: Object, required: false },
         horizontalBarOptions: { type: Object, required: false },
-        onlyCurrentCampaign: { type: Boolean, required: false, default: true }
+        onlyCurrentCampaign: { type: Boolean, required: false, default: true },
+        userRole: { type: String, required: false, default: null }
     },
     data() {
         return {

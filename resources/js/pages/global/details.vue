@@ -1,8 +1,8 @@
 <template>
     <ContentBody>
         <NLDatatable :columns="columns" :actions="actions" :filters="filters" @show="show"
-            title="Anomalie • Notation • Plan de redressement" urlPrefix="details" :key="forceReload"
-            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
+            title="Anomalie • Notation • Plan de redressement" urlPrefix="details"
+            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" :refresh="refresh" />
 
         <!-- View control point informations -->
         <MissionDetailModal :rowSelected="rowSelected" :show="modals.show" @showForm="showForm" @close="close" />
@@ -11,8 +11,7 @@
         <MissionDetailForm :data="rowSelected" :show="modals.edit" @success="success" @close="close" />
 
         <!-- Régularization du point de contrôle -->
-        <MissionRegularizationForm :detail="rowSelected" :show="modals.regularize" @success="success" @close="close"
-            :key="forceReload" />
+        <MissionRegularizationForm :detail="rowSelected" :show="modals.regularize" @success="success" @close="close" />
     </ContentBody>
 </template>
 <script>
@@ -28,7 +27,7 @@ export default {
     data: () => {
         return {
             rowSelected: null,
-            forceReload: 1,
+            refresh: 0,
             columns: [
                 {
                     label: 'CDC-ID',
@@ -80,7 +79,7 @@ export default {
                     label: 'Notation',
                     field: 'score',
                     align: 'center',
-                    hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
+                    hide: hasRole([ 'cdc', 'ci' ]),
                     sortable: true,
                     isHtml: true,
                     methods: {
@@ -105,9 +104,14 @@ export default {
                     }
                 },
                 {
+                    label: 'Contrôlé',
+                    field: 'is_controlled',
+                    hide: !hasRole([ 'cdc', 'ci', 'cdcr', 'cc', 'dcp' ])
+                },
+                {
                     label: 'Etat',
                     field: 'is_regularized_str',
-                    hide: hasRole([ 'cdc', 'ci' ])
+                    // hide: hasRole([ 'cdc', 'ci' ])
                 }
             ],
             actions: {
@@ -170,7 +174,7 @@ export default {
                     label: 'Régularisation',
                     multiple: false,
                     value: null,
-                    hide: hasRole([ 'cdc', 'ci' ]),
+                    // hide: hasRole([ 'cdc', 'ci' ]),
                     data: [
                         {
                             id: 'Non levée',
@@ -215,12 +219,11 @@ export default {
          * @param {*} e
          */
         success(e) {
-            // this.$store.dispatch('settings/updatePageLoading', true)
-            // this.forceReload += 1
+            this.refresh += 1
             const row = this.rowSelected
             this.modals.edit = false
             this.modals.regularize = false
-            this.close(true)
+            this.close()
             this.show(row)
         },
         /**
@@ -258,18 +261,13 @@ export default {
         /**
          * Handle close event
          */
-        close(forceReload = false) {
-            this.$store.dispatch('settings/updatePageLoading', true)
+        close() {
             for (const key in this.modals) {
                 if (Object.hasOwnProperty.call(this.modals, key)) {
                     this.modals[ key ] = false
                 }
             }
             this.rowSelected = null
-            if (forceReload) {
-                this.forceReload += 1
-            }
-            this.$store.dispatch('settings/updatePageLoading', false)
         },
         /**
          * @param {Object} Object

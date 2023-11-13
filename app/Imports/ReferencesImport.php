@@ -24,19 +24,25 @@ class ReferencesImport implements ToModel, WithHeadingRow
         $family = isset($row['familles']) && !empty($row['familles']) ? Family::where('name', trim($row['familles']))->first() : null;
         $domain = isset($row['domaines']) && !empty($row['domaines']) && $family?->id ? $family?->domains()->where('name', trim($row['domaines']))->first() : null;
         $process = isset($row['processus']) && !empty($row['processus']) && $domain?->id ? $domain?->processes()->where('name', trim($row['processus']))->first() : null;
-        $type = isset($row['type']) && !empty($row['type']) && in_array($row['type'], ['Circulaire', 'Lettre-circulaire', 'Note']) ? ucfirst(strtolower($row['type'])) : null;
+        $type = isset($row['type']) && !empty($row['type']) && in_array($row['type'], ['Circulaire', 'Lettre-circulaire', 'Note', 'Guide 1er niveau']) ? ucfirst(strtolower($row['type'])) : null;
         // dd($row['familles'], $family, $row['domaines'], $domain, $row['processus'], $process, isset($row['domaines']) && !empty($row['domaines']) && $family?->id);
-        // if (!$family || !$domain || !$process) {
-        // dd($row, $family,  $domain, $process, $domain?->processes->pluck('name'));
-        // }
+        if (!$family || !$domain || !$process) {
+            dd($row, $family,  $domain, $process, $domain?->processes->pluck('name'));
+        }
         // Check if family, domain, process and type are not null
         // to perform copy of file and store it into database
         try {
             if ($family !== null && $domain !== null && $process !== null && $type !== null) {
                 $number = isset($row['numero']) && !empty($row['numero']) ? $row['numero'] : null;
                 $date = isset($row['date']) && !empty($row['date']) ? Carbon::parse(str_replace('_', '-', $row['date'])) : null;
+                if ($type == 'Guide 1er niveau') {
+                    $date = null;
+                    $file_name = $row['objet'];
+                } else {
+                    $file_name = $this->getFileName($type, $number, $date);
+                }
+                isset($row['date']) && !empty($row['date']) ? Carbon::parse(str_replace('_', '-', $row['date']))->format('d-m-Y') : null;
                 $object = isset($row['objet']) && !empty($row['objet']) ? $row['objet'] : null;
-                $file_name = $this->getFileName($type, $number, $date);
                 $hash_name = $this->getHashName($file_name);
                 $folder = 'references\\' . $type;
                 if (!File::exists($folder)) {
@@ -55,7 +61,9 @@ class ReferencesImport implements ToModel, WithHeadingRow
                 $full_path_hashed = $folder . '\\' . $hash_name . '.' . $fileExtension;
                 $attachableType = Process::class;
                 $attachableId = $process->id;
-
+                if (!File::exists($full_path)) {
+                    // dd($row, $full_path, $fileExtension);
+                }
                 if (File::exists($full_path)) {
                     File::copy(public_path($full_path), public_path($full_path_hashed));
                     $mimeType = File::mimeType($full_path_hashed);
@@ -72,7 +80,7 @@ class ReferencesImport implements ToModel, WithHeadingRow
                         'size' => $size,
                         'payload' => json_encode([
                             'number' => $number,
-                            'date' => $date->format('d-m-Y'),
+                            'date' => $date,
                             'object' => $object,
                             'type' => $type,
                         ])
@@ -80,7 +88,7 @@ class ReferencesImport implements ToModel, WithHeadingRow
                 }
             }
         } catch (\Throwable $th) {
-            dd($th->getMessage(), $th->getLine());
+            dd($th->getMessage(), $th->getLine(), $row);
         }
     }
 
@@ -96,6 +104,7 @@ class ReferencesImport implements ToModel, WithHeadingRow
         $extensions = ['tif', 'pdf', 'png', 'jpg'];
         $fileExtension = '';
         foreach ($extensions as $extension) {
+            // dd(File::exists($path . '.' . $extension), $path, $extension);
             if (File::exists($path . '.' . $extension)) {
                 $fileExtension = $extension;
                 break;

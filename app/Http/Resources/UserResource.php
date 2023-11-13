@@ -25,6 +25,8 @@ class UserResource extends JsonResource
             'dres' => $this->dres_str,
             'is_active' => $this->is_active,
             'role_code' => $this->role->code,
+            'created_at' => $this->created_at,
+            'last_login' => $this->last_login?->last_activity ?: '-',
         ];
     }
 }

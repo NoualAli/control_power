@@ -5,12 +5,22 @@
                 <router-link v-if="can('create_user')" :to="{ name: 'users-create' }" class="btn btn-info">
                     Ajouter
                 </router-link>
+                <a href="/excel-export?export=users" target="_blank" class="btn btn-excel has-icon">
+                    <i class="las la-file-excel icon" />
+                    Exporter
+                </a>
             </template>
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" :details="details" title="Liste des utilisateurs"
-                urlPrefix="users" @edit="edit" @delete="destroy" :key="forceReload"
-                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
+                urlPrefix="users" @edit="edit" @delete="destroy" :refresh="refresh"
+                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
+                <template #actions-before="{ item }">
+                    <a class="btn btn-excel" :href="'/excel-export?export=users&id=' + item.id" target="_blank">
+                        <i class="las la-file-excel icon" />
+                    </a>
+                </template>
+            </NLDatatable>
         </ContentBody>
     </div>
 </template>
@@ -26,7 +36,7 @@ export default {
     },
     data() {
         return {
-            forceReload: 1,
+            refresh: 1,
             columns: [
                 {
                     label: "Nom d'utilisateur",
@@ -67,7 +77,17 @@ export default {
                             return '<i class="las la-times-circle icon text-danger"></i>'
                         }
                     }
-                }
+                },
+                {
+                    label: 'Dernière connexion',
+                    field: 'last_login',
+                    // sortable: true,
+                },
+                {
+                    label: 'Date de création',
+                    field: 'created_at',
+                    sortable: true,
+                },
             ],
             details: [
                 {
@@ -102,13 +122,21 @@ export default {
                     label: 'Rôle',
                     field: 'role.name'
                 },
+                {
+                    label: 'Dernière connexion',
+                    field: 'last_login.last_activity',
+                },
+                {
+                    label: 'Date de création',
+                    field: 'created_at',
+                },
             ],
             actions: {
                 edit: {
                     show: (item) => {
                         let condition = !this.isCurrent(item) && this.can('edit_user') && item?.role_code !== 'root'
                         if (hasRole('cdcr')) {
-                            return condition && ![ 'admin', 'root', 'dg', 'ig', 'sg', 'dcp', 'cdrcp', 'der' ].includes(item.role_code)
+                            return condition && ![ 'admin', 'root', 'dg', 'ig', 'sg', 'dcp', 'cdrcp', 'der', 'deac', 'dga' ].includes(item.role_code)
                         }
                         return condition
                     },
@@ -116,7 +144,7 @@ export default {
                 },
                 delete: {
                     show: (item) => {
-                        return !this.isCurrent(item) && this.can('delete_user') && item?.role_code !== 'root' && hasRole('root')
+                        return !this.isCurrent(item) && this.can('delete_user') && item?.role_code !== 'root' && hasRole([ 'root', 'admin' ]) && item.id !== user()?.id
                     },
                     apply: this.destroy
                 }
@@ -148,7 +176,7 @@ export default {
                 if (action.isConfirmed) {
                     return api.delete('users/' + e.item.id).then(response => {
                         if (response.data.status) {
-                            this.forceReload += 1
+                            this.refresh += 1
                             return this.$swal.toast_success(response.data.message)
                         } else {
                             return this.$swal.toast_error(response.data.message)

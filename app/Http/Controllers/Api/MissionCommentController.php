@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\MissionState;
 use App\Http\Controllers\Controller;
 use App\Models\Mission;
 use App\Http\Requests\Mission\Report\StoreRequest;
@@ -24,6 +25,7 @@ class MissionCommentController extends Controller
     public function store(StoreRequest $request, Mission $mission)
     {
         $data = $request->validated();
+        // dd($data);
         $type = $data['type'];
         if ($type == 'cdc_report') {
             isAbleOrAbort(['create_cdc_report', 'validate_cdc_report']);
@@ -44,12 +46,6 @@ class MissionCommentController extends Controller
                 $validationAtColumn = $attributes['validationAtColumn'];
                 $validationByIdColumn = $attributes['validationByIdColumn'];
                 $message = $attributes['message'];
-                $missionState = 2;
-                if ($type == 'ci_report') {
-                    $missionState = 3;
-                } elseif ('cdc_report') {
-                    $missionState = 4;
-                }
 
                 if ($comment && !$validated) {
                     $comment->update([
@@ -65,9 +61,9 @@ class MissionCommentController extends Controller
 
                 if ($validated) {
                     if ($type == 'ci_report') {
-                        $missionState = 4;
+                        $missionState = MissionState::PENDING_CDC_VALIDATION;
                     } elseif ('cdc_report') {
-                        $missionState = 5;
+                        $missionState = MissionState::PENDING_CDCR_VALIDATION;
                     }
                     $users = $this->getUsers($mission, $type);
                     $this->notifyUsers($mission, $users, $type);
@@ -75,9 +71,9 @@ class MissionCommentController extends Controller
                         $validationByIdColumn => auth()->user()->id,
                         $validationAtColumn => now()
                     ]);
+                    $mission->update(['current_state' => $missionState]);
                 }
 
-                $mission->update(['current_state' => $missionState]);
                 return response()->json([
                     'message' => $message,
                     'status' => true,

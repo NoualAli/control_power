@@ -2,7 +2,7 @@
 <template>
     <ContentBody>
         <NLDatatable :columns="columns" :actions="actions" :filters="filters" title="Faits majeurs"
-            urlPrefix="details/major-facts" @show="show" :key="forceReload"
+            urlPrefix="details/major-facts" @show="show" :refresh="refresh"
             @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
 
         <!-- View control point informations -->
@@ -28,7 +28,7 @@ export default {
     data: () => {
         return {
             rowSelected: null,
-            forceReload: 1,
+            refresh: 0,
             columns: [
                 {
                     label: 'CDC-ID',
@@ -163,91 +163,6 @@ export default {
                     hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
                 }
             },
-            // filters: {
-            //     campaign: {
-            //         label: 'Campagne de contrôle',
-            //         cols: 3,
-            //         multiple: true,
-            //         data: null,
-            //         value: null
-            //     },
-            //     mission: {
-            //         label: 'Mission',
-            //         cols: 3,
-            //         multiple: true,
-            //         data: null,
-            //         value: null
-            //     },
-            //     dre: {
-            //         label: 'DRE',
-            //         cols: 3,
-            //         multiple: true,
-            //         data: null,
-            //         value: null,
-            //         hide: hasRole([ 'cdc', 'ci', 'da', 'dre' ])
-            //     },
-            //     agency: {
-            //         label: 'Agence',
-            //         cols: 3,
-            //         multiple: true,
-            //         data: null,
-            //         value: null
-            //     },
-            //     family: {
-            //         label: 'Famille',
-            //         multiple: true,
-            //         data: null,
-            //         value: null
-            //     },
-            //     domain: {
-            //         label: 'Domaine',
-            //         multiple: true,
-            //         data: null,
-            //         value: null
-            //     },
-            //     process: {
-            //         label: 'Processus',
-            //         multiple: true,
-            //         data: null,
-            //         value: null
-            //     },
-            //     is_regularized: {
-            //         label: 'Régularisation',
-            //         multiple: false,
-            //         value: null,
-            //         hide: hasRole([ 'cdc', 'ci' ]),
-            //         data: [
-            //             {
-            //                 id: 'Non levée',
-            //                 label: 'Non levée'
-            //             },
-            //             {
-            //                 id: 'Levée',
-            //                 label: 'Levée'
-            //             }
-            //         ]
-            //     },
-            //     score: {
-            //         label: 'Notation',
-            //         multiple: true,
-            //         data: [
-            //             {
-            //                 id: 2,
-            //                 label: 2
-            //             },
-            //             {
-            //                 id: 3,
-            //                 label: 3
-            //             },
-            //             {
-            //                 id: 4,
-            //                 label: 4
-            //             }
-            //         ],
-            //         value: null,
-            //         hide: !hasRole([ 'dcp', 'cdcr', 'cc' ])
-            //     }
-            // },
         }
     },
     created() {
@@ -260,6 +175,7 @@ export default {
          * @param {*} e
          */
         success(e) {
+            this.refresh += 1
             this.close()
         },
         /**
@@ -297,18 +213,13 @@ export default {
         /**
          * Ferme la boite modal des détails du point de contrôle
          */
-        close(forceReload = false) {
-            this.$store.dispatch('settings/updatePageLoading', true)
+        close() {
             for (const key in this.modals) {
                 if (Object.hasOwnProperty.call(this.modals, key)) {
                     this.modals[ key ] = false
                 }
             }
             this.rowSelected = null
-            if (forceReload) {
-                this.forceReload += 1
-            }
-            this.$store.dispatch('settings/updatePageLoading', false)
         },
         /**
          * @param {Object} Object

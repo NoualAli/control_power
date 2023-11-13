@@ -25,11 +25,9 @@ class MajorFactController extends Controller
         $perPage = request('perPage', 10);
         $fetchAll = request()->has('fetchAll');
         $campaign = request('campaign_id', null);
-
         try {
 
-            // $details = $this->majorFacts();
-            $details = getMissionDetails(true);
+            $details = getMajorFacts();
             if ($fetchFilters) {
                 return $this->filters($details);
             }
@@ -174,6 +172,11 @@ class MajorFactController extends Controller
      */
     public function filter(Builder $details, array $filter): Builder
     {
+        if (isset($filter['id'])) {
+            $value = $filter['id'];
+            $details = $details->where('md.id', $value);
+        }
+
         if (isset($filter['campaign'])) {
             $values = explode(',', $filter['campaign']);
             $details = $details->whereIn('control_campaign_id', $values);

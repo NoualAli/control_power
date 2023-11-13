@@ -5,7 +5,7 @@
             <input :id="getId" :maxlength="length"
                 :class="[{ 'is-danger': form?.errors.has(name) }, 'input', { 'is-for-auth': isForAuth }]" :type="finalType"
                 :name="name" :autocomplete="autocomplete" :autofocus="autofocus" :placeholder="placeholder || label"
-                :value="modelValue" :readonly="readonly" v-bind="$attrs" @input="onInput" @keypresse="isNumber">
+                :value="modelValue" :readonly="readonly" v-bind="$attrs" @input="onInput" @keypresse="isNumber" step="01">
 
             <div v-if="type == 'password'" class="show-password-btn has-icon"
                 :class="{ 'is-danger': form?.errors.has(name) }" @click="toggleType">
@@ -92,7 +92,8 @@ export default {
          * @param {*} value
          */
         sanitizeInput(value) {
-            return value.replace(/[^\w\s-+-]/gi, '')
+            return value
+            // return value.replace(/[^\w\s-+-]/gi, '')
         },
         /**
          * Used by password field to show input value

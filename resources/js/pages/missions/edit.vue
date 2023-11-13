@@ -46,7 +46,7 @@
                 </NLColumn>
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
-                        <NLButton :loading="form.busy" label="Mettre à jour" />
+                        <NLButton :loading="formIsLoading" label="Mettre à jour" />
                     </NLFlex>
                 </NLColumn>
             </NLForm>
@@ -105,6 +105,7 @@ export default {
     middleware: [ 'auth' ],
     data() {
         return {
+            formIsLoading: false,
             form: new Form({
                 note: null,
                 programmed_start: null,
@@ -165,6 +166,7 @@ export default {
          * Update mission
          */
         update() {
+            this.formIsLoading = true
             this.form.put('missions/' + this.mission.current.id).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
@@ -172,8 +174,10 @@ export default {
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }
+                this.formIsLoading = false
             }).catch(error => {
                 console.log(error)
+                this.formIsLoading = false
             })
         }
     }

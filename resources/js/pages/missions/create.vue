@@ -54,7 +54,7 @@
                 <NLColumn>
                     <!-- Submit Button -->
                     <NLFlex lgJustifyContent="end">
-                        <NLButton :loading="form.busy" label="Ajouter" />
+                        <NLButton :loading="formIsLoading" label="Ajouter" />
                     </NLFlex>
                 </NLColumn>
             </NLForm>
@@ -104,6 +104,7 @@ export default {
     middleware: [ 'auth' ],
     data() {
         return {
+            formIsLoading: false,
             campaignId: null,
             form: new Form({
                 note: null,
@@ -181,7 +182,7 @@ export default {
          * Création de la mission
          */
         create() {
-            // this.resetForm()
+            this.formIsLoading = true
             this.form.post('missions').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
@@ -190,8 +191,10 @@ export default {
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }
+                this.formIsLoading = false
             }).catch(error => {
                 console.log(error)
+                this.formIsLoading = false
             })
         }
     }

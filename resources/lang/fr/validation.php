@@ -235,7 +235,11 @@ return [
         'programmed_end' => 'date fin',
         'programmed_start' => 'date début',
         'category_id' => "catégorie",
-        'registration_number' => 'matricule'
+        'registration_number' => 'matricule',
+        'closing_report' => 'PV de clôture',
+        'mission_order' => 'ordre de mission',
+        'closing_report.*' => 'PV de clôture',
+        'controller' => 'contrôleur'
     ],
 
 ];

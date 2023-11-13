@@ -45,6 +45,8 @@ class MissionDetail extends BaseModel
         'major_fact_dispatched_at',
         'regularization_id',
         'is_regularized',
+        'major_fact_detected_at',
+        'major_fact_dispatched_to_dcp_at',
     ];
 
     protected $filter = 'App\Filters\MissionDetail';
@@ -85,25 +87,28 @@ class MissionDetail extends BaseModel
      */
     public function getReportAttribute()
     {
-        if (auth()->check()) {
-            if (hasRole('ci')) {
-                $column = 'ci_report';
-            } elseif (hasRole('cdc')) {
-                $column = $this->cdc_report ? 'cdc_report' : 'ci_report';
-            } else {
-                if ($this->cdc_report) {
-                    $column = 'cdc_report';
-                } else {
-                    $column = 'ci_report';
-                }
-            }
-        } else {
-            if ($this->cdc_report) {
-                $column = 'cdc_report';
-            } else {
-                $column = 'ci_report';
-            }
-        }
+        // if (auth()->check()) {
+        //     // if (hasRole('ci')) {
+        //         //     $column = 'ci_report';
+        //         // } elseif (hasRole('cdc')) {
+        //             //     $column = $this->cdc_report ? 'cdc_report' : 'ci_report';
+        //             // } else {
+        //     //     if ($this->cdc_report) {
+        //         //         $column = 'cdc_report';
+        //         //     } else {
+        //             //         $column = 'ci_report';
+        //             //     }
+        //             // }
+        //         } else {
+        //             // if ($this->cdc_report) {
+        //                 //     $column = 'cdc_report';
+        //                 // } else {
+        //                     //     $column = 'ci_report';
+        //     // }
+        // }
+        $column = $this->cdc_report ? 'cdc_report' : 'ci_report';
+        // $isControlledByCdc = $this->cdc_report ? '(Contrôler par CDC)' : '';
+
         return $this->$column;
     }
 
@@ -208,15 +213,17 @@ class MissionDetail extends BaseModel
         foreach ($metadata as $rows) {
             $newRow = collect([]);
             foreach ($rows as $row) {
+                unset($row->rules);
+                $properties = array_keys((array) $row);
+                $value = $properties[0];
                 $item = new stdClass;
                 $item->label = $row->label;
-                $value = end($row);
-                $item->label = $row->label;
-                $item->value = $value;
+                $item->value = $row->$value;
                 $newRow->push($item);
             }
             $newMetadata->push($newRow);
         }
+
         return $newMetadata;
     }
 
@@ -266,6 +273,11 @@ class MissionDetail extends BaseModel
     public function regularizations()
     {
         return $this->hasMany(MissionDetailRegularization::class, 'mission_detail_id')->orderBy('mission_detail_regularizations.created_at', 'DESC');
+    }
+
+    public function validatedRegularization()
+    {
+        return $this->belongsTo(MissionDetailRegularization::class)->where('is_regularized', true);
     }
 
     public function regularization()

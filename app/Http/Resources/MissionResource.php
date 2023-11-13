@@ -17,23 +17,6 @@ class MissionResource extends JsonResource
     {
         isAbleOrAbort('view_mission');
         return [
-            // 'id' => $this->id,
-            // 'campaign' => $this->campaign->reference,
-            // 'reference' => $this->reference,
-            // 'dre' => $this->dre->full_name,
-            // 'agency' => $this->agency->full_name,
-            // 'state' => $this->realisation_state,
-            // 'end' => $this->end,
-            // 'start' => $this->programmed_start->format('d-m-Y'),
-            // 'dre_controllers_str' => $this->dre_controllers_str,
-            // 'remaining_days_before_start' => $this->remaining_days_before_start,
-            // 'progress_status' => $this->progress_status,
-            // 'avg_score' => $this->avg_score,
-            // 'is_validated_by_dcp' => $this->is_validated_by_dcp,
-            // 'is_validated_by_cdcr' => $this->is_validated_by_cdcr,
-            // 'is_validated_by_cdc' => $this->is_validated_by_cdc,
-            // 'is_validated_by_ci' => $this->is_validated_by_ci,
-            // 'is_validated_by_cc' => $this->is_validated_by_cc,
             'id' => $this->id,
             'campaign' => $this->campaign,
             'reference' => $this->reference,
@@ -50,6 +33,7 @@ class MissionResource extends JsonResource
             'is_validated_by_cdc' => $this->is_validated_by_cdc,
             'is_validated_by_ci' => $this->is_validated_by_ci,
             'is_validated_by_cc' => $this->is_validated_by_cc,
+            'is_late' => (bool) $this->is_late
         ];
     }
 

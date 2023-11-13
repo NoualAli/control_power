@@ -35,7 +35,7 @@
             </NLGrid>
             <!-- Submit Button -->
             <div class="d-flex justify-end align-center">
-                <NLButton :loading="form.busy" label="Signaler" />
+                <NLButton :loading="formIsLoading" label="Signaler" />
             </div>
         </form>
     </ContentBody>
@@ -58,6 +58,7 @@ export default {
     middleware: [ 'auth' ],
     data() {
         return {
+            formIsLoading: false,
             typesList: [
                 {
                     id: 1,
@@ -143,6 +144,7 @@ export default {
             return false; // No changes in form values
         },
         create() {
+            this.formIsLoading = true
             this.form.post('bugs').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
@@ -150,8 +152,10 @@ export default {
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }
+                this.formIsLoading = false
             }).catch(error => {
                 console.log(error)
+                this.formIsLoading = false
             })
         }
     }

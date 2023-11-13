@@ -45,7 +45,9 @@ class User extends Authenticatable implements JWTSubject
         'gender',
         'is_active',
         'registration_number',
-        'active_post'
+        'active_post',
+        'first_login_password',
+        'is_notified',
     ];
 
     /**
@@ -66,6 +68,7 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'created_at' => 'datetime',
         'must_change_password' => 'boolean',
         'is_active' => 'boolean',
         'gender' => 'integer',
@@ -78,6 +81,16 @@ class User extends Authenticatable implements JWTSubject
     /**
      * Getters
      */
+    // public function getRegistrationNumberAttribute()
+    // {
+    //     return str_pad($this->registration_number, 5, '0', STR_PAD_LEFT);
+    // }
+
+    public function getCreatedAtAttribute($created_at)
+    {
+        return \Carbon\Carbon::parse($created_at)->format('d-m-Y');
+    }
+
     public function getGenderStrAttribute()
     {
         return $this->gender == 1 ? 'Homme' : 'Femme';
@@ -223,6 +236,11 @@ class User extends Authenticatable implements JWTSubject
     public function logins()
     {
         return $this->hasMany(Login::class);
+    }
+
+    public function last_login()
+    {
+        return $this->hasOne(Login::class)->orderBy('last_activity', 'DESC');
     }
 
     public function bugs()

@@ -1,5 +1,13 @@
 <template>
     <div v-if="can('view_modules')">
+        <ContentHeader>
+            <template #actions>
+                <a href="/excel-export?export=modules" target="_blank" class="btn btn-excel has-icon">
+                    <i class="las la-file-excel icon" />
+                    Exporter
+                </a>
+            </template>
+        </ContentHeader>
         <ContentBody>
             <NLForm :action="update" :form="form" class="no-bg shadowless">
                 <NLColumn>

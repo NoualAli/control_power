@@ -99,7 +99,8 @@ export default {
         detailsUrlPrefix: { type: String, required: false, default: null },
         filtersCustomUrl: { type: String, default: null, required: false },
         filtersUrlPrefix: { type: String, required: false, default: null },
-        isSearchable: { type: Boolean, require: false, default: true }
+        isSearchable: { type: Boolean, required: false, default: true },
+        refresh: { type: Number, required: false, default: 0 },
     },
     data() {
         return {
@@ -116,6 +117,13 @@ export default {
             activeFilters: {},
             key: 1,
             forceFilterReload: 0
+        }
+    },
+    watch: {
+        refresh(newVal, oldVal) {
+            if (newVal !== oldVal) {
+                this.loadData({ page: this.page, perPage: this.perPage, search: this.search, sorting: this.sorting, filters: this.activeFilters })
+            }
         }
     },
     computed: {

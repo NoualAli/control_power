@@ -10,6 +10,9 @@ use App\Http\Resources\LoginHistoryResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Notifications\UserCreatedNotification;
+use App\Notifications\UserInforUpdatedNotification;
+use App\Notifications\UserInfoUpdatedNotification;
+use App\Notifications\UserPasswordUpdatedNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -24,7 +27,7 @@ class UserController extends Controller
     {
         $user = auth()->user();
         if (!hasRole(['admin', 'root'])) {
-            // $missions = !hasRole(['cdcr', 'dcp', 'dg', 'ig', 'sg', 'cdrcp', 'der']) ? $user->missions()->with([])->get() : Mission::with([])->get();
+            // $missions = !hasRole(['cdcr', 'dcp', 'dg', 'ig', 'sg', 'cdrcp', 'der', 'deac', 'dga']) ? $user->missions()->with([])->get() : Mission::with([])->get();
             // $missions = getMissions()->get();
             // $missions = $missions->filter(fn ($mission) => !$mission->pdf_report_exists)->pluck('id')->toArray();
             $missions = getMissions()->get()->filter(fn ($mission) => Storage::fileExists('exported\campaigns\\' . $mission->campaign . '\\missions\\' . $mission->reference . '.pdf'));
@@ -46,26 +49,10 @@ class UserController extends Controller
     public function index()
     {
         isAbleOrAbort('view_user');
-        $users = User::with(['dres', 'role']);
-
-        // $users = DB::table('users as u')
-        //     ->select([
-        //         'u.id',
-        //         'u.username',
-        //         DB::raw('CONCAT(u.last_name, " ", u.first_name) AS full_name'),
-        //         'u.email',
-        //         'u.is_active',
-        //         'r.name as r_name',
-        //         'r.code as r_code',
-        //         'dres',
-        //     ])
-        //     ->leftJoin('roles as r', 'r.id', '=', 'u.active_role_id')
-        //     ->leftJoin(DB::raw('(SELECT uha.user_id, GROUP_CONCAT(DISTINCT CONCAT(d.code, " - ", d.name) ORDER BY d.code ASC SEPARATOR ", ") AS dres
-        // FROM user_has_agencies as uha
-        // LEFT JOIN agencies as a ON a.id = uha.agency_id
-        // LEFT JOIN dres as d ON d.id = a.dre_id
-        // GROUP BY uha.user_id) as dres'), 'dres.user_id', '=', 'u.id');
-        // dd($users->get());
+        $users = User::with(['dres', 'role', 'last_login']);
+        // foreach ($users->whereNot('active_role_id', 1)->get() as $user) {
+        //     $user->update(['password' => Hash::make('123456')]);
+        // }
         $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
@@ -110,6 +97,7 @@ class UserController extends Controller
         try {
             $data = $request->validated();
             DB::transaction(function () use ($data) {
+                $firstLoginPassword = $data['password'];
                 $data['password'] = isset($data['password']) && !empty($data['password']) ? Hash::make($data['password'])  : Hash::make('Azerty123');
                 $data['active_role_id'] = $data['role'];
                 $role = $data['role'];
@@ -122,6 +110,9 @@ class UserController extends Controller
                     $user->agencies()->sync($agencies);
                 }
                 $user->roles()->attach([$role]);
+                if ($user->is_active) {
+                    Notification::send($user, new UserCreatedNotification($user, $firstLoginPassword));
+                }
             });
             return response()->json([
                 'message' => CREATE_SUCCESS,
@@ -145,7 +136,7 @@ class UserController extends Controller
     {
         isAbleOrAbort('view_user');
         $user->unsetRelations();
-        return response()->json($user->load(['role', 'dres', 'agencies']));
+        return response()->json($user->load(['role', 'dres', 'agencies', 'last_login']));
     }
 
     /**
@@ -159,7 +150,40 @@ class UserController extends Controller
     {
         try {
             $data = $request->validated();
+
             DB::transaction(function () use ($data, $user) {
+                // $keys = array_keys($data);
+                // $updatedInformations = [];
+                // $userCurrentInformations = $user->only([
+                //     "username",
+                //     "email",
+                //     "first_name",
+                //     "last_name",
+                //     "phone",
+                //     "role",
+                //     "is_active",
+                //     "gender",
+                //     "registration_number",
+                //     "agencies"
+                // ]);
+                // foreach ($keys as $key) {
+                //     $oldValue = $userCurrentInformations[$key];
+                //     $newValue = $data[$key];
+                //     if ($key == 'agencies') {
+                //         if (in_array($newValue, $oldValue->pluck('id')->toArray())) {
+                //             $oldValue = $newValue;
+                //         }
+                //     }
+                //     if ($key == 'role') {
+                //         if ($newValue == (int) $oldValue->id) {
+                //             $oldValue = $newValue;
+                //         }
+                //     }
+
+                //     if ($oldValue !== $newValue) {
+                //         $updatedInformations[$key] = ['oldValue' => $oldValue, 'newValue' => $newValue];
+                //     }
+                // }
                 $data['active_role_id'] = $data['role'];
                 $role = $data['role'];
                 unset($data['role']);
@@ -169,22 +193,28 @@ class UserController extends Controller
 
                 if (isset($data['agencies'])) {
                     $agencies = $data['agencies'];
-                    $agencies = loadAgencies($agencies);
+                    $agenciesId = [];
+                    if (is_array($agencies)) {
+                        foreach ($agencies as $agency) {
+                            array_push($agenciesId, $agency);
+                        }
+                    } else {
+                        array_push($agenciesId, $data['agencies']);
+                    }
                     unset($data['agencies']);
-                    $user->agencies()->sync($agencies);
+                    $user->agencies()->sync($agenciesId);
                 }
+                // Notification::send($user, new UserInfoUpdatedNotification($user, $updatedInformations));
             });
             return response()->json([
                 'message' => UPDATE_SUCCESS,
                 'status' => true
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
             return response()->json([
                 'message' => $th->getMessage(),
                 'status' => false
-            ], $code);
+            ], 500);
         }
     }
 
@@ -198,16 +228,29 @@ class UserController extends Controller
     public function updatePassword(UpdateUserPasswordRequest $request, User $user)
     {
         try {
-            $data = $request->validated();
-            $user->password = Hash::make($data['password']);
-            if (auth()->user()->id !== $user->id) {
-                $user->must_change_password = true;
-            }
-            $user->save();
-            return response()->json([
-                'message' => UPDATE_PASSWORD_SUCCESS,
-                'status' => true
-            ]);
+            return DB::transaction(function () use ($request, $user) {
+                $data = $request->validated();
+                $user->password = Hash::make($data['password']);
+                if (auth()->user()->id !== $user->id) {
+                    $user->must_change_password = true;
+                }
+                if ($user->save()) {
+                    Notification::send($user, new UserPasswordUpdatedNotification($user, $data['password']));
+                    return response()->json([
+                        'message' => UPDATE_PASSWORD_SUCCESS,
+                        'status' => true
+                    ]);
+                }
+                return response()->json([
+                    'message' => UPDATE_PASSWORD_ERROR,
+                    'status' => false
+                ]);
+            });
+
+            // return response()->json([
+            //     'message' => UPDATE_PASSWORD_SUCCESS,
+            //     'status' => true
+            // ]);
         } catch (\Throwable $th) {
             $code = $th->getCode() ?: 500;
 
@@ -227,7 +270,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         isAbleOrAbort('delete_user');
-        abort_if(!hasRole('root'), 401);
+        // abort_if(!hasRole('root'), 401);
         try {
             $user->delete();
             return response()->json([

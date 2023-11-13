@@ -17,10 +17,17 @@ class IsActive
      */
     public function handle(Request $request, Closure $next)
     {
-        $user = auth()->check() ? auth()->user() : User::where('username', $request->authLogin)->first();
-        if ($user?->is_active || $user == null) {
-            return $next($request);
+        // dd(auth()->check(), $request->expectsJson());
+        if (auth()->check()) {
+            if (auth()->user()->is_active) {
+                return $next($request);
+            }
+            abort(401, __('unauthorized'));
         }
-        abort(401, __('unauthorized'));
+        return $next($request);
+        // $user = auth()->check() ? auth()->user() : User::where('username', $request->authLogin)->first();
+        // if ($user?->is_active || $user == null) {
+        //     return $next($request);
+        // }
     }
 }

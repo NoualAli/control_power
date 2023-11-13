@@ -24,6 +24,11 @@ api.interceptors.response.use(response => response, error => {
                 // location.reload()
             })
     }
+
+    if (status === 423) {
+        swal.alert_error(message, title).then(() => window.location.href = '/')
+    }
+
     if (status === 404) {
         window.location.href = '/404'
     }

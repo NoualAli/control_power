@@ -29,7 +29,7 @@
                 <!-- Submit Button -->
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
-                        <NLButton :loading="form.busy" label="Ajouter" />
+                        <NLButton :loading="formIsLoading" label="Ajouter" />
                     </NLFlex>
                 </NLColumn>
             </NLForm>
@@ -46,6 +46,7 @@ export default {
     middleware: [ 'auth' ],
     data() {
         return {
+            formIsLoading: false,
             pcfList: [],
             showValidation: false,
             form: new Form({
@@ -74,13 +75,16 @@ export default {
             this.form.reset()
         },
         create() {
+            this.formIsLoading = true
             this.form.post('campaigns').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.form.reset()
                     this.fetchNextReference()
+                    this.formIsLoading = false
                 } else {
                     this.$swal.alert_error(response.data.message)
+                    this.formIsLoading = false
                 }
             }).catch(error => {
                 console.log(error)

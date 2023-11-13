@@ -14,6 +14,7 @@ import '~/components'
 import './plugins/charts'
 import { useComponents } from './components'
 import { aclMixin, defineDirectives } from './plugins/acl.js'
+
 window.Swal = Swal
 window.api = api
 window.user = user

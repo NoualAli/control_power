@@ -53,7 +53,7 @@ export function isAbleTo($abilities = String | Array) {
 export function hasRole(roles = String | Array, status) {
     const userRole = status || getRole()
     if (typeof roles === 'string') {
-        roles = (roles || '').split(/\s*,\s*/)
+        roles = (roles.toLowerCase() || '').split(/\s*,\s*/)
         return roles.includes(userRole)
     } else if (typeof roles === 'array') {
         return roles.includes(userRole)

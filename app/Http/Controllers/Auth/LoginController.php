@@ -145,6 +145,7 @@ class LoginController extends Controller
                 'user_id' => $user->id,
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
+                'last_activity' => now(),
             ]);
         } catch (\Throwable $th) {
             //throw $th;

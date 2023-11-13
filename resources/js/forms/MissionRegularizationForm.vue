@@ -16,8 +16,8 @@
                         placeholder="Décrivez l'action à engagée" :form="form" :length="1000" label-required />
                 </NLColumn>
                 <NLColumn>
-                    <NLFile v-model="form.media" name="media" label="Pièces jointes"
-                        attachableType="App\Models\MissionDetailRegularization" @change="(files) => form.media = files"
+                    <NLFile @uploaded="handleMedia" @deleted="handleMedia" @loaded="handleMedia" v-model="form.media"
+                        name="media" label="Pièces jointes" attachableType="App\Models\MissionDetailRegularization"
                         :form="form" multiple />
                 </NLColumn>
             </NLForm>
@@ -27,7 +27,7 @@
         <template #footer>
             <!-- Submit Button -->
             <div class="col-12 d-flex justify-end align-center">
-                <NLButton :loading="form.busy" label="Enregistrer" @click="save" v-if="!isLoading" />
+                <NLButton :loading="formIsLoading" label="Enregistrer" @click="save" v-if="!isLoading" />
             </div>
         </template>
     </NLModal>
@@ -55,10 +55,12 @@ export default {
     },
     data() {
         return {
+            formIsLoading: false,
             form: new Form({
                 mission_detail_id: null,
                 action_to_be_taken: null,
                 is_regularized: false,
+                media: {}
             }),
             isContainerExpanded: false,
             isLoading: false,
@@ -68,6 +70,9 @@ export default {
     //     this.initData()
     // },
     methods: {
+        handleMedia(files) {
+            this.form.media = files
+        },
         handleDetailForm(e) {
             this.isContainerExpanded = e
         },
@@ -81,6 +86,7 @@ export default {
          * Save regularization
          */
         save() {
+            this.formIsLoading = true
             this.form.post('regularize/' + this.detail?.id).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
@@ -88,12 +94,14 @@ export default {
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }
+                this.formIsLoading = false
             }).catch(error => {
                 let message = error.message
                 if (error.response.status === 422) {
                     message = 'Les données fournies sont invalides.'
                 }
                 this.$swal.toast_error(message)
+                this.formIsLoading = false
             })
         },
     }

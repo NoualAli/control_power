@@ -42,7 +42,7 @@ class MissionReportGeneratedEvent implements ShouldBroadcast
     public function broadcastOn()
     {
         $missions = $this->missions()->where('campagin_id', '!=', 1)?->pluck('id')->toArray() ?: [];
-        $check = hasRole(['cdcr', 'dcp', 'dg', 'sg', 'cdrcp', 'ig']) || in_array($this->mission->id, $missions);
+        $check = hasRole(['cdcr', 'dcp', 'cdrcp']) || in_array($this->mission->id, $missions);
 
         if ($check) {
             return new Channel('mission.report.generated.' . $this->user->id);

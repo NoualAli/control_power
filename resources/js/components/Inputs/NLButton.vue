@@ -1,12 +1,15 @@
 <template>
-    <button class="btn my-2" :class="[{ 'is-loading': loading }, finalType]" :disabled="loading">
-        <NLFlex lgJustifyContent="start" v-if="loading">
-            <i class="las la-spinner la-spin icon"></i>
-            <span class="btn-loader">Envoie en cours</span>
+    <button class="btn" :class="[{ 'is-loading': loading }, finalType]" :disabled="loading">
+        <NLFlex alignItems="center" justifyContent="start" lgJustifyContent="start" gap="2">
+            <slot v-if="!loading"></slot>
+            <NLFlex lgJustifyContent="start" v-if="loading">
+                <i class="las la-spinner la-spin icon"></i>
+                <span class="btn-loader">Envoie en cours</span>
+            </NLFlex>
+            <span class="btn-text" v-else>
+                {{ label }}
+            </span>
         </NLFlex>
-        <span class="btn-text" v-else>
-            {{ label }}
-        </span>
     </button>
 </template>
 

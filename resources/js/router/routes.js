@@ -26,6 +26,17 @@ export default [
         }
     },
 
+    {
+        path: '/admin/backup/db',
+        name: 'admin-backup-db',
+        component: page('admin/database/index.vue'),
+        meta: {
+            breadcrumb: {
+                label: 'Backup base de données'
+            }
+        }
+    },
+
     /**
      * Auth
      */
@@ -495,7 +506,7 @@ export default [
         meta: {
             breadcrumb: {
                 parent: 'mission',
-                label: 'Détails de la mission'
+                label: ''
             }
         }
     },

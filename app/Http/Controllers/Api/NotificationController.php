@@ -98,15 +98,20 @@ class NotificationController extends Controller
     public function dispatchMajorFact(MissionDetail $majorFact)
     {
         try {
-            $roles = ['ig', 'dg', 'cdrcp', 'der'];
-            $users = User::whereRoles($roles)->get();
-            // $users = User::whereRoles(['dg', 'cdrcp', 'ig', 'sg', 'der']);
-            // dd($majorFact->mission->dre->full_name, $users->pluck('username')->toArray());
-            $users = User::whereRoles(['dre', 'da'])->whereRelation('agencies', 'agencies.id', $majorFact->mission->agency_id)->get()->merge($users);
-            // dd($majorFact->mission->dre->full_name, $users->pluck('username')->toArray());
-            foreach ($users as $user) {
-                $majorFact->update(['major_fact_dispatched_at' => now()]);
-                Notification::send($user, new Detected($majorFact));
+            if (hasRole('cdc')) {
+                $users = User::whereRoles(['cdcr', 'dcp'])->where('is_active', true)->get();
+                foreach ($users as $user) {
+                    $majorFact->update(['major_fact_dispatched_to_dcp_at' => now()]);
+                    Notification::send($user, new Detected($majorFact));
+                }
+            } else {
+                $roles = ['cdrcp', 'ig'];
+                $users = User::whereRoles($roles)->where('is_active', true)->get();
+                $users = User::whereRoles(['dre', 'da'])->whereRelation('agencies', 'agencies.id', $majorFact->mission->agency_id)->get()->merge($users);
+                foreach ($users as $user) {
+                    $majorFact->update(['major_fact_dispatched_at' => now()]);
+                    Notification::send($user, new Detected($majorFact));
+                }
             }
             return response()->json([
                 'message' => NOTIFICATION_SUCCESS,

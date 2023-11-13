@@ -1,11 +1,10 @@
 <?php
 
-use App\Http\Controllers\Api\ControlCompaignController;
+use App\Http\Controllers\Api\BackupController;
 use App\Http\Controllers\Api\MissionController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\ExcelReaderController;
-use App\Models\Mission;
-use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\ZipController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,24 +18,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('excel-reader')->controller(ExcelReaderController::class)->group(function () {
-    // Route::get('load-pcf', 'loadPCF');
-    // Route::get('load-references', 'loadReferences');
-    // Route::get('load-users', 'loadUsers');
-    // Route::get('load-dre', 'loadDre');
-    // Route::get('load-agencies', 'loadAgencies');
-})->name('excel');
+Route::prefix('excel-export')->controller(ExportController::class)->group(function () {
+    Route::get('/', 'export');
+});
+
+Route::prefix('backup-db')->controller(BackupController::class)->group(function () {
+    Route::get('{filname}', 'download');
+});
+
+Route::prefix('zip')->controller(ZipController::class)->group(function () {
+    Route::get('{type}/{id}', 'download');
+});
 
 Route::prefix('missions')->controller(MissionController::class)->group(function () {
     Route::get('/{mission}/report', 'handleReport');
-    Route::get('{mission}/metadata/test', function (Mission $mission) {
-        $details = $mission->details;
-        foreach ($details as $detail) {
-            if ($detail->metadata) {
-                dd($detail->parsed_metadata);
-            }
-        }
-    });
 });
 
 Route::get('logout', [LoginController::class, 'logout']);

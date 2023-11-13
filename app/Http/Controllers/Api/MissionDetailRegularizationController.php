@@ -23,7 +23,7 @@ class MissionDetailRegularizationController extends Controller
     {
         try {
             $data = $request->validated();
-
+            // dd($data);
             $res = DB::transaction(function () use ($data, $detail) {
                 $data['created_by_id'] = auth()->user()->id;
                 $data['created_at'] = now();

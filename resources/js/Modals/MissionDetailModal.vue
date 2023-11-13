@@ -103,6 +103,9 @@
                         <NLColumn>
                             <span class="label">Constat: </span>
                             <span v-html="row?.report || '-'" class="content my-2 text-normal"></span>
+                            <span>
+                                {{ row?.cdc_report?.length ? '(Modifier par CDC)' : '' }}
+                            </span>
                         </NLColumn>
 
                         <!-- Recovery plan -->
@@ -119,7 +122,7 @@
                 </NLColumn>
 
                 <!-- Regularization -->
-                <NLColumn class="box" v-if="row?.mission?.is_validated_by_dcp">
+                <NLColumn class="box" v-if="row.show_regularizations">
                     <h2>Historique des actions de régularisation</h2>
                     <NLGrid gap="6" v-if="row?.regularizations?.length" v-for="regularization in row?.regularizations"
                         class="p-4 has-border-radius-1 border-1 border-solid my-6"
@@ -145,8 +148,7 @@
         </template>
         <template #footer>
             <!-- CI -->
-            <button
-                v-if="currentMode == 1 && !row?.mission?.is_validated_by_ci && !row?.major_fact && can('create_ci_report')"
+            <button v-if="currentMode == 1 && !row?.mission?.is_validated_by_ci && !row?.major_fact && is('ci')"
                 class="btn btn-warning has-icon" @click="showForm(row, 'edit')">
                 <i class="las la-pen icon" />
                 Modifier
@@ -154,15 +156,26 @@
 
             <!-- CDC -->
             <button
-                v-if="currentMode == 2 && !row?.mission?.is_validated_by_cdc && !row?.major_fact && row?.mission?.is_validated_by_ci && can('create_cdc_report,validate_cdc_report')"
+                v-if="currentMode == 2 && !row?.mission?.is_validated_by_cdc && !row?.major_fact && row?.mission?.is_validated_by_ci && is('cdc')"
                 class="btn btn-warning has-icon" @click="showForm(row, 'edit')">
                 <i class="las la-pen icon" />
                 Modifier
             </button>
+            <button
+                v-if="(currentMode == 2 && !row?.mission?.is_validated_by_dcp && !row?.miss0ion?.is_validated_by_cdcr && !row?.major_fact_dispatched_to_dcp_at && !row.regularization && [2, 3, 4].includes(Number(row?.score)) && row?.major_fact && is('cdc'))"
+                class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
+                <i class="las la-pen icon" />
+                Traiter
+            </button>
+            <button v-if="currentMode == 2 && !row?.major_fact_dispatched_to_dcp_at && row?.major_fact && is('cdc')"
+                class="btn btn-info has-icon" @click.prevent="notify(row)">
+                <i class="las la-bell icon" />
+                Notifier
+            </button>
 
             <!-- CDCR -->
             <button
-                v-if="(currentMode == 4 && (row?.mission?.has_dcp_controllers ? row?.mission?.is_validated_by_cc && !row?.mission?.is_validated_by_cdcr : !row?.mission?.is_validated_by_cdcr) && !row?.major_fact_dispatched_at && row?.mission?.is_validated_by_cdc && [2, 3, 4].includes(Number(row?.score))) || (row?.major_fact && !row?.major_fact_dispatched_at && [3, 4].includes(Number(row?.score))) && can('make_first_validation')"
+                v-if="(currentMode == 4 && (row?.mission?.has_dcp_controllers ? row?.mission?.is_validated_by_cc && !row?.mission?.is_validated_by_cdcr : !row?.mission?.is_validated_by_cdcr) && !row?.major_fact_dispatched_at && row?.mission?.is_validated_by_cdc && [2, 3, 4].includes(Number(row?.score))) || (row?.major_fact && !row?.major_fact_dispatched_at && [2, 3, 4].includes(Number(row?.score))) && is('cdcr')"
                 class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <i class="las la-pen icon" />
                 Traiter
@@ -170,7 +183,7 @@
 
             <!-- CC -->
             <button
-                v-if="currentMode == 3 && !row?.major_fact_dispatched_at && row.assigned_to_cc_id == currentUser.id && !row?.mission?.is_validated_by_cc && [2, 3, 4].includes(Number(row?.score))"
+                v-if="currentMode == 3 && !row?.major_fact_dispatched_at && row.assigned_to_cc_id == currentUser.id && !row?.mission?.is_validated_by_cc && [2, 3, 4].includes(Number(row?.score)) && is('cc')"
                 class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <i class="las la-pen icon" />
                 Traiter
@@ -178,19 +191,21 @@
 
             <!-- DCP -->
             <button
-                v-if="(currentMode == 5 && !row?.mission?.is_validated_by_dcp && row?.mission?.is_validated_by_cdcr && !row?.major_fact_dispatched_at && !row.regularization && [2, 3, 4].includes(Number(row?.score)) || (row?.major_fact && !row?.major_fact_dispatched_at && [3, 4].includes(Number(row?.score)))) && can('make_second_validation')"
+                v-if="(currentMode == 5 && !row?.mission?.is_validated_by_dcp && row?.mission?.is_validated_by_cdcr && !row?.major_fact_dispatched_at && !row.regularization && [2, 3, 4].includes(Number(row?.score)) || (row?.major_fact && !row?.major_fact_dispatched_at && [2, 3, 4].includes(Number(row?.score)))) && is('dcp')"
                 class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <i class="las la-pen icon" />
                 Traiter
             </button>
             <button
-                v-if="currentMode == 5 && !row?.major_fact_dispatched_at && row?.major_fact && can('dispatch_major_fact')"
+                v-if="currentMode == 5 && !row?.major_fact_dispatched_at && row?.major_fact && row?.major_fact_dispatched_to_dcp_at && is('dcp')"
                 class="btn btn-info has-icon" @click.prevent="notify(row)">
                 <i class="las la-bell icon" />
                 Notifier
             </button>
+
             <!-- Agency director -->
-            <button v-if="currentMode == 6 && row?.mission?.is_validated_by_dcp && !row?.major_fact && !row?.is_regularized"
+            <button
+                v-if="currentMode == 6 && row?.mission?.is_validated_by_dcp && !row?.major_fact && !row?.is_regularized && Number(row?.score) !== 1 && is('da')"
                 class="btn btn-warning has-icon" @click="showForm(row, 'regularization')">
                 <i class="las la-check icon" />
                 Régulariser

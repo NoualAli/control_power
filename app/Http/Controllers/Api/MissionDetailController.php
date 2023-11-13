@@ -10,13 +10,11 @@ use App\Models\MissionDetail;
 use App\Models\User;
 use App\Notifications\Mission\MajorFact\Detected;
 use App\Traits\UploadFiles;
+use Carbon\Carbon;
 use Illuminate\Contracts\Database\Query\Builder;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Validator;
-use Predis\Client;
 
 class MissionDetailController extends Controller
 {
@@ -33,9 +31,8 @@ class MissionDetailController extends Controller
         $sort = request('sort', null);
         $fetchFilters = request()->has('fetchFilters');
         $perPage = request('perPage', 10);
-        $fetchAll = request()->has('fetchAll');
 
-        $details = getMissionDetails()->whereIn('score', [2, 3, 4])->where('major_fact', false);
+        $details = getMissionAnomalies();
 
         try {
             if ($fetchFilters) {
@@ -83,12 +80,14 @@ class MissionDetailController extends Controller
             $details = $details->hasCdcValidation();
         } elseif (hasRole(['cdc', 'cc', 'ci'])) {
             $details = $user->details()->controlled();
-        } elseif (hasRole(['dg', 'cdrcp', 'der'])) {
+        } elseif (hasRole(['dg', 'cdrcp', 'der', 'deac', 'dga'])) {
             $details = $details->hasDcpValidation();
         } elseif (hasRole('dre')) {
             $details = $user->details()->hasDcpValidation();
         } elseif (hasRole('da')) {
             $details = $user->details()->hasDcpValidation();
+        } else {
+            $details = $details;
         }
         return $details->whereAnomaly()->withoutMajorFacts();
     }
@@ -131,7 +130,12 @@ class MissionDetailController extends Controller
     public function show(MissionDetail $detail)
     {
         $detail->unsetRelations();
-        $detail->load('regularization', 'mission', 'media', 'dre', 'agency', 'campaign', 'family', 'domain', 'process', 'controlPoint');
+        $diffInDays = Carbon::parse($detail->mission->dcp_validation_at)->diffInDays(today());
+        $detail->show_regularizations = $diffInDays >= 11 || $detail->mission->is_validated_by_da || hasRole('da');
+        if ($detail->show_regularization) {
+            $detail->load('regularizations');
+        }
+        $detail->load('mission', 'media', 'dre', 'agency', 'campaign', 'family', 'domain', 'process', 'controlPoint');
         return $detail;
     }
 
@@ -201,10 +205,10 @@ class MissionDetailController extends Controller
      *
      * @param App\Models\MissionDetail $detail
      */
-    private function notifyMajorFact(MissionDetail $detail, $roles = ['dcp', 'cdcr'])
+    private function notifyMajorFact(MissionDetail $detail, $roles = ['cdc'])
     {
         if ($detail->major_fact) {
-            $users = User::all()->filter(fn ($user) => hasRole($roles, $user) || $detail->mission->creator->id == $user->id);
+            $users = User::all()->filter(fn ($user) => hasRole($roles, $user) && $detail->mission->creator->id == $user->id);
             foreach ($users as $user) {
                 if (!$user->notifications()->where('data->detail_id', $detail->id)->count()) {
                     Notification::send($user, new Detected($detail));
@@ -230,10 +234,8 @@ class MissionDetailController extends Controller
             if (isset($data['score']) && $data['score'] == 1) {
                 // $data['report'] = null;
                 $data['recovery_plan'] = null;
-                $data['metadata'] = null;
+                // $data['metadata'] = null;
             }
-            // Mettre la note max si jamais il y'a un fait majeur
-            if (isset($data['major_fact']) && !empty($data['major_fact'])) $data['score'] = max(array_keys($detail->controlPoint->scores_arr));
 
             $reportColumn = null;
             if (isset($data['report'])) {
@@ -247,13 +249,24 @@ class MissionDetailController extends Controller
             }
 
             // Mise à jour des informations dans la base de données
-            $metadata = isset($data['metadata']) && !empty($data['metadata']) ? $data['metadata'] : $detail->metadata;
+            $metadata = isset($data['metadata']) && !empty($data['metadata']) ? $data['metadata'] : null;
             $newData = [
                 'major_fact' => $data['major_fact'],
                 'score' => isset($data['score']) ? $data['score'] : $detail->score,
-                'recovery_plan' => isset($data['recovery_plan']) ? $data['recovery_plan'] : $detail->recovery_plan,
+                'recovery_plan' => isset($data['recovery_plan']) ? $data['recovery_plan'] : null,
                 'metadata' => $metadata,
             ];
+
+            // Mettre la note max si jamais il y'a un fait majeur
+            if (isset($newData['major_fact']) && !empty($newData['major_fact']) && $newData['major_fact']) {
+                $newData['score'] = max(array_keys($detail->controlPoint->scores_arr));
+                $newData['major_fact_detected_at'] = now();
+            }
+
+            // dd(hasRole(['cdcr', 'dcp']) && !$newData['major_fact']);
+            if (hasRole(['cdcr', 'dcp']) && !$newData['major_fact']) {
+                $newData['major_fact_dispatched_to_dcp_at'] = null;
+            }
 
             if ($reportColumn) {
                 $newData[$reportColumn] = isset($data['report']) ? $data['report'] : $detail->report;
@@ -268,9 +281,9 @@ class MissionDetailController extends Controller
             } elseif (hasRole('cdc')) {
                 $newData['controlled_by_cdc_at'] = now();
                 $newData['controlled_by_cdc_id'] = auth()->user()->id;
-                if ($detail->is_controlled_by_ci && $detail->major_fact) {
-                    unset($newData['major_fact']);
-                }
+                // if ($detail->is_controlled_by_ci && $detail->major_fact) {
+                //     unset($newData['major_fact']);
+                // }
             } elseif (hasRole('cc')) {
                 $newData['controlled_by_cc_at'] = now();
                 $newData['controlled_by_cc_id'] = auth()->user()->id;
@@ -287,16 +300,14 @@ class MissionDetailController extends Controller
                 abort(500, 'Le rôle de l\'utilisateur n\'est pas pri en charge.');
             }
 
-
-
-            if ($detail->is_dispatched) {
-                unset($newData['major_fact']);
-            }
-
+            // if ($detail->is_dispatched) {
+            //     unset($newData['major_fact']);
+            // }
+            // dd($newData);
             $detail->update($newData);
 
             // Mise à jour de la date réel du début de la mission
-            if ($currentMode == 1 && !$detail->reel_start) {
+            if ($currentMode == 1 && !$detail->reel_start && $detail->mission->details()->controlled()->count() == 1) {
                 $detail->mission->update(['reel_start' => now()]);
             }
 

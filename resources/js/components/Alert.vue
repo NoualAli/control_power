@@ -1,12 +1,9 @@
 <template>
     <div :class="[type, { 'is-row': isInline, 'is-column': !isInline }, extraClass]"
         class="notification d-flex gap-2 align-start">
-        <NLFlex alignItems="center" gap="1">
+        <NLFlex alignItems="center" gap="1" class="text-bold">
             <span v-html="icon" v-if="icon"></span>
-            <p v-if="errorsCount">
-                Il y a {{ errorsCount }}
-                {{ errorsCount > 1 ? 'problèmes avec vos entrées' : 'problème avec une entrée' }}.
-            </p>
+            <slot name="title" />
         </NLFlex>
         <slot />
     </div>

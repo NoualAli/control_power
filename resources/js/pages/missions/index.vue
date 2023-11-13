@@ -19,6 +19,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { hasRole } from '../../plugins/user'
+import * as MissionState from '../../store/global/MissionStates'
 export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],
@@ -85,40 +86,56 @@ export default {
                 },
                 {
                     label: 'État',
-                    field: 'state',
+                    field: 'current_state',
                     isHtml: true,
                     align: 'center',
+                    sortable: true,
                     methods: {
                         showField(item) {
-                            let state = 'todo'
-                            let title = 'à réaliser'
-                            if (item.current_state === 2) {
-                                state = 'inProgress'
-                                title = 'En cours'
-                            } else if (item.current_state === 1) {
-                                state = 'todo'
-                                title = 'à réaliser'
-                            } else if (item.current_state === 8) {
-                                state = 'done'
-                                title = 'Réaliser'
-                            } else if (item.current_state === 9) {
-                                state = 'late'
-                                title = 'En retard'
-                            } else if (item.current_state === 4) {
-                                state = 'En attente de validation CDC'
-                            } else if (item.current_state === 5) {
-                                state = 'pending-validation'
-                                title = 'En attente de validation CDCR'
-                            } else if (item.current_state === 6) {
-                                state = 'first-validation'
-                                title = 'En attente de validation DCP'
-                            } else if (item.current_state === 7) {
-                                state = 'second-validation'
-                                title = 'Réaliser et valider'
-                            }
+                            let title = ''
+                            let state = ''
+                            let is_late = Boolean(item.is_late) ? 'is-late' : ''
 
+                            switch (Number(item.current_state)) {
+                                case 1:
+                                    title = MissionState.TODO_STR
+                                    state = MissionState.TODO_CLASS
+                                    break;
+                                case 2:
+                                    title = MissionState.ACTIVE_STR
+                                    state = MissionState.ACTIVE_CLASS
+                                    break;
+                                case 3:
+                                    title = MissionState.PENDING_CDC_VALIDATION_STR
+                                    state = MissionState.PENDING_CDC_VALIDATION_CLASS
+                                    break;
+                                case 4:
+                                    title = MissionState.PENDING_CC_VALIDATION_STR
+                                    state = MissionState.PENDING_CC_VALIDATION_CLASS
+                                    break;
+                                case 5:
+                                    title = MissionState.PENDING_CDCR_VALIDATION_STR
+                                    state = MissionState.PENDING_CDCR_VALIDATION_CLASS
+                                    break;
+                                case 6:
+                                    title = MissionState.PENDING_DCP_VALIDATION_STR
+                                    state = MissionState.PENDING_DCP_VALIDATION_CLASS
+                                    break;
+                                case 7:
+                                    title = MissionState.PENDING_DA_VALIDATION_STR
+                                    state = MissionState.PENDING_DA_VALIDATION_CLASS
+                                    break;
+                                case 8:
+                                    title = MissionState.DONE_STR
+                                    state = MissionState.DONE_CLASS
+                                    break;
+                                default:
+                                    title = MissionState.TODO_STR
+                                    state = MissionState.TODO_CLASS
+                                    break;
+                            }
                             return `<div class="container" title="${title}">
-                                        <div class="mission-state ${state}"></div>
+                                        <div class="mission-state ${state} ${is_late}"></div>
                                     </div>`
                         }
                     }
@@ -140,12 +157,12 @@ export default {
                     show: (item) => {
                         if (hasRole([ 'cdc', 'ci' ])) {
                             return this.can('view_mission')
-                        } else if (hasRole([ 'dcp', 'cdcr' ])) {
-                            return this.can('view_mission') && item.progress_status.toString() === '100' && item?.is_validated_by_cdc
-                        } else if (hasRole([ 'da', 'dg', 'cdrcp', 'ig', 'der' ])) {
-                            return this.can('view_mission') && item.progress_status.toString() === '100' && item?.is_validated_by_dcp
+                        } else if (hasRole([ 'cdcr', 'cc' ])) {
+                            return this.can('view_mission') && item.progress_status.toString() === '100' && Number(item?.is_validated_by_cdc) == 1
+                        } else if (hasRole('dcp')) {
+                            return this.can('view_mission') && item.progress_status.toString() === '100' && Number(item?.is_validated_by_cdcr) == 1
                         } else {
-                            return this.can('view_mission') && item.progress_status.toString() === '100'
+                            return this.can('view_mission') && item.progress_status.toString() === '100' && Number(item?.is_validated_by_dcp) == 1
                         }
                     },
                     apply: this.show
@@ -177,7 +194,7 @@ export default {
                     multiple: true,
                     data: null,
                     value: null,
-                    hide: !hasRole([ 'cdc', 'ci' ])
+                    hide: hasRole([ 'cdc', 'ci' ])
                 },
                 agency: {
                     label: 'Agence',
@@ -186,24 +203,105 @@ export default {
                     data: null,
                     value: null
                 },
-                // between: {
-                //     cols: 3,
-                //     value: [],
-                //     type: 'date-range',
-                //     // cols: 'col-lg-6',
-                //     attributes: {
-                //         start: {
-                //             cols: 'col-lg-6',
-                //             label: 'De',
-                //             value: null
-                //         },
-                //         end: {
-                //             cols: 'col-lg-6',
-                //             label: 'À',
-                //             value: null
-                //         }
-                //     }
-                // }
+                current_state: {
+                    label: 'État',
+                    cols: 3,
+                    multiple: true,
+                    data: [
+                        {
+                            id: MissionState.TODO,
+                            label: MissionState.TODO_STR
+                        },
+                        {
+                            id: MissionState.ACTIVE,
+                            label: MissionState.ACTIVE_STR
+                        },
+                        {
+                            id: MissionState.PENDING_CDC_VALIDATION,
+                            label: MissionState.PENDING_CDC_VALIDATION_STR
+                        },
+                        {
+                            id: MissionState.PENDING_CC_VALIDATION,
+                            label: MissionState.PENDING_CC_VALIDATION_STR
+                        },
+                        {
+                            id: MissionState.PENDING_CDCR_VALIDATION,
+                            label: MissionState.PENDING_CDCR_VALIDATION_STR
+                        },
+                        {
+                            id: MissionState.PENDING_DCP_VALIDATION,
+                            label: MissionState.PENDING_DCP_VALIDATION_STR
+                        },
+                        {
+                            id: MissionState.PENDING_DA_VALIDATION,
+                            label: MissionState.PENDING_DA_VALIDATION_STR
+                        },
+                        {
+                            id: MissionState.DONE,
+                            label: MissionState.DONE_STR
+                        }
+                    ]
+                },
+
+                progress_status: {
+                    label: 'Taux de progression',
+                    cols: 3,
+                    data: [
+                        {
+                            id: '-20',
+                            label: '< 20%'
+                        },
+                        {
+                            id: '-40',
+                            label: '>= 20% et < 40%'
+                        },
+
+                        {
+                            id: '-60',
+                            label: '>= 40% et < 60%'
+                        },
+
+                        {
+                            id: '-80',
+                            label: '>= 60% et < 80%'
+                        },
+
+                        {
+                            id: '-100',
+                            label: '>= 80% et < 100%'
+                        },
+                        {
+                            id: '100',
+                            label: '= 100%'
+                        },
+                    ],
+                    value: null
+                },
+
+                avg_score: {
+                    label: 'Moyenne',
+                    cols: 3,
+                    data: [
+                        {
+                            id: 'score >= 1 AND score < 2',
+                            label: 'Entre 1 et 2'
+                        },
+                        {
+                            id: 'score >= 2 AND score < 3',
+                            label: 'Entre 2 et 3'
+                        },
+                        {
+                            id: 'score >= 3 AND score < 4',
+                            label: 'Entre 3 et 4'
+                        },
+                        {
+                            id: 'score = 4',
+                            label: '>= 4'
+                        },
+                    ],
+                    value: null,
+                    hide: hasRole([ 'cdc', 'ci' ]),
+                },
             },
         }
     },

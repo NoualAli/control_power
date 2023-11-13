@@ -3,9 +3,9 @@
         <h3 class="title">
             <slot name="title"></slot>
         </h3>
-        <div class="actions">
+        <NLFlex extraClass="actions" gap="2" alignItems="center" justifyContent="end">
             <slot name="actions"></slot>
-        </div>
+        </NLFlex>
     </header>
 </template>
 
