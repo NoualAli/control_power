@@ -86,12 +86,8 @@ export default {
          * Save regularization
          */
         save() {
-<<<<<<< HEAD
             this.formIsLoading = true
             this.form.post('regularize/' + this.detail?.id).then(response => {
-=======
-            this.form.post('regularize/' + this.data.id).then(response => {
->>>>>>> master
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.$emit('success', response)
