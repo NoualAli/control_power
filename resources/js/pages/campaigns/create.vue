@@ -81,12 +81,12 @@ export default {
                     this.$swal.toast_success(response.data.message)
                     this.form.reset()
                     this.fetchNextReference()
-                    this.formIsLoading = false
                 } else {
                     this.$swal.alert_error(response.data.message)
-                    this.formIsLoading = false
                 }
+                this.formIsLoading = false
             }).catch(error => {
+                this.formIsLoading = false
                 console.log(error)
             })
         },
