@@ -8,6 +8,7 @@ use App\Http\Requests\User\UpdateUserInfoRequest;
 use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Resources\LoginHistoryResource;
 use App\Http\Resources\UserResource;
+use App\Models\Media;
 use App\Models\User;
 use App\Notifications\UserCreatedNotification;
 use App\Notifications\UserInforUpdatedNotification;
@@ -50,9 +51,6 @@ class UserController extends Controller
     {
         isAbleOrAbort('view_user');
         $users = User::with(['dres', 'role', 'last_login']);
-        // foreach ($users->whereNot('active_role_id', 1)->get() as $user) {
-        //     $user->update(['password' => Hash::make('123456')]);
-        // }
         $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
