@@ -92,6 +92,7 @@ export default {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.$router.push({ name: 'campaign', params: { campaignId: this.$route.params.campaignId } })
+                    this.formIsLoading = false
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }
