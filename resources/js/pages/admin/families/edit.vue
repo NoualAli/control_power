@@ -46,11 +46,7 @@ export default {
     },
     methods: {
         update() {
-<<<<<<< HEAD:resources/js/pages/admin/families/edit.vue
             this.form.put('families/' + this.$route.params.family).then(response => {
-=======
-            this.form.put('famillies/' + this.$route.params.familly).then(response => {
->>>>>>> master:resources/js/pages/admin/famillies/edit.vue
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.$router.push({ name: 'families-index' })

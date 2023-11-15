@@ -86,7 +86,9 @@ export default {
                     this.$swal.alert_error(response.data.message)
                     this.formIsLoading = false
                 }
+                this.formIsLoading = false
             }).catch(error => {
+                this.formIsLoading = false
                 console.log(error)
             })
         },
