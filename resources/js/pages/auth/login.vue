@@ -9,7 +9,7 @@
             </span>
         </NLColumn>
         <NLColumn class="form-container container">
-            <form method="POST" @submit.prevent="login" @keydown="form.onKeydown($event)">
+            <form method="POST" @submit.prevent="login" @keydown="form.onKeydown($event)" v-if="showForm">
                 <NLGrid gap="2" class="my-2">
                     <NLColumn>
                         <NLInput v-model="form.authLogin" name="authLogin" placeholder="Identifiant" :form="form"
@@ -21,14 +21,14 @@
                     </NLColumn>
                 </NLGrid>
                 <NLFlex lgJustifyContent="center">
-                    <NLButton :loading="form.busy" label="Connexion" class="d-block w-100">
+                    <NLButton :loading="form.busy" label="Connexion" class="d-flex flex-row w-100">
                         <i class="las la-sign-in-alt icon"></i>
                     </NLButton>
                 </NLFlex>
             </form>
         </NLColumn>
         <NLColumn class="text-center d-block d-lg-none">
-            &copy; {{ currentYear }} - Tous droits réservés - BNA
+            VERSION {{ app_version }} &copy; {{ currentYear }} - Tous droits réservés - BNA
         </NLColumn>
     </NLGrid>
 </template>
@@ -38,7 +38,7 @@ import { mapGetters } from 'vuex'
 import NLInput from '../../components/Inputs/NLInput'
 import NLButton from '../../components/Inputs/NLButton.vue'
 import Form from 'vform'
-
+import * as APP from '~/store/global/version'
 export default {
     components: { NLInput, NLButton },
     layout: 'auth',
@@ -53,12 +53,16 @@ export default {
             authLogin: null,
             password: null
         }),
-        remember: false
+        remember: false,
+        showForm: true,
     }),
     computed: {
         ...mapGetters({
             user: 'auth/user'
-        })
+        }),
+        CURRENT_VERSION() {
+            return APP.CURRENT_VERSION
+        }
     },
 
     methods: {
@@ -76,15 +80,16 @@ export default {
                 })
                 this.$store.dispatch('auth/fetchUser').then(() => {
                     if (this.user.is_active) {
+                        this.showForm = false
                         return this.redirect(this.user.must_change_password)
                     } else {
                         this.$store.dispatch('auth/logout')
                         return this.$swal.alert_error("Votre compte est suspendu temporairement, veuillez contacter les administrateurs pour plus d'informations !", "Erreur 401")
                     }
                 })
-
                 // Fetch the user.
             }).catch(error => {
+                this.$swal.alert_error(error?.data?.message)
                 console.log(error.data);
             })
 

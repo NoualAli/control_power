@@ -10,7 +10,7 @@
             </main>
             <div class="footer-container">
                 <p>
-                    &copy; {{ currentYear }} - Tous droits réservés - BNA
+                    VERSION {{ app_version }} &copy; {{ currentYear }} - Tous droits réservés - BNA
                 </p>
             </div>
         </div>
@@ -19,6 +19,7 @@
 
 <script>
 import 'particles.js/particles.js'
+import * as APP from '~/store/global/version'
 /* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
 export default {
     name: 'AuthLayout',
@@ -26,6 +27,11 @@ export default {
         particlesJS.load('particles-js', 'particles.json', function () {
             // console.log('callback - particles-js config loaded');
         });
+    },
+    computed: {
+        app_version() {
+            return APP.CURRENT_VERSION
+        }
     }
 }
 </script>

@@ -8,7 +8,7 @@
             </span>
         </NLColumn>
         <NLColumn class="form-container container">
-            <form method="POST" @submit.prevent="renew" @keydown="form.onKeydown($event)">
+            <form method="POST" @submit.prevent="renew" @keydown="form.onKeydown($event)" v-if="showForm">
                 <NLGrid gap="2" class="my-2">
                     <NLColumn>
                         <NLInput v-model="form.current_password" name="current_password" class="is-for-auth"
@@ -55,7 +55,8 @@ export default {
             password: null,
             password_confirmation: null,
             mustChangePassword: true
-        })
+        }),
+        showForm: true,
     }),
 
     methods: {
@@ -63,14 +64,18 @@ export default {
             const user = JSON.parse(ls_get('user'))
             this.form.patch('settings/password/' + user?.id).then(response => {
                 if (response.data.status) {
+                    this.showForm = false
                     this.$swal.toast_success(response.data.message)
                     this.form.reset()
                     this.$store.dispatch('auth/fetchUser').then(() => this.$router.push({ name: 'home' }))
                 } else {
+                    this.showForm = true
                     this.$swal.alert_error(response.data.message)
                 }
             }).catch(error => {
+                this.$swal.alert_error(error?.data?.message)
                 console.log(error)
+                this.showForm = false
             })
             // this.status = data.status
         }

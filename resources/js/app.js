@@ -5,7 +5,7 @@ import { helpersMixin, user } from './plugins/helpers'
 import api from './plugins/api'
 import * as swal from './plugins/swal'
 import '~/plugins'
-import { LoadingPlugin } from 'vue-loading-overlay'
+// import { LoadingPlugin } from 'vue-loading-overlay'
 import { createMetaManager as createVueMetaManager, defaultConfig, plugin as pluginVueMeta } from 'vue-meta'
 import Swal from 'sweetalert2'
 import Vue3Breadcrumbs from 'vue-3-breadcrumbs'
@@ -14,6 +14,7 @@ import '~/components'
 import './plugins/charts'
 import { useComponents } from './components'
 import { aclMixin, defineDirectives } from './plugins/acl.js'
+import '~/store/global'
 
 window.Swal = Swal
 window.api = api
