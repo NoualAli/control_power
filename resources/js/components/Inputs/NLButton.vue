@@ -1,6 +1,7 @@
 <template>
     <button class="btn" :class="[{ 'is-loading': loading }, finalType]" :disabled="loading">
-        <NLFlex alignItems="center" justifyContent="start" lgJustifyContent="start" gap="2">
+        <NLFlex alignItems="center" direction="row" justifyContent="center" lgJustifyContent="center" gap="2"
+            extraClass="w-100">
             <slot v-if="!loading"></slot>
             <NLFlex lgJustifyContent="start" v-if="loading">
                 <i class="las la-spinner la-spin icon"></i>
