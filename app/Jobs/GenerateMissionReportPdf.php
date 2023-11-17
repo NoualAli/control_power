@@ -91,8 +91,8 @@ class GenerateMissionReportPdf implements ShouldQueue
                 $content = $pdf->download()->getOriginalContent();
 
                 Storage::put($this->filepath(), $content);
-                $notify = User::whereRoles(['cdcr', 'cdrcp', 'dcp']);
-                $notify = User::whereRoles(['dre', 'da'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($notify->get());
+                // $notify = User::whereRoles(['cdcr', 'cdrcp', 'dcp']);
+                $notify = User::whereRoles(['dre', 'da'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get();
                 $notify = $notify->merge($mission->dcpControllers)->merge($mission->dreControllers);
                 $end = now();
                 $difference = $end->diffInRealMilliseconds($start);

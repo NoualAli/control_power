@@ -68,23 +68,22 @@ class MediaController extends Controller
         $extension = strtolower($file->getClientOriginalExtension());
         $mimetype = $file->getClientMimeType();
         $size = $file->getSize();
-
-        $path = public_path($folder . '/' . $hashName);
-        $tmpPath = public_path($tmpFolder . '/' . $hashName);
-        if (!file_exists($folder)) {
-            mkdir($folder);
-        }
-        $accepted = request()->has('accepted') && !empty(request()->accepted) ? request()->accepted : 'jpg,jpeg,png,doc,docx,xls,xlsx,pdf';
-        $mimes = $this->determineMimetypes(explode(',', $accepted));
-        if (in_array($file->getClientMimeType(), $mimes)) {
-            $file->move($tmpFolder, $hashName);
-            $img = Image::make($tmpPath)->orientate();
-            // $watermark = Image::make(storage_path('images/brand.png'))->resize(250, 125);
-            // $img = $img->insert($watermark, 'bottom-right', 10, 10);
-            $img = $img->save($path, 60);
-            $size = $img->filesize();
-            File::delete($tmpPath);
-        }
+        // $path = public_path($folder . '/' . $hashName);
+        // $tmpPath = public_path($tmpFolder . '/' . $hashName);
+        // if (!file_exists($folder)) {
+        //     mkdir($folder);
+        // }
+        // $accepted = request()->has('accepted') && !empty(request()->accepted) ? request()->accepted : 'jpg,jpeg,png,doc,docx,xls,xlsx,pdf';
+        // $mimes = $this->determineMimetypes(explode(',', $accepted));
+        // if (in_array($file->getClientMimeType(), $mimes)) {
+        //     $file->move($tmpFolder, $hashName);
+        //     $img = Image::make($tmpPath)->orientate();
+        //     // $watermark = Image::make(storage_path('images/brand.png'))->resize(250, 125);
+        //     // $img = $img->insert($watermark, 'bottom-right', 10, 10);
+        //     $img = $img->save($path, 60);
+        //     $size = $img->filesize();
+        //     File::delete($tmpPath);
+        // }
 
         return compact('hashName', 'originalName', 'folder', 'extension', 'mimetype', 'size');
     }

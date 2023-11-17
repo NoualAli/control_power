@@ -145,7 +145,7 @@ class DataController extends Controller
             [
                 'axis' => 'y',
                 "label" => "Classement des notations",
-                "data" => [],
+                "data" => $details->values(),
                 'backgroundColor' => $backgroundColor,
                 'borderColor' => $borderColor,
                 'borderWidth' => $borderWidth,
