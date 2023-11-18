@@ -28,7 +28,7 @@
             </form>
         </NLColumn>
         <NLColumn class="text-center d-block d-lg-none">
-            VERSION {{ app_version }} &copy; {{ currentYear }} - Tous droits réservés - BNA
+            VERSION {{ CURRENT_VERSION }} &copy; {{ currentYear }} - Tous droits réservés - BNA
         </NLColumn>
     </NLGrid>
 </template>
