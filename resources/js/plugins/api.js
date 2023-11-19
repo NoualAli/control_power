@@ -21,7 +21,7 @@ api.interceptors.response.use(response => response, error => {
         swal.alert_error(message, title)
             .then(() => {
                 store.commit('auth/LOGOUT')
-                // location.reload()
+                window.location.href = '/login'
             })
     }
 
@@ -36,7 +36,7 @@ api.interceptors.response.use(response => response, error => {
         swal.alert_error(message, title)
             .then(() => {
                 store.commit('auth/LOGOUT')
-                location.reload()
+                window.location.href = '/login'
             })
     }
 
