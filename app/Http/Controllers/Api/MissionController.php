@@ -356,16 +356,15 @@ class MissionController extends Controller
      **/
     public function validationAttributes(Mission $mission, string $type)
     {
-
         switch ($type) {
-            case 'ci_report':
+            case 'ci':
                 $validationAtColumn = 'ci_validation_at';
                 $validationByColumn = 'ci_validation_by_id';
                 $isAbleOrAbort = hasRole('ci') && $mission->dreControllers->contains('id', auth()->user()->id);
                 $notify = $mission->creator;
                 $missionState = MissionState::PENDING_CDC_VALIDATION;
                 break;
-            case 'cdc_report':
+            case 'cdc':
                 $validationAtColumn = 'cdc_validation_at';
                 $validationByColumn = 'cdc_validation_by_id';
                 $isAbleOrAbort = hasRole('cdc') && $mission->created_by_id == auth()->user()->id;
