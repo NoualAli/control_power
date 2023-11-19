@@ -10,7 +10,7 @@
         "@fontsource/archivo": "^4.5.11",
         "@veigit/vue3-treeselect": "https://github.com/chaosue/vue3-treeselect/releases/download/0.2.0/npm_veigit-vue3-treeselect-0.2.0.tgz",
         "@vue/compat": "^3.2.21",
-        "axios": "^1.2.0-alpha.1",
+        "axios": "^1.6.2",
         "chart.js": "^4.2.1",
         "crypto-js": "^4.1.1",
         "eslint-plugin-css-modules": "^2.11.0",
