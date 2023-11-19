@@ -8,7 +8,6 @@ use App\Models\Media;
 use DragonCode\Support\Facades\Filesystem\File;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Image;
 
 class MediaController extends Controller
 {
@@ -24,9 +23,9 @@ class MediaController extends Controller
     /**
      * Store files into database and storage
      *
-     * @param App\Requests\Media\StoreRequest $request
+     * @param \App\Http\Requests\Media\StoreRequest $request
      *
-     * @return Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(StoreRequest $request)
     {
@@ -56,99 +55,57 @@ class MediaController extends Controller
     /**
      * Upload file to public storage (with support for image size optimization)
      *
-     * @param UploadedFile $file
+     * @param \Illuminate\Http\UploadedFile $file
      *
      * @return array
      */
-    private function uploadFile(UploadedFile $file, string $folder)
+    private function uploadFile(UploadedFile $file, string $folder): array
     {
         $hashName = $file->hashName();
         $originalName = $file->getClientOriginalName();
-        $tmpFolder = 'uploads/tmp';
         $extension = strtolower($file->getClientOriginalExtension());
         $mimetype = $file->getClientMimeType();
         $size = $file->getSize();
-        // $path = public_path($folder . '/' . $hashName);
-        // $tmpPath = public_path($tmpFolder . '/' . $hashName);
-        // if (!file_exists($folder)) {
-        //     mkdir($folder);
-        // }
-        // $accepted = request()->has('accepted') && !empty(request()->accepted) ? request()->accepted : 'jpg,jpeg,png,doc,docx,xls,xlsx,pdf';
-        // $mimes = $this->determineMimetypes(explode(',', $accepted));
-        // if (in_array($file->getClientMimeType(), $mimes)) {
-        //     $file->move($tmpFolder, $hashName);
-        //     $img = Image::make($tmpPath)->orientate();
-        //     // $watermark = Image::make(storage_path('images/brand.png'))->resize(250, 125);
-        //     // $img = $img->insert($watermark, 'bottom-right', 10, 10);
-        //     $img = $img->save($path, 60);
-        //     $size = $img->filesize();
-        //     File::delete($tmpPath);
-        // }
-
-        return compact('hashName', 'originalName', 'folder', 'extension', 'mimetype', 'size');
-    }
-
-    private function determineMimetypes(array $extensions)
-    {
-        $mimes = [];
-        foreach ($extensions as $extension) {
-            switch ($extension) {
-                case 'jpg':
-                    array_push($mimes, 'image/jpeg');
-                    break;
-                case 'jpeg':
-                    array_push($mimes, 'image/jpeg');
-                    break;
-                case 'png':
-                    array_push($mimes, 'image/png');
-                    break;
-                case 'doc':
-                    array_push($mimes, 'application/msword');
-                    break;
-                case 'doc':
-                    array_push($mimes, 'application/msword');
-                    break;
-                case 'docx':
-                    array_push($mimes, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-                    break;
-                case 'xls':
-                    array_push($mimes, 'application/vnd.ms-excel');
-                    break;
-                case 'xlsx':
-                    array_push($mimes, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-                    break;
-                case 'pdf':
-                    array_push($mimes, 'application/pdf');
-                    break;
-                default:
-                    abort(404, 'L\'extension ' . $extension . ' n\'est pas prise en charge.');
-                    break;
-            }
+        $path = public_path($folder . '/' . $hashName);
+        if (!file_exists($folder)) {
+            mkdir($folder);
         }
-        return $mimes;
+        $file->move($folder, $hashName);
+        return compact('hashName', 'originalName', 'folder', 'extension', 'mimetype', 'size', 'file');
     }
 
-    private function storeInDatabase(StoreRequest $request, UploadedFile $file)
+    /**
+     * @param \App\Http\Requests\Media\StoreRequest $request
+     * @param \Illuminate\Http\UploadedFile $file
+     *
+     * @return \App\Models\Media|\Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
+     */
+    private function storeInDatabase(StoreRequest $request, UploadedFile $file): \App\Models\Media|\Illuminate\Http\Response|\Illuminate\Contracts\Routing\ResponseFactory
     {
-        $folder = $request->folder;
-        extract($this->uploadFile($file, $folder));
-        $attachable = $request->has('attachable') ? $request->attachable : [];
-        $attachableId = $attachable && isset($request->attachable['id']) && !empty($request->attachable['id']) ? $request->attachable['id'] : null;
-        $attachableType = $attachable && isset($request->attachable['type']) && !empty($request->attachable['type']) ? $request->attachable['type'] : null;
+        try {
+            $folder = $request->folder;
+            extract($this->uploadFile($file, $folder));
+            $attachable = $request->has('attachable') ? $request->attachable : [];
+            $attachableId = $attachable && isset($request->attachable['id']) && !empty($request->attachable['id']) ? $request->attachable['id'] : null;
+            $attachableType = $attachable && isset($request->attachable['type']) && !empty($request->attachable['type']) ? $request->attachable['type'] : null;
 
-        $uploadedFile = Media::create([
-            'original_name' => $originalName,
-            'hash_name' => $hashName,
-            'folder' => $folder,
-            'extension' => $extension,
-            'mimetype' => $mimetype,
-            'size' => $size,
-            'attachable_id' => $attachableId,
-            'attachable_type' => $attachableType,
-            'uploaded_by_id' => auth()->user()->id
-        ]);
-
-        return $uploadedFile;
+            $uploadedFile = Media::create([
+                'original_name' => $originalName,
+                'hash_name' => $hashName,
+                'folder' => $folder,
+                'extension' => $extension,
+                'mimetype' => $mimetype,
+                'size' => $size,
+                'attachable_id' => $attachableId,
+                'attachable_type' => $attachableType,
+                'uploaded_by_id' => auth()->user()->id
+            ]);
+            return $uploadedFile;
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -156,7 +113,7 @@ class MediaController extends Controller
      *
      * @param Media $media
      *
-     * @return Illuminate\Http\JsonResponse|
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Media $media)
     {
