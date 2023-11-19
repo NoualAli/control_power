@@ -10,7 +10,6 @@
     "type": "project",
     "require": {
         "php": "^8.1",
-        "arcanedev/log-viewer": "^9.0",
         "barryvdh/laravel-dompdf": "^2.0",
         "beyondcode/laravel-websockets": "^1.14",
         "cerbero/laravel-enum": "^1.3",
@@ -22,6 +21,7 @@
         "laravel/tinker": "^2.6",
         "laravel/ui": "^3.3",
         "maatwebsite/excel": "^3.1",
+        "opcodesio/log-viewer": "^3.1",
         "orangehill/iseed": "^3.0",
         "predis/predis": "^2.2",
         "staudenmeir/belongs-to-through": "^2.5",
