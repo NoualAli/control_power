@@ -1,9 +1,12 @@
 <template>
     <div class="input-base-container">
-        <label v-if="label" class="form-label" :for="id"
-            :class="{ 'text-danger': form?.errors.has(name), 'is-required': labelRequired }">
-            {{ label }}
-        </label>
+        <NLFlex extraClass="w-100">
+            <label v-if="label" class="form-label" :for="id"
+                :class="{ 'text-danger': form?.errors.has(name), 'is-required': labelRequired }">
+                {{ label }}
+            </label>
+            <slot name="additional"></slot>
+        </NLFlex>
         <i v-if="helpText" class="las la-question-circle text-medium help-text" :class="{ 'ml-4': labelRequired }"
             :title="helpText" />
         <slot />
