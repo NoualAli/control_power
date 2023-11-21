@@ -143,7 +143,9 @@ if (!function_exists('formatForSelect')) {
     {
         if (!empty($array)) {
             $array = array_map(function ($item) use ($label, $id) {
+
                 $id = isset($item[$id]) ? $item[$id] : $item;
+
                 $label = isset($item[$label]) ? $item[$label] : $item;
                 return [
                     'id' => $id,
@@ -408,6 +410,8 @@ if (!function_exists('recursivelyToArray')) {
                 $item = is_integer($item->keys()->first()) ?  recursivelyToArray($item->values()) : recursivelyToArray($item);
             } elseif (is_array($item)) {
                 $item = recursivelyToArray(collect($item));
+            } elseif ($item instanceof stdClass) {
+                $item = json_decode(json_encode($item), true);
             }
 
             return $item;
