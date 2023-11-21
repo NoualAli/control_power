@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\MissionController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ZipController;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -35,3 +37,11 @@ Route::prefix('missions')->controller(MissionController::class)->group(function 
 });
 
 Route::get('logout', [LoginController::class, 'logout']);
+
+if (env('APP_ENV') !== 'production' && env('APP_ENV') !== 'production-test') {
+    Route::get('update-passwords', function () {
+        return DB::table('users')->update([
+            'password' => Hash::make('123456')
+        ]);
+    });
+}
