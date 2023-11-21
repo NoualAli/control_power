@@ -51,18 +51,6 @@ class UserController extends Controller
     {
         isAbleOrAbort('view_user');
         $users = User::with(['dres', 'role', 'last_login']);
-        // $media = Media::all();
-        // foreach ($media as $file) {
-        //     DB::table('has_media')->insert([
-        //         'attachable_id' => $file->attachable_id,
-        //         'attachable_type' => $file->attachable_type,
-        //         'media_id' => $file->id
-        //     ]);
-        // }
-
-        // DB::table('users')->update([
-        //     'password' => Hash::make('123456')
-        // ]);
         $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
@@ -76,12 +64,10 @@ class UserController extends Controller
 
         if ($sort) {
             $users = $users->sortByMultiple($sort);
-            // $users = orderByMultiple($users, $sort);
         }
 
         if ($search) {
             $users = $users->search($search);
-            // $users = search($users, $search);
         }
 
         if ($fetchAll) {
