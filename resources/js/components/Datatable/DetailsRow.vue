@@ -8,8 +8,9 @@
                         Chargement en cours
                     </div>
                 </div>
-                <div v-else>
-                    <div v-for="column in columns" class="py-2">
+                <NLGrid v-else>
+                    <NLColumn :lg="column.cols.lg" :md="column.cols.md" :sm="column.cols.sm" v-for="column in columns"
+                        class="py-2">
                         <span class="text-bold">
                             {{ label(column) }} :
                         </span>
@@ -18,8 +19,8 @@
                             {{ showField(column) }}
                         </span>
                         <span v-html="showField(column)" v-else></span>
-                    </div>
-                </div>
+                    </NLColumn>
+                </NLGrid>
             </NLContainer>
         </td>
     </tr>
@@ -31,7 +32,10 @@ export default {
     components: { NLContainer },
     name: 'DetailsRow',
     props: {
-        columns: { type: [ Object, null ], required: false, default: { label: '', field: '', hide: false, type: 'text' } },
+        columns: {
+            type: [ Object, null ],
+            required: false,
+        },
         item: { type: [ Object, null ], required: false, default: null },
         rowId: { type: String, default: 'id', required: false },
         span: { type: Number, required: true },
@@ -55,18 +59,40 @@ export default {
             url: null,
             isLoading: false,
             data: null,
+            cols: {
+                lg: 6,
+                md: 12,
+                sm: 12,
+            },
         }
     },
     created() {
+        this.initColumns()
         this.loadData()
     },
     methods: {
+        initColumns() {
+            this.columns.forEach(column => {
+                if (column.cols) {
+                    for (const col in this.cols) {
+                        if (Object.hasOwnProperty.call(this.cols, col)) {
+                            if (!Object.hasOwnProperty.call(column.cols, col)) {
+                                column.cols[ col ] = this.cols[ col ]
+                            }
+
+                        }
+                    }
+                } else {
+                    column.cols = this.cols
+                }
+            });
+        },
         loadData() {
             this.isLoading = true
             this.getUrl()
             api.get(this.url).then(response => {
                 this.isLoading = false
-                this.data = response.data
+                this.data = response?.data?.data || response?.data
             }).catch(error => {
                 this.isLoading = false
             })
@@ -76,18 +102,64 @@ export default {
             this.url = this.customUrl ? this.customUrl + urlPrefix : window.Laravel.baseUrl + '/api/' + urlPrefix
             this.url = this.url + '/' + this.item[ this.rowId ]
         },
+        // showField(column) {
+        //     let field = ''
+        //     if (column.field.includes('.')) {
+        //         let splited = column.field.split('.')
+        //         let relationship = splited[ 0 ]
+        //         let value = splited[ 1 ]
+        //         field = this.hasMany(column) ? this.loadHasMany(this.data[ relationship ], value) : this.data[ relationship ][ value ]
+        //     } else {
+        //         field = this.data[ column.field ] || '-'
+        //     }
+        //     return field
+        // },
         showField(column) {
-            let field = ''
-            if (column.field.includes('.')) {
+            if (column !== undefined && this.item !== undefined) {
+                if (Object.hasOwnProperty.call(column, 'methods')) {
+                    if (Object.hasOwnProperty.call(column.methods, 'showField')) {
+                        return column.methods[ 'showField' ](this.item);
+                    }
+                }
+                return this.getField(column)
+            } else if (column.field.includes('.')) {
                 let splited = column.field.split('.')
                 let relationship = splited[ 0 ]
                 let value = splited[ 1 ]
-                field = this.hasMany(column) ? this.loadHasMany(this.data[ relationship ], value) : this.data[ relationship ][ value ]
-            } else {
-                field = this.data[ column.field ] || '-'
+                return this.hasMany(column) ? this.loadHasMany(this.data[ relationship ], value) : this.data[ relationship ][ value ]
+            }
+            return '-'
+        },
+        /**
+        * Get field value
+        *
+        * @param {Object} data
+        * @param {String} field
+        */
+        getField(column) {
+            let field = ''
+            if (column.field) {
+                if (column.field !== null && column.field !== undefined && column.field.includes('.')) {
+                    let fields = column.field.split('.')
+                    const relationshipName = fields[ 0 ]
+                    const relationshipValue = fields[ 1 ]
+                    if (relationshipName !== undefined && relationshipValue !== undefined && relationshipName !== null && relationshipValue !== null) {
+                        field = this.item[ relationshipName ] !== null ? this.item[ relationshipName ][ relationshipValue ] : '-'
+                    }
+                } else {
+                    field = this.item[ column.field ] !== undefined ? this.item[ column.field ] : '-'
+                }
             }
             return field
         },
+        /**
+         * Truncate string for max length
+         *
+         * @param {String} string
+         */
+        // truncate(string) {
+        //     return this.length && string.length > this.length ? this.getField().slice(0, this.length) + '...' : string
+        // },
         loadHasMany(data, field) {
             let containerStart = '<div class="content mt-6"><ul class="text-normal">'
             let fields = ''
