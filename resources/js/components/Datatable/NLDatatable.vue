@@ -112,6 +112,7 @@ export default {
             isLoading: false,
             data: null,
             url: null,
+            activeDetailsRowsId: [],
             activeDetailsRows: [],
             filterIsOpen: false,
             activeFilters: {},
@@ -173,7 +174,7 @@ export default {
             }
         },
         detailIsActive() {
-            return (value) => this.activeDetailsRows.includes(value[ this.rowId ])
+            return (value) => this.activeDetailsRowsId.includes(value[ this.rowId ])
         },
         noDataColspan() {
             let additionalCols = 1
@@ -235,7 +236,8 @@ export default {
          * @param {*} item
          */
         handleSorting(item) {
-            const sortBy = item?.column?.sortBy !== undefined && item?.column?.sortBy !== null ? item?.column?.sortBy : item?.column?.field
+            const sortBy = item?.sortingColumn !== undefined && item?.sortingColumn !== null ? item?.sortingColumn : item?.column?.field
+            console.log(sortBy);
             if (item?.direction) {
                 this.sorting[ sortBy ] = item.direction
             } else {
@@ -300,15 +302,16 @@ export default {
          * @param {Object} value
          */
         toggleDetailsRow(value) {
-            if (this.activeDetailsRows.includes(value[ this.rowId ])) {
-                const index = this.activeDetailsRows.indexOf(value[ this.rowId ]);
+            if (this.activeDetailsRowsId.includes(value[ this.rowId ])) {
+                const index = this.activeDetailsRowsId.indexOf(value[ this.rowId ]);
                 if (index !== -1) {
-                    this.activeDetailsRows.splice(index, 1);
+                    this.activeDetailsRowsId.splice(index, 1);
                 }
             } else {
-                this.activeDetailsRows.push(value[ this.rowId ])
+                this.activeDetailsRowsId.push(value[ this.rowId ])
+                this.activeDetailsRows.push(value)
             }
-            this.$emit('detailsChanged', this.activeDetailsRows)
+            this.$emit('detailsChanged', { activeDetailsRowsId: this.activeDetailsRowsId, activeDetailsRows: this.activeDetailsRows })
         },
 
         /**
