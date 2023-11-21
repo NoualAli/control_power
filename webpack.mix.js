@@ -59,4 +59,6 @@ function publishAseets() {
     removeSync(join(publicDir, 'dist'))
     copySync(join(publicDir, 'build', 'dist'), join(publicDir, 'dist'))
     removeSync(join(publicDir, 'build'))
+    copySync(join(publicDir, 'assets', 'files'), join(publicDir, 'dist/css/files'))
+    copySync(join(publicDir, 'assets', 'fonts'), join(publicDir, 'dist/fonts'))
 }
