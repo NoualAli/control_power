@@ -353,8 +353,6 @@ form
         border: none
         box-shadow: none
         min-height: auto
-    &:hover
-        background-color: lighten($primary, 80)
     @each $color in $colors-list
         &.is-#{nth($color, 1)}
             border-color: lighten(nth($color, 2), 10%)
@@ -376,6 +374,23 @@ form
         display: block
     & .delete-btn
         cursor: pointer
+    & .list-file-item
+        background-color: rgba($primary-extra-light, .8)
+        padding: 6px 12px
+        font-size: 14px
+        border-radius: 3px
+        display: flex
+        align-items: center
+        justify-content: space-between
+        box-shadow: 0 1px 3px rgba(0, 0, 0, .1),0 1px 2px 0 rgba(0, 0, 0, .06)
+        transition: .2s ease
+        &:hover
+            background-color: $primary-extra-light
+        & .file_name_link
+            color: $primary-light
+            transition: .2s ease
+            &:hover
+                color: $primary
 
 .file-uploader
     display: flex
