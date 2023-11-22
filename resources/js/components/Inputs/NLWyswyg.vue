@@ -43,20 +43,20 @@ export default {
             currentLength: 0,
             currentValue: this.modelValue,
             editorSettings: [
-                [ { header: [ 1, 2, 3, 4, 5, 6, false ] } ],
+                [ { header: [ 1, 2, 3, false ] } ],
                 // [ { 'font': [ 'Archivo' ] } ],
-                [ { size: [ 'small', 'medium', 'large' ] } ],
+                // [ { size: [ 'small', 'medium', 'large' ] } ],
                 [ { align: [] } ],
                 [ { list: 'ordered' }, { list: 'bullet' } ],
-                [ 'bold', 'italic', 'underline', 'strike' ],
-                [ 'blockquote' ],
+                // [ 'bold', 'italic', 'underline', 'strike' ],
+                // [ 'blockquote' ],
                 [ { script: 'sub' }, { script: 'super' } ],
                 [ { indent: '-1' }, { indent: '+1' } ],
                 [ { direction: 'ltr' }, { direction: 'rtl' } ],
-                [
-                    { color: [ '#000000', '#fcfcfc', '#FAFAFA', '#D9D9D9', '#717171', '#2d3436', '#3D4756', '#363636', '#3D2E2C', '#125741', '#b18028', '#CC0000', '#ff4444', '#ffbb33', '#FF8800', '#00C851', '#007E33', '#33b5e5', '#0099CC', 'transparent' ] },
-                    { background: [ '#000000', '#fcfcfc', '#FAFAFA', '#D9D9D9', '#717171', '#2d3436', '#3D4756', '#363636', '#3D2E2C', '#125741', '#b18028', '#CC0000', '#ff4444', '#ffbb33', '#FF8800', '#00C851', '#007E33', '#33b5e5', '#0099CC', 'transparent' ] }
-                ],
+                // [
+                //     { color: [ '#000000', '#fcfcfc', '#FAFAFA', '#D9D9D9', '#717171', '#2d3436', '#3D4756', '#363636', '#3D2E2C', '#125741', '#b18028', '#CC0000', '#ff4444', '#ffbb33', '#FF8800', '#00C851', '#007E33', '#33b5e5', '#0099CC', 'transparent' ] },
+                //     { background: [ '#000000', '#fcfcfc', '#FAFAFA', '#D9D9D9', '#717171', '#2d3436', '#3D4756', '#363636', '#3D2E2C', '#125741', '#b18028', '#CC0000', '#ff4444', '#ffbb33', '#FF8800', '#00C851', '#007E33', '#33b5e5', '#0099CC', 'transparent' ] }
+                // ],
                 [ 'clean' ]
             ]
         }
