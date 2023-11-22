@@ -18,7 +18,7 @@ api.interceptors.response.use(response => response, error => {
     const message = error?.response?.data?.message
     const title = status + ' ' + error?.response?.statusText
     if (status === 401) {
-        swal.alert_error(message, title)
+        swal.alert_error('Vous avez dépassé le délai accordé à votre session, cette dernière a expiré, veuillez vous reconnecter de nouveau', '401 Session expirée')
             .then(() => {
                 store.commit('auth/LOGOUT')
                 window.location.href = '/login'
