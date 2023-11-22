@@ -3,7 +3,7 @@
         <div id="particles-js"></div>
         <div class="auth-container">
             <header class="header-container">
-                <img src="/app/images/bna_logo_monochrome.svg" class="brand">
+                <img src="/storage/assets/bna_logo_monochrome.svg" class="brand">
             </header>
             <main class="main-container">
                 <child />

@@ -1,7 +1,7 @@
 <template>
     <NLGrid class="box auth-box grid" gap="6">
         <NLColumn class="auth-box__header">
-            <img src="/app/images/brand.svg" class="auth-brand">
+            <img src="/storage/assets/brand.svg" class="auth-brand">
             <span class="auth-box__title">
                 S'identifier
                 <br>
