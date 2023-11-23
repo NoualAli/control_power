@@ -41,28 +41,34 @@ class Validated extends Notification
     private function getContent(): string
     {
 
-        $content = 'Mission <b>' . $this->mission->reference . '</b> a été réalisé';
+        $content = 'Mission ' . $this->mission->reference . ' a été réalisé';
         switch ($this->type) {
             case 'ci_report':
-                $content = 'La mission <b>' . $this->mission->reference . '</b> a été réalisée et validée par le <b>Contrôleur itinérant ' . auth()->user()->full_name_with_martial . '</b>';
+                $content = 'La mission ' . $this->mission->reference . ' a été réalisée et validée par le Contrôleur itinérant ' . auth()->user()->full_name_with_martial;
+                break;
+            case 'ci':
+                $content = 'La mission ' . $this->mission->reference . ' a été réalisée et validée par le Contrôleur itinérant ' . auth()->user()->full_name_with_martial;
                 break;
             case 'cdc_report':
-                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Chef de Département Contrôle DRE ' . auth()->user()->full_name_with_martial . '</b>';
-                break;
-            case 'cc':
-                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Contrôleur central ' . auth()->user()->full_name_with_martial . '</b>';
+                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Chef de Département Contrôle DRE ' . auth()->user()->full_name_with_martial;
                 break;
             case 'cdc':
-                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Chef de Département de Contrôle Réseau ' . auth()->user()->full_name_with_martial . '</b>';
+                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Chef de Département Contrôle DRE ' . auth()->user()->full_name_with_martial;
+                break;
+            case 'cc':
+                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Contrôleur central ' . auth()->user()->full_name_with_martial;
+                break;
+            case 'cdcr':
+                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Chef de Département de Contrôle Réseau ' . auth()->user()->full_name_with_martial;
                 break;
             case 'dcp':
-                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Directeur du Contrôle Permanent ' . auth()->user()->full_name_with_martial . '</b>';
+                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Directeur du Contrôle Permanent ' . auth()->user()->full_name_with_martial;
                 break;
             case 'da':
-                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Directeur d\'agence ' . auth()->user()->full_name_with_martial . '</b>';
+                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Directeur d\'agence ' . auth()->user()->full_name_with_martial;
                 break;
             default:
-                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par ' . auth()->user()->full_name_with_martial . '</b>';
+                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par ' . auth()->user()->full_name_with_martial;
                 break;
         }
         return $content;
@@ -78,17 +84,23 @@ class Validated extends Notification
 
         $content = 'Mission ' . $this->mission->reference . ' a été réalisé';
         switch ($this->type) {
+            case 'ci_report':
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été réalisée et validée par le <b>Contrôleur itinérant ' . auth()->user()->full_name_with_martial . '</b>';
+                break;
             case 'ci':
-                $content = 'La mission ' . $this->mission->reference . ' a été réalisée et validée par le Contrôleur itinérant ' . auth()->user()->full_name_with_martial;
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été réalisée et validée par le <b>Contrôleur itinérant ' . auth()->user()->full_name_with_martial . '</b>';
+                break;
+            case 'cdc_report':
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Chef de Département Contrôle DRE ' . auth()->user()->full_name_with_martial . '</b>';
                 break;
             case 'cdc':
-                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Chef de Département Contrôle DRE ' . auth()->user()->full_name_with_martial;
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Chef de Département Contrôle DRE ' . auth()->user()->full_name_with_martial . '</b>';
                 break;
             case 'cc':
-                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Contrôleur central ' . auth()->user()->full_name_with_martial;
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Contrôleur central ' . auth()->user()->full_name_with_martial . '</b>';
                 break;
             case 'cdcr':
-                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Chef de Département de Contrôle Réseau ' . auth()->user()->full_name_with_martial;
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Chef de Département de Contrôle Réseau ' . auth()->user()->full_name_with_martial . '</b>';
                 break;
             case 'dcp':
                 $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Directeur du Contrôle Permanent ' . auth()->user()->full_name_with_martial;
@@ -111,7 +123,7 @@ class Validated extends Notification
      */
     private function getTitle(): string
     {
-        if ($this->type == 'ci') {
+        if ($this->type == 'ci' || 'ci_report') {
             return 'Mission ' . $this->mission->reference . ' réalisée et validée par ' . auth()->user()->full_name_with_martial;
         }
         return 'Mission ' . $this->mission->reference . ' traitée et validée par ' . auth()->user()->full_name_with_martial;
