@@ -49,6 +49,8 @@ if (!function_exists('getMediaType')) {
             return 'Lettre-circulaire (processus)';
         } elseif ($attachableType == 'App\\Models\\Process' && $folder == 'references\\Guide 1er niveau') {
             return 'Guide 1er niveau (processus)';
+        } elseif ($attachableType == 'App\\Models\\Mission') {
+            return 'Rapport de mission';
         } else {
             return 'Inconnu';
         }
