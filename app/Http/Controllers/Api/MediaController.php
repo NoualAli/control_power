@@ -289,6 +289,7 @@ class MediaController extends Controller
         $users = $media
             ->distinct()
             ->select('m.uploaded_by_id', 'u.first_name', 'u.last_name', 'u.id')
+            ->reorder()
             ->get()->map(function ($item) {
                 $item->id = $item->id ?: '-';
                 $item->full_name = $item->first_name && $item->last_name ? ucfirst(strtolower($item->first_name)) . ' ' . ucfirst(strtolower($item->last_name)) : 'Système';
