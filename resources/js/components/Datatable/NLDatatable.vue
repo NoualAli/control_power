@@ -237,7 +237,6 @@ export default {
          */
         handleSorting(item) {
             const sortBy = item?.sortingColumn !== undefined && item?.sortingColumn !== null ? item?.sortingColumn : item?.column?.field
-            console.log(sortBy);
             if (item?.direction) {
                 this.sorting[ sortBy ] = item.direction
             } else {
