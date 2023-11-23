@@ -1,22 +1,19 @@
 <template>
     <div class="input-base-container">
         <NLFlex extraClass="w-100">
-            <label v-if="label" class="form-label" :for="id"
-                :class="{ 'text-danger': form?.errors.has(name), 'is-required': labelRequired }">
-                {{ label }}
-            </label>
+            <div>
+                <label v-if="label" class="form-label" :for="id"
+                    :class="{ 'text-danger': form?.errors.has(name), 'is-required': labelRequired }">
+                    {{ label }}
+                </label>
+                <i v-if="helpText" class="las la-question-circle text-medium help-text" :class="{ 'ml-4': labelRequired }"
+                    :title="helpText" />
+            </div>
             <slot name="additional"></slot>
         </NLFlex>
-        <i v-if="helpText" class="las la-question-circle text-medium help-text" :class="{ 'ml-4': labelRequired }"
-            :title="helpText" />
         <slot />
         <div class="d-flex justify-end align-center is-column is-lg-row"
             :class="{ 'justify-between': form?.errors.has(name) }">
-            <!-- <div class="invalid-feedback d-block text-danger d-inline">
-        <template v-for="error in getFieldErrors(name)">
-          {{ error }} <br>
-        </template>
-      </div> -->
             <has-error v-if="form" :form="form" :field="name" class="text-danger d-inline" />
             <div v-if="length !== null && currentLength !== null"
                 class="text-small text-bold d-flex justify-end align-center"
