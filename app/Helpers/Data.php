@@ -11,7 +11,7 @@ if (!function_exists('getMissions')) {
      *
      * @return Builder
      */
-    function getMissions()
+    function getMissions(int $level = 2)
     {
         $columns = ['m.id', 'm.reference', DB::raw('CONCAT(d.code, " - ", d.name) as dre'), DB::raw('CONCAT(a.code, " - ", a.name) as agency')];
         if (env('DB_CONNECTION') == 'sqlsrv') {
@@ -19,6 +19,11 @@ if (!function_exists('getMissions')) {
                 'm.id',
                 'm.reference',
                 'cc.reference as campaign',
+                'm.creator_full_name',
+                'm.cdc_validator_full_name',
+                'm.cdcr_validator_full_name',
+                'm.dcp_validator_full_name',
+                'm.da_validator_full_name',
                 DB::raw("CONCAT(d.code, ' - ', d.name) as dre"),
                 DB::raw("CONCAT(a.code, ' - ', a.name) as agency"),
                 DB::raw('(CASE WHEN dcp_validation_by_id IS NOT NULL THEN 1 ELSE 0 END) as is_validated_by_dcp'),
@@ -45,19 +50,22 @@ if (!function_exists('getMissions')) {
             ->join('agencies as a', 'a.id', 'm.agency_id')
             ->join('dres as d', 'd.id', 'a.dre_id')
             ->leftJoin('mission_details as md', 'md.mission_id', 'm.id')
-            ->join('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id');
+            ->join('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')
+            ->where('m.level', $level);
         $user = auth()->user();
 
-        if (hasRole('ci')) {
-            $missions = $missions->where('mhc.user_id', $user->id);
-        } elseif (hasRole('cdc')) {
-            $missions = $missions->where('m.created_by_id', $user->id);
-        } elseif (hasRole('cc')) {
-            $missions = $missions->where('md.assigned_to_cc_id', $user->id);
-        } elseif (hasRole('da')) {
-            $missions = $missions->whereIn('m.agency_id', $user->agencies->pluck('id'));
-        } elseif (hasRole('dre')) {
-            $missions = $missions->whereIn('m.agency_id', $user->agencies->pluck('id'));
+        if ($level == 2) {
+            if (hasRole('ci')) {
+                $missions = $missions->where('mhc.user_id', $user->id);
+            } elseif (hasRole('cdc')) {
+                $missions = $missions->where('m.created_by_id', $user->id);
+            } elseif (hasRole('cc')) {
+                $missions = $missions->where('md.assigned_to_cc_id', $user->id);
+            } elseif (hasRole('da')) {
+                $missions = $missions->whereIn('m.agency_id', $user->agencies->pluck('id'));
+            } elseif (hasRole('dre')) {
+                $missions = $missions->whereIn('m.agency_id', $user->agencies->pluck('id'));
+            }
         }
 
         $missions = $missions->groupBy(
@@ -78,7 +86,12 @@ if (!function_exists('getMissions')) {
             'm.reel_start',
             'm.reel_end',
             'm.programmed_end',
-            'm.current_state'
+            'm.current_state',
+            'm.creator_full_name',
+            'm.cdc_validator_full_name',
+            'm.cdcr_validator_full_name',
+            'm.dcp_validator_full_name',
+            'm.da_validator_full_name',
         );
         return $missions;
     }
@@ -607,6 +620,8 @@ if (!function_exists('getControlCampaigns')) {
                 'c.created_by_id',
                 'c.validated_by_id',
                 'c.created_at',
+                'c.creator_full_name',
+                'c.validator_full_name',
                 DB::raw('CONVERT(NVARCHAR(10), start_date, 105) as start_date'),
                 DB::raw('CONVERT(NVARCHAR(10), end_date, 105) as end_date'),
                 DB::raw('DATEDIFF(day, start_date, CAST(GETDATE() AS DATE)) as remaining_days_before_start'),
@@ -630,7 +645,7 @@ if (!function_exists('getControlCampaigns')) {
             $campaigns = $campaigns->whereNotNull('validated_at');
         }
 
-        $campaigns = $campaigns->groupBy('c.id', 'c.reference', 'c.created_by_id', 'c.validated_by_id', 'c.start_date', 'c.end_date', 'c.validated_at', 'c.created_at');
+        $campaigns = $campaigns->groupBy('c.id', 'c.reference', 'c.created_by_id', 'c.validated_by_id', 'c.start_date', 'c.end_date', 'c.validated_at', 'c.created_at', 'c.creator_full_name', 'c.validator_full_name');
 
         return $campaigns;
     }

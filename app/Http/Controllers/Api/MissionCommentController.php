@@ -43,18 +43,18 @@ class MissionCommentController extends Controller
                 $validated = boolval($data['validated']);
                 $content = $data['content'];
                 $attributes = $this->commentAttributes($mission, $type, $hasId);
-                $validationAtColumn = $attributes['validationAtColumn'];
-                $validationByIdColumn = $attributes['validationByIdColumn'];
                 $message = $attributes['message'];
 
                 if ($comment && !$validated) {
                     $comment->update([
                         'content' => $content,
+                        'creator_full_name' => auth()->user()->full_name,
                     ]);
                 } else {
                     $comment = $mission->comments()->create([
                         'content' => $content,
                         'type' => $type,
+                        'creator_full_name' => auth()->user()->full_name,
                         'created_by_id' => auth()->user()->id,
                     ]);
                 }
@@ -68,8 +68,9 @@ class MissionCommentController extends Controller
                     $users = $this->getUsers($mission, $type);
                     $this->notifyUsers($mission, $users, $type);
                     $mission->update([
-                        $validationByIdColumn => auth()->user()->id,
-                        $validationAtColumn => now()
+                        $attributes['validationAtColumn'] => now(),
+                        $attributes['validationByIdColumn'] => auth()->user()->id,
+                        $attributes['persistedValidationColumn'] => strlen($attributes['persistedValidationColumn']) ? auth()->user()->full_name : null,
                     ]);
                     $mission->update(['current_state' => $missionState]);
                 }
@@ -102,21 +103,24 @@ class MissionCommentController extends Controller
             case 'ci_report':
                 $validationByIdColumn = 'ci_validation_by_id';
                 $validationAtColumn = 'ci_validation_at';
+                $persistedValidationColumn = '';
                 $message = $update ? 'Votre compte-rendu a été mis à jour avec succès' : 'Votre compte-rendu a été créé avec succès';
                 break;
             case 'cdc_report':
                 $validationByIdColumn = 'cdc_validation_by_id';
                 $validationAtColumn = 'cdc_validation_at';
+                $persistedValidationColumn = 'cdc_validator_full_name';
                 $message = $update ? 'Votre conclusion a été mis à jour avec succès' : 'Votre conclusion a été créé avec succès';
                 break;
             default:
                 $validationByIdColumn = 'ci_validation_by_id';
                 $validationAtColumn = 'ci_validation_at';
+                $persistedValidationColumn = '';
                 $message = $update ? 'Votre avis a été mis à jour avec succès' : 'Votre avis a été créé avec succès';
                 break;
         }
 
-        return compact('validationByIdColumn', 'validationAtColumn', 'message');
+        return compact('validationByIdColumn', 'validationAtColumn', 'persistedValidationColumn', 'message');
     }
 
     /**

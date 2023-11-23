@@ -64,8 +64,7 @@ class MissionController extends Controller
             if ($sort) {
                 $missions = $missions->sortByMultiple($sort);
             } else {
-                $missions = $missions->orderBy('m.current_state', 'DESC');
-                // $missions = $missions->orderBy('created_at', 'DESC');
+                $missions = $missions->orderBy('m.programmed_start', 'DESC')->orderBy('m.current_state', 'DESC');
             }
 
             if ($search) {
@@ -362,6 +361,7 @@ class MissionController extends Controller
             case 'ci':
                 $validationAtColumn = 'ci_validation_at';
                 $validationByColumn = 'ci_validation_by_id';
+                $persistedValidationColumn = '';
                 $isAbleOrAbort = hasRole('ci') && $mission->dreControllers->contains('id', auth()->user()->id);
                 $notify = $mission->creator;
                 $missionState = MissionState::PENDING_CDC_VALIDATION;
@@ -403,7 +403,7 @@ class MissionController extends Controller
                 $validationByColumn = 'da_validation_by_id';
                 $persistedValidationColumn = 'da_validator_full_name';
                 $isAbleOrAbort = hasRole('da') && auth()->user()->hasAgencies($mission->agency_id) && isAbleTo('regularize_mission_detail');
-                $notify = User::whereRoles(['cdcr', 'cdrcp', 'der']);
+                $notify = User::whereRoles(['cdcr', 'cdrcp', 'dcp']);
                 $notify = User::whereRoles(['dre'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($notify->get());
                 $notify = $notify->merge($mission->dcpControllers)->merge($mission->dreControllers);
                 $missionState = MissionState::DONE;

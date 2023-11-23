@@ -267,7 +267,7 @@ class Mission extends BaseModel
 
     public function getRegularizationStatusAttribute()
     {
-        $totalDetails = $this->details()->count();
+        $totalDetails = $this->details()->whereAnomaly()->count();
         $totalRegularized = $this->details()->onlyRegularized()->count();
 
         return $totalRegularized ? number_format($totalRegularized * 100 / $totalDetails) : 0;
@@ -306,6 +306,11 @@ class Mission extends BaseModel
     public function getCcValidationAtAttribute($cc_validation_at)
     {
         return $cc_validation_at ? Carbon::parse($cc_validation_at)->format('d-m-Y') : null;
+    }
+
+    public function getDaValidationAtAttribute($da_validation_at)
+    {
+        return $da_validation_at ? Carbon::parse($da_validation_at)->format('d-m-Y') : null;
     }
 
 

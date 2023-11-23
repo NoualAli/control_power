@@ -25,6 +25,7 @@ class ControlCampaign extends BaseModel
         'validated_by_id',
         'validated_at',
         'validator_full_name',
+        'creator_full_name',
     ];
 
     protected $appends = [

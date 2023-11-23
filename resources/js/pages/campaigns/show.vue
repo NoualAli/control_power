@@ -89,6 +89,27 @@
                         </NLColumn>
                     </NLGrid>
                 </NLColumn>
+                <NLColumn lg="12">
+                    <NLGrid>
+                        <NLColumn lg="4">
+                            <span class="text-bold">
+                                Crée par:
+                            </span>
+                            <span>
+                                {{ campaign?.current?.creator_full_name }}
+                            </span>
+                        </NLColumn>
+
+                        <NLColumn lg="4">
+                            <span class="text-bold">
+                                Validée par:
+                            </span>
+                            <span>
+                                {{ campaign?.current?.validator_full_name }}
+                            </span>
+                        </NLColumn>
+                    </NLGrid>
+                </NLColumn>
                 <NLColumn>
                     <span class="text-bold">
                         Description:
@@ -100,7 +121,8 @@
                 </NLColumn>
             </NLGrid>
         </div>
-        <div class="d-flex align-items gap-2" v-if="isDcp && totalMissions == totalValidatedMissions">
+        <div class="d-flex align-items gap-2"
+            v-if="isDcp && totalMissions == totalValidatedMissions && totalMissions > 0 && totalValidatedMissions > 0">
             <a :href="'/excel-export?export=synthesis&campaign=' + campaign?.current?.id" target="_blank"
                 class="btn btn-excel has-icon">
                 <i class="las la-file-excel icon" />

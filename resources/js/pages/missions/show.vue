@@ -198,7 +198,7 @@
                     <span class="text-bold">
                         Validé par:
                     </span>
-                    {{ mission?.current?.cdc_validator?.full_name || '-' }}
+                    {{ mission?.current?.cdc_validator_full_name || '-' }}
                 </NLColumn>
                 <NLColumn lg="3">
                     <span class="text-bold">
@@ -224,7 +224,7 @@
                     <span class="text-bold">
                         Validé par:
                     </span>
-                    {{ mission?.current?.cdcr_validator?.full_name || '-' }}
+                    {{ mission?.current?.cdcr_validator_full_name || '-' }}
                 </NLColumn>
                 <NLColumn lg="3">
                     <span class="text-bold">
@@ -236,7 +236,7 @@
                     <span class="text-bold">
                         Validé par:
                     </span>
-                    {{ mission?.current?.dcp_validator?.full_name || '-' }}
+                    {{ mission?.current?.dcp_validator_full_name || '-' }}
                 </NLColumn>
                 <NLColumn lg="3">
                     <span class="text-bold">
@@ -248,7 +248,7 @@
                     <span class="text-bold">
                         Régularisé par:
                     </span>
-                    {{ mission?.current?.da_regularizator?.full_name || '-' }}
+                    {{ mission?.current?.da_validator_full_name || '-' }}
                 </NLColumn>
                 <NLColumn lg="3">
                     <span class="text-bold">
