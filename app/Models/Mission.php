@@ -52,6 +52,11 @@ class Mission extends BaseModel
         'dcp_validation_at',
         'da_validation_at',
         'current_state',
+        'creator_full_name',
+        'cdc_validator_full_name',
+        'cdcr_validator_full_name',
+        'dcp_validator_full_name',
+        'da_validator_full_name',
     ];
 
     protected $hidden = [
@@ -89,6 +94,12 @@ class Mission extends BaseModel
         'has_major_facts',
         'total_major_facts',
         'is_late',
+        'report_link',
+        'creator_full_name',
+        'cdc_validator_full_name',
+        'cdcr_validator_full_name',
+        'dcp_validator_full_name',
+        'da_validator_full_name',
     ];
 
     protected $casts = [
@@ -189,7 +200,7 @@ class Mission extends BaseModel
 
     public function getPdfReportExistsAttribute()
     {
-        return Storage::fileExists('exported\campaigns\\' . $this->campaign->reference . '\\missions\\' . $this->report_name . '.pdf');
+        return Storage::fileExists('public\exported\campaigns\\' . $this->campaign->reference . '\\missions\\' . $this->report_name . '.pdf');
     }
 
     public function getReportNameAttribute()
@@ -198,9 +209,9 @@ class Mission extends BaseModel
         return strtolower('rapport_mission-' . $reference);
     }
 
-    public function getReportPathAttribute()
+    public function getReportLinkAttribute()
     {
-        return 'exported/campaigns/' . $this->campaign->reference . '/missions/' . $this->report_name . '.pdf';
+        return env('APP_URL') . '/storage/exported/campaigns/' . $this->campaign->reference . '/missions/' . $this->report_name . '.pdf';
     }
 
     public function getEndAttribute()
@@ -447,12 +458,12 @@ class Mission extends BaseModel
 
     public function missionOrder()
     {
-        return $this->morphMany(Media::class, 'attachable')->where('folder', 'uploads/mission_order');
+        return $this->media()->where('folder', 'uploads/mission_order');
     }
 
     public function closingReport()
     {
-        return $this->morphMany(Media::class, 'attachable')->where('folder', 'uploads/closing_report');
+        return $this->media()->where('folder', 'uploads/closing_report');
     }
 
 

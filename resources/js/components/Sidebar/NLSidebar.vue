@@ -33,6 +33,7 @@
             <NLSidebarItem label="Faits majeur" route="major-facts" iconName="la-exclamation-triangle"
                 v-if="can('view_page_major_facts')" />
             <NLSidebarItem label="Backup DB" route="admin-backup-db" v-if="is('root')" iconName="la-database" />
+            <NLSidebarItem label="Fichiers" route="admin-server-files" v-if="is('root')" iconName="la-file-alt" />
             <!-- <NLSidebarItem label="Bugs" route="bugs-index" iconName="la-bug" /> -->
             <!-- <NLSidebarItem label="Validation des rapports" route="missions-not-validated" iconName="la-clipboard-check"
                 v-if="can('validate_report')" /> -->

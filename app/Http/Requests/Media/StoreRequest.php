@@ -46,19 +46,24 @@ class StoreRequest extends FormRequest
     {
         $mimes = [];
         foreach ($extensions as $extension) {
-            switch ($extension) {
+            switch (strtolower($extension)) {
                 case 'jpg':
-                    array_push($mimes, 'image/jpeg');
+                    array_push($mimes, 'image/jpg');
                     break;
                 case 'jpeg':
                     array_push($mimes, 'image/jpeg');
                     break;
                 case 'png':
                     array_push($mimes, 'image/png');
+                case 'tif':
+                    array_push($mimes, 'image/tiff');
+                case 'tiff':
+                    array_push($mimes, 'image/tiff');
+                case 'svg':
+                    array_push($mimes, 'image/svg+xml');
                     break;
-                case 'doc':
-                    array_push($mimes, 'application/msword');
-                    break;
+                case 'webp':
+                    array_push($mimes, 'image/webp');
                 case 'doc':
                     array_push($mimes, 'application/msword');
                     break;

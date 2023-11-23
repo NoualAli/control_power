@@ -225,10 +225,12 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::put('{category}', 'update');
             Route::delete('{category}', 'destroy');
         });
-        Route::prefix('upload')->controller(MediaController::class)->group(function () {
+        Route::prefix('media')->controller(MediaController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::get('{media}', 'show');
             Route::post('/', 'store');
             Route::delete('{media}', 'destroy');
-            Route::get('/', 'index');
+            Route::delete('{media}/multiple', 'destroyMultiple');
         });
 
         /**

@@ -110,7 +110,6 @@ class MissionDetailController extends Controller
                 $detail = MissionDetail::findOrFail($data['detail']);
                 unset($data['detail']);
                 $this->updateDetail($data, $detail);
-                $this->storeFiles($files, $detail);
                 if (hasRole('ci')) {
                     $this->notifyMajorFact($detail);
                 }
@@ -179,33 +178,14 @@ class MissionDetailController extends Controller
         }
     }
 
-    /**
-     * Store files informations to database
-     *
-     * @param array $files
-     * @param App\Models\MissionDetail $detail
-     */
-    private function storeFiles(array $files, MissionDetail $detail)
-    {
-        if (is_array($files)) {
-            $media = Media::whereIn('id', $files)->get();
-            foreach ($media as $file) {
-                if (empty($file->attachable_type)) {
-                    $file->update([
-                        'attachable_type' => MissionDetail::class,
-                        'attachable_id' => $detail->id,
-                    ]);
-                }
-            }
-        }
-    }
 
     /**
-     * Notifier CDRCP, DCP, CDCR, CDC
+     * Notify CDRCP, DCP, CDCR, CDC
      *
      * @param App\Models\MissionDetail $detail
+     * @param array $roles
      */
-    private function notifyMajorFact(MissionDetail $detail, $roles = ['cdc'])
+    private function notifyMajorFact(MissionDetail $detail, array $roles = ['cdc']): void
     {
         if ($detail->major_fact) {
             $users = User::all()->filter(fn ($user) => hasRole($roles, $user) && $detail->mission->creator->id == $user->id);
@@ -281,9 +261,7 @@ class MissionDetailController extends Controller
             } elseif (hasRole('cdc')) {
                 $newData['controlled_by_cdc_at'] = now();
                 $newData['controlled_by_cdc_id'] = auth()->user()->id;
-                // if ($detail->is_controlled_by_ci && $detail->major_fact) {
-                //     unset($newData['major_fact']);
-                // }
+                $newData['cdc_full_name'] = auth()->user()->full_name;
             } elseif (hasRole('cc')) {
                 $newData['controlled_by_cc_at'] = now();
                 $newData['controlled_by_cc_id'] = auth()->user()->id;
@@ -293,17 +271,15 @@ class MissionDetailController extends Controller
             } elseif (hasRole('cdcr')) {
                 $newData['controlled_by_cdcr_at'] = now();
                 $newData['controlled_by_cdcr_id'] = auth()->user()->id;
+                $newData['cdcr_full_name'] = auth()->user()->full_name;
             } elseif (hasRole('dcp')) {
                 $newData['controlled_by_dcp_at'] = now();
                 $newData['controlled_by_dcp_id'] = auth()->user()->id;
+                $newData['cdc_full_name'] = auth()->user()->full_name;
             } else {
                 abort(500, 'Le rôle de l\'utilisateur n\'est pas pri en charge.');
             }
 
-            // if ($detail->is_dispatched) {
-            //     unset($newData['major_fact']);
-            // }
-            // dd($newData);
             $detail->update($newData);
 
             // Mise à jour de la date réel du début de la mission

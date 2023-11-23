@@ -55,7 +55,7 @@
         "files": [
             "app/Helpers/Main.php",
             "app/Helpers/Data.php",
-            "app/Helpers/Logging.php"
+            "app/Helpers/Media.php"
         ]
     },
     "scripts": {

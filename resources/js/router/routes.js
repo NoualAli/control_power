@@ -26,6 +26,9 @@ export default [
         }
     },
 
+    /**
+     * Database backups
+     */
     {
         path: '/admin/backup/db',
         name: 'admin-backup-db',
@@ -33,6 +36,20 @@ export default [
         meta: {
             breadcrumb: {
                 label: 'Backup base de données'
+            }
+        }
+    },
+
+    /**
+     * Uploaded and generated files
+     */
+    {
+        path: '/admin/files',
+        name: 'admin-server-files',
+        component: page('admin/files/index.vue'),
+        meta: {
+            breadcrumb: {
+                label: 'Fichiers'
             }
         }
     },

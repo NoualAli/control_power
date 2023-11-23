@@ -34,9 +34,11 @@ class MissionDetailRegularizationController extends Controller
                 }
                 $regularization = MissionDetailRegularization::create($data);
                 if (count($media)) {
-                    $media = Media::whereIn('id', $media)->get();
+                    $media = getMedia($media)->get();
                     foreach ($media as $item) {
-                        $item->update(['attachable_id' => $regularization->id]);
+                        $updatedItem = DB::table('has_media')->where('media_id', $item->id)->update([
+                            'attachable_id' => $regularization->id
+                        ]);
                     }
                 }
                 if ($regularization->is_regularized) {

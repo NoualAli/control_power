@@ -262,10 +262,12 @@
         <NLFlex lgJustifyContent="start" gap="2">
             <!-- Actions -->
             <NLFlex lgJustifyContent="start" gap="2">
-                <button v-if="mission?.current?.pdf_report_exists" class="btn btn-pdf has-icon" @click="exportReport()">
+
+                <a v-if="mission?.current?.pdf_report_exists" class="btn btn-pdf has-icon"
+                    :href="mission?.current?.report_link" target="_blank">
                     <i class="las la-file-pdf icon" />
                     Exporter le rapport
-                </button>
+                </a>
 
                 <!-- View report -->
                 <button
@@ -622,9 +624,10 @@ export default {
          * Export or Preview report
          *
          */
-        exportReport() {
-            window.open('/missions/' + this.mission?.current?.id + '/report?action=export')
-        },
+        // exportReport() {
+        //     window.open(this.mission?.current?.report_path)
+        //     // window.open('/missions/' + this.mission?.current?.id + '/report?action=export')
+        // },
 
         /**
          * Dispatch mission
