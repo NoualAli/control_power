@@ -84,7 +84,6 @@ class ReportNotification extends Notification
             ->line($this->getContent())
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
             ->action('Voir la mission', $this->getUrl())
-            // ->action('Voir le rapport', storage_path($this->mission->report_path))
             ->line('Merci d\'utiliser ControlPower!')
             ->success();
     }

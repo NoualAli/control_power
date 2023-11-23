@@ -110,6 +110,8 @@ class ControlCampaignController extends Controller
             $processes = pcfToProcesses($data['pcf']);
             $data['validated_by_id'] = isset($data['validate']) && boolval($data['validate']) ? auth()->user()->id : null;
             $data['validated_at'] = isset($data['validate']) && boolval($data['validate']) ? now() : null;
+            $data['validator_full_name'] = isset($data['validate']) && boolval($data['validate']) ? auth()->user()->full_name : null;
+            $data['creator_full_name'] = auth()->user()->full_name;
             $data['reference'] = generateCDCRef($data['validate'], $data['start_date']);
             unset($data['pcf'], $data['validate']);
             $campaign = DB::transaction(function () use ($data, $processes) {
@@ -193,7 +195,7 @@ class ControlCampaignController extends Controller
         abort_if($campaign->validated_by_id, 401);
         try {
             DB::transaction(function () use ($campaign) {
-                $campaign->update(['validated_by_id' => auth()->user()->id, 'validated_at' => now(), 'reference' => generateCDCRef(true, $campaign->start_date)]);
+                $campaign->update(['validated_by_id' => auth()->user()->id, 'validator_full_name' => auth()->user()->full_name, 'validated_at' => now(), 'reference' => generateCDCRef(true, $campaign->start_date)]);
                 $roles = ['cdc', 'cdrcp', 'dre', 'cdcr'];
                 $users = User::whereRoles($roles)->get();
                 foreach ($users as $user) {

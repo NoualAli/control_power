@@ -24,6 +24,7 @@ class ControlCampaign extends BaseModel
         'created_by_id',
         'validated_by_id',
         'validated_at',
+        'validator_full_name',
     ];
 
     protected $appends = [
@@ -44,11 +45,13 @@ class ControlCampaign extends BaseModel
     /**
      * Getters
      */
-    public function getStartDateAttribute($start_date){
+    public function getStartDateAttribute($start_date)
+    {
         return \Carbon\Carbon::parse($start_date)->format('d-m-Y');
     }
 
-    public function getEndDateAttribute($end_date){
+    public function getEndDateAttribute($end_date)
+    {
         return \Carbon\Carbon::parse($end_date)->format('d-m-Y');
     }
 

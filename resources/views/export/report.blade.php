@@ -1,11 +1,10 @@
 @php
     $appCss = env('APP_URL') . '/special_styles/report.css';
     $qlCss = env('APP_URL') . '/special_styles/ql.css';
-    $appBrand = storage_path('images\brand.png');
-    $bnaLogo = public_path('app\images\bna_logo.svg');
-    $coverPageImg = public_path('app\images\report_cover_page.png');
-    $appBrandMonochrome = public_path('app\images\brand_monochrome.png');
-    // dd(storage_path('app\images\brand.svg'))
+    $appBrand = public_path('storage\assets\brand.png');
+    $bnaLogo = public_path('storage\assets\bna_logo.svg');
+    $coverPageImg = public_path('storage\assets\report_cover_page.jpg');
+    $appBrandMonochrome = public_path('storage\assets\brand_monochrome.png');
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -16,10 +15,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="shortcut icon" href="{{ $appBrand }}" type="image/x-icon">
-    {{-- <link rel="stylesheet" href="{{ $appCss }}">
-    <link rel="stylesheet" href="{{ $qlCss }}"> --}}
+    <link rel="stylesheet" href="{{ $appCss }}">
+    <link rel="stylesheet" href="{{ $qlCss }}">
     <title>Rapport de la mission {{ $mission->reference }}</title>
-    <style>
+    {{-- <style>
         * {
             margin: 0;
             padding: 0;
@@ -956,7 +955,7 @@
             position: absolute;
             right: 15px;
         }
-    </style>
+    </style> --}}
 </head>
 
 <body>

@@ -100,7 +100,7 @@ class MissionController extends Controller
     public function show(Mission $mission)
     {
         isAbleOrAbort('view_mission');
-        // dd($mission->load(['closingReport']));
+
         $currentUser = auth()->user();
         $dreControllers = $mission->dreControllers->pluck('id')->toArray();
         $dcpControllers = $mission->dcpControllers->pluck('id')->toArray();
@@ -142,7 +142,7 @@ class MissionController extends Controller
             'missionOrder',
             'closingReport'
         ])->unsetRelation('details');
-        // dd($mission);
+
         $mission->makeHidden(['dcp_validation_by_id', 'cdcr_validation_by_id', 'cdc_validation_by_id', 'ci_validation_by_id', 'cc_validation_by_id', 'agency_id', 'control_campaign_id', 'created_by_id']);
 
         return $mission;
@@ -158,6 +158,7 @@ class MissionController extends Controller
     {
         $data = $request->validated();
         $data['created_by_id'] = auth()->user()->id;
+        $data['creator_full_name'] = auth()->user()->full_name;
         try {
             $campaign = ControlCampaign::findOrFail($data['control_campaign_id']);
             $campaign->load('processes');
@@ -170,12 +171,12 @@ class MissionController extends Controller
                     'reference' => $reference,
                     'control_campaign_id' => $campaign->id,
                     'agency_id' => $agency->id,
-                    'created_by_id' => auth()->user()->id,
+                    'created_by_id' => $data['created_by_id'],
+                    'creator_full_name' => $data['creator_full_name'],
                     'programmed_start' => $data['programmed_start'],
                     'programmed_end' => $data['programmed_end'],
                     'note' => $data['note'],
                 ]);
-                // dd($controlPoints);
                 $mission->dreControllers()->attach($data['controllers']);
                 $mission->details()->createMany($controlPoints);
                 foreach ($mission->dreControllers as $controller) {
@@ -322,6 +323,7 @@ class MissionController extends Controller
                 $mission->update([
                     $attributes['validationAtColumn'] => now(),
                     $attributes['validationByColumn'] => auth()->user()->id,
+                    $attributes['persistedValidationColumn'] => strlen($attributes['persistedValidationColumn']) ? auth()->user()->full_name : null,
                     'current_state' => $attributes['missionState']
                 ]);
                 if (!hasRole('dcp')) {
@@ -367,6 +369,7 @@ class MissionController extends Controller
             case 'cdc':
                 $validationAtColumn = 'cdc_validation_at';
                 $validationByColumn = 'cdc_validation_by_id';
+                $persistedValidationColumn = 'cdc_validator_full_name';
                 $isAbleOrAbort = hasRole('cdc') && $mission->created_by_id == auth()->user()->id;
                 $notify = User::whereRoles(['cdcr'])->get();
                 $missionState = MissionState::PENDING_CDCR_VALIDATION;
@@ -374,6 +377,7 @@ class MissionController extends Controller
             case 'cdcr':
                 $validationAtColumn = 'cdcr_validation_at';
                 $validationByColumn = 'cdcr_validation_by_id';
+                $persistedValidationColumn = 'cdcr_validator_full_name';
                 $isAbleOrAbort = hasRole('cdcr');
                 $notify = User::whereRoles(['dcp'])->get();
                 $missionState = MissionState::PENDING_DCP_VALIDATION;
@@ -381,6 +385,7 @@ class MissionController extends Controller
             case 'cc':
                 $validationAtColumn = 'cc_validation_at';
                 $validationByColumn = 'cc_validation_by_id';
+                $persistedValidationColumn = '';
                 $isAbleOrAbort = hasRole('cc') && $mission->dcpControllers->contains('id', auth()->user()->id);
                 $notify = User::whereRoles(['cdcr'])->get();
                 $missionState = MissionState::PENDING_CDCR_VALIDATION;
@@ -388,6 +393,7 @@ class MissionController extends Controller
             case 'dcp':
                 $validationAtColumn = 'dcp_validation_at';
                 $validationByColumn = 'dcp_validation_by_id';
+                $persistedValidationColumn = 'dcp_validator_full_name';
                 $isAbleOrAbort = hasRole('dcp');
                 $missionState = MissionState::PENDING_DA_VALIDATION;
                 $notify = [];
@@ -395,6 +401,7 @@ class MissionController extends Controller
             case 'da':
                 $validationAtColumn = 'da_validation_at';
                 $validationByColumn = 'da_validation_by_id';
+                $persistedValidationColumn = 'da_validator_full_name';
                 $isAbleOrAbort = hasRole('da') && auth()->user()->hasAgencies($mission->agency_id) && isAbleTo('regularize_mission_detail');
                 $notify = User::whereRoles(['cdcr', 'cdrcp', 'der']);
                 $notify = User::whereRoles(['dre'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($notify->get());
@@ -404,13 +411,14 @@ class MissionController extends Controller
             default:
                 $validationAtColumn = 'ci_validation_at';
                 $validationByColumn = 'ci_validation_by_id';
+                $persistedValidationColumn = '';
                 $isAbleOrAbort = hasRole('ci') && $mission->dreControllers->contains('id', auth()->user()->id);
                 $notify = $mission->creator;
                 $missionState = MissionState::PENDING_CDC_VALIDATION;
                 break;
         }
 
-        return compact('validationAtColumn', 'validationByColumn', 'isAbleOrAbort', 'notify', 'missionState');
+        return compact('validationAtColumn', 'validationByColumn', 'isAbleOrAbort', 'notify', 'missionState', 'persistedValidationColumn');
     }
 
     /**

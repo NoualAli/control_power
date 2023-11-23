@@ -47,6 +47,9 @@ class MissionDetail extends BaseModel
         'is_regularized',
         'major_fact_detected_at',
         'major_fact_dispatched_to_dcp_at',
+        'cdc_full_name',
+        'cdcr_full_name',
+        'dcp_full_name',
     ];
 
     protected $filter = 'App\Filters\MissionDetail';
@@ -87,27 +90,7 @@ class MissionDetail extends BaseModel
      */
     public function getReportAttribute()
     {
-        // if (auth()->check()) {
-        //     // if (hasRole('ci')) {
-        //         //     $column = 'ci_report';
-        //         // } elseif (hasRole('cdc')) {
-        //             //     $column = $this->cdc_report ? 'cdc_report' : 'ci_report';
-        //             // } else {
-        //     //     if ($this->cdc_report) {
-        //         //         $column = 'cdc_report';
-        //         //     } else {
-        //             //         $column = 'ci_report';
-        //             //     }
-        //             // }
-        //         } else {
-        //             // if ($this->cdc_report) {
-        //                 //     $column = 'cdc_report';
-        //                 // } else {
-        //                     //     $column = 'ci_report';
-        //     // }
-        // }
         $column = $this->cdc_report ? 'cdc_report' : 'ci_report';
-        // $isControlledByCdc = $this->cdc_report ? '(Contrôler par CDC)' : '';
 
         return $this->$column;
     }

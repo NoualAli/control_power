@@ -95,11 +95,6 @@ class Mission extends BaseModel
         'total_major_facts',
         'is_late',
         'report_link',
-        'creator_full_name',
-        'cdc_validator_full_name',
-        'cdcr_validator_full_name',
-        'dcp_validator_full_name',
-        'da_validator_full_name',
     ];
 
     protected $casts = [
