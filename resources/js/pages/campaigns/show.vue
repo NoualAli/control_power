@@ -101,7 +101,7 @@
             </NLGrid>
         </div>
         <div class="d-flex align-items gap-2" v-if="isDcp && totalMissions == totalValidatedMissions">
-            <a :href="'/excel-export?export=synthesis' + campaign?.current?.id" target="_blank"
+            <a :href="'/excel-export?export=synthesis&campaign=' + campaign?.current?.id" target="_blank"
                 class="btn btn-excel has-icon">
                 <i class="las la-file-excel icon" />
                 Exporter la synthèse

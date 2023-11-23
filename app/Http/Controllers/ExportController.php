@@ -36,7 +36,7 @@ class ExportController extends Controller
 {
     public function export(Request $request)
     {
-        if (hasRole(['admin', 'root'])) {
+        if (hasRole(['admin', 'root', 'dcp'])) {
             $exportValue = $request->export;
             if ($exportValue == 'users') {
                 return $this->users($request);
@@ -149,7 +149,7 @@ class ExportController extends Controller
             ->get();
 
 
-        return Excel::store(new SynthesisExport(compact('dres', 'controlPoints', 'controlCampaign')), 'synthesis/synthèse-' . $controlCampaign->reference . '.xlsx');
+        return Excel::download(new SynthesisExport(compact('dres', 'controlPoints', 'controlCampaign')), 'synthèse-' . $controlCampaign->reference . '.xlsx');
     }
 
     private function users(Request $request)
