@@ -154,7 +154,7 @@ class MediaController extends Controller
 
             $id = Str::uuid();
 
-            $payload = $this->getPayload($attachableId, $attachableType, $folder);
+            // $payload = $this->getPayload($attachableId, $attachableType, $folder);
 
             $insertedFile = DB::table('media')->insert([
                 'id' => $id,
@@ -166,7 +166,7 @@ class MediaController extends Controller
                 'size' => $size,
                 'uploaded_by_id' => auth()->user()->id,
                 'created_at' => now(),
-                'payload' => $payload,
+                // 'payload' => $payload,
             ]);
             $media = DB::table('has_media')->insert([
                 'attachable_id' => $attachableId,
@@ -175,7 +175,6 @@ class MediaController extends Controller
             ]);
 
             $file = getSingleMedia($id);
-            // dd($file);
 
             return $file;
         } catch (\Throwable $th) {
