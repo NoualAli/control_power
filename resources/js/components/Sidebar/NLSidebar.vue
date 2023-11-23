@@ -34,6 +34,12 @@
                 v-if="can('view_page_major_facts')" />
             <NLSidebarItem label="Backup DB" route="admin-backup-db" v-if="is('root')" iconName="la-database" />
             <NLSidebarItem label="Fichiers" route="admin-server-files" v-if="is('root')" iconName="la-file-alt" />
+            <a class="sidebar-item" href="/log-viewer" target="_blank">
+                <i class="las la-bug sidebar-icon"></i>
+                <span class="sidebar-icon_text">
+                    Logs
+                </span>
+            </a>
             <!-- <NLSidebarItem label="Bugs" route="bugs-index" iconName="la-bug" /> -->
             <!-- <NLSidebarItem label="Validation des rapports" route="missions-not-validated" iconName="la-clipboard-check"
                 v-if="can('validate_report')" /> -->
