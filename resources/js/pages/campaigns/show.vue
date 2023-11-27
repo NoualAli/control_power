@@ -124,7 +124,7 @@
         <div class="d-flex align-items gap-2"
             v-if="canExportSynthesis && totalMissions == totalValidatedMissions && totalMissions > 0 && totalValidatedMissions > 0">
             <a :href="'/excel-export?export=synthesis&campaign=' + campaign?.current?.id" target="_blank"
-                class="btn btn-excel has-icon">
+                class="btn btn-office-excel has-icon">
                 <i class="las la-file-excel icon" />
                 Récapitulatif des notations
             </a>
