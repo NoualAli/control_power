@@ -122,11 +122,11 @@
             </NLGrid>
         </div>
         <div class="d-flex align-items gap-2"
-            v-if="isDcp && totalMissions == totalValidatedMissions && totalMissions > 0 && totalValidatedMissions > 0">
+            v-if="canExportSynthesis && totalMissions == totalValidatedMissions && totalMissions > 0 && totalValidatedMissions > 0">
             <a :href="'/excel-export?export=synthesis&campaign=' + campaign?.current?.id" target="_blank"
                 class="btn btn-excel has-icon">
                 <i class="las la-file-excel icon" />
-                Exporter la synthèse
+                Récapitulatif des notations
             </a>
         </div>
         <!-- Processes List -->
@@ -196,7 +196,7 @@ export default {
             //         dependsOn: 'family'
             //     },
             // },
-            isDcp: null,
+            canExportSynthesis: null,
         }
     },
     computed: {
@@ -262,7 +262,7 @@ export default {
     methods: {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
-            this.isDcp = hasRole('dcp')
+            this.canExportSynthesis = hasRole([ 'dcp', 'cdcr' ])
             this.close()
             const campaignId = this.$route.params.campaignId
             this.$store.dispatch('campaigns/fetch', { campaignId }).then(() => {
