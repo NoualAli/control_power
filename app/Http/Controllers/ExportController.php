@@ -89,7 +89,7 @@ class ExportController extends Controller
             ->orderBy('d.name')
             ->get();
 
-        $missionDetails = DB::table('mission_details', 'md')->select([
+        $missionDetails = DB::table('control_campaigns', 'cc')->select([
             'f.name as family',
             'd.name as domain',
             'p.name as process',
@@ -99,21 +99,21 @@ class ExportController extends Controller
             DB::raw("CONCAT(a.code, ' ', a.name) as agency"),
             'a.id as agency_id'
         ])
-            ->leftJoin('missions as m', 'm.id', 'md.mission_id')
-            ->leftJoin('control_campaigns as cc', 'cc.id', 'm.control_campaign_id')
+            ->leftJoin('missions as m', 'm.control_campaign_id', 'cc.id')
+            ->leftJoin('mission_details as md', 'md.mission_id', 'm.id')
             ->leftJoin('agencies as a', 'a.id', 'm.agency_id')
             ->leftJoin('dres', 'dres.id', 'a.dre_id')
             ->leftJoin('control_points as cp', 'cp.id', 'md.control_point_id')
             ->leftJoin('processes as p', 'p.id', 'cp.process_id')
             ->leftJoin('domains as d', 'd.id', 'p.domain_id')
             ->leftJoin('families as f', 'f.id', 'd.family_id')
-            ->where('cc.id', $controlCampaign->id)
+            ->where('cc.id', $request->campaign)
             ->whereIn('score', [1, 2, 3, 4])
             ->orderBy('f.id')
             ->orderBy('d.id')
             ->orderBy('p.id')
             ->orderBy('cp.name');
-
+        // dd($missionDetails->get());
         $dres = collect([]);
         foreach ($dresFromAgencies as $dre) {
             $dreAgencies = (clone $agencies)->where('dre_id', $dre->dre_id)->get();
@@ -142,6 +142,7 @@ class ExportController extends Controller
             ->leftJoin('control_points as cp', 'p.id', 'cp.process_id')
             ->leftJoin('domains as d', 'd.id', 'p.domain_id')
             ->leftJoin('families as f', 'f.id', 'd.family_id')
+            ->where('ccp.control_campaign_id', $request->campaign)
             ->orderBy('f.id')
             ->orderBy('d.id')
             ->orderBy('p.id')
