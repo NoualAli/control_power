@@ -432,3 +432,13 @@ if (!function_exists('rememberKeyForCache')) {
         // return $prefix ? $prefix . '_user_' . auth()->user()->id . '_' . $rememberKey : '_user_' . auth()->user()->id . $rememberKey;
     }
 }
+
+if (!function_exists('sanitizeString')) {
+    function sanitizeString(?string $string)
+    {
+        $string = strip_tags($string);
+        // $nbsp = html_entity_decode("&nbsp;");
+        $string = str_replace('&nbsp;', " ", $string);
+        return $string;
+    }
+}
