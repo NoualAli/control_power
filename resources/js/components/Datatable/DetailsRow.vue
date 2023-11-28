@@ -102,34 +102,19 @@ export default {
             this.url = this.customUrl ? this.customUrl + urlPrefix : window.Laravel.baseUrl + '/api/' + urlPrefix
             this.url = this.url + '/' + this.item[ this.rowId ]
         },
-        // showField(column) {
-        //     let field = ''
-        //     if (column.field.includes('.')) {
-        //         let splited = column.field.split('.')
-        //         let relationship = splited[ 0 ]
-        //         let value = splited[ 1 ]
-        //         field = this.hasMany(column) ? this.loadHasMany(this.data[ relationship ], value) : this.data[ relationship ][ value ]
-        //     } else {
-        //         field = this.data[ column.field ] || '-'
-        //     }
-        //     return field
-        // },
         showField(column) {
-            if (column !== undefined && this.item !== undefined) {
-                if (Object.hasOwnProperty.call(column, 'methods')) {
-                    if (Object.hasOwnProperty.call(column.methods, 'showField')) {
-                        return column.methods[ 'showField' ](this.item);
-                    }
-                }
-                return this.getField(column)
-            } else if (column.field.includes('.')) {
+            let field = ''
+            if (column.field.includes('.')) {
                 let splited = column.field.split('.')
                 let relationship = splited[ 0 ]
                 let value = splited[ 1 ]
-                return this.hasMany(column) ? this.loadHasMany(this.data[ relationship ], value) : this.data[ relationship ][ value ]
+                field = this.hasMany(column) ? this.loadHasMany(this.data[ relationship ], value) : this.data[ relationship ][ value ]
+            } else {
+                field = this.data[ column.field ] || '-'
             }
-            return '-'
+            return field
         },
+
         /**
         * Get field value
         *
