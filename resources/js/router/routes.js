@@ -377,6 +377,7 @@ export default [
             }
         }
     },
+
     /**
     * Control points
     */
@@ -413,6 +414,44 @@ export default [
             }
         }
     },
+
+    /**
+    * Control points
+    */
+    {
+        path: '/admin/fields',
+        name: 'fields-index',
+        component: page('admin/fields/index.vue'),
+        meta: {
+            breadcrumb: {
+                label: 'Champs'
+
+            }
+        }
+    },
+    {
+        path: '/admin/fields/create',
+        name: 'fields-create',
+        component: page('admin/fields/create.vue'),
+        meta: {
+            breadcrumb: {
+                label: 'Nouveau champs',
+                parent: 'fields-index'
+            }
+        }
+    },
+    {
+        path: '/admin/fields/edit/:field',
+        name: 'fields-edit',
+        component: page('admin/fields/edit.vue'),
+        meta: {
+            breadcrumb: {
+                label: 'Edition champs',
+                parent: 'fields-index'
+            }
+        }
+    },
+
     /**
      * Control campaigns
      */
@@ -527,17 +566,6 @@ export default [
             }
         }
     },
-    // {
-    //     path: '/missions/:missionId/execute/:processId?',
-    //     name: 'mission-details-execute',
-    //     component: page('missions/execute.vue'),
-    //     meta: {
-    //         breadcrumb: {
-    //             parent: 'mission',
-    //             label: 'Exécution de la mission'
-    //         }
-    //     }
-    // },
 
     /**
      * Global

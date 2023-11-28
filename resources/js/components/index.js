@@ -2,6 +2,7 @@ import Child from './Child.vue'
 import Alert from './Alert.vue'
 import InputContainer from './Inputs/InputContainer.vue'
 import NLInput from './Inputs/NLInput.vue'
+import NLTagInput from './Inputs/NLTagInput.vue'
 import NLTextarea from './Inputs/NLTextarea.vue'
 import NLButton from './Inputs/NLButton.vue'
 import NLRadio from './Inputs/NLRadio.vue'
@@ -56,6 +57,7 @@ export function useComponents(app) {
         NLButton,
         NLWyswyg,
         NLInput,
+        NLTagInput,
         // Card,
         Child,
         // Button,

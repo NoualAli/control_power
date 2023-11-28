@@ -175,23 +175,29 @@ export function loading(progress, message = 'Chargement en cours...') {
 }
 
 export function catchError(error) {
-    if (error.response) {
+    const defaultMessage = "Quelque chose s'est mal passé. Veuillez réessayer, si le problème persiste, veuillez contacter l'administrateur du serveur."
+    const status = error?.response?.status
+    if (error.response && status !== 422) {
         // la requête a été faite et le code de réponse du serveur n’est pas dans
         // la plage 2xx
-        this.$swal.alert_error(error?.response?.data.message)
-        console.log(error.response.data);
-        console.log(error.response.status);
-        console.log(error.response.headers);
-    } else if (error.request) {
+        alert_error(error?.response?.data.message)
+        console.log(error?.response?.data);
+        console.log(error?.response?.status);
+        console.log(error?.response?.headers);
+    } else if (error?.request && status !== 422) {
         // la requête a été faite mais aucune réponse n’a été reçue
         // `error.request` est une instance de XMLHttpRequest dans le navigateur
         // et une instance de http.ClientRequest avec node.js
-        console.log(error.request);
+        console.log(error?.request);
+        alert_error(defaultMessage)
     } else {
         // quelque chose s’est passé lors de la construction de la requête et cela
         // a provoqué une erreur
-        console.log('Error', error.message);
+        if (status !== 422) {
+            console.log('Error', error?.message);
+            alert_error(defaultMessage)
+        }
     }
-    this.$swal.alert_error("Quelque chose s'est mal passé. Veuillez réessayer, si le problème persiste, veuillez contacter l'administrateur du serveur.")
-    console.log(error.config);
+    console.log(error?.config);
 }
+

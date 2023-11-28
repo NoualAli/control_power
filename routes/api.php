@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\ControlPointController;
 use App\Http\Controllers\Api\DomainController;
 use App\Http\Controllers\Api\DreController;
 use App\Http\Controllers\Api\FamilyController;
+use App\Http\Controllers\Api\FieldController;
 use App\Http\Controllers\Api\MajorFactController;
 use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\MissionAssignationController;
@@ -128,6 +129,17 @@ Route::group(['middleware' => 'auth:api'], function () {
         });
 
         /**
+         * Fields
+         */
+        Route::prefix('fields')->controller(FieldController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::get('{field}', 'show');
+            Route::post('/', 'store');
+            Route::put('{field}', 'update');
+            Route::delete('{field}', 'destroy');
+        });
+
+        /**
          * Control campaigns
          */
         Route::prefix('campaigns')->controller(ControlCampaignController::class)->group(function () {
@@ -195,6 +207,10 @@ Route::group(['middleware' => 'auth:api'], function () {
                 Route::get('/', 'index');
             });
         });
+
+        /**
+         * Regularizations
+         */
         Route::prefix('regularize')->controller(MissionDetailRegularizationController::class)->group(function () {
             Route::post('{detail}', 'store');
             Route::get('{detail}/history', 'show');

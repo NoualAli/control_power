@@ -1,3 +1,5 @@
+// import * as vueRuneTime from '@vue/runtime-dom'
+
 import { createApp } from 'vue'
 import store from '~/store'
 import router from '~/router'

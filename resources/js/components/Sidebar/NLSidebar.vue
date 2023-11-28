@@ -20,6 +20,8 @@
                 v-if="can('view_page_processes')" />
             <NLSidebarItem label="Points de contrôle" route="control-points-index" iconName="la-list-alt"
                 v-if="can('view_page_control_points')" />
+            <NLSidebarItem label="Champs" route="fields-index" iconPrefix="lab" iconName="la-wpforms"
+                v-if="can('view_fields')" />
             <NLSidebarItem label="Répartition des missions de contrôle" route="missions-create" iconName="la-calendar-day"
                 v-if="can('create_mission')" />
             <NLSidebarItem label="Ajouter une campagne de contrôle" route="campaigns-create" iconName="la-calendar-plus"
