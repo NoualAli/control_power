@@ -17,6 +17,7 @@ use App\Exports\ProcessesExport;
 use App\Exports\RolePermissionsExport;
 use App\Exports\RolesExport;
 use App\Exports\SynthesisExport;
+use App\Exports\SynthesisWithReportsExport;
 use App\Exports\UsersExport;
 use App\Models\Agency;
 use App\Models\ControlPoint;
@@ -58,6 +59,8 @@ class ExportController extends Controller
                 return $this->controlPoints();
             } elseif ($exportValue == 'synthesis') {
                 return $this->synthesis($request);
+            } elseif ($exportValue == 'synthesis_reports') {
+                return $this->synthesis($request, true);
             } else {
                 abort(400, 'L\'action ' . $exportValue . ' n\'est pas reconnue');
             }
@@ -66,7 +69,7 @@ class ExportController extends Controller
         }
     }
 
-    private function synthesis(Request $request)
+    private function synthesis(Request $request, bool $withReports = false)
     {
         $controlCampaign = DB::table('control_campaigns')->select('id', 'reference')->where('id', $request->campaign)->first();
 
@@ -125,7 +128,19 @@ class ExportController extends Controller
                 $single_dre->total_agencies = $dreAgencies->count();
                 $single_dre->agencies = $dreAgencies;
                 foreach ($single_dre->agencies as $agency) {
+                    if ($withReports) {
+                        $missionDetails = $missionDetails->addSelect(['cdc_report', 'ci_report', 'recovery_plan']);
+                    }
+
                     $agency->data = (clone $missionDetails)->where('dres.id', $dre->dre_id)->where('a.id', $agency->agency_id)->get();
+
+                    if ($withReports) {
+                        $agency->data->map(function ($item) {
+                            $item->report = $item->cdc_report ?: $item->ci_report;
+                            unset($item->cdc_report, $item->ci_report);
+                            return $item;
+                        });
+                    }
                 }
                 $dres->push($single_dre);
             }
@@ -150,6 +165,9 @@ class ExportController extends Controller
             ->get();
 
 
+        if ($withReports) {
+            return Excel::download(new SynthesisWithReportsExport(compact('dres', 'controlPoints', 'controlCampaign')), 'synthèse-constast-' . $controlCampaign->reference . '.xlsx');
+        }
         return Excel::download(new SynthesisExport(compact('dres', 'controlPoints', 'controlCampaign')), 'synthèse-' . $controlCampaign->reference . '.xlsx');
     }
 

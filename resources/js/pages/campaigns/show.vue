@@ -128,6 +128,11 @@
                 <i class="las la-file-excel icon" />
                 Récapitulatif des notations
             </a>
+            <a :href="'/excel-export?export=synthesis_reports&campaign=' + campaign?.current?.id" target="_blank"
+                class="btn btn-office-excel has-icon">
+                <i class="las la-file-excel icon" />
+                Récapitulatif des constats
+            </a>
         </div>
         <!-- Processes List -->
         <NLDatatable :key="renderKey" v-if="campaign?.current?.id" :columns="columns" :details="details"
