@@ -51,7 +51,6 @@ class MissionController extends Controller
             //     $mission = Mission::findOrFail($mission->id);
             //     $mission->update(['reel_start' => $mission->details()->orderBy('controlled_by_ci_at', 'ASC')->first()->controlled_by_ci_at]);
             // }
-            // dd($missions->get());
             $campaignId = request('campaign_id', null);
             $campaignId = request('campaignId', $campaignId);
             if ($campaignId) {
@@ -83,10 +82,7 @@ class MissionController extends Controller
 
             return $missions;
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ]);
+            return throwedError($th);
         }
     }
 
@@ -163,7 +159,7 @@ class MissionController extends Controller
             $campaign->load('processes');
             $agency = $data['agency'];
             $agency = Agency::findOrFail($agency);
-            DB::transaction(function () use ($data, $agency, $campaign) {
+            $result = DB::transaction(function () use ($data, $agency, $campaign) {
                 $reference = 'RAP' . str_replace('-', '', str_replace('CDC-', '', $campaign->reference)) . '/' . $agency->code;
                 $controlPoints = $this->loadControlPoints($campaign, $agency);
                 $mission = Mission::create([
@@ -182,11 +178,7 @@ class MissionController extends Controller
                     Notification::send($controller, new Assigned($mission));
                 }
             });
-
-            return response()->json([
-                'message' => 'Mission répartie avec succès',
-                'status' => true,
-            ]);
+            return actionResponse($result->wasRecentlyCreated, 'Mission répartie avec succès');
         } catch (\Throwable $th) {
             $message = $th->getMessage();
             $status = false;
@@ -491,6 +483,7 @@ class MissionController extends Controller
     public function processes(Mission $mission)
     {
         $processes = $this->loadProcesses($mission);
+        dd($processes);
         $fetchFilters = request()->has('fetchFilters');
         if ($fetchFilters) {
             return $this->loadFilters($processes);
@@ -523,7 +516,12 @@ class MissionController extends Controller
             DB::raw('DATEDIFF(day, CAST(GETDATE() AS DATE),start_date) as remaining_days_before_start'),
             DB::raw('DATEDIFF(day, end_date, CAST(GETDATE() AS DATE)) as remaining_days_before_end'),
             DB::raw('(CASE WHEN cc.validated_at IS NOT NULL THEN 1 ELSE 0 END) AS is_validated')
-        )->orderBy('created_at', 'DESC')->first();
+        )->orderBy('created_at', 'DESC');
+        if (request('campaign_id')) {
+            $currentCampaign = $currentCampaign->where('id', request('campaign_id'))->first();
+        } else {
+            $currentCampaign = $currentCampaign->first();
+        }
 
         $currentCampaign->remaining_days_before_start_str = $this->remainingDaysBeforeStartStr($currentCampaign->remaining_days_before_start, $currentCampaign->remaining_days_before_end);
         $currentCampaign->remaining_days_before_end_str = $this->remainingDaysBeforeEndStr($currentCampaign->remaining_days_before_end);
@@ -670,6 +668,7 @@ class MissionController extends Controller
     {
         $mission->unsetRelations();
         $processes = getMissionProcesses($mission);
+        dd($processes->get());
         $processes = !hasRole(['cdc', 'ci']) && $onlyWhereAnomaly ? $processes->whereIn('md.score', [2, 3, 4]) : $processes;
         $search = request('search', false);
         $sort = request('sort', false);
