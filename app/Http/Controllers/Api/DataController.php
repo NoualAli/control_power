@@ -151,6 +151,7 @@ class DataController extends Controller
                 'borderWidth' => $borderWidth,
             ]
         ];
+        return compact('labels', 'datasets');
     }
 
     /**
