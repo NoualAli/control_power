@@ -54,11 +54,10 @@ class ControlCampaignController extends Controller
         }
 
         if ($fetchAll) {
-            $campaigns = $campaigns->get()->pluck('reference', 'id');
+            $campaigns = formatForSelect($campaigns->get()->toArray(), 'reference');
         } else {
             $campaigns = ControlCampaignResource::collection($campaigns->paginate($perPage)->onEachSide(1));
         }
-        // dd($campaigns);
         return $campaigns;
     }
 
