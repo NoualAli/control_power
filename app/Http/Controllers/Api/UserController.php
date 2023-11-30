@@ -27,13 +27,13 @@ class UserController extends Controller
     public function current()
     {
         $user = auth()->user();
-        if (!hasRole(['admin', 'root'])) {
-            // $missions = !hasRole(['cdcr', 'dcp', 'dg', 'ig', 'sg', 'cdrcp', 'der', 'deac', 'dga']) ? $user->missions()->with([])->get() : Mission::with([])->get();
-            // $missions = getMissions()->get();
-            // $missions = $missions->filter(fn ($mission) => !$mission->pdf_report_exists)->pluck('id')->toArray();
-            $missions = getMissions()->get()->filter(fn ($mission) => Storage::fileExists('exported\campaigns\\' . $mission->campaign . '\\missions\\' . $mission->reference . '.pdf'));
-            $user['missions_without_report'] = $missions;
-        }
+        // if (!hasRole(['admin', 'root'])) {
+        //     // $missions = !hasRole(['cdcr', 'dcp', 'dg', 'ig', 'sg', 'cdrcp', 'der', 'deac', 'dga']) ? $user->missions()->with([])->get() : Mission::with([])->get();
+        //     // $missions = getMissions()->get();
+        //     // $missions = $missions->filter(fn ($mission) => !$mission->pdf_report_exists)->pluck('id')->toArray();
+        //     // $missions = getMissions()->get()->filter(fn ($mission) => Storage::fileExists('exported\campaigns\\' . $mission->campaign . '\\missions\\' . $mission->reference . '.pdf'));
+        //     // $user['missions_without_report'] = $missions;
+        // }
         return response()->json($user);
     }
 
