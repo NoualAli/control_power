@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-use Ramsey\Uuid\Guid\Fields;
+use App\Models\Field;
 
 trait HasFields
 {
@@ -11,6 +11,6 @@ trait HasFields
      */
     public function fields()
     {
-        return $this->morphToMany(Fields::class, 'metadatable', 'has_metadata');
+        return $this->morphToMany(Field::class, 'attachable', 'has_fields');
     }
 }

@@ -63,23 +63,27 @@
                 <!-- Metadata -->
                 <NLColumn v-if="row?.metadata?.length" extraClass="list-ite">
                     <div class="list-item-content no-bg grid">
-                        <NLColumn :class="{ 'col-lg-8': !row?.metadata }">
-                            <div class="table-container " v-if="row?.metadata">
+                        <NLColumn :class="{ 'col-lg-8': !row?.metadata_table?.total_lines }">
+                            <div class="table-container " v-if="row?.metadata_table?.total_lines">
                                 <h2>
                                     Informations supplémentaires
                                 </h2>
                                 <table>
                                     <thead>
                                         <tr>
-                                            <th v-for="( heading, indexHeading ) in  currentMetadata.keys "
+                                            <th v-for="( heading, indexHeading ) in  row?.metadata_table?.headings"
                                                 :key="indexHeading" class="text-left">
                                                 {{ heading }}
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="( data, row ) in  row?.metadata " :key="'metadata-row-' + row">
-                                            <td v-for="( items, index ) in  data "
+                                        <tr v-for="( line, indexLine ) in row?.metadata_table?.lines"
+                                            :key="'metadata-row-' + indexRow">
+                                            <td v-for="( heading, indexHeading ) in  row?.metadata_table?.headings">
+                                                {{ line[indexHeading] }}
+                                            </td>
+                                            <!-- <td v-for="( items, index ) in  data"
                                                 :key="'metadata-row-' + row + '-item-' + index" class="text-left">
                                                 <template v-for="( item, key ) in  items ">
                                                     <span v-if="key !== 'label' && key !== 'rules'"
@@ -87,7 +91,7 @@
                                                         {{ item || '-' }}
                                                     </span>
                                                 </template>
-                                            </td>
+                                            </td> -->
                                         </tr>
                                     </tbody>
                                 </table>
@@ -284,6 +288,7 @@ export default {
                 this.currentUser = user()
                 this.$store.dispatch('details/fetch', this.rowSelected.id).then(() => {
                     this.row = this.detail.detail
+                    console.log(this.row.metadata_table);
                     this.currentMetadata.keys = Object.keys(this.row.parsed_metadata)
                     this.isLoading = false
                     if (hasRole([ 'ci' ])) {
@@ -299,8 +304,7 @@ export default {
                     } else {
                         this.currentMode = 6 // Readonly mode
                     }
-                    // console.log(this.currentMode);
-                }).catch(error => console.log(error))
+                }).catch(error => this.$swal.catchError(error))
             }
         },
         /**

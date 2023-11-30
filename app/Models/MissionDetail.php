@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 use Znck\Eloquent\Traits\BelongsToThrough;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use stdClass;
@@ -29,7 +28,7 @@ class MissionDetail extends BaseModel
         'recovery_plan',
         'score',
         'major_fact',
-        'metadata',
+        // 'metadata',
         'assigned_to_ci_id',
         'assigned_to_cc_id',
         'controlled_by_ci_at',
@@ -59,7 +58,7 @@ class MissionDetail extends BaseModel
     public $with = ['process', 'domain', 'controlPoint', 'family', 'media'];
 
     public $casts = [
-        'metadata' => 'object',
+        // 'metadata' => 'object',
         'controlled_by_ci_at' => 'datetime:d-m-Y H:i',
         'controlled_by_cdc_at' => 'datetime:d-m-Y H:i',
         'controlled_by_cc_at' => 'datetime:d-m-Y H:i',
@@ -73,6 +72,7 @@ class MissionDetail extends BaseModel
     public $appends = [
         'appreciation',
         'parsed_metadata',
+        'metadata_table',
         'major_fact_str',
         'score_tag',
         'report',
@@ -177,9 +177,14 @@ class MissionDetail extends BaseModel
         return '<div class="tag ' . $style . '">' . $score . '</div>';
     }
 
+    public function getMetadataTableAttribute()
+    {
+        return parseMetadata($this->id, MissionDetail::class);
+    }
+
     public function getParsedMetadataAttribute()
     {
-        return collect($this->metadata)->flatten()->groupBy('label')->map(function ($data) {
+        return collect($this->metadata)->flatten()->groupBy('key')->map(function ($data) {
             return collect($data)->map(function ($item) {
                 $item = collect($item);
                 unset($item['rules']);

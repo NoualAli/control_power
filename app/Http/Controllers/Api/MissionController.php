@@ -177,6 +177,7 @@ class MissionController extends Controller
                 foreach ($mission->dreControllers as $controller) {
                     Notification::send($controller, new Assigned($mission));
                 }
+                return $mission;
             });
             return actionResponse($result->wasRecentlyCreated, 'Mission répartie avec succès');
         } catch (\Throwable $th) {
@@ -256,7 +257,6 @@ class MissionController extends Controller
     {
         isAbleOrAbort(['view_mission', 'control_agency']);
         $currentUser = auth()->user();
-
         $dreControllers = $mission->dreControllers->pluck('id')->toArray();
         $dcpControllers = $mission->dcpControllers->pluck('id')->toArray();
         $agencies = $currentUser->agencies->pluck('id')->toArray();
@@ -271,7 +271,7 @@ class MissionController extends Controller
             || hasRole('root')
         );
         abort_if(!$condition, 401, __('unauthorized'));
-        $details = $mission->details()->with('controlPoint')->orderBy('control_point_id');
+        $details = $mission->details()->with(['controlPoint' => fn ($query) => $query->with('fields')])->orderBy('control_point_id');
         $mission->unsetRelations();
         $process->load(['family', 'domain', 'media']);
         if (request()->has('onlyAnomaly')) {
@@ -483,7 +483,6 @@ class MissionController extends Controller
     public function processes(Mission $mission)
     {
         $processes = $this->loadProcesses($mission);
-        dd($processes);
         $fetchFilters = request()->has('fetchFilters');
         if ($fetchFilters) {
             return $this->loadFilters($processes);
@@ -668,7 +667,6 @@ class MissionController extends Controller
     {
         $mission->unsetRelations();
         $processes = getMissionProcesses($mission);
-        dd($processes->get());
         $processes = !hasRole(['cdc', 'ci']) && $onlyWhereAnomaly ? $processes->whereIn('md.score', [2, 3, 4]) : $processes;
         $search = request('search', false);
         $sort = request('sort', false);

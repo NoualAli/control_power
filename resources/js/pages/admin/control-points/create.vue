@@ -30,20 +30,15 @@
                 <NLColumn>
                     <NLSwitch v-model="form.has_major_fact" name="has_major_fact" :form="form" label="Fait majeur" />
                 </NLColumn>
-                <!-- Major fact types -->
-                <NLColumn v-if="form.has_major_fact">
-                    <NLRepeater name="major_fact_types" :row-schema="majorFactTypesSchema" :form="form"
-                        title="Types des faits majeur" add-button-label="Ajouter un type" />
+                <!-- Sampling Fields -->
+                <NLColumn lg="6" md="6">
+                    <NLSelect v-model="form.sampling_fields" :form="form" name="sampling_fields"
+                        label="Champs d'échantillonnage" :options="fieldsList" multiple />
                 </NLColumn>
                 <!-- Scores -->
                 <NLColumn>
                     <NLRepeater name="scores" :row-schema="scoresSchema" :form="form" title="Notation"
                         add-button-label="Ajouter une notation" />
-                </NLColumn>
-                <!-- Fields -->
-                <NLColumn>
-                    <NLRepeater name="fields" :row-schema="fieldsSchema" :form="form" title="Metadata"
-                        add-button-label="Ajouter un champs" />
                 </NLColumn>
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
@@ -70,17 +65,7 @@ export default {
             familliesList: [],
             domainsList: [],
             processesList: [],
-            validationRulesList: [],
-            majorFactTypesSchema: [
-                {
-                    type: 'text',
-                    label: 'Type',
-                    name: 'type',
-                    placeholder: 'Veuillez saisir le type',
-                    required: true,
-                    style: 'col-12'
-                }
-            ],
+            fieldsList: [],
             scoresSchema: [
                 {
                     type: 'number',
@@ -99,184 +84,14 @@ export default {
                     style: 'col-12 col-lg-6'
                 }
             ],
-            fieldsSchema: [
-                {
-                    type: 'select',
-                    label: 'Type',
-                    name: 'type',
-                    required: true,
-                    style: 'col-12 col-lg-3',
-                    placeholder: 'Veuillez choisir un type',
-                    options: [
-                        {
-                            id: 'text',
-                            label: 'Text'
-                        },
-                        {
-                            id: 'textarea',
-                            label: 'Textarea'
-                        },
-                        {
-                            id: 'number',
-                            label: 'Number'
-                        },
-                        {
-                            id: 'select',
-                            label: 'Select'
-                        },
-                        {
-                            id: 'date',
-                            label: 'Date'
-                        },
-                        {
-                            id: 'datetime',
-                            label: 'DateTime'
-                        },
-                        {
-                            id: 'month',
-                            label: 'Month'
-                        },
-                        {
-                            id: 'week',
-                            label: 'Week'
-                        },
-                        {
-                            id: 'time',
-                            label: 'Time'
-                        },
-                        {
-                            id: 'email',
-                            label: 'Email'
-                        },
-                        {
-                            id: 'tel',
-                            label: 'Tel'
-                        }
-                    ]
-                },
-                {
-                    type: 'text',
-                    label: 'Label',
-                    name: 'label',
-                    placeholder: 'Veuillez saisir le label du champs',
-                    required: true,
-                    style: 'col-12 col-lg-3'
-                },
-                {
-                    type: 'text',
-                    label: 'Nom',
-                    name: 'name',
-                    placeholder: 'Veuillez saisir le nom du champs dans la base de données',
-                    required: true,
-                    style: 'col-12 col-lg-3'
-                },
-                {
-                    type: 'number',
-                    label: 'Taille',
-                    name: 'length',
-                    placeholder: 'Veuillez saisir la taille du champs dans la base de données',
-                    required: true,
-                    default: 255,
-                    style: 'col-12 col-lg-3'
-                },
-                {
-                    type: 'select',
-                    label: 'Nombre de colonnes',
-                    name: 'style',
-                    required: true,
-                    style: 'col-12 col-lg-3',
-                    placeholder: 'Veuillez choisir le nombre de colonne',
-                    options: [
-                        {
-                            id: 'col-12 col-lg-1',
-                            label: '1'
-                        },
-                        {
-                            id: 'col-12 col-lg-2',
-                            label: '2'
-                        },
-                        {
-                            id: 'col-12 col-lg-3',
-                            label: '3'
-                        },
-                        {
-                            id: 'col-12 col-lg-4',
-                            label: '4'
-                        },
-                        {
-                            id: 'col-12 col-lg-5',
-                            label: '5'
-                        },
-                        {
-                            id: 'col-12 col-lg-6',
-                            label: '6'
-                        },
-                        {
-                            id: 'col-12 col-lg-7',
-                            label: '7'
-                        },
-                        {
-                            id: 'col-12 col-lg-8',
-                            label: '8'
-                        },
-                        {
-                            id: 'col-12 col-lg-9',
-                            label: '9'
-                        },
-                        {
-                            id: 'col-12 col-lg-10',
-                            label: '10'
-                        },
-                        {
-                            id: 'col-12 col-lg-11',
-                            label: '11'
-                        },
-                        {
-                            id: 'col-12 col-lg-12',
-                            label: '12'
-                        }
-                    ]
-                },
-                {
-                    type: 'text',
-                    label: 'Identifiant',
-                    name: 'id',
-                    placeholder: 'Veuillez saisir l\'identifiant du champs',
-                    style: 'col-12 col-lg-3'
-                },
-                {
-                    type: 'text',
-                    label: 'Placeholder',
-                    name: 'placeholder',
-                    placeholder: 'Veuillez saisir le placeholder du champs',
-                    style: 'col-12 col-lg-3'
-                },
-                {
-                    type: 'text',
-                    label: 'Texte d\'aide',
-                    name: 'help_text',
-                    placeholder: 'Veuillez saisir le texte d\'aide du champs',
-                    style: 'col-12 col-lg-3'
-                },
-                {
-                    type: 'select',
-                    label: 'Règles de validation',
-                    name: 'rules',
-                    required: true,
-                    style: 'col-12',
-                    multiple: true,
-                    placeholder: 'Veuillez choisir une ou plusieurs règles de validation'
-                }
-            ],
             form: new Form({
                 name: null,
                 family_id: null,
                 domain_id: null,
                 process_id: null,
+                has_major_fact: false,
                 scores: [],
-                fields: [],
-                major_fact_types: [],
-                has_major_fact: false
+                sampling_fields: [],
             })
         }
     },
@@ -285,7 +100,7 @@ export default {
             families: 'families/all',
             family: 'families/domains',
             domain: 'domains/processes',
-            validationRules: 'settings/validationRules'
+            fields: 'fields/all'
         })
     },
     watch: {
@@ -308,7 +123,9 @@ export default {
             this.domainsList = []
             this.processesList = []
             this.loadFamillies()
-            this.loadValidationRules()
+            this.$store.dispatch('fields/fetchAll').then(() => {
+                this.fieldsList = this.fields.all
+            })
         },
         /**
          * Récupère la liste des familles
@@ -346,31 +163,13 @@ export default {
             }
         },
         /**
-         * Récupère la liste des règles de validation
-         */
-        loadValidationRules() {
-            this.$store.dispatch('settings/fetchValidationRules').then(() => {
-                this.validationRulesList = this.validationRules.validationRules
-                this.fieldsSchema[ this.fieldsSchema.length - 1 ].options = this.validationRulesList
-            })
-        },
-        /**
          * Ajout un nouveau point de contrôle
          */
         create() {
             this.form.post('control-points').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
-                    // this.form.reset()
-                    // this.initData()
-                    this.form.name = null
-                    // this.form.family_id = null
-                    // this.form.domain_id = null
-                    // this.form.process_id = null
-                    this.form.scores = []
-                    this.form.fields = []
-                    this.form.major_fact_types = []
-                    this.form.has_major_fact = false
+                    this.form.reset()
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }

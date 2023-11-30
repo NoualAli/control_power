@@ -12,14 +12,13 @@
             <slot name="additional"></slot>
         </NLFlex>
         <slot />
+        <div v-if="length !== null && currentLength !== null" class="text-small text-bold d-flex justify-end align-center"
+            :class="{ 'text-danger': currentLength >= length || form?.errors.has(name) }">
+            {{ currentLength }} / {{ length }}
+        </div>
         <div class="d-flex justify-end align-center is-column is-lg-row"
             :class="{ 'justify-between': form?.errors.has(name) }">
             <has-error v-if="form" :form="form" :field="name" class="text-danger d-inline" />
-            <div v-if="length !== null && currentLength !== null"
-                class="text-small text-bold d-flex justify-end align-center"
-                :class="{ 'text-danger': currentLength >= length }">
-                {{ currentLength }} / {{ length }}
-            </div>
         </div>
     </div>
 </template>

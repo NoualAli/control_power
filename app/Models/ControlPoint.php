@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasFields;
 use App\Traits\IsFilterable;
 use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
@@ -10,7 +11,7 @@ use \Znck\Eloquent\Traits\BelongsToThrough;
 
 class ControlPoint extends BaseModel
 {
-    use HasFactory, IsFilterable, BelongsToThrough, IsSearchable, IsSortable;
+    use HasFactory, IsFilterable, BelongsToThrough, IsSearchable, IsSortable, HasFields;
 
     protected $filter = 'App\Filters\PCF';
 
@@ -18,9 +19,7 @@ class ControlPoint extends BaseModel
         'name',
         'process_id',
         'scores',
-        'fields',
         'has_major_fact',
-        'major_fact_types',
     ];
 
     public $timestamps = false;
@@ -34,7 +33,7 @@ class ControlPoint extends BaseModel
     public $casts = [
         'has_major_fact' => 'boolean',
         'scores' => 'object',
-        'fields' => 'object',
+        // 'fields' => 'object',
     ];
 
     /**

@@ -25,7 +25,7 @@ class UpdateRequest extends FormRequest
     {
         $id = request()->field->id;
         return [
-            'type' => ['required', 'in:text,textarea,number,select,email,tel,date,datetime,time,week,month'],
+            'type' => ['required', 'in:text,textarea,number,select,email,tel,date,datetime-local,time,week,month'],
             'label' => ['required', 'unique:fields,label,' . $id . ',id', 'string', 'max:70'],
             'name' => ['required', 'unique:fields,name,' . $id . ',id', 'string', 'max:25'],
             'options' => ['required_if:type,select'],

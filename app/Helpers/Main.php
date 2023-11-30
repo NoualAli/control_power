@@ -6,6 +6,7 @@ use App\Models\Dre;
 use App\Models\Family;
 use App\Models\Mission;
 use App\Models\User;
+use App\Rules\IsAlgerianPhoneNumber;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
@@ -143,10 +144,15 @@ if (!function_exists('formatForSelect')) {
     {
         if (!empty($array)) {
             $array = array_map(function ($item) use ($label, $id) {
+                if (is_array($item)) {
+                    $id = isset($item[$id]) ? $item[$id] : $item;
 
-                $id = isset($item[$id]) ? $item[$id] : $item;
+                    $label = isset($item[$label]) ? $item[$label] : $item;
+                } elseif ($item instanceof stdClass || gettype($item) == 'object') {
+                    $id = isset($item->$id) ? $item->$id : $item;
 
-                $label = isset($item[$label]) ? $item[$label] : $item;
+                    $label = isset($item->$label) ? $item->$label : $item;
+                }
                 return [
                     'id' => $id,
                     'label' => $label,
@@ -342,8 +348,8 @@ if (!function_exists('getMissionProcesses')) {
             AVG(md.score) as avg_score,
             COUNT(md.id) AS total_mission_details,
             SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) AS scored_mission_details,
-            (COUNT(CASE WHEN score IN (2, 3, 4) THEN 1 ELSE NULL END) * 100) / COUNT(md.id) AS anomalies_rate,
-            (count(md.score) * 100) / COUNT(md.id) AS progress_status
+            (COUNT(CASE WHEN score IN (2, 3, 4) THEN 1 ELSE NULL END) * 100) / NULLIF(COUNT(md.id), 0) AS anomalies_rate,
+            (COUNT(md.score) * 100) / NULLIF(COUNT(md.id), 0) AS progress_status
         ");
         $processes = $processes->join('control_points as cp', 'p.id', '=', 'cp.process_id')
             ->join('domains as d', 'd.id', '=', 'p.domain_id')
@@ -352,6 +358,7 @@ if (!function_exists('getMissionProcesses')) {
             ->join('missions as m', 'm.id', '=', 'md.mission_id')
             ->groupBy('f.id', 'd.id', 'p.id', 'p.name', 'd.name', 'f.name')
             ->where('m.id', $mission->id);
+        // dd($processes->get(), $mission->id);
         return $processes;
     }
 }
@@ -440,5 +447,176 @@ if (!function_exists('sanitizeString')) {
         // $nbsp = html_entity_decode("&nbsp;");
         $string = str_replace('&nbsp;', " ", $string);
         return $string;
+    }
+}
+
+
+if (!function_exists('flattenArray')) {
+    function flattenArray($nestedArray)
+    {
+        $result = [];
+
+        foreach ($nestedArray as $item) {
+            foreach ($item as $key => $value) {
+                if (array_key_exists($key, $result)) {
+                    // If the key already exists, combine values into an array
+                    if (!is_array($result[$key])) {
+                        $result[$key] = [$result[$key]];
+                    }
+                    $result[$key][] = $value;
+                } else {
+                    // If the key doesn't exist, set the value
+                    $result[$key] = $value;
+                }
+            }
+        }
+
+        return $result;
+    }
+}
+
+if (!function_exists('validateFields')) {
+    /**
+     * @param mixed $fields
+     * @param mixed $data
+     * @param bool $multipleFields
+     * @param string|int|null $rowKey
+     *
+     * @return void
+     */
+    function validateFields($fields, $data, bool $multipleFields = false, string|int $rowKey = null)
+    {
+        // dd($fields, $data, $multipleFields, $rowKey);
+        foreach ($fields as $key => $field) {
+            $maxLength = $field->max_length;
+            $minLength = $field->min_length;
+            $required = $field->required;
+            $is_integer_or_float = $field->is_integer_or_float;
+            $is_multiple = $field->is_multiple;
+            $distinct = $field->distinct;
+            $additional_rules = $field->additional_rules ?: [];
+            $type = $field->type;
+            $name = $field->name;
+
+            if ($required) {
+                $additional_rules = array_merge($additional_rules, ['required']);
+            } else {
+                $additional_rules = array_merge($additional_rules, ['nullable']);
+            }
+
+            if ($distinct) {
+                $additional_rules = array_merge($additional_rules, ['distinct']);
+            }
+
+            if ($type == 'number') {
+                if (!$is_integer_or_float) {
+                    $additional_rules = array_merge($additional_rules, ['integer']);
+                } else {
+                    $additional_rules = array_merge($additional_rules, ['numeric']);
+                }
+
+                if ($maxLength) {
+                    $additional_rules = array_merge($additional_rules, ['max_digits:' . $maxLength]);
+                }
+
+                if ($maxLength) {
+                    $additional_rules = array_merge($additional_rules, ['min_digits:' . $maxLength]);
+                }
+            }
+
+            if ($type == 'select') {
+                if ($is_multiple) {
+                    $additional_rules = array_merge($additional_rules, ['array']);
+                } else {
+                    $additional_rules = array_merge($additional_rules, ['string']);
+                }
+            }
+
+            if ($type == 'date') {
+                $additional_rules = array_merge($additional_rules, ['date_format:Y-m-d']);
+            }
+
+            if ($type == 'month') {
+                $additional_rules = array_merge($additional_rules, ['date_format:Y-m']);
+            }
+
+            if ($type == 'time') {
+                $additional_rules = array_merge($additional_rules, ['date_format:H:i:s']);
+            }
+
+            if ($type == 'datetime-local') {
+                $additional_rules = array_merge($additional_rules, ['date_format:Y-m-d\TH:i:s']);
+            }
+
+            if ($type == 'week') {
+                $additional_rules = array_merge($additional_rules, ['date']);
+            }
+
+            if ($type == 'email') {
+                $additional_rules = array_merge($additional_rules, ['email']);
+            }
+
+            if ($type == 'tel') {
+                $additional_rules = array_merge($additional_rules, [new IsAlgerianPhoneNumber]);
+            }
+
+            if (in_array($type, ['text', 'textarea'])) {
+                $additional_rules = array_merge($additional_rules, ['string']);
+
+                if ($maxLength) {
+                    $additional_rules = array_merge($additional_rules, ['max:' . $maxLength]);
+                }
+                if ($minLength) {
+                    $additional_rules = array_merge($additional_rules, ['min:' . $maxLength]);
+                }
+            }
+
+            if ($minLength) {
+                $additional_rules = array_merge($additional_rules, ['min:' . $maxLength]);
+            }
+
+            if ($multipleFields) {
+                $computedName = 'rows.' . $rowKey . '.metadata.*.' . $key . '.' . $name;
+            } else {
+                $computedName = 'metadata.*.' . $key . '.' . $name;
+            }
+
+            // dd($data, $computedName, $additional_rules);
+            Validator::make($data, [$computedName => $additional_rules])->validate();
+        }
+    }
+}
+
+if (!function_exists('parseMetadata')) {
+    function parseMetadata(string|int $metadatableId, string $metadatableType)
+    {
+        // $model = new $metadatableType;
+        // $tableName = $model->getTable();
+        // $primaryKey = $model->getKeyName();
+        // $metadata = DB::table('metadata', 'm')->select(['metadatable_id', 'metadatable_type', 'field_id', 'm.value', 'f.label', 'f.type'])
+        //     ->leftJoin('fields as f', 'f.id', 'm.field_id')
+        //     ->leftJoin($tableName, $tableName . '.' . $primaryKey, 'm.metadatable_id')
+        //     ->where('metadatable_type', $metadatableType)
+        //     ->where('metadatable_id', $metadatableId)
+        //     ->get();
+
+        // $headings = $metadata->groupBy('label')->keys();
+        // $total_lines = $metadata->groupBy('field_id')->count() ? $metadata->groupBy('field_id')->count() / 2 : $metadata->groupBy('field_id')->count();
+
+        // $lines = collect([]);
+        // for ($i = 0; $i < $total_lines; $i++) {
+        //     $line = new stdClass;
+        //     for ($j = 0; $j < count($headings); $j++) {
+        //         $heading = $j;
+        //         $cursor = $i == 0 ? $i + $j : ($i * $j) + count($headings);
+        //         $line->$heading = $metadata[$cursor]->value;
+        //     }
+
+        //     $lines->push($line);
+        // }
+        $headings = [];
+        $total_lines = 0;
+        $lines = [];
+        return compact('headings', 'total_lines', 'lines');
     }
 }

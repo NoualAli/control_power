@@ -26,7 +26,7 @@ class FieldController extends Controller
         $sort = request('sort', null);
         $filter = request('filter', null);
         $fetchFilters = request()->has('fetchFilters');
-        $fetchAll = request('fetchAll', false);
+        $fetchAll = request()->has('fetchAll');
         if ($fetchFilters) {
             return $this->filters();
         }
@@ -42,7 +42,8 @@ class FieldController extends Controller
         }
 
         $perPage = request('perPage', 10);
-        $fields = $fetchAll ? $fields->get()->toJson() : FieldResource::collection($fields->paginate($perPage)->onEachSide(1));
+
+        $fields = $fetchAll ? formatForSelect($fields->get()->toArray(), 'label') : FieldResource::collection($fields->paginate($perPage)->onEachSide(1));
         return $fields;
     }
 

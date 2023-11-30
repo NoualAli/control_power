@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('type', 20);
             $table->string('label', 70)->unique();
-            $table->string('name', 25)->unique();
+            $table->string('name', 50)->unique();
             $table->string('placeholder', 100)->nullable();
             $table->string('help_text', 255)->nullable();
             $table->integer('columns');

@@ -17,7 +17,7 @@
         <ContentBody>
             <NLDatatable :columns="columns" :filters="filters" :details="details" :actions="actions"
                 title="Liste des points de contrôle" urlPrefix="control-points" @edit="edit" @delete="destroy"
-                :key="forceRealod" @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
+                :refresh="refresh" @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
         </ContentBody>
     </div>
 </template>
@@ -31,7 +31,7 @@ export default {
     },
     data() {
         return {
-            forceRealod: 1,
+            refresh: 0,
             columns: [
                 {
                     label: 'Famille',
@@ -83,6 +83,11 @@ export default {
                     field: 'scores_str',
                     isHtml: true
                 },
+                {
+                    label: 'Métadonnées',
+                    field: 'fields.label',
+                    hasMany: true
+                }
             ],
             actions: {
                 edit: (item) => {
@@ -140,7 +145,7 @@ export default {
                 if (action.isConfirmed) {
                     this.$api.delete('control-points/' + item.id).then(response => {
                         if (response.data.status) {
-                            this.forceRealod += 1
+                            this.refresh += 1
                             this.$swal.toast_success(response.data.message)
                         } else {
                             this.$swal.toast_error(response.data.message)

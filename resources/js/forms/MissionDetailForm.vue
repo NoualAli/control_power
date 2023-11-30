@@ -23,7 +23,7 @@
                         </NLColumn>
                         <!-- Metadata -->
                         <NLColumn
-                            v-if="data?.control_point.fields && Number(form.score) > 0 && [1, 2].includes(form.currentMode)"
+                            v-if="data?.control_point?.fields && Number(form.score) > 0 && [1, 2].includes(form.currentMode)"
                             extraClass="mb-4">
                             <div class="repeater">
                                 <h2 class="mb-6">
@@ -42,14 +42,25 @@
                                                         <!-- Defining different inputs -->
                                                         <NLInput v-if="isInput(input.type)"
                                                             :id="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                                                            v-model="form.metadata[dataRow][index][input.name]" :form="form"
+                                                            v-model="form.metadata[dataRow][index].value" :form="form"
                                                             :label="input.label" :placeholder="input.placeholder"
                                                             :type="input.type" :label-required="input.required"
+                                                            :length="input.length"
                                                             :name="'metadata.' + dataRow + '.' + index + '.' + input.name" />
+
+                                                        <NLSelect v-if="input.type === 'select'"
+                                                            :id="'metadata.' + dataRow + '.' + index + '.' + input.name"
+                                                            v-model="form.metadata[dataRow][index].value" :form="form"
+                                                            :label="input.label" :type="input.type"
+                                                            :label-required="input.required"
+                                                            :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
+                                                            :options="input.options"
+                                                            :placeholder="input.placeholder || 'Choisissez une option...'"
+                                                            :multiple="input.multiple" />
 
                                                         <NLTextarea v-if="input.type === 'textarea'"
                                                             :id="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                                                            v-model="form.metadata[dataRow][index][input.name]" :form="form"
+                                                            v-model="form.metadata[dataRow][index].value" :form="form"
                                                             :label="input.label" :placeholder="input.placeholder"
                                                             :type="input.type" :label-required="input.required"
                                                             :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
@@ -57,21 +68,11 @@
 
                                                         <NLWyswyg v-if="input.type === 'wyswyg'"
                                                             :id="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                                                            v-model="form.metadata[dataRow][index][input.name]" :form="form"
+                                                            v-model="form.metadata[dataRow][index].value" :form="form"
                                                             :label="input.label" :placeholder="input.placeholder"
                                                             :type="input.type" :label-required="input.required"
                                                             :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
                                                             :length="input.length" />
-
-                                                        <NLSelect v-if="input.type === 'select'"
-                                                            :id="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                                                            v-model="form.metadata[dataRow][index][input.name]" :form="form"
-                                                            :label="input.label" :type="input.type"
-                                                            :label-required="input.required"
-                                                            :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                                                            :options="input.options"
-                                                            :placeholder="input.placeholder || 'Choisissez une option...'"
-                                                            :multiple="input.multiple" />
                                                     </div>
                                                 </NLGrid>
                                             </NLColumn>
@@ -115,7 +116,7 @@
                                                     <td v-for="( items, index ) in  data "
                                                         :key="'metadata-row-' + row + '-item-' + index" class="text-left">
                                                         <template v-for="( item, key ) in  items ">
-                                                            <span v-if="key !== 'label' && key !== 'rules'"
+                                                            <span v-if="key !== 'label' && key !== 'additional_rules'"
                                                                 :key="'metadata-row-' + row + '-item-' + index + key + '-content'">
                                                                 {{ item || '-' }}
                                                             </span>
@@ -341,18 +342,29 @@ export default {
          * @param {Array} fields
          */
         setupFields(fields) {
-            return fields?.map(field => {
-                const type = Object.prototype.hasOwnProperty.call(field, 0) ? field[ 0 ].type : ''
-                const label = Object.prototype.hasOwnProperty.call(field, 1) ? field[ 1 ].label : ''
-                const name = Object.prototype.hasOwnProperty.call(field, 2) ? field[ 2 ].name : ''
-                const length = Object.prototype.hasOwnProperty.call(field, 3) ? field[ 3 ].length : null
-                const style = Object.prototype.hasOwnProperty.call(field, 4) ? field[ 4 ].style : ''
-                const id = Object.prototype.hasOwnProperty.call(field, 5) ? field[ 5 ].id : ''
-                const placeholder = Object.prototype.hasOwnProperty.call(field, 6) ? field[ 6 ].placeholder : ''
-                const help_text = Object.prototype.hasOwnProperty.call(field, 7) ? field[ 7 ].help_text : ''
-                const rules = Object.prototype.hasOwnProperty.call(field, 8) ? field[ 8 ].rules : []
-                return { type, label, name, length, style, id, placeholder, help_text, rules }
+            fields = fields?.map(field => {
+                const type = field?.type
+                const label = field?.label
+                const name = field?.name
+                const length = field?.max_length || null
+                const style = 'col-12 col-lg-' + field?.columns
+                const placeholder = field?.placeholder
+                const help_text = field?.help_text
+                const required = field?.required
+                const additional_rules = field?.additional_rules || []
+                const id = field.id
+                let options = []
+                let multiple = field.is_multiple
+                if (field.options) {
+                    let optionsArray = field.options.split(',')
+                    optionsArray.forEach(option => {
+                        options.push({ id: option, label: option })
+                    })
+                }
+                return { type, label, name, length, style, id, placeholder, help_text, additional_rules, required, options, multiple }
             })
+            return fields
+            // console.log(fields);
         },
         /**
          * Initialise les notations pour chaque point de contrôle
@@ -381,8 +393,8 @@ export default {
                 const element = fields[ index ]
                 const name = element.name
                 let defaultValue = element.default !== undefined ? element.default : ''
-                defaultValue = element.multiple ? [] : ''
-                schema.push({ [ name ]: defaultValue, label: element.label, rules: element.rules })
+                defaultValue = element.is_multiple ? [] : ''
+                schema.push({ key: name, value: defaultValue, label: element.label, additional_rules: element.additional_rules, id: element.id, is_multiple: element.is_multiple, is_major_fact: false })
             }
             if (this.form.metadata) this.form.metadata.push(schema)
         },
@@ -401,7 +413,7 @@ export default {
          * @param {String} value
          */
         isInput(value) {
-            return [ 'text', 'date', 'datetime', 'time', 'week', 'number', 'tel', 'email', 'month', 'url' ].includes(value)
+            return [ 'text', 'date', 'datetime-local', 'time', 'week', 'number', 'tel', 'email', 'month', 'url' ].includes(value)
         },
     }
 }

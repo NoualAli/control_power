@@ -103,7 +103,35 @@ class MissionDetailController extends Controller
         $data = $request->validated();
         $files = $data['media'];
         unset($data['media']);
+        /**
+         * [
+         *      {
+         *          label: test,
+         *          value: this the value of this line
+         *          key_type: key_type,
+         *          key; key,
+         *          key: value,
+         *      },
+         * ]
+         */
+        // foreach ($data['metadata'] as $lines) {
+        //     foreach ($lines as $line) {
+        //         $key = $line['key'];
+        //         $value = $line['value'];
+        //         $line[$key] = $value;
+        //     }
+        // }
+        $data['metadata'] = array_map(function ($lines) {
+            return array_map(function ($line) {
+                $key = $line['key'];
+                $value = $line['value'];
+                $line[$key] = $value;
+                return $line;
+            }, $lines);
+        }, $data['metadata']);
+        // dd($data['metadata']);
         $this->validateMetadata($data);
+        $data['metadata'] = count($data['metadata']) ? json_encode($data['metadata']) : null;
 
         try {
             DB::transaction(function () use ($data, $files) {
@@ -134,7 +162,9 @@ class MissionDetailController extends Controller
         if ($detail->show_regularization) {
             $detail->load('regularizations');
         }
+
         $detail->load('mission', 'media', 'dre', 'agency', 'campaign', 'family', 'domain', 'process', 'controlPoint');
+        $detail->matadata_table = parseMetadata($detail->id, MissionDetail::class);
         return $detail;
     }
 
@@ -161,20 +191,7 @@ class MissionDetailController extends Controller
         $detail = MissionDetail::findOrFail($data['detail']);;
         $controlPointFields = $detail->controlPoint->fields;
         if ($controlPointFields) {
-            foreach ($controlPointFields as $key => $field) {
-                $name = $field[2]->name;
-                $rules = array_key_exists(8, $field) ? $field[8]->rules : [];
-                $length = $field[3]->length;
-                if ($length) {
-                    $rules = array_merge($rules, ['string', 'max:' . $field[3]->length]);
-                }
-                if ($multiple) {
-                    $computedName = 'rows.' . $rowKey . '.metadata.*.' . $key . '.' . $name;
-                } else {
-                    $computedName = 'metadata.*.' . $key . '.' . $name;
-                }
-                Validator::make($data, [$computedName => $rules])->validate();
-            }
+            validateFields($controlPointFields, $data, $multiple, $rowKey);
         }
     }
 
@@ -209,12 +226,9 @@ class MissionDetailController extends Controller
     {
         return DB::transaction(function () use ($detail, $data) {
             $currentMode = $data['currentMode'];
-
             // Vidé les champs report, recovery_plan, metadata
             if (isset($data['score']) && $data['score'] == 1) {
-                // $data['report'] = null;
                 $data['recovery_plan'] = null;
-                // $data['metadata'] = null;
             }
 
             $reportColumn = null;
@@ -228,8 +242,32 @@ class MissionDetailController extends Controller
                 }
             }
 
-            // Mise à jour des informations dans la base de données
-            $metadata = isset($data['metadata']) && !empty($data['metadata']) ? $data['metadata'] : null;
+            try {
+                // Mise à jour des informations dans la base de données
+                $metadata = isset($data['metadata']) && !empty($data['metadata']) ? $data['metadata'] : null;
+                if ($metadata) {
+                    DB::table('metadata')->where('metadatable_id', $detail->id)->where('metadatable_type', MissionDetail::class)->delete();
+                    foreach ($metadata as $item) {
+                        foreach ($item as $row) {
+                            $key = array_key_first($row);
+                            $value = is_array($row[$key]) ? implode(',', $row[$key]) : $row[$key];
+                            $field = $row['id'];
+                            DB::table('metadata')->insert([
+                                'field_id' => $field,
+                                'metadatable_id' => $detail->id,
+                                'metadatable_type' => MissionDetail::class,
+                                'key' => $key,
+                                'value' => $value,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                        }
+                    }
+                }
+            } catch (\Throwable $th) {
+                return throwedError($th);
+            }
+            // dd($detail->metadata, $metadata);
             $newData = [
                 'major_fact' => $data['major_fact'],
                 'score' => isset($data['score']) ? $data['score'] : $detail->score,

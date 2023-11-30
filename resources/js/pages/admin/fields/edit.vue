@@ -115,7 +115,7 @@ export default {
                     label: 'Date'
                 },
                 {
-                    id: 'datetime',
+                    id: 'datetime-local',
                     label: 'DateTime'
                 },
                 {

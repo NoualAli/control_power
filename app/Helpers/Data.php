@@ -38,7 +38,10 @@ if (!function_exists('getMissions')) {
                 DB::raw('(CASE WHEN reel_end IS NOT NULL THEN m.reel_end ELSE m.programmed_end END) as end_date'),
                 DB::raw('COUNT(md.id) as total_md'),
                 DB::raw('SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) as total_controlled_md'),
-                DB::raw('SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) * 100 / COUNT(md.id) progress_rate'),
+                DB::raw('CASE
+                WHEN COUNT(md.id) = 0 THEN NULL
+                ELSE SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) * 100 / NULLIF(COUNT(md.id), 0)
+            END as progress_rate'),
                 'm.current_state',
                 DB::raw('(CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) > 15 OR reel_end > programmed_end THEN 1 ELSE 0 END) as is_late')
             ];
@@ -326,6 +329,7 @@ if (!function_exists('getMissionDetails')) {
         //         'md.controlled_by_dcp_at',
         //     );
         // }
+        // dd($details->get());
         return $details;
     }
 }

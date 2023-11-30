@@ -13,11 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('has_metadata', function (Blueprint $table) {
-            $table->string('matadatable_type');
-            $table->string('matadatable_id', 36)->nullable();
-            $table->string('key');
-            $table->string('value');
+        Schema::create('has_fields', function (Blueprint $table) {
+            $table->string('attachable_type');
+            $table->string('attachable_id', 36)->nullable();
             $table->unsignedBigInteger('field_id');
 
             $table->foreign('field_id')->on('fields')->references('id')->onDelete('cascade')->onUpdate('cascade');
@@ -31,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('has_metadata');
+        Schema::dropIfExists('has_fields');
     }
 };
