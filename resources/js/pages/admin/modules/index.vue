@@ -61,7 +61,7 @@ export default {
         NLColumn, NLGrid
     },
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     metaInfo() {
         return { title: 'Modules' }
     },

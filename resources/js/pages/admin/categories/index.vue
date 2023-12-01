@@ -19,7 +19,7 @@
 import api from '~/plugins/api'
 export default {
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     metaInfo() {
         return { title: 'Catégories' }
     },

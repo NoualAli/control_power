@@ -26,7 +26,7 @@ import Form from 'vform'
 export default {
     name: 'BackupDB',
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     metaInfo() {
         return { title: 'Backup base de donnée' }
     },

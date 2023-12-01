@@ -24,7 +24,7 @@
 <script>
 export default {
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     metaInfo() {
         return { title: 'Champs' }
     },

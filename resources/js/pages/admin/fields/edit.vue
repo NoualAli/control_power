@@ -85,7 +85,7 @@ export default {
         NLSwitch, NLColumn
     },
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     data() {
         return {
             showLengthField: false,

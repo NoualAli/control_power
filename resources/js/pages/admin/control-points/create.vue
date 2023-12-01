@@ -59,7 +59,7 @@ export default {
         NLRepeater
     },
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     data() {
         return {
             familliesList: [],

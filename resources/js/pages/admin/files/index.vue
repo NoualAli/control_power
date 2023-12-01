@@ -18,7 +18,7 @@ import { hasRole } from '../../../plugins/user';
 
 export default {
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     metaInfo() {
         return { title: 'Fichiers' }
     },

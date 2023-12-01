@@ -33,7 +33,7 @@ import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 export default {
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     computed: {
         ...mapGetters({
             process: 'processes/current',

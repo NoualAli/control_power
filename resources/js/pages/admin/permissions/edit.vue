@@ -28,7 +28,7 @@ import { mapGetters } from 'vuex'
 
 export default {
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     computed: {
         ...mapGetters({
             permission: 'permissions/current',

@@ -25,7 +25,7 @@
 <script>
 export default {
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     metaInfo() {
         return { title: 'Points de contrôle' }
     },
@@ -83,11 +83,11 @@ export default {
                     field: 'scores_str',
                     isHtml: true
                 },
-                {
-                    label: 'Métadonnées',
-                    field: 'fields.label',
-                    hasMany: true
-                }
+                // {
+                //     label: 'Métadonnées',
+                //     field: 'fields.label',
+                //     hasMany: true
+                // }
             ],
             actions: {
                 edit: (item) => {

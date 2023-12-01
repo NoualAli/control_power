@@ -76,7 +76,7 @@ export default {
         Child,
         NLPageLoader
     },
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     data() {
         return {
             totalUnreadNotifications: 0

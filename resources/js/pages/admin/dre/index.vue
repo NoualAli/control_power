@@ -30,7 +30,7 @@ import NLDatatable from '../../../components/Datatable/NLDatatable'
 export default {
     components: { NLDatatable },
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     metaInfo() {
         return { title: 'Dre' }
     },

@@ -49,7 +49,7 @@ import { mapGetters } from 'vuex'
 export default {
     components: { NLForm },
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     data() {
         return {
             dresList: [],

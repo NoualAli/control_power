@@ -25,7 +25,7 @@
 import { Form } from 'vform'
 export default {
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     data() {
         return {
             form: new Form({
