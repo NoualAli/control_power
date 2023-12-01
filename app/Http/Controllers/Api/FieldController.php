@@ -19,7 +19,7 @@ class FieldController extends Controller
      */
     public function index()
     {
-        isAbleOrAbort(['view_fields', 'view_control_points']);
+        isAbleOrAbort(['view_fields', 'view_control_point']);
         $fields = Field::query();
 
         $search = request('search', null);

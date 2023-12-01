@@ -22,6 +22,8 @@ class ControlPointController extends Controller
      */
     public function index()
     {
+        isAbleOrAbort('view_control_point');
+
         $controlPoints = new ControlPoint();
 
         $search = request('search', null);
