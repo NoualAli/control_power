@@ -61,37 +61,28 @@
                 </NLColumn>
 
                 <!-- Metadata -->
-                <NLColumn v-if="row?.metadata?.length" extraClass="list-ite">
+                <NLColumn v-if="row?.parsed_metadata?.lines" extraClass="list-ite">
                     <div class="list-item-content no-bg grid">
-                        <NLColumn :class="{ 'col-lg-8': !row?.metadata_table?.total_lines }">
-                            <div class="table-container " v-if="row?.metadata_table?.total_lines">
+                        <NLColumn :class="{ 'col-lg-8': !row?.parsed_metadata?.lines }">
+                            <div class="table-container " v-if="row?.parsed_metadata?.lines">
                                 <h2>
                                     Informations supplémentaires
                                 </h2>
                                 <table>
                                     <thead>
                                         <tr>
-                                            <th v-for="( heading, indexHeading ) in  row?.metadata_table?.headings"
+                                            <th v-for="( heading, indexHeading ) in  row?.parsed_metadata?.headings"
                                                 :key="indexHeading" class="text-left">
                                                 {{ heading }}
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="( line, indexLine ) in row?.metadata_table?.lines"
-                                            :key="'metadata-row-' + indexRow">
-                                            <td v-for="( heading, indexHeading ) in  row?.metadata_table?.headings">
-                                                {{ line[indexHeading] }}
+                                        <tr v-for="( line, indexLine ) in row?.parsed_metadata?.lines"
+                                            :key="'metadata-row-' + indexLine">
+                                            <td v-for="( heading, indexHeading ) in  row?.parsed_metadata?.headings">
+                                                {{ row?.parsed_metadata?.metadata[indexLine][indexHeading]?.value }}
                                             </td>
-                                            <!-- <td v-for="( items, index ) in  data"
-                                                :key="'metadata-row-' + row + '-item-' + index" class="text-left">
-                                                <template v-for="( item, key ) in  items ">
-                                                    <span v-if="key !== 'label' && key !== 'rules'"
-                                                        :key="'metadata-row-' + row + '-item-' + index + key + '-content'">
-                                                        {{ item || '-' }}
-                                                    </span>
-                                                </template>
-                                            </td> -->
                                         </tr>
                                     </tbody>
                                 </table>
@@ -247,6 +238,9 @@ export default {
             }
         }
     },
+    // updated() {
+    //     this.initData()
+    // },
     data() {
         return {
             row: null,
@@ -266,6 +260,7 @@ export default {
          * @param {*} type
          */
         showForm(row, type) {
+            // console.log(row, type);
             this.$emit('showForm', { row, type })
         },
 
@@ -288,8 +283,6 @@ export default {
                 this.currentUser = user()
                 this.$store.dispatch('details/fetch', this.rowSelected.id).then(() => {
                     this.row = this.detail.detail
-                    console.log(this.row.metadata_table);
-                    this.currentMetadata.keys = Object.keys(this.row.parsed_metadata)
                     this.isLoading = false
                     if (hasRole([ 'ci' ])) {
                         this.currentMode = 1 // Execution mode

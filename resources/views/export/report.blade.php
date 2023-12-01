@@ -271,7 +271,11 @@
                                 </table>
 
                                 {{-- Metadata --}}
-                                @if ($item->metadata !== null)
+                                @php
+                                    $lines = $item?->parsed_metadata['lines'];
+                                    $metadata = $item?->parsed_metadata['metadata'];
+                                @endphp
+                                @if ($lines)
                                     <table>
                                         <tr>
                                             <td colspan="4" class="text-center bg-gray">
@@ -279,23 +283,22 @@
                                             </td>
                                         </tr>
                                         @php
-                                            $totalItems = $item?->inline_metadata?->count() - 1;
                                             $currentIndex = 0;
                                         @endphp
-                                        @foreach ($item->inline_metadata as $key => $rows)
+                                        @foreach ($metadata as $rows)
                                             @php
-                                                $totalRows = $rows->count();
+                                                $totalRows = count($rows);
                                                 $currentRow = 1;
                                             @endphp
                                             @foreach ($rows as $row)
                                                 <tr
-                                                    class="metadata-row {{ $totalRows == $currentRow && $totalItems !== $currentIndex ? 'border-bottom' : null }}">
+                                                    class="metadata-row {{ $totalRows == $currentRow && $lines !== $currentIndex ? 'border-bottom' : null }}">
                                                     <th class="margin-cell"></th>
                                                     <th>
-                                                        {{ $row->label }}
+                                                        {{ $row?->label }}
                                                     </th>
                                                     <td>
-                                                        {{ $row->value }}
+                                                        {{ $row?->value }}
                                                     </td>
                                                     <th class="margin-cell"></th>
                                                     @php
@@ -333,7 +336,6 @@
             @if ($mission->closingReport)
                 @foreach ($mission->closingReport as $report)
                     <div class="img-container">
-                        {{-- public_path('storage\assets\bna_logo.svg'); --}}
                         <img src="{{ public_path('storage/' . $report->path) }}" alt="{{ $report->original_name }}"
                             class="img">
                     </div>

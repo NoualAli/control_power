@@ -23,14 +23,14 @@
                         </NLColumn>
                         <!-- Metadata -->
                         <NLColumn
-                            v-if="data?.control_point?.fields && Number(form.score) > 0 && [1, 2].includes(form.currentMode)"
+                            v-if="data?.control_point?.fields?.length && Number(form.score) > 0 && [1, 2].includes(form.currentMode)"
                             extraClass="mb-4">
                             <div class="repeater">
                                 <h2 class="mb-6">
                                     Informations supplémentaires
                                 </h2>
                                 <!-- Repeater row -->
-                                <NLGrid v-for="( item, dataRow ) in  form.metadata " :key="'metadata-' + dataRow"
+                                <NLGrid v-for="( item, dataRow ) in  form.metadata" :key="'metadata-' + dataRow"
                                     extraClass="my-6 repeater-row">
                                     <NLColumn>
                                         <NLGrid>
@@ -237,7 +237,7 @@ export default {
             }),
             currentMission: {},
             isContainerExpanded: false,
-            currentMetadata: {},
+            currentMetadata: [],
             scoresList: [],
             isLoading: false,
         }
@@ -270,7 +270,7 @@ export default {
         },
         close() {
             this.currentMission = {}
-            this.currentMetadata = {}
+            this.currentMetadata = []
             this.scoresList = []
             this.isLoading = false
             this.form.reset()
@@ -283,7 +283,9 @@ export default {
             this.isLoading = !this.isLoading
             this.$store.dispatch('details/fetch', this.data?.id).then(() => {
                 const detail = this.detail.detail
-                this.currentMetadata.keys = typeof detail?.parsed_metadata == 'object' && Object.values(detail?.parsed_metadata).length ? Object.keys(detail?.parsed_metadata) : null
+                console.log(this.data);
+                const metadata = detail.parsed_metadata?.metadata
+                this.currentMetadata.keys = detail.parsed_metadata?.headings
                 if (hasRole([ 'ci' ])) {
                     this.form.currentMode = 1 // Execution mode
                 } else if (hasRole('cdc')) {
@@ -308,7 +310,7 @@ export default {
                 this.form.recovery_plan = detail.recovery_plan
                 this.form.score = detail.score ? parseInt(detail.score) : null
                 this.form.major_fact = !!detail.major_fact
-                this.form.metadata = detail.metadata || []
+                this.form.metadata = metadata
                 this.isLoading = !this.isLoading
                 this.setupScores(this.data?.control_point.scores)
             }).catch(error => console.log(error))
@@ -391,10 +393,17 @@ export default {
             const schema = []
             for (let index = 0; index < fields.length; index++) {
                 const element = fields[ index ]
-                const name = element.name
-                let defaultValue = element.default !== undefined ? element.default : ''
-                defaultValue = element.is_multiple ? [] : ''
-                schema.push({ key: name, value: defaultValue, label: element.label, additional_rules: element.additional_rules, id: element.id, is_multiple: element.is_multiple, is_major_fact: false })
+                const key = element.name
+                let is_multiple = element.is_multiple ? true : false
+                let is_major_fact = false
+                let value = element.default !== undefined ? element.default : ''
+                let label = element.label
+                let additional_rules = element.additional_rules
+                let id = element.id
+                value = element.is_multiple ? [] : ''
+
+                schema.push({ key, value, label, additional_rules, id, is_multiple, is_major_fact })
+                console.log(schema);
             }
             if (this.form.metadata) this.form.metadata.push(schema)
         },

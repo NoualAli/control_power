@@ -28,7 +28,7 @@ class MissionDetail extends BaseModel
         'recovery_plan',
         'score',
         'major_fact',
-        // 'metadata',
+        'metadata',
         'assigned_to_ci_id',
         'assigned_to_cc_id',
         'controlled_by_ci_at',
@@ -58,7 +58,7 @@ class MissionDetail extends BaseModel
     public $with = ['process', 'domain', 'controlPoint', 'family', 'media'];
 
     public $casts = [
-        // 'metadata' => 'object',
+        'metadata' => 'object',
         'controlled_by_ci_at' => 'datetime:d-m-Y H:i',
         'controlled_by_cdc_at' => 'datetime:d-m-Y H:i',
         'controlled_by_cc_at' => 'datetime:d-m-Y H:i',
@@ -72,7 +72,6 @@ class MissionDetail extends BaseModel
     public $appends = [
         'appreciation',
         'parsed_metadata',
-        'metadata_table',
         'major_fact_str',
         'score_tag',
         'report',
@@ -177,21 +176,33 @@ class MissionDetail extends BaseModel
         return '<div class="tag ' . $style . '">' . $score . '</div>';
     }
 
-    public function getMetadataTableAttribute()
+    public function getMetadataAttribute($metadata)
     {
-        return parseMetadata($this->id, MissionDetail::class);
+        return json_decode($metadata);
     }
 
     public function getParsedMetadataAttribute()
     {
-        return collect($this->metadata)->flatten()->groupBy('key')->map(function ($data) {
-            return collect($data)->map(function ($item) {
-                $item = collect($item);
-                unset($item['rules']);
-                $values = $item->values()->map(fn ($value, $index) => $index == 1 ? $value : null)->filter(fn ($item) => $item)->flatten();
-                return $values;
-            });
-        });
+        $metadata = is_string($this->getAttributes()['metadata']) ? json_decode($this->getAttributes()['metadata']) : [];
+
+        $lines = 0;
+        $headings = [];
+        if (is_string($metadata)) {
+            $metadata = json_decode($this->metadata);
+        }
+        if (is_array($metadata)) {
+            $metadata = recursive_collect($metadata);
+            $lines = $metadata->count();
+            $headings = $metadata->flatten()->map(function ($item) {
+                return $item->label;
+            })->unique()->toArray();
+
+            $metadata = $metadata->map(function ($item) {
+                unset($item->key, $item->additional_rules, $item->id, $item->is_multiple);
+                return $item;
+            })->toArray();
+        }
+        return compact('metadata', 'headings', 'lines');
     }
 
     public function getInlineMetadataAttribute()

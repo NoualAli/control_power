@@ -129,10 +129,8 @@ class MissionDetailController extends Controller
                 return $line;
             }, $lines);
         }, $data['metadata']);
-        // dd($data['metadata']);
         $this->validateMetadata($data);
         $data['metadata'] = count($data['metadata']) ? json_encode($data['metadata']) : null;
-
         try {
             DB::transaction(function () use ($data, $files) {
                 $detail = MissionDetail::findOrFail($data['detail']);
@@ -163,8 +161,7 @@ class MissionDetailController extends Controller
             $detail->load('regularizations');
         }
 
-        $detail->load('mission', 'media', 'dre', 'agency', 'campaign', 'family', 'domain', 'process', 'controlPoint');
-        $detail->matadata_table = parseMetadata($detail->id, MissionDetail::class);
+        $detail->load('mission', 'media', 'dre', 'agency', 'campaign', 'family', 'domain', 'process', 'controlPoint', 'controlPoint.fields');
         return $detail;
     }
 
@@ -242,37 +239,11 @@ class MissionDetailController extends Controller
                 }
             }
 
-            try {
-                // Mise à jour des informations dans la base de données
-                $metadata = isset($data['metadata']) && !empty($data['metadata']) ? $data['metadata'] : null;
-                if ($metadata) {
-                    DB::table('metadata')->where('metadatable_id', $detail->id)->where('metadatable_type', MissionDetail::class)->delete();
-                    foreach ($metadata as $item) {
-                        foreach ($item as $row) {
-                            $key = array_key_first($row);
-                            $value = is_array($row[$key]) ? implode(',', $row[$key]) : $row[$key];
-                            $field = $row['id'];
-                            DB::table('metadata')->insert([
-                                'field_id' => $field,
-                                'metadatable_id' => $detail->id,
-                                'metadatable_type' => MissionDetail::class,
-                                'key' => $key,
-                                'value' => $value,
-                                'created_at' => now(),
-                                'updated_at' => now(),
-                            ]);
-                        }
-                    }
-                }
-            } catch (\Throwable $th) {
-                return throwedError($th);
-            }
-            // dd($detail->metadata, $metadata);
             $newData = [
                 'major_fact' => $data['major_fact'],
                 'score' => isset($data['score']) ? $data['score'] : $detail->score,
                 'recovery_plan' => isset($data['recovery_plan']) ? $data['recovery_plan'] : null,
-                'metadata' => $metadata,
+                'metadata' => $data['metadata'],
             ];
 
             // Mettre la note max si jamais il y'a un fait majeur

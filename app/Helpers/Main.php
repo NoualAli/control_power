@@ -519,8 +519,8 @@ if (!function_exists('validateFields')) {
                     $additional_rules = array_merge($additional_rules, ['max_digits:' . $maxLength]);
                 }
 
-                if ($maxLength) {
-                    $additional_rules = array_merge($additional_rules, ['min_digits:' . $maxLength]);
+                if ($minLength) {
+                    $additional_rules = array_merge($additional_rules, ['min_digits:' . $minLength]);
                 }
             }
 
@@ -569,10 +569,6 @@ if (!function_exists('validateFields')) {
                 if ($minLength) {
                     $additional_rules = array_merge($additional_rules, ['min:' . $maxLength]);
                 }
-            }
-
-            if ($minLength) {
-                $additional_rules = array_merge($additional_rules, ['min:' . $maxLength]);
             }
 
             if ($multipleFields) {
