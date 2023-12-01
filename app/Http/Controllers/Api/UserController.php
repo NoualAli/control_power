@@ -34,6 +34,7 @@ class UserController extends Controller
         //     // $missions = getMissions()->get()->filter(fn ($mission) => Storage::fileExists('exported\campaigns\\' . $mission->campaign . '\\missions\\' . $mission->reference . '.pdf'));
         //     // $user['missions_without_report'] = $missions;
         // }
+        $user->load('role');
         return response()->json($user);
     }
 
