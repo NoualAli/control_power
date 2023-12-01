@@ -129,7 +129,8 @@ export default {
     },
     watch: {
         'form.control_campaign_id': function (newVal, oldVal) {
-            if (newVal !== oldVal && newVal !== null && newVal !== undefined) this.initData()
+            this.initData()
+            // if (newVal !== oldVal && newVal !== null && newVal !== undefined) this.initData()
         },
         // 'form.programmed_start': function (newVal, oldVal) {
         //     if (newVal !== oldVal && newVal) this.form.programmed_end = this.addDays(newVal, 15)
@@ -150,26 +151,32 @@ export default {
          */
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
+
             if (this.$route.params.campaignId) {
                 this.form.control_campaign_id = this.$route.params.campaignId
                 this.campaignId = this.$route.params.campaignId
             }
+
             this.$store.dispatch('missions/fetchConfig', this.form.control_campaign_id).then(() => {
+                // console.log(this.config?.config);
                 this.agenciesList = this.config?.config.agencies
                 this.controllersList = this.config?.config.controllers
                 this.campaignsList = this.config?.config.campaigns
                 this.currentCampaign = this.config?.config.currentCampaign
+                // console.log(this.currentCampaign?.id);
                 this.form.programmed_start = this.currentCampaign.start_date.split('-').reverse().join('-')
-                // this.form.programmed_end = this.addDays(this.form.programmed_start, 15)
                 this.form.control_campaign_id = this.currentCampaign?.id
                 this.currentCampaignReference = this.config?.config.currentCampaign.reference
-                const length = this.$breadcrumbs.value.length
-                if (this.$breadcrumbs.value[ length - 1 ].lable === 'Répartition des missions de contrôle de la campagne') {
-                    this.$breadcrumbs.value[ length - 1 ].lable = 'Répartition des missions de contrôle de la campagne ' + this.currentCampaignReference
-                    this.$breadcrumbs.value[ length - 1 ].parent = 'campaign'
-                }
+                this.initBreadcrumb()
                 this.$store.dispatch('settings/updatePageLoading', false)
             })
+        },
+        initBreadcrumb() {
+            const length = this.$breadcrumbs.value.length
+            this.$breadcrumbs.value[ length - 1 ].label = 'Répartition des missions de contrôle de la campagne ' + this.currentCampaignReference
+            if (this.$breadcrumbs.value[ length - 1 ].label === 'Répartition des missions de contrôle de la campagne') {
+                this.$breadcrumbs.value[ length - 1 ].parent = 'campaign'
+            }
         },
         resetForm() {
             this.form.note = null
