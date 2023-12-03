@@ -58,8 +58,8 @@ class FieldController extends Controller
         $data = $request->validated();
         $data['options'] = isset($data['options']) && count($data['options']) ? implode(',', $data['options']) : null;
         $data['additional_rules'] = isset($data['additional_rules']) && count($data['additional_rules']) ? implode(',', $data['additional_rules']) : null;
-        $data['min_length'] = isset($data['min_length']) || is_null($data['min_length']) ? 0 : $data['min_length'];
-        $data['columns'] = isset($data['columns']) || is_null($data['columns']) ? 12 : $data['columns'];
+        $data['min_length'] = isset($data['min_length']) && !is_null($data['min_length']) ? $data['min_length'] : 0;
+        $data['columns'] = isset($data['columns']) && !is_null($data['columns']) ? $data['columns'] : 12;
 
         try {
             $field = DB::transaction(function () use ($data) {
@@ -101,8 +101,8 @@ class FieldController extends Controller
         $data = $request->validated();
         $data['options'] = isset($data['options']) && count($data['options']) ? implode(',', $data['options']) : null;
         $data['additional_rules'] = isset($data['additional_rules']) && count($data['additional_rules']) ? implode(',', $data['additional_rules']) : null;
-        $data['min_length'] = isset($data['min_length']) || is_null($data['min_length']) ? 0 : $data['min_length'];
-        $data['columns'] = isset($data['columns']) || is_null($data['columns']) ? 12 : $data['columns'];
+        $data['min_length'] = isset($data['min_length']) && !is_null($data['min_length']) ? $data['min_length'] : 0;
+        $data['columns'] = isset($data['columns']) && !is_null($data['columns']) ? $data['columns'] : 12;
 
         try {
             $result = DB::transaction(function () use ($field, $data) {

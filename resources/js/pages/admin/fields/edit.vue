@@ -61,8 +61,8 @@
                         placeholder="Veuillez choisir le nombre de colonne que le champs peut occupé" />
                 </NLColumn>
                 <NLColumn lg="4" v-if="showValidationRulesField">
-                    <NLSelect label="Règles de validation" name="validation_rules" :form="form"
-                        v-model="form.validation_rules" :options="validationRulesList" multiple
+                    <NLSelect label="Règles de validation" name="additional_rules" :form="form"
+                        v-model="form.additional_rules" :options="validationRulesList" multiple
                         placeholder="Veuillez choisir une ou plusieurs règles de validation" />
                 </NLColumn>
                 <NLColumn>
@@ -203,17 +203,17 @@ export default {
                 max_length: null,
                 min_length: null,
                 options: [],
-                validation_rules: [],
+                additional_rules: [],
             })
         }
     },
     watch: {
         "form.type"(newVal, oldVal) {
             if (newVal !== oldVal) {
-                this.showLengthField = [ 'text', 'textarea', 'email', 'tel' ].includes(newVal)
+                this.showLengthField = [ 'text', 'textarea', 'email', 'tel', 'number' ].includes(newVal)
                 this.showOptionsField = newVal !== oldVal && newVal == 'select'
                 this.showIsMultipleField = newVal !== oldVal && newVal == 'select'
-                this.showValidationRulesField = [ 'text' ].includes(newVal)
+                this.showValidationRulesField = [ 'text', 'number' ].includes(newVal)
                 this.showIntegerOrFloatField = [ 'number' ].includes(newVal)
 
                 this.form.is_multiple = this.showIsMultipleField ? this.form.is_multiple : false
@@ -221,7 +221,7 @@ export default {
                 this.form.max_length = this.showLengthField ? this.form.max_length : null
                 this.form.min_length = this.showLengthField ? this.form.min_length : null
                 this.form.options = this.showOptionsField ? this.form.options : []
-                this.form.validation_rules = this.showLengthField ? this.form.validation_rules : []
+                this.form.additional_rules = this.showValidationRulesField ? this.form.additional_rules.split(',') : []
             }
         }
     },
