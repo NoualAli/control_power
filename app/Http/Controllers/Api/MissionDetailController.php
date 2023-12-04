@@ -178,6 +178,10 @@ class MissionDetailController extends Controller
             foreach ($data['rows'] as $rowKey => $row) {
                 $this->handleMetadata($row, $rowKey);
             }
+        } elseif (array_key_exists('metadata', $data)) {
+            foreach ($data['metadata'] as $rowKey => $row) {
+                $this->handleMetadata($data, true, $rowKey);
+            }
         } else {
             $this->handleMetadata($data);
         }

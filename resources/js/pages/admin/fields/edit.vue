@@ -244,6 +244,7 @@ export default {
                 this.form.fill(this.field.current)
                 this.form.options = this.field?.current?.options?.split(',')
                 this.form.additional_rules = this.field?.current?.additional_rules?.split(',')
+                this.form.help_text = this.field?.current?.help_text
                 this.loadValidationRules()
             })
         },

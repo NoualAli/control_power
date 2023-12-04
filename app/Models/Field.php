@@ -35,6 +35,11 @@ class Field extends Model
         'is_multiple' => 'boolean',
     ];
 
+    public function getIsMultipleStrAttribute()
+    {
+        return $this->is_multiple ? 'Oui' : 'Non';
+    }
+
     public function getDistinctStrAttribute()
     {
         return $this->distinct ? 'Oui' : 'Non';

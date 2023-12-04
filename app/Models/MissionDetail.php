@@ -193,8 +193,13 @@ class MissionDetail extends BaseModel
         if (is_array($metadata)) {
             $metadata = recursive_collect($metadata);
             $lines = $metadata->count();
+
             $headings = $metadata->flatten()->map(function ($item) {
                 return $item->label;
+            })->unique()->toArray();
+
+            $keys = $metadata->flatten()->map(function ($item) {
+                return $item->key;
             })->unique()->toArray();
 
             $metadata = $metadata->map(function ($item) {
@@ -202,7 +207,7 @@ class MissionDetail extends BaseModel
                 return $item;
             })->toArray();
         }
-        return compact('metadata', 'headings', 'lines');
+        return compact('metadata', 'headings', 'keys', 'lines');
     }
 
     public function getInlineMetadataAttribute()

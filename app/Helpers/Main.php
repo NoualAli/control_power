@@ -486,7 +486,6 @@ if (!function_exists('validateFields')) {
      */
     function validateFields($fields, $data, bool $multipleFields = false, string|int $rowKey = null)
     {
-        // dd($fields, $data, $multipleFields, $rowKey);
         foreach ($fields as $key => $field) {
             $maxLength = $field->max_length;
             $minLength = $field->min_length;
@@ -494,125 +493,103 @@ if (!function_exists('validateFields')) {
             $is_integer_or_float = $field->is_integer_or_float;
             $is_multiple = $field->is_multiple;
             $distinct = $field->distinct;
-            $additional_rules = $field->additional_rules ?: [];
+            $additional_rules = $field->additional_rules ?: null;
             $type = $field->type;
             $name = $field->name;
+            $label = strtolower($field->label);
+            $rules = [];
+            $messages = [];
+            $computedName = 'metadata.*.' . $key . '.' . $name;
+            $computedNameWithoutKey = 'metadata.*.*.' . $name;
 
             if ($required) {
-                $additional_rules = array_merge($additional_rules, ['required']);
+                $rules = array_merge($rules, ['required']);
             } else {
-                $additional_rules = array_merge($additional_rules, ['nullable']);
+                $rules = array_merge($rules, ['nullable']);
             }
 
             if ($distinct) {
-                $additional_rules = array_merge($additional_rules, ['distinct']);
+                $rules = array_merge($rules, ['distinct']);
             }
 
             if ($type == 'number') {
                 if (!$is_integer_or_float) {
-                    $additional_rules = array_merge($additional_rules, ['integer']);
+                    $rules = array_merge($rules, ['regex:/^[0-9]+$/']);
+                    $messages[$computedNameWithoutKey . '.regex'] = 'Le champ ' . __($label) . ' doit être un nombre entier.';
                 } else {
-                    $additional_rules = array_merge($additional_rules, ['numeric']);
+                    $rules = array_merge($rules, ['numeric']);
                 }
 
                 if ($maxLength) {
-                    $additional_rules = array_merge($additional_rules, ['max_digits:' . $maxLength]);
+                    $rules = array_merge($rules, ['max_digits:' . $maxLength]);
                 }
 
                 if ($minLength) {
-                    $additional_rules = array_merge($additional_rules, ['min_digits:' . $minLength]);
+                    $rules = array_merge($rules, ['min_digits:' . $minLength]);
                 }
             }
 
             if ($type == 'select') {
                 if ($is_multiple) {
-                    $additional_rules = array_merge($additional_rules, ['array']);
+                    $rules = array_merge($rules, ['array']);
                 } else {
-                    $additional_rules = array_merge($additional_rules, ['string']);
+                    $rules = array_merge($rules, ['string']);
                 }
             }
 
             if ($type == 'date') {
-                $additional_rules = array_merge($additional_rules, ['date_format:Y-m-d']);
+                $rules = array_merge($rules, ['date_format:Y-m-d']);
             }
 
             if ($type == 'month') {
-                $additional_rules = array_merge($additional_rules, ['date_format:Y-m']);
+                $rules = array_merge($rules, ['date_format:Y-m']);
             }
 
             if ($type == 'time') {
-                $additional_rules = array_merge($additional_rules, ['date_format:H:i:s']);
+                $rules = array_merge($rules, ['date_format:H:i:s']);
             }
 
             if ($type == 'datetime-local') {
-                $additional_rules = array_merge($additional_rules, ['date_format:Y-m-d\TH:i:s']);
+                $rules = array_merge($rules, ['date_format:Y-m-d\TH:i:s']);
             }
 
             if ($type == 'week') {
-                $additional_rules = array_merge($additional_rules, ['date']);
+                $rules = array_merge($rules, ['date']);
             }
 
             if ($type == 'email') {
-                $additional_rules = array_merge($additional_rules, ['email']);
+                $rules = array_merge($rules, ['email']);
             }
 
             if ($type == 'tel') {
-                $additional_rules = array_merge($additional_rules, [new IsAlgerianPhoneNumber]);
+                $rules = array_merge($rules, [new IsAlgerianPhoneNumber]);
             }
 
             if (in_array($type, ['text', 'textarea'])) {
-                $additional_rules = array_merge($additional_rules, ['string']);
+                $rules = array_merge($rules, ['string']);
 
                 if ($maxLength) {
-                    $additional_rules = array_merge($additional_rules, ['max:' . $maxLength]);
+                    $rules = array_merge($rules, ['max:' . $maxLength]);
                 }
                 if ($minLength) {
-                    $additional_rules = array_merge($additional_rules, ['min:' . $maxLength]);
+                    $rules = array_merge($rules, ['min:' . $maxLength]);
                 }
             }
 
-            if ($multipleFields) {
-                $computedName = 'rows.' . $rowKey . '.metadata.*.' . $key . '.' . $name;
-            } else {
-                $computedName = 'metadata.*.' . $key . '.' . $name;
+            if ($additional_rules) {
+                $customRules = explode(',', $additional_rules);
+                foreach ($customRules as $rule) {
+                    $normailizedName = preg_replace('/_/', ' ', $rule);
+                    $normailizedName = preg_split('/[ ]/', ucwords($normailizedName));
+                    $normailizedName = implode('', $normailizedName) . 'Rule';
+                    $class = "\App\Rules\\" . $normailizedName;
+                    if (class_exists($class)) {
+                        array_push($rules, new $class($label));
+                    }
+                }
             }
 
-            // dd($data, $computedName, $additional_rules);
-            Validator::make($data, [$computedName => $additional_rules])->validate();
+            Validator::make($data, [$computedName => $rules], $messages)->validate();
         }
-    }
-}
-
-if (!function_exists('parseMetadata')) {
-    function parseMetadata(string|int $metadatableId, string $metadatableType)
-    {
-        // $model = new $metadatableType;
-        // $tableName = $model->getTable();
-        // $primaryKey = $model->getKeyName();
-        // $metadata = DB::table('metadata', 'm')->select(['metadatable_id', 'metadatable_type', 'field_id', 'm.value', 'f.label', 'f.type'])
-        //     ->leftJoin('fields as f', 'f.id', 'm.field_id')
-        //     ->leftJoin($tableName, $tableName . '.' . $primaryKey, 'm.metadatable_id')
-        //     ->where('metadatable_type', $metadatableType)
-        //     ->where('metadatable_id', $metadatableId)
-        //     ->get();
-
-        // $headings = $metadata->groupBy('label')->keys();
-        // $total_lines = $metadata->groupBy('field_id')->count() ? $metadata->groupBy('field_id')->count() / 2 : $metadata->groupBy('field_id')->count();
-
-        // $lines = collect([]);
-        // for ($i = 0; $i < $total_lines; $i++) {
-        //     $line = new stdClass;
-        //     for ($j = 0; $j < count($headings); $j++) {
-        //         $heading = $j;
-        //         $cursor = $i == 0 ? $i + $j : ($i * $j) + count($headings);
-        //         $line->$heading = $metadata[$cursor]->value;
-        //     }
-
-        //     $lines->push($line);
-        // }
-        $headings = [];
-        $total_lines = 0;
-        $lines = [];
-        return compact('headings', 'total_lines', 'lines');
     }
 }
