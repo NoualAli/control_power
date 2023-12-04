@@ -36,7 +36,7 @@
                 v-if="can('view_page_major_facts')" />
             <NLSidebarItem label="Backup DB" route="admin-backup-db" v-if="is('root')" iconName="la-database" />
             <NLSidebarItem label="Fichiers" route="admin-server-files" v-if="is('root')" iconName="la-file-alt" />
-            <a class="sidebar-item" href="/log-viewer" target="_blank">
+            <a class="sidebar-item" href="/log-viewer" target="_blank" v-if="is('root')">
                 <i class="las la-bug sidebar-icon"></i>
                 <span class="sidebar-icon_text">
                     Logs
