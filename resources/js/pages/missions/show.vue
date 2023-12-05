@@ -5,7 +5,7 @@
         </template>
         <template class="d-flex justify-between align-center gap-3 mb-9" v-if="!pageLoadingState" #actions>
             <NLFlex lgJustifyContent="end" extraClass="w-100">
-                <router-link v-if="can('view_control_campaign,view_page_control_campaigns')"
+                <router-link v-if="can('view_control_campaign')"
                     :to="{ name: 'campaign', params: { campaignId: mission?.current.campaign.id } }" class="btn">
                     {{ mission?.current?.campaign?.reference }}
                 </router-link>

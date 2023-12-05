@@ -1,5 +1,5 @@
 <template>
-    <div v-if="can('view_modules')">
+    <div v-if="can('view_module')">
         <ContentHeader>
             <template #actions>
                 <a href="/excel-export?export=modules" target="_blank" class="btn btn-excel has-icon">

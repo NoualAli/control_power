@@ -25,7 +25,7 @@ class ControlCampaignController extends Controller
      */
     public function index()
     {
-        isAbleOrAbort(['view_control_campaign', 'view_page_control_campaigns', 'create_mission', 'edit_mission']);
+        isAbleOrAbort(['view_control_campaign', 'view_control_campaign', 'create_mission', 'edit_mission']);
         $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);

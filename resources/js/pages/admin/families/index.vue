@@ -1,8 +1,8 @@
 <template>
-    <div v-if="can('view_familly')">
+    <div v-if="can('view_family')">
         <ContentHeader>
             <template #actions>
-                <router-link v-if="can('create_familly')" :to="{ name: 'families-create' }" class="btn btn-info">
+                <router-link v-if="can('create_family')" :to="{ name: 'families-create' }" class="btn btn-info">
                     Ajouter
                 </router-link>
                 <a href="/excel-export?export=families" target="_blank" class="btn btn-excel has-icon">
@@ -51,10 +51,10 @@ export default {
             ],
             actions: {
                 edit: (item) => {
-                    return this.can('edit_familly')
+                    return this.can('edit_family')
                 },
                 delete: (item) => {
-                    return this.can('delete_familly')
+                    return this.can('delete_family')
                 }
             }
         }

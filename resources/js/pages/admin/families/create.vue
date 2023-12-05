@@ -1,5 +1,5 @@
 <template>
-    <div v-if="can('create_familly')">
+    <div v-if="can('create_family')">
         <ContentHeader title="Ajouter une nouvelle famille" />
         <ContentBody>
             <NLForm :action="create" :form="form">

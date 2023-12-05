@@ -1,5 +1,5 @@
 <template>
-    <div v-if="can('edit_familly')">
+    <div v-if="can('edit_family')">
         <ContentBody>
             <NLForm :action="update" :form="form">
                 <!-- Name -->
