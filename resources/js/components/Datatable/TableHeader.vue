@@ -64,11 +64,7 @@ export default {
                 } else {
                     this.direction = null
                 }
-                let sortingColumn = this.column
-                if (typeof this.sortable == 'string') {
-                    sortingColumn = this.sortable
-                }
-                // console.log(typeof this.sortable, this.column, this.sortable, sortingColumn);
+                let sortingColumn = typeof this.sortable !== 'boolean' ? this.sortable : this.column.field
                 this.$emit('sorted', { column: this.column, sortingColumn, direction: this.direction })
             }
         }
