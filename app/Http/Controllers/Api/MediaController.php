@@ -22,15 +22,6 @@ class MediaController extends Controller
      */
     public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection|\Illuminate\Http\JsonResponse|array
     {
-        // $media = DB::table('media')->select('attachable_id', 'attachable_type', 'id')->get();
-        // foreach ($media as $file) {
-        //     DB::table('has_media')->insert([
-        //         'attachable_id' => $file->attachable_id,
-        //         'attachable_type' => $file->attachable_type,
-        //         'media_id' => $file->id
-        //     ]);
-        // }
-
         $media = getMedia();
         $filter = request('filter', null);
         $fetchFilters = request()->has('fetchFilters');
