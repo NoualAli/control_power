@@ -5,7 +5,7 @@
                 <router-link v-if="can('create_user')" :to="{ name: 'users-create' }" class="btn btn-info">
                     Ajouter
                 </router-link>
-                <a href="/excel-export?export=users" target="_blank" class="btn btn-excel has-icon">
+                <a href="/excel-export?export=users" target="_blank" class="btn btn-office-excel has-icon">
                     <i class="las la-file-excel icon" />
                     Exporter
                 </a>
@@ -16,7 +16,7 @@
                 urlPrefix="users" @edit="edit" @delete="destroy" :refresh="refresh"
                 @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
                 <template #actions-before="{ item }">
-                    <a class="btn btn-excel" :href="'/excel-export?export=users&id=' + item.id" target="_blank">
+                    <a class="btn btn-office-excel" :href="'/excel-export?export=users&id=' + item.id" target="_blank">
                         <i class="las la-file-excel icon" />
                     </a>
                 </template>

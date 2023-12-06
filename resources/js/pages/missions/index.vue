@@ -10,7 +10,7 @@
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" :filters="filters"
-                title="Suivi des réalisations des missions" urlPrefix="missions" :key="forceReload"
+                title="Suivi des réalisations des missions" urlPrefix="missions" :refresh="refresh"
                 @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
         </ContentBody>
     </div>
@@ -25,7 +25,7 @@ export default {
     middleware: [ 'auth' ],
     data() {
         return {
-            forceReload: 1,
+            refresh: 0,
             campaignId: null,
             columns: [
                 {
@@ -335,7 +335,7 @@ export default {
         destroy(e) {
             return this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
-                    this.forceReload += 1
+                    this.refresh += 1
                     return this.$api.delete('missions/' + e.item.id)
                 }
             })

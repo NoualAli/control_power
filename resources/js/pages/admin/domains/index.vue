@@ -5,7 +5,7 @@
                 <router-link v-if="can('create_domain')" :to="{ name: 'domains-create' }" class="btn btn-info">
                     Ajouter
                 </router-link>
-                <a href="/excel-export?export=domains" target="_blank" class="btn btn-excel has-icon">
+                <a href="/excel-export?export=domains" target="_blank" class="btn btn-office-excel has-icon">
                     <i class="las la-file-excel icon" />
                     Exporter
                 </a>
@@ -13,10 +13,10 @@
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" title="Liste des domaines" urlPrefix="domains" @edit="edit"
-                @delete="destroy" :key="forceReload"
+                @delete="destroy" :refresh="refresh"
                 @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
                 <template #actions-before="{ item }">
-                    <a class="btn btn-excel" :href="'/excel-export?export=domains&id=' + item.id" target="_blank">
+                    <a class="btn btn-office-excel" :href="'/excel-export?export=domains&id=' + item.id" target="_blank">
                         <i class="las la-file-excel icon" />
                     </a>
                 </template>
@@ -34,7 +34,7 @@ export default {
     },
     data() {
         return {
-            forceReload: 1,
+            refresh: 0,
             columns: [
                 {
                     label: 'Famille',
@@ -81,7 +81,7 @@ export default {
                 if (action.isConfirmed) {
                     this.$api.delete('domains/' + item.id).then(response => {
                         if (response.data.status) {
-                            this.forceReload += 1
+                            this.refresh += 1
                             this.$swal.toast_success(response.data.message)
                         } else {
                             this.$swal.toast_error(response.data.message)

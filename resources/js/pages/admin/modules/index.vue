@@ -2,7 +2,7 @@
     <div v-if="can('view_module')">
         <ContentHeader>
             <template #actions>
-                <a href="/excel-export?export=modules" target="_blank" class="btn btn-excel has-icon">
+                <a href="/excel-export?export=modules" target="_blank" class="btn btn-office-excel has-icon">
                     <i class="las la-file-excel icon" />
                     Exporter
                 </a>

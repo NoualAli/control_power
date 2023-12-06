@@ -5,7 +5,7 @@
                 <router-link v-if="can(['create_agency'])" :to="{ name: 'agencies-create' }" class="btn btn-info">
                     Ajouter
                 </router-link>
-                <a href="/excel-export?export=agencies" target="_blank" class="btn btn-excel has-icon">
+                <a href="/excel-export?export=agencies" target="_blank" class="btn btn-office-excel has-icon">
                     <i class="las la-file-excel icon" />
                     Exporter
                 </a>
@@ -16,7 +16,7 @@
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" urlPrefix="agencies" @edit="edit" @delete="destroy"
-                @dataLoaded="this.$store.dispatch('settings/updatePageLoading', false)" :key="forceReload" />
+                @dataLoaded="this.$store.dispatch('settings/updatePageLoading', false)" :refresh="refresh" />
         </ContentBody>
     </div>
 </template>
@@ -32,7 +32,7 @@ export default {
     },
     data() {
         return {
-            forceReload: 1,
+            refresh: 0,
             columns: [
                 {
                     label: 'Code',
@@ -84,7 +84,7 @@ export default {
                 if (action.isConfirmed) {
                     api.delete('agencies/' + item.id).then(response => {
                         if (response.data.status) {
-                            this.forceReload += 1
+                            this.refresh += 1
                             this.$swal.toast_success(response.data.message)
                         } else {
                             this.$swal.toast_error(response.data.message)
