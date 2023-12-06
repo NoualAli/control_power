@@ -37,11 +37,3 @@ Route::prefix('missions')->controller(MissionController::class)->group(function 
 });
 
 Route::get('logout', [LoginController::class, 'logout']);
-
-if (env('APP_ENV') !== 'production' && env('APP_ENV') !== 'production-test') {
-    Route::get('update-passwords', function () {
-        return DB::table('users')->update([
-            'password' => Hash::make('123456')
-        ]);
-    });
-}
