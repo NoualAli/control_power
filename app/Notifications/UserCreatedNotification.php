@@ -13,7 +13,7 @@ class UserCreatedNotification extends Notification
     use Queueable;
 
     /**
-     * @var App\Models\User
+     * @var \App\Models\User
      */
     private $user;
 
@@ -24,7 +24,7 @@ class UserCreatedNotification extends Notification
 
     /**
      * Create a new notification instance.
-     * @param App\Models\User $user
+     * @param \App\Models\User $user
      * @param string $password
      * @return void
      */

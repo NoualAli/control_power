@@ -8,23 +8,24 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class Created extends Notification
+class Created extends Notification implements ShouldQueue
 {
     use Queueable;
 
     /**
-     * @var App\Models\ControlCampaign
+     * @var int|\App\Models\ControlCampaign
      */
     private $campaign;
 
     /**
      * Create a new notification instance.
+     * @param int|\App\Models\ControlCampaign
      *
      * @return void
      */
-    public function __construct(ControlCampaign $campaign)
+    public function __construct(int|ControlCampaign $campaign)
     {
-        $this->campaign = $campaign;
+        $this->campaign = is_integer($campaign) ? ControlCampaign::findOrFail($campaign) : $campaign;
     }
 
     /**

@@ -14,12 +14,14 @@ class ReportNotification extends Notification
 
 
     /**
-     * @var App\Models\Mission
+     * @var \App\Models\Mission
      */
     private $mission;
 
     /**
      * Create a new notification instance.
+     *
+     * @param \App\Models\Mission
      *
      * @return void
      */

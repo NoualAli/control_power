@@ -13,18 +13,20 @@ class Reminder extends Notification
     use Queueable;
 
     /**
-     * @var App\Models\Mission
+     * @var \App\Models\Mission
      */
     private $mission;
 
     /**
      * Create a new notification instance.
      *
+     * @param int|\App\Models\Mission $mission
+     *
      * @return void
      */
-    public function __construct(Mission $mission)
+    public function __construct(int|Mission $mission, $type)
     {
-        $this->mission = $mission;
+        $this->mission = is_integer($mission) ? Mission::findOrFail($mission) : $mission;
     }
 
     /**

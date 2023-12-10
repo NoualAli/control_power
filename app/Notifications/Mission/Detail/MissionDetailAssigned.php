@@ -15,20 +15,25 @@ class MissionDetailAssigned extends Notification
     use Queueable;
 
     /**
-     * @var App\Models\User
+     * @var \App\Models\User
      */
     protected $controller;
 
     /**
-     * @var App\Models\Mission
+     * @var \App\Models\Mission
      */
     protected $mission;
 
     /**
-     * @var Illuminate\Database\Eloquent\Collection
+     * @var \Illuminate\Database\Eloquent\Collection
      */
     protected $processes;
 
+    /**
+     * @param \App\Models\User $controller
+     * @param \App\Models\Mission $mission
+     * @param Collection $processes
+     */
     public function __construct(User $controller, Mission $mission, Collection $processes)
     {
         $this->controller = $controller;

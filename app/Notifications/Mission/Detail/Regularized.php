@@ -13,18 +13,20 @@ class Regularized extends Notification
     use Queueable;
 
     /**
-     * @var App\Models\MissionDetail
+     * @var \App\Models\MissionDetail
      */
     private $detail;
 
     /**
      * Create a new notification instance.
      *
+     * @param int|\App\Models\MissionDetail
+     *
      * @return void
      */
-    public function __construct(MissionDetail $detail)
+    public function __construct(int|MissionDetail $detail)
     {
-        $this->detail = $detail;
+        $this->detail = is_integer($detail) ? MissionDetail::findOrFail($detail) : $detail;
     }
 
     /**
