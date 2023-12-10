@@ -10,12 +10,10 @@
             <NLSidebarItem label="Utilisateurs" route="users-index" iconName="la-users" v-if="can('view_user')" />
             <NLSidebarItem label="Roles" route="roles-index" iconName="la-user-shield" v-if="can('view_role')" />
             <NLSidebarItem label="Modules" route="modules-index" iconName="la-user-cog" v-if="can('view_module')" />
-            <NLSidebarItem label="Localisations" route="locations-index" iconName="la-building"
-                v-if="can('view_location')" />
-            <!-- <NLSidebarItem label="Dre" route="dre-index" iconName="la-building" v-if="can('view_dres')" />
-            <NLSidebarItem label="Agences" route="agencies-index" iconName="la-landmark" v-if="can('view_agencies')" /> -->
-            <!-- <NLSidebarItem label="Catégories" route="categories-index" iconName="la-landmark"
-                v-if="can('view_categories')" /> -->
+            <NLSidebarItem label="Dre" route="dre-index" iconName="la-building" v-if="can('view_dre')" />
+            <NLSidebarItem label="Agences" route="agencies-index" iconName="la-landmark" v-if="can('view_agency')" />
+            <NLSidebarItem label="Catégories" route="categories-index" iconName="la-landmark"
+                v-if="can('view_categories')" />
             <NLSidebarItem label="Familles" route="families-index" iconName="la-tag" v-if="can('view_family')" />
             <NLSidebarItem label="Domaines" route="domains-index" iconName="la-tags" v-if="can('view_domain')" />
             <NLSidebarItem label="Processus" route="processes-index" iconName="la-project-diagram"
