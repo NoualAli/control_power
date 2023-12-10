@@ -2,6 +2,8 @@
 
 return [
 
+    'disabled' => env('MAIL_DISABLED', false),
+
     /*
     |--------------------------------------------------------------------------
     | Default Mailer

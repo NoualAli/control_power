@@ -149,7 +149,7 @@ class Validated extends Notification
      */
     public function via($notifiable)
     {
-        if (app()->environment('production')) {
+        if (!config('mail.default')) {
             return ['mail', 'database'];
         }
         return ['database'];
