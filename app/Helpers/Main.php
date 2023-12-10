@@ -293,7 +293,6 @@ if (!function_exists('pcfToProcesses')) {
             $pcf = Validator::make($pcf, [
                 '*' => 'exists:processes,id'
             ])->validated();
-            // dd($pcf);
 
             return $pcf;
         }
@@ -310,15 +309,25 @@ if (!function_exists('generateCDCRef')) {
      *
      * @return string
      */
-    function generateCDCRef(bool $validate = false, ?string $date = null)
+    function generateCDCRef(bool $validate = false, ?string $date = null, bool $isForTesting = false)
     {
         $reference = '';
         $date = $date ? Carbon::parse($date)->format('Y') : today()->format('Y');
-        $cdc = ControlCampaign::whereYear('start_date', $date);
-        if ($validate) {
-            $reference = 'CDC-' . $date . '-' . addZero($cdc->validated()->count() + 1);
+        $cdc = DB::table('control_campaigns', 'cc')->whereYear('start_date', $date);
+        if (!$isForTesting) {
+            $cdc = $cdc->where('is_for_testing', false);
+            if ($validate) {
+                $reference = 'CDC-' . $date . '-' . addZero($cdc->whereNotNull('validated_at')->whereNotNull('validated_by_id')->max('id') + 1);
+            } else {
+                $reference = 'CDC-' . $date . '-' . addZero($cdc->whereNotNull('validated_at')->whereNotNull('validated_by_id')->max('id') + 1) . '-tmp';
+            }
         } else {
-            $reference = 'CDC-' . $date . '-' . addZero($cdc->max('id') + 1) . '-tmp';
+            $cdc = $cdc->where('is_for_testing', true);
+            if ($validate) {
+                $reference = 'CDC-' . $date . '-' . addZero($cdc->whereNotNull('validated_at')->whereNotNull('validated_by_id')->max('id') + 1) . '-test';
+            } else {
+                $reference = 'CDC-' . $date . '-' . addZero($cdc->whereNotNull('validated_at')->whereNotNull('validated_by_id')->max('id') + 1) . '-test-tmp';
+            }
         }
         return $reference;
     }

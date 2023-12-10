@@ -18,6 +18,12 @@ return new class extends Migration
             $table->string('attachable_id', 36)->nullable();
             $table->unsignedBigInteger('field_id');
 
+            if (env('DB_CONNECTION') == 'mysql') {
+                $table->timestamps();
+            } else {
+                $table->timestamps(7);
+            }
+
             $table->foreign('field_id')->on('fields')->references('id')->onDelete('cascade')->onUpdate('cascade');
         });
     }
