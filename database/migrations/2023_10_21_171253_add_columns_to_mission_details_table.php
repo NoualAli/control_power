@@ -15,11 +15,11 @@ return new class extends Migration
     {
         Schema::table('mission_details', function (Blueprint $table) {
             if (env('DB_CONNECTION') == 'sqlsrv') {
-                $table->timestamp('major_fact_is_detected_at', 7)->nullable();
-                $table->timestamp('major_fact_is_dispatched_to_dcp_at', 7)->nullable();
+                $table->timestamp('major_fact_detected_at', 7)->nullable();
+                $table->timestamp('major_fact_dispatched_to_dcp_at', 7)->nullable();
             } else {
-                $table->timestamp('major_fact_is_detected_at')->nullable();
-                $table->timestamp('major_fact_is_dispatched_to_dcp_at')->nullable();
+                $table->timestamp('major_fact_detected_at')->nullable();
+                $table->timestamp('major_fact_dispatched_to_dcp_at')->nullable();
             }
         });
     }
