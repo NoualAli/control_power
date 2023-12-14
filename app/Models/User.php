@@ -281,4 +281,13 @@ class User extends Authenticatable implements JWTSubject
     {
         return $query->where('is_active', false);
     }
+
+    public function scopeIsForTesting(Builder $query)
+    {
+        return $query->where('is_for_testing', true);
+    }
+    public function scopeIsNotForTesting(Builder $query)
+    {
+        return $query->where('is_for_testing', false);
+    }
 }
