@@ -1,13 +1,13 @@
 <template>
     <div v-if="is('root')">
-        <ContentHeader>
+        <!-- <ContentHeader>
             <template #actions>
                 <NLButton :loading="isBackup" v-if="is('root')" class="btn btn-info" label="Sauvegarder"
                     @click.stop="backup" />
             </template>
-        </ContentHeader>
+        </ContentHeader> -->
         <ContentBody>
-            <NLDatatable :columns="columns" :actions="actions" title="Liste des sauvegarde de la base de données"
+            <NLDatatable :columns="columns" :actions="actions" title="Liste des sauvegardes de la base de données"
                 urlPrefix="backup-db" @delete="destroy" :refresh="refresh"
                 @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
                 <template #actions-after="{ item }">
@@ -28,13 +28,12 @@ export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     metaInfo() {
-        return { title: 'Backup base de donnée' }
+        return { title: 'Backup base de données' }
     },
     data() {
         return {
             refresh: 1,
             isBackup: false,
-            form: new Form({}),
             columns: [
                 {
                     label: 'Nom',
@@ -71,10 +70,13 @@ export default {
         download(item) {
             window.open('/backup-db/' + item.name);
         },
+        /**
+         * TODO
+         */
         backup() {
-            this.isBackup = !this.isBackup
+            this.isBackup = true
             this.form.post('backup-db').then(response => {
-                this.isBackup = !this.isBackup
+                this.isBackup = false
                 if (response.data.status) {
                     this.refresh += 1
                     this.$swal.toast_success(response.data.message)
@@ -82,7 +84,7 @@ export default {
                     this.$swal.alert_error(response.data.message)
                 }
             }).catch(error => {
-                this.isBackup = !this.isBackup
+                this.isBackup = true
                 console.log(error)
             })
         },
