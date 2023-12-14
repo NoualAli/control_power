@@ -8,6 +8,7 @@ use App\Http\Requests\User\UpdateUserInfoRequest;
 use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Resources\LoginHistoryResource;
 use App\Http\Resources\UserResource;
+use App\Models\Media;
 use App\Models\User;
 use App\Notifications\ResetUserNotification;
 use App\Notifications\UserCreatedNotification;
@@ -44,6 +45,7 @@ class UserController extends Controller
     {
         isAbleOrAbort('view_user');
         $users = User::with(['dres', 'role', 'last_login']);
+
         $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
