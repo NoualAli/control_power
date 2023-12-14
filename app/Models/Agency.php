@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
@@ -82,5 +83,17 @@ class Agency extends BaseModel
     public function unusableProcesses()
     {
         return $this->processes()->wherePivot('is_usable', false);
+    }
+
+    /**
+     * Scopes
+     */
+    public function scopeIsForTesting(Builder $query)
+    {
+        return $query->where('is_for_testing', true);
+    }
+    public function scopeIsNotForTesting(Builder $query)
+    {
+        return $query->where('is_for_testing', false);
     }
 }

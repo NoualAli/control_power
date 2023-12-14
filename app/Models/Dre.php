@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
@@ -77,5 +78,17 @@ class Dre extends BaseModel
     public function details()
     {
         return $this->hasManyDeep(MissionDetail::class, [Agency::class, Mission::class]);
+    }
+
+    /**
+     * Scopes
+     */
+    public function scopeIsForTesting(Builder $query)
+    {
+        return $query->where('is_for_testing', true);
+    }
+    public function scopeIsNotForTesting(Builder $query)
+    {
+        return $query->where('is_for_testing', false);
     }
 }

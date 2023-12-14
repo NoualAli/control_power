@@ -11,6 +11,7 @@ use App\Traits\IsFilterable;
 use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -593,6 +594,15 @@ class Mission extends BaseModel
     public function scopeValidated($query)
     {
         return $query->whereRelation('reports', 'type', 'Rapport', '!=', null)->whereRelation('reports', 'validated_at', '!=', null);
+    }
+
+    public function scopeIsForTesting(Builder $query)
+    {
+        return $query->where('is_for_testing', true);
+    }
+    public function scopeIsNotForTesting(Builder $query)
+    {
+        return $query->where('is_for_testing', false);
     }
 
     /**
