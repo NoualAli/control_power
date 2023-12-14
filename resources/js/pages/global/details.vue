@@ -84,7 +84,6 @@ export default {
                     isHtml: true,
                     methods: {
                         showField(item) {
-                            // console.log(item.score);
                             const score = item.score;
                             let style = ''
                             if (score == 1) {
@@ -99,7 +98,7 @@ export default {
                                 style = 'is-grey';
                             }
 
-                            return '<div class="tag ' + style + '">' + score + '</div>';
+                            return '<div class="tag is-centered ' + style + '">' + score + '</div>';
                         }
                     }
                 },
@@ -111,7 +110,6 @@ export default {
                 {
                     label: 'Etat',
                     field: 'is_regularized_str',
-                    // hide: hasRole([ 'cdc', 'ci' ])
                 }
             ],
             actions: {
@@ -174,7 +172,6 @@ export default {
                     label: 'Régularisation',
                     multiple: false,
                     value: null,
-                    // hide: hasRole([ 'cdc', 'ci' ]),
                     data: [
                         {
                             id: 'Non levée',
@@ -205,7 +202,22 @@ export default {
                     ],
                     value: null,
                     hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
-                }
+                },
+                is_controlled: {
+                    label: 'Contrôlé',
+                    multiple: false,
+                    value: null,
+                    data: [
+                        {
+                            id: 'Non',
+                            label: 'Non contrôlé'
+                        },
+                        {
+                            id: 'Oui',
+                            label: 'Contrôlé'
+                        }
+                    ]
+                },
             },
         }
     },
@@ -223,7 +235,7 @@ export default {
             const row = this.rowSelected
             this.modals.edit = false
             this.modals.regularize = false
-            this.close()
+            // this.close()
             this.show(row)
         },
         /**

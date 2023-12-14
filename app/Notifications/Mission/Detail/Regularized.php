@@ -20,13 +20,13 @@ class Regularized extends Notification
     /**
      * Create a new notification instance.
      *
-     * @param int|\App\Models\MissionDetail
+     * @param string|\App\Models\MissionDetail
      *
      * @return void
      */
-    public function __construct(int|MissionDetail $detail)
+    public function __construct(string|MissionDetail $detail)
     {
-        $this->detail = is_integer($detail) ? MissionDetail::findOrFail($detail) : $detail;
+        $this->detail = is_string($detail) ? MissionDetail::findOrFail($detail) : $detail;
     }
 
     /**
@@ -37,7 +37,7 @@ class Regularized extends Notification
      */
     public function via($notifiable)
     {
-        if (!config('mail.default')) {
+        if (!config('mail.disabled')) {
             return ['mail', 'database'];
         }
         return ['database'];

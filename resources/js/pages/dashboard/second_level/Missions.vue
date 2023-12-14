@@ -114,7 +114,8 @@ export default {
         chartOptions: { type: Object, required: false },
         horizontalBarOptions: { type: Object, required: false },
         onlyCurrentCampaign: { type: Boolean, required: false, default: true },
-        userRole: { type: String, required: false, default: null }
+        userRole: { type: String, required: false, default: null },
+        currentCampaign: { type: String, required: false, default: null }
     },
     data() {
         return {
@@ -135,7 +136,7 @@ export default {
     methods: {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
-            this.$store.dispatch('statistics/fetchRealisationStates', this.onlyCurrentCampaign).then(() => {
+            this.$store.dispatch('statistics/fetchRealisationStates', { onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign }).then(() => {
                 this.charts.missionsPercentage = this.realisationStates.data.missionsPercentage
                 this.cards.missionsState = this.realisationStates.data.missionsState
                 this.tables.dresClassificationByAchievementRate = this.realisationStates.data.dresClassificationByAchievementRate

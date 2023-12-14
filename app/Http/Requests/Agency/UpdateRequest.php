@@ -35,6 +35,7 @@ class UpdateRequest extends FormRequest
             'pcf_usable.*' => [Rule::notIn(request()->pcf_usnuable)],
             'pcf_unusable' => ['nullable', 'array'],
             'pcf_unusable.*' => [Rule::notIn(request()->pcf_usable)],
+            'is_for_testing' => ['required', 'boolean'],
         ];
     }
 

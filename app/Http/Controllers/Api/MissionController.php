@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use stdClass;
 
 class MissionController extends Controller
 {
@@ -40,6 +41,7 @@ class MissionController extends Controller
         $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
+        $page = request('page', 1);
         $fetchFilters = request()->has('fetchFilters');
         $perPage = request('perPage', 10);
         $fetchAll = request('fetchAll', false);
@@ -47,10 +49,6 @@ class MissionController extends Controller
         try {
 
             $missions = getMissions();
-            // foreach ($missions->get() as $mission) {
-            //     $mission = Mission::findOrFail($mission->id);
-            //     $mission->update(['reel_start' => $mission->details()->orderBy('controlled_by_ci_at', 'ASC')->first()->controlled_by_ci_at]);
-            // }
             $campaignId = request('campaign_id', null);
             $campaignId = request('campaignId', $campaignId);
             if ($campaignId) {
@@ -77,7 +75,7 @@ class MissionController extends Controller
             if ($fetchAll) {
                 $missions = formatForSelect($missions->get()->toArray(), 'reference');
             } else {
-                $missions = MissionResource::collection($missions->paginate($perPage)->onEachSide(1));
+                $missions = MissionResource::collection($missions->paginate($perPage, ['*'], 'page', $page)->onEachSide(1));
             }
 
             return $missions;
@@ -565,55 +563,6 @@ class MissionController extends Controller
             $agencies = formatForSelect($agencies, 'full_name');
         }
         return compact('agencies', 'campaigns', 'controllers', 'currentCampaign');
-    }
-
-    /**
-     * Assign mission to CC
-     *
-     * @param AssignToCCRequest $request
-     * @param Mission $mission
-     *
-     * @return Illuminate\Http\Response
-     */
-    public function assignToCC(AssignToCCRequest $request, Mission $mission)
-    {
-        try {
-            DB::transaction(function () use ($request, $mission) {
-                $mission->load('dcpControllers');
-                $existingControllers = $mission->dcpControllers;
-                $mission->dcpControllers()->syncWithPivotValues($request->controllers, ['control_agency' => false]);
-                $updatedControllers = $mission->dcpControllers()->get();
-
-                // Notify added controllers
-                foreach ($updatedControllers as $controller) {
-                    if (!in_array($controller->id, $existingControllers->pluck('id')->toArray())) {
-                        Notification::send($controller, new Assigned($mission));
-                    }
-                }
-
-                // Notify removed controllers
-                $removedControllers = array_diff($existingControllers->pluck('id')->toArray(), $updatedControllers->pluck('id')->toArray());
-                $removedControllers = User::whereIn('id', $removedControllers)->get();
-                foreach ($removedControllers as $controller) {
-                    Notification::send($controller, new AssignationRemoved($mission));
-                }
-
-                if ($mission->dcpControllers->count()) {
-                    $mission->update(['current_state' => MissionState::PENDING_CC_VALIDATION]);
-                } else {
-                    $mission->update(['current_state' => MissionState::PENDING_CDCR_VALIDATION]);
-                }
-            });
-            return response()->json([
-                'message' => UPDATE_SUCCESS,
-                'status' => true,
-            ]);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false,
-            ], 500);
-        }
     }
 
     private function loadAgencies(ControlCampaign $campaign)

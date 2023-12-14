@@ -169,7 +169,8 @@ export default {
         chartOptions: { type: Object, required: false },
         horizontalBarOptions: { type: Object, required: false },
         onlyCurrentCampaign: { type: Boolean, required: false, default: true },
-        userRole: { type: String, required: false, default: null }
+        userRole: { type: String, required: false, default: null },
+        currentCampaign: { type: String, required: false, default: null }
     },
     data() {
         return {
@@ -191,7 +192,7 @@ export default {
     methods: {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
-            this.$store.dispatch('statistics/fetchMajorFacts', this.onlyCurrentCampaign).then(() => {
+            this.$store.dispatch('statistics/fetchMajorFacts', { onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign }).then(() => {
                 this.tables.domains = this.majorFacts.data.domainsMajorFacts
                 this.tables.missions = this.majorFacts.data.missionsMajorFacts
                 this.tables.campaigns = this.majorFacts.data.campaignsMajorFacts

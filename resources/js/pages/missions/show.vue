@@ -733,8 +733,9 @@ export default {
          */
         showProcess(item) {
             item = item?.item?.id ? item.item : item
-            name = 'mission-details'
-            return this.$router.push({ name, params: { missionId: this.mission?.current.id, processId: item.id } })
+            let name = 'mission-details'
+            // return this.$router.push({ name, params: { missionId: this.mission?.current.id, processId: item.id } })
+            window.open(this.$router.resolve({ name, params: { missionId: this.mission?.current.id, processId: item.id } }).href, '_blank')
         },
 
         /**

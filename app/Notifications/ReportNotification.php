@@ -35,9 +35,24 @@ class ReportNotification extends Notification
      *
      * @return string
      */
-    private function getContent(): string
+    private function getHtmlContent(): string
     {
         return 'Nous vous informons que le rapport PDF de la mission <b>' . $this->mission->reference . '</b> est maintenant disponible.';
+    }
+
+    /**
+     * Get email body
+     *
+     * @return string
+     */
+    private function getContent(): string
+    {
+        return 'Nous vous informons que le rapport PDF de la mission ' . $this->mission->reference . ' est maintenant disponible.';
+    }
+
+    private function getObject(): string
+    {
+        return 'RAPPORT PDF ' . $this->mission->reference . ' - ' . env('APP_NAME');
     }
 
     /**
@@ -67,7 +82,7 @@ class ReportNotification extends Notification
      */
     public function via($notifiable)
     {
-        if (!config('mail.default')) {
+        if (!config('mail.disabled')) {
             return ['mail', 'database'];
         }
         return ['database'];
@@ -82,7 +97,7 @@ class ReportNotification extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->getTitle())
+            ->subject($this->getObject())
             ->line($this->getContent())
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
             ->action('Voir la mission', $this->getUrl())
@@ -102,8 +117,10 @@ class ReportNotification extends Notification
             'id' => $this->mission->id,
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
+            'short_content' => $this->getHtmlContent(),
             'title' => $this->getTitle(),
-            'emitted_by' => 'système',
+            'subject' => $this->getObject(),
+            'emitted_by' => 'Système',
         ];
     }
 }

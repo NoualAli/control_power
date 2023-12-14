@@ -31,7 +31,7 @@
             <NLSidebarItem label="Suivi des réalisations des missions" route="missions" iconName="la-eye"
                 v-if="can('view_mission')" />
             <NLSidebarItem label="Anomalie • Notation • Plan de redressement" route="global-details" iconPrefix="lab"
-                iconName="la-stack-overflow" v-if="can('view_mission_details')" />
+                iconName="la-stack-overflow" v-if="can('view_mission_detail')" />
             <NLSidebarItem label="Faits majeur" route="major-facts" iconName="la-exclamation-triangle"
                 v-if="can('view_major_fact')" />
             <NLSidebarItem label="Backup DB" route="admin-backup-db" v-if="is('root')" iconName="la-database" />

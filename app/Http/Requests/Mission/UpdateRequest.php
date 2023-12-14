@@ -32,7 +32,8 @@ class UpdateRequest extends FormRequest
             'controllers' => ['required', 'array', new IsAbleTo('control_agency')],
             'programmed_start' => ['required', 'date', new IncludedInsideCDCDate(request()->control_campaign_id)],
             'programmed_end' => ['required', 'date', 'after:programmed_start', new IncludedInsideCDCDate(request()->control_campaign_id), new MissionDontExceedFifteenDays(request()->programmed_start)],
-            'note' => ['nullable', 'string', new MaxLengthQuill(1000)]
+            'note' => ['nullable', 'string', new MaxLengthQuill(1000)],
+            'is_for_testing' => ['required', 'boolean'],
         ];
     }
 }

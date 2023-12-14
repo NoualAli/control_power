@@ -24,9 +24,9 @@ class Reminder extends Notification
      *
      * @return void
      */
-    public function __construct(int|Mission $mission, $type)
+    public function __construct(string|Mission $mission)
     {
-        $this->mission = is_integer($mission) ? Mission::findOrFail($mission) : $mission;
+        $this->mission = is_string($mission) ? Mission::findOrFail($mission) : $mission;
     }
 
     /**
@@ -37,7 +37,7 @@ class Reminder extends Notification
      */
     public function via($notifiable)
     {
-        if (!config('mail.default')) {
+        if (!config('mail.disabled')) {
             return ['mail', 'database'];
         }
         return ['database'];
@@ -51,7 +51,6 @@ class Reminder extends Notification
     private function getUrl(): string
     {
         return url('/missions/' . $this->mission->id);
-        // return url('/missions/' . $this->mission->id);
     }
 
     /**

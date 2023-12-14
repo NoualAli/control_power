@@ -76,7 +76,7 @@ class MissionDetailAssigned extends Notification
     private function getTitle(): string
     {
         $totalProcesses = $this->processes->count();
-        return $totalProcesses > 1 ? 'Assignation des processus dans la mission ' . $this->mission->reference : 'Assignation d\'un processus dans la mission ' . $this->mission->reference;
+        return $totalProcesses > 1 ? 'ASSIGNATION DES PROCESSUS - ' . $this->mission->reference . ' - ' . env('APP_NAME') : 'ASSIGNATION D\'UN PROCESSUS - ' . $this->mission->reference . ' - ' . env('APP_NAME');
     }
 
     /**
@@ -97,7 +97,7 @@ class MissionDetailAssigned extends Notification
      */
     public function via($notifiable)
     {
-        if (!config('mail.default')) {
+        if (!config('mail.disabled')) {
             return ['mail', 'database'];
         }
         return ['database'];

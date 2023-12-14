@@ -19,13 +19,13 @@ class Reminder extends Notification
 
     /**
      * Create a new notification instance.
-     * @param int|\App\Models\ControlCampaign
+     * @param string|\App\Models\ControlCampaign
      *
      * @return void
      */
-    public function __construct(int|ControlCampaign $campaign)
+    public function __construct(string|ControlCampaign $campaign)
     {
-        $this->campaign = is_integer($campaign) ? ControlCampaign::findOrFail($campaign) : $campaign;
+        $this->campaign = is_string($campaign) ? ControlCampaign::findOrFail($campaign) : $campaign;
     }
 
     /**
@@ -36,7 +36,7 @@ class Reminder extends Notification
      */
     public function via($notifiable)
     {
-        if (!config('mail.default')) {
+        if (!config('mail.disabled')) {
             return ['mail', 'database'];
         }
         return ['database'];
@@ -50,7 +50,6 @@ class Reminder extends Notification
     private function getUrl(): string
     {
         return url('/campaigns/' . $this->campaign->id);
-        // return url('/campaigns/' . $this->campaign->id);
     }
 
     /**
@@ -162,6 +161,7 @@ class Reminder extends Notification
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
             'title' => $this->getTitle(),
+            'emitted_by' => 'Système',
         ];
     }
 }

@@ -19,13 +19,13 @@ class Deleted extends Notification
 
     /**
      * Create a new notification instance.
-     * @param int|\App\Models\ControlCampaign
+     * @param string|\App\Models\ControlCampaign
      *
      * @return void
      */
-    public function __construct(int|ControlCampaign $campaign)
+    public function __construct(string|ControlCampaign $campaign)
     {
-        $this->campaign = is_integer($campaign) ? ControlCampaign::findOrFail($campaign) : $campaign;
+        $this->campaign = is_string($campaign) ? ControlCampaign::findOrFail($campaign) : $campaign;
     }
 
     /**
@@ -36,7 +36,7 @@ class Deleted extends Notification
      */
     public function via($notifiable)
     {
-        if (!config('mail.default')) {
+        if (!config('mail.disabled')) {
             return ['mail', 'database'];
         }
         return ['database'];
@@ -49,7 +49,17 @@ class Deleted extends Notification
      */
     private function getTitle(): string
     {
-        return  'Campagne de contrôle ' . $this->campaign->reference . ' annulée';
+        return  'CAMPAGNE DE CONTRÔLE ' . $this->campaign->reference . ' ANNULÉ - ' . env('APP_NAME');
+    }
+
+    /**
+     * Get Email / Notification content
+     *
+     * @return string
+     */
+    private function getHtmlContent(): string
+    {
+        return 'Nous vous faisons savoir que la campagne de contrôle sous la référence <b>' . $this->campaign->reference . '</b> a été annulée.';
     }
 
     /**
@@ -87,7 +97,9 @@ class Deleted extends Notification
         return [
             'id' => $this->campaign->id,
             'content' => $this->getContent(),
-            'title' => $this->getTItle(),
+            'short_content' => $this->getHtmlContent(),
+            'title' => $this->getTitle(),
+            'emitted_by' => auth()->user()->username,
         ];
     }
 }

@@ -30,9 +30,9 @@ class Validated extends Notification
      *
      * @return void
      */
-    public function __construct(int|Mission $mission, $type)
+    public function __construct(string|Mission $mission, $type)
     {
-        $this->mission = is_integer($mission) ? Mission::findOrFail($mission) : $mission;
+        $this->mission = is_string($mission) ? Mission::findOrFail($mission) : $mission;
         $this->type = $type;
     }
 
@@ -82,7 +82,7 @@ class Validated extends Notification
      *
      * @return string
      */
-    private function getShortContent(): string
+    private function getHtmlContent(): string
     {
 
         $content = 'Mission ' . $this->mission->reference . ' a été réalisé';
@@ -132,6 +132,14 @@ class Validated extends Notification
         return 'Mission ' . $this->mission->reference . ' traitée et validée par ' . auth()->user()->full_name_with_martial;
     }
 
+    private function getObject(): string
+    {
+        if ($this->type == 'ci' || 'ci_report') {
+            return 'MISSION ' . $this->mission->reference . ' RÉALISÉE ET VALIDÉE PAR ' . auth()->user()->full_name_with_martial . ' - ' . env('APP_NAME');
+        }
+        return 'MISSION ' . $this->mission->reference . ' TRAITÉE ER VALIDÉE PAR ' . auth()->user()->full_name_with_martial . ' - ' . env('APP_NAME');
+    }
+
     /**
      * Get action url
      *
@@ -149,7 +157,7 @@ class Validated extends Notification
      */
     public function via($notifiable)
     {
-        if (!config('mail.default')) {
+        if (!config('mail.disabled')) {
             return ['mail', 'database'];
         }
         return ['database'];
@@ -164,7 +172,7 @@ class Validated extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->getTitle())
+            ->subject($this->getObject())
             ->line($this->getContent())
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
             ->action('Voir la mission', url('/missions/' . $this->mission->id))
@@ -184,7 +192,8 @@ class Validated extends Notification
             'id' => $this->mission->id,
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
-            'short_content' => $this->getShortContent(),
+            'short_content' => $this->getHtmlContent(),
+            'subject' => $this->getObject(),
             'title' => $this->getTitle(),
             'emitted_by' => auth()->user()->username,
         ];

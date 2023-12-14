@@ -1,9 +1,9 @@
 <template>
-    <button v-if="show" :class="buttonClass" @click.stop="emitAction">
+    <NLButton v-if="show" :class="buttonClass" label="" @click.stop="emitAction">
         <i class="las la-eye icon" v-if="type == 'show'" />
         <i class="las la-trash icon" v-else-if="type == 'delete'" />
         <i class="las la-edit icon" v-else-if="type == 'edit'" />
-    </button>
+    </NLButton>
 </template>
 
 <script>
@@ -68,9 +68,10 @@ export default {
         }
     },
     methods: {
-        emitAction() {
+        emitAction(e) {
             let apply = typeof this.action == 'boolean' || typeof this.action == 'function' ? undefined : this.action.apply
-            this.$emit('action', { type: this.type, item: this.item, apply })
+            let element = e.target.parentElement.parentElement
+            this.$emit('action', { type: this.type, item: this.item, apply, element })
         },
     }
 }

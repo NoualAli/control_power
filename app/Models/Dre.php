@@ -15,6 +15,7 @@ class Dre extends BaseModel
     protected $fillable = [
         'name',
         'code',
+        'is_for_testing',
     ];
 
     protected $perPage = 10;
@@ -23,16 +24,20 @@ class Dre extends BaseModel
 
     public $appends = [
         'full_name',
-        // 'agencies_str'
+        'is_for_testing_str'
     ];
 
     public $timestamps = false;
 
-    // public $with = ['agencies'];
 
     /**
      * Getters
      */
+    public function getIsForTestingStrAttribute()
+    {
+        return $this->is_for_testing ? 'Oui' : 'Non';
+    }
+
     public function getNameAttribute($name)
     {
         return strtoupper($name);

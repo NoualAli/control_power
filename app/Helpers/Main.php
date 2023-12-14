@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\ControlCampaign;
 use App\Models\Domain;
 use App\Models\Dre;
 use App\Models\Family;
@@ -61,12 +60,15 @@ if (!function_exists('hasRole')) {
     function hasRole(string|array $roles, ?User $user = null): bool
     {
         $user = $user ? $user : auth()->user();
-        $role = $user->role->code;
-        if (is_array($roles)) {
-            return in_array($role, $roles);
-        } else {
-            return $role == $roles;
+        $role = $user?->role?->code;
+        if ($role) {
+            if (is_array($roles)) {
+                return in_array($role, $roles);
+            } else {
+                return $role == $roles;
+            }
         }
+        return false;
     }
 }
 
@@ -309,24 +311,27 @@ if (!function_exists('generateCDCRef')) {
      *
      * @return string
      */
-    function generateCDCRef(bool $validate = false, ?string $date = null, bool $isForTesting = false)
+    function generateCDCRef(bool $validated = false, ?string $date = null, bool $isForTesting = false)
     {
         $reference = '';
         $date = $date ? Carbon::parse($date)->format('Y') : today()->format('Y');
-        $cdc = DB::table('control_campaigns', 'cc')->whereYear('start_date', $date);
+        $cdc = DB::table('control_campaigns', 'cc')->whereYear('start_date', $date)->whereNull('deleted_at')->where('is_for_testing', $isForTesting);
+        if ($validated) {
+            $totalValidated = $cdc->whereNotNull('validated_at')->whereNotNull('validated_by_id')->count();
+        } else {
+            $totalNotValidated = $cdc->whereNull('validated_at')->whereNull('validated_by_id')->count() + 1 ?: 1;
+        }
         if (!$isForTesting) {
-            $cdc = $cdc->where('is_for_testing', false);
-            if ($validate) {
-                $reference = 'CDC-' . $date . '-' . addZero($cdc->whereNotNull('validated_at')->whereNotNull('validated_by_id')->max('id') + 1);
+            if ($validated) {
+                $reference = 'CDC-' . $date . '-' . addZero($totalValidated + 1);
             } else {
-                $reference = 'CDC-' . $date . '-' . addZero($cdc->whereNotNull('validated_at')->whereNotNull('validated_by_id')->max('id') + 1) . '-tmp';
+                $reference = 'CDC-' . $date . '-' . addZero($totalNotValidated) . '-tmp';
             }
         } else {
-            $cdc = $cdc->where('is_for_testing', true);
-            if ($validate) {
-                $reference = 'CDC-' . $date . '-' . addZero($cdc->whereNotNull('validated_at')->whereNotNull('validated_by_id')->max('id') + 1) . '-test';
+            if ($validated) {
+                $reference = 'CDC-' . $date . '-' . addZero($totalValidated + 1) . '-test';
             } else {
-                $reference = 'CDC-' . $date . '-' . addZero($cdc->whereNotNull('validated_at')->whereNotNull('validated_by_id')->max('id') + 1) . '-test-tmp';
+                $reference = 'CDC-' . $date . '-' . addZero($totalNotValidated) . '-test-tmp';
             }
         }
         return $reference;
@@ -602,3 +607,21 @@ if (!function_exists('validateFields')) {
         }
     }
 }
+
+// if (!function_exists('parse_query_string')) {
+//     function parse_query_string()
+//     {
+//         $queryString = Cache::put('missions_index_query_string', fn () => request()->getQueryString());
+//         $query = new stdClass;
+//         foreach (explode('&', $queryString) as $value) {
+//             $param = explode('=', $value);
+//             $key = isset($param[0]) ? $param[0] : null;
+//             if ($key) {
+//                 if (isset($param[1])) {
+//                     $query->$key = $param[1];
+//                 }
+//             }
+//         }
+//         return $query;
+//     }
+// }

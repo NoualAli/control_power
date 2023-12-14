@@ -7,10 +7,10 @@
             :value="currentValue" :help-text="helpText" @textChange="onInput" v-bind="$attrs"
             @ready="quill => { editorQuill = quill }" />
     </InputContainer>
-    <NLContainer isFluid v-else>
+    <div class="input-base-container" v-else>
         <label class="label">{{ label }}</label>
         <div class="content text-normal my-2" v-html="currentValue"></div>
-    </NLContainer>
+    </div>
 </template>
 <script>
 import InputContainer from './InputContainer'

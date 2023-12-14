@@ -14,6 +14,13 @@ class MajorFactResource extends JsonResource
      */
     public function toArray($request)
     {
+        $majorFactIsPending = $this->major_fact_is_pending;
+        if (hasRole(['cdc', 'ci'])) {
+            $majorFactIsDispatched = $this->major_fact_is_dispatched_to_dcp;
+        } else {
+            $majorFactIsDispatched = $this->major_fact_is_dispatched_by_dcp;
+        }
+
         return [
             'id' => $this->id,
             'cdc_reference' => $this->campaign,
@@ -24,8 +31,8 @@ class MajorFactResource extends JsonResource
             'domain_name' => $this->domain,
             'process_name' => $this->process,
             'control_point_name' => $this->control_point,
-            'is_regularized' => '',
-            'is_dispatched' => $this->major_fact_dispatched_at ?: '-',
+            'is_validated' => (bool) $majorFactIsDispatched,
+            'is_pending' => (bool) $majorFactIsPending,
         ];
     }
 }

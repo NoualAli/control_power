@@ -59,9 +59,14 @@
                         </NLColumn>
 
                         <!-- Active -->
-                        <NLColumn v-if="showIsActiveSwitch">
+                        <NLColumn v-if="showIsActiveSwitch" lg="6">
                             <NLSwitch v-model="form.is_active" name="is_active" :form="form" label="Le compte est activé ?"
                                 type="is-success" />
+                        </NLColumn>
+
+                        <NLColumn lg="6">
+                            <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form"
+                                label="Utilisateur TEST" type="is-success" />
                         </NLColumn>
 
                         <NLColumn>
@@ -120,6 +125,7 @@ export default {
                 gender: true,
                 is_active: true,
                 registration_number: null,
+                is_for_testing: false,
             }),
             passwordForm: new Form({
                 password: null,

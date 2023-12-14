@@ -26,6 +26,7 @@ class StoreRequest extends FormRequest
         return [
             'name' => ['required', 'unique:dres', 'string', 'max:255'],
             'code' => ['required', 'numeric', 'unique:dres', 'numeric'],
+            'is_for_testing' => ['required', 'boolean'],
         ];
     }
 }

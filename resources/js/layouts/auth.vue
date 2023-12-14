@@ -1,6 +1,6 @@
 <template>
     <div class="global-auth-container">
-        <div id="particles-js"></div>
+        <div id="particles-js" class="p-0 m-0"></div>
         <div class="auth-container">
             <header class="header-container">
                 <img src="/storage/assets/bna_logo_monochrome.svg" class="brand">
@@ -20,14 +20,8 @@
 <script>
 import 'particles.js/particles.js'
 import * as APP from '~/store/global/version'
-/* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
 export default {
     name: 'AuthLayout',
-    created() {
-        particlesJS.load('particles-js', 'particles.json', function () {
-            // console.log('callback - particles-js config loaded');
-        });
-    },
     computed: {
         app_version() {
             return APP.CURRENT_VERSION

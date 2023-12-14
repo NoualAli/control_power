@@ -3,19 +3,14 @@
         <ContentBody>
             <NLForm :action="create" :form="form">
                 <NLColumn>
-                    <NLWyswyg v-model="form.description" :form="form" name="description" label="Description"
-                        placeholder="Ajouter une description" label-required :length="3000" />
+                    <h3>Référence: {{ nextReference?.nextReference }}</h3>
                 </NLColumn>
-                <NLColumn lg="4">
-                    <NLInput name="reference" :value="nextReference?.nextReference" :form="form" label="Référence" readonly
+                <NLColumn lg="4" md="6">
+                    <NLInput v-model="form.start_date" :form="form" name="start_date" label="Date de début" type="date"
                         label-required />
                 </NLColumn>
                 <NLColumn lg="4" md="6">
-                    <NLInput v-model="form.start_date" :form="form" name="start_date" label="Date début" type="date"
-                        label-required />
-                </NLColumn>
-                <NLColumn lg="4" md="6">
-                    <NLInput v-model="form.end_date" :form="form" name="end_date" label="Date fin" type="date"
+                    <NLInput v-model="form.end_date" :form="form" name="end_date" label="Date de fin" type="date"
                         label-required />
                 </NLColumn>
                 <NLColumn>
@@ -23,8 +18,17 @@
                         placeholder="Choisissez un ou plusieurs PCF" no-options-text="Aucun PCF disponible"
                         loading-text="Chargement des PCF en cours..." label-required />
                 </NLColumn>
-                <NLColumn v-if="showValidation">
-                    <NLSwitch v-model="form.validate" name="validate" :form="form" label="Validé" type="is-success" />
+                <NLColumn>
+                    <NLWyswyg v-model="form.description" :form="form" name="description" label="Description"
+                        placeholder="Ajouter une description" label-required :length="3000" />
+                </NLColumn>
+                <NLColumn v-if="showValidation" lg="6">
+                    <NLSwitch v-model="form.is_validated" name="is_validated" :form="form" label="Validé"
+                        type="is-success" />
+                </NLColumn>
+                <NLColumn lg="6">
+                    <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form"
+                        label="Campagne de contrôle TEST" type="is-success" />
                 </NLColumn>
                 <!-- Submit Button -->
                 <NLColumn>
@@ -38,10 +42,12 @@
 </template>
 
 <script>
+import NLColumn from '../../components/Grid/NLColumn'
 import { mapGetters } from 'vuex'
 import { Form } from 'vform'
 import { hasRole } from '~/plugins/user'
 export default {
+    components: { NLColumn },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     data() {
@@ -53,8 +59,9 @@ export default {
                 description: '',
                 start_date: null,
                 end_date: null,
-                validate: false,
-                pcf: []
+                is_validated: false,
+                pcf: [],
+                is_for_testing: false
             })
         }
     },
@@ -66,6 +73,14 @@ export default {
         this.$store.dispatch('settings/updatePageLoading', true)
         this.loadPFC()
         this.showValidation = hasRole('dcp')
+    },
+    watch: {
+        'form.is_for_testing'(newVal, oldVal) {
+            this.fetchNextReference()
+        },
+        'form.is_validated'(newVal, oldVal) {
+            this.fetchNextReference()
+        }
     },
     methods: {
         /**
@@ -98,8 +113,11 @@ export default {
         loadPFC() {
             this.$store.dispatch('families/fetchAll', true).then(() => {
                 this.pcfList = this.families.all
-                this.$store.dispatch('campaigns/fetchNextReference').then(() => this.$store.dispatch('settings/updatePageLoading', false))
+                this.fetchNextReference()
             })
+        },
+        fetchNextReference() {
+            this.$store.dispatch('campaigns/fetchNextReference', { isValidated: this.form.is_validated, isForTesting: this.form.is_for_testing }).then(() => this.$store.dispatch('settings/updatePageLoading', false))
         }
     }
 }

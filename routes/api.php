@@ -50,7 +50,7 @@ Route::group(['middleware' => 'auth:api'], function () {
 
         // Route::patch('settings/profile/{user}', [ProfileController::class, 'update']);
         Route::patch('settings/password/{user}', [PasswordController::class, 'update']);
-        Route::get('settings/laravel/rules', [SettingController::class, 'getValidationRules']);
+        Route::patch('settings/reset/{user}', [SettingController::class, 'reset']);
 
         Route::prefix('backup-db')->controller(BackupController::class)->group(function () {
             Route::get('/', 'index');
@@ -81,6 +81,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('/', 'store');
             Route::put('info/{user}', 'updateInfo');
             Route::put('password/{user}', 'updatePassword');
+            Route::post('reset/{user}', 'reset');
             Route::delete('{user}', 'destroy');
         });
 
@@ -202,9 +203,10 @@ Route::group(['middleware' => 'auth:api'], function () {
          */
         Route::prefix('details')->controller(MissionDetailController::class)->group(function () {
             Route::get('/', 'index');
-            // Route::get('/major-facts', 'majorFacts');
             Route::prefix('major-facts')->controller(MajorFactController::class)->group(function () {
                 Route::get('/', 'index');
+                Route::put('{detail}', 'reject');
+                Route::post('{detail}', 'notify');
             });
         });
 
@@ -263,10 +265,8 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::prefix('notifications')->controller(NotificationController::class)->group(function () {
             Route::get('/', 'index');
             Route::put('/', 'update');
-            // Route::get('total-unread-major-facts', 'total_unread_major_facts');
             Route::get('unreadNotifications', 'unreadNotifications');
             Route::post('read-major-facts', 'read_major_facts');
-            Route::post('major-fact/{majorFact}', 'dispatchMajorFact');
         });
 
         Route::prefix('bugs')->controller(BugController::class)->group(function () {

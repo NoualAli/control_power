@@ -7,7 +7,7 @@
                 <i class="las la-spinner la-spin icon"></i>
                 <span class="btn-loader">Envoie en cours</span>
             </NLFlex>
-            <span class="btn-text" v-else>
+            <span class="btn-text" v-else-if="!loading && label">
                 {{ label }}
             </span>
         </NLFlex>
@@ -21,8 +21,8 @@ export default {
     name: 'NLButton',
     props: {
         loading: { type: Boolean, default: false },
-        label: { type: String, default: 'Valider' },
-        type: { type: String, default: '' }
+        label: { type: String, default: null },
+        type: { type: String, default: null }
     },
     computed: {
         finalType() {

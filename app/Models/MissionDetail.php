@@ -41,14 +41,24 @@ class MissionDetail extends BaseModel
         'controlled_by_cc_id',
         'controlled_by_cdcr_id',
         'controlled_by_dcp_id',
-        'major_fact_dispatched_at',
+        'major_fact_is_dispatched_at',
         'regularization_id',
         'is_regularized',
-        'major_fact_detected_at',
-        'major_fact_dispatched_to_dcp_at',
+        'major_fact_is_detected_at',
+        'major_fact_is_dispatched_to_dcp_at',
         'cdc_full_name',
         'cdcr_full_name',
         'dcp_full_name',
+        'major_fact_is_detected_by_full_name',
+        'major_fact_is_detected_by_id',
+        'major_fact_is_rejected',
+        'major_fact_is_rejected_by_full_name',
+        'major_fact_is_rejected_by_id',
+        'major_fact_is_rejected_at',
+        'major_fact_is_dispatched_by_id',
+        'major_fact_is_dispatched_by_full_name',
+        'major_fact_is_dispatched_to_dcp_by_id',
+        'major_fact_is_dispatched_to_dcp_by_full_name',
     ];
 
     protected $filter = 'App\Filters\MissionDetail';
@@ -65,8 +75,12 @@ class MissionDetail extends BaseModel
         'controlled_by_cdcr_at' => 'datetime:d-m-Y H:i',
         'controlled_by_dcp_at' => 'datetime:d-m-Y H:i',
         'processed_at' => 'datetime:d-m-Y H:i',
-        'major_fact_dispatched_at' => 'datetime:d-m-Y H:i',
-        'major_fact' => 'boolean'
+        'major_fact_is_dispatched_to_dcp_at' => 'datetime:d-m-Y H:i',
+        'major_fact_is_dispatched_at' => 'datetime:d-m-Y H:i',
+        'major_fact_is_detected_at' => 'datetime:d-m-Y H:i',
+        'major_fact_is_rejected_at' => 'datetime:d-m-Y H:i',
+        'major_fact' => 'boolean',
+        'major_fact_is_rejected' => 'boolean'
     ];
 
     public $appends = [
@@ -155,7 +169,7 @@ class MissionDetail extends BaseModel
 
     public function getIsDispatchedAttribute()
     {
-        return boolval($this->major_fact_dispatched_at);
+        return boolval($this->major_fact_is_dispatched_at);
     }
 
     public function getScoreTagAttribute()
@@ -302,8 +316,12 @@ class MissionDetail extends BaseModel
 
     public function dcpController()
     {
-        // dd($this->controller('cc'));
         return $this->controller('cc');
+    }
+
+    public function majorFactDetector()
+    {
+        return $this->belongsTo(User::class, 'major_fact_is_detected_by_id');
     }
 
 
@@ -434,6 +452,7 @@ class MissionDetail extends BaseModel
     {
         return $query->orWhere('major_fact', true);
     }
+
     /**
      * Get only validated major facts
      *
@@ -443,7 +462,7 @@ class MissionDetail extends BaseModel
      */
     public function scopeOnlyDispatchedMajorFacts($query)
     {
-        return $query->onlyMajorFacts()->where('major_fact_dispatched_at', '!=', null);
+        return $query->onlyMajorFacts()->where('major_fact_is_dispatched_at', '!=', null);
     }
 
     public function scopeOnlyUnregularized($query)

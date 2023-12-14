@@ -20,13 +20,13 @@ class AssignationRemoved extends Notification
     /**
      * Create a new notification instance.
      *
-     * @param int|\App\Models\Mission $mission
+     * @param string|\App\Models\Mission $mission
      *
      * @return void
      */
-    public function __construct(int|Mission $mission, $type)
+    public function __construct(string|Mission $mission)
     {
-        $this->mission = is_integer($mission) ? Mission::findOrFail($mission) : $mission;
+        $this->mission = is_string($mission) ? Mission::findOrFail($mission) : $mission;
     }
 
     /**
@@ -47,7 +47,7 @@ class AssignationRemoved extends Notification
      */
     private function getTitle(): string
     {
-        return 'Révocation de mission';
+        return 'RÉVOCATION DE LA MISSION ' . $this->mission->reference . ' - ' . env('APP_NAME');
     }
 
     /**
@@ -68,7 +68,7 @@ class AssignationRemoved extends Notification
      */
     public function via($notifiable)
     {
-        if (!config('mail.default')) {
+        if (!config('mail.disabled')) {
             return ['mail', 'database'];
         }
         return ['database'];

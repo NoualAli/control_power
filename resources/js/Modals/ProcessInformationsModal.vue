@@ -1,13 +1,22 @@
 <template>
     <NLModal :show="show" @close="close" :isLoading="isLoading">
         <template #title>
-            <div class="tags">
-                <span class="tag text-normal"><i class="las la-tag icon mr-1"></i> {{ currentProcess?.family?.name }}</span>
-                <span class="tag text-normal"><i class="las la-tags icon mr-1"></i> {{ currentProcess?.domain?.name
-                }}</span>
-                <span class="tag text-normal"><i class="las la-project-diagram icon mr-1"></i> {{ currentProcess?.name
-                }}</span>
-            </div>
+            <NLFlex lgAlignItems="center" lgJustifyContent="start" gap="2" extraClass="w-100">
+                <span class="tag text-normal is-start">
+                    <i class="las la-tag icon mr-1"></i>
+                    {{ currentProcess?.family?.name }}
+                </span>
+                <span class="tag text-normal is-start">
+                    <i class="las la-tags icon mr-1"></i>
+                    {{ currentProcess.domain.name }}
+                </span>
+                <span class="tag text-normal is-start">
+                    <i class="las la-project-diagram icon mr-1"></i>
+                    {{ currentProcess?.name }}
+                </span>
+            </NLFlex>
+            <!-- <div class="tags">
+            </div> -->
         </template>
         <template #default>
             <div class="content">
@@ -44,7 +53,9 @@
 </template>
 
 <script>
+import NLFlex from '../components/Grid/NLFlex'
 export default {
+    components: { NLFlex },
     name: 'ProcessInformationsModal',
     props: {
         process: { type: [ Object, null ], required: true },
@@ -76,6 +87,7 @@ export default {
             this.isLoading = true
             this.$api.get('processes/' + this.process.id).then(response => {
                 this.currentProcess = response.data
+                console.log(this.currentProcess.domain.name);
                 this.isLoading = false
             }).catch(error => {
                 console.log(error);

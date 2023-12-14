@@ -25,7 +25,6 @@
                         label-required />
                 </NLColumn>
 
-
                 <!-- Email -->
                 <NLColumn lg="6" md="6">
                     <NLInput v-model="form.email" :form="form" name="email" label="Adresse e-mail" label-required
@@ -74,11 +73,14 @@
                 </NLColumn>
 
                 <!-- Active -->
-                <NLColumn v-if="showIsActiveSwitch">
+                <NLColumn v-if="showIsActiveSwitch" lg="6">
                     <NLSwitch v-model="form.is_active" name="is_active" :form="form" label="Le compte est activé ?"
                         type="is-success" />
                 </NLColumn>
-
+                <NLColumn lg="6">
+                    <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form" label="Utilisateur TEST"
+                        type="is-success" />
+                </NLColumn>
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
                         <NLButton :loading="form.busy" label="Ajouter" />
@@ -111,6 +113,8 @@ export default {
                 is_active: false,
                 gender: 1,
                 registration_number: null,
+                is_for_testing: false,
+                phone: null,
             }),
             dresList: [],
             rolesList: [],

@@ -327,10 +327,12 @@ export default {
             }
         },
         show(e) {
-            return this.$router.push({ name: 'mission', params: { missionId: e.item.id } })
+            // return this.$router.push({ name: 'mission', params: { missionId: e.item.id } })
+            window.open(this.$router.resolve({ name: 'mission', params: { missionId: e.item.id } }).href, '_blank');
         },
         edit(e) {
-            return this.$router.push({ name: 'missions-edit', params: { missionId: e.item.id } })
+            // return this.$router.push({ name: 'missions-edit', params: { missionId: e.item.id } })
+            window.open(this.$router.resolve({ name: 'missions-edit', params: { missionId: e.item.id } }).href, '_blank');
         },
         destroy(e) {
             return this.$swal.confirm_destroy().then((action) => {

@@ -52,7 +52,7 @@ class UserInfoUpdatedNotification extends Notification
      */
     private function getContent(): array
     {
-        $role = $this->user->username == 'DGA' ? 'Directeur Général Adjoint' : $this->user->role->name;
+        $role = $this->user->role->name;
 
         $ligns = [
             'Nous vous informons que les informations de votre compte (Profil : ' . $role . ') ont été modifiées avec succès.',
@@ -62,9 +62,7 @@ class UserInfoUpdatedNotification extends Notification
             $oldValue = $values['oldValue'];
             $newValue = $values['newValue'];
             $translations = $this->translations[$key];
-            // if (is_array($key) || is_array($values)) {
-            //     dd($key);
-            // }
+
             array_push($ligns, ' - ' . $translations . ' : ' . $oldValue . ' => ' . $newValue);
         }
         dd($ligns);
@@ -78,7 +76,7 @@ class UserInfoUpdatedNotification extends Notification
      */
     private function getTitle(): string
     {
-        return 'CREATION DE VOTRE COMPTE - PLATEFROME CONTROL POWER';
+        return 'MISE À DES INFORMATIONS DE VOTRE COMPTE - ' . env('APP_NAME');
     }
 
     /**
@@ -98,7 +96,7 @@ class UserInfoUpdatedNotification extends Notification
      */
     public function via($notifiable)
     {
-        if (!config('mail.default')) {
+        if (!config('mail.disabled')) {
             return ['mail', 'database'];
         }
         return ['database'];

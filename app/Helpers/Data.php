@@ -34,8 +34,8 @@ if (!function_exists('getMissions')) {
                 DB::raw('CAST(ROUND(AVG(CAST(md.score AS DECIMAL(10, 2))), 2) AS VARCHAR(10)) as avg_score'),
                 DB::raw('DATEDIFF(day, programmed_start, CAST(GETDATE() AS DATE)) as remaining_days_before_start'),
                 DB::raw('DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) as remaining_days_before_end'),
-                DB::raw('(CASE WHEN reel_start IS NOT NULL THEN m.programmed_start ELSE m.programmed_start END) as start_date'),
-                DB::raw('(CASE WHEN reel_end IS NOT NULL THEN m.reel_end ELSE m.programmed_end END) as end_date'),
+                DB::raw('(CASE WHEN reel_start IS NOT NULL THEN m.reel_start ELSE m.programmed_start END) as start_date'),
+                DB::raw('(CASE WHEN real_end IS NOT NULL THEN m.real_end ELSE m.programmed_end END) as end_date'),
                 DB::raw('COUNT(md.id) as total_md'),
                 DB::raw('SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) as total_controlled_md'),
                 DB::raw('CASE
@@ -43,7 +43,7 @@ if (!function_exists('getMissions')) {
                 ELSE SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) * 100 / NULLIF(COUNT(md.id), 0)
             END as progress_rate'),
                 'm.current_state',
-                DB::raw('(CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) > 15 OR reel_end > programmed_end THEN 1 ELSE 0 END) as is_late')
+                DB::raw('(CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) > 15 OR real_end > programmed_end THEN 1 ELSE 0 END) as is_late')
             ];
         }
 
@@ -70,7 +70,6 @@ if (!function_exists('getMissions')) {
                 $missions = $missions->whereIn('m.agency_id', $user->agencies->pluck('id'));
             }
         }
-
         $missions = $missions->groupBy(
             'm.id',
             'm.reference',
@@ -87,7 +86,7 @@ if (!function_exists('getMissions')) {
             'cc.reference',
             'm.programmed_start',
             'm.reel_start',
-            'm.reel_end',
+            'm.real_end',
             'm.programmed_end',
             'm.current_state',
             'm.creator_full_name',
@@ -106,59 +105,8 @@ if (!function_exists('getMissionDetails')) {
      *
      * @return Builder
      */
-    function getMissionDetails()
+    function getMissionDetails(?string $mission = null)
     {
-        // if (!$majorFacts) {
-        //     $columns = [
-        //         'md.id',
-        //         'm.reference as mission',
-        //         'cc.reference as campaign',
-        //         DB::raw('CONCAT(d.code, " - ", d.name) as dre'),
-        //         DB::raw('CONCAT(a.code, " - ", a.name) as agency'),
-        //         'd.id as dre_id',
-        //         'a.id as agency_id',
-        //         'f.id as family_id',
-        //         'f.name as family',
-        //         'dm.id as domain_id',
-        //         'dm.name as domain',
-        //         'p.id as process_id',
-        //         'p.name as process',
-        //         'cp.id as control_point_id',
-        //         'cp.name as control_point',
-        //         'md.score',
-        //         'md.is_regularized',
-        //         'controlled_by_ci_at',
-        //         'controlled_by_cdc_at',
-        //         'controlled_by_cc_at',
-        //         'controlled_by_cdcr_at',
-        //         'controlled_by_dcp_at',
-        //     ];
-        // } else {
-        //     $columns = [
-        //         'md.id',
-        //         'm.reference as mission',
-        //         'cc.reference as campaign',
-        //         DB::raw('CONCAT(d.code, " - ", d.name) as dre'),
-        //         DB::raw('CONCAT(a.code, " - ", a.name) as agency'),
-        //         'd.id as dre_id',
-        //         'a.id as agency_id',
-        //         'f.id as family_id',
-        //         'f.name as family',
-        //         'dm.id as domain_id',
-        //         'dm.name as domain',
-        //         'p.id as process_id',
-        //         'p.name as process',
-        //         'cp.id as control_point_id',
-        //         'cp.name as control_point',
-        //         DB::raw('DATE_FORMAT(major_fact_dispatched_at, "%d-%m-%Y") as major_fact_dispatched_at'),
-        //         'controlled_by_ci_at',
-        //         'controlled_by_cdc_at',
-        //         'controlled_by_cc_at',
-        //         'controlled_by_cdcr_at',
-        //         'controlled_by_dcp_at',
-        //     ];
-        // }
-
         $columns = [
             'md.id',
             'm.reference as mission',
@@ -183,37 +131,9 @@ if (!function_exists('getMissionDetails')) {
             DB::raw("(CASE WHEN md.controlled_by_cc_at IS NOT NULL THEN 1 ELSE 0 END) as controlled_by_cc_at"),
             DB::raw("(CASE WHEN md.controlled_by_cdcr_at IS NOT NULL THEN 1 ELSE 0 END) as controlled_by_cdcr_at"),
             DB::raw("(CASE WHEN md.controlled_by_dcp_at IS NOT NULL THEN 1 ELSE 0 END) as controlled_by_dcp_at"),
-            DB::raw('CONVERT(NVARCHAR(10), major_fact_dispatched_at, 105) as major_fact_dispatched_at'),
+            DB::raw('CONVERT(NVARCHAR(10), major_fact_is_dispatched_at, 105) as major_fact_is_dispatched_at'),
             // (CASE WHEN c.validated_at IS NOT NULL THEN 1 ELSE 0 END)
         ];
-        // if (env('DB_CONNECTION') == 'sqlsrv') {
-        //     if (!$majorFacts) {
-        //     } else {
-        //         $columns = [
-        //             'md.id',
-        //             'm.reference as mission',
-        //             'cc.reference as campaign',
-        //             DB::raw("CONCAT(d.code, ' - ', d.name) as dre"),
-        //             DB::raw("CONCAT(a.code, ' - ', a.name) as agency"),
-        //             'd.id as dre_id',
-        //             'a.id as agency_id',
-        //             'f.id as family_id',
-        //             'f.name as family',
-        //             'dm.id as domain_id',
-        //             'dm.name as domain',
-        //             'p.id as process_id',
-        //             'p.name as process',
-        //             'cp.id as control_point_id',
-        //             'cp.name as control_point',
-        //             DB::raw('CONVERT(NVARCHAR(10), major_fact_dispatched_at, 105) as major_fact_dispatched_at'),
-        //             'md.controlled_by_ci_at',
-        //             'md.controlled_by_cdc_at',
-        //             'md.controlled_by_cc_at',
-        //             'md.controlled_by_cdcr_at',
-        //             'md.controlled_by_dcp_at',
-        //         ];
-        //     }
-        // }
 
         $details = DB::table('mission_details as md')
             ->select($columns)
@@ -227,29 +147,7 @@ if (!function_exists('getMissionDetails')) {
             ->join('domains as dm', 'dm.id', 'p.domain_id')
             ->join('families as f', 'f.id', 'dm.family_id');
 
-        //     $details = $details->where('major_fact', true);
-        // if ($majorFacts) {
-        // } else {
-        //     $details = $details->whereIn('score', [2, 3, 4])->where('major_fact', false);
-        // }
-
-
         $user = auth()->user();
-
-        // if ($majorFacts) {
-        //     if (hasRole(['dcp', 'cdcr'])) {
-        //         $details = $details->whereNotNull('major_fact_dispatched_to_dcp_at');
-        //     } elseif (hasRole('ci')) {
-        //         $details = $details->where('controlled_by_ci_id', $user->id);
-        //     } elseif (hasRole('cdc')) {
-        //         $details = $details->whereIn('agency_id', $user->agencies->pluck('id'));
-        //     } elseif (hasRole('da')) {
-        //         $details = $details->whereIn('agency_id', $user->agencies->pluck('id')->toArray())->whereNotNull('m.dcp_validation_by_id');
-        //     } else {
-        //         $details->whereNotNull('major_fact_dispatched_at');
-        //     }
-        // } else {
-        // }
         if (hasRole('ci')) {
             $details = $details->join('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')->where('mhc.user_id', $user->id)->orWhere('md.controlled_by_ci_id', $user->id);
         } elseif (hasRole('cdc')) {
@@ -268,6 +166,10 @@ if (!function_exists('getMissionDetails')) {
             $details = $details->whereNotNull('m.cdcr_validation_by_id');
         } else {
             $details = $details->whereNotNull('m.dcp_validation_by_id');
+        }
+
+        if ($mission) {
+            $details = $details->where('m.id', $mission);
         }
 
         $details = $details->groupBy(
@@ -297,39 +199,8 @@ if (!function_exists('getMissionDetails')) {
             'md.controlled_by_cc_at',
             'md.controlled_by_cdcr_at',
             'md.controlled_by_dcp_at',
-            'major_fact_dispatched_at'
+            'major_fact_is_dispatched_at'
         );
-        // if (!$majorFacts) {
-        // } else {
-        //     $details = $details->groupBy(
-        //         'md.id',
-        //         'm.reference',
-        //         'cc.reference',
-        //         'd.code',
-        //         'd.name',
-        //         'a.code',
-        //         'a.name',
-        //         'f.name',
-        //         'dm.name',
-        //         'p.name',
-        //         'cp.name',
-        //         'f.id',
-        //         'dm.id',
-        //         'p.id',
-        //         'cp.id',
-        //         'md.major_fact_dispatched_at',
-        //         'md.created_at',
-        //         'md.id',
-        //         'd.id',
-        //         'a.id',
-        //         'md.controlled_by_ci_at',
-        //         'md.controlled_by_cdc_at',
-        //         'md.controlled_by_cc_at',
-        //         'md.controlled_by_cdcr_at',
-        //         'md.controlled_by_dcp_at',
-        //     );
-        // }
-        // dd($details->get());
         return $details;
     }
 }
@@ -413,7 +284,7 @@ if (!function_exists('getMissionAnomalies')) {
         $details = $details->whereIn('score', [2, 3, 4])->where('major_fact', false);
 
         if ($mission) {
-            $details = $details->where('mission_id', $mission);
+            $details = $details->where('m.id', $mission);
         }
 
 
@@ -481,55 +352,32 @@ if (!function_exists('getMajorFacts')) {
      */
     function getMajorFacts(?string $mission = null)
     {
-        if (env('DB_CONNECTION') == 'sqlsrv') {
-            $columns = [
-                'md.id',
-                'm.reference as mission',
-                'cc.reference as campaign',
-                DB::raw("CONCAT(d.code, ' - ', d.name) as dre"),
-                DB::raw("CONCAT(a.code, ' - ', a.name) as agency"),
-                'd.id as dre_id',
-                'a.id as agency_id',
-                'f.id as family_id',
-                'f.name as family',
-                'dm.id as domain_id',
-                'dm.name as domain',
-                'p.id as process_id',
-                'p.name as process',
-                'cp.id as control_point_id',
-                'cp.name as control_point',
-                DB::raw('CONVERT(NVARCHAR(10), major_fact_dispatched_at, 105) as major_fact_dispatched_at'),
-                'md.controlled_by_ci_at',
-                'md.controlled_by_cdc_at',
-                'md.controlled_by_cc_at',
-                'md.controlled_by_cdcr_at',
-                'md.controlled_by_dcp_at',
-            ];
-        } else {
-            $columns = [
-                'md.id',
-                'm.reference as mission',
-                'cc.reference as campaign',
-                DB::raw('CONCAT(d.code, " - ", d.name) as dre'),
-                DB::raw('CONCAT(a.code, " - ", a.name) as agency'),
-                'd.id as dre_id',
-                'a.id as agency_id',
-                'f.id as family_id',
-                'f.name as family',
-                'dm.id as domain_id',
-                'dm.name as domain',
-                'p.id as process_id',
-                'p.name as process',
-                'cp.id as control_point_id',
-                'cp.name as control_point',
-                DB::raw('DATE_FORMAT(major_fact_dispatched_at, "%d-%m-%Y") as major_fact_dispatched_at'),
-                'controlled_by_ci_at',
-                'controlled_by_cdc_at',
-                'controlled_by_cc_at',
-                'controlled_by_cdcr_at',
-                'controlled_by_dcp_at',
-            ];
-        }
+        $columns = [
+            'md.id',
+            'm.reference as mission',
+            'cc.reference as campaign',
+            DB::raw("CONCAT(d.code, ' - ', d.name) as dre"),
+            DB::raw("CONCAT(a.code, ' - ', a.name) as agency"),
+            'd.id as dre_id',
+            'a.id as agency_id',
+            'f.id as family_id',
+            'f.name as family',
+            'dm.id as domain_id',
+            'dm.name as domain',
+            'p.id as process_id',
+            'p.name as process',
+            'cp.id as control_point_id',
+            'cp.name as control_point',
+            DB::raw('CONVERT(NVARCHAR(10), major_fact_is_dispatched_at, 105) as major_fact_is_dispatched_at'),
+            DB::raw('(CASE WHEN major_fact_is_dispatched_at IS NOT NULL THEN 1 ELSE 0 END) as major_fact_is_dispatched_by_dcp'),
+            DB::raw('(CASE WHEN major_fact_is_dispatched_to_dcp_at IS NOT NULL THEN 1 ELSE 0 END) as major_fact_is_dispatched_to_dcp'),
+            DB::raw('(CASE WHEN major_fact_is_rejected IS NOT NULL THEN 1 ELSE 0 END) as major_fact_is_pending'),
+            'md.controlled_by_ci_at',
+            'md.controlled_by_cdc_at',
+            'md.controlled_by_cc_at',
+            'md.controlled_by_cdcr_at',
+            'md.controlled_by_dcp_at',
+        ];
 
         $details = DB::table('mission_details as md')
             ->select($columns)
@@ -543,15 +391,16 @@ if (!function_exists('getMajorFacts')) {
             ->join('domains as dm', 'dm.id', 'p.domain_id')
             ->join('families as f', 'f.id', 'dm.family_id');
 
-        $details = $details->where('major_fact', true);
+        $details = $details->where('major_fact', true)->orWhereNotNull('md.major_fact_is_detected_at');
+
         if ($mission) {
-            $details = $details->where('mission_id', $mission);
+            $details = $details->where('m.id', $mission);
         }
 
         $user = auth()->user();
 
         if (hasRole(['dcp', 'cdcr'])) {
-            $details = $details->whereNotNull('major_fact_dispatched_to_dcp_at');
+            $details = $details->whereNotNull('md.major_fact_is_dispatched_to_dcp_at');
         } elseif (hasRole('ci')) {
             $details = $details->where('controlled_by_ci_id', $user->id);
         } elseif (hasRole('cdc')) {
@@ -559,7 +408,7 @@ if (!function_exists('getMajorFacts')) {
         } elseif (hasRole('da')) {
             $details = $details->whereIn('agency_id', $user->agencies->pluck('id')->toArray())->whereNotNull('m.dcp_validation_by_id');
         } else {
-            $details->whereNotNull('major_fact_dispatched_at');
+            $details->whereNotNull('major_fact_is_dispatched_at');
         }
 
         $details = $details->groupBy(
@@ -578,7 +427,10 @@ if (!function_exists('getMajorFacts')) {
             'dm.id',
             'p.id',
             'cp.id',
-            'md.major_fact_dispatched_at',
+            'md.major_fact_is_dispatched_at',
+            'md.major_fact_is_dispatched_to_dcp_at',
+            'md.major_fact_is_rejected',
+            'md.major_fact_is_detected_at',
             'md.created_at',
             'md.id',
             'd.id',
@@ -609,10 +461,11 @@ if (!function_exists('getControlCampaigns')) {
             'c.created_by_id',
             'c.validated_by_id',
             'c.created_at',
+            DB::raw('(CASE WHEN c.is_for_testing THEN Oui ELSE Non END) AS is_for_testing_str'),
             DB::raw('DATE_FORMAT(start_date, "%d-%m-%Y") as start'),
             DB::raw('DATE_FORMAT(end_date, "%d-%m-%Y") as end'),
-            DB::raw('DATEDIFF(start_date, CURDATE()) as remaining_days_before_start'),
-            DB::raw('DATEDIFF(end_date, CURDATE()) as remaining_days_before_end'),
+            DB::raw('DATEDIFF(CURDATE(), start_date) as remaining_days_before_start'),
+            DB::raw('DATEDIFF(CURDATE(), end_date) as remaining_days_before_end'),
             DB::raw('(CASE WHEN c.validated_at IS NOT NULL THEN 1 ELSE 0 END) AS is_validated'),
             'c.validated_at'
         ];
@@ -626,9 +479,10 @@ if (!function_exists('getControlCampaigns')) {
                 'c.created_at',
                 'c.creator_full_name',
                 'c.validator_full_name',
+                DB::raw('(CASE WHEN c.is_for_testing = 1 THEN \'Oui\' ELSE \'Non\' END) AS is_for_testing_str'),
                 DB::raw('CONVERT(NVARCHAR(10), start_date, 105) as start_date'),
                 DB::raw('CONVERT(NVARCHAR(10), end_date, 105) as end_date'),
-                DB::raw('DATEDIFF(day, start_date, CAST(GETDATE() AS DATE)) as remaining_days_before_start'),
+                DB::raw('DATEDIFF(day, CAST(GETDATE() AS DATE), start_date) as remaining_days_before_start'),
                 DB::raw('DATEDIFF(day, CAST(GETDATE() AS DATE), end_date) as remaining_days_before_end'),
                 DB::raw('(CASE WHEN c.validated_at IS NOT NULL THEN 1 ELSE 0 END) AS is_validated'),
                 DB::raw('COUNT(m.id) as total_missions'),
@@ -648,8 +502,20 @@ if (!function_exists('getControlCampaigns')) {
         if (!hasRole(['dcp', 'cdcr'])) {
             $campaigns = $campaigns->whereNotNull('validated_at');
         }
-
-        $campaigns = $campaigns->groupBy('c.id', 'c.reference', 'c.created_by_id', 'c.validated_by_id', 'c.start_date', 'c.end_date', 'c.validated_at', 'c.created_at', 'c.creator_full_name', 'c.validator_full_name');
+        $campaigns->whereNull('c.deleted_at');
+        $campaigns = $campaigns->groupBy(
+            'c.id',
+            'c.reference',
+            'c.created_by_id',
+            'c.validated_by_id',
+            'c.start_date',
+            'c.end_date',
+            'c.validated_at',
+            'c.created_at',
+            'c.creator_full_name',
+            'c.validator_full_name',
+            'c.is_for_testing'
+        );
 
         return $campaigns;
     }

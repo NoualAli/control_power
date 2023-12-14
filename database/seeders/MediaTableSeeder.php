@@ -17,27 +17,29 @@ class MediaTableSeeder extends Seeder
      */
     public function run()
     {
-        $media = DB::table('media')->select('attachable_id', 'attachable_type', 'id')->get();
-        $totalMedia = $media->count();
-        $totalNewMediaInserted = 0;
+        DB::transaction(function () {
+            $media = DB::table('media')->select('attachable_id', 'attachable_type', 'id')->get();
+            $totalMedia = $media->count();
+            $totalNewMediaInserted = 0;
 
-        foreach ($media as $file) {
-            $inseted = DB::table('has_media')->insert([
-                'attachable_id' => $file->attachable_id,
-                'attachable_type' => $file->attachable_type,
-                'media_id' => $file->id
-            ]);
+            foreach ($media as $file) {
+                $inseted = DB::table('has_media')->insert([
+                    'attachable_id' => $file->attachable_id,
+                    'attachable_type' => $file->attachable_type,
+                    'media_id' => $file->id
+                ]);
 
-            if ($inseted) {
-                $totalNewMediaInserted += 1;
+                if ($inseted) {
+                    $totalNewMediaInserted += 1;
+                }
             }
-        }
 
-        if ($totalMedia == $totalNewMediaInserted) {
-            Schema::table('media', function (Blueprint $table) {
-                $table->dropColumn('attachable_id');
-                $table->dropColumn('attachable_type');
-            });
-        }
+            if ($totalMedia == $totalNewMediaInserted) {
+                Schema::table('media', function (Blueprint $table) {
+                    $table->dropColumn('attachable_id');
+                    $table->dropColumn('attachable_type');
+                });
+            }
+        });
     }
 }

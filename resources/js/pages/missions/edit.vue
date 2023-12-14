@@ -39,6 +39,11 @@
                         label-required />
                 </NLColumn>
 
+                <NLColumn lg="6" v-if="!currentCampaign?.is_for_testing">
+                    <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form" label="Mission TEST"
+                        type="is-success" />
+                </NLColumn>
+
                 <!-- Note -->
                 <NLColumn>
                     <NLWyswyg v-model="form.note" :form="form" name="note" label="Note" placeholder="Ajouter une note"
@@ -113,7 +118,8 @@ export default {
                 agency: null,
                 campaign: null,
                 controllers: null,
-                control_campaign_id: null
+                control_campaign_id: null,
+                is_for_testing: false,
             }),
             currentCampaign: null,
             campaignsList: [],

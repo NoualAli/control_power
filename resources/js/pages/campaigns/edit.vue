@@ -24,6 +24,11 @@
                         :multiple="true" placeholder="Choisissez un ou plusieurs PCF" no-options-text="Aucun PCF disponible"
                         loading-text="Chargement des PCF en cours..." label-required />
                 </NLColumn>
+
+                <NLColumn lg="6">
+                    <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form"
+                        label="Campagne de contrôle TEST" type="is-success" />
+                </NLColumn>
                 <!-- Submit Button -->
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
@@ -49,14 +54,15 @@ export default {
             readonly: {
                 start_date: true,
                 end_date: true,
-                pcf: true
+                pcf: true,
             },
             form: new Form({
                 description: '',
                 reference: '',
                 start: null,
                 end: null,
-                pcf: []
+                pcf: [],
+                is_for_testing: false,
             })
         }
     },

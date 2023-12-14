@@ -2,10 +2,13 @@
     <NLGrid class="box auth-box grid" gap="6">
         <NLColumn class="auth-box__header">
             <img src="/storage/assets/brand.svg" class="auth-brand">
-            <span class="auth-box__title">
+            <span class="auth-box__title" v-if="showForm">
                 S'identifier
                 <br>
                 à votre compte
+            </span>
+            <span class="auth-box__title" v-else>
+                <i class="las la-spinner la-spin icon"></i> Patientez un moment...
             </span>
         </NLColumn>
         <NLColumn class="form-container container">
@@ -26,6 +29,11 @@
                     </NLButton>
                 </NLFlex>
             </form>
+            <div class="w-100 text-medium" v-else>
+                <p class="text-center">
+                    Vous allez être rediriger vers votre tableau de bord.
+                </p>
+            </div>
         </NLColumn>
         <NLColumn class="text-center d-block d-lg-none">
             VERSION {{ CURRENT_VERSION }} &copy; {{ currentYear }} - Tous droits réservés - BNA
@@ -64,7 +72,9 @@ export default {
             return APP.CURRENT_VERSION
         }
     },
-
+    created() {
+        particlesJS.load('particles-js', '../particles.json');
+    },
     methods: {
         getLoginName(login) {
             const mailFormat = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/
@@ -96,7 +106,7 @@ export default {
         },
         redirect(mustChangePassword) {
             if (mustChangePassword) {
-                this.$router.push({ name: 'password.new' })
+                this.$router.push({ name: 'password.reset' })
             } else {
                 this.$router.push({ name: 'home' })
             }

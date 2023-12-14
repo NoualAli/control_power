@@ -15,21 +15,14 @@ class PasswordController extends Controller
     {
         $user = auth()->user();
         try {
-            $user->password = Hash::make($request->password);
-            if (request()->has('mustChangePassword') && request()->mustChangePassword) {
-                $user->must_change_password = false;
-            }
-            $user->save();
+            $result = $user->update([
+                'password' => Hash::make($request->password),
+                'must_change_password' => false,
+            ]);
 
-            return response()->json([
-                'message' => UPDATE_PASSWORD_SUCCESS,
-                'status' => true
-            ], 200);
+            return actionResponse($result, UPDATE_PASSWORD_SUCCESS);
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], 500);
+            return throwedError($th);
         }
     }
 }

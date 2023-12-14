@@ -40,13 +40,13 @@ class UserPasswordUpdatedNotification extends Notification
      */
     private function getContent(): array
     {
-        $role = $this->user->username == 'DGA' ? 'Directeur Général Adjoint' : $this->user->role->name;
+        $role = $this->user->role->name;
         $ligns = [
             'Nous vous informons que le mot de passe de votre compte (Profil : ' . $role . ') a été réinitialisé avec succès.',
             'Voici vos informations d\'authentification :',
             ' - Adresse e-mail : ' . $this->user->email,
             ' - Nom d\'utilisateur : ' . $this->user->username,
-            ' - Mot de passe : ' . $this->password,
+            ' - Nouveau mot de passe : ' . $this->password,
             'Vous avez la possibilité de vous connecter en utilisant soit votre adresse e-mail ou nom d\'utilisateur.',
             'Veuillez noter qu\'il est obligatoire de changer votre mot de passe lors de votre prochaine connexion.',
             'Garder votre mot de passe confidentiel pour assurer la sécurité de votre compte. Nous ne pourrons être tenus responsables de tout accès non autorisé résultant d\'informations de connexion partagées.',
@@ -63,7 +63,7 @@ class UserPasswordUpdatedNotification extends Notification
      */
     private function getTitle(): string
     {
-        return 'CREATION DE VOTRE COMPTE - PLATEFROME CONTROL POWER';
+        return 'RÉINITIALISATION DU MOT DE PASSE - ' . env('APP_NAME');
     }
 
     /**
@@ -83,7 +83,7 @@ class UserPasswordUpdatedNotification extends Notification
      */
     public function via($notifiable)
     {
-        if (!config('mail.default')) {
+        if (!config('mail.disabled')) {
             return ['mail', 'database'];
         }
         return ['database'];

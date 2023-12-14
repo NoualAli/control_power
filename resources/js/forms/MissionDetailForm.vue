@@ -8,7 +8,9 @@
         <template #default>
             <NLForm :form="form" :action="save" v-if="!isLoading">
                 <!-- Major fact -->
-                <NLColumn v-if="data?.control_point?.has_major_fact && ([2, 3, 4]).includes(Number(form.score))">
+                <NLColumn
+                    v-if="data?.control_point?.has_major_fact && ([2, 3, 4]).includes(Number(form.score))
+                        && !data.major_fact && (!Boolean(data?.controlled_by_ci_at) || !Boolean(data?.controlled_by_cdc_at) || !Boolean(data?.controlled_by_cdcr_at) || !Boolean(data?.controlled_by_cc_at) || !Boolean(data?.controlled_by_dcp_at))">
                     <NLSwitch type="is-danger" v-model="form.major_fact" :name="'major_fact'" :form="form"
                         label="Fait majeur" />
                 </NLColumn>
@@ -18,8 +20,9 @@
                         <!-- score -->
                         <NLColumn>
                             <NLSelect v-model="form.score" :name="'score'" label="Notation" :form="form"
-                                :options="scoresList" label-required v-if="[1, 2].includes(form.currentMode)" />
-                            <NLInput v-model="data.appreciation" label="Notation" readonly v-else />
+                                :options="scoresList" label-required
+                                v-if="[1, 2].includes(form.currentMode) && !data?.major_fact" />
+                            <NLInput v-model="data.appreciation" label="Notation" :readonly="true" v-else />
                         </NLColumn>
                         <!-- Metadata -->
                         <NLColumn
@@ -147,7 +150,8 @@
                     </NLGrid>
                 </NLColumn>
                 <!-- Media (attachements) -->
-                <NLColumn :lg="isContainerExpanded ? 4 : 12">
+                <NLColumn :lg="isContainerExpanded ? 4 : 12"
+                    v-if="[1, 2].includes(form.currentMode) || (![1, 2].includes(form.currentMode) && Object.values(form.media).length)">
                     <NLFile @uploaded="handleMedia" @deleted="handleMedia" @loaded="handleMedia" v-model="form.media"
                         :name="'media'" label="Pièces jointes" attachable-type="App\Models\MissionDetail"
                         :attachable-id="form.detail" :form="form" multiple :canDelete="canDeleteMedia"
@@ -400,7 +404,6 @@ export default {
                     }
                 })
             })
-            console.log(metadata);
         },
         /**
          * Init scores for each control point

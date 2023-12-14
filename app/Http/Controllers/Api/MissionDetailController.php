@@ -5,16 +5,15 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Mission\Detail\ControlRequest;
 use App\Http\Resources\MissionDetailResource;
-use App\Models\Media;
 use App\Models\MissionDetail;
 use App\Models\User;
 use App\Notifications\Mission\MajorFact\Detected;
 use App\Traits\UploadFiles;
 use Carbon\Carbon;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Validator;
 
 class MissionDetailController extends Controller
 {
@@ -58,10 +57,7 @@ class MissionDetailController extends Controller
             $details = MissionDetailResource::collection($details->paginate($perPage)->onEachSide(1));
             return $details;
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], 500);
+            return throwedError($th);
         }
     }
 
@@ -103,42 +99,21 @@ class MissionDetailController extends Controller
         $data = $request->validated();
         $files = $data['media'];
         unset($data['media']);
-        /**
-         * [
-         *      {
-         *          label: test,
-         *          value: this the value of this line
-         *          key_type: key_type,
-         *          key; key,
-         *          key: value,
-         *      },
-         * ]
-         */
-        // foreach ($data['metadata'] as $lines) {
-        //     foreach ($lines as $line) {
-        //         $key = $line['key'];
-        //         $value = $line['value'];
-        //         $line[$key] = $value;
-        //     }
-        // }
-        $data['metadata'] = array_map(function ($lines) {
+        $data['metadata'] = isset($data['metadata']) ? array_map(function ($lines) {
             return array_map(function ($line) {
                 $key = $line['key'];
                 $value = $line['value'];
                 $line[$key] = $value;
                 return $line;
             }, $lines);
-        }, $data['metadata']);
-        $this->validateMetadata($data);
+        }, $data['metadata']) : [];
+        $this->handleMetadata($data);
         $data['metadata'] = count($data['metadata']) ? json_encode($data['metadata']) : null;
         try {
             DB::transaction(function () use ($data, $files) {
                 $detail = MissionDetail::findOrFail($data['detail']);
                 unset($data['detail']);
                 $this->updateDetail($data, $detail);
-                if (hasRole('ci')) {
-                    $this->notifyMajorFact($detail);
-                }
             });
             return response()->json([
                 'message' => 'Les renseignements sur le point de contrôle sont sauvegardés avec succès.',
@@ -165,48 +140,41 @@ class MissionDetailController extends Controller
         return $detail;
     }
 
-    /**
-     * Validate metadata of each row
-     *
-     * @param array $data
-     *
-     * @return void
-     */
-    private function validateMetadata(array $data)
-    {
-        if (array_key_exists('rows', $data)) {
-            foreach ($data['rows'] as $rowKey => $row) {
-                $this->handleMetadata($row, $rowKey);
-            }
-        } elseif (array_key_exists('metadata', $data)) {
-            foreach ($data['metadata'] as $rowKey => $row) {
-                $this->handleMetadata($data, true, $rowKey);
-            }
-        } else {
-            $this->handleMetadata($data);
-        }
-    }
-
     private function handleMetadata($data, $multiple = false, $rowKey = null)
     {
-        $detail = MissionDetail::findOrFail($data['detail']);;
-        $controlPointFields = $detail->controlPoint->fields;
-        if ($controlPointFields) {
-            validateFields($controlPointFields, $data, $multiple, $rowKey);
+        if (count($data['metadata'])) {
+            foreach ($data['metadata'] as $rowKey => $row) {
+                $fields = DB::table('mission_details', 'md')->select('fields')->leftJoin('control_points AS cp', 'md.control_point_id', 'cp.id')->where('md.id', $data['detail'])->first()?->fields;
+                if ($fields) {
+                    $fields = json_decode($fields);
+                }
+                if ($fields) {
+                    validateFields($fields, $data, $multiple, $rowKey);
+                }
+            }
         }
     }
 
 
     /**
-     * Notify CDRCP, DCP, CDCR, CDC
+     * Notify  concerned users
      *
      * @param App\Models\MissionDetail $detail
      * @param array $roles
      */
-    private function notifyMajorFact(MissionDetail $detail, array $roles = ['cdc']): void
+    private function notifyMajorFact(MissionDetail $detail): void
     {
         if ($detail->major_fact) {
-            $users = User::all()->filter(fn ($user) => hasRole($roles, $user) && $detail->mission->creator->id == $user->id);
+            $users = collect([]);
+            if (hasRole('ci')) {
+                $users = $users->push($detail->mission->creator);
+            } elseif (hasRole(['cdc', 'cc'])) {
+                $users = User::whereRoles(['cdcr', 'dcp'])->isActive()->get();
+            } elseif (hasRole('cdcr')) {
+                $users = User::whereRoles(['dcp'])->isActive()->get();
+            } elseif (hasRole('dcp')) {
+                $users = User::whereRoles(['dg', 'sg', 'ig', 'dga', 'der', 'deac'])->isActive()->get();
+            }
             foreach ($users as $user) {
                 if (!$user->notifications()->where('data->detail_id', $detail->id)->count()) {
                     Notification::send($user, new Detected($detail));
@@ -226,6 +194,7 @@ class MissionDetailController extends Controller
     private function updateDetail(array $data, MissionDetail $detail)
     {
         return DB::transaction(function () use ($detail, $data) {
+            $oldMajorFactValue = $detail->major_fact;
             $currentMode = $data['currentMode'];
             // Vidé les champs report, recovery_plan, metadata
             if (isset($data['score']) && $data['score'] == 1) {
@@ -244,65 +213,71 @@ class MissionDetailController extends Controller
             }
 
             $newData = [
-                'major_fact' => $data['major_fact'],
                 'score' => isset($data['score']) ? $data['score'] : $detail->score,
                 'recovery_plan' => isset($data['recovery_plan']) ? $data['recovery_plan'] : null,
                 'metadata' => $data['metadata'],
             ];
 
-            // Mettre la note max si jamais il y'a un fait majeur
-            if (isset($newData['major_fact']) && !empty($newData['major_fact']) && $newData['major_fact']) {
-                $newData['score'] = max(array_keys($detail->controlPoint->scores_arr));
-                $newData['major_fact_detected_at'] = now();
-            }
-
-            // dd(hasRole(['cdcr', 'dcp']) && !$newData['major_fact']);
-            if (hasRole(['cdcr', 'dcp']) && !$newData['major_fact']) {
-                $newData['major_fact_dispatched_to_dcp_at'] = null;
-            }
-
             if ($reportColumn) {
                 $newData[$reportColumn] = isset($data['report']) ? $data['report'] : $detail->report;
             }
-
+            $userFullName = auth()->user()->full_name . ' (' . auth()->user()->role->code . ')';
             if (hasRole('ci')) {
                 $newData['controlled_by_ci_at'] = now();
                 $newData['controlled_by_ci_id'] = auth()->user()->id;
-                if ($detail->major_fact) {
-                    unset($newData['major_fact']);
-                }
             } elseif (hasRole('cdc')) {
                 $newData['controlled_by_cdc_at'] = now();
                 $newData['controlled_by_cdc_id'] = auth()->user()->id;
-                $newData['cdc_full_name'] = auth()->user()->full_name;
+                $newData['cdc_full_name'] = $userFullName;
             } elseif (hasRole('cc')) {
                 $newData['controlled_by_cc_at'] = now();
                 $newData['controlled_by_cc_id'] = auth()->user()->id;
-                if ($detail->is_controlled_by_cc) {
-                    unset($newData['major_fact']);
-                }
             } elseif (hasRole('cdcr')) {
                 $newData['controlled_by_cdcr_at'] = now();
                 $newData['controlled_by_cdcr_id'] = auth()->user()->id;
-                $newData['cdcr_full_name'] = auth()->user()->full_name;
+                $newData['cdcr_full_name'] = $userFullName;
             } elseif (hasRole('dcp')) {
                 $newData['controlled_by_dcp_at'] = now();
                 $newData['controlled_by_dcp_id'] = auth()->user()->id;
-                $newData['cdc_full_name'] = auth()->user()->full_name;
+                $newData['dcp_full_name'] = $userFullName;
             } else {
-                abort(500, 'Le rôle de l\'utilisateur n\'est pas pri en charge.');
+                abort(404, 'Le rôle de l\'utilisateur n\'est pas pri en charge.');
+            }
+
+            // Mettre la note max si jamais il y'a un fait majeur
+            if (isset($data['major_fact']) && !empty($data['major_fact']) && $data['major_fact'] && !$detail->major_fact) {
+                $newData['score'] = max(array_keys($detail->controlPoint->scores_arr));
+                $newData['major_fact'] = $data['major_fact'];
+                $newData['major_fact_is_rejected'] = false;
+                $newData['major_fact_is_detected_by_full_name'] = $userFullName;
+                $newData['major_fact_is_detected_by_id'] = auth()->user()->id;
+                $newData['major_fact_is_detected_at'] = now();
+
+                if (hasRole(['cdc', 'cc', 'cdcr'])) {
+                    $newData['major_fact_is_dispatched_to_dcp_at'] = now();
+                    $newData['major_fact_is_dispatched_to_dcp_by_full_name'] = $userFullName;
+                    $newData['major_fact_is_dispatched_to_dcp_by_id'] = auth()->user()->id;
+                } elseif (hasRole(['dcp'])) {
+                    $newData['major_fact_is_dispatched_at'] = now();
+                    $newData['major_fact_is_dispatched_by_full_name'] = $userFullName;
+                    $newData['major_fact_is_dispatched_by_id'] = auth()->user()->id;
+                }
             }
 
             $detail->update($newData);
 
             // Mise à jour de la date réel du début de la mission
-            if ($currentMode == 1 && !$detail->reel_start && $detail->mission->details()->controlled()->count() == 1) {
-                $detail->mission->update(['reel_start' => now()]);
+            if ($currentMode == 1 && !$detail->mission->real_start && $detail->mission->details()->controlled()->count() == 1) {
+                $detail->mission->update(['real_start' => now()]);
             }
 
             // Mise à jour de la date réel de la fin de mission
-            if ($currentMode == 1 && !$detail->reel_end && $detail->mission->details()->count() == $detail->mission->details()->controlled()->count()) {
-                $detail->mission->update(['reel_end' => now()]);
+            if ($currentMode == 1 && !$detail->mission->real_end && $detail->mission->details()->count() == $detail->mission->details()->controlled()->count()) {
+                $detail->mission->update(['real_end' => now()]);
+            }
+
+            if ($detail->major_fact && !$oldMajorFactValue) {
+                $this->notifyMajorFact($detail);
             }
 
             return $detail;
@@ -440,6 +415,27 @@ class MissionDetailController extends Controller
         if (isset($filter['is_regularized'])) {
             $value = $filter['is_regularized'] == 'Non levée' ? 0 : 1;
             $details = $details->where('is_regularized', $value);
+        }
+        if (isset($filter['is_controlled'])) {
+            if (hasRole('ci')) {
+                $column = 'controlled_by_ci_at';
+            } elseif (hasRole('cdc')) {
+                $column = 'controlled_by_cdc_at';
+            } elseif (hasRole('cdcr')) {
+                $column = 'controlled_by_cdcr_at';
+            } elseif (hasRole('cc')) {
+                $column = 'controlled_by_cc_at';
+            } elseif (hasRole('cdc')) {
+                $column = 'controlled_by_dcp_at';
+            } else {
+                abort(404);
+            }
+
+            if ($filter['is_controlled'] == 'Non') {
+                $details = $details->whereNull($column);
+            } else {
+                $details = $details->whereNotNull($column);
+            }
         }
         return $details;
     }

@@ -244,15 +244,18 @@
                                             <td>{{ $item->appreciation }}</td>
                                             <th class="margin-cell"></th>
                                         </tr>
-                                        <tr>
-                                            <th class="margin-cell"></th>
-                                            <th>Fait majeur</th>
-                                            <td
-                                                class="{{ $item->major_fact ? 'text-danger' : null }} {{ $item->major_fact ? 'has-major_fact' : 'no-major_fact' }}">
-                                                {{ $item->major_fact ? 'Oui' : 'Non' }}
-                                            </td>
-                                            <th class="margin-cell"></th>
-                                        </tr>
+                                        @if ($item->major_fact)
+                                            <tr>
+                                                <th class="margin-cell"></th>
+                                                <th>Fait majeur</th>
+                                                <td
+                                                    class="text-danger has-major_fact">
+                                                    Déclencher par {{ $item->major_fact_is_detected_by_full_name }}
+                                                    le {{ $item->major_fact_is_detected_at }}
+                                                </td>
+                                                <th class="margin-cell"></th>
+                                            </tr>
+                                        @endif
                                         <tr>
                                             <th class="margin-cell"></th>
                                             <th>Constat</th>

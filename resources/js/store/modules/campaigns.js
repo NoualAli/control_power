@@ -86,9 +86,18 @@ export const actions = {
         const { data } = await api.get('campaigns/sample/' + sampleId + '/details')
         commit('FETCh_SAMPLE_DETAILS', { details: data })
     },
-    async fetchNextReference({ commit }) {
+    async fetchNextReference({ commit }, { isValidated = false, isForTesting = false }) {
         try {
-            const { data } = await api.get('campaigns/next-reference')
+            let url = 'campaigns/next-reference'
+            if (isForTesting && !isValidated) {
+                url += '?is_for_testing'
+            } else if (isForTesting && isValidated) {
+                url += '?is_for_testing&is_validated'
+            } else if (!isForTesting && isValidated) {
+                url += '?is_validated'
+            }
+
+            const { data } = await api.get(url)
             commit('FETCH_NEXT_REFERENCE', { nextReference: data })
         } catch (error) {
             console.error(error)

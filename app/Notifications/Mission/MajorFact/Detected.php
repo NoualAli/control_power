@@ -20,13 +20,13 @@ class Detected extends Notification
     /**
      * Create a new notification instance.
      *
-     * @param int|\App\Models\MissionDetail
+     * @param string|\App\Models\MissionDetail
      *
      * @return void
      */
-    public function __construct(int|MissionDetail $detail)
+    public function __construct(string|MissionDetail $detail)
     {
-        $this->detail = is_integer($detail) ? MissionDetail::findOrFail($detail) : $detail;
+        $this->detail = is_string($detail) ? MissionDetail::findOrFail($detail) : $detail;
     }
 
     /**
@@ -37,7 +37,7 @@ class Detected extends Notification
      */
     public function via($notifiable)
     {
-        if (!config('mail.default')) {
+        if (!config('mail.disabled')) {
             return ['mail', 'database'];
         }
         return ['database'];
@@ -60,7 +60,7 @@ class Detected extends Notification
      */
     private function getTitle(): string
     {
-        return 'Fait majeur détecter';
+        return 'FAIT MAJEUR DÉTECTER - ' . $this->detail?->mission?->reference . ' - ' . env('APP_NAME');
     }
 
     /**
@@ -70,7 +70,7 @@ class Detected extends Notification
      */
     private function getContent(): string
     {
-        return 'Un fait majeur vient d\'être détecter dans la mission ' . $this->detail->mission->reference;
+        return 'Un fait majeur vient d\'être détecter dans la mission ' . $this->detail?->mission?->reference;
     }
 
     /**

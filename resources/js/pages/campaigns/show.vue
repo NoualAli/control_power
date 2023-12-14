@@ -5,8 +5,14 @@
         </template>
         <template #actions>
             <router-link v-if="can('view_mission')"
-                :to="{ name: 'campaign-missions', params: { campaignId: campaign?.current?.id } }" class="btn">
+                :to="{ name: 'campaign-missions', params: { campaignId: campaign?.current?.id } }" class="btn has-icon">
+                <i class="las la-eye icon"></i>
                 Missions
+            </router-link>
+            <router-link v-if="can('view_mission')"
+                :to="{ name: 'campaign-statistics', params: { campaignId: campaign?.current?.id } }" class="btn has-icon">
+                <i class="las la-chart-bar icon"></i>
+                Statistiques
             </router-link>
             <router-link
                 v-if="(campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign')) && !campaign?.current.is_validated"
@@ -135,7 +141,7 @@
             </a>
         </div>
         <!-- Processes List -->
-        <NLDatatable :key="renderKey" v-if="campaign?.current?.id" :columns="columns" :details="details"
+        <NLDatatable :refresh="refresh" v-if="campaign?.current?.id" :columns="columns" :details="details"
             title="Liste des processus" :urlPrefix="'campaigns/processes/' + campaign?.current?.id"
             detailsUrlPrefix="processes" @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
             <template #actions-before="{ item, callback }"
@@ -157,7 +163,7 @@ export default {
     middleware: [ 'auth' ],
     data() {
         return {
-            renderKey: 0,
+            refresh: 0,
             validationInProgress: false,
             columns: [
                 {
@@ -275,8 +281,6 @@ export default {
                 if (this.$breadcrumbs.value[ length - 1 ].label === 'Détails campagne') {
                     this.$breadcrumbs.value[ length - 1 ].label = 'Détails campagne ' + this.campaign.current?.reference
                 }
-                this.renderKey += 1
-                // this.$store.dispatch('settings/updatePageLoading', false)
             })
         },
         loadControlPoints(process) {
@@ -295,17 +299,17 @@ export default {
                         if (response.data.status) {
                             this.initData()
                             this.$store.dispatch('settings/updatePageLoading', false)
+                            this.validationInProgress = false
                             this.$swal.toast_success(response.data.message)
-                            this.validationInProgress = false
                         } else {
-                            this.$swal.toast_error(response.data.message)
                             this.validationInProgress = false
+                            this.$swal.toast_error(response.data.message)
                         }
                     })
                 }
             }).catch(error => {
-                this.$swal.alert_error(error)
                 this.validationInProgress = false
+                this.$swal.alert_error(error)
             })
         },
 
@@ -341,7 +345,11 @@ export default {
         detachProcess(item) {
             return this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
-                    return api.delete('campaigns/' + this.campaign?.current?.id + '/process/' + item.id)
+                    return api.delete('campaigns/' + this.campaign?.current?.id + '/process/' + item.id).then((response) => {
+                        if (response?.data?.status) {
+                            this.refresh += 1
+                        }
+                    })
                 }
             })
         },

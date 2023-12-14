@@ -27,6 +27,7 @@ class UserResource extends JsonResource
             'role_code' => $this->role->code,
             'created_at' => $this->created_at,
             'last_login' => $this->last_login?->last_activity ?: '-',
+            'must_change_password' => $this->must_change_password,
         ];
     }
 }

@@ -32,16 +32,7 @@ class MissionAssignationController extends Controller
 
             $userIds = $controllersList->pluck('id')->toArray();
 
-            // $query = "SELECT assigned_to_cc_id FROM mission_details WHERE assigned_to_cc_id IN (" . implode(',', $userIds) . ") AND mission_id = '$mission->id'";
-            // $missionDetails = DB::select($query);
-            // foreach ($controllersList as $controller) {
-            //     $userMissionDetails = array_filter($missionDetails, function ($missionDetail) use ($controller) {
-            //         return $missionDetail->assigned_to_cc_id == $controller->id;
-            //     });
-            //     $controller->total_mission_details = count($userMissionDetails);
-            // }
             $controllersList = formatForSelect($controllersList->filter(fn ($controller) => !$controller->total_mission_details)->toArray(), 'full_name');
-            // $assignedProcesses = $mission->dispatchedProcesses($type);
         } else {
             abort(500, "Le type $type est un type inconnu");
         }
@@ -89,15 +80,9 @@ class MissionAssignationController extends Controller
                 $result = false;
             }
 
-            return response()->json([
-                'message' => $message,
-                'status' => $result
-            ]);
+            return actionResponse($result, $message, $message);
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ]);
+            return throwedError($th);
         }
     }
 
@@ -130,21 +115,17 @@ class MissionAssignationController extends Controller
     public function destroy(Mission $mission, Process $process, User $user, string $type)
     {
         try {
-            return DB::transaction(function () use ($mission, $process, $user, $type) {
+            $results = DB::transaction(function () use ($mission, $process, $user, $type) {
                 $userDetails = $user->details($user)->where('mission_id', $mission->id)->whereRelation('process', 'processes.id', $process->id)->get();
+                $results = collect([]);
                 foreach ($userDetails as $detail) {
-                    $detail->update(['assigned_to_' . $type . '_id' => null]);
+                    $results->push($detail->update(['assigned_to_' . $type . '_id' => null]));
                 }
-                return response()->json([
-                    'message' => 'Détachement du processus avec succès !',
-                    'status' => true
-                ]);
+                return $results->hasAny(false);
             });
+            return actionResponse($results, 'Détachement du processus avec succès !');
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ]);
+            return throwedError($th);
         }
     }
 }

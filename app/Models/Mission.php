@@ -37,8 +37,8 @@ class Mission extends BaseModel
         'note',
         'programmed_start',
         'programmed_end',
-        'reel_start',
-        'reel_end',
+        'real_start',
+        'real_end',
         'ci_validation_by_id',
         'cdc_validation_by_id',
         'cc_validation_by_id',
@@ -57,6 +57,7 @@ class Mission extends BaseModel
         'cdcr_validator_full_name',
         'dcp_validator_full_name',
         'da_validator_full_name',
+        'is_for_testing',
     ];
 
     protected $hidden = [
@@ -95,14 +96,15 @@ class Mission extends BaseModel
         'total_major_facts',
         'is_late',
         'report_link',
+        'is_for_testing_str',
     ];
 
     protected $casts = [
         'progress_status' => 'int',
         'programmed_start' => 'date:d-m-Y',
         'programmed_end' => 'date:d-m-Y',
-        'reel_end' => 'date:d-m-Y',
-        'reel_start' => 'date:d-m-Y',
+        'real_end' => 'date:d-m-Y',
+        'real_start' => 'date:d-m-Y',
         'end' => 'date:d-m-Y',
     ];
 
@@ -112,16 +114,16 @@ class Mission extends BaseModel
      * Getters
      */
 
-    // public function getMissionOrderFileAttribute()
-    // {
-    //     return $this->missionOrder;
-    // }
+    public function getIsForTestingStrAttribute()
+    {
+        return $this->is_for_testing ? 'Oui' : 'Non';
+    }
     public function getIsLateAttribute()
     {
-        // DB::raw('(CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) > 15 OR reel_end > programmed_end THEN 1 ELSE 0 END) as is_late')
-        // return Carbon::parse($this->progremmed_end)->diffInDays(today()) > 15 || $this->reel_end > $this->programmed_end;
+        // DB::raw('(CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) > 15 OR real_end > programmed_end THEN 1 ELSE 0 END) as is_late')
+        // return Carbon::parse($this->progremmed_end)->diffInDays(today()) > 15 || $this->real_end > $this->programmed_end;
         $programmedEnd = Carbon::parse($this->programmed_end);
-        $reelEnd = Carbon::parse($this->reel_end);
+        $reelEnd = Carbon::parse($this->real_end);
         $cdcrValidationAt = Carbon::parse($this->cdcr_validation_at);
         $ccValidationAt = Carbon::parse($this->cc_validation_at);
         $dcpValidationAt = Carbon::parse($this->dcp_validation_at);
@@ -211,13 +213,13 @@ class Mission extends BaseModel
 
     public function getEndAttribute()
     {
-        $date = $this->reel_end ?: $this->programmed_end;
+        $date = $this->real_end ?: $this->programmed_end;
         return $date->format('d-m-Y');
     }
 
     public function getStartAttribute()
     {
-        $date = $this->reel_start ?: $this->programmed_start;
+        $date = $this->real_start ?: $this->programmed_start;
         // $date = $this->programmed_start;
         return $date->format('d-m-Y');
     }

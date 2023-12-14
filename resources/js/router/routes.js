@@ -58,7 +58,7 @@ export default [
      * Auth
      */
     { path: '/login', name: 'login', component: page('auth/login.vue') },
-    { path: '/password/new', name: 'password.new', component: page('auth/password/new.vue') },
+    { path: '/password/reset', name: 'password.reset', component: page('auth/reset.vue') },
 
     /**
      * Profile settings
@@ -506,6 +506,16 @@ export default [
             breadcrumb: {
                 parent: 'campaign',
                 label: 'Missions'
+            }
+        }
+    },
+    {
+        path: '/campaigns/:campaignId/statistics',
+        name: 'campaign-statistics',
+        component: page('campaigns/statistics.vue'),
+        meta: {
+            breadcrumb: {
+                label: 'Statistiques'
             }
         }
     },

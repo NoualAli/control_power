@@ -36,6 +36,7 @@ class UpdateUserInfoRequest extends FormRequest
             'is_active' => ['required', 'boolean'],
             'gender' => ['required', 'integer', 'in:1,2'],
             'registration_number' => ['nullable', 'numeric', 'unique:users,registration_number,' . $id . ',id', 'max_digits:5'],
+            'is_for_testing' => ['required', 'boolean'],
         ];
         $role = request()->role;
 

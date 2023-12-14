@@ -24,9 +24,9 @@ class Assigned extends Notification
      *
      * @return void
      */
-    public function __construct(int|Mission $mission, $type)
+    public function __construct(string|Mission $mission)
     {
-        $this->mission = is_integer($mission) ? Mission::findOrFail($mission) : $mission;
+        $this->mission = is_string($mission) ? Mission::findOrFail($mission) : $mission;
     }
 
     /**
@@ -47,7 +47,7 @@ class Assigned extends Notification
      */
     private function getTitle(): string
     {
-        return 'Assignation de mission';
+        return 'ASSIGNATION DE MISSION - ' . env('APP_NAME');
     }
 
     /**
@@ -68,7 +68,7 @@ class Assigned extends Notification
      */
     public function via($notifiable)
     {
-        if (!config('mail.default')) {
+        if (!config('mail.disabled')) {
             return ['mail', 'database'];
         }
         return ['database'];

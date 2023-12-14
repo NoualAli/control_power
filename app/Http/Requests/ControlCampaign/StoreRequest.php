@@ -30,7 +30,8 @@ class StoreRequest extends FormRequest
             'start_date' => ['required', 'date', new CheckCampaignDate],
             'end_date' => ['required', 'date', 'after:start', new CheckCampaignDate],
             'pcf' => ['required', 'array'],
-            'validate' => ['required', 'boolean'],
+            'is_validated' => ['required', 'boolean'],
+            'is_for_testing' => ['required', 'boolean'],
         ];
     }
 }

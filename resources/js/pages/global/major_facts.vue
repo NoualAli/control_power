@@ -1,12 +1,13 @@
 
 <template>
     <ContentBody>
-        <NLDatatable :columns="columns" :actions="actions" :filters="filters" title="Faits majeurs"
-            urlPrefix="details/major-facts" @show="show" :refresh="refresh"
+        <NLDatatable :searchValue="searchValue" :columns="columns" :actions="actions" :filters="filters"
+            title="Faits majeurs" urlPrefix="details/major-facts" @show="show" :refresh="refresh" :isSearchable="false"
             @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
 
         <!-- View control point informations -->
-        <MissionDetailModal :rowSelected="rowSelected" :show="modals.show" @showForm="showForm" @close="close" />
+        <MissionDetailModal :rowSelected="rowSelected" :show="modals.show" @success="success" @showForm="showForm"
+            @close="close" />
 
         <!-- Traitement du point de contrôle -->
         <MissionDetailForm :data="rowSelected" :show="modals.edit" @success="success" @close="close" />
@@ -29,6 +30,7 @@ export default {
         return {
             rowSelected: null,
             refresh: 0,
+            searchValue: null,
             columns: [
                 {
                     label: 'CDC-ID',
@@ -65,9 +67,24 @@ export default {
                     length: 50
                 },
                 {
-                    label: 'Transmis le',
-                    field: 'is_dispatched',
-                    hide: hasRole([ 'cc', 'cdcr', 'cdc', 'ci' ])
+                    label: 'Validé',
+                    field: 'is_validated',
+                    isHtml: true,
+                    methods: {
+                        showField(item) {
+                            let icon = 'times-circle'
+                            let color = 'text-danger'
+                            if (item.is_validated == 1 && item.is_pending == 0) {
+                                icon = 'check-circle'
+                                color = 'text-success'
+                            } else if (item.is_validated == 0 && item.is_pending == 1) {
+                                icon = 'exclamation-triangle'
+                                color = 'text-warning'
+                            }
+                            console.log(item.is_validated == 1 && item.is_pending != 1);
+                            return `<i class="las la-${icon} ${color} icon"></i>`
+                        }
+                    }
                 }
             ],
             actions: {
@@ -161,12 +178,17 @@ export default {
                     ],
                     value: null,
                     hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
-                }
+                },
             },
         }
     },
     created() {
         this.$store.dispatch('settings/updatePageLoading', true)
+        if (this.$route?.query?.id) {
+            this.searchValue = this.$route?.query?.id
+        } else if (this.$route.query[ 'filter[id]' ]) {
+            this.searchValue = this.$route?.query[ 'filter[id]' ]
+        }
     },
     methods: {
         /**
@@ -176,7 +198,8 @@ export default {
          */
         success(e) {
             this.refresh += 1
-            this.close()
+            this.show(this.rowSelected)
+            // this.close()
         },
         /**
         * Affiche le modal des informations du point de contrôle

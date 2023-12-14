@@ -45,6 +45,11 @@
                         label-required />
                 </NLColumn>
 
+                <NLColumn lg="6" v-if="!currentCampaign?.is_for_testing">
+                    <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form" label="Mission TEST"
+                        type="is-success" />
+                </NLColumn>
+
                 <!-- Note -->
                 <NLColumn>
                     <NLWyswyg v-model="form.note" :form="form" name="note" label="Note" :length="1000"
@@ -66,7 +71,7 @@
                 <template #default>
                     <div class="list grid gap-12">
                         <div class="col-12 col-lg-6 list-item">
-                            <span class="list-item-label">
+                            <span class="list-item-label text-bold">
                                 Début
                             </span>
                             <span class="list-item-content">
@@ -75,7 +80,7 @@
                             </span>
                         </div>
                         <div class="col-12 col-lg-6 list-item">
-                            <span class="list-item-label">
+                            <span class="list-item-label text-bold">
                                 Fin
                             </span>
                             <span class="list-item-content">
@@ -84,8 +89,8 @@
                             </span>
                         </div>
                         <div class="col-12 list-item">
-                            <span class="list-item-label">
-                                Description:
+                            <span class="list-item-label text-bold">
+                                Description
                             </span>
                             <div class="list-item-content content" v-html="currentCampaign?.description"></div>
                         </div>
@@ -112,7 +117,8 @@ export default {
                 end: null,
                 agency: null,
                 controllers: null,
-                control_campaign_id: null
+                control_campaign_id: null,
+                is_for_testing: false,
             }),
             currentCampaign: null,
             campaignsList: [],

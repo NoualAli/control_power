@@ -35,6 +35,7 @@ class StoreRequest extends FormRequest
             'programmed_end' => ['required', 'date', 'after:programmed_start', new IncludedInsideCDCDate(request()->control_campaign_id), new MissionDontExceedFifteenDays(request()->programmed_start)],
             'control_campaign_id' => ['required', 'exists:control_campaigns,id'],
             'note' => ['nullable', 'string', new MaxLengthQuill(1000)],
+            'is_for_testing' => ['required', 'boolean'],
         ];
     }
 }

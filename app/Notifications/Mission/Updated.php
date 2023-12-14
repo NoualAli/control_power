@@ -24,9 +24,9 @@ class Updated extends Notification
      *
      * @return void
      */
-    public function __construct(int|Mission $mission, $type)
+    public function __construct(string|Mission $mission)
     {
-        $this->mission = is_integer($mission) ? Mission::findOrFail($mission) : $mission;
+        $this->mission = is_string($mission) ? Mission::findOrFail($mission) : $mission;
     }
 
     /**
@@ -47,7 +47,7 @@ class Updated extends Notification
      */
     private function getTitle(): string
     {
-        return 'Mise à jour: mission ' . $this->mission->reference;
+        return 'MISE À JOUR MISSION ' . $this->mission->reference . ' - ' . env('APP_NAME');
     }
 
     /**
@@ -68,7 +68,7 @@ class Updated extends Notification
      */
     public function via($notifiable)
     {
-        if (!config('mail.default')) {
+        if (!config('mail.disabled')) {
             return ['mail', 'database'];
         }
         return ['database'];

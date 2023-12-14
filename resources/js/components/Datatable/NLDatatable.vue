@@ -1,6 +1,7 @@
 <template>
-    <Table :key="key" :filters="filters" :isLoading="isLoading" @search="(e) => this.loadData({ search: e })" :title="title"
-        @toggleFilter="toggleFilterState" :isSearchable="isSearchable">
+    <Table :searchValue="searchValue" :key="key" :filters="filters" :isLoading="isLoading"
+        @search="(e) => this.loadData({ search: e })" :title="title" @toggleFilter="toggleFilterState"
+        :isSearchable="isSearchable">
         <template #filter>
             <!-- Table filters -->
             <NLFilter :filters="filters" :isOpen="filterIsOpen" :customUrl="filtersCustomUrl" :urlPrefix="filtersUrlPrefix"
@@ -101,6 +102,7 @@ export default {
         filtersUrlPrefix: { type: String, required: false, default: null },
         isSearchable: { type: Boolean, required: false, default: true },
         refresh: { type: Number, required: false, default: 0 },
+        searchValue: { type: [ String, null ], required: false, default: null }
     },
     data() {
         return {
@@ -206,12 +208,13 @@ export default {
          */
         loadData({ page = 1, perPage = this.perPage, search = this.search, sorting = this.sorting, filters = this.activeFilters }) {
             this.isLoading = true
-            this.page = page
-            this.perPage = perPage
-            this.search = search
-            this.activeFilters = filters
-            this.handleSorting(sorting)
-            this.getUrl()
+            this.page = page;
+            this.perPage = perPage;
+            this.search = search;
+            this.activeFilters = filters;
+            this.handleSorting(sorting);
+            this.getUrl();
+
             api.get(this.url).then(response => {
                 this.isLoading = false
                 this.data = response.data

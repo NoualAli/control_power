@@ -1,6 +1,6 @@
 <template>
     <InputContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired" :length="length"
-        :current-length="currentLength" :help-text="helpText">
+        :current-length="currentLength" :help-text="helpText" v-if="!readonly">
         <div class="input-container" :class="{ 'is-password-input': type == 'password' }">
             <input :id="getId" :maxlength="length"
                 :class="[{ 'is-danger': form?.errors.has(name) }, 'input', { 'is-for-auth': isForAuth }]" :type="finalType"
@@ -13,6 +13,10 @@
             </div>
         </div>
     </InputContainer>
+    <div class="input-base-container" v-else>
+        <label class="label">{{ label }}</label>
+        <div class="content text-normal bg-parimary my-2">{{ modelValue }}</div>
+    </div>
 </template>
 
 <script>

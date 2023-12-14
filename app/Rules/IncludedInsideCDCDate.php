@@ -18,7 +18,7 @@ class IncludedInsideCDCDate implements Rule
      *
      * @return void
      */
-    public function __construct(int $campaign)
+    public function __construct(string $campaign)
     {
         $this->campaign = ControlCampaign::findOrFail($campaign);
     }

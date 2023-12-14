@@ -15,7 +15,8 @@ class Agency extends BaseModel
         'name',
         'code',
         'dre_id',
-        'category_id'
+        'category_id',
+        'is_for_testing',
     ];
 
     protected $perPage = 10;
@@ -25,12 +26,17 @@ class Agency extends BaseModel
     protected $searchable = ['name', 'code'];
 
     protected $appends = [
-        'full_name'
+        'full_name',
+        'is_for_testing_str'
     ];
 
     /**
      * Getters
      */
+    public function getIsForTestingStrAttribute()
+    {
+        return $this->is_for_testing ? 'Oui' : 'Non';
+    }
     public function getFullNameAttribute()
     {
         return $this->code . ' - ' . $this->name;

@@ -16,9 +16,14 @@
                 urlPrefix="users" @edit="edit" @delete="destroy" :refresh="refresh"
                 @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
                 <template #actions-before="{ item }">
-                    <a class="btn btn-office-excel" :href="'/excel-export?export=users&id=' + item.id" target="_blank">
+                    <a class="btn btn-office-excel" v-if="!item.must_change_password"
+                        :href="'/excel-export?export=users&id=' + item.id" target="_blank">
                         <i class="las la-file-excel icon" />
                     </a>
+                    <NLButton class="btn btn-danger" v-if="!isCurrent(item) && !item.must_change_password"
+                        @click.prevent="reset(item)">
+                        <i class="las la-backspace icon" />
+                    </NLButton>
                 </template>
             </NLDatatable>
         </ContentBody>
@@ -153,14 +158,16 @@ export default {
     },
     methods: {
         /**
-         * Vérifie si la ligne correspond à l'utilisateur actuel
+         * check if user is current
+         *
          * @param {Object} item
          */
         isCurrent(item) {
             return item?.id === user()?.id
         },
         /**
-         * Redirige vers la page d'edition
+         * Redirect to edit form
+         *
          * @param {Object} e
          */
         edit(e) {
@@ -168,7 +175,31 @@ export default {
         },
 
         /**
-         * Supprime la ressource
+         * Reset basic user informations
+         *
+         * @param {Object} user
+         */
+        reset(user) {
+            return this.$swal.confirm_destroy("Voulez-vous vraiment réinitialiser les informations de l'utilisateur <b>" + user?.username + "</b>").then((action) => {
+                if (action.isConfirmed) {
+                    return this.$api.post('users/reset/' + user?.id).then(response => {
+                        if (response.data.status) {
+                            this.refresh += 1
+                            return this.$swal.toast_success(response.data.message)
+                        } else {
+                            return this.$swal.toast_error(response.data.message)
+                        }
+                    })
+                }
+            }).catch(error => {
+                console.error(error)
+                this.$swal.alert_error()
+            })
+        },
+
+        /**
+         * Destroy user
+         *
          * @param {Object} e
          */
         destroy(e) {

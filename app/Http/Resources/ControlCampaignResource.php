@@ -15,6 +15,7 @@ class ControlCampaignResource extends JsonResource
     public function toArray($request)
     {
         isAbleOrAbort('view_control_campaign');
+
         return [
             'id' => $this->id,
             'created_by_id' => $this->created_by_id,
@@ -26,7 +27,8 @@ class ControlCampaignResource extends JsonResource
             'remaining_days_before_end' => $this->remaining_days_before_end,
             'remaining_days_before_start_str' => $this->remainingDaysBeforeStartStr(),
             'remaining_days_before_end_str' => $this->remainingDaysBeforeEndStr(),
-            'is_validated' => $this->is_validated
+            'is_validated' => $this->is_validated,
+            'is_for_testing' => $this->is_for_testing_str
         ];
     }
 
@@ -35,10 +37,11 @@ class ControlCampaignResource extends JsonResource
      */
     private function remainingDaysBeforeStartStr(): string
     {
-        if ($this->remaining_days_before_start <= 0 && $this->remaining_days_before_end > 0) {
+        // dd($this->remaining_days_before_start, $this->remaining_days_before_end, $this->reference);
+        if ($this->remaining_days_before_start <= 0 && $this->remaining_days_before_end >= 0) {
             return 'En cours';
         } else {
-            $remainingDays = $this->remaining_days_before_start > 1 ? $this->remaining_days_before_start . ' jours' : $this->remaining_days_before_start . ' jour';
+            $remainingDays = $this->remaining_days_before_start < 1 ? $this->remaining_days_before_start . ' jours' : $this->remaining_days_before_start . ' jour';
             return $this->remaining_days_before_end > 0 ? $remainingDays : '-';
         }
     }

@@ -30,6 +30,7 @@ class StoreRequest extends FormRequest
             'category_id' => ['required', 'exists:categories,id'],
             'pcf_usable' => ['nullable', 'array'],
             'pcf_unusable' => ['nullable', 'array'],
+            'is_for_testing' => ['required', 'boolean'],
         ];
     }
 }
