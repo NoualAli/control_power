@@ -569,13 +569,12 @@ class DataController extends Controller
         } elseif (hasRole('dre')) {
             $campaigns = $campaigns->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
         }
-
         $campaigns = $campaigns->whereNotNull('c.validated_at')->where('c.is_for_testing', false);
 
         if (request()->has('onlyCurrentCampaign') && !request()->has('campaign')) {
-            $currentCampaign = $this->getCampaigns()->select('campaign_id')->whereNotNull('validated_at')->orderBy('c.id', 'DESC')->first();
+            $currentCampaign = getControlCampaigns()->select('c.id')->whereNotNull('validated_at')->orderBy('c.id', 'DESC')->first();
             if ($currentCampaign) {
-                $campaigns = $campaigns->where('c.id', $currentCampaign?->campaign_id);
+                $campaigns = $campaigns->where('m.control_campaign_id', $currentCampaign?->id);
             }
         }
         if (request()->has('campaign') && !request()->has('onlyCurrentCampaign')) {
@@ -607,9 +606,9 @@ class DataController extends Controller
             ->join('dres as d', 'd.id', 'a.dre_id');
 
         if (request()->has('onlyCurrentCampaign') && !request()->has('campaign')) {
-            $currentCampaign = $this->getCampaigns()->select('campaign_id')->whereNotNull('validated_at')->orderBy('c.id', 'DESC')->first();
+            $currentCampaign = getControlCampaigns()->select('c.id')->whereNotNull('validated_at')->orderBy('c.id', 'DESC')->first();
             if ($currentCampaign) {
-                $details = $details->where('m.control_campaign_id', $currentCampaign?->campaign_id);
+                $details = $details->where('m.control_campaign_id', $currentCampaign?->id);
             }
         }
         if (request()->has('campaign') && !request()->has('onlyCurrentCampaign')) {
@@ -654,9 +653,9 @@ class DataController extends Controller
             ->join('dres as d', 'd.id', 'a.dre_id');
 
         if (request()->has('onlyCurrentCampaign') && !request()->has('campaign')) {
-            $currentCampaign = $this->getCampaigns()->select('campaign_id')->whereNotNull('validated_at')->orderBy('c.id', 'DESC')->first();
+            $currentCampaign = getControlCampaigns()->select('c.id')->whereNotNull('validated_at')->orderBy('c.id', 'DESC')->first();
             if ($currentCampaign) {
-                $details = $details->where('m.control_campaign_id', $currentCampaign?->campaign_id);
+                $details = $details->where('m.control_campaign_id', $currentCampaign?->id);
             }
         }
         if (request()->has('campaign') && !request()->has('onlyCurrentCampaign')) {
@@ -706,9 +705,9 @@ class DataController extends Controller
             ->join('dres as d', 'd.id', 'a.dre_id');
 
         if (request()->has('onlyCurrentCampaign') && !request()->has('campaign')) {
-            $currentCampaign = $this->getCampaigns()->select('campaign_id')->whereNotNull('validated_at')->orderBy('c.id', 'DESC')->first();
+            $currentCampaign = getControlCampaigns()->select('c.id')->whereNotNull('validated_at')->orderBy('c.id', 'DESC')->first();
             if ($currentCampaign) {
-                $missions = $missions->where('m.control_campaign_id', $currentCampaign?->campaign_id);
+                $missions = $missions->where('m.control_campaign_id', $currentCampaign?->id);
             }
         }
         if (request()->has('campaign') && !request()->has('onlyCurrentCampaign')) {
@@ -730,6 +729,7 @@ class DataController extends Controller
             $missions = $missions->whereIn('m.agency_id', $user->agencies->pluck('id'));
         }
         $missions = $missions->where('m.is_for_testing', false);
+
         return $missions;
     }
 
