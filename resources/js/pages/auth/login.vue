@@ -24,7 +24,7 @@
                     </NLColumn>
                 </NLGrid>
                 <NLFlex lgJustifyContent="center">
-                    <NLButton :loading="form.busy" label="Connexion" class="d-flex flex-row w-100">
+                <NLButton :loading="form.busy" label="Connexion" class="d-flex flex-row w-100">
                         <i class="las la-sign-in-alt icon"></i>
                     </NLButton>
                 </NLFlex>
