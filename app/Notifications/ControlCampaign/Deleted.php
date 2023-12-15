@@ -36,10 +36,16 @@ class Deleted extends Notification
      */
     public function via($notifiable)
     {
-        if (!config('mail.disabled')) {
-            return ['mail', 'database'];
+        $channels = collect([]);
+        $setting = $notifiable->notification_settings()->whereRelation('type', 'code', 'control_campaign_deleted')->first();
+        if ($setting?->database_is_enabled) {
+            $channels->push('database');
         }
-        return ['database'];
+
+        if ($setting?->email_is_enabled && !config('mail.disabled')) {
+            $channels->push('mail');
+        }
+        return $channels->toArray();
     }
 
     /**
@@ -49,7 +55,7 @@ class Deleted extends Notification
      */
     private function getTitle(): string
     {
-        return  'CAMPAGNE DE CONTRÔLE ' . $this->campaign->reference . ' ANNULÉ - ' . env('APP_NAME');
+        return  'CAMPAGNE DE CONTRÔLE ' . $this->campaign->reference . ' ANNULE - ' . env('APP_NAME');
     }
 
     /**

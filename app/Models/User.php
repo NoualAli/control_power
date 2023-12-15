@@ -72,6 +72,7 @@ class User extends Authenticatable implements JWTSubject
         'created_at' => 'datetime',
         'must_change_password' => 'boolean',
         'is_active' => 'boolean',
+        'is_for_testing' => 'boolean',
         'gender' => 'integer',
     ];
 
@@ -259,6 +260,12 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Bug::class, 'created_by_id', 'id');
     }
+
+    public function notification_settings()
+    {
+        return $this->hasMany(UserHasNotification::class);
+    }
+
     /**
      * Scopes
      */

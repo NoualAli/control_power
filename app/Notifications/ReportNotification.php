@@ -82,10 +82,16 @@ class ReportNotification extends Notification
      */
     public function via($notifiable)
     {
-        if (!config('mail.disabled')) {
-            return ['mail', 'database'];
+        $channels = collect([]);
+        $setting = $notifiable->notification_settings()->whereRelation('type', 'code', 'mission_pdf_repport_generated')->first();
+        if ($setting?->database_is_enabled) {
+            $channels->push('database');
         }
-        return ['database'];
+
+        if ($setting?->email_is_enabled && !config('mail.disabled')) {
+            $channels->push('mail');
+        }
+        return $channels->toArray();
     }
 
     /**

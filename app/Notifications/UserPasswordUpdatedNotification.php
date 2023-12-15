@@ -63,7 +63,7 @@ class UserPasswordUpdatedNotification extends Notification
      */
     private function getTitle(): string
     {
-        return 'RÉINITIALISATION DU MOT DE PASSE - ' . env('APP_NAME');
+        return 'REINITIALISATION DU MOT DE PASSE - ' . env('APP_NAME');
     }
 
     /**

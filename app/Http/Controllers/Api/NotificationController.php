@@ -4,10 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\NotificationResource;
-use App\Models\MissionDetail;
-use App\Models\User;
-use App\Notifications\Mission\MajorFact\Detected;
-use Illuminate\Support\Facades\Notification;
 
 class NotificationController extends Controller
 {
@@ -28,7 +24,6 @@ class NotificationController extends Controller
             if (request()->has('withCount')) {
                 $totalUnread = auth()->user()->unreadNotifications()->count();
                 return response()->json($totalUnread);
-                // return compact('notifications', 'totalUnread');
             }
             $notifications = auth()->user()->notifications();
 
@@ -59,12 +54,13 @@ class NotificationController extends Controller
             ]);
         }
     }
+
     /**
      * Mark unread notifications as read
      *
      * @return true
      */
-    public function update()
+    public function read()
     {
         auth()->user()->unreadNotifications->markAsRead();
         $notifications = auth()->user()->unreadNotifications;

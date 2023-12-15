@@ -36,11 +36,16 @@ class Created extends Notification
      */
     public function via($notifiable)
     {
-        $channels = ['database'];
-        if (!config('mail.disabled')) {
-            $channels = ['mail', 'database'];
+        $channels = collect([]);
+        $setting = $notifiable->notification_settings()->whereRelation('type', 'code', 'control_campaign_created')->first();
+        if ($setting?->database_is_enabled) {
+            $channels->push('database');
         }
-        return $channels;
+
+        if ($setting?->email_is_enabled && !config('mail.disabled')) {
+            $channels->push('mail');
+        }
+        return $channels->toArray();
     }
 
     /**

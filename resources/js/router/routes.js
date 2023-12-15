@@ -627,7 +627,17 @@ export default [
         component: page('notifications/index'),
         meta: {
             breadcrumb: {
-                label: 'Centre de notification'
+                label: 'Centre des notifications'
+            }
+        }
+    },
+    {
+        path: '/notifications/settings',
+        name: 'notifications-settings',
+        component: page('notifications/settings'),
+        meta: {
+            breadcrumb: {
+                label: 'Paramètre du centre des notifications'
             }
         }
     },

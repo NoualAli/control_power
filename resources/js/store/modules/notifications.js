@@ -5,7 +5,7 @@ export const state = {
     total_unread_major_facts: 0,
     all: null,
     paginated: null,
-    // unread: 0
+    settings: null
 }
 
 export const mutations = {
@@ -19,12 +19,19 @@ export const mutations = {
     SET_ALL(state, data) {
         state.all = data
     },
+    SET_SETTINGS(state, data) {
+        state.settings = data
+    },
     SET_PAGINATED(state, data) {
         state.paginated = data
     }
 }
 
 export const actions = {
+    async fetchSettings({ commit }, userId) {
+        const { data } = await api.get('notifications/settings/' + userId)
+        commit('SET_SETTINGS', { settings: data })
+    },
     async fetchAll({ commit }) {
         const { data } = await api.get('notifications?fetchAll')
         commit('SET_ALL', { all: data })
@@ -57,5 +64,6 @@ export const getters = {
     all: state => state.all,
     paginated: state => state.paginated,
     current: state => state.current,
-    totalUnread: state => state.totalUnread
+    totalUnread: state => state.totalUnread,
+    settings: state => state.settings
 }

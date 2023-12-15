@@ -1,6 +1,17 @@
 <template>
+    <ContentHeader>
+        <template #title>
+            Centre des notifications
+        </template>
+        <template class="d-flex justify-between align-center gap-3 mb-9" #actions>
+            <router-link :to="{ name: 'notifications-settings' }" class="btn btn-info has-icon">
+                <i class="las la-cog icon"></i>
+                Paramètres
+            </router-link>
+        </template>
+    </ContentHeader>
     <ContentBody>
-        <NLDatatable :columns="columns" title="Liste des notifications" urlPrefix="notifications"
+        <NLDatatable :columns="columns" urlPrefix="notifications"
             @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
             <template #actions-after="{ item }">
                 <button class="btn btn-success has-icon" @click.stop="show(item)" v-if="!!item.url">
@@ -17,7 +28,7 @@ export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     metaInfo() {
-        return { title: 'Centre de notification' }
+        return { title: 'Centre des notifications' }
     },
     data: () => {
         return {

@@ -135,9 +135,9 @@ class Validated extends Notification
     private function getObject(): string
     {
         if ($this->type == 'ci' || 'ci_report') {
-            return 'MISSION ' . $this->mission->reference . ' RÉALISÉE ET VALIDÉE PAR ' . auth()->user()->full_name_with_martial . ' - ' . env('APP_NAME');
+            return 'MISSION ' . $this->mission->reference . ' REALISEE ET VALIDEE PAR ' . auth()->user()->full_name_with_martial . ' - ' . env('APP_NAME');
         }
-        return 'MISSION ' . $this->mission->reference . ' TRAITÉE ER VALIDÉE PAR ' . auth()->user()->full_name_with_martial . ' - ' . env('APP_NAME');
+        return 'MISSION ' . $this->mission->reference . ' TRAITEE ER VALIDEE PAR ' . auth()->user()->full_name_with_martial . ' - ' . env('APP_NAME');
     }
 
     /**
@@ -157,10 +157,16 @@ class Validated extends Notification
      */
     public function via($notifiable)
     {
-        if (!config('mail.disabled')) {
-            return ['mail', 'database'];
+        $channels = collect([]);
+        $setting = $notifiable->notification_settings()->whereRelation('type', 'code', 'mission_validated')->first();
+        if ($setting?->database_is_enabled) {
+            $channels->push('database');
         }
-        return ['database'];
+
+        if ($setting?->email_is_enabled && !config('mail.disabled')) {
+            $channels->push('mail');
+        }
+        return $channels->toArray();
     }
 
     /**

@@ -2,24 +2,25 @@
 
 namespace App\Notifications;
 
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use stdClass;
 
-class ResetUserNotification extends Notification
+class UpdateUsernamesNotification extends Notification
 {
     use Queueable;
+
     /**
-     * @var \App\Models\User
+     * @var stdClass
      */
     private $user;
 
     /**
-     * @var string
+     * @var stdClass
      */
-    private $password;
+    private $role;
 
     /**
      * Create a new notification instance.
@@ -27,10 +28,10 @@ class ResetUserNotification extends Notification
      * @param string $password
      * @return void
      */
-    public function __construct(User $user)
+    public function __construct(stdClass $role, stdClass $user)
     {
         $this->user = $user;
-        $this->password = config('auth.password_default');
+        $this->role = $role;
     }
 
     /**
@@ -40,20 +41,27 @@ class ResetUserNotification extends Notification
      */
     private function getContent(): array
     {
-        $role = $this->user->role->name;
+        $role = $this->role->name;
         $ligns = [
-            'Nous vous informons que la réinitialisation des informations de base de votre compte (Profil : ' . $role . ') s\'est déroulée avec succès.',
-            'Voici vos informations d\'authentification :',
-            ' - Adresse e-mail : ' . $this->user->email,
-            ' - Nom d\'utilisateur : ' . $this->user->username,
-            ' - Nouveau mot de passe : ' . $this->password,
-            'Vous avez la possibilité de vous connecter en utilisant soit votre adresse e-mail ou nom d\'utilisateur.',
-            'Veuillez noter qu\'il est obligatoire de changer votre mot de passe lors de votre prochaine connexion.',
+            'Nous vous informons que votre nom d\'utilisateur (Profil : ' . $role . ') a été mis à jour avec succès.',
+            'Votre nom d\'utilisateur passe de ' . $this->user->username . ' à ' . $this->user->new_username,
+            'Vous avez la possibilité de vous connecter en utilisant soit votre adresse e-mail ou votre nouveau nom d\'utilisateur.',
+            'Veuillez noter qu\'il est obligatoire de changer votre mot de passe lors de votre première connexion.',
             'Garder votre mot de passe confidentiel pour assurer la sécurité de votre compte. Nous ne pourrons être tenus responsables de tout accès non autorisé résultant d\'informations de connexion partagées.',
             'Pour une meilleure expérience d\'utilisation de la plateforme CONTROL POWER, nous vous recommandons d\'utiliser un navigateur web tel que Microsoft Edge ou Google Chrome',
             'Pour toutes difficultés ou informations complémentaires, il y a lieu de se rapprocher de la Direction du contrôle permanent (D.C.P)',
         ];
         return $ligns;
+    }
+
+    /**
+     * Get database body
+     *
+     * @return array
+     */
+    private function getShortContent(): string
+    {
+        return 'Nous vous informons votre nom d\'utilisateur passe de <b>' . $this->user->username . '</b> à <b>' . $this->user->new_username . '</b>';
     }
 
     /**
@@ -63,7 +71,7 @@ class ResetUserNotification extends Notification
      */
     private function getTitle(): string
     {
-        return 'REINITIALISATION DU COMPTE - ' . env('APP_NAME');
+        return 'MISE A JOUR NOM D\'UTILISATEUR - ' . env('APP_NAME');
     }
 
     /**
@@ -107,9 +115,6 @@ class ResetUserNotification extends Notification
             ->line($this->getContent()[4])
             ->line($this->getContent()[5])
             ->line($this->getContent()[6])
-            ->line($this->getContent()[7])
-            ->line($this->getContent()[8])
-            ->line($this->getContent()[9])
             ->action('Se connecter', $this->getUrl())
             // ->line('Merci d\'utiliser ControlPower!')
             ->success();
@@ -127,8 +132,9 @@ class ResetUserNotification extends Notification
             'id' => $this->user->id,
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
+            'short_content' => $this->getContent(),
             'title' => $this->getTitle(),
-            'emitted_by' => auth()->user()->username,
+            'emitted_by' => auth()?->user()?->username,
         ];
     }
 }

@@ -5,6 +5,9 @@
                 <!-- Update User informations -->
                 <NLColumn>
                     <NLForm :action="updateInfos" :form="form">
+                        <NLColumn>
+                            <h2>Informations du compte</h2>
+                        </NLColumn>
                         <!-- Firstname -->
                         <NLColumn lg="6" md="6">
                             <NLInput v-model="form.first_name" :form="form" name="firstname" label="Prénom" />
@@ -46,7 +49,7 @@
                         </NLColumn>
 
                         <!-- DRE / Agencies -->
-                        <NLColumn lg="6" md="6" v-if="[11, 13, 6, 5].includes(form.role)">
+                        <NLColumn lg="6" md="6" v-if="this.showDres">
                             <NLSelect v-model="form.agencies" :form="form" name="agencies" label="DRE / Agences"
                                 :options="dresList" placeholder="Choisissez une DRE" :multiple="dreOptions.selectMultiple"
                                 :disableBranchNodes="dreOptions.disableBranchNodes" />
@@ -57,13 +60,14 @@
                             <NLSelect v-model="form.gender" :form="form" name="gender" label="Genre"
                                 placeholder="Choisissez un genre" :options="gendersList" labelRequired />
                         </NLColumn>
+                        <NLColumn></NLColumn>
 
                         <!-- Active -->
                         <NLColumn v-if="showIsActiveSwitch" lg="6">
                             <NLSwitch v-model="form.is_active" name="is_active" :form="form" label="Le compte est activé ?"
                                 type="is-success" />
                         </NLColumn>
-
+                        <!-- Testing -->
                         <NLColumn lg="6">
                             <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form"
                                 label="Utilisateur TEST" type="is-success" />
@@ -80,7 +84,10 @@
 
                 <!-- Update Password -->
                 <NLColumn>
-                    <NLForm :action="updatePassword" :form="form">
+                    <NLForm :action="updatePassword" :form="passwordForm">
+                        <NLColumn>
+                            <h2>Mot de passe</h2>
+                        </NLColumn>
                         <!-- Password -->
                         <NLColumn lg="4" md="4">
                             <NLInput v-model="passwordForm.password" :form="passwordForm" label="Mot de passe"
@@ -95,6 +102,43 @@
                         <NLColumn>
                             <NLFlex lgJustifyContent="end">
                                 <NLButton :loading="passwordForm.busy" label="Mettre à jour" />
+                            </NLFlex>
+                        </NLColumn>
+                    </NLForm>
+                </NLColumn>
+
+                <!-- Update notifications -->
+                <NLColumn>
+                    <NLForm :action="updateNotifications" :form="notificationsForm">
+                        <NLColumn>
+                            <h2>Notifications</h2>
+                        </NLColumn>
+                        <NLColumn v-for="(notification, groupIndex) in notificationsSettingsList">
+                            <NLGrid>
+                                <NLColumn>
+                                    <h3>{{ notification.label }}</h3>
+                                </NLColumn>
+                                <NLColumn v-for="(type, typeIndex) in notification.settings">
+                                    <NLGrid extraClass="border-bottom-1 border-primary">
+                                        <NLColumn lg="8">
+                                            <NLFlex extraClass="w-100 h-100" alignItems="center">
+                                                <b>{{ type.label }}</b>
+                                            </NLFlex>
+                                        </NLColumn>
+                                        <NLColumn lg="2">
+                                            <NLSwitch label="Plateforme"
+                                                v-model="notificationsForm[type.id].database_is_enabled" />
+                                        </NLColumn>
+                                        <NLColumn lg="2">
+                                            <NLSwitch label="Email" v-model="notificationsForm[type.id].email_is_enabled" />
+                                        </NLColumn>
+                                    </NLGrid>
+                                </NLColumn>
+                            </NLGrid>
+                        </NLColumn>
+                        <NLColumn>
+                            <NLFlex lgJustifyContent="end">
+                                <NLButton :loading="notificationsForm.busy" label="Mettre à jour" />
                             </NLFlex>
                         </NLColumn>
                     </NLForm>
@@ -131,8 +175,11 @@ export default {
                 password: null,
                 password_confirmation: null
             }),
+            notificationsForm: new Form({}),
             dresList: [],
+            showDres: false,
             rolesList: [],
+            notificationsSettingsList: [],
             gendersList: [
                 {
                     label: 'Homme',
@@ -150,11 +197,14 @@ export default {
             showIsActiveSwitch: hasRole([ 'root', 'admin' ]),
         }
     },
-    computed: mapGetters({
-        user: 'users/current',
-        dres: 'dre/all',
-        roles: 'roles/all'
-    }),
+    computed: {
+        ...mapGetters({
+            user: 'users/current',
+            dres: 'dre/all',
+            roles: 'roles/all',
+            notifications: 'notifications/settings',
+        }),
+    },
     watch: {
         /**
          * Manage DRE display and options
@@ -162,34 +212,8 @@ export default {
          * @param {Numeric|null} oldValue
          */
         "form.role"(newValue, oldValue) {
-            // 11 -> da -> accès à une seule agence à la fois -> Selection agence uniquement
-            // 6 -> ci -> accès à toutes les agences -> Selection agence uniquement
-            // 13 -> dre -> accès à toutes les agences -> Selection DRE uniquement
-            // 5 -> cdc -> accès à toutes les agences -> Selection DRE uniquement
-            // this.form.agencies = null
-            this.dreOptions = {
-                selectMultiple: false,
-                disableBranchNodes: false,
-            }
             if (newValue !== oldValue) {
-                if ([ 13, 5 ].includes(newValue)) {
-                    this.dresList.forEach(dre => delete dre.children)
-                }
-
-                if (newValue == 6) {
-                    this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
-                        this.dresList = this.dres.all
-                    })
-                    // this.form.agencies = []
-                    this.dreOptions.selectMultiple = true
-                }
-
-                if (newValue == 11) {
-                    this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
-                        this.dresList = this.dres.all
-                    })
-                    this.dreOptions.disableBranchNodes = true
-                }
+                this.initDreAndAgencies(newValue)
             }
         }
     },
@@ -204,18 +228,34 @@ export default {
                 this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
                     this.dresList = this.dres.all
                     this.$store.dispatch('users/fetch', this.$route.params.user).then(() => {
-                        this.form.fill(this.user.current)
+                        this.form.username = this.user.current.username
+                        this.form.email = this.user.current.email
+                        this.form.first_name = this.user.current.first_name
+                        this.form.last_name = this.user.current.last_name
+                        this.form.phone = this.user.current.phone
+                        this.form.is_active = this.user.current.is_active
+                        this.form.gender = this.user.current.gender
+                        this.form.registration_number = this.user.current.registration_number
+                        this.form.is_for_testing = this.user.current.is_for_testing
                         this.form.role = this.user.current.active_role_id
                         if ([ 13, 5 ].includes(this.form.role)) {
+                            this.showDres = true
                             this.form.agencies = 'd-' + this.user?.current?.dres[ 0 ]?.id
                         }
                         if (this.form.role == 6) {
+                            this.showDres = true
                             this.form.agencies = this.user?.current?.agencies.map(item => item.id)
                         }
                         if (this.form.role == 11) {
+                            this.showDres = true
                             this.form.agencies = this.user?.current?.agencies[ 0 ]?.id
                         }
-                        this.$store.dispatch('settings/updatePageLoading', false)
+                        this.initDreAndAgencies(this.form.role)
+                        this.$store.dispatch('notifications/fetchSettings', this.user.current.id).then(() => {
+                            this.notificationsSettingsList = this.notifications.settings
+                            this.initNotifications()
+                            this.$store.dispatch('settings/updatePageLoading', false)
+                        })
                     })
                 })
             })
@@ -226,7 +266,6 @@ export default {
                     this.form.put('users/info/' + this.user.current.id).then(response => {
                         if (response.data.status) {
                             this.$swal.toast_success(response.data.message)
-                            this.$router.push({ name: 'users-index' })
                         } else {
                             this.$swal.alert_error(response.data.message)
                         }
@@ -243,7 +282,6 @@ export default {
                         if (response.data.status) {
                             this.$swal.toast_success(response.data.message)
                             this.passwordForm.reset()
-                            this.$router.push({ name: 'users-index' })
                         } else {
                             this.$swal.alert_error(response.data.message)
                         }
@@ -252,6 +290,62 @@ export default {
                     })
                 }
             })
+        },
+        updateNotifications() {
+            this.$swal.confirm_update().then((action) => {
+                if (action.isConfirmed) {
+                    this.notificationsForm.put('notifications/settings/' + this.user.current.id).then(response => {
+                        if (response.data.status) {
+                            this.$swal.toast_success(response.data.message)
+                        } else {
+                            this.$swal.alert_error(response.data.message)
+                        }
+                    }).catch(error => {
+                        console.log(error)
+                    })
+                }
+            })
+        },
+        initNotifications() {
+            this.notificationsSettingsList.forEach(group => {
+                group.settings.forEach(setting => {
+                    this.notificationsForm[ setting.id ] = {
+                        'database_is_enabled': setting?.database_is_enabled == '1',
+                        'email_is_enabled': setting?.email_is_enabled == '1'
+                    }
+                })
+            })
+        },
+        initDreAndAgencies(value, oldValue) {
+            // 11 -> da -> accès à une seule agence à la fois -> Selection agence uniquement
+            // 6 -> ci -> accès à toutes les agences -> Selection agence uniquement
+            // 13 -> dre -> accès à toutes les agences -> Selection DRE uniquement
+            // 5 -> cdc -> accès à toutes les agences -> Selection DRE uniquement
+            // this.form.agencies = null
+            this.dreOptions = {
+                selectMultiple: false,
+                disableBranchNodes: false,
+            }
+            if ([ 13, 5 ].includes(value)) {
+                this.showDres = true
+                this.dresList.forEach(dre => delete dre.children)
+            }
+
+            if (value == 6) {
+                this.showDres = true
+                this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
+                    this.dresList = this.dres.all
+                })
+                this.dreOptions.selectMultiple = true
+            }
+
+            if (value == 11) {
+                this.showDres = true
+                this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
+                    this.dresList = this.dres.all
+                })
+                this.dreOptions.disableBranchNodes = true
+            }
         }
     }
 }

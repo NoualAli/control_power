@@ -97,10 +97,16 @@ class MissionDetailAssigned extends Notification
      */
     public function via($notifiable)
     {
-        if (!config('mail.disabled')) {
-            return ['mail', 'database'];
+        $channels = collect([]);
+        $setting = $notifiable->notification_settings()->whereRelation('type', 'code', 'mission_assigned')->first();
+        if ($setting?->database_is_enabled) {
+            $channels->push('database');
         }
-        return ['database'];
+
+        if ($setting?->email_is_enabled && !config('mail.disabled')) {
+            $channels->push('mail');
+        }
+        return $channels->toArray();
     }
 
     /**
@@ -119,17 +125,6 @@ class MissionDetailAssigned extends Notification
             ->action('Voir la mission', $this->getUrl())
             ->line('Merci d\'utiliser ControlPower')
             ->success();
-
-        // return (new MailMessage)
-        //     ->subject($this->getTitle())
-        //     ->greeting('Bonjour ' . $this->controller->full_name)
-        //     ->line($this->getContent())
-        //     ->line('Liste des processus:')
-        //     ->view('email_views.processes_list')
-        //     ->with(['htmlContent' => 'test'])
-        //     ->action('Voir la mission', $this->getUrl())
-        //     ->line('Merci d\'utiliser ControlPower')
-        //     ->success();
     }
 
     /**

@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\Settings\PasswordController;
 use App\Http\Controllers\Api\ReferenceController;
 use App\Http\Controllers\Api\MissionDetailRegularizationController;
 use App\Http\Controllers\Api\ModuleController;
+use App\Http\Controllers\Api\NotificationSettingController;
 use App\Http\Controllers\Api\Settings\SettingController;
 use Illuminate\Support\Facades\Route;
 
@@ -264,9 +265,13 @@ Route::group(['middleware' => 'auth:api'], function () {
 
         Route::prefix('notifications')->controller(NotificationController::class)->group(function () {
             Route::get('/', 'index');
-            Route::put('/', 'update');
+            Route::put('/', 'read');
             Route::get('unreadNotifications', 'unreadNotifications');
             Route::post('read-major-facts', 'read_major_facts');
+            Route::prefix('settings')->controller(NotificationSettingController::class)->group(function () {
+                Route::get('{user}', 'index');
+                Route::put('{user}', 'update');
+            });
         });
 
         Route::prefix('bugs')->controller(BugController::class)->group(function () {
