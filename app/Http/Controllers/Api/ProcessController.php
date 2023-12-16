@@ -9,6 +9,7 @@ use App\Http\Resources\ProcessResource;
 use App\Models\ControlPoint;
 use App\Models\Process;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class ProcessController extends Controller
 {
@@ -52,20 +53,26 @@ class ProcessController extends Controller
     public function store(StoreRequest $request): JsonResponse
     {
         try {
-            $data = $request->validated();
-            $process = Process::create($data);
+            DB::transaction(function () use ($request) {
+                $data = $request->validated();
+                $media = $data['media'];
+                unset($data['media']);
+                $process = Process::create($data);
+                foreach ($media as $id) {
+                    $media = DB::table('has_media')->updateOrInsert([
+                        'attachable_id' => $process->id,
+                        'attachable_type' => Process::class,
+                        'media_id' => $id,
+                    ]);
+                }
+            });
 
             return response()->json([
                 'message' => CREATE_SUCCESS,
                 'status' => true
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], $code);
+            return throwedError($th);
         }
     }
     /**
@@ -100,12 +107,7 @@ class ProcessController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], $code);
+            return throwedError($th);
         }
     }
 
@@ -125,12 +127,7 @@ class ProcessController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], $code);
+            return throwedError($th);
         }
     }
 }

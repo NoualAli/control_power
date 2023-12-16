@@ -5,18 +5,24 @@
                 <!-- Familliies -->
                 <NLColumn lg="6" md="6">
                     <NLSelect v-model="form.family_id" :form="form" name="family_id" label="Famille"
-                        :options="familliesList" label-required :multiple="false"
+                        :options="familliesList" labelRequired :multiple="false"
                         placeholder="Veuillez choisir une famille" />
                 </NLColumn>
                 <!-- Domains -->
                 <NLColumn lg="6" md="6">
                     <NLSelect v-model="form.domain_id" :form="form" name="domain_id" label="Domaine" :options="domainsList"
-                        label-required :multiple="false" placeholder="Veuillez choisir un domaine" />
+                        labelRequired :multiple="false" placeholder="Veuillez choisir un domaine" />
                 </NLColumn>
                 <!-- Name -->
                 <NLColumn lg="6" md="6">
-                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required
+                    <NLInput v-model="form.name" :form="form" name="name" label="Nom" labelRequired
                         placeholder="Veuillez saisir le nom de processus" />
+                </NLColumn>
+                <!-- Docs -->
+                <NLColumn>
+                    <NLFile v-model="form.media" :form="form" name="media" label="Documentation"
+                        attachable-type="App\Models\Process" :attachable-id="process.current.id" @uploaded="handleMedia"
+                        @deleted="handleMedia" @loaded="handleMedia" />
                 </NLColumn>
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
@@ -56,7 +62,8 @@ export default {
             form: new Form({
                 name: null,
                 family_id: null,
-                domain_id: null
+                domain_id: null,
+                media: {},
             })
         }
     },
@@ -68,6 +75,7 @@ export default {
                     this.familliesList = this.families.all
                     this.loadDomains(this.form.family_id)
                 })
+                this.form.media = this.process.current.media?.map((item) => item.id)
                 this.form.name = this.process.current.name
                 this.form.family_id = this.process.current.family.id
                 this.form.domain_id = this.process.current.domain_id
@@ -82,6 +90,9 @@ export default {
             } else {
                 this.domainsList = []
             }
+        },
+        handleMedia(files) {
+            this.form.media = files
         },
         update() {
             this.form.put('processes/' + this.$route.params.process).then(response => {
