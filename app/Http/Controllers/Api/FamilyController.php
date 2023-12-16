@@ -67,12 +67,7 @@ class FamilyController extends Controller
                 'status' => true
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], $code);
+            return throwedError($th);
         }
     }
     /**
@@ -107,12 +102,7 @@ class FamilyController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], $code);
+            return throwedError($th);
         }
     }
 
@@ -132,12 +122,7 @@ class FamilyController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], $code);
+            return throwedError($th);
         }
     }
 }
