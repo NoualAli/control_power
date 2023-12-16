@@ -20,7 +20,8 @@
                         :href="'/excel-export?export=users&id=' + item.id" target="_blank">
                         <i class="las la-file-excel icon" />
                     </a>
-                    <NLButton class="btn btn-danger" v-if="!isCurrent(item) && !item.must_change_password"
+                    <NLButton class="btn btn-danger"
+                        v-if="!isCurrent(item) && !item.must_change_password && is(['root', 'admin'])"
                         @click.prevent="reset(item)">
                         <i class="las la-backspace icon" />
                     </NLButton>

@@ -10,30 +10,32 @@
                         </NLColumn>
                         <!-- Firstname -->
                         <NLColumn lg="6" md="6">
-                            <NLInput v-model="form.first_name" :form="form" name="firstname" label="Prénom" />
+                            <NLInput v-model="form.first_name" :form="form" name="firstname" label="Prénom" labelRequired
+                                :length="50" />
                         </NLColumn>
 
                         <!-- Lastname -->
                         <NLColumn lg="6" md="6">
-                            <NLInput v-model="form.last_name" :form="form" name="last_name" label="Nom de famille" />
+                            <NLInput v-model="form.last_name" :form="form" name="last_name" label="Nom de famille"
+                                labelRequired :length="50" />
                         </NLColumn>
 
                         <!-- Registration number -->
                         <NLColumn lg="6" md="6">
                             <NLInput v-model="form.registration_number" :form="form" name="registration_number"
-                                label="Matricule" type="number" length="5" />
+                                label="Matricule" type="number" :length="5" labelRequired />
                         </NLColumn>
 
                         <!-- Username -->
                         <NLColumn lg="6" md="6">
                             <NLInput v-model="form.username" :form="form" name="username" label="Nom d'utilisateur"
-                                label-required />
+                                labelRequired :length="30" />
                         </NLColumn>
 
                         <!-- Email -->
                         <NLColumn lg="6" md="6">
                             <NLInput v-model="form.email" :form="form" name="email" label="Adresse e-mail" type="email"
-                                label-required />
+                                labelRequired :length="100" />
                         </NLColumn>
 
                         <!-- Phone -->

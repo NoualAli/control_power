@@ -89,7 +89,7 @@ class UserController extends Controller
             $data = $request->validated();
             $firstLoginPassword = $data['password'];
             $user = DB::transaction(function () use ($data) {
-                $data['password'] = isset($data['password']) && !empty($data['password']) ? Hash::make($data['password'])  : Hash::make('Azerty123');
+                $data['password'] = isset($data['password']) && !empty($data['password']) ? Hash::make($data['password'])  : Hash::make(config('auth.password_default'));
                 $data['active_role_id'] = $data['role'];
                 $role = $data['role'];
                 unset($data['role']);
