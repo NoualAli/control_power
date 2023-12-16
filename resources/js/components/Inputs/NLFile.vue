@@ -196,7 +196,6 @@ export default {
                     this.files = response?.data?.data || response?.data;
                     this.inProgress = !this.inProgress;
                     this.isLoading = !this.isLoading;
-                    console.log(this.files);
                     const files = { ...this.files.map((file) => file.id) }
                     this.$emit('loaded', files);
                 }).catch(error => {
