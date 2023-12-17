@@ -15,10 +15,22 @@
                             {{ label(column) }} :
                         </span>
                         &nbsp;
-                        <span v-if="!isHtml(column) && !hasMany(column)">
+                        <span v-if="!isHtml(column) && !hasMany(column) && isMedia(column)">
+                            <div class="container" v-for="item in data[column.field]" v-if="data[column.field].length">
+                                <div class="img-container">
+                                    <img :src="item" class="img">
+                                </div>
+                            </div>
+                            <div v-else>-</div>
+                        </span>
+                        <span v-if="!isHtml(column) && !hasMany(column) && !isMedia(column)">
                             {{ showField(column) }}
                         </span>
-                        <span v-html="showField(column)" v-else></span>
+                        <span v-if="!isHtml(column) && hasMany(column) && !isMedia(column)">
+                            {{ showField(column) }}
+                        </span>
+                        <span v-html="showField(column)"
+                            v-if="isHtml(column) && !isMedia(column) && !hasMany(column)"></span>
                     </NLColumn>
                 </NLGrid>
             </NLContainer>
@@ -50,6 +62,9 @@ export default {
         isHtml() {
             return (column) => column?.isHtml || false
         },
+        isMedia() {
+            return (column) => column?.isMedia || false
+        },
         hasMany() {
             return (column) => column?.hasMany || false
         }
@@ -71,6 +86,30 @@ export default {
         this.loadData()
     },
     methods: {
+        /**
+         * Fetch exesting files
+         *
+         * @param {String} filesStr
+         */
+        loadFiles(filesStr) {
+            if (!([ null, '', undefined ]).includes(filesStr) && filesStr.length) {
+                this.progress = '';
+                this.isLoading = !this.isLoading;
+                this.inProgress = !this.inProgress;
+                this.visibleLoadingText = 'Récupération des fichiers en cours...';
+                this.$api.get('media/' + filesStr + '?all', {
+                    onDownloadProgress: progressEvent => this.setProgress(progressEvent)
+                }).then(response => {
+                    this.files = response?.data?.data || response?.data;
+                    this.inProgress = !this.inProgress;
+                    this.isLoading = !this.isLoading;
+                    const files = { ...this.files.map((file) => file.id) }
+                    this.$emit('loaded', files);
+                }).catch(error => {
+                    this.$swal.catchError(error)
+                })
+            }
+        },
         initColumns() {
             this.columns.forEach(column => {
                 if (column.cols) {
