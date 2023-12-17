@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Bug\StoreRequest;
 use App\Http\Resources\BugResource;
 use App\Models\Bug;
+use App\Models\User;
+use App\Notifications\BugDetected;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class BugController extends Controller
 {
@@ -61,32 +64,32 @@ class BugController extends Controller
     public function store(StoreRequest $request)
     {
         try {
-            $res = DB::transaction(function () use ($request) {
+            $bug = DB::transaction(function () use ($request) {
                 $data = $request->validated();
                 $data['created_by_id'] = auth()->user()->id;
-
+                $media = $data['media'];
+                unset($data['media']);
                 $bug = Bug::create($data);
-                // foreach ($request->media as $id) {
-                //     $media = Media::findOrFail($id);
-                //     $media->attachable_id = $bug->id;
-                //     $media->save();
-                // }
-                return $bug->wasRecentlyCreated;
+                foreach ($media as $id) {
+                    $media = DB::table('has_media')->updateOrInsert([
+                        'attachable_id' => $bug->id,
+                        'attachable_type' => Bug::class,
+                        'media_id' => $id,
+                    ]);
+                }
+                return $bug;
             });
-            $status = $res;
-            $message = 'Une erreur est survenu lors de l\'enregistrement de votre message.';
-            if ($status) {
-                $message = 'Votre bug a été rapporté et sera réglé très prochainement.';
+            if ($bug->wasRecentlyCreated) {
+                $users = User::whereRoles(['root', 'admin'])->get();
+                foreach ($users as $user) {
+                    Notification::send($user, new BugDetected($bug));
+                }
             }
-            return response()->json([
-                'message' => $message,
-                'status' => $status,
-            ]);
+            $errorMessage = 'Une erreur est survenu lors de l\'enregistrement de votre message.';
+            $successMessage = 'Votre bug a été rapporté et sera réglé très prochainement.';
+            return actionResponse($bug->wasRecentlyCreated, $successMessage, $errorMessage);
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false,
-            ]);
+            return throwedError($th);
         }
     }
 
@@ -103,15 +106,19 @@ class BugController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Mark as resolved the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Bug  $bug
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Bug $bug)
+    public function resolve(Bug $bug)
     {
-        //
+        try {
+            $result = $bug->update(['fixed_at' => now()]);
+            return actionResponse($result, UPDATE_SUCCESS);
+        } catch (\Throwable $th) {
+            return throwedError($th);
+        }
     }
 
     /**

@@ -278,6 +278,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/', 'index');
             Route::post('/', 'store');
             Route::get('{bug}', 'show');
+            Route::put('{bug}', 'resolve');
         });
 
         Route::prefix('comments')->controller(CommentController::class)->group(function () {

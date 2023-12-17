@@ -22,7 +22,10 @@ class BugResource extends JsonResource
             'creator' => $this->creator,
             'priority_html' => $this->priority_html,
             'created_at' => Carbon::parse($this->created_at)->diffForHumans(),
-            'state' => hasRole('root') ? $this->fixed_at : $this->is_fixed
+            'state' => $this->is_fixed,
+            'state_html' => $this->state_html,
+            'media' => $this->media_links_list,
+            'fixed_at' => $this->fixed_at
         ];
     }
 }

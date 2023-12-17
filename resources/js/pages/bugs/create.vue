@@ -6,7 +6,9 @@
                     <NLGrid>
                         <NLColumn v-if="form.type">
                             <Alert type="is-info">
-                                <i class="las la-info-circle icon"></i> {{ description }}
+                                <template #title>
+                                    {{ description }}
+                                </template>
                             </Alert>
                         </NLColumn>
                         <NLColumn lg="6">
@@ -19,17 +21,17 @@
                         </NLColumn>
                     </NLGrid>
                 </NLColumn>
-                <NLColumn>
-                    <!-- Media (attachements) -->
-                    <!-- <NLFile v-model="form.media" name="media" label="Pièces jointes" attachable-type="App\Models\Bugs"
-                        :form="form" multiple accepted="jpg,jpeg,png"
-                        helpText="Ajoutez des images (screenshots) pour mieux expliquer votre problème. Les types de fichier accepté sont: jpg, jpeg et png" />
-                    {{ form.media }} -->
-                </NLColumn>
                 <!-- Code -->
                 <NLColumn md="6">
                     <NLWyswyg v-model="form.description" :form="form" name="description" label="Description"
                         placeholder="Ajouter une description du bug" labelRequired />
+                </NLColumn>
+                <NLColumn>
+                    <!-- Media (attachements) -->
+                    <NLFile v-model="form.media" name="media" label="Pièces jointes" attachable-type="App\Models\Bugs"
+                        :form="form" multiple accepted="jpg,jpeg,png"
+                        helpText="Ajoutez des images (screenshots) pour mieux expliquer votre problème. Les types de fichier accepté sont: jpg, jpeg et png"
+                        @uploaded="handleMedia" @deleted="handleMedia" @loaded="handleMedia" :key="refresh" />
                 </NLColumn>
 
             </NLGrid>
@@ -58,6 +60,7 @@ export default {
     middleware: [ 'auth' ],
     data() {
         return {
+            refresh: 0,
             formIsLoading: false,
             typesList: [
                 {
@@ -114,7 +117,7 @@ export default {
                 type: null,
                 priority: null,
                 description: null,
-                // media: null,
+                media: {},
             }),
             originalForm: {},
         }
@@ -122,32 +125,21 @@ export default {
     created() {
         this.originalForm = Object.assign({}, this.form);
     },
-    beforeRouteLeave(to, from, next) {
-        if (this.isFormDirty()) {
-            return this.askBeforeLeave(next)
-        }
-        return next()
-    },
     computed: {
         description() {
             return this.typesList.filter((item) => item.id == this.form.type)[ 0 ].description
         }
     },
     methods: {
-        isFormDirty() {
-            // Compare each form field with the originalForm values
-            for (let field in this.form) {
-                if (this.form[ field ] !== this.originalForm[ field ]) {
-                    return true; // Form values have changed
-                }
-            }
-            return false; // No changes in form values
+        handleMedia(files) {
+            this.form.media = files
         },
         create() {
             this.formIsLoading = true
             this.form.post('bugs').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
+                    this.refresh += 1
                     this.form.reset()
                 } else {
                     this.$swal.alert_error(response.data.message)
