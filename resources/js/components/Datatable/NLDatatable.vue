@@ -218,7 +218,7 @@ export default {
             api.get(this.url).then(response => {
                 this.isLoading = false
                 this.data = response.data
-                this.$emit('dataLoaded', this.data)
+                this.$emit('dataLoaded', { data: this.data, url: this.url })
             }).catch(error => {
                 this.isLoading = false
             })
