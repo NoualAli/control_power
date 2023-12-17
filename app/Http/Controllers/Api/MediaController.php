@@ -65,7 +65,7 @@ class MediaController extends Controller
     {
         $media = getMedia($media)->reorder();
 
-        $media = MediaResource::collection($media->get());
+        $media = MediaResource::collection($media->get()->unique('id'));
         $all = request()->has('all');
         if (!$all) {
             return response()->json($media->first());
