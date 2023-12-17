@@ -81,10 +81,7 @@ class MissionCommentController extends Controller
                 ]);
             });
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false,
-            ]);
+            return throwedError($th);
         }
     }
 
@@ -162,10 +159,7 @@ class MissionCommentController extends Controller
                 Notification::send($users, new Validated($mission, $type));
             }
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false,
-            ]);
+            return throwedError($th);
         }
     }
 }

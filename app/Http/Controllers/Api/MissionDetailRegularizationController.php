@@ -57,10 +57,7 @@ class MissionDetailRegularizationController extends Controller
                 'status' => false,
             ]);
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false,
-            ]);
+            return throwedError($th);
         }
     }
 
