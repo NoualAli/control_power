@@ -58,6 +58,31 @@ class UpdateControlCampaignsTable extends Seeder
                 $table->foreign('control_campaign_id')->on('control_campaigns')->references('id')->onDelete('CASCADE');
             });
             $result = DB::statement("UPDATE control_campaign_processes SET control_campaign_id = '$uuid'");
+
+
+            $campaigns = DB::table('control_campaigns as c')->select([
+                'c.id',
+                DB::raw("CONCAT(creator.first_name, ' ', creator.last_name) AS fk_creator_full_name"),
+                DB::raw("CONCAT(validator.first_name, ' ', validator.last_name) AS fk_validator_full_name"),
+            ]);
+            $campaigns = $campaigns
+                ->join('users as creator', 'creator.id', 'c.created_by_id')
+                ->join('users as validator', 'validator.id', 'c.validated_by_id');
+
+            $campaigns = $campaigns->groupBy(
+                'c.id',
+                'creator.last_name',
+                'creator.first_name',
+                'validator.last_name',
+                'validator.first_name',
+            );
+            $campaigns = $campaigns->get();
+            foreach ($campaigns as $campaign) {
+                DB::table('control_campaigns')->where('id', $campaign->id)->update([
+                    'validator_full_name' => $campaign->fk_validator_full_name,
+                    'creator_full_name' => $campaign->fk_creator_full_name,
+                ]);
+            }
         });
     }
 }

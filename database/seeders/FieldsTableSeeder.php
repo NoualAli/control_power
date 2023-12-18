@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\ControlPoint;
 use App\Models\Field;
 use App\Models\Role;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;

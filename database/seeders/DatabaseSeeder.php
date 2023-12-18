@@ -2,10 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,16 +13,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(UsersTableSeeder::class);
-        $this->call(NotificationGroupSeeder::class);
-        $this->call(NotificationTypeSeeder::class);
-        $this->call(UserHasNotificationsSeeder::class);
-        $this->call(MissionsTableSeeder::class);
-        $this->call(UpdateControlCampaignsTable::class);
-        $this->call(MediaTableSeeder::class);
-        $this->call(FieldsTableSeeder::class);
-        $this->call(MissionDetailsTableSeeder::class);
-        $this->call(MissionDetailMetadataSeeder::class);
-        $this->call(PermissionsTableSeeder::class);
+        // $this->call(UsersTableSeeder::class);
+        // $this->call(NotificationGroupSeeder::class);
+        // $this->call(NotificationTypeSeeder::class);
+        // $this->call(UserHasNotificationsSeeder::class);
+        // $this->call(MissionsTableSeeder::class);
+        // $this->call(UpdateControlCampaignsTable::class);
+        // $this->call(MediaTableSeeder::class);
+        // $this->call(FieldsTableSeeder::class);
+        // $this->call(MissionDetailsTableSeeder::class);
+        // $this->call(MissionDetailMetadataSeeder::class);
+        $this->call(UpdateMissionDetailRegularizationSeeder::class);
+        // $this->call(PermissionsTableSeeder::class);
     }
 }
