@@ -13,17 +13,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // $this->call(UsersTableSeeder::class);
-        // $this->call(NotificationGroupSeeder::class);
-        // $this->call(NotificationTypeSeeder::class);
-        // $this->call(UserHasNotificationsSeeder::class);
-        // $this->call(MissionsTableSeeder::class);
-        // $this->call(UpdateControlCampaignsTable::class);
-        // $this->call(MediaTableSeeder::class);
-        // $this->call(FieldsTableSeeder::class);
-        // $this->call(MissionDetailsTableSeeder::class);
-        // $this->call(MissionDetailMetadataSeeder::class);
+        $this->call(UsersTableSeeder::class);
+        $this->call(NotificationGroupSeeder::class);
+        $this->call(NotificationTypeSeeder::class);
+        $this->call(UserHasNotificationsSeeder::class);
+        $this->call(MissionsTableSeeder::class);
+        $this->call(UpdateControlCampaignsTable::class);
+        $this->call(MediaTableSeeder::class);
+        $this->call(FieldsTableSeeder::class);
+        $this->call(MissionDetailsTableSeeder::class);
+        $this->call(MissionDetailMetadataSeeder::class);
         $this->call(UpdateMissionDetailRegularizationSeeder::class);
-        // $this->call(PermissionsTableSeeder::class);
+        $this->call(PermissionsTableSeeder::class);
     }
 }
