@@ -16,6 +16,11 @@ trait HasMedia
         return $this->media->map(fn ($item) => $item->id);
     }
 
+    public function getMediaLinksListAttribute()
+    {
+        return $this->media->map(fn ($item) => $item->storage_link);
+    }
+
     /**
      * Relationships
      */
