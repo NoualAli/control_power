@@ -581,9 +581,9 @@ export default [
      * Global
      */
     {
-        path: '/global/details',
-        name: 'global-details',
-        component: page('global/details.vue'),
+        path: '/anomalies',
+        name: 'anomalies',
+        component: page('global/anomalies.vue'),
         meta: {
             breadcrumb: {
                 label: 'Anomalie • Notation • Plan de redressement',

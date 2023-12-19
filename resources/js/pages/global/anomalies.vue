@@ -218,6 +218,21 @@ export default {
                         }
                     ]
                 },
+                with_metadata: {
+                    label: 'Avec échantillonage',
+                    multiple: false,
+                    value: null,
+                    data: [
+                        {
+                            id: 'Non',
+                            label: 'Non'
+                        },
+                        {
+                            id: 'Oui',
+                            label: 'Oui'
+                        }
+                    ]
+                },
             },
         }
     },

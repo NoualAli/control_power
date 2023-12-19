@@ -30,7 +30,7 @@
                 v-if="can('view_control_campaign')" />
             <NLSidebarItem label="Suivi des réalisations des missions" route="missions" iconName="la-eye"
                 v-if="can('view_mission')" />
-            <NLSidebarItem label="Anomalie • Notation • Plan de redressement" route="global-details" iconPrefix="lab"
+            <NLSidebarItem label="Anomalie • Notation • Plan de redressement" route="anomalies" iconPrefix="lab"
                 iconName="la-stack-overflow" v-if="can('view_mission_detail')" />
             <NLSidebarItem label="Faits majeur" route="major-facts" iconName="la-exclamation-triangle"
                 v-if="can('view_major_fact')" />
