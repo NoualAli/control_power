@@ -26,9 +26,8 @@
                         <span v-if="!isHtml(column) && !hasMany(column) && !isMedia(column)">
                             {{ showField(column) }}
                         </span>
-                        <span v-if="!isHtml(column) && hasMany(column) && !isMedia(column)">
-                            {{ showField(column) }}
-                        </span>
+                        <span v-if="!isHtml(column) && hasMany(column) && !isMedia(column)"
+                            v-html="showField(column)"></span>
                         <span v-html="showField(column)"
                             v-if="isHtml(column) && !isMedia(column) && !hasMany(column)"></span>
                     </NLColumn>
