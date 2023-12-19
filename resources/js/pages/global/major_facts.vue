@@ -2,7 +2,7 @@
 <template>
     <ContentBody>
         <NLDatatable :searchValue="searchValue" :columns="columns" :actions="actions" :filters="filters"
-            title="Faits majeurs" urlPrefix="details/major-facts" @show="show" :refresh="refresh" :isSearchable="false"
+            title="Faits majeurs" urlPrefix="major-facts" @show="show" :refresh="refresh" :isSearchable="false"
             @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
 
         <!-- View control point informations -->
@@ -178,6 +178,21 @@ export default {
                     ],
                     value: null,
                     hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
+                },
+                with_metadata: {
+                    label: 'Avec échantillonage',
+                    multiple: false,
+                    value: null,
+                    data: [
+                        {
+                            id: 'Non',
+                            label: 'Non'
+                        },
+                        {
+                            id: 'Oui',
+                            label: 'Oui'
+                        }
+                    ]
                 },
             },
         }

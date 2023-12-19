@@ -196,7 +196,14 @@ class MajorFactController extends Controller
             $values = explode(',', $filter['process']);
             $details = $details->whereIn('process_id', $values);
         }
-
+        if (isset($filter['with_metadata'])) {
+            $value = $filter['with_metadata'];
+            if ($value == 'Oui') {
+                $details = $details->whereNotNull('metadata');
+            } else {
+                $details = $details->whereNull('metadata');
+            }
+        }
         if (isset($filter['is_regularized'])) {
             $value = $filter['is_regularized'] == 'Non levée' ? 0 : 1;
             $details = $details->where('is_regularized', $value);
