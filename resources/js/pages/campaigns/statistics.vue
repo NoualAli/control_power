@@ -123,13 +123,29 @@ export default {
             this.$store.dispatch('settings/updatePageLoading', false)
         },
         savePNG(element) {
+            var bgColor = '#FCFCFC';
+            // Get the existant chart canvas
             const canvas = document.querySelector(`#${element}`)
             const title = canvas.dataset.title
-            const dataURL = canvas.toDataURL('image/png')
-            const link = document.createElement('a')
+
+            // Create a new canvas with a custom background color
+            var newCanvas = document.createElement('canvas');
+            var newCtx = newCanvas.getContext('2d');
+            newCanvas.width = canvas.width;
+            newCanvas.height = canvas.height;
+            newCtx.fillStyle = bgColor;
+            newCtx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+
+            // Draw the original chart on the new canvas
+            newCtx.drawImage(canvas, 0, 0);
+            // Convert the new canvas to a data URL
+            var dataURL = newCanvas.toDataURL('image/jpeg');
+
+            // Create a link and trigger a download
+            var link = document.createElement('a');
+            link.href = dataURL;
             link.download = title ? `${title}.png` : 'canvas.png'
-            link.href = dataURL
-            link.click()
+            link.click();
         }
     }
 
