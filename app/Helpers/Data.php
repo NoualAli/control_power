@@ -9,43 +9,46 @@ if (!function_exists('getMissions')) {
     /**
      * Fetch Missions
      *
-     * @return Builder
+     * @return Builder|stdClass
      */
-    function getMissions(int $level = 2)
+    function getMissions(?string $missionId = null, int $level = 2)
     {
-        $columns = ['m.id', 'm.reference', DB::raw('CONCAT(d.code, " - ", d.name) as dre'), DB::raw('CONCAT(a.code, " - ", a.name) as agency')];
-        if (env('DB_CONNECTION') == 'sqlsrv') {
-            $columns = [
-                'm.id',
-                'm.reference',
-                'cc.reference as campaign',
-                'm.creator_full_name',
-                'm.cdc_validator_full_name',
-                'm.cdcr_validator_full_name',
-                'm.dcp_validator_full_name',
-                'm.da_validator_full_name',
-                DB::raw("CONCAT(d.code, ' - ', d.name) as dre"),
-                DB::raw("CONCAT(a.code, ' - ', a.name) as agency"),
-                DB::raw('(CASE WHEN dcp_validation_by_id IS NOT NULL THEN 1 ELSE 0 END) as is_validated_by_dcp'),
-                DB::raw('(CASE WHEN cdcr_validation_by_id IS NOT NULL THEN 1 ELSE 0 END) as is_validated_by_cdcr'),
-                DB::raw('(CASE WHEN cdc_validation_by_id IS NOT NULL THEN 1 ELSE 0 END) as is_validated_by_cdc'),
-                DB::raw('(CASE WHEN ci_validation_by_id IS NOT NULL THEN 1 ELSE 0 END) as is_validated_by_ci'),
-                DB::raw('(CASE WHEN cc_validation_by_id IS NOT NULL THEN 1 ELSE 0 END) as is_validated_by_cc'),
-                DB::raw('CAST(ROUND(AVG(CAST(md.score AS DECIMAL(10, 2))), 2) AS VARCHAR(10)) as avg_score'),
-                DB::raw('DATEDIFF(day, programmed_start, CAST(GETDATE() AS DATE)) as remaining_days_before_start'),
-                DB::raw('DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) as remaining_days_before_end'),
-                DB::raw('(CASE WHEN reel_start IS NOT NULL THEN m.reel_start ELSE m.programmed_start END) as start_date'),
-                DB::raw('(CASE WHEN real_end IS NOT NULL THEN m.real_end ELSE m.programmed_end END) as end_date'),
-                DB::raw('COUNT(md.id) as total_md'),
-                DB::raw('SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) as total_controlled_md'),
-                DB::raw('CASE
-                WHEN COUNT(md.id) = 0 THEN NULL
-                ELSE SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) * 100 / NULLIF(COUNT(md.id), 0)
-            END as progress_rate'),
-                'm.current_state',
-                DB::raw('(CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) > 15 OR real_end > programmed_end THEN 1 ELSE 0 END) as is_late')
-            ];
-        }
+        $columns = [
+            'm.id',
+            'm.reference',
+            'cc.reference as campaign',
+            'm.creator_full_name',
+            'm.cdc_validator_full_name',
+            'm.cdcr_validator_full_name',
+            'm.dcp_validator_full_name',
+            'm.da_validator_full_name',
+            DB::raw("CONCAT(ci.first_name, ' ', ci.last_name) AS ci_validator_full_name"),
+            DB::raw("CONCAT(ucc.first_name, ' ', ucc.last_name) AS cc_validator_full_name"),
+            DB::raw("CONCAT(d.code, ' - ', d.name) as dre"),
+            DB::raw("CONCAT(a.code, ' - ', a.name) as agency"),
+            DB::raw('(CASE WHEN dcp_validation_by_id IS NOT NULL THEN 1 ELSE 0 END) as is_validated_by_dcp'),
+            DB::raw('(CASE WHEN cdcr_validation_by_id IS NOT NULL THEN 1 ELSE 0 END) as is_validated_by_cdcr'),
+            DB::raw('(CASE WHEN cdc_validation_by_id IS NOT NULL THEN 1 ELSE 0 END) as is_validated_by_cdc'),
+            DB::raw('(CASE WHEN ci_validation_by_id IS NOT NULL THEN 1 ELSE 0 END) as is_validated_by_ci'),
+            DB::raw('(CASE WHEN cc_validation_by_id IS NOT NULL THEN 1 ELSE 0 END) as is_validated_by_cc'),
+            DB::raw('CAST(ROUND(AVG(CAST(md.score AS DECIMAL(10, 2))), 2) AS VARCHAR(10)) as avg_score'),
+            DB::raw('DATEDIFF(day, programmed_start, CAST(GETDATE() AS DATE)) as remaining_days_before_start'),
+            DB::raw('DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) as remaining_days_before_end'),
+            DB::raw('(CASE WHEN reel_start IS NOT NULL THEN m.reel_start ELSE m.programmed_start END) as start_date'),
+            DB::raw('(CASE WHEN real_end IS NOT NULL THEN m.real_end ELSE m.programmed_end END) as end_date'),
+            DB::raw('COUNT(md.id) as total_md'),
+            DB::raw('SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) as total_controlled_md'),
+            DB::raw('CASE
+            WHEN COUNT(md.id) = 0 THEN NULL
+            ELSE SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) * 100 / NULLIF(COUNT(md.id), 0)
+        END as progress_rate'),
+            'm.current_state',
+            DB::raw('(CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) > 15 OR real_end > programmed_end THEN 1 ELSE 0 END) as is_late'),
+            DB::raw('DATEDIFF(day, m.ci_validation_at, m.cdc_validation_at) as time_left_ci_cdc'),
+            DB::raw('DATEDIFF(day, m.cdc_validation_at, m.cdcr_validation_at) as time_left_cdc_cdcr'),
+            DB::raw('DATEDIFF(day, m.cdcr_validation_at, m.dcp_validation_at) as time_left_cdcr_dcp'),
+            DB::raw('DATEDIFF(day, m.dcp_validation_at, m.da_validation_at) as time_left_dcp_da'),
+        ];
 
         $missions = DB::table('missions as m')
             ->select($columns)
@@ -54,6 +57,8 @@ if (!function_exists('getMissions')) {
             ->join('dres as d', 'd.id', 'a.dre_id')
             ->leftJoin('mission_details as md', 'md.mission_id', 'm.id')
             ->join('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')
+            ->leftJoin('users as ci', 'ci.id', 'm.ci_validation_by_id')
+            ->leftJoin('users as ucc', 'ucc.id', 'm.cc_validation_by_id')
             ->where('m.level', $level);
         $user = auth()->user();
 
@@ -94,8 +99,57 @@ if (!function_exists('getMissions')) {
             'm.cdcr_validator_full_name',
             'm.dcp_validator_full_name',
             'm.da_validator_full_name',
+            'ci.first_name',
+            'ci.last_name',
+            'ucc.last_name',
+            'ucc.first_name',
+            'm.ci_validation_at',
+            'm.cdc_validation_at',
+            'm.cdcr_validation_at',
+            'm.dcp_validation_at',
+            'm.da_validation_at'
         );
+        if ($missionId) {
+            return $missions->where('m.id', $missionId)->first();
+        }
         return $missions;
+    }
+}
+
+if (!function_exists('translateMissionState')) {
+    function translateMissionState(int $state)
+    {
+        $stateStr = 'Inconnu';
+        switch ($state) {
+            case 1:
+                $state = 'À réaliser';
+                break;
+            case 2:
+                $state = 'En cours';
+                break;
+            case 3:
+                $state = 'En attente de validation CDC';
+                break;
+            case 4:
+                $state = 'En attente de validation CC';
+                break;
+            case 5:
+                $state = 'En attente de validation CDCR';
+                break;
+            case 6:
+                $state = 'En attente de validation DCP';
+                break;
+            case 7:
+                $state = 'En attente de validation DA';
+                break;
+            case 8:
+                $state = 'Réalisée, validée et régularisée';
+                break;
+            default:
+                $state = 'À réaliser';
+                break;
+        }
+        return $state;
     }
 }
 
@@ -124,15 +178,37 @@ if (!function_exists('getMissionDetails')) {
             'cp.id as control_point_id',
             'cp.name as control_point',
             'md.score',
-            // DB::raw("(CASE WHEN COUNT(mdr.id) > 0 THEN Levée ELSE 'Non levée' END) as is_regularized")
             'md.is_regularized',
-            DB::raw("(CASE WHEN md.controlled_by_ci_at IS NOT NULL THEN 1 ELSE 0 END) as controlled_by_ci_at"),
-            DB::raw("(CASE WHEN md.controlled_by_cdc_at IS NOT NULL THEN 1 ELSE 0 END) as controlled_by_cdc_at"),
-            DB::raw("(CASE WHEN md.controlled_by_cc_at IS NOT NULL THEN 1 ELSE 0 END) as controlled_by_cc_at"),
-            DB::raw("(CASE WHEN md.controlled_by_cdcr_at IS NOT NULL THEN 1 ELSE 0 END) as controlled_by_cdcr_at"),
-            DB::raw("(CASE WHEN md.controlled_by_dcp_at IS NOT NULL THEN 1 ELSE 0 END) as controlled_by_dcp_at"),
+            'md.ci_report',
+            'md.cdc_report',
+            'md.recovery_plan',
+            DB::raw('(CASE WHEN md.cdc_report IS NOT NULL THEN md.cdc_report ELSE md.ci_report END) as report'),
+            DB::raw("(CASE WHEN md.controlled_by_ci_at IS NOT NULL THEN 1 ELSE 0 END) as is_controlled_by_ci"),
+            DB::raw("(CASE WHEN md.controlled_by_cdc_at IS NOT NULL THEN 1 ELSE 0 END) as is_controlled_by_cdc"),
+            DB::raw("(CASE WHEN md.controlled_by_cc_at IS NOT NULL THEN 1 ELSE 0 END) as is_controlled_by_cc"),
+            DB::raw("(CASE WHEN md.controlled_by_cdcr_at IS NOT NULL THEN 1 ELSE 0 END) as is_controlled_by_cdcr"),
+            DB::raw("(CASE WHEN md.controlled_by_dcp_at IS NOT NULL THEN 1 ELSE 0 END) as is_controlled_by_dcp"),
             DB::raw('CONVERT(NVARCHAR(10), major_fact_is_dispatched_at, 105) as major_fact_is_dispatched_at'),
-            // (CASE WHEN c.validated_at IS NOT NULL THEN 1 ELSE 0 END)
+            DB::raw('(CASE WHEN major_fact_is_dispatched_at IS NOT NULL THEN 1 ELSE 0 END) as major_fact_is_dispatched_by_dcp'),
+            DB::raw('(CASE WHEN major_fact_is_dispatched_to_dcp_at IS NOT NULL THEN 1 ELSE 0 END) as major_fact_is_dispatched_to_dcp'),
+            DB::raw('(CASE WHEN major_fact_is_rejected IS NOT NULL THEN 1 ELSE 0 END) as major_fact_is_pending'),
+            'md.cdc_full_name',
+            'md.cdcr_full_name',
+            'md.dcp_full_name',
+            DB::raw("CONCAT(ci.first_name, ' ', ci.last_name) as ci_full_name"),
+            DB::raw("CONCAT(ccr.first_name, ' ', ccr.last_name) as cc_full_name"),
+            'md.major_fact_is_dispatched_by_full_name',
+            'md.major_fact_is_dispatched_to_dcp_by_full_name',
+            'md.major_fact_is_detected_by_full_name',
+            'md.major_fact_is_detected_at',
+            'md.major_fact_is_rejected',
+            'md.major_fact',
+            'md.controlled_by_ci_at',
+            'md.controlled_by_cdc_at',
+            'md.controlled_by_cc_at',
+            'md.controlled_by_cdcr_at',
+            'md.controlled_by_dcp_at',
+            'md.metadata',
         ];
 
         $details = DB::table('mission_details as md')
@@ -145,7 +221,9 @@ if (!function_exists('getMissionDetails')) {
             ->join('control_points as cp', 'cp.id', 'md.control_point_id')
             ->join('processes as p', 'p.id', 'cp.process_id')
             ->join('domains as dm', 'dm.id', 'p.domain_id')
-            ->join('families as f', 'f.id', 'dm.family_id');
+            ->join('families as f', 'f.id', 'dm.family_id')
+            ->leftJoin('users as ci', 'ci.id', 'md.controlled_by_ci_id')
+            ->leftJoin('users as ccr', 'ccr.id', 'md.controlled_by_cc_id');
 
         $user = auth()->user();
         if (hasRole('ci')) {
@@ -199,7 +277,26 @@ if (!function_exists('getMissionDetails')) {
             'md.controlled_by_cc_at',
             'md.controlled_by_cdcr_at',
             'md.controlled_by_dcp_at',
-            'major_fact_is_dispatched_at'
+            'major_fact_is_dispatched_at',
+            'md.ci_report',
+            'md.cdc_report',
+            'md.recovery_plan',
+            'md.major_fact_is_dispatched_at',
+            'md.major_fact_is_dispatched_to_dcp_at',
+            'md.major_fact_is_rejected',
+            'md.major_fact_is_detected_at',
+            'md.major_fact_is_dispatched_by_full_name',
+            'md.major_fact_is_dispatched_to_dcp_by_full_name',
+            'md.major_fact_is_detected_by_full_name',
+            'md.major_fact',
+            'md.cdc_full_name',
+            'md.cdcr_full_name',
+            'md.dcp_full_name',
+            'ci.first_name',
+            'ci.last_name',
+            'ccr.first_name',
+            'ccr.last_name',
+            'md.metadata',
         );
         return $details;
     }
@@ -391,7 +488,15 @@ if (!function_exists('getMajorFacts')) {
             ->join('domains as dm', 'dm.id', 'p.domain_id')
             ->join('families as f', 'f.id', 'dm.family_id');
 
-        $details = $details->where('major_fact', true)->orWhereNotNull('md.major_fact_is_detected_at');
+        if (hasRole(['ci', 'cdc'])) {
+            $details = $details->where('major_fact', true)->orWhereNotNull('md.major_fact_is_detected_at');
+        } elseif (hasRole(['cdcr', 'dcp'])) {
+            $details = $details->where('major_fact', true)->whereNotNull('md.major_fact_is_dispatched_to_dcp_at')->orWhereNotNull('md.major_fact_is_detected_at');
+        } elseif (hasRole(['root', 'admin'])) {
+            $details = $details->where('major_fact', true)->orWhereNotNull('md.major_fact_is_detected_at');
+        } else {
+            $details = $details->where('major_fact', true)->orWhereNotNull('md.major_fact_is_dispatched');
+        }
 
         if ($mission) {
             $details = $details->where('m.id', $mission);
@@ -427,14 +532,14 @@ if (!function_exists('getMajorFacts')) {
             'dm.id',
             'p.id',
             'cp.id',
-            'md.major_fact_is_dispatched_at',
-            'md.major_fact_is_dispatched_to_dcp_at',
-            'md.major_fact_is_rejected',
-            'md.major_fact_is_detected_at',
             'md.created_at',
             'md.id',
             'd.id',
             'a.id',
+            'md.major_fact_is_dispatched_at',
+            'md.major_fact_is_dispatched_to_dcp_at',
+            'md.major_fact_is_rejected',
+            'md.major_fact_is_detected_at',
             'md.controlled_by_ci_at',
             'md.controlled_by_cdc_at',
             'md.controlled_by_cc_at',
