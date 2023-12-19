@@ -46,10 +46,10 @@ class MissionDetailsTableSeeder extends Seeder
             $details = DB::table('mission_details as md')->select([
                 'md.id',
                 'md.major_fact',
-                DB::raw("CONCAT(cdc.first_name, ' ', cdc.last_name) AS fk_cdc_validator_full_name"),
-                DB::raw("CONCAT(cdcr.first_name, ' ', cdcr.last_name) AS fk_cdcr_validator_full_name"),
-                DB::raw("CONCAT(dcp.first_name, ' ', dcp.last_name) AS fk_dcp_validator_full_name"),
-                DB::raw("CONCAT(mde.first_name, ' ', mde.last_name) AS fk_md_validator_full_name"),
+                DB::raw("CONCAT(cdc.first_name, ' ', cdc.last_name, ' (CDC)') AS fk_cdc_validator_full_name"),
+                DB::raw("CONCAT(cdcr.first_name, ' ', cdcr.last_name, ' (CDCR)') AS fk_cdcr_validator_full_name"),
+                DB::raw("CONCAT(dcp.first_name, ' ', dcp.last_name, ' (DCP)') AS fk_dcp_validator_full_name"),
+                DB::raw("CONCAT(mde.first_name, ' ', mde.last_name, ' (CI)') AS fk_md_validator_full_name"),
                 'md.controlled_by_ci_id',
                 'md.controlled_by_ci_at',
             ])
