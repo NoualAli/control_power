@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\MissionState;
+use App\Exports\MissionsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Mission\AssignToCCRequest;
 use App\Http\Requests\Mission\StoreRequest;
@@ -15,18 +16,16 @@ use App\Models\ControlCampaign;
 use App\Models\Mission;
 use App\Models\Process;
 use App\Models\User;
-use App\Notifications\Mission\AssignationRemoved;
 use App\Notifications\Mission\Assigned;
 use App\Notifications\Mission\Updated;
 use App\Notifications\Mission\Validated;
+use App\Services\ExcelExportService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
-use stdClass;
 
 class MissionController extends Controller
 {
@@ -49,6 +48,12 @@ class MissionController extends Controller
         try {
 
             $missions = getMissions();
+            $export = request('export', []);
+            $shouldExport = count($export) || request()->has('export');
+
+            if ($shouldExport) {
+                return (new ExcelExportService($missions, MissionsExport::class, 'liste_des_missions.xlsx', $export))->download();
+            }
             $campaignId = request('campaign_id', null);
             $campaignId = request('campaignId', $campaignId);
             if ($campaignId) {
@@ -322,7 +327,7 @@ class MissionController extends Controller
                     }
                 }
                 if (hasRole('dcp')) {
-                    GenerateMissionReportPdf::dispatch($mission);
+                    $this->generateReport($mission);
                 }
                 return response()->json([
                     'message' => MISSION_VALIDATION_SUCCESS,
@@ -417,26 +422,15 @@ class MissionController extends Controller
      */
     public function handleReport(Mission $mission)
     {
-        $fileExists = Storage::exists($mission->report_path);
-        if (request()->action == 'generate' && !$fileExists) {
-            if (!Cache::has('mission_report_generated_' . $mission->reference)) {
-                Cache::rememberForever('mission_report_generated_' . $mission->reference, fn () => true);
-                $this->generateReport($mission);
-            } else {
-                return $this->exportReport($mission);
-            }
-        } elseif (request()->action == 'export' && $fileExists) {
-            return $this->exportReport($mission);
+        if (request()->action == 'regenerate') {
+            $this->generateReport($mission);
+            return response()->json([
+                'status' => true,
+            ]);
         } else {
             return response()->json(['error' => "L'action que vous avez choisit n'existe pas."], 404);
         }
     }
-
-    public function missionReportIsGenerated(Mission $mission)
-    {
-        return response()->json((bool) Cache::has('mission_report_generated_' . $mission->reference) || $mission->pdf_report_exists);
-    }
-
     /**
      * Export mission report
      *
