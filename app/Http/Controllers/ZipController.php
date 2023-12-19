@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use ZipArchive;
-
-use function PHPUnit\Framework\fileExists;
 
 class ZipController extends Controller
 {
@@ -20,13 +19,18 @@ class ZipController extends Controller
      */
     public function download(string $type, string|int $id)
     {
-        $media = DB::table('media')->where('attachable_id', $id)->where('attachable_type', 'App\Models\\' . $type)->get();
-
+        $media = DB::table('has_media as hm')
+            ->leftJoin('media as m', 'm.id', 'hm.media_id')
+            ->where('attachable_id', $id)
+            ->where('attachable_type', 'App\Models\\' . $type)->get();
         if ($type == 'Mission') {
             $mission = getMissions()->where('m.id', $id)->first();
             $details = getMissionDetails()->where('mission_id', $id)->get();
             foreach ($details as $detail) {
-                $detailMedia = DB::table('media')->where('attachable_id', $detail->id)->where('attachable_type', 'App\Models\\MissionDetail')->get();
+                $detailMedia = DB::table('has_media as hm')
+                    ->leftJoin('media as m', 'm.id', 'hm.media_id')
+                    ->where('attachable_id', $detail->id)
+                    ->where('attachable_type', 'App\Models\\MissionDetail')->get();
                 if ($detailMedia->count()) {
                     $media = $media->merge($detailMedia);
                 }
@@ -49,20 +53,20 @@ class ZipController extends Controller
         if ($media->count()) {
             try {
                 $zip = new ZipArchive;
-                if (!file_exists($folder)) {
-                    mkdir($folder);
+                if (!Storage::exists('public/exported/' . $folder)) {
+                    Storage::makeDirectory('public/exported/' . $folder);
                 }
 
-                if ($zip->open(public_path($folder . '/' . $zipName), ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE)) {
+                if ($zip->open(Storage::path('public/exported/' . $folder . '/' . $zipName), ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE)) {
                     foreach ($media as $file) {
                         $filePath = $file->folder . '/' . $file->hash_name;
-                        if (fileExists($filePath)) {
-                            $zip->addFile(public_path($filePath), $file->original_name);
+                        if (Storage::path($filePath)) {
+                            $zip->addFile(Storage::path('public/' . $filePath), $file->original_name);
                         }
                     }
                 }
                 $zip->close();
-                return response()->download(public_path($folder . '/' . $zipName));
+                return response()->download(Storage::path('public/exported/' . $folder . '/' . $zipName));
             } catch (\Throwable $th) {
                 echo $th->getMessage();
             }
