@@ -1,28 +1,29 @@
-<!-- eslint-disable vue/multi-word-component-names -->
-<!-- eslint-disable vue/no-v-html -->
 <template>
-    <div v-if="can('view_fields')">
+    <div v-if="can('view_field')">
         <ContentHeader>
             <template #actions>
                 <router-link v-if="can('create_field')" :to="{ name: 'fields-create' }" class="btn btn-info">
                     Ajouter
                 </router-link>
-                <!-- <a href="/excel-export?export=control_points" target="_blank" class="btn btn-office-excel has-icon">
+                <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
                     <i class="las la-file-excel icon" />
                     Exporter
-                </a> -->
+                </button>
             </template>
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :details="details" :actions="actions" title="Liste des champs"
-                urlPrefix="fields" @edit="edit" @delete="destroy" :refresh="refresh"
-                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
+                urlPrefix="fields" @edit="edit" @delete="destroy" :refresh="refresh" @dataLoaded="handleDataLoaded" />
+            <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl"
+                @close="this.excelExportIsOpen = false" @success="this.excelExportIsOpen = false" />
         </ContentBody>
     </div>
 </template>
 
 <script>
+import ExcelExportModal from '../../../Modals/ExcelExportModal';
 export default {
+    components: { ExcelExportModal },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     metaInfo() {
@@ -30,6 +31,8 @@ export default {
     },
     data() {
         return {
+            currentUrl: null,
+            excelExportIsOpen: false,
             refresh: 1,
             columns: [
                 {
@@ -137,6 +140,10 @@ export default {
         this.$store.dispatch('settings/updatePageLoading', true)
     },
     methods: {
+        handleDataLoaded(response) {
+            this.currentUrl = response.url
+            this.$store.dispatch('settings/updatePageLoading', false)
+        },
         /**
          * Redirige vers la page d'edition
          * @param {Object} item

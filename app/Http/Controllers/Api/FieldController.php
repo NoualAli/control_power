@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\FieldExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Field\StoreRequest;
 use App\Http\Requests\Field\UpdateRequest;
 use App\Http\Resources\FieldResource;
 use App\Models\Field;
+use App\Services\ExcelExportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -19,7 +21,7 @@ class FieldController extends Controller
      */
     public function index()
     {
-        isAbleOrAbort(['view_fields', 'view_control_point']);
+        isAbleOrAbort(['view_field', 'view_control_point']);
         $fields = Field::query();
 
         $search = request('search', null);
@@ -27,6 +29,12 @@ class FieldController extends Controller
         $filter = request('filter', null);
         $fetchFilters = request()->has('fetchFilters');
         $fetchAll = request()->has('fetchAll');
+        $export = request('export', []);
+        $shouldExport = count($export);
+
+        if ($shouldExport) {
+            return (new ExcelExportService($fields, FieldExport::class, 'liste_des_champs_supplémentaires.xlsx', $export))->download();
+        }
         if ($fetchFilters) {
             return $this->filters();
         }
@@ -85,7 +93,7 @@ class FieldController extends Controller
      */
     public function show(Field $field)
     {
-        isAbleOrAbort('view_fields');
+        isAbleOrAbort('view_field');
         return response()->json($field);
     }
 

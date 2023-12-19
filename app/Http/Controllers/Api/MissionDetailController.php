@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\MissionDetailExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Mission\Detail\ControlRequest;
 use App\Http\Resources\MissionDetailResource;
 use App\Models\MissionDetail;
 use App\Models\User;
 use App\Notifications\Mission\MajorFact\Detected;
+use App\Services\ExcelExportService;
 use App\Traits\UploadFiles;
 use Carbon\Carbon;
 use Illuminate\Contracts\Database\Query\Builder;
@@ -32,13 +34,22 @@ class MissionDetailController extends Controller
         $perPage = request('perPage', 10);
 
         $details = getMissionAnomalies();
-
+        $export = request('export', []);
+        $shouldExport = count($export) || request()->has('export');
         try {
             if ($fetchFilters) {
                 return $this->filters($details);
             }
             if (request()->has('campaign_id')) {
                 $details = $details->where('control_campaign_id', request()->campaign_id);
+            }
+
+            if ($shouldExport) {
+                $mission = getMissions(request('mission'), 2);
+                $missionReference = $mission->reference ? '-' . str_replace('/', '-', $mission->reference) . '-' : null;
+                $filename = 'détails_de_mission-' . $mission->campaign . $missionReference . \Str::slug($mission->dre . '-' . $mission->agency) . '.xlsx';
+                $details = getMissionDetails(request('mission'));
+                return (new ExcelExportService($details, MissionDetailExport::class, $filename, $export))->download();
             }
             if ($sort) {
                 $details = $details->sortByMultiple($sort);
@@ -415,6 +426,14 @@ class MissionDetailController extends Controller
         if (isset($filter['is_regularized'])) {
             $value = $filter['is_regularized'] == 'Non levée' ? 0 : 1;
             $details = $details->where('is_regularized', $value);
+        }
+        if (isset($filter['with_metadata'])) {
+            $value = $filter['with_metadata'];
+            if ($value == 'Oui') {
+                $details = $details->whereNotNull('metadata');
+            } else {
+                $details = $details->whereNull('metadata');
+            }
         }
         if (isset($filter['is_controlled'])) {
             if (hasRole('ci')) {

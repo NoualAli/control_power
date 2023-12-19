@@ -1,5 +1,5 @@
 <template>
-    <NLModal :show="show">
+    <NLModal :show="show" @close="close">
         <template #title>
             Configurer votre exportation excel
         </template>
@@ -47,37 +47,22 @@ export default {
     },
     props: {
         show: { type: Boolean, required: true },
+        hideOptions: { type: Boolean, required: false },
         route: { type: [ String, null ], required: true },
     },
+    emits: [ 'close' ],
     watch: {
-        show(newVal) {
+        show(newVal, oldVal) {
             if (!newVal) {
                 this.keep_filters = false
                 this.keep_sorting = false
                 this.keep_current_pagination = false
                 this.keep_current_page = false
                 this.keep_search = false
+            } else {
+                this.url = this.route
             }
-        }
-    },
-    data() {
-        return {
-            url: this.route,
-            keep_filters: false,
-            keep_sorting: false,
-            keep_current_pagination: false,
-            keep_current_page: false,
-            keep_search: false
-        }
-    },
-    created() {
-        this.getUrl('keep_filters', this.keep_filters)
-        this.getUrl('keep_sorting', this.keep_sorting)
-        this.getUrl('keep_current_pagination', this.keep_current_pagination)
-        this.getUrl('keep_current_page', this.keep_current_page)
-        this.getUrl('keep_search', this.keep_search)
-    },
-    watch: {
+        },
         keep_filters(newVal, oldVal) {
             if (newVal !== oldVal && newVal) {
                 this.url += '&export[keep_filters]=1'
@@ -114,9 +99,46 @@ export default {
             }
         },
     },
+    data() {
+        return {
+            url: this.route,
+            keep_filters: false,
+            keep_sorting: false,
+            keep_current_pagination: false,
+            keep_current_page: false,
+            keep_search: false
+        }
+    },
+    updated() {
+        if (this.hideOptions) {
+            this.exportExcel()
+        }
+        this.getUrl('keep_filters', this.keep_filters)
+        this.getUrl('keep_sorting', this.keep_sorting)
+        this.getUrl('keep_current_pagination', this.keep_current_pagination)
+        this.getUrl('keep_current_page', this.keep_current_page)
+        this.getUrl('keep_search', this.keep_search)
+    },
+    created() {
+        this.getUrl('keep_filters', this.keep_filters)
+        this.getUrl('keep_sorting', this.keep_sorting)
+        this.getUrl('keep_current_pagination', this.keep_current_pagination)
+        this.getUrl('keep_current_page', this.keep_current_page)
+        this.getUrl('keep_search', this.keep_search)
+    },
     methods: {
+        close() {
+            this.url = this.route
+            this.keep_filters = false
+            this.keep_sorting = false
+            this.keep_current_pagination = false
+            this.keep_current_page = false
+            this.keep_search = false
+            this.$emit('close')
+        },
         exportExcel() {
             window.open(this.url, '_blank')
+            this.close()
         },
         getUrl(filter, value) {
             if (filter == 'keep_filters' && value) {

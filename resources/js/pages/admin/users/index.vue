@@ -5,16 +5,15 @@
                 <router-link v-if="can('create_user')" :to="{ name: 'users-create' }" class="btn btn-info">
                     Ajouter
                 </router-link>
-                <a href="/excel-export?export=users" target="_blank" class="btn btn-office-excel has-icon">
+                <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
                     <i class="las la-file-excel icon" />
                     Exporter
-                </a>
+                </button>
             </template>
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" :details="details" title="Liste des utilisateurs"
-                urlPrefix="users" @edit="edit" @delete="destroy" :refresh="refresh"
-                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
+                urlPrefix="users" @edit="edit" @delete="destroy" :refresh="refresh" @dataLoaded="handleDataLoaded">
                 <template #actions-before="{ item }">
                     <a class="btn btn-office-excel" v-if="!item.must_change_password"
                         :href="'/excel-export?export=users&id=' + item.id" target="_blank">
@@ -27,21 +26,29 @@
                     </NLButton>
                 </template>
             </NLDatatable>
+            <ExcelExportModal :show="excelExportIsOpen" :route="this.currentUrl" @close="this.excelExportIsOpen = false"
+                @success="this.excelExportIsOpen = false" />
         </ContentBody>
     </div>
 </template>
 
 <script>
 import { hasRole, user } from '../../../plugins/user'
+import ExcelExportModal from '../../../Modals/ExcelExportModal';
 import api from '../../../plugins/api'
 export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],
+    components: {
+        ExcelExportModal
+    },
     created() {
         this.$store.dispatch('settings/updatePageLoading', true)
     },
     data() {
         return {
+            excelExportIsOpen: false,
+            currentUrl: null,
             refresh: 1,
             columns: [
                 {
@@ -158,6 +165,10 @@ export default {
         }
     },
     methods: {
+        handleDataLoaded(response) {
+            this.currentUrl = response.url
+            this.$store.dispatch('settings/updatePageLoading', false)
+        },
         /**
          * check if user is current
          *

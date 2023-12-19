@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\DresExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dre\StoreRequest;
 use App\Http\Requests\Dre\UpdateRequest;
 use App\Http\Resources\DreResource;
 use App\Models\Dre;
+use App\Services\ExcelExportService;
 use Illuminate\Http\JsonResponse;
 
 class DreController extends Controller
@@ -27,6 +29,13 @@ class DreController extends Controller
         $fetchFilters = request()->has('fetchFilters');
         $perPage = request('perPage', 10);
         $fetchAll = request()->has('fetchAll');
+
+        $export = request('export', []);
+        $shouldExport = count($export);
+
+        if ($shouldExport) {
+            return (new ExcelExportService($dres, DresExport::class, 'liste_des_dre.xlsx', $export))->download();
+        }
 
         if ($filter) {
             $dres = $dres->filter($filter);

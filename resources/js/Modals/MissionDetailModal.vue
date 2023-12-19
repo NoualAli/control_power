@@ -2,12 +2,12 @@
     <NLModal :show="show" @close="close" :isLoading="isLoading">
         <template #title>
             <div class="tags">
-                <router-link class="tag is-success" :to="'campaigns/' + row?.campaign.id" target="_blank">
+                <router-link class="tag is-success" :to="'/campaigns/' + row?.campaign.id" target="_blank">
                     <small class="text-center w-100">
                         {{ row?.campaign?.reference }}
                     </small>
                 </router-link>
-                <router-link class="tag is-info" :to="'missions/' + row?.mission.id" target="_blank">
+                <router-link class="tag is-info" :to="'/missions/' + row?.mission.id" target="_blank">
                     <small class="text-center w-100">
                         {{ row?.mission?.reference }}
                     </small>

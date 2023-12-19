@@ -251,7 +251,7 @@ class ExportController extends Controller
 
     private function controlPoints()
     {
-        $controlPoints = ControlPoint::all();
+        $controlPoints = ControlPoint::with('fields')->get();
         return Excel::download(new ControlPointsExport($controlPoints), 'liste_des_points_de_contrôle.xlsx');
     }
 }

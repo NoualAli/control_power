@@ -5,10 +5,10 @@ namespace App\Exports;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithProperties;
-use Maatwebsite\Excel\Concerns\WithStyles;
 
-class DomainsExport extends BaseExport implements FromView, WithStyles, WithProperties
+class DomainsExport extends BaseExport implements FromView, ShouldAutoSize, WithProperties
 {
 
     /**

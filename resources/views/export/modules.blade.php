@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Liste des rôles</title>
+    <title>Liste des modules</title>
 </head>
 
 <body>
@@ -14,13 +14,15 @@
             <tr>
                 <th>Code</th>
                 <th>Nom</th>
+                <th>Description</th>
             </tr>
         </thead>
         <tbody>
-            @foreach ($roles as $role)
+            @foreach ($modules as $module)
                 <tr>
-                    <td>{{ strtoupper($role->code) }}</td>
-                    <td>{{ $role->name }}</td>
+                    <td>{{ strtoupper($module->code) }}</td>
+                    <td>{{ $module->name }}</td>
+                    <td>{{ $module->description }}</td>
                 </tr>
             @endforeach
         </tbody>

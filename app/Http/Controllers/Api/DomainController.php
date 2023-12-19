@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\DomainsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Domains\StoreRequest;
 use App\Http\Requests\Domains\UpdateRequest;
 use App\Http\Resources\DomainResource;
 use App\Models\Domain;
 use App\Models\Process;
+use App\Services\ExcelExportService;
 use Illuminate\Http\JsonResponse;
 
 class DomainController extends Controller
@@ -27,6 +29,13 @@ class DomainController extends Controller
         $fetchFilters = request()->has('fetchFilters');
         $perPage = request('perPage', 10);
         $fetchAll = request()->has('fetchAll');
+
+        $export = request('export', []);
+        $shouldExport = count($export);
+
+        if ($shouldExport) {
+            return (new ExcelExportService($domains, DomainsExport::class, 'liste_des_domaines.xlsx', $export))->download();
+        }
 
         if ($filter) {
             $domains = $domains->filter($filter);

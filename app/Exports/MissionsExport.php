@@ -7,9 +7,11 @@ use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithProperties;
 
-class AgenciesExport extends BaseExport implements FromView, WithProperties, ShouldAutoSize
+class MissionsExport extends BaseExport implements FromView, WithProperties, ShouldAutoSize
 {
-
+    /**
+     * @var Illuminate\Database\Eloquent\Collection
+     */
     private $data;
 
     public function __construct($data)
@@ -19,8 +21,8 @@ class AgenciesExport extends BaseExport implements FromView, WithProperties, Sho
 
     public function view(): View
     {
-        $agencies = $this->data;
-        return view('export.agencies', compact('agencies'));
+        $missions = $this->data;
+        return view('export.missions', compact('missions'));
     }
 
     /**
@@ -33,11 +35,11 @@ class AgenciesExport extends BaseExport implements FromView, WithProperties, Sho
         return [
             'creator'        => env('APP_NAME'),
             'lastModifiedBy' => env('APP_NAME'),
-            'title'          => 'Liste des agences',
-            'description'    => 'Liste des agences ControlPower',
-            'subject'        => 'Liste des agences',
-            'keywords'       => 'agencies,export,spreadsheet,excel',
-            'category'       => 'Agencies',
+            'title'          => 'Liste des missions',
+            'description'    => 'Liste des missions ControlPower',
+            'subject'        => 'Liste des missions',
+            'keywords'       => 'missions,export,spreadsheet,excel',
+            'category'       => 'Missions',
             'manager'        => 'Noual Ali - noualdev@gmail.com',
             'company'        => 'Banque Nationale d\'Algérie (BNA)',
         ];

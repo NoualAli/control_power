@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\BugExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Bug\StoreRequest;
 use App\Http\Resources\BugResource;
 use App\Models\Bug;
 use App\Models\User;
 use App\Notifications\BugDetected;
+use App\Notifications\BugFixed;
+use App\Services\ExcelExportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -26,14 +29,19 @@ class BugController extends Controller
         $sort = request('sort', null);
         $fetchFilters = request()->has('fetchFilters');
         $perPage = request('perPage', 10);
+        $export = request('export', []);
+        $shouldExport = count($export);
 
-        // $bugs = Bug::with('creator');
         if (hasRole(['root', 'admin'])) {
-            $bugs = new Bug();
+            $bugs = Bug::with('creator');
         } else {
             $bugs = auth()->user()->bugs();
         }
-        // dd($bugs);
+
+        if ($shouldExport) {
+            return (new ExcelExportService($bugs, BugExport::class, 'bugs.xlsx', $export))->download();
+        }
+
         if ($fetchFilters) {
             return $this->filters();
         }
@@ -51,7 +59,6 @@ class BugController extends Controller
         if ($search) {
             $bugs = $bugs->search($search);
         }
-
         return BugResource::collection($bugs->paginate($perPage)->onEachSide(1));
     }
 
@@ -115,6 +122,9 @@ class BugController extends Controller
     {
         try {
             $result = $bug->update(['fixed_at' => now()]);
+            if ($result) {
+                Notification::send($bug->creator, new BugFixed($bug));
+            }
             return actionResponse($result, UPDATE_SUCCESS);
         } catch (\Throwable $th) {
             return throwedError($th);

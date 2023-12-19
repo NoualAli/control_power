@@ -2,10 +2,10 @@
     <div v-if="can('view_module')">
         <ContentHeader>
             <template #actions>
-                <a href="/excel-export?export=modules" target="_blank" class="btn btn-office-excel has-icon">
+                <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
                     <i class="las la-file-excel icon" />
                     Exporter
-                </a>
+                </button>
             </template>
         </ContentHeader>
         <ContentBody>
@@ -40,6 +40,8 @@
                     </NLFlex>
                 </NLColumn>
             </NLForm>
+            <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl"
+                @close="this.excelExportIsOpen = false" @success="this.excelExportIsOpen = false" />
         </ContentBody>
     </div>
 </template>
@@ -51,9 +53,11 @@ import NLForm from '../../../components/NLForm'
 import NLGrid from '../../../components/Grid/NLGrid'
 import NLColumn from '../../../components/Grid/NLColumn'
 import NLCheckableContainer from '../../../components/Inputs/NLCheckableContainer'
+import ExcelExportModal from '../../../Modals/ExcelExportModal';
 import Form from 'vform'
 export default {
     components: {
+        ExcelExportModal,
         NLCheckableContainer,
         NLListItem,
         NLList,
@@ -70,6 +74,8 @@ export default {
     },
     data() {
         return {
+            excelExportIsOpen: false,
+            currentUrl: '/api/modules?export',
             form: new Form({
                 role: null,
                 permissions: [],

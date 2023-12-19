@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\ProcessesExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Process\StoreRequest;
 use App\Http\Requests\Process\UpdateRequest;
 use App\Http\Resources\ProcessResource;
 use App\Models\ControlPoint;
 use App\Models\Process;
+use App\Services\ExcelExportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
@@ -28,6 +30,13 @@ class ProcessController extends Controller
         $fetchFilters = request()->has('fetchFilters');
         $perPage = request('perPage', 10);
         $fetchAll = request()->has('fetchAll');
+
+        $export = request('export', []);
+        $shouldExport = count($export);
+
+        if ($shouldExport) {
+            return (new ExcelExportService($processes, ProcessesExport::class, 'liste_des_processus.xlsx', $export))->download();
+        }
 
         if ($filter) {
             $processes = $processes->filter($filter);

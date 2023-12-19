@@ -165,7 +165,6 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/', 'index');
             Route::get('/{mission}', 'show');
             Route::get('/{mission}/report', 'handleReport');
-            Route::get('/{mission}/report/check-if-is-generated', 'missionReportIsGenerated');
             Route::get('/{mission}/processes', 'processes');
             Route::put('{mission}', 'update');
             // Route::put('{mission}/assign', 'assignToCC');
@@ -203,12 +202,12 @@ Route::group(['middleware' => 'auth:api'], function () {
          * Details
          */
         Route::prefix('details')->controller(MissionDetailController::class)->group(function () {
+            Route::get('/{mission?}', 'index');
+        });
+        Route::prefix('major-facts')->controller(MajorFactController::class)->group(function () {
             Route::get('/', 'index');
-            Route::prefix('major-facts')->controller(MajorFactController::class)->group(function () {
-                Route::get('/', 'index');
-                Route::put('{detail}', 'reject');
-                Route::post('{detail}', 'notify');
-            });
+            Route::put('{detail}', 'reject');
+            Route::post('{detail}', 'notify');
         });
 
         /**

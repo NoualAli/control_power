@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\LoginsExport;
+use App\Exports\UsersExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreRequest;
 use App\Http\Requests\User\UpdateUserInfoRequest;
@@ -15,6 +17,7 @@ use App\Notifications\UserCreatedNotification;
 use App\Notifications\UserInforUpdatedNotification;
 use App\Notifications\UserInfoUpdatedNotification;
 use App\Notifications\UserPasswordUpdatedNotification;
+use App\Services\ExcelExportService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -28,6 +31,7 @@ class UserController extends Controller
     {
         $user = auth()->user();
         $user->load('role');
+
         return response()->json($user);
     }
 
@@ -52,6 +56,12 @@ class UserController extends Controller
         $fetchFilters = request()->has('fetchFilters');
         $perPage = request('perPage', 10);
         $fetchAll = request()->has('fetchAll');
+        $export = request('export', []);
+        $shouldExport = count($export);
+
+        if ($shouldExport) {
+            return (new ExcelExportService($users, UsersExport::class, 'liste_des_utilisateurs.xlsx', $export))->download();
+        }
 
         if ($filter) {
             $users = $users->filter($filter);

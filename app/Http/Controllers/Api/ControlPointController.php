@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\ControlPointsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ControlPoint\StoreRequest;
 use App\Http\Requests\ControlPoint\UpdateRequest;
 use App\Http\Resources\ControlPointResource;
 use App\Models\ControlPoint;
 use App\Models\Field;
+use App\Services\ExcelExportService;
 use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -31,6 +33,12 @@ class ControlPointController extends Controller
         $filter = request('filter', null);
         $fetchFilters = request()->has('fetchFilters');
         $fetchAll = request('fetchAll', false);
+        $export = request('export', []);
+        $shouldExport = count($export);
+
+        if ($shouldExport) {
+            return (new ExcelExportService($controlPoints, ControlPointsExport::class, 'liste_des_points_de_contrôle.xlsx', $export))->download();
+        }
         if ($fetchFilters) {
             return $this->filters();
         }

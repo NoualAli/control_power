@@ -65,10 +65,11 @@ class ExcelExportService
                 } else {
                     $model = $model->paginate($perPage);
                 }
-                dd($model);
             } else {
                 $model = $model->get();
             }
+        } else {
+            $model = $model->get();
         }
         return Excel::download(new $excelClass($model), $filename);
     }

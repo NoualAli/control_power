@@ -17,7 +17,6 @@
         </template>
     </ContentHeader>
     <ContentBody v-if="can('view_mission')">
-
         <!-- Mission informations -->
         <div class="box mb-10">
             <Alert v-if="mission?.current?.remaining_days_before_start > 0" type="is-info" isInline extraClass="mb-6">
@@ -259,10 +258,15 @@
             </NLGrid>
         </div>
 
+        <!-- Mission actions -->
         <NLFlex lgJustifyContent="start" gap="2">
             <!-- Actions -->
             <NLFlex lgJustifyContent="start" gap="2">
-
+                <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true"
+                    v-if="mission?.current?.progress_status > 0">
+                    <i class="las la-file-excel icon" />
+                    Exporter
+                </button>
                 <a v-if="mission?.current?.pdf_report_exists" class="btn btn-pdf has-icon"
                     :href="mission?.current?.report_link" target="_blank">
                     <i class="las la-file-pdf icon" />
@@ -285,12 +289,10 @@
             </NLFlex>
 
             <NLFlex lgJustifyContent="start" gap="2" v-if="is('root')">
-                <button
-                    v-if="mission?.current?.is_validated_by_dcp && showGenerateReportBtn && !mission?.current?.pdf_report_exists"
-                    class="btn btn-pdf has-icon" @click.prevent="generateReport()">
+                <NLButton v-if="mission?.current?.is_validated_by_dcp" class="btn btn-pdf has-icon"
+                    @click.prevent="generateReport()" label="Regénérer le rapport" :loading="generateReportIsLoading">
                     <i class="las la-file-pdf icon" />
-                    Regénérer le rapport
-                </button>
+                </NLButton>
             </NLFlex>
 
             <NLFlex lgJustifyContent="start" gap="2" v-if="is('ci')">
@@ -386,7 +388,7 @@
 
         <NLDatatable v-if="mission?.current?.id" :columns="columns" :details="details" :filters="filters"
             title="Liste des processus" :urlPrefix="'missions/' + mission?.current?.id + '/processes'"
-            detailsUrlPrefix="processes">
+            detailsUrlPrefix="processes" @dataLoaded="handleDataLoaded">
             <template #actions-after="{ item }">
                 <button
                     v-if="can('control_agency,view_mission_detail') && mission?.current?.remaining_days_before_start <= 0"
@@ -396,6 +398,10 @@
                 </button>
             </template>
         </NLDatatable>
+
+        <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen"
+            :route="'/api/details/' + mission?.current?.id + '?export'" @close="this.excelExportIsOpen = false"
+            @success="this.excelExportIsOpen = false" :hideOptions="true" />
 
         <!-- Mission comment -->
         <MissionCommentForm v-if="mission" :type="commentType" :missionId="mission?.current?.id" :readonly="commentReadonly"
@@ -415,8 +421,10 @@ import { mapGetters } from 'vuex'
 import { Form } from 'vform'
 import api from '../../plugins/api'
 import { hasRole, user } from '../../plugins/user'
+import ExcelExportModal from '../../Modals/ExcelExportModal';
 export default {
     components: {
+        ExcelExportModal,
         MissionCommentForm,
         MissionAssignationDetailsForm,
     },
@@ -424,10 +432,12 @@ export default {
     middleware: [ 'auth' ],
     data() {
         return {
+            generateReportIsLoading: false,
+            currentUrl: null,
+            excelExportIsOpen: false,
             controllersList: [],
             commentType: null,
             commentReadonly: false,
-            showGenerateReportBtn: false,
             currentUser: null,
             columns: [
                 {
@@ -602,15 +612,24 @@ export default {
         this.initData()
     },
     methods: {
+        handleDataLoaded(response) {
+            this.currentUrl = response.url
+        },
         /**
          * Export or Preview report
          */
         generateReport() {
-            this.showGenerateReportBtn = false
-            this.$api.get('missions/' + this.mission?.current?.id + '/report?action=generate').then((response) => {
-                this.$swal.alert_success('La génération du rapport de la mission ' + this.mission?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.', 'Génération du rapport PDF')
+            this.generateReportIsLoading = true
+            this.$api.get('missions/' + this.mission?.current?.id + '/report?action=regenerate').then((response) => {
+                this.generateReportIsLoading = false
+                if (response.data.status) {
+                    this.$swal.alert_success('La génération du rapport de la mission ' + this.mission?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.', 'Génération du rapport PDF')
+                } else {
+                    this.$swal.alert_success('On s\'excuse il y\'a eu un problème avec la fonction de regénération de rapport concernant la mission ' + this.mission?.current?.reference + ', veuilez réessayer plus tard, si le proboème perssiste veuillez contacter votre développeur.', 'Génération du rapport PDF')
+                }
             }).catch((error) => {
-                console.log(error);
+                this.generateReportIsLoading = false
+                this.$swal.catchError(error);
             })
         },
         /**
@@ -717,9 +736,6 @@ export default {
             this.$store.dispatch('settings/updatePageLoading', true)
             this.currentUser = user()
             this.$store.dispatch('missions/fetch', { missionId: this.$route.params.missionId }).then(() => {
-                this.$api.get('missions/' + this.mission?.current?.id + '/report/check-if-is-generated').then((response) => {
-                    this.showGenerateReportBtn = !response.data
-                })
                 const length = this.$breadcrumbs.value.length
                 if (this.$breadcrumbs.value[ length - 1 ].label === 'Mission') { this.$breadcrumbs.value[ length - 1 ].label = 'Mission ' + this.mission?.current?.reference }
                 this.$store.dispatch('settings/updatePageLoading', false)

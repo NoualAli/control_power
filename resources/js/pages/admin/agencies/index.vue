@@ -5,10 +5,10 @@
                 <router-link v-if="can(['create_agency'])" :to="{ name: 'agencies-create' }" class="btn btn-info">
                     Ajouter
                 </router-link>
-                <a href="/excel-export?export=agencies" target="_blank" class="btn btn-office-excel has-icon">
+                <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
                     <i class="las la-file-excel icon" />
                     Exporter
-                </a>
+                </button>
             </template>
             <template #title>
                 Liste des agences
@@ -16,15 +16,18 @@
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" urlPrefix="agencies" @edit="edit" @delete="destroy"
-                @dataLoaded="this.$store.dispatch('settings/updatePageLoading', false)" :refresh="refresh" />
+                @dataLoaded="handleDataLoaded" :refresh="refresh" />
+            <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl"
+                @close="this.excelExportIsOpen = false" @success="this.excelExportIsOpen = false" />
         </ContentBody>
     </div>
 </template>
 
 <script>
 import NLDatatable from '../../../components/Datatable/NLDatatable'
+import ExcelExportModal from '../../../Modals/ExcelExportModal';
 export default {
-    components: { NLDatatable },
+    components: { NLDatatable, ExcelExportModal },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     metaInfo() {
@@ -32,6 +35,8 @@ export default {
     },
     data() {
         return {
+            currentUrl: null,
+            excelExportIsOpen: false,
             refresh: 0,
             columns: [
                 {
@@ -67,6 +72,10 @@ export default {
         this.$store.dispatch('settings/updatePageLoading', true)
     },
     methods: {
+        handleDataLoaded(response) {
+            this.currentUrl = response.url
+            this.$store.dispatch('settings/updatePageLoading', false)
+        },
         /**
          * Redirige vers la page d'edition
          * @param {Object} item
