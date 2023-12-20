@@ -14,8 +14,8 @@ export function confirm({ icon = 'question', title = '', message = '', showConfi
         position: 'center',
         confirmButtonColor: '#00C851',
         cancelButtonColor: '#CC0000',
-        confirmButtonText: 'Ok',
-        cancelButtonText: 'Annuler',
+        confirmButtonText: 'Oui',
+        cancelButtonText: 'Non',
         showConfirmButton,
         showCancelButton,
         html: message
