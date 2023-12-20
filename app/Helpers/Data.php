@@ -558,7 +558,7 @@ if (!function_exists('getControlCampaigns')) {
      *
      * @return Builder
      */
-    function getControlCampaigns(?User $user = null)
+    function getControlCampaigns(?User $user = null, ?string $campaignId = null)
     {
         $columns = [
             'c.reference',
@@ -566,35 +566,19 @@ if (!function_exists('getControlCampaigns')) {
             'c.created_by_id',
             'c.validated_by_id',
             'c.created_at',
-            DB::raw('(CASE WHEN c.is_for_testing THEN Oui ELSE Non END) AS is_for_testing_str'),
-            DB::raw('DATE_FORMAT(start_date, "%d-%m-%Y") as start'),
-            DB::raw('DATE_FORMAT(end_date, "%d-%m-%Y") as end'),
-            DB::raw('DATEDIFF(CURDATE(), start_date) as remaining_days_before_start'),
-            DB::raw('DATEDIFF(CURDATE(), end_date) as remaining_days_before_end'),
+            'c.creator_full_name',
+            'c.validator_full_name',
+            DB::raw('(CASE WHEN c.is_for_testing = 1 THEN \'Oui\' ELSE \'Non\' END) AS is_for_testing_str'),
+            DB::raw('CONVERT(NVARCHAR(10), start_date, 105) as start_date'),
+            DB::raw('CONVERT(NVARCHAR(10), end_date, 105) as end_date'),
+            DB::raw('DATEDIFF(day, CAST(GETDATE() AS DATE), start_date) as remaining_days_before_start'),
+            DB::raw('DATEDIFF(day, CAST(GETDATE() AS DATE), end_date) as remaining_days_before_end'),
             DB::raw('(CASE WHEN c.validated_at IS NOT NULL THEN 1 ELSE 0 END) AS is_validated'),
+            'c.is_for_testing',
+            DB::raw('COUNT(m.id) as total_missions'),
+            DB::raw('SUM(CASE WHEN m.dcp_validation_at IS NOT NULL THEN 1 ELSE 0 END) as total_mission_validated'),
             'c.validated_at'
         ];
-
-        if (env('DB_CONNECTION') == 'sqlsrv') {
-            $columns = [
-                'c.reference',
-                'c.id',
-                'c.created_by_id',
-                'c.validated_by_id',
-                'c.created_at',
-                'c.creator_full_name',
-                'c.validator_full_name',
-                DB::raw('(CASE WHEN c.is_for_testing = 1 THEN \'Oui\' ELSE \'Non\' END) AS is_for_testing_str'),
-                DB::raw('CONVERT(NVARCHAR(10), start_date, 105) as start_date'),
-                DB::raw('CONVERT(NVARCHAR(10), end_date, 105) as end_date'),
-                DB::raw('DATEDIFF(day, CAST(GETDATE() AS DATE), start_date) as remaining_days_before_start'),
-                DB::raw('DATEDIFF(day, CAST(GETDATE() AS DATE), end_date) as remaining_days_before_end'),
-                DB::raw('(CASE WHEN c.validated_at IS NOT NULL THEN 1 ELSE 0 END) AS is_validated'),
-                DB::raw('COUNT(m.id) as total_missions'),
-                DB::raw('SUM(CASE WHEN m.dcp_validation_at IS NOT NULL THEN 1 ELSE 0 END) as total_mission_validated'),
-                'c.validated_at'
-            ];
-        }
 
         $campaigns = DB::table('control_campaigns as c')->select($columns);
         $campaigns = $campaigns->leftJoin('missions as m', 'm.control_campaign_id', 'c.id');
@@ -621,6 +605,10 @@ if (!function_exists('getControlCampaigns')) {
             'c.validator_full_name',
             'c.is_for_testing'
         );
+
+        if ($campaignId) {
+            return $campaigns->where('c.id', $campaignId)->first();
+        }
 
         return $campaigns;
     }
