@@ -147,6 +147,7 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::prefix('campaigns')->controller(ControlCampaignController::class)->group(function () {
             Route::get('/', 'index');
             Route::post('/', 'store');
+            Route::post('/{campaign}/reports', 'generateReports');
             Route::get('/current', 'current');
             Route::get('/next-reference', 'getNextReference');
             Route::get('/{campaign}', 'show');

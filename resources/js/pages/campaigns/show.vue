@@ -127,8 +127,30 @@
                 </NLColumn>
             </NLGrid>
         </div>
-        <div class="d-flex align-items gap-2"
-            v-if="canExportSynthesis && totalMissions == totalValidatedMissions && totalMissions > 0 && totalValidatedMissions > 0">
+        <NLFlex lgJustifyContent="start" gap="2" v-if="is('root')">
+            <NLButton v-if="totalMissions" class="btn btn-pdf has-icon" @click.prevent="generateReports(true)"
+                label="Regénérer tous les rapports" :loading="reGenerateReportsIsLoading">
+                <i class="las la-file-pdf icon" />
+            </NLButton>
+            <NLButton v-if="totalMissions" class="btn btn-pdf has-icon" @click.prevent="generateReports(true)"
+                label="Regénérer les rapports manquants" :loading="reGenerateReportsIsLoading">
+                <i class="las la-file-pdf icon" />
+            </NLButton>
+        </NLFlex>
+
+        <NLFlex lgJustifyContent="start" gap="2"
+            v-if="canExportSynthesis && totalMissions == totalValidatedMissions && totalMissions > 0 && totalValidatedMissions > 0 && !is('root')">
+            <!-- Download files -->
+            <button v-if="!is(['ci', 'da', 'cc', 'admin'])" class="btn btn-info has-icon" @click="downloadZip()">
+                <i class="las la-file-archive icon" />
+                Pièces jointes
+            </button>
+            <NLButton v-if="totalMissions && is(['dcp', 'cdcr'])" class="btn btn-pdf has-icon"
+                @click.prevent="generateReports()" label="Regénérer les rapports manquants"
+                :loading="reGenerateReportsIsLoading">
+                <i class="las la-file-pdf icon" />
+            </NLButton>
+
             <a :href="'/excel-export?export=synthesis&campaign=' + campaign?.current?.id" target="_blank"
                 class="btn btn-office-excel has-icon">
                 <i class="las la-file-excel icon" />
@@ -139,7 +161,7 @@
                 <i class="las la-file-excel icon" />
                 Récapitulatif des constats
             </a>
-        </div>
+        </NLFlex>
         <!-- Processes List -->
         <NLDatatable :refresh="refresh" v-if="campaign?.current?.id" :columns="columns" :details="details"
             title="Liste des processus" :urlPrefix="'campaigns/processes/' + campaign?.current?.id"
@@ -163,6 +185,8 @@ export default {
     middleware: [ 'auth' ],
     data() {
         return {
+            generateReportsIsLoading: false,
+            reGenerateReportsIsLoading: false,
             refresh: 0,
             validationInProgress: false,
             columns: [
@@ -190,23 +214,6 @@ export default {
                     hasMany: true
                 }
             ],
-            // filters: {
-            //     family: {
-            //         label: 'Famille',
-            //         name: 'family',
-            //         multiple: true,
-            //         data: null,
-            //         value: null
-            //     },
-            //     domain: {
-            //         label: 'Domaine',
-            //         name: 'domain',
-            //         multiple: true,
-            //         data: null,
-            //         value: null,
-            //         dependsOn: 'family'
-            //     },
-            // },
             canExportSynthesis: null,
         }
     },
@@ -271,6 +278,56 @@ export default {
         this.initData()
     },
     methods: {
+        /**
+         * Export or Preview report
+         */
+        generateReports(forceAll = false) {
+            let confirmTitle = forceAll ? 'Voulez-vous vraiment regénérer tous les rapports <b>existants / manquant</b> de la campagne de contrôle <b>' + this.campaign?.current?.reference + '</b>' : 'Voulez-vous vraiment générer tous les rapports manquants de la campagne de contrôle <b>' + this.campaign?.current?.reference + '</b>'
+            this.$swal.confirm_update(confirmTitle).then(action => {
+                if (action.isConfirmed) {
+                    let url = 'campaigns/' + this.campaign?.current?.id + '/reports?action=generate&all=0';
+                    let successMessage = 'La génération des rapports des missions de la campagne de contrôle ' + this.campaign?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.'
+                    let errorMessage = 'On s\'excuse il y\'a eu un problème avec la fonction de génération des rapports concernant la campagne de contrôle ' + this.campaign?.current?.reference + ', veuilez réessayer plus tard, si le proboème perssiste veuillez contacter votre développeur.'
+                    let title = 'Génération des rapports PDF'
+                    if (forceAll) {
+                        this.reGenerateReportsIsLoading = true
+                        url = 'campaigns/' + this.campaign?.current?.id + '/reports?action=generate&all=1';
+                        successMessage = 'La re-génération des rapports des missions de la campagne de contrôle ' + this.campaign?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.'
+                        errorMessage = 'On s\'excuse il y\'a eu un problème avec la fonction de re-génération des rapports concernant la campagne de contrôle ' + this.campaign?.current?.reference + ', veuilez réessayer plus tard, si le proboème perssiste veuillez contacter votre développeur.'
+                        title = 'Re-génération des rapports PDF'
+                    } else {
+                        this.generateReportsIsLoading = true
+                    }
+                    this.$api.post(url).then((response) => {
+                        if (forceAll) {
+                            this.reGenerateReportsIsLoading = false
+                        } else {
+                            this.generateReportsIsLoading = false
+                        }
+                        if (response.data.status) {
+                            this.$swal.alert_success(successMessage, title)
+                        } else {
+                            this.$swal.alert_success(errorMessage, title)
+                        }
+                    }).catch((error) => {
+                        if (forceAll) {
+                            this.reGenerateReportsIsLoading = false
+                        } else {
+                            this.generateReportsIsLoading = false
+                        }
+
+                        this.$swal.catchError(error);
+                    })
+                }
+            })
+        },
+        /**
+         * Download mission's and detail's media
+         *
+         */
+        downloadZip() {
+            window.open('/zip/ControlCampaign/' + this.campaign?.current?.id)
+        },
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
             this.canExportSynthesis = hasRole([ 'dcp', 'cdcr' ])

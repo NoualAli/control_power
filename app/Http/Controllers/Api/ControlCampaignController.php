@@ -7,7 +7,9 @@ use App\Http\Requests\ControlCampaign\StoreRequest;
 use App\Http\Requests\ControlCampaign\UpdateRequest;
 use App\Http\Resources\ControlCampaignResource;
 use App\Http\Resources\ProcessResource;
+use App\Jobs\GenerateMissionReportPdf;
 use App\Models\ControlCampaign;
+use App\Models\Mission;
 use App\Models\Process;
 use App\Models\User;
 use App\Notifications\ControlCampaign\Created;
@@ -68,7 +70,7 @@ class ControlCampaignController extends Controller
     public function current()
     {
         isAbleOrAbort('view_control_campaign');
-        return ControlCampaign::orderBy('created_at', 'ASC')->get()->last();
+        return getControlCampaigns()->where('cc.is_not_for_testing')->orderBy('reference', 'DESC')->get()->last();
     }
 
     /**
@@ -179,6 +181,17 @@ class ControlCampaignController extends Controller
         } catch (\Throwable $th) {
             return throwedError($th);
         }
+    }
+
+    public function generateReports(string $campaign)
+    {
+        $missions = Mission::where('control_campaign_id', $campaign)->get();
+        foreach ($missions as $mission) {
+            GenerateMissionReportPdf::dispatch($mission);
+        }
+        return response()->json([
+            'status' => true,
+        ]);
     }
 
     /**
