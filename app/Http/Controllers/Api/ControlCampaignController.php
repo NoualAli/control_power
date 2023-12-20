@@ -185,9 +185,17 @@ class ControlCampaignController extends Controller
 
     public function generateReports(string $campaign)
     {
+        $all = boolVal(intVal(request('all', false)));
+
         $missions = Mission::where('control_campaign_id', $campaign)->get();
         foreach ($missions as $mission) {
-            GenerateMissionReportPdf::dispatch($mission);
+            if ($all) {
+                GenerateMissionReportPdf::dispatch($mission);
+            } else {
+                if (!$mission->pdf_report_exists) {
+                    GenerateMissionReportPdf::dispatch($mission);
+                }
+            }
         }
         return response()->json([
             'status' => true,

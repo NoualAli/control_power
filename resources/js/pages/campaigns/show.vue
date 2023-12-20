@@ -132,8 +132,8 @@
                 label="Regénérer tous les rapports" :loading="reGenerateReportsIsLoading">
                 <i class="las la-file-pdf icon" />
             </NLButton>
-            <NLButton v-if="totalMissions" class="btn btn-pdf has-icon" @click.prevent="generateReports(true)"
-                label="Regénérer les rapports manquants" :loading="reGenerateReportsIsLoading">
+            <NLButton v-if="totalMissions" class="btn btn-pdf has-icon" @click.prevent="generateReports(false)"
+                label="Regénérer les rapports manquants" :loading="generateMissingReportsIsLoading">
                 <i class="las la-file-pdf icon" />
             </NLButton>
         </NLFlex>
@@ -146,7 +146,7 @@
                 Pièces jointes
             </button>
             <NLButton v-if="totalMissions && is(['dcp', 'cdcr'])" class="btn btn-pdf has-icon"
-                @click.prevent="generateReports()" label="Regénérer les rapports manquants"
+                @click.prevent="generateReports" label="Regénérer les rapports manquants"
                 :loading="reGenerateReportsIsLoading">
                 <i class="las la-file-pdf icon" />
             </NLButton>
@@ -185,7 +185,7 @@ export default {
     middleware: [ 'auth' ],
     data() {
         return {
-            generateReportsIsLoading: false,
+            generateMissingReportsIsLoading: false,
             reGenerateReportsIsLoading: false,
             refresh: 0,
             validationInProgress: false,
@@ -296,13 +296,13 @@ export default {
                         errorMessage = 'On s\'excuse il y\'a eu un problème avec la fonction de re-génération des rapports concernant la campagne de contrôle ' + this.campaign?.current?.reference + ', veuilez réessayer plus tard, si le proboème perssiste veuillez contacter votre développeur.'
                         title = 'Re-génération des rapports PDF'
                     } else {
-                        this.generateReportsIsLoading = true
+                        this.generateMissingReportsIsLoading = true
                     }
                     this.$api.post(url).then((response) => {
                         if (forceAll) {
                             this.reGenerateReportsIsLoading = false
                         } else {
-                            this.generateReportsIsLoading = false
+                            this.generateMissingReportsIsLoading = false
                         }
                         if (response.data.status) {
                             this.$swal.alert_success(successMessage, title)
@@ -313,7 +313,7 @@ export default {
                         if (forceAll) {
                             this.reGenerateReportsIsLoading = false
                         } else {
-                            this.generateReportsIsLoading = false
+                            this.generateMissingReportsIsLoading = false
                         }
 
                         this.$swal.catchError(error);
