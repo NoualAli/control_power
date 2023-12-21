@@ -154,7 +154,7 @@
                     v-if="[1, 2].includes(form.currentMode) || (![1, 2].includes(form.currentMode) && Object.values(form.media).length)">
                     <NLFile @uploaded="handleMedia" @deleted="handleMedia" @loaded="handleMedia" v-model="form.media"
                         :name="'media'" label="Pièces jointes" attachable-type="App\Models\MissionDetail"
-                        :attachable-id="form.detail" :form="form" multiple :canDelete="canDeleteMedia"
+                        :folder="folderName" :attachable-id="form.detail" :form="form" multiple :canDelete="canDeleteMedia"
                         :readonly="![1, 2].includes(form.currentMode)" />
                 </NLColumn>
             </NLForm>
@@ -173,6 +173,7 @@ import NLForm from '../components/NLForm';
 import { Form } from 'vform';
 import { mapGetters } from 'vuex';
 import { hasRole } from '../plugins/user';
+import { slugify } from '../plugins/helpers';
 import NLComponentLoader from '../components/NLComponentLoader'
 export default {
     name: 'MissionDetailForm',
@@ -198,6 +199,9 @@ export default {
                 return !this.currentMission.is_validated_by_dcp
             }
             return false
+        },
+        folderName() {
+            return 'Justificatifs/' + this.slugify(this.detail?.detail?.mission?.campaign?.reference) + '/' + this.slugify(this.detail?.detail?.mission?.reference) + '/' + this.slugify(this.data?.family?.name) + '/' + this.slugify(this.data?.domain?.name) + '/' + this.slugify(this.data?.process?.name) + '/' + this.slugify(this.data?.control_point?.name);
         }
     },
     mounted() {
