@@ -201,7 +201,7 @@ export default {
             return false
         },
         folderName() {
-            return 'Justificatifs/' + this.slugify(this.detail?.detail?.mission?.campaign?.reference) + '/' + this.slugify(this.detail?.detail?.mission?.reference) + '/' + this.slugify(this.data?.family?.name) + '/' + this.slugify(this.data?.domain?.name) + '/' + this.slugify(this.data?.process?.name) + '/' + this.slugify(this.data?.control_point?.name);
+            return 'Justificatifs/' + this.slugify(this.detail?.detail?.mission?.campaign?.reference) + '/' + this.slugify(this.detail?.detail?.mission?.reference);
         }
     },
     mounted() {
