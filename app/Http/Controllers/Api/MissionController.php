@@ -175,7 +175,7 @@ class MissionController extends Controller
                     'programmed_end' => $data['programmed_end'],
                     'note' => $data['note'],
                 ]);
-                $mission->dreControllers()->attach($data['controllers']);
+                $mission->dreControllers()->attach($data['controller']);
                 $mission->details()->createMany($controlPoints);
                 foreach ($mission->dreControllers as $controller) {
                     Notification::send($controller, new Assigned($mission));
@@ -203,7 +203,7 @@ class MissionController extends Controller
         $data = $request->validated();
         try {
             DB::transaction(function () use ($mission, $data) {
-                $mission->dreControllers()->sync($data['controllers']);
+                $mission->dreControllers()->sync($data['controller']);
                 $mission->update([
                     'programmed_start' => $data['programmed_start'],
                     'programmed_end' => $data['programmed_end'],
@@ -504,7 +504,7 @@ class MissionController extends Controller
             DB::raw('DATEDIFF(day, CAST(GETDATE() AS DATE),start_date) as remaining_days_before_start'),
             DB::raw('DATEDIFF(day, end_date, CAST(GETDATE() AS DATE)) as remaining_days_before_end'),
             DB::raw('(CASE WHEN cc.validated_at IS NOT NULL THEN 1 ELSE 0 END) AS is_validated')
-        )->orderBy('created_at', 'DESC');
+        )->orderBy('created_at', 'DESC')->whereDate('end_date', '>=', today()->format('Y-m-d'));
         if (request('campaign_id')) {
             $currentCampaign = $currentCampaign->where('id', request('campaign_id'))->first();
         } else {
@@ -515,7 +515,13 @@ class MissionController extends Controller
         $currentCampaign->remaining_days_before_end_str = $this->remainingDaysBeforeEndStr($currentCampaign->remaining_days_before_end);
 
         abort_if(!$currentCampaign->validated_by_id, 403);
-        $campaigns = (clone $campaigns)->select('cc.reference', 'cc.id')->whereNotNull('validated_by_id')->orderBy('reference', 'DESC')->get()->map(fn ($item) => ['reference' => $item->reference, 'id' => $item->id])->toArray();
+        $campaigns = (clone $campaigns)->select('cc.reference', 'cc.id')
+            ->whereDate('end_date', '>=', today()->format('Y-m-d'))
+            ->whereNotNull('validated_by_id')
+            ->orderBy('reference', 'DESC')
+            ->get()
+            ->map(fn ($item) => ['reference' => $item->reference, 'id' => $item->id])
+            ->toArray();
         $campaigns = formatForSelect($campaigns, 'reference');
 
         if (request()->has('campaign_id')) {
