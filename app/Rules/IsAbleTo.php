@@ -29,22 +29,8 @@ class IsAbleTo implements Rule
      */
     public function passes($attribute, $value)
     {
-        if (is_array($value)) {
-            $users = [];
-            foreach ($value as $user) {
-                $user = User::findOrFail($user);
-                $users[$user->full_name] = $user->isAbleTo($this->ability);
-            }
-            if (in_array(false, $users)) {
-                foreach ($users as $username => $value) {
-                    $this->user = $username;
-                    return false;
-                }
-            }
-            return true;
-        }
-        $this->user = User::findOrFail($value);
-        return $this->user->isAbleTo($this->ability);
+        $user = User::findOrFail($value);
+        return $user->isAbleTo($this->ability);
     }
 
     /**

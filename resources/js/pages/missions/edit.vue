@@ -21,9 +21,9 @@
 
                 <!-- Controllers -->
                 <NLColumn>
-                    <NLSelect v-model="form.controllers" name="controllers" label="Contrôleurs"
-                        placeholder="Veuillez choisir un ou plusieurs contrôleurs" :options="controllersList" :form="form"
-                        label-required :multiple="true" loading-text="Chargement de la liste des contrôleurs en cours"
+                    <NLSelect v-model="form.controller" name="controller" label="Contrôleur"
+                        placeholder="Veuillez choisir un contrôleur" :options="controllersList" :form="form" label-required
+                        :multiple="true" loading-text="Chargement de la liste des contrôleurs en cours"
                         no-options-text="Vous n'avez aucun contrôleur de disponible pour le moment" />
                 </NLColumn>
 
@@ -117,7 +117,7 @@ export default {
                 programmed_end: null,
                 agency: null,
                 campaign: null,
-                controllers: null,
+                controller: null,
                 control_campaign_id: null,
                 is_for_testing: false,
             }),
@@ -156,7 +156,7 @@ export default {
                     this.form.campaign = this.mission.current.campaign.reference
                     this.form.control_campaign_id = this.mission.current.campaign.id
                     this.currentCampaign = this.mission.current.campaign
-                    this.form.controllers = this.mission.current.dre_controllers.map((controller) => controller.id)
+                    this.form.controller = this.mission.current.dre_controllers.map((controller) => controller.id)[ 0 ]
                     this.form.programmed_start = this.mission.current.programmed_start.split('-').reverse().join('-')
                     this.form.programmed_end = this.mission.current.programmed_end.split('-').reverse().join('-')
                     this.form.note = this.mission.current.note

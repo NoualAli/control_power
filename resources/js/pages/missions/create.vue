@@ -27,9 +27,9 @@
 
                 <!-- Controllers -->
                 <NLColumn>
-                    <NLSelect v-model="form.controllers" name="controllers" label="Contrôleurs"
-                        placeholder="Veuillez choisir un ou plusieurs contrôleurs" :options="controllersList" :form="form"
-                        label-required :multiple="true" loading-text="Chargement de la liste des contrôleurs en cours"
+                    <NLSelect v-model="form.controller" name="controller" label="Contrôleur"
+                        placeholder="Veuillez choisir un contrôleur" :options="controllersList" :form="form" label-required
+                        loading-text="Chargement de la liste des contrôleurs en cours"
                         no-options-text="Vous n'avez aucun contrôleur de disponible pour le moment" />
                 </NLColumn>
 
@@ -116,7 +116,7 @@ export default {
                 start: null,
                 end: null,
                 agency: null,
-                controllers: null,
+                controller: null,
                 control_campaign_id: null,
                 is_for_testing: false,
             }),
@@ -136,11 +136,7 @@ export default {
     watch: {
         'form.control_campaign_id': function (newVal, oldVal) {
             this.initData()
-            // if (newVal !== oldVal && newVal !== null && newVal !== undefined) this.initData()
         },
-        // 'form.programmed_start': function (newVal, oldVal) {
-        //     if (newVal !== oldVal && newVal) this.form.programmed_end = this.addDays(newVal, 15)
-        // },
         currentCampaignReference: function (newVal, oldVal) {
             if (newVal !== oldVal) {
                 this.currentCampaignReference = newVal
@@ -164,12 +160,10 @@ export default {
             }
 
             this.$store.dispatch('missions/fetchConfig', this.form.control_campaign_id).then(() => {
-                // console.log(this.config?.config);
                 this.agenciesList = this.config?.config.agencies
                 this.controllersList = this.config?.config.controllers
                 this.campaignsList = this.config?.config.campaigns
                 this.currentCampaign = this.config?.config.currentCampaign
-                // console.log(this.currentCampaign?.id);
                 this.form.programmed_start = this.currentCampaign.start_date.split('-').reverse().join('-')
                 this.form.control_campaign_id = this.currentCampaign?.id
                 this.currentCampaignReference = this.config?.config.currentCampaign.reference
@@ -189,7 +183,8 @@ export default {
             this.form.programmed_start = null
             this.form.programmed_end = null
             this.form.agency = null
-            this.form.controllers = null
+            this.form.controller = null
+            this.form.is_for_testing = false
         },
         /**
          * Création de la mission
