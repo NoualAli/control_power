@@ -1,12 +1,12 @@
 <template>
     <div v-if="can('view_control_campaign')">
-        <div class="d-flex justify-between align-center">
-            <div class="w-100 d-flex justify-end align-center">
+        <ContentHeader>
+            <template #actions>
                 <router-link v-if="can('create_control_campaign')" class="btn btn-info" :to="{ name: 'campaigns-create' }">
                     Ajouter
                 </router-link>
-            </div>
-        </div>
+            </template>
+        </ContentHeader>
         <ContentBody>
             <NLDatatable :refresh="refresh" :columns="columns" :actions="actions" :filters="filters"
                 title="Suivi du planning annuel" urlPrefix="campaigns"
