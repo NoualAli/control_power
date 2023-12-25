@@ -92,7 +92,7 @@ export default {
             filters: {
                 validated: {
                     label: 'Etat',
-                    hide: !hasRole([ 'dcp', 'cdcr' ]),
+                    hide: !hasRole([ 'dcp', 'cdcr', 'root', 'admin' ]),
                     data: [
                         {
                             id: "En attente de validation",
@@ -101,6 +101,21 @@ export default {
                         {
                             id: "Validé",
                             label: 'Validé'
+                        }
+                    ],
+                    value: null
+                },
+                test: {
+                    label: 'Test',
+                    hide: !hasRole([ 'dcp', 'cdcr', 'root', 'admin' ]),
+                    data: [
+                        {
+                            id: "Non",
+                            label: 'Non'
+                        },
+                        {
+                            id: "Oui",
+                            label: 'Oui'
                         }
                     ],
                     value: null

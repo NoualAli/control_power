@@ -132,16 +132,18 @@ class ControlCampaignController extends Controller
                     ]);
                     array_push($anyProcessesError, $insertedProcess);
                 }
+
                 if ($isValidated && !$isForTesting) {
                     $roles = ['cdc', 'cdrcp', 'dre', 'cdcr', 'der'];
-                    $users = User::whereRoles($roles)->isActive()->get();
+                    $users = User::whereRoles($roles)->isNotForTesting()->isActive()->get();
                     $campaignORM = ControlCampaign::findOrFail($data['id']);
+                    dd('validated !isFortesting');
                     foreach ($users as $user) {
                         Notification::send($user, new Created($campaignORM));
                     }
                 } else {
                     if (hasRole('cdcr') && !$isForTesting) {
-                        $users = User::whereRoles(['dcp'])->isActive()->get();
+                        $users = User::whereRoles(['dcp'])->isNotForTesting()->isActive()->get();
                         foreach ($users as $user) {
                             Notification::send($user, new Created($data['id']));
                         }
@@ -301,23 +303,33 @@ class ControlCampaignController extends Controller
     /**
      * Filter data
      *
-     * @param Builder $missions
+     * @param Builder $campaigns
      * @param array $filter
      *
      * @return Builder
      */
-    public function filter(Builder $missions, array $filter): Builder
+    public function filter(Builder $campaigns, array $filter): Builder
     {
         if (isset($filter['validated'])) {
             $value = $filter['validated'];
             if ($value == 'En attente de validation') {
-                $missions = $missions->whereNull('validated_at');
+                $campaigns = $campaigns->whereNull('c.validated_at');
             } elseif ($value == 'Validé') {
-                $missions = $missions->whereNotNull('validated_at');
+                $campaigns = $campaigns->whereNotNull('c.validated_at');
             } else {
                 abort(422, "La valeur " . $value . " n'est pas une valeur valide.");
             }
         }
-        return $missions;
+        if (isset($filter['test'])) {
+            $value = $filter['test'];
+            if ($value == 'Non') {
+                $campaigns = $campaigns->where('c.is_for_testing', false);
+            } elseif ($value == 'Oui') {
+                $campaigns = $campaigns->where('c.is_for_testing', true);
+            } else {
+                abort(422, "La valeur " . $value . " n'est pas une valeur valide.");
+            }
+        }
+        return $campaigns;
     }
 }

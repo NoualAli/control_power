@@ -114,6 +114,14 @@
                                 {{ campaign?.current?.validator_full_name }}
                             </span>
                         </NLColumn>
+                        <NLColumn lg="4" v-if="is(['admin', 'root', 'dcp', 'cdcr'])">
+                            <span class="text-bold">
+                                Test:
+                            </span>
+                            <span>
+                                {{ campaign?.current?.is_for_testing_str }}
+                            </span>
+                        </NLColumn>
                     </NLGrid>
                 </NLColumn>
                 <NLColumn>
@@ -229,9 +237,8 @@ export default {
         },
         start() {
             let startDate = this.campaign?.current?.start_date
-            let remainingDaysBeforeStart = Math.abs(this.campaign?.current?.remaining_days_before_start)
+            let remainingDaysBeforeStart = this.campaign?.current?.remaining_days_before_start
             let sufix = ''
-
             if (remainingDaysBeforeStart == 1) {
                 sufix = ' / ' + remainingDaysBeforeStart + ' jour'
             } else if (remainingDaysBeforeStart > 1) {
