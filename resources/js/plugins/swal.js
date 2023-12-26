@@ -190,6 +190,8 @@ export function catchError(error) {
         // et une instance de http.ClientRequest avec node.js
         console.log(error?.request);
         alert_error(defaultMessage)
+    } else if (error.response && status == 422) {
+        alert_error(error?.response?.data.message)
     } else {
         // quelque chose s’est passé lors de la construction de la requête et cela
         // a provoqué une erreur
