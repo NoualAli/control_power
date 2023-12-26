@@ -12,6 +12,9 @@ export const state = {
 }
 
 export const mutations = {
+    FETCH_CURRENT(state, data) {
+        state.current = data
+    },
     FETCH_ALL(state, data) {
         state.all = data
     },
