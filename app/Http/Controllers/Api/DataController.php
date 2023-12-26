@@ -231,7 +231,8 @@ class DataController extends Controller
                 ->select(DB::raw("CONCAT(d.code, ' - ', d.name) as dre_name"), DB::raw("CONCAT(a.code, ' - ', a.name) as agency_name"), 'm.reference')
                 ->leftJoin('agencies as a', 'a.dre_id', 'd.id')
                 ->join('missions as m', 'm.agency_id', 'a.id')
-                ->where(DB::raw("CONCAT(d.code, ' - ', d.name)"), $dre);
+                ->where(DB::raw("CONCAT(d.code, ' - ', d.name)"), $dre)
+                ->whereIn('m.id', $missions->pluck('id'));
             $totalAchieved = (clone $dreMissions)->whereNotNull('m.cdc_validation_by_id')->count();
             $total = (clone $dreMissions)->count();
             $rate = $total ? number_format(($totalAchieved * 100) / $total, 2) : 0;
