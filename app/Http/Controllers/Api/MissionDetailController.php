@@ -48,7 +48,7 @@ class MissionDetailController extends Controller
                 $mission = getMissions(request('mission'), 2);
                 $missionReference = $mission->reference ? '-' . str_replace('/', '-', $mission->reference) . '-' : null;
                 $filename = 'détails_de_mission-' . $mission->campaign . $missionReference . \Str::slug($mission->dre . '-' . $mission->agency) . '.xlsx';
-                $details = getMissionDetails(request('mission'));
+                $details = getMissionDetails($mission->id);
                 return (new ExcelExportService($details, MissionDetailExport::class, $filename, $export))->download();
             }
             if ($sort) {
@@ -155,11 +155,15 @@ class MissionDetailController extends Controller
     {
         if (count($data['metadata'])) {
             foreach ($data['metadata'] as $rowKey => $row) {
-                $fields = DB::table('mission_details', 'md')->select('fields')->leftJoin('control_points AS cp', 'md.control_point_id', 'cp.id')->where('md.id', $data['detail'])->first()?->fields;
-                if ($fields) {
-                    $fields = json_decode($fields);
-                }
-                if ($fields) {
+                $fields = DB::table('mission_details', 'md')
+                    ->select('f.*')
+                    ->leftJoin('control_points AS cp', 'md.control_point_id', 'cp.id')
+                    ->leftJoin('has_fields AS hf', 'cp.id', 'hf.attachable_id')
+                    ->leftJoin('fields AS f', 'hf.field_id', 'f.id')
+                    ->where('attachable_type', 'App\Models\ControlPoint')
+                    ->where('md.id', $data['detail'])
+                    ->get();
+                if ($fields->count()) {
                     validateFields($fields, $data, $multiple, $rowKey);
                 }
             }

@@ -161,6 +161,9 @@
                 @if ($detail->metadata)
                     @php
                         $metadata = json_decode($detail->metadata);
+                        if (is_string($metadata)) {
+                            $metadata = json_decode($metadata);
+                        }
                         $headings = collect(\Arr::flatten($metadata))
                             ->map(fn($item) => $item->label)
                             ->unique();
