@@ -73,7 +73,6 @@ export default {
         }
     },
     created() {
-        console.log(this.folderName);
         this.initData()
     },
     methods: {
@@ -86,6 +85,7 @@ export default {
         initData() {
             this.isLoading = true
             this.form.reset()
+            this.form.errors.errors = {}
             this.form.mission_detail_id = this.detail?.id
             this.isLoading = false
         },

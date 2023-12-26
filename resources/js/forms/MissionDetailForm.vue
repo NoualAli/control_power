@@ -314,7 +314,7 @@ export default {
                 } else {
                     this.form.currentMode = 6 // Readonly mode
                 }
-
+                this.form.errors.errors = {}
                 this.currentMission = detail.mission
                 this.form.mission = detail.mission_id
                 this.form.process = Number(detail.control_point.process_id)
