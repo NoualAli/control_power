@@ -157,6 +157,11 @@ class MajorFactController extends Controller
      */
     public function filter(Builder $details, array $filter): Builder
     {
+        if (isset($filter['id'])) {
+            $value = $filter['id'];
+            $details = $details->having('md.id', "$value");
+        }
+
         if (isset($filter['campaign'])) {
             $values = explode(',', $filter['campaign']);
             $details = $details->whereIn('control_campaign_id', $values);
