@@ -353,7 +353,7 @@ export default {
         notify() {
             this.$swal.confirm({ title: 'Notification fait majeur', message: 'Voulez-vous notifier les autorités concernées?' }).then(action => {
                 if (action.isConfirmed) {
-                    this.$api.post('details/major-facts/' + this.rowSelected.id).then(response => {
+                    this.$api.post('major-facts/' + this.rowSelected.id).then(response => {
                         this.$swal.toast_success(response.data.message)
                         this.$emit('success')
                         this.close(true)
@@ -369,7 +369,7 @@ export default {
         reject() {
             this.$swal.confirm({ title: 'Rejet fait majeur', message: 'Voulez-vous rejeter ce fait majeur?' }).then(action => {
                 if (action.isConfirmed) {
-                    this.$api.put('details/major-facts/' + this.rowSelected.id).then(response => {
+                    this.$api.put('major-facts/' + this.rowSelected.id).then(response => {
                         this.$swal.toast_success(response.data.message)
                         this.$emit('success')
                         this.close(true)
