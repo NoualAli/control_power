@@ -518,12 +518,14 @@ if (!function_exists('validateFields')) {
 
             if ($required) {
                 $rules = array_merge($rules, ['required']);
+                $messages[$computedNameWithoutKey . '.required'] = 'Le champ ' . __($label) . ' est obligatoire.';
             } else {
                 $rules = array_merge($rules, ['nullable']);
             }
 
             if ($distinct) {
                 $rules = array_merge($rules, ['distinct']);
+                $messages[$computedNameWithoutKey . '.required'] = 'Le champ ' . __($label) . ' a une valeur en double.';
             }
 
             if ($type == 'number') {
@@ -532,61 +534,76 @@ if (!function_exists('validateFields')) {
                     $messages[$computedNameWithoutKey . '.regex'] = 'Le champ ' . __($label) . ' doit être un nombre entier.';
                 } else {
                     $rules = array_merge($rules, ['numeric']);
+                    $messages[$computedNameWithoutKey . '.numeric'] = 'Le champ ' . __($label) . ' doit être un nombre.';
                 }
 
                 if ($maxLength) {
                     $rules = array_merge($rules, ['max_digits:' . $maxLength]);
+                    $messages[$computedNameWithoutKey . '.max_digits'] = 'Le champ ' . __($label) . ' ne doit pas dépasser ' . $maxLength . ' chiffres.';
                 }
 
                 if ($minLength) {
                     $rules = array_merge($rules, ['min_digits:' . $minLength]);
+                    $messages[$computedNameWithoutKey . '.max_digits'] = 'Le champ ' . __($label) . ' doit pas contenir en moin ' . $maxLength . ' chiffres.';
                 }
             }
 
             if ($type == 'select') {
                 if ($is_multiple) {
                     $rules = array_merge($rules, ['array']);
+                    $messages[$computedNameWithoutKey . '.array'] = 'Le champ ' . __($label) . ' doit pas être un tableau.';
                 } else {
                     $rules = array_merge($rules, ['string']);
+                    $messages[$computedNameWithoutKey . '.array'] = 'Le champ ' . __($label) . ' doit pas être une chaine de caractères.';
                 }
             }
 
             if ($type == 'date') {
                 $rules = array_merge($rules, ['date_format:Y-m-d']);
+                $messages[$computedNameWithoutKey . '.date_format'] = 'Le champ ' . __($label) . ' ne correspond pas au format :format.';
             }
 
             if ($type == 'month') {
                 $rules = array_merge($rules, ['date_format:Y-m']);
+                $messages[$computedNameWithoutKey . '.date_format'] = 'Le champ ' . __($label) . ' ne correspond pas au format :format.';
             }
 
             if ($type == 'time') {
                 $rules = array_merge($rules, ['date_format:H:i:s']);
+                $messages[$computedNameWithoutKey . '.date_format'] = 'Le champ ' . __($label) . ' ne correspond pas au format :format.';
             }
 
             if ($type == 'datetime-local') {
                 $rules = array_merge($rules, ['date_format:Y-m-d\TH:i:s']);
+                $messages[$computedNameWithoutKey . '.date_format'] = 'Le champ ' . __($label) . ' ne correspond pas au format :format.';
             }
 
             if ($type == 'week') {
                 $rules = array_merge($rules, ['date']);
+                $messages[$computedNameWithoutKey . '.date'] = 'Le champ ' . __($label) . ' n\'est pas une date valide.';
             }
 
             if ($type == 'email') {
                 $rules = array_merge($rules, ['email']);
+                $messages[$computedNameWithoutKey . '.email'] = 'Le champ ' . __($label) . ' doit être une adresse e-mail valide.';
             }
 
             if ($type == 'tel') {
                 $rules = array_merge($rules, [new IsAlgerianPhoneNumber]);
+                $messages[$computedNameWithoutKey . '.tel'] = 'Le champ ' . __($label) . ' doit être un n° de téléphone algérien valide.';
             }
 
             if (in_array($type, ['text', 'textarea'])) {
                 $rules = array_merge($rules, ['string']);
+                $messages[$computedNameWithoutKey . '.string'] = 'Le champ ' . __($label) . ' doit être une chaine de caractère.';
 
                 if ($maxLength) {
                     $rules = array_merge($rules, ['max:' . $maxLength]);
+                    $messages[$computedNameWithoutKey . '.max'] = 'Le champ ' . __($label) . ' ne peut contenir plus de :max caractères';
                 }
                 if ($minLength) {
                     $rules = array_merge($rules, ['min:' . $maxLength]);
+                    $messages[$computedNameWithoutKey . '.min'] = 'Le champ ' . __($label) . ' doit contenir au moins :min caractères';
                 }
             }
 
