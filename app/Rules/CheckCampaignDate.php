@@ -37,12 +37,17 @@ class CheckCampaignDate implements Rule
      */
     public function passes($attribute, $value)
     {
-        $this->lastCampaign = ControlCampaign::whereYear('start_date', Carbon::parse(request()->start_date)->format('Y'))->orderBy('start_date', 'ASC')->first();
+        $greatterOrEquelThanToday = Carbon::parse($value)->diffInDays(today(), false) <= 0;
+        // Fetch all campaigns that are'nt for testing and are validated
+        $this->lastCampaign = ControlCampaign::isNotForTesting()->validated()->whereYear('start_date', Carbon::parse(request()->start_date)->format('Y'))->orderBy('start_date', 'ASC')->first();
+        // If we get results we can process to check
         if ($this->lastCampaign instanceof ControlCampaign) {
             $this->endDate = Carbon::parse($this->lastCampaign?->end_date);
-            return Carbon::parse($this->endDate)->diffInDays($value, false) > 0;
+            // Check if value is greatter than last campaign end date and greatter than today date
+            return Carbon::parse($this->endDate)->diffInDays($value, false) > 0 && $greatterOrEquelThanToday;
         }
-        return true;
+        // By default we check if date is greatter or equal to today date
+        return $greatterOrEquelThanToday;
     }
 
     /**
@@ -52,6 +57,10 @@ class CheckCampaignDate implements Rule
      */
     public function message()
     {
-        return 'Le champ :attribute doit être supèrieur à la date de fin de la dernière campagne ' . $this->lastCampaign->reference . ' donc supèrieur à ' . $this->endDate->format('d-m-Y') . ' .';
+        if ($this->lastCampaign instanceof ControlCampaign) {
+            return 'Le champ :attribute doit être supèrieur à la date de fin de la dernière campagne ' . $this->lastCampaign->reference . ' donc supèrieur à ' . $this->endDate->format('d-m-Y') . ' .';
+        } else {
+            return 'Le champ :attribute doit être supèrieur à la date d\'aujourd\'hui donc supèrieur à ' . today()->format('d-m-Y') . ' .';
+        }
     }
 }
