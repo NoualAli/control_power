@@ -42,7 +42,7 @@
                         {{ reference }}
                     </span>
                 </NLColumn>
-                <NLColumn v-if="is('cdcr,dcp')" lg="4">
+                <NLColumn v-if="is('cdcr,dcp,admin,root')" lg="4">
                     <span class="text-bold">
                         Etat:
                     </span>
@@ -233,7 +233,7 @@ export default {
             return this.campaign?.current?.reference
         },
         state() {
-            return this.campaign?.current?.is_validated ? 'Validé' : 'En attente de validation'
+            return Boolean(Number(this.campaign?.current?.is_validated)) ? 'Validé' : 'En attente de validation'
         },
         start() {
             let startDate = this.campaign?.current?.start_date
