@@ -116,7 +116,6 @@ class UpdateUsernamesNotification extends Notification
             ->line($this->getContent()[5])
             ->line($this->getContent()[6])
             ->action('Se connecter', $this->getUrl())
-            // ->line('Merci d\'utiliser ControlPower!')
             ->success();
     }
 
@@ -132,7 +131,7 @@ class UpdateUsernamesNotification extends Notification
             'id' => $this->user->id,
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
-            'short_content' => $this->getContent(),
+            'short_content' => $this->getShortContent(),
             'title' => $this->getTitle(),
             'emitted_by' => auth()?->user()?->username,
         ];
