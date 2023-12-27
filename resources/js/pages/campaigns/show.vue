@@ -14,16 +14,15 @@
                 <i class="las la-chart-bar icon"></i>
                 Statistiques
             </router-link>
-            <router-link
-                v-if="(campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign')) && !campaign?.current.is_validated"
+            <router-link v-if="(!Boolean(Number(campaign?.current?.is_validated)) && can('edit_control_campaign'))"
                 class="btn btn-warning" :to="{ name: 'campaigns-edit', params: { campaignId: campaign?.current?.id } }">
                 <i class="las la-edit icon" />
+                Modifier
             </router-link>
-            <button
-                v-if="(campaign?.current?.remaining_days_before_start > 5 && can('delete_control_campaign')) && !campaign?.current.is_validated"
+            <NLButton v-if="(!Boolean(Number(campaign?.current?.is_validated)) && can('delete_control_campaign'))"
                 class="btn btn-danger has-icon" @click.stop="destroy" :loading="destroyInProgress" label="Supprimer">
                 <i class="las la-trash icon" />
-            </button>
+            </NLButton>
             <NLButton v-if="!campaign?.current?.validated_by_id && can('validate_control_campaign')" class="btn btn-info"
                 @click.stop="validate(campaign?.current)" :loading="validationInProgress" label="Valider">
                 <i class="las la-check icon has-icon" />
@@ -188,11 +187,13 @@
 import { mapGetters } from 'vuex'
 import api from '../../plugins/api'
 import { hasRole } from '../../plugins/user'
+import { catchError } from '../../plugins/swal'
 export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     data() {
         return {
+            destroyInProgress: false,
             generateMissingReportsIsLoading: false,
             reGenerateReportsIsLoading: false,
             refresh: 0,
@@ -363,12 +364,11 @@ export default {
                         if (response.data.status) {
                             this.initData()
                             this.$store.dispatch('settings/updatePageLoading', false)
-                            this.validationInProgress = false
                             this.$swal.toast_success(response.data.message)
                         } else {
-                            this.validationInProgress = false
                             this.$swal.toast_error(response.data.message)
                         }
+                        this.validationInProgress = false
                     })
                 }
             }).catch(error => {
@@ -381,21 +381,20 @@ export default {
          * Delete campaign
          */
         destroy(e) {
-            this.destroyInProgress = true
             this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
+                    this.destroyInProgress = true
                     api.delete('campaigns/' + this.campaign?.current?.id).then(response => {
                         if (response.data.status) {
                             this.$swal.toast_success(response.data.message)
                             this.$router.push({ name: 'campaigns' })
-                            this.destroyInProgress = false
                         } else {
                             this.$swal.alert_error(response.data.message)
-                            this.destroyInProgress = false
                         }
-                    }).catch(error => {
-                        console.log(error)
                         this.destroyInProgress = false
+                    }).catch(error => {
+                        this.destroyInProgress = false
+                        this.$swal.catchError(error)
                     })
                 }
             })

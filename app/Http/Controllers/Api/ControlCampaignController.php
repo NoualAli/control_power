@@ -70,7 +70,7 @@ class ControlCampaignController extends Controller
     public function current()
     {
         isAbleOrAbort('view_control_campaign');
-        return getControlCampaigns()->where('cc.is_not_for_testing')->orderBy('reference', 'DESC')->get()->last();
+        return getControlCampaigns()->where('c.is_for_testing', false)->orderBy('validated_at', 'ASC')->get()->last();
     }
 
     /**
@@ -83,9 +83,10 @@ class ControlCampaignController extends Controller
         abort_if(!($campaign->validated_by_id || hasRole(['dcp', 'cdcr'])), 403, __('unauthorized'));
 
         if (request()->has('edit')) {
-            $condition = $campaign->remaining_days_before_start > 5 || !$campaign->validated_by_id;
+            $condition = !boolval(intval($campaign->is_validated));
             abort_if(!$condition, 403, __('unauthorized'));
-            $campaign->load('processes');
+
+            $campaign->processes = getControlCampaignProcesses($campaign)->get();
         }
         return $campaign;
     }
@@ -172,11 +173,10 @@ class ControlCampaignController extends Controller
             $processes = $data['pcf'];
             $processes = pcfToProcesses($processes);
             unset($data['pcf'], $data['reference']);
-
             $result = DB::transaction(function () use ($campaign, $data, $processes) {
-                $campaign->update($data);
+                $result = $campaign->update($data);
                 $campaign->processes()->sync($processes);
-                return $campaign;
+                return $result;
             });
 
             return actionResponse($result, UPDATE_SUCCESS, UPDATE_ERROR);
@@ -242,18 +242,22 @@ class ControlCampaignController extends Controller
     {
         isAbleOrAbort('delete_control_campaign');
         try {
-            $result = $campaign->delete();
-            if ($campaign->validated_at) {
-                $roles = ['cdc', 'cdrcp', 'dre'];
-                if (!hasRole('cdcr')) {
-                    $roles = ['cdc', 'cdrcp', 'dre', 'cdcr'];
+            if ($campaign->is_validated) {
+                $result = $campaign->delete();
+                if ($campaign->validated_at) {
+                    $roles = ['cdc', 'cdrcp', 'dre'];
+                    if (!hasRole('cdcr')) {
+                        $roles = ['cdc', 'cdrcp', 'dre', 'cdcr'];
+                    }
+                    $users = User::whereRoles($roles)->get();
+                    foreach ($users as $user) {
+                        Notification::send($user, new Deleted($campaign));
+                    }
                 }
-                $users = User::whereRoles($roles)->get();
-                foreach ($users as $user) {
-                    Notification::send($user, new Deleted($campaign));
-                }
+                return actionResponse($result, DELETE_SUCCESS, DELETE_ERROR);
+            } else {
+                return actionResponse(false, DELETE_SUCCESS, "Cette campagne de contrôle ne peut pas être supprimée car elle est validée.", 422);
             }
-            return actionResponse($result, DELETE_SUCCESS, DELETE_ERROR);
         } catch (\Throwable $th) {
 
 
@@ -329,6 +333,15 @@ class ControlCampaignController extends Controller
             } else {
                 abort(422, "La valeur " . $value . " n'est pas une valeur valide.");
             }
+        }
+        if (isset($filter['start'])) {
+            $start = isset($filter['start']) ? $filter['start'] : null;
+            $campaigns = $campaigns->whereDate('c.start_date', '>=', $start);
+        }
+
+        if (isset($filter['end'])) {
+            $end = isset($filter['end']) ? $filter['end'] : null;
+            $campaigns = $campaigns->whereDate('c.end_date', '<=', $end);
         }
         return $campaigns;
     }

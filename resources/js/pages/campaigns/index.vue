@@ -24,7 +24,6 @@
 
 <script>
 import { hasRole } from '../../plugins/user'
-// import api from '../../plugins/api'
 export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],
@@ -78,13 +77,13 @@ export default {
                 },
                 edit: {
                     show: (item) => {
-                        return this.can('edit_control_campaign') && item.remaining_days_before_start > 5
+                        return this.can('edit_control_campaign') && !Boolean(Number(item.is_validated))
                     },
                     apply: this.edit
                 },
                 delete: {
                     show: (item) => {
-                        return this.can('delete_control_campaign') && item.remaining_days_before_start > 5
+                        return this.can('delete_control_campaign') && !Boolean(Number(item.is_validated))
                     },
                     apply: this.destroy
                 }
@@ -120,23 +119,16 @@ export default {
                     ],
                     value: null
                 },
-                // between: {
-                //     value: null,
-                //     type: 'date-range',
-                //     cols: '6',
-                //     attributes: {
-                //         start: {
-                //             cols: 'col-lg-4',
-                //             label: 'De',
-                //             value: null
-                //         },
-                //         end: {
-                //             cols: 'col-lg-4',
-                //             label: 'À',
-                //             value: null
-                //         }
-                //     }
-                // }
+                start: {
+                    type: 'date',
+                    label: 'Début',
+                    value: null
+                },
+                end: {
+                    type: 'date',
+                    label: 'Fin',
+                    value: null
+                },
             },
         }
     },
@@ -163,8 +155,8 @@ export default {
          * @param {Object} e
          */
         show(e) {
-            // return this.$router.push({ name: 'campaign', params: { campaignId: e.item.id } })
-            window.open(this.$router.resolve({ name: 'campaign', params: { campaignId: e.item.id } }).href, '_blank')
+            const campaignId = e.item.id
+            window.open(this.$router.resolve({ name: 'campaign', params: { campaignId } }).href, '_blank')
         },
 
         /**
@@ -172,8 +164,8 @@ export default {
          * @param {Object} e
          */
         edit(e) {
-            // return this.$router.push({ name: 'campaigns-edit', params: { campaignId: e.item.id } })
-            window.open(this.$router.resolve({ name: 'campaigns-edit', params: { campaignId: e.item.id } }), '_blank')
+            const campaignId = e.item.id
+            window.open(this.$router.resolve({ name: 'campaigns-edit', params: { campaignId } }).href, '_blank')
         },
         /**
          * Valide une campagne de contrôle
@@ -211,7 +203,9 @@ export default {
                 }
                 return response
             }).catch(error => {
-                return error
+                e.element.classList.remove('is-loading')
+                e.element.disabled = false
+                this.$swal.catchError(error)
             })
         },
     }

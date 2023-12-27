@@ -5,12 +5,8 @@
                 :lg="columns(filter)">
                 <NLSelect v-show="type(filter) == 'select' && !filter?.hide" v-model="filter.value" :name="name"
                     :label="label(filter)" :options="data(filter)" :multiple="multiple(filter)" />
-                <!-- <NLGrid gap="2" v-if="type(filter) == 'date-range'">
-                    <NLColumn :lg="columns(filter)" v-for="(attrData, attrName) in filter.attributes"
-                        :key="'filter-' + attrName" :class="data?.cols || 'col-lg-6'">
-                        <NLInput v-model="attrData.value" :name="attrName" :label="attrData.label" type="date" />
-                    </NLColumn>
-                </NLGrid> -->
+                <NLInputDate v-show="type(filter) == 'date' == !filter.hide" v-model="filter.value" :name="name"
+                    :label="filter.label" />
             </NLColumn>
         </NLGrid>
         <NLComponentLoader :isLoading="isLoading"></NLComponentLoader>
