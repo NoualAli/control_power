@@ -205,14 +205,15 @@ export default {
                     multiple: true,
                     data: null,
                     value: null,
-                    hide: hasRole([ 'cdc', 'ci' ])
+                    hide: hasRole([ 'cdc', 'ci', 'da' ])
                 },
                 agency: {
                     label: 'Agence',
                     cols: 3,
                     multiple: true,
                     data: null,
-                    value: null
+                    value: null,
+                    hide: hasRole([ 'da' ])
                 },
                 current_state: {
                     label: 'État',
@@ -251,7 +252,8 @@ export default {
                             id: MissionState.DONE,
                             label: MissionState.DONE_STR
                         }
-                    ]
+                    ],
+                    hide: hasRole([ 'da', 'cdc', 'ci' ])
                 },
 
                 progress_status: {
@@ -286,6 +288,7 @@ export default {
                             label: '= 100%'
                         },
                     ],
+                    hide: hasRole([ 'da' ]),
                     value: null
                 },
 

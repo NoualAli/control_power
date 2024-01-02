@@ -160,6 +160,7 @@ class MissionController extends Controller
             $agency = $data['agency'];
             $agency = Agency::findOrFail($agency);
             $result = DB::transaction(function () use ($data, $agency, $campaign) {
+                $isForTesting = $campaign->is_for_testing ?: $data['is_for_testing'];
                 $reference = 'RAP' . str_replace('-', '', str_replace('CDC-', '', $campaign->reference)) . '/' . $agency->code;
                 $controlPoints = $this->loadControlPoints($campaign, $agency);
                 $mission = Mission::create([
@@ -171,11 +172,14 @@ class MissionController extends Controller
                     'programmed_start' => $data['programmed_start'],
                     'programmed_end' => $data['programmed_end'],
                     'note' => $data['note'],
+                    'is_for_testing' => $isForTesting
                 ]);
                 $mission->dreControllers()->attach($data['controller']);
                 $mission->details()->createMany($controlPoints);
-                foreach ($mission->dreControllers as $controller) {
-                    Notification::send($controller, new Assigned($mission));
+                if (!$isForTesting) {
+                    foreach ($mission->dreControllers as $controller) {
+                        Notification::send($controller, new Assigned($mission));
+                    }
                 }
                 return $mission;
             });
@@ -678,15 +682,23 @@ class MissionController extends Controller
     public function filters(Builder $missions): array
     {
         $missions = $missions->get();
-
         $dre = [];
         $agency = [];
-        $campaign = formatForSelect(getControlCampaigns()->get()->map(fn ($item) => ['id' => $item->id, 'reference' => $item->reference])->toArray(), 'reference');
+        $campaign = getControlCampaigns()
+            ->whereNotNull('m.reference')
+            ->get()
+            ->unique()
+            ->map(fn ($item) => ['id' => $item->id, 'reference' => $item->reference])
+            ->toArray();
+        $campaign = formatForSelect($campaign, 'reference');
         $mission = [];
         if (isset(request()->filter['campaign'])) {
 
+            $filterDre = isset(request()->filter['dre']) ? request()->filter['dre'] : '';
+            if (hasRole(['cdc', 'ci', 'da'])) {
+                $filterDre = auth()->user()->dres->pluck('id')->join(',');
+            }
             $campaigns = explode(',', request()->filter['campaign']);
-
             $dre = getDre()
                 ->join('agencies as a', 'd.id', 'a.dre_id')
                 ->join('missions as m', 'm.agency_id', 'a.id')
@@ -695,13 +707,18 @@ class MissionController extends Controller
                 ->get()
                 ->map(fn ($item) => ['id' => $item->id, 'full_name' => $item->full_name])->toArray();
             $dre = formatForSelect($dre, 'full_name');
+            if (!empty($filterDre)) {
+                $dres = explode(',', $filterDre);
+                $agency = getAgencies()->join('missions as m', 'm.agency_id', 'a.id');
+                if (hasRole('ci')) {
+                    $agency = $agency->join('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')->where('mhc.user_id', auth()->user()->id);
+                } elseif (hasRole('cdc')) {
+                    $agency = $agency;
+                } else {
+                    $agency = $agency->whereIn('dre_id', $dres);
+                }
 
-            if (isset(request()->filter['dre'])) {
-                $dres = explode(',', request()->filter['dre']);
-                $agency = getAgencies()
-                    ->join('missions as m', 'm.agency_id', 'a.id')
-                    ->whereIn('dre_id', $dres)
-                    ->having(DB::raw('COUNT(m.id)'), '>', 0)
+                $agency = $agency->having(DB::raw('COUNT(m.id)'), '>', 0)
                     ->get()
                     ->map(fn ($item) => ['id' => $item->id, 'full_name' => $item->full_name])->toArray();
                 $agency = formatForSelect($agency, 'full_name');
