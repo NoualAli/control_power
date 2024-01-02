@@ -21,4 +21,4 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 })
 
-require('./notifications/mission_report_generated')
+import './notifications/mission_report_generated'
