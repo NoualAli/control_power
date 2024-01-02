@@ -1,7 +1,7 @@
 <template>
     <NLModal :show="show" @close="close" :isLoading="isLoading">
         <template #title>
-            <div class="tags">
+            <div class="tags is-even">
                 <router-link class="tag is-success" :to="'/campaigns/' + row?.campaign.id" target="_blank">
                     <small class="text-center w-100">
                         {{ row?.campaign?.reference }}
