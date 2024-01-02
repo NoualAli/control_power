@@ -199,7 +199,7 @@ export default {
         setMinDateForStart(campaignStart = null) {
             campaignStart = moment(campaignStart, 'DD-MM-YYYY').format('YYYY-MM-DD')
             let today = moment()
-            this.minDateForStart = today.diff(campaignStart, 'days') >= 0 ? today.format('YYYY-MM-DD') : campaignStart
+            this.minDateForStart = today.diff(campaignStart, 'days') >= 0 ? today.add(1, 'day').format('YYYY-MM-DD') : campaignStart
         },
         /**
          * Set minimum value to choose in calendar for end date
@@ -207,8 +207,7 @@ export default {
         setMinDateForEnd(campaignStart = null) {
             campaignStart = moment(campaignStart, 'DD-MM-YYYY').format('YYYY-MM-DD')
             let today = moment()
-            this.minDateForEnd = today.diff(this.form.programmed_start, 'days') >= 0 && today.diff(campaignStart, 'days') >= 0 ? moment(today).add('1', 'day').format('YYYY-MM-DD') : moment(this.form.programmed_start, 'YYYY-MM-DD').add('1', 'day').format('YYYY-MM-DD')
-            console.log(today.diff(this.form.programmed_start, 'days') >= 0 && today.diff(campaignStart, 'days') >= 0);
+            this.minDateForEnd = today.diff(this.form.programmed_start, 'days') >= 0 && today.diff(campaignStart, 'days') >= 0 ? moment(today).add('2', 'day').format('YYYY-MM-DD') : moment(this.form.programmed_start, 'YYYY-MM-DD').add('1', 'day').format('YYYY-MM-DD')
             if (this.disabled.end) {
                 this.disabled.end = false
             }
