@@ -1,9 +1,8 @@
 {
     "private": true,
     "scripts": {
-        "dev": "mix watch --hot",
-        "watch": "mix watch",
-        "build": "mix --production",
+        "dev": "vite",
+        "build": "vite build",
         "eslint": "eslint --fix --ext .js,.vue resources/js"
     },
     "dependencies": {
