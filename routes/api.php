@@ -148,7 +148,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/', 'index');
             Route::post('/', 'store');
             Route::post('/{campaign}/reports', 'generateReports');
-            Route::get('/current', 'current');
+            Route::get('/campaign', 'campaign');
             Route::get('/next-reference', 'getNextReference');
             Route::get('/{campaign}', 'show');
             Route::get('/processes/{campaign}', 'processes');

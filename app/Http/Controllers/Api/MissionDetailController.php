@@ -308,14 +308,15 @@ class MissionDetailController extends Controller
      */
     public function filters(Builder $details): array
     {
+        $user = auth()->user();
         $details = $details->get();
 
         $families = (clone $details)->groupBy('family')->keys();
         $family = getFamilies()->whereIn('name', $families)->get()->map(fn ($item) => ['id' => $item->id, 'label' => $item->name])->toArray();
         $domain = [];
         $process = [];
-        $dre = [];
-        $agency = [];
+        $dre = hasRole(['cdc', 'ci', 'dre', 'da']) ? [$user->dre] : [];
+        $agency = hasRole(['cdc', 'ci', 'dre', 'da']) ? formatForSelect($user->agencies->toArray(), 'full_name') : [];
         $campaign = formatForSelect(getControlCampaigns()->get()->map(fn ($item) => ['id' => $item->id, 'reference' => $item->reference])->toArray(), 'reference');
         $mission = [];
         if (isset(request()->filter['campaign'])) {

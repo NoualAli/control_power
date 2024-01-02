@@ -72,17 +72,23 @@ export default {
                     isHtml: true,
                     methods: {
                         showField(item) {
-                            let icon = 'times-circle'
-                            let color = 'text-danger'
-                            if (item.is_validated == 1 && item.is_pending == 0) {
+                            let icon = 'exclamation-triangle'
+                            let color = 'text-warning'
+                            let title = 'En attente de traitement'
+                            if (item.is_validated == 1) {
                                 icon = 'check-circle'
                                 color = 'text-success'
-                            } else if (item.is_validated == 0 && item.is_pending == 1) {
+                                title = 'Validé'
+                            } else if (item.is_pending == 1 && item.is_rejected == 0) {
                                 icon = 'exclamation-triangle'
                                 color = 'text-warning'
+                                title = 'En attente de traitement'
+                            } else if (item.is_rejected == 1 && item.is_pending == 0) {
+                                icon = 'times-circle'
+                                color = 'text-danger'
+                                title = 'Rejeté'
                             }
-                            console.log(item.is_validated == 1 && item.is_pending != 1);
-                            return `<i class="las la-${icon} ${color} icon"></i>`
+                            return `<i class="las la-${icon} ${color} icon" title="${title}"></i>`
                         }
                     }
                 }
@@ -96,6 +102,11 @@ export default {
                 regularize: false
             },
             filters: {
+                id: {
+                    hide: true,
+                    data: null,
+                    value: null
+                },
                 campaign: {
                     label: 'Campagne de contrôle',
                     cols: 3,
@@ -200,9 +211,9 @@ export default {
     created() {
         this.$store.dispatch('settings/updatePageLoading', true)
         if (this.$route?.query?.id) {
-            this.searchValue = this.$route?.query?.id
+            this.filters.id.value = this.$route?.query?.id
         } else if (this.$route.query[ 'filter[id]' ]) {
-            this.searchValue = this.$route?.query[ 'filter[id]' ]
+            this.filters.id.value = this.$route?.query[ 'filter[id]' ]
         }
     },
     methods: {
@@ -214,7 +225,6 @@ export default {
         success(e) {
             this.refresh += 1
             this.show(this.rowSelected)
-            // this.close()
         },
         /**
         * Affiche le modal des informations du point de contrôle

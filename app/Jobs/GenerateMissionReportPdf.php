@@ -28,6 +28,8 @@ class GenerateMissionReportPdf implements ShouldQueue
      */
     protected $mission;
 
+    protected $notify;
+
     /**
      * @var array
      */
@@ -38,9 +40,10 @@ class GenerateMissionReportPdf implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(Mission $mission)
+    public function __construct(Mission $mission, $notify = true)
     {
         $this->mission = $mission;
+        $this->notify = $notify;
     }
 
     /**
@@ -87,9 +90,9 @@ class GenerateMissionReportPdf implements ShouldQueue
             $content = $pdf->download()->getOriginalContent();
 
             Storage::put($this->filepath(), $content);
-            $notify = User::whereRoles(['cdcr', 'cdrcp', 'dcp'])->where('is_active', true)->get();
-            $notify = User::whereRoles(['dre', 'da'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->where('is_active', true)->get()->merge($notify);
-            $notify = $notify->merge($mission->dcpControllers)->merge($mission->dreControllers);
+            $notifiables = User::whereRoles(['cdcr', 'cdrcp', 'dcp'])->where('is_active', true)->get();
+            $notifiables = User::whereRoles(['dre', 'da'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->where('is_active', true)->get()->merge($notifiables);
+            $notifiables = $notifiables->merge($mission->dcpControllers)->merge($mission->dreControllers);
             $end = now();
             $difference = $end->diffInRealMilliseconds($start);
 
@@ -121,11 +124,11 @@ class GenerateMissionReportPdf implements ShouldQueue
             /**
              * Notify users after pdf is generated
              */
-            foreach ($notify as $user) {
-                Notification::send($user, new ReportNotification($mission));
+            if ($this->notify) {
+                foreach ($notifiables as $user) {
+                    Notification::send($user, new ReportNotification($mission));
+                }
             }
-            // if (!Storage::exists($this->filepath())) {
-            // }
         } catch (\Throwable $th) {
             echo $th->getMessage() . ' ' . $th->getLine() . ' ' . $th->getFile();
         }

@@ -16,7 +16,6 @@ use App\Notifications\ControlCampaign\Created;
 use App\Notifications\ControlCampaign\Deleted;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 
 class ControlCampaignController extends Controller
@@ -67,10 +66,28 @@ class ControlCampaignController extends Controller
     /**
      * Display current campaign
      */
-    public function current()
+    public function campaign()
     {
         isAbleOrAbort('view_control_campaign');
-        return getControlCampaigns()->where('c.is_for_testing', false)->orderBy('validated_at', 'ASC')->get()->last();
+        $latest = request()->has('latest');
+        $current = request()->has('current');
+        $campaign = getControlCampaigns()->where('c.is_for_testing', false)->whereNotNull('validated_at');
+        if ($latest) {
+            $campaign = $campaign->orderBy('validated_at', 'ASC')->get()->last();
+        } elseif ($current) {
+            $year = today()->format('Y');
+            $month = today()->format('m');
+            $campaign = $campaign->whereYear('start_date', $year)->whereMonth('start_date', $month)->orderBy('validated_at', 'ASC');
+            if (!$campaign->count()) {
+                $campaign = getControlCampaigns()->where('c.is_for_testing', false)->whereNotNull('validated_at');
+                $month = today()->addMonth()->format('m');
+                $campaign = $campaign->whereYear('start_date', $year)->whereMonth('start_date', $month);
+            }
+            $campaign = $campaign->get()->last();
+        } else {
+            $campaign = $campaign->get()->last();
+        }
+        return $campaign;
     }
 
     /**
@@ -138,7 +155,6 @@ class ControlCampaignController extends Controller
                     $roles = ['cdc', 'cdrcp', 'dre', 'cdcr', 'der'];
                     $users = User::whereRoles($roles)->isNotForTesting()->isActive()->get();
                     $campaignORM = ControlCampaign::findOrFail($data['id']);
-                    dd('validated !isFortesting');
                     foreach ($users as $user) {
                         Notification::send($user, new Created($campaignORM));
                     }

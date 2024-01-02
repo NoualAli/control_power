@@ -85,9 +85,9 @@ trait HasDates
     {
         $remainingDays = $this->remaining_days_before_start > 1 ? $this->remaining_days_before_start . ' jours' : $this->remaining_days_before_start . ' jour';
         if (!$this->remaining_days_before_start && $this->remaining_days_before_end) {
-            return 'En cours';
+            return ' / En cours';
         }
-        return $this->remaining_days_before_end ? $remainingDays : '-';
+        return $this->remaining_days_before_end ? ' / ' . $remainingDays : '';
     }
 
     /**
@@ -96,6 +96,6 @@ trait HasDates
     public function getRemainingDaysBeforeEndStrAttribute(): string
     {
         $remainingDays = $this->remaining_days_before_end > 1 ? $this->remaining_days_before_end . ' jours' : $this->remaining_days_before_end . ' jour';
-        return $this->remaining_days_before_end ? $remainingDays : '-';
+        return $this->remaining_days_before_end ? ' / ' . $remainingDays : '';
     }
 }

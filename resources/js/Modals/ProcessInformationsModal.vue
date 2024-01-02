@@ -1,22 +1,26 @@
 <template>
     <NLModal :show="show" @close="close" :isLoading="isLoading">
         <template #title>
-            <NLFlex lgAlignItems="center" lgJustifyContent="start" gap="2" extraClass="w-100">
-                <span class="tag text-normal is-start">
-                    <i class="las la-tag icon mr-1"></i>
-                    {{ currentProcess?.family?.name }}
-                </span>
-                <span class="tag text-normal is-start">
-                    <i class="las la-tags icon mr-1"></i>
-                    {{ currentProcess.domain.name }}
-                </span>
-                <span class="tag text-normal is-start">
-                    <i class="las la-project-diagram icon mr-1"></i>
-                    {{ currentProcess?.name }}
-                </span>
-            </NLFlex>
-            <!-- <div class="tags">
-            </div> -->
+            <div class="tags">
+                <div class="tag is-start text-normal">
+                    <i class="las la-tag icon"></i>
+                    <p>
+                        {{ currentProcess?.family?.name }}
+                    </p>
+                </div>
+                <div class="tag is-start text-normal">
+                    <i class="las la-tags icon"></i>
+                    <p>
+                        {{ currentProcess.domain.name }}
+                    </p>
+                </div>
+                <div class="tag is-start text-normal">
+                    <i class="las la-project-diagram icon"></i>
+                    <p>
+                        {{ currentProcess?.name }}
+                    </p>
+                </div>
+            </div>
         </template>
         <template #default>
             <div class="content">
@@ -28,17 +32,20 @@
                         {{ control_point.name }}
                     </li>
                 </ul>
-                <h2>
-                    Documentation
-                </h2>
                 <NLGrid class="text-normal">
+                    <NLColumn v-if="Object.values(currentProcess.media).length">
+                        <h2>
+                            Documentation
+                        </h2>
+                    </NLColumn>
                     <NLColumn v-for="file in currentProcess?.media">
                         <NLGrid gap="1">
                             <NLColumn class="text-bold">
                                 {{ JSON.parse(file.payload).object }}
                             </NLColumn>
                             <NLColumn>
-                                <a :href="file.link" target="_blank" class="text-dark">
+                                <a :href="file.storage_link" target="_blank" class="text-dark"
+                                    :download="file.original_name">
                                     <i class="icon" :class="file.icon"></i>
                                     {{ file.original_name }}
                                 </a>
@@ -53,9 +60,12 @@
 </template>
 
 <script>
+import NLColumn from '../components/Grid/NLColumn'
 import NLFlex from '../components/Grid/NLFlex'
 export default {
-    components: { NLFlex },
+    components: {
+        NLColumn, NLFlex
+    },
     name: 'ProcessInformationsModal',
     props: {
         process: { type: [ Object, null ], required: true },

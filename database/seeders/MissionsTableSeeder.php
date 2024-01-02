@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Mission;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -18,13 +19,14 @@ class MissionsTableSeeder extends Seeder
     public function run()
     {
         DB::transaction(function () {
-            $missions = getMissions()->get();
+            $missions = getMissions()->addSelect(['ci_validation_at'])->get();
             $results = collect([]);
             foreach ($missions as $mission) {
                 $missionFirstDetailControlled = getMissionDetails($mission->id)->select(['controlled_by_ci_at'])->orderBy('controlled_by_ci_at')->first()?->controlled_by_ci_at;
+                $missionRealEnd = $mission->ci_validation_at;
                 $result = DB::table('missions')->where('id', $mission->id)->update([
                     'real_start' => $missionFirstDetailControlled,
-                    'real_end' => $mission->end_date
+                    'real_end' => $missionRealEnd,
                 ]);
 
                 $results->push(['reference' => $mission->reference, 'status' => $result]);
@@ -74,6 +76,11 @@ class MissionsTableSeeder extends Seeder
                     'creator_full_name' => $mission->fk_creator_full_name,
                 ]);
             }
+
+            Schema::table('missions', function (Blueprint $table) {
+                $table->dropColumn('reel_end');
+                $table->dropColumn('reel_start');
+            });
         });
     }
 }

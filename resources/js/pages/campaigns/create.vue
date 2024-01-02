@@ -112,7 +112,7 @@ export default {
          * Set minimum start date for control campaign
          */
         setMinDateForStart() {
-            this.$store.dispatch('campaigns/fetchCurrent').then(() => {
+            this.$store.dispatch('campaigns/fetchCurrent', { latestCampaign: true, currentCampaign: false }).then(() => {
                 if (this.lastCampaign?.current?.end_date) {
                     let date = moment(this.lastCampaign?.current?.end_date, 'DD-MM-YYYY')
                     // Start date must be greatter than last control campaign end date and greatter than today
@@ -151,6 +151,9 @@ export default {
         clear() {
             this.form.reset()
         },
+        /**
+         * Create new control campaign
+         */
         create() {
             this.formIsLoading = true
             this.form.post('campaigns').then(response => {
@@ -178,6 +181,9 @@ export default {
                 this.fetchNextReference()
             })
         },
+        /**
+         * Fetch next reference
+         */
         fetchNextReference() {
             this.$store.dispatch('campaigns/fetchNextReference', { isValidated: this.form.is_validated, isForTesting: this.form.is_for_testing }).then(() => this.$store.dispatch('settings/updatePageLoading', false))
         }

@@ -23,8 +23,8 @@ class MissionResource extends JsonResource
             'dre' => $this->dre,
             'agency' => $this->agency,
             'current_state' => (int) $this->current_state,
-            'end_date' => Carbon::parse($this->end_date)->format('d-m-Y'),
-            'start_date' => Carbon::parse($this->start_date)->format('d-m-Y'),
+            'end_date' => $this->end_date,
+            'start_date' => $this->start_date,
             'remaining_days_before_start' => $this->remainingDaysBeforeStartStr($this->remaining_days_before_start, $this->remaining_days_before_end),
             'progress_status' => $this->total_controlled_md ? number_format($this->total_controlled_md * 100 / $this->total_md) : 0,
             'avg_score' => (float) $this->avg_score,
@@ -33,7 +33,13 @@ class MissionResource extends JsonResource
             'is_validated_by_cdc' => $this->is_validated_by_cdc,
             'is_validated_by_ci' => $this->is_validated_by_ci,
             'is_validated_by_cc' => $this->is_validated_by_cc,
-            'is_late' => (bool) $this->is_late
+            'is_late_ci' => (bool) $this->is_late_ci,
+            'is_late_cdc' => (bool) $this->is_late_cdc,
+            'is_late_cdcr' => (bool) $this->is_late_cdcr,
+            'is_late_dcp' => (bool) $this->is_late_dcp,
+            'is_late_da' => (bool) $this->is_late_da,
+            'is_late' => (bool) $this->is_late,
+            // 'is_late_user' => $this->is_late_user,
         ];
     }
 

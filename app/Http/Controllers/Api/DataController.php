@@ -108,7 +108,7 @@ class DataController extends Controller
         $today = today()->format('Y-m-d');
         $missions = $missions->select(
             DB::raw('SUM(CASE WHEN m.current_state = 1 THEN 1 ELSE 0 END) as todo'),
-            DB::raw('SUM(CASE WHEN m.current_state = 2 OR m.current_state = 4 THEN 1 ELSE 0 END) as active'),
+            DB::raw('SUM(CASE WHEN m.current_state = 2 OR m.current_state = 3 OR m.current_state = 4 THEN 1 ELSE 0 END) as active'),
             DB::raw('SUM(CASE WHEN m.current_state = 9 THEN 1 ELSE 0 END) as delay'),
             DB::raw('SUM(CASE WHEN m.current_state = 5 OR m.current_state = 6 OR m.current_state = 7 OR m.current_state = 8 THEN 1 ELSE 0 END) as done'),
         )->get()->first();

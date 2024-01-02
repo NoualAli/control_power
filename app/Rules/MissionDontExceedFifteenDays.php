@@ -14,7 +14,7 @@ class MissionDontExceedFifteenDays implements Rule
      *
      * @return void
      */
-    public function __construct(String $start)
+    public function __construct(?String $start = null)
     {
         $this->start = $start;
     }
@@ -28,7 +28,11 @@ class MissionDontExceedFifteenDays implements Rule
      */
     public function passes($attribute, $value)
     {
-        return Carbon::parse($this->start)->diffInDays($value) <= 15;
+        if ($this->start) {
+            return Carbon::parse($this->start)->diffInDays($value) <= 15;
+        } else {
+            return Carbon::parse(today())->diffInDays($value) <= 15;
+        }
     }
 
     /**

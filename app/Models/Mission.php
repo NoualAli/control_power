@@ -121,31 +121,27 @@ class Mission extends BaseModel
     }
     public function getIsLateAttribute()
     {
-        // DB::raw('(CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) > 15 OR real_end > programmed_end THEN 1 ELSE 0 END) as is_late')
-        // return Carbon::parse($this->progremmed_end)->diffInDays(today()) > 15 || $this->real_end > $this->programmed_end;
         $programmedEnd = Carbon::parse($this->programmed_end);
-        $reelEnd = Carbon::parse($this->real_end);
-        $cdcrValidationAt = Carbon::parse($this->cdcr_validation_at);
-        $ccValidationAt = Carbon::parse($this->cc_validation_at);
-        $dcpValidationAt = Carbon::parse($this->dcp_validation_at);
-        $daValidationAt = Carbon::parse($this->da_validation_at);
+        $realEnd = $this->real_end ?: Carbon::parse($this->real_end);
+        $ciValidationAt = $this->ci_validation_at ? Carbon::parse($this->ci_validation_at) : null;
+        $cdcValidationAt = $this->cdc_validation_at ? Carbon::parse($this->cdc_validation_at) : null;
+        $cdcrValidationAt = $this->cdcr_validation_at ? Carbon::parse($this->cdcr_validation_at) : null;
+        $ccValidationAt = $this->cc_validation_at ? Carbon::parse($this->cc_validation_at) : null;
+        $dcpValidationAt = $this->dcp_validation_at ? Carbon::parse($this->dcp_validation_at) : null;
+        $daValidationAt = $this->da_validation_at ? Carbon::parse($this->da_validation_at) : null;
         $today = today();
         $isLate = false;
-        // dd($reelEnd->diffInDays($programmedEnd), $reelEnd, $programmedEnd, $programmedEnd->diffInDays($today) < 15);
-        if ($programmedEnd->diffInDays($today) < 15 && $reelEnd->diffInDays($programmedEnd) < 0) {
+        if ($programmedEnd->diffInDays($today) < 15 && $realEnd && $realEnd->diffInDays($programmedEnd, false) < 0) {
             $isLate =  true;
+        } elseif ($cdcValidationAt && $cdcrValidationAt && $cdcValidationAt->diffInDays($cdcrValidationAt, false) > 5) {
+            $isLate = true;
+        } elseif ($dcpValidationAt && $cdcrValidationAt && $cdcrValidationAt->diffInDays($dcpValidationAt, false) > 5) {
+            $isLate = true;
+        } elseif ($dcpValidationAt && $dcpValidationAt->diffInDays($daValidationAt, false) > 5) {
+            $isLate = true;
         }
-        // dd($isLate);
+        // dd($daValidationAt->diffInDays($dcpValidationAt, false) > 5, $dcpValidationAt, $daValidationAt);
         return $isLate;
-
-        // if (hasRole(['ci', 'cdc'])) {
-        // }elseif(hasRole('CDCR')){
-
-        // }elseif(hasRole('DCP')){
-
-        // }elseif(hasRole('DA')){
-
-        // }
     }
 
 
@@ -156,9 +152,25 @@ class Mission extends BaseModel
     public function getRemainingDaysBeforeStartAttribute(): int
     {
         $today = today();
-        $startAttribute = $this->startAttribute ?? 'start';
+        $startAttribute = $this->startAttribute;
         $start = $this->$startAttribute ? $today->diffInDays($this->$startAttribute, false) : 0;
-        return $start >= 0 && $this->progress_status !== 0 ? $start : 0;
+        return $start >= 0 ? $start : 0;
+    }
+
+
+    /**
+     * @return int
+     */
+    public function getRemainingDaysBeforeEndAttribute(): int
+    {
+        $today = today();
+        $endAttribute = $this->endAttribute ?? 'end';
+        $realEnd = $this->real_end;
+        if ($realEnd) {
+            $endAttribute = 'real_end';
+        }
+        $end = $this->$endAttribute ? $today->diffInDays($this->$endAttribute, false) : 0;
+        return $end >= 0 ? $end : 0;
     }
 
     /**
@@ -167,7 +179,7 @@ class Mission extends BaseModel
     public function getRemainingDaysBeforeEndStrAttribute(): string
     {
         $remainingDays = $this->remaining_days_before_end > 1 ? $this->remaining_days_before_end . ' jours' : $this->remaining_days_before_end . ' jour';
-        return $this->remaining_days_before_end ? $remainingDays : '-';
+        return $this->remaining_days_before_end ? ' / ' . $remainingDays : '';
     }
 
     public function getTotalAnomaliesAttribute()
@@ -221,7 +233,6 @@ class Mission extends BaseModel
     public function getStartAttribute()
     {
         $date = $this->real_start ?: $this->programmed_start;
-        // $date = $this->programmed_start;
         return $date->format('d-m-Y');
     }
 

@@ -33,9 +33,9 @@ if (!function_exists('getMissions')) {
             DB::raw('(CASE WHEN cc_validation_by_id IS NOT NULL THEN 1 ELSE 0 END) as is_validated_by_cc'),
             DB::raw('CAST(ROUND(AVG(CAST(md.score AS DECIMAL(10, 2))), 2) AS VARCHAR(10)) as avg_score'),
             DB::raw('DATEDIFF(day, programmed_start, CAST(GETDATE() AS DATE)) as remaining_days_before_start'),
-            DB::raw('DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) as remaining_days_before_end'),
-            DB::raw('(CASE WHEN reel_start IS NOT NULL THEN m.reel_start ELSE m.programmed_start END) as start_date'),
-            DB::raw('(CASE WHEN real_end IS NOT NULL THEN m.real_end ELSE m.programmed_end END) as end_date'),
+            DB::raw('DATEDIFF(day, programmed_end,CAST(GETDATE() AS DATE)) as remaining_days_before_end'),
+            DB::raw("(CASE WHEN real_start IS NOT NULL THEN FORMAT(m.real_start, 'dd-MM-yyyy') ELSE FORMAT(m.programmed_start, 'dd-MM-yyyy') END) as start_date"),
+            DB::raw("(CASE WHEN real_end IS NOT NULL THEN FORMAT(m.real_end, 'dd-MM-yyyy') ELSE FORMAT(m.programmed_end, 'dd-MM-yyyy') END) as end_date"),
             DB::raw('COUNT(md.id) as total_md'),
             DB::raw('SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) as total_controlled_md'),
             DB::raw('CASE
@@ -43,7 +43,25 @@ if (!function_exists('getMissions')) {
             ELSE SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) * 100 / NULLIF(COUNT(md.id), 0)
         END as progress_rate'),
             'm.current_state',
-            DB::raw('(CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) > 15 OR real_end > programmed_end THEN 1 ELSE 0 END) as is_late'),
+            DB::raw('(CASE WHEN (DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) < 15 AND ci_validation_at IS NULL) OR (DATEDIFF(day, CAST(GETDATE() AS DATE), real_end) < 15 AND ci_validation_at IS NOT NULL) THEN 1 ELSE 0 END) as is_late_ci'),
+            DB::raw('(CASE WHEN (DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) < 15 AND cdc_validation_at IS NULL) OR (DATEDIFF(day, CAST(GETDATE() AS DATE), real_end) < 15 AND cdc_validation_at IS NOT NULL) THEN 1 ELSE 0 END) as is_late_cdc'),
+            DB::raw('(CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), m.cdc_validation_at) > 3 AND cdcr_validation_at IS NOT NULL THEN 1 ELSE 0 END) as is_late_cdcr'),
+            DB::raw('(CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), m.cdcr_validation_at) > 2 AND dcp_validation_at IS NOT NULL THEN 1 ELSE 0 END) as is_late_dcp'),
+            DB::raw('(CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), m.dcp_validation_at) > 10 AND da_validation_at IS NOT NULL THEN 1 ELSE 0 END) as is_late_da'),
+            DB::raw('(CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) < 15 AND ci_validation_at IS NOT NULL THEN 1 ELSE 0 END +
+          CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) < 15 AND cdc_validation_at IS NOT NULL THEN 1 ELSE 0 END +
+          CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), m.cdc_validation_at) > 5 AND cdcr_validation_at IS NOT NULL THEN 1 ELSE 0 END +
+          CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), m.cdcr_validation_at) > 5 AND dcp_validation_at IS NOT NULL THEN 1 ELSE 0 END +
+          CASE WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), m.dcp_validation_at) > 10 AND da_validation_at IS NOT NULL THEN 1 ELSE 0 END) as is_late'),
+            //     DB::raw('
+            //   (CASE
+            //       WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) < 15 AND ci_validation_at IS NOT NULL THEN \'ci\'
+            //       WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), programmed_end) < 15 AND cdc_validation_at IS NOT NULL THEN \'cdc\'
+            //       WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), m.cdc_validation_at) > 5 AND cdcr_validation_at IS NOT NULL THEN \'cdcr\'
+            //       WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), m.cdcr_validation_at) > 5 AND dcp_validation_at IS NOT NULL THEN \'dcp\'
+            //       WHEN DATEDIFF(day, CAST(GETDATE() AS DATE), m.dcp_validation_at) > 10 AND da_validation_at IS NOT NULL THEN \'da\'
+            //       ELSE 0
+            //   END) as is_late_user'),
             DB::raw('DATEDIFF(day, m.ci_validation_at, m.cdc_validation_at) as time_left_ci_cdc'),
             DB::raw('DATEDIFF(day, m.cdc_validation_at, m.cdcr_validation_at) as time_left_cdc_cdcr'),
             DB::raw('DATEDIFF(day, m.cdcr_validation_at, m.dcp_validation_at) as time_left_cdcr_dcp'),
@@ -90,7 +108,7 @@ if (!function_exists('getMissions')) {
             'm.created_at',
             'cc.reference',
             'm.programmed_start',
-            'm.reel_start',
+            'm.real_start',
             'm.real_end',
             'm.programmed_end',
             'm.current_state',
@@ -247,10 +265,11 @@ if (!function_exists('getMissionDetails')) {
         }
 
         if ($mission) {
-            $details = $details->where('m.id', $mission);
+            $details = $details->having('m.id', $mission);
         }
 
         $details = $details->groupBy(
+            'm.id',
             'md.id',
             'm.reference',
             'cc.reference',
@@ -468,7 +487,8 @@ if (!function_exists('getMajorFacts')) {
             DB::raw('CONVERT(NVARCHAR(10), major_fact_is_dispatched_at, 105) as major_fact_is_dispatched_at'),
             DB::raw('(CASE WHEN major_fact_is_dispatched_at IS NOT NULL THEN 1 ELSE 0 END) as major_fact_is_dispatched_by_dcp'),
             DB::raw('(CASE WHEN major_fact_is_dispatched_to_dcp_at IS NOT NULL THEN 1 ELSE 0 END) as major_fact_is_dispatched_to_dcp'),
-            DB::raw('(CASE WHEN major_fact_is_rejected IS NOT NULL THEN 1 ELSE 0 END) as major_fact_is_pending'),
+            // DB::raw('(CASE WHEN major_fact = 1 AND major_fact_is_rejected = 0 AND (major_fact_is_dispatched_at IS NOT NULL OR major_fact_is_dispatched_to_dcp_at IS NOT NULL) THEN 0 ELSE 1 END) as major_fact_is_pending'),
+            'md.major_fact_is_rejected',
             'md.controlled_by_ci_at',
             'md.controlled_by_cdc_at',
             'md.controlled_by_cc_at',
@@ -488,14 +508,23 @@ if (!function_exists('getMajorFacts')) {
             ->join('domains as dm', 'dm.id', 'p.domain_id')
             ->join('families as f', 'f.id', 'dm.family_id');
 
+        $user = auth()->user();
         if (hasRole(['ci', 'cdc'])) {
-            $details = $details->where('major_fact', true)->orWhereNotNull('md.major_fact_is_detected_at');
+            $details = $details->whereIn('agency_id', $user->agencies_arr)->where(function ($query) {
+                $query->where('major_fact', true)->OrWhereNotNull('md.major_fact_is_detected_at');
+            });
+        } elseif (hasRole(['da', 'dre'])) {
+            $details = $details->whereIn('agency_id', $user->agencies_arr)
+                ->whereNotNull('md.major_fact_is_dispatched_at');
         } elseif (hasRole(['cdcr', 'dcp'])) {
-            $details = $details->where('major_fact', true)->whereNotNull('md.major_fact_is_dispatched_to_dcp_at')->orWhereNotNull('md.major_fact_is_detected_at');
+            $details = $details->where(function ($query) {
+                $query->whereNotNull('md.major_fact_is_dispatched_to_dcp_at')
+                    ->WhereNotNull('md.major_fact_is_detected_at');
+            });
         } elseif (hasRole(['root', 'admin'])) {
-            $details = $details->where('major_fact', true)->orWhereNotNull('md.major_fact_is_detected_at');
+            $details = $details->whereNotNull('md.major_fact_is_detected_at');
         } else {
-            $details = $details->where('major_fact', true)->orWhereNotNull('md.major_fact_is_dispatched');
+            $details = $details->where('major_fact', true)->orWhereNotNull('md.major_fact_is_dispatched_at');
         }
 
         if ($mission) {
@@ -536,6 +565,7 @@ if (!function_exists('getMajorFacts')) {
             'md.id',
             'd.id',
             'a.id',
+            'md.major_fact',
             'md.major_fact_is_dispatched_at',
             'md.major_fact_is_dispatched_to_dcp_at',
             'md.major_fact_is_rejected',

@@ -73,7 +73,7 @@
                         Début:
                     </span>
                     <span>
-                        {{ mission?.current?.start }} / {{ mission?.current?.remaining_days_before_start_str }}
+                        {{ mission?.current?.start }} {{ mission?.current?.remaining_days_before_start_str }}
                     </span>
                 </NLColumn>
 
@@ -82,7 +82,7 @@
                         Fin:
                     </span>
                     <span>
-                        {{ mission?.current?.end }} / {{ mission?.current?.remaining_days_before_end_str }}
+                        {{ mission?.current?.end }} {{ mission?.current?.remaining_days_before_end_str }}
                     </span>
                 </NLColumn>
 
@@ -575,6 +575,10 @@ export default {
             const DONE_STR = 'Réalisée, validée et régularisée';
             let status = ''
             let is_late = this.mission?.current?.is_late ? ' / En retard' : ''
+            // let is_late = this.mission?.current?.is_late
+            // if () {
+
+            // }
 
             switch (Number(this.mission?.current?.current_state)) {
                 case 1:

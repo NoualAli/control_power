@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Enums\MissionState;
 use App\Exports\MissionsExport;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Mission\AssignToCCRequest;
 use App\Http\Requests\Mission\StoreRequest;
 use App\Http\Requests\Mission\UpdateRequest;
 use App\Http\Resources\MissionProcessesResource;
@@ -25,7 +24,6 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Storage;
 
 class MissionController extends Controller
 {
@@ -98,7 +96,6 @@ class MissionController extends Controller
     public function show(Mission $mission)
     {
         isAbleOrAbort('view_mission');
-
         $currentUser = auth()->user();
         $dreControllers = $mission->dreControllers->pluck('id')->toArray();
         $dcpControllers = $mission->dcpControllers->pluck('id')->toArray();
@@ -423,31 +420,13 @@ class MissionController extends Controller
     public function handleReport(Mission $mission)
     {
         if (request()->action == 'regenerate') {
-            $this->generateReport($mission);
+            $this->generateReport($mission, false);
             return response()->json([
                 'status' => true,
             ]);
         } else {
             return response()->json(['error' => "L'action que vous avez choisit n'existe pas."], 404);
         }
-    }
-    /**
-     * Export mission report
-     *
-     * @param Mission $mission
-     *
-     * @return \Illuminate\Http\Response
-     */
-    private function exportReport(Mission $mission)
-    {
-        $filename = $mission->report_path;
-        $file = Storage::get($filename);
-        // Determine the MIME type
-        $mime = Storage::mimeType($filename);
-        // Create a response with the file contents and appropriate headers
-        $response = response($file, 200)->header('Content-Type', $mime);
-
-        return $response;
     }
 
     /**
@@ -457,9 +436,9 @@ class MissionController extends Controller
      *
      * @return \Illuminate\Foundation\Bus\PendingDispatch
      */
-    private function generateReport(Mission $mission)
+    private function generateReport(Mission $mission, $notify = true)
     {
-        return GenerateMissionReportPdf::dispatch($mission);
+        return GenerateMissionReportPdf::dispatch($mission, $notify);
     }
 
     /**
@@ -494,21 +473,12 @@ class MissionController extends Controller
         $controllers = [];
         $campaigns = DB::table('control_campaigns as cc');
         abort_if(!$campaigns->count(), 423, 'Aucune campagne de contrôle n\'existe encore');
-        $currentCampaign = (clone $campaigns)->select(
-            'cc.reference',
-            'cc.id',
-            'cc.validated_by_id',
-            'cc.description',
-            DB::raw('CONVERT(NVARCHAR(10), start_date, 105) as start_date'),
-            DB::raw('CONVERT(NVARCHAR(10), end_date, 105) as end_date'),
-            DB::raw('DATEDIFF(day, CAST(GETDATE() AS DATE),start_date) as remaining_days_before_start'),
-            DB::raw('DATEDIFF(day, end_date, CAST(GETDATE() AS DATE)) as remaining_days_before_end'),
-            DB::raw('(CASE WHEN cc.validated_at IS NOT NULL THEN 1 ELSE 0 END) AS is_validated')
-        )->orderBy('created_at', 'DESC')->whereDate('end_date', '>=', today()->format('Y-m-d'));
+        $currentCampaign = getControlCampaigns()->where('c.is_for_testing', false)->whereNotNull('validated_at')->whereNull('c.deleted_at');
+
         if (request('campaign_id')) {
-            $currentCampaign = $currentCampaign->where('id', request('campaign_id'))->first();
+            $currentCampaign = $currentCampaign->addSelect(['c.description'])->groupBy(['c.description'])->where('c.id', request('campaign_id'))->get()->first();
         } else {
-            $currentCampaign = $currentCampaign->first();
+            $currentCampaign = $currentCampaign->addSelect(['c.description'])->groupBy(['c.description'])->orderBy('reference', 'ASC')->get()->first();
         }
 
         $currentCampaign->remaining_days_before_start_str = $this->remainingDaysBeforeStartStr($currentCampaign->remaining_days_before_start, $currentCampaign->remaining_days_before_end);

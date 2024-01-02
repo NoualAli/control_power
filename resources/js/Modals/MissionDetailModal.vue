@@ -16,36 +16,40 @@
         </template>
         <template #default>
             <NLGrid gap="6">
+                <!-- Major fact -->
+                <NLColumn v-if="row?.major_fact || Boolean(row?.major_fact_is_rejected)">
+                    <NLGrid gap="6" extraClass="box">
+                        <NLColumn>
+                            <h2>Fait majeur</h2>
+                        </NLColumn>
+                        <NLColumn extraClass="text-danger text-bold">
+                            Fait majeur déclencher par {{ row?.major_fact_is_detected_by_full_name }}
+                            le {{ row?.major_fact_is_detected_at }}
+                        </NLColumn>
+                        <NLColumn
+                            v-if="Boolean(row?.major_fact_is_dispatched_to_dcp_at) && row?.major_fact_is_dispatched_to_dcp_by_full_name !== row?.major_fact_is_detected_by_full_name"
+                            extraClass="text-bold">
+                            Fait majeur valider par {{ row?.major_fact_is_dispatched_to_dcp_by_full_name }}
+                            le {{ row?.major_fact_is_dispatched_to_dcp_at }}
+                        </NLColumn>
+                        <NLColumn v-if="Boolean(row?.major_fact_is_rejected)" extraClass="text-bold">
+                            Fait majeur rejeter par {{ row?.major_fact_is_rejected_by_full_name }}
+                            le {{ row?.major_fact_is_rejected_at }}
+                        </NLColumn>
+                        <NLColumn
+                            v-if="Boolean(row?.major_fact_is_dispatched_at) && row?.major_fact_is_dispatched_by_full_name !== row?.major_fact_is_detected_by_full_name"
+                            extraClass="text-bold">
+                            Fait majeur valider par {{ row?.major_fact_is_dispatched_by_full_name }}
+                            le {{ row?.major_fact_is_dispatched_at }}
+                        </NLColumn>
+                    </NLGrid>
+                </NLColumn>
                 <NLColumn>
                     <NLGrid gap="6" extraClass="box ">
                         <NLColumn>
                             <h2>Informations de base</h2>
                         </NLColumn>
                         <!-- Basic informations -->
-                        <NLColumn v-if="row?.major_fact || Boolean(row?.major_fact_is_rejected)">
-                            <NLGrid>
-                                <NLColumn extraClass="text-danger text-bold">
-                                    Fait majeur déclencher par {{ row?.major_fact_is_detected_by_full_name }}
-                                    le {{ row?.major_fact_is_detected_at }}
-                                </NLColumn>
-                                <NLColumn
-                                    v-if="Boolean(row?.major_fact_is_dispatched_to_dcp_at) && row?.major_fact_is_dispatched_to_dcp_by_full_name !== row?.major_fact_is_detected_by_full_name"
-                                    extraClass="text-bold">
-                                    Fait majeur valider par {{ row?.major_fact_is_dispatched_to_dcp_by_full_name }}
-                                    le {{ row?.major_fact_is_dispatched_to_dcp_at }}
-                                </NLColumn>
-                                <NLColumn v-if="Boolean(row?.major_fact_is_rejected)" extraClass="text-bold">
-                                    Fait majeur rejeter par {{ row?.major_fact_is_rejected_by_full_name }}
-                                    le {{ row?.major_fact_is_rejected_at }}
-                                </NLColumn>
-                                <NLColumn
-                                    v-if="Boolean(row?.major_fact_is_dispatched_at) && row?.major_fact_is_dispatched_by_full_name !== row?.major_fact_is_detected_by_full_name"
-                                    extraClass="text-bold">
-                                    Fait majeur valider par {{ row?.major_fact_is_dispatched_by_full_name }}
-                                    le {{ row?.major_fact_is_dispatched_at }}
-                                </NLColumn>
-                            </NLGrid>
-                        </NLColumn>
                         <NLColumn v-if="row?.major_fact && row?.major_fact_is_dispatched_at">
                             <span class="label">Date de transmission: </span>
                             <span v-html="row?.major_fact_is_dispatched_at" />
@@ -117,27 +121,42 @@
                 </NLColumn>
 
                 <NLColumn>
+                    <!-- Report -->
                     <NLGrid gap="6" class="box ">
-                        <!-- Report -->
                         <NLColumn>
-                            <span class="label">Constat: </span>
+                            <h2>Constat</h2>
+                        </NLColumn>
+                        <NLColumn>
                             <span v-html="row?.report || '-'" class="content my-2 text-normal"></span>
                             <span>
                                 {{ row?.cdc_report?.length ? '(Modifier par CDC)' : '' }}
                             </span>
                         </NLColumn>
+                    </NLGrid>
+                </NLColumn>
 
-                        <!-- Recovery plan -->
+                <!-- Recovery plan -->
+                <NLColumn>
+                    <NLGrid gap="6" class="box ">
                         <NLColumn>
-                            <span class="label">Plan de redressement: </span>
+                            <h2>Plan de redressement</h2>
+                        </NLColumn>
+                        <NLColumn>
                             <span v-html="row?.recovery_plan || '-'" class="content my-2 text-normal"></span>
                         </NLColumn>
                     </NLGrid>
                 </NLColumn>
 
                 <!-- Media -->
-                <NLColumn v-if="row?.media?.length" extraClass="list-item">
-                    <NLFile v-model="files" label="Pièces jointes" name="media" :can-delete="false" readonly />
+                <NLColumn v-if="row?.media?.length">
+                    <NLGrid gap="6" class="box ">
+                        <NLColumn>
+                            <h2>Pièces jointes</h2>
+                        </NLColumn>
+                        <NLColumn extraClass="list-item">
+                            <NLFile v-model="files" label="" name="media" :can-delete="false" readonly />
+                        </NLColumn>
+                    </NLGrid>
                 </NLColumn>
 
                 <!-- Regularization -->
@@ -220,6 +239,12 @@
                 && is('cdcr')" class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <i class="las la-pen icon" />
                 Traiter
+            </button>
+            <button
+                v-if="currentMode == 4 && !row?.major_fact_is_dispatched_at && !row.major_fact_is_rejected && row.major_fact_is_detected_by_id !== user().id && row?.major_fact && is('cdcr')"
+                class="btn btn-danger has-icon" @click.prevent="reject(row)">
+                <i class="las la-ban icon" />
+                Rejeter
             </button>
 
             <!-- DCP -->

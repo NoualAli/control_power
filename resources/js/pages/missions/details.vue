@@ -4,15 +4,20 @@
             <NLGrid>
                 <NLColumn lg="1" />
                 <NLColumn lg="11">
-                    <div class="tags">
+                    <div class="tags is-even">
                         <button class="btn btn-info" @click.prevent="showDocumentation" v-if="process?.media?.length"
                             title="Afficher la documentation du processus">
                             <i class="las la-file icon"></i>
                         </button>
-                        <span class="tag is-start"><i class="las la-tag icon mr-1"></i> {{ process?.family?.name }}</span>
-                        <span class="tag is-start"><i class="las la-tags icon mr-1"></i> {{ process?.domain?.name }}</span>
-                        <span class="tag is-start"><i class="las la-project-diagram icon mr-1"></i> {{ process?.name
-                                                    }}</span>
+                        <span class="tag is-start">
+                            <i class="las la-tag icon mr-1"></i> {{ process?.family?.name }}
+                        </span>
+                        <span class="tag is-start">
+                            <i class="las la-tags icon mr-1"></i> {{ process?.domain?.name }}
+                        </span>
+                        <span class="tag is-start">
+                            <i class="las la-project-diagram icon mr-1"></i> {{ process?.name }}
+                        </span>
                     </div>
                 </NLColumn>
                 <NLColumn lg="1" />
@@ -108,23 +113,23 @@
 
                                         <!-- CDCR -->
                                         <button v-if="mode == 4 &&
-                                                                                    !(detail?.major_fact_is_detected_by_id == user().id)
-                                                                                    && !detail?.major_fact_is_dispatched_at
-                                                                                    && (mission?.has_dcp_controllers ? mission?.is_validated_by_cc && !mission?.is_validated_by_cdcr : !mission?.is_validated_by_cdcr)
-                                                                                    && [2, 3, 4].includes(Number(detail?.score))
-                                                                                    && is('cdcr')" class="btn btn-warning has-icon" @click="edit(detail)">
+                                            !(detail?.major_fact_is_detected_by_id == user().id)
+                                            && !detail?.major_fact_is_dispatched_at
+                                            && (mission?.has_dcp_controllers ? mission?.is_validated_by_cc && !mission?.is_validated_by_cdcr : !mission?.is_validated_by_cdcr)
+                                            && [2, 3, 4].includes(Number(detail?.score))
+                                            && is('cdcr')" class="btn btn-warning has-icon" @click="edit(detail)">
                                             <i class="las la-pen icon" />
                                             Traiter
                                         </button>
 
                                         <!-- CC -->
                                         <button v-if="mode == 3
-                                                                                    && !detail.major_fact
-                                                                                    && !detail?.major_fact_is_dispatched_at
-                                                                                    && detail.assigned_to_cc_id == user().id
-                                                                                    && !mission?.is_validated_by_cc
-                                                                                    && [2, 3, 4].includes(Number(detail?.score))
-                                                                                    && is('cc')" class="btn btn-warning has-icon" @click="edit(detail)">
+                                            && !detail.major_fact
+                                            && !detail?.major_fact_is_dispatched_at
+                                            && detail.assigned_to_cc_id == user().id
+                                            && !mission?.is_validated_by_cc
+                                            && [2, 3, 4].includes(Number(detail?.score))
+                                            && is('cc')" class="btn btn-warning has-icon" @click="edit(detail)">
                                             <i class="las la-pen icon" />
                                             Traiter
                                         </button>
@@ -132,12 +137,12 @@
                                         <!-- DCP -->
                                         <button
                                             v-if="(mode == 5
-                                                                                            && !(detail?.major_fact_is_detected_by_id == user().id)
-                                                                                            && !mission?.is_validated_by_dcp
-                                                                                            && mission.is_validated_by_cdcr
-                                                                                            && !detail?.major_fact_is_dispatched_at
-                                                                                            && [2, 3, 4].includes(Number(detail?.score))
-                                                                                            || (detail?.major_fact && !detail?.major_fact_is_dispatched_at && !(detail?.major_fact_is_detected_by_id == user().id) && [3, 4].includes(Number(detail?.score)))) && is('dcp')"
+                                                && !(detail?.major_fact_is_detected_by_id == user().id)
+                                                && !mission?.is_validated_by_dcp
+                                                && mission.is_validated_by_cdcr
+                                                && !detail?.major_fact_is_dispatched_at
+                                                && [2, 3, 4].includes(Number(detail?.score))
+                                                || (detail?.major_fact && !detail?.major_fact_is_dispatched_at && !(detail?.major_fact_is_detected_by_id == user().id) && [3, 4].includes(Number(detail?.score)))) && is('dcp')"
                                             class="btn btn-warning has-icon" @click="edit(detail)">
                                             <i class="las la-pen icon" />
                                             Traiter
