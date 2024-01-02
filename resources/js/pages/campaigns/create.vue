@@ -83,6 +83,7 @@ export default {
     watch: {
         'form.is_for_testing'(newVal, oldVal) {
             this.fetchNextReference()
+            this.minDateForStart = moment().format('YYYY-MM-DD')
         },
         'form.is_validated'(newVal, oldVal) {
             this.fetchNextReference()
@@ -161,6 +162,7 @@ export default {
                     this.$swal.toast_success(response.data.message)
                     this.form.reset()
                     this.fetchNextReference()
+                    this.setMinDateForStart()
                     this.formIsLoading = false
                 } else {
                     this.$swal.alert_error(response.data.message)
