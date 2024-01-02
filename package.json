@@ -37,7 +37,8 @@
         "vue3-editor": "0.1.1",
         "vue3-treeselect": "^0.1.10",
         "vuex": "^4.1.0",
-        "vuex-router-sync": "^6.0.0-rc.1"
+        "vuex-router-sync": "^6.0.0-rc.1",
+        "@vitejs/plugin-vue": "^3.0.1"
     },
     "devDependencies": {
         "@babel/core": "^7.15.0",
@@ -53,13 +54,13 @@
         "eslint-plugin-promise": "^6.1.1",
         "eslint-plugin-vue": "^9.9.0",
         "laravel-echo": "^1.15.2",
-        "laravel-mix": "^6.0.49",
-        "laravel-mix-versionhash": "^2.0.1",
         "postcss": "^8.4.21",
         "resolve-url-loader": "^5.0.0",
         "sass": "^1.37.5",
         "sass-loader": "^12.1.0",
         "vue-loader": "^17.0.1",
-        "webpack-bundle-analyzer": "^4.4.2"
+        "webpack-bundle-analyzer": "^4.4.2",
+        "vite": "^3.0.2",
+        "laravel-vite-plugin": "^0.6.0"
     }
 }
