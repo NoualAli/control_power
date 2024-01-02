@@ -27,6 +27,7 @@ class ControlCampaignResource extends JsonResource
             'remaining_days_before_end' => $this->remaining_days_before_end,
             'remaining_days_before_start_str' => $this->remainingDaysBeforeStartStr(),
             'remaining_days_before_end_str' => $this->remainingDaysBeforeEndStr(),
+            'validator_full_name' => $this->validator_full_name,
             'is_validated' => $this->is_validated,
             'is_for_testing' => $this->is_for_testing_str
         ];
