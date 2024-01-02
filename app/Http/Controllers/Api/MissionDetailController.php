@@ -315,14 +315,25 @@ class MissionDetailController extends Controller
         $family = getFamilies()->whereIn('name', $families)->get()->map(fn ($item) => ['id' => $item->id, 'label' => $item->name])->toArray();
         $domain = [];
         $process = [];
-        $dre = hasRole(['cdc', 'ci', 'dre', 'da']) ? [$user->dre] : [];
-        $agency = hasRole(['cdc', 'ci', 'dre', 'da']) ? formatForSelect($user->agencies->toArray(), 'full_name') : [];
-        $campaign = formatForSelect(getControlCampaigns()->get()->map(fn ($item) => ['id' => $item->id, 'reference' => $item->reference])->toArray(), 'reference');
+        // $dre = hasRole(['cdc', 'ci', 'dre', 'da']) ? [$user->dre] : [];
+        $dre = [];
+        $agency = [];
+        // $campaign = formatForSelect(getControlCampaigns()->get()->map(fn ($item) => ['id' => $item->id, 'reference' => $item->reference])->toArray(), 'reference');
+        $campaign = getControlCampaigns()
+            ->whereNotNull('m.reference')
+            ->get()
+            ->unique()
+            ->map(fn ($item) => ['id' => $item->id, 'reference' => $item->reference])
+            ->toArray();
+        $campaign = formatForSelect($campaign, 'reference');
         $mission = [];
         if (isset(request()->filter['campaign'])) {
-
+            $agency = hasRole(['cdc', 'ci', 'dre', 'da']) ? formatForSelect($user->agencies->toArray(), 'full_name') : [];
             $campaigns = explode(',', request()->filter['campaign']);
-
+            $filterDre = isset(request()->filter['dre']) ? request()->filter['dre'] : '';
+            if (hasRole(['cdc', 'ci', 'da'])) {
+                $filterDre = auth()->user()->dres->pluck('id')->join(',');
+            }
             $dre = getDre()
                 ->join('agencies as a', 'd.id', 'a.dre_id')
                 ->join('missions as m', 'm.agency_id', 'a.id')
@@ -333,14 +344,20 @@ class MissionDetailController extends Controller
                 ->map(fn ($item) => ['id' => $item->id, 'full_name' => $item->full_name])->toArray();
             $dre = formatForSelect($dre, 'full_name');
 
-            if (isset(request()->filter['dre'])) {
-                $dres = explode(',', request()->filter['dre']);
+            if (!empty($filterDre)) {
+                $dres = explode(',', $filterDre);
                 $agency = getAgencies()
                     ->join('missions as m', 'm.agency_id', 'a.id')
-                    ->join('mission_details as md', 'md.mission_id', 'm.id')
-                    ->whereIn('md.score', [2, 3, 4])
-                    ->whereIn('dre_id', $dres)
-                    ->get()
+                    ->join('mission_details as md', 'md.mission_id', 'm.id');
+                if (hasRole('ci')) {
+                    $agency = $agency->join('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')->where('mhc.user_id', auth()->user()->id);
+                } elseif (hasRole('cdc')) {
+                    $agency = $agency;
+                } else {
+                    $agency = $agency->whereIn('dre_id', $dres);
+                }
+
+                $agency = $agency->whereIn('md.score', [2, 3, 4])->get()
                     ->map(fn ($item) => ['id' => $item->id, 'full_name' => $item->full_name])->toArray();
                 $agency = formatForSelect($agency, 'full_name');
 
