@@ -14,12 +14,14 @@ class ReportNotification extends Notification
 
 
     /**
-     * @var App\Models\Mission
+     * @var \App\Models\Mission
      */
     private $mission;
 
     /**
      * Create a new notification instance.
+     *
+     * @param \App\Models\Mission
      *
      * @return void
      */
@@ -33,9 +35,24 @@ class ReportNotification extends Notification
      *
      * @return string
      */
-    private function getContent(): string
+    private function getHtmlContent(): string
     {
         return 'Nous vous informons que le rapport PDF de la mission <b>' . $this->mission->reference . '</b> est maintenant disponible.';
+    }
+
+    /**
+     * Get email body
+     *
+     * @return string
+     */
+    private function getContent(): string
+    {
+        return 'Nous vous informons que le rapport PDF de la mission ' . $this->mission->reference . ' est maintenant disponible.';
+    }
+
+    private function getObject(): string
+    {
+        return 'RAPPORT PDF ' . $this->mission->reference . ' - ' . env('APP_NAME');
     }
 
     /**
@@ -65,10 +82,16 @@ class ReportNotification extends Notification
      */
     public function via($notifiable)
     {
-        if (app()->environment('production')) {
-            return ['mail', 'database'];
+        $channels = collect([]);
+        $setting = $notifiable->notification_settings()->whereRelation('type', 'code', 'mission_pdf_repport_generated')->first();
+        if ($setting?->database_is_enabled) {
+            $channels->push('database');
         }
-        return ['database'];
+
+        if ($setting?->email_is_enabled && !config('mail.disabled')) {
+            $channels->push('mail');
+        }
+        return $channels->toArray();
     }
 
     /**
@@ -80,11 +103,10 @@ class ReportNotification extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->getTitle())
+            ->subject($this->getObject())
             ->line($this->getContent())
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
             ->action('Voir la mission', $this->getUrl())
-            // ->action('Voir le rapport', storage_path($this->mission->report_path))
             ->line('Merci d\'utiliser ControlPower!')
             ->success();
     }
@@ -101,8 +123,10 @@ class ReportNotification extends Notification
             'id' => $this->mission->id,
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
+            'short_content' => $this->getHtmlContent(),
             'title' => $this->getTitle(),
-            'emitted_by' => 'système',
+            'subject' => $this->getObject(),
+            'emitted_by' => 'Système',
         ];
     }
 }

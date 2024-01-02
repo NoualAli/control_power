@@ -1,12 +1,13 @@
 <template>
     <button class="btn" :class="[{ 'is-loading': loading }, finalType]" :disabled="loading">
-        <NLFlex alignItems="center" justifyContent="start" lgJustifyContent="start" gap="2">
+        <NLFlex alignItems="center" direction="row" justifyContent="center" lgJustifyContent="center" gap="2"
+            extraClass="w-100">
             <slot v-if="!loading"></slot>
             <NLFlex lgJustifyContent="start" v-if="loading">
                 <i class="las la-spinner la-spin icon"></i>
                 <span class="btn-loader">Envoie en cours</span>
             </NLFlex>
-            <span class="btn-text" v-else>
+            <span class="btn-text" v-else-if="!loading && label">
                 {{ label }}
             </span>
         </NLFlex>
@@ -20,8 +21,8 @@ export default {
     name: 'NLButton',
     props: {
         loading: { type: Boolean, default: false },
-        label: { type: String, default: 'Valider' },
-        type: { type: String, default: '' }
+        label: { type: String, default: null },
+        type: { type: String, default: null }
     },
     computed: {
         finalType() {

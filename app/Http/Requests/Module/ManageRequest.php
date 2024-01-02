@@ -13,7 +13,7 @@ class ManageRequest extends FormRequest
      */
     public function authorize()
     {
-        return isAbleTo('manage_modules');
+        return isAbleTo('manage_module');
     }
 
     /**

@@ -1,6 +1,15 @@
 <template>
     <InputContainer :id="getId" :name="name" :form="form" :label="label" :label-required="labelRequired"
         :help-text="helpText">
+        <template #additional>
+            <NLFlex lgAlignItems="center" alignItems="center">
+                <p class="text-bold" v-if="Object.values(this.files).length > 1">Fichiers total ({{
+                    Object.values(this.files).length }})</p>
+                <i class="las la-trash-alt icon text-danger is-clickable" title="Tout supprimer" @click="deleteItems"
+                    v-if="!isDeletingMultiple && canDelete && !readonly && Object.values(this.files).length > 1"></i>
+                <i class="las la-spinner la-spin icon" v-else-if="isDeletingMultiple"></i>
+            </NLFlex>
+        </template>
         <input v-if="!readonly" :id="getId" type="file" :name="name" :multiple="multiple" :accept="accept"
             class="file-input" @input="onChange($event)">
         <div :class="[{ 'is-danger': form?.errors.has(name), 'has-files': hasFiles, 'is-readonly': readonly, 'is-flat': isFlat }, 'file-input-area']"
@@ -10,16 +19,22 @@
                 {{ placeholder }} <i class="las la-cloud-upload-alt text-large" />
             </p>
             <p v-if="inProgress" class="text-medium file-uploader">
-                <i class="las la-spinner la-spin text-large" /> {{ visibleLoadingText }}{{ progress }} %
+                <i class="las la-spinner la-spin text-large" />
+                {{ visibleLoadingText }}{{ progress }} {{ progress ? '%' : '' }}
             </p>
             <div class="files-list list text-medium" @click.stop="(e) => e.stopPropagation()" v-if="getFilesList.length">
-                <div v-for="(file, index) in getFilesList" :key="name + '-' + index" class="list-item my-1">
-                    <div class="grid gap-4 list-item-content" @click.stop="">
-                        <div class="col-11 d-flex justify-between align-center">
-                            <a :href="file.link" target="_blank" class="text-dark">
+                <div v-for="(file, index) in getFilesList" :key="name + '-' + index" class="list-file-item my-1">
+                    <NLGrid gap="4" extraClass="list-item-content w-100">
+                        <div class="col-11 d-flex justify-between align-center align-lg-center">
+                            <a :href="file.link" target="_blank" class="file_name_link"
+                                v-if="['jpg', 'png', 'jpeg', 'tif', 'svg', 'pdf'].includes(file.extension)">
                                 <i class="icon" :class="file.icon"></i>
                                 {{ file.name }}
                             </a>
+                            <p class="file_name_link" v-else>
+                                <i class="icon" :class="file.icon"></i>
+                                {{ file.name }}
+                            </p>
                             <span>{{ file.size }}</span>
                         </div>
                         <div class="col-1 d-flex justify-end align-center gap-4">
@@ -29,13 +44,10 @@
                             <i v-if="canDelete && file.isOwner && !readonly"
                                 class="las la-trash text-danger icon is-clickable" @click.stop="deleteItem(file, index)" />
                         </div>
-                    </div>
+                    </NLGrid>
                 </div>
             </div>
         </div>
-        <!-- <p v-if="!readonly">
-            Les extensions de fichiers acceptés sont: {{ accepted }}
-        </p> -->
     </InputContainer>
 </template>
 
@@ -63,7 +75,7 @@ export default {
         isFlat: { type: Boolean, default: false },
         folder: { type: String, default: '' }
     },
-    emits: [ 'change:modelValue' ],
+    emits: [ 'change:modelValue', 'deleted', 'loaded', 'uploaded' ],
     data() {
         return {
             isDragging: false,
@@ -72,6 +84,7 @@ export default {
             files: [],
             isReadonly: false,
             visibleLoadingText: this.loadingText,
+            isDeletingMultiple: false,
         }
     },
     computed: {
@@ -86,9 +99,10 @@ export default {
                 return {
                     id: file?.id,
                     name: file?.original_name,
-                    size: file?.size,
+                    size: file?.size_str,
                     type: file?.type,
-                    link: file?.link,
+                    extension: file?.extension,
+                    link: file?.storage_link,
                     icon: file?.icon,
                     isOwner: file?.is_owner,
                 };
@@ -110,13 +124,6 @@ export default {
             if (newVal !== oldVal) this.loadFiles(newVal.join(','))
         },
     },
-    // created() {
-    //     if (Object.values(this.modelValue).length) {
-    //         this.loadFiles(Object.values(this.modelValue).join(','))
-    //         this.switchToReadonly()
-    //     }
-    // },
-
     mounted() {
         this.isReadonly = this.readonly
         if (Object.values(this.modelValue).length) {
@@ -170,6 +177,7 @@ export default {
             if (!this.readonly) {
                 $event.target.parentNode.parentNode.querySelector('input[type=file]').click()
             }
+            this.isDeletingMultiple = false
         },
         /**
          * Fetch exesting files
@@ -177,25 +185,23 @@ export default {
          * @param {String} filesStr
          */
         loadFiles(filesStr) {
-            this.progress = '';
-            this.isLoading = !this.isLoading;
-            this.inProgress = !this.inProgress;
-            this.visibleLoadingText = 'Récupération des fichiers en cours...';
-            let url = 'upload';
-            if (!([ null, '', undefined ]).includes(filesStr)) {
-                url += '?media=' + filesStr;
-            }
-            this.$api.get(url, {
-                onDownloadProgress: progressEvent => this.setProgress(progressEvent)
-            }).then(response => {
-                this.files = response.data;
-                this.inProgress = !this.inProgress;
+            if (!([ null, '', undefined ]).includes(filesStr) && filesStr.length) {
+                this.progress = '';
                 this.isLoading = !this.isLoading;
-                const files = { ...this.files.map((file) => file.id) }
-                this.$emit('loaded', files);
-            }).catch(error => {
-                console.error(error);
-            });
+                this.inProgress = !this.inProgress;
+                this.visibleLoadingText = 'Récupération des fichiers en cours...';
+                this.$api.get('media/' + filesStr + '?all', {
+                    onDownloadProgress: progressEvent => this.setProgress(progressEvent)
+                }).then(response => {
+                    this.files = response?.data?.data || response?.data;
+                    this.inProgress = !this.inProgress;
+                    this.isLoading = !this.isLoading;
+                    const files = { ...this.files.map((file) => file.id) }
+                    this.$emit('loaded', files);
+                }).catch(error => {
+                    this.$swal.catchError(error)
+                })
+            }
         },
         /**
          * Delete file from server
@@ -207,16 +213,43 @@ export default {
             this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
                     if (index !== -1) {
-                        this.$api.delete('upload/' + file.id).then(response => {
+                        this.isLoading = true;
+                        this.$api.delete('media/' + file.id).then(response => {
                             this.files.splice(index, 1);
                             const files = { ...this.files.map((file) => file.id) }
                             this.$emit('deleted', files);
+                            this.$swal.toast_success(response.data.message)
                             this.inProgress = false;
+                            this.isLoading = false;
                         }).catch(error => {
                             this.inProgress = false
-                            console.error(error)
+                            this.isLoading = false;
+                            this.$swal.catchError(error)
                         })
                     }
+                }
+            });
+        },
+        /**
+         * Delete all files from server
+         */
+        deleteItems() {
+            this.$swal.confirm_destroy().then((action) => {
+                if (action.isConfirmed) {
+                    this.isDeletingMultiple = true
+                    const files = Object.values(this.modelValue).join(',')
+                    this.$api.delete('media/' + files + '/multiple').then(response => {
+                        this.files = [];
+                        this.$emit('deleted', this.files);
+                        this.inProgress = false;
+                        this.isDeletingMultiple = false
+                        this.$swal.toast_success(response.data.message)
+                    }).catch(error => {
+                        this.inProgress = false
+                        this.isDeletingMultiple = false
+                        this.isLoading = false;
+                        this.$swal.catchError(error)
+                    })
                 }
             });
         },
@@ -243,8 +276,12 @@ export default {
                         data.append('accepted', this.accepted)
                         data.append('attachable[id]', this.attachableId)
                         data.append('attachable[type]', this.attachableType)
-                        data.append('folder', 'uploads/' + this.folder)
-                        this.$api.post('upload', data, {
+                        let folder = 'uploads'
+                        if (this.folder.length) {
+                            folder += '/' + this.folder
+                        }
+                        data.append('folder', folder)
+                        this.$api.post('media', data, {
                             onUploadProgress: (progressEvent) => this.setProgress(progressEvent)
                         }).then(response => {
                             this.inProgress = false
@@ -260,7 +297,6 @@ export default {
                             for (const key in error?.response?.data?.errors) {
                                 if (Object.hasOwnProperty.call(error.response.data.errors, key)) {
                                     const element = error.response.data.errors[ key ];
-                                    console.log(element[ 0 ].replace(`du champ ${this.name}.${i}`, `${i + 1} du champ ${this.label.toLowerCase()}`));
                                     this.form.errors.set(this.name, element[ 0 ].replace(`du champ ${this.name}.${i}`, `${i + 1} du champ ${this.label.toLowerCase()}`))
                                     i += 1
                                 }
@@ -269,10 +305,9 @@ export default {
                     }
                 }
             } catch (error) {
-                alert(error)
+                this.$swal.catchError(error)
             }
         },
-
         /**
          * Handle upload progress status
          * @param {*} progressEvent

@@ -17,6 +17,7 @@ use App\Exports\ProcessesExport;
 use App\Exports\RolePermissionsExport;
 use App\Exports\RolesExport;
 use App\Exports\SynthesisExport;
+use App\Exports\SynthesisWithReportsExport;
 use App\Exports\UsersExport;
 use App\Models\Agency;
 use App\Models\ControlPoint;
@@ -36,7 +37,7 @@ class ExportController extends Controller
 {
     public function export(Request $request)
     {
-        if (hasRole(['admin', 'root'])) {
+        if (hasRole(['admin', 'root', 'dcp'])) {
             $exportValue = $request->export;
             if ($exportValue == 'users') {
                 return $this->users($request);
@@ -58,6 +59,8 @@ class ExportController extends Controller
                 return $this->controlPoints();
             } elseif ($exportValue == 'synthesis') {
                 return $this->synthesis($request);
+            } elseif ($exportValue == 'synthesis_reports') {
+                return $this->synthesis($request, true);
             } else {
                 abort(400, 'L\'action ' . $exportValue . ' n\'est pas reconnue');
             }
@@ -66,7 +69,7 @@ class ExportController extends Controller
         }
     }
 
-    private function synthesis(Request $request)
+    private function synthesis(Request $request, bool $withReports = false)
     {
         $controlCampaign = DB::table('control_campaigns')->select('id', 'reference')->where('id', $request->campaign)->first();
 
@@ -89,7 +92,7 @@ class ExportController extends Controller
             ->orderBy('d.name')
             ->get();
 
-        $missionDetails = DB::table('mission_details', 'md')->select([
+        $missionDetails = DB::table('control_campaigns', 'cc')->select([
             'f.name as family',
             'd.name as domain',
             'p.name as process',
@@ -99,21 +102,21 @@ class ExportController extends Controller
             DB::raw("CONCAT(a.code, ' ', a.name) as agency"),
             'a.id as agency_id'
         ])
-            ->leftJoin('missions as m', 'm.id', 'md.mission_id')
-            ->leftJoin('control_campaigns as cc', 'cc.id', 'm.control_campaign_id')
+            ->leftJoin('missions as m', 'm.control_campaign_id', 'cc.id')
+            ->leftJoin('mission_details as md', 'md.mission_id', 'm.id')
             ->leftJoin('agencies as a', 'a.id', 'm.agency_id')
             ->leftJoin('dres', 'dres.id', 'a.dre_id')
             ->leftJoin('control_points as cp', 'cp.id', 'md.control_point_id')
             ->leftJoin('processes as p', 'p.id', 'cp.process_id')
             ->leftJoin('domains as d', 'd.id', 'p.domain_id')
             ->leftJoin('families as f', 'f.id', 'd.family_id')
-            ->where('cc.id', $controlCampaign->id)
+            ->where('cc.id', $request->campaign)
             ->whereIn('score', [1, 2, 3, 4])
             ->orderBy('f.id')
             ->orderBy('d.id')
             ->orderBy('p.id')
             ->orderBy('cp.name');
-
+        // dd($missionDetails->get());
         $dres = collect([]);
         foreach ($dresFromAgencies as $dre) {
             $dreAgencies = (clone $agencies)->where('dre_id', $dre->dre_id)->get();
@@ -125,7 +128,19 @@ class ExportController extends Controller
                 $single_dre->total_agencies = $dreAgencies->count();
                 $single_dre->agencies = $dreAgencies;
                 foreach ($single_dre->agencies as $agency) {
+                    if ($withReports) {
+                        $missionDetails = $missionDetails->addSelect(['cdc_report', 'ci_report', 'recovery_plan']);
+                    }
+
                     $agency->data = (clone $missionDetails)->where('dres.id', $dre->dre_id)->where('a.id', $agency->agency_id)->get();
+
+                    if ($withReports) {
+                        $agency->data->map(function ($item) {
+                            $item->report = $item->cdc_report ?: $item->ci_report;
+                            unset($item->cdc_report, $item->ci_report);
+                            return $item;
+                        });
+                    }
                 }
                 $dres->push($single_dre);
             }
@@ -142,6 +157,7 @@ class ExportController extends Controller
             ->leftJoin('control_points as cp', 'p.id', 'cp.process_id')
             ->leftJoin('domains as d', 'd.id', 'p.domain_id')
             ->leftJoin('families as f', 'f.id', 'd.family_id')
+            ->where('ccp.control_campaign_id', $request->campaign)
             ->orderBy('f.id')
             ->orderBy('d.id')
             ->orderBy('p.id')
@@ -149,7 +165,10 @@ class ExportController extends Controller
             ->get();
 
 
-        return Excel::store(new SynthesisExport(compact('dres', 'controlPoints', 'controlCampaign')), 'synthesis/synthèse-' . $controlCampaign->reference . '.xlsx');
+        if ($withReports) {
+            return Excel::download(new SynthesisWithReportsExport(compact('dres', 'controlPoints', 'controlCampaign')), 'synthèse-constast-' . $controlCampaign->reference . '.xlsx');
+        }
+        return Excel::download(new SynthesisExport(compact('dres', 'controlPoints', 'controlCampaign')), 'synthèse-' . $controlCampaign->reference . '.xlsx');
     }
 
     private function users(Request $request)
@@ -232,7 +251,7 @@ class ExportController extends Controller
 
     private function controlPoints()
     {
-        $controlPoints = ControlPoint::all();
+        $controlPoints = ControlPoint::with('fields')->get();
         return Excel::download(new ControlPointsExport($controlPoints), 'liste_des_points_de_contrôle.xlsx');
     }
 }

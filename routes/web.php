@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\MissionController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ZipController;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
 /*

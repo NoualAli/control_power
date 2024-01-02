@@ -29,13 +29,14 @@ class UpdateUserInfoRequest extends FormRequest
         $rules = [
             'username' => ['required', 'string', 'max:30', 'unique:users,username,' . $id . ',id'],
             'email' => ['required', 'email:filter', 'unique:users,email,' . $id . ',id', 'max:100'],
-            'first_name' => ['nullable', 'string', 'max:50'],
-            'last_name' => ['nullable', 'string', 'max:50'],
+            'first_name' => ['required', 'string', 'max:50'],
+            'last_name' => ['required', 'string', 'max:50'],
             'phone' => ['nullable', new IsAlgerianPhoneNumber],
             'role' => ['required', 'exists:roles,id', new UniqueUserRole(request('agencies'), $id)],
             'is_active' => ['required', 'boolean'],
             'gender' => ['required', 'integer', 'in:1,2'],
-            'registration_number' => ['nullable', 'numeric', 'unique:users,registration_number,' . $id . ',id', 'max_digits:5'],
+            'registration_number' => ['required', 'numeric', 'unique:users,registration_number,' . $id . ',id', 'max_digits:5'],
+            'is_for_testing' => ['required', 'boolean'],
         ];
         $role = request()->role;
 

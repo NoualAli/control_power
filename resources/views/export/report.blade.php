@@ -1,11 +1,10 @@
 @php
     $appCss = env('APP_URL') . '/special_styles/report.css';
     $qlCss = env('APP_URL') . '/special_styles/ql.css';
-    $appBrand = storage_path('images\brand.png');
-    $bnaLogo = public_path('app\images\bna_logo.svg');
-    $coverPageImg = public_path('app\images\report_cover_page.png');
-    $appBrandMonochrome = public_path('app\images\brand_monochrome.png');
-    // dd(storage_path('app\images\brand.svg'))
+    $appBrand = public_path('storage\assets\brand.png');
+    $bnaLogo = public_path('storage\assets\bna_logo.svg');
+    $coverPageImg = public_path('storage\assets\report_cover_page.jpg');
+    $appBrandMonochrome = public_path('storage\assets\brand_monochrome.png');
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -245,15 +244,18 @@
                                             <td>{{ $item->appreciation }}</td>
                                             <th class="margin-cell"></th>
                                         </tr>
-                                        <tr>
-                                            <th class="margin-cell"></th>
-                                            <th>Fait majeur</th>
-                                            <td
-                                                class="{{ $item->major_fact ? 'text-danger' : null }} {{ $item->major_fact ? 'has-major_fact' : 'no-major_fact' }}">
-                                                {{ $item->major_fact ? 'Oui' : 'Non' }}
-                                            </td>
-                                            <th class="margin-cell"></th>
-                                        </tr>
+                                        @if ($item->major_fact)
+                                            <tr>
+                                                <th class="margin-cell"></th>
+                                                <th>Fait majeur</th>
+                                                <td
+                                                    class="text-danger has-major_fact">
+                                                    Déclencher par {{ $item->major_fact_is_detected_by_full_name }}
+                                                    le {{ $item->major_fact_is_detected_at }}
+                                                </td>
+                                                <th class="margin-cell"></th>
+                                            </tr>
+                                        @endif
                                         <tr>
                                             <th class="margin-cell"></th>
                                             <th>Constat</th>
@@ -272,7 +274,11 @@
                                 </table>
 
                                 {{-- Metadata --}}
-                                @if ($item->metadata !== null)
+                                @php
+                                    $lines = $item?->parsed_metadata['lines'];
+                                    $metadata = $item?->parsed_metadata['metadata'];
+                                @endphp
+                                @if ($lines)
                                     <table>
                                         <tr>
                                             <td colspan="4" class="text-center bg-gray">
@@ -280,23 +286,22 @@
                                             </td>
                                         </tr>
                                         @php
-                                            $totalItems = $item?->inline_metadata?->count() - 1;
                                             $currentIndex = 0;
                                         @endphp
-                                        @foreach ($item->inline_metadata as $key => $rows)
+                                        @foreach ($metadata as $rows)
                                             @php
-                                                $totalRows = $rows->count();
+                                                $totalRows = count($rows);
                                                 $currentRow = 1;
                                             @endphp
                                             @foreach ($rows as $row)
                                                 <tr
-                                                    class="metadata-row {{ $totalRows == $currentRow && $totalItems !== $currentIndex ? 'border-bottom' : null }}">
+                                                    class="metadata-row {{ $totalRows == $currentRow && $lines !== $currentIndex ? 'border-bottom' : null }}">
                                                     <th class="margin-cell"></th>
                                                     <th>
-                                                        {{ $row->label }}
+                                                        {{ $row?->label }}
                                                     </th>
                                                     <td>
-                                                        {{ $row->value }}
+                                                        {{ $row?->value }}
                                                     </td>
                                                     <th class="margin-cell"></th>
                                                     @php
@@ -315,7 +320,8 @@
                                 <h4>Pièces justificatifs</h4>
                                 @foreach ($item->media as $file)
                                     <div class="img-container">
-                                        <img src="{{ $file->link }}" alt="{{ $file->original_name }}"
+                                        <img src="{{ public_path('storage/' . $file->path) }}"
+                                            alt="{{ $file->original_name }}"
                                             class="img">
                                     </div>
                                 @endforeach
@@ -333,7 +339,7 @@
             @if ($mission->closingReport)
                 @foreach ($mission->closingReport as $report)
                     <div class="img-container">
-                        <img src="{{ $report->link }}" alt="{{ $report->original_name }}"
+                        <img src="{{ public_path('storage/' . $report->path) }}" alt="{{ $report->original_name }}"
                             class="img">
                     </div>
                 @endforeach

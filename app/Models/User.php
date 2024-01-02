@@ -48,6 +48,7 @@ class User extends Authenticatable implements JWTSubject
         'active_post',
         'first_login_password',
         'is_notified',
+        'is_for_testing',
     ];
 
     /**
@@ -71,20 +72,32 @@ class User extends Authenticatable implements JWTSubject
         'created_at' => 'datetime',
         'must_change_password' => 'boolean',
         'is_active' => 'boolean',
+        'is_for_testing' => 'boolean',
         'gender' => 'integer',
     ];
 
     public $searchable = ['last_name', 'first_name', 'username', 'email', 'phone'];
 
-    protected $appends = ['full_name', 'abbreviated_name', 'dres_str', 'gender_str', 'martial_status', 'full_name_with_martial', 'authorizations', 'permissions_arr', 'agencies_str'];
+    protected $appends = [
+        'full_name',
+        'abbreviated_name',
+        'dres_str',
+        'gender_str',
+        'martial_status',
+        'full_name_with_martial',
+        'authorizations',
+        'permissions_arr',
+        'agencies_str',
+        'is_for_testing_str'
+    ];
 
     /**
      * Getters
      */
-    // public function getRegistrationNumberAttribute()
-    // {
-    //     return str_pad($this->registration_number, 5, '0', STR_PAD_LEFT);
-    // }
+    public function getIsForTestingStrAttribute()
+    {
+        return $this->is_for_testing ? 'Oui' : 'Non';
+    }
 
     public function getCreatedAtAttribute($created_at)
     {
@@ -247,119 +260,15 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Bug::class, 'created_by_id', 'id');
     }
+
+    public function notification_settings()
+    {
+        return $this->hasMany(UserHasNotification::class);
+    }
+
     /**
      * Scopes
      */
-    /**
-     * @param Illuminate\Database\Eloquent\Builder $query
-     * @param string $code
-     *
-     * @return App\Models\User
-     */
-    public function scopeUser(Builder $query, string $code)
-    {
-        return $query->whereRelation('roles', 'roles.code', $code)->get();
-    }
-    /**
-     * @param Illuminate\Database\Eloquent\Builder $query
-     *
-     * @return App\Models\User
-     */
-    public function scopeDcp(Builder $query)
-    {
-        return $this->user('dcp');
-    }
-    /**
-     * @param Illuminate\Database\Eloquent\Builder $query
-     *
-     * @return App\Models\User
-     */
-    public function scopeCc(Builder $query)
-    {
-        return $this->user('cc');
-    }
-    /**
-     * @param Illuminate\Database\Eloquent\Builder $query
-     *
-     * @return App\Models\User
-     */
-    public function scopeRoot(Builder $query)
-    {
-        return $this->user('root');
-    }
-    /**
-     * @param Illuminate\Database\Eloquent\Builder $query
-     *
-     * @return App\Models\User
-     */
-    public function scopeAdmin(Builder $query)
-    {
-        return $this->user('admin');
-    }
-    /**
-     * @param Illuminate\Database\Eloquent\Builder $query
-     *
-     * @return App\Models\User
-     */
-    public function scopeDg(Builder $query)
-    {
-        return $this->user('dg');
-    }
-    /**
-     * @param Illuminate\Database\Eloquent\Builder $query
-     *
-     * @return App\Models\User
-     */
-    public function scopeIg(Builder $query)
-    {
-        return $this->user('ig');
-    }
-    /**
-     * @param Illuminate\Database\Eloquent\Builder $query
-     *
-     * @return App\Models\User
-     */
-    public function scopeCdc(Builder $query)
-    {
-        return $this->user('cdc');
-    }
-    /**
-     * @param Illuminate\Database\Eloquent\Builder $query
-     *
-     * @return App\Models\User
-     */
-    public function scopeCi(Builder $query)
-    {
-        return $this->user('ci');
-    }
-    /**
-     * @param Illuminate\Database\Eloquent\Builder $query
-     *
-     * @return App\Models\User
-     */
-    public function scopeCdr(Builder $query)
-    {
-        return $this->user('cdr');
-    }
-    /**
-     * @param Illuminate\Database\Eloquent\Builder $query
-     *
-     * @return App\Models\User
-     */
-    public function scopeCdcr(Builder $query)
-    {
-        return $this->user('cdcr');
-    }
-    /**
-     * @param Illuminate\Database\Eloquent\Builder $query
-     *
-     * @return App\Models\User
-     */
-    public function scopeCdrcp(Builder $query)
-    {
-        return $this->user('cdrcp');
-    }
-
     public function scopeWhereRoles(Builder $query, $roles)
     {
         return $query->whereHas('role', function ($query) use ($roles) {
@@ -368,5 +277,24 @@ class User extends Authenticatable implements JWTSubject
             }
             return $query->where('code', $roles);
         });
+    }
+
+    public function scopeIsActive(Builder $query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeIsInactive(Builder $query)
+    {
+        return $query->where('is_active', false);
+    }
+
+    public function scopeIsForTesting(Builder $query)
+    {
+        return $query->where('is_for_testing', true);
+    }
+    public function scopeIsNotForTesting(Builder $query)
+    {
+        return $query->where('is_for_testing', false);
     }
 }

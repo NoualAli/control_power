@@ -3,6 +3,10 @@
         <ContentHeader title="Ajouter une nouvelle agence" />
         <ContentBody>
             <NLForm :action="create" :form="form">
+                <NLColumn>
+                    <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form" label="Agence TEST"
+                        type="is-success" />
+                </NLColumn>
                 <!-- Code -->
                 <NLColumn lg="6" md="6">
                     <NLInput v-model="form.code" type="number" :form="form" name="code" label="Code" label-required />
@@ -26,6 +30,7 @@
                     <NLSelect v-model="form.pcf_usable" :form="form" name="pcf_usable" label="PCF exceptionnel (à utiliser)"
                         :options="pcfList" :multiple="true" />
                 </NLColumn>
+
                 <NLColumn lg="6" md="6">
                     <NLSelect v-model="form.pcf_unusable" :form="form" name="pcf_unusable"
                         label="PCF exceptionnel (à ne pas utiliser)" :options="pcfList" :multiple="true" />
@@ -49,7 +54,7 @@ import { mapGetters } from 'vuex'
 export default {
     components: { NLForm },
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     data() {
         return {
             dresList: [],
@@ -61,7 +66,8 @@ export default {
                 dre_id: null,
                 category_id: null,
                 pcf_usable: [],
-                pcf_unusable: []
+                pcf_unusable: [],
+                is_for_testing: false,
             })
         }
     },

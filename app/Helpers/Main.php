@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\ControlCampaign;
 use App\Models\Domain;
 use App\Models\Dre;
 use App\Models\Family;
 use App\Models\Mission;
 use App\Models\User;
+use App\Rules\IsAlgerianPhoneNumber;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
@@ -60,12 +60,15 @@ if (!function_exists('hasRole')) {
     function hasRole(string|array $roles, ?User $user = null): bool
     {
         $user = $user ? $user : auth()->user();
-        $role = $user->role->code;
-        if (is_array($roles)) {
-            return in_array($role, $roles);
-        } else {
-            return $role == $roles;
+        $role = $user?->role?->code;
+        if ($role) {
+            if (is_array($roles)) {
+                return in_array($role, $roles);
+            } else {
+                return $role == $roles;
+            }
         }
+        return false;
     }
 }
 
@@ -143,8 +146,15 @@ if (!function_exists('formatForSelect')) {
     {
         if (!empty($array)) {
             $array = array_map(function ($item) use ($label, $id) {
-                $id = isset($item[$id]) ? $item[$id] : $item;
-                $label = isset($item[$label]) ? $item[$label] : $item;
+                if (is_array($item)) {
+                    $id = isset($item[$id]) ? $item[$id] : $item;
+
+                    $label = isset($item[$label]) ? $item[$label] : $item;
+                } elseif ($item instanceof stdClass || gettype($item) == 'object') {
+                    $id = isset($item->$id) ? $item->$id : $item;
+
+                    $label = isset($item->$label) ? $item->$label : $item;
+                }
                 return [
                     'id' => $id,
                     'label' => $label,
@@ -285,7 +295,6 @@ if (!function_exists('pcfToProcesses')) {
             $pcf = Validator::make($pcf, [
                 '*' => 'exists:processes,id'
             ])->validated();
-            // dd($pcf);
 
             return $pcf;
         }
@@ -302,15 +311,28 @@ if (!function_exists('generateCDCRef')) {
      *
      * @return string
      */
-    function generateCDCRef(bool $validate = false, ?string $date = null)
+    function generateCDCRef(bool $validated = false, ?string $date = null, bool $isForTesting = false)
     {
         $reference = '';
         $date = $date ? Carbon::parse($date)->format('Y') : today()->format('Y');
-        $cdc = ControlCampaign::whereYear('start_date', $date);
-        if ($validate) {
-            $reference = 'CDC-' . $date . '-' . addZero($cdc->validated()->count() + 1);
+        $cdc = DB::table('control_campaigns', 'cc')->whereYear('start_date', $date)->whereNull('deleted_at')->where('is_for_testing', $isForTesting);
+        if ($validated) {
+            $totalValidated = $cdc->whereNotNull('validated_at')->whereNotNull('validated_by_id')->count();
         } else {
-            $reference = 'CDC-' . $date . '-' . addZero($cdc->max('id') + 1) . '-tmp';
+            $totalNotValidated = $cdc->whereNull('validated_at')->whereNull('validated_by_id')->count() + 1 ?: 1;
+        }
+        if (!$isForTesting) {
+            if ($validated) {
+                $reference = 'CDC-' . $date . '-' . addZero($totalValidated + 1);
+            } else {
+                $reference = 'CDC-' . $date . '-' . addZero($totalNotValidated) . '-tmp';
+            }
+        } else {
+            if ($validated) {
+                $reference = 'CDC-' . $date . '-' . addZero($totalValidated + 1) . '-test';
+            } else {
+                $reference = 'CDC-' . $date . '-' . addZero($totalNotValidated) . '-test-tmp';
+            }
         }
         return $reference;
     }
@@ -340,8 +362,8 @@ if (!function_exists('getMissionProcesses')) {
             AVG(md.score) as avg_score,
             COUNT(md.id) AS total_mission_details,
             SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) AS scored_mission_details,
-            (COUNT(CASE WHEN score IN (2, 3, 4) THEN 1 ELSE NULL END) * 100) / COUNT(md.id) AS anomalies_rate,
-            (count(md.score) * 100) / COUNT(md.id) AS progress_status
+            (COUNT(CASE WHEN score IN (2, 3, 4) THEN 1 ELSE NULL END) * 100) / NULLIF(COUNT(md.id), 0) AS anomalies_rate,
+            (COUNT(md.score) * 100) / NULLIF(COUNT(md.id), 0) AS progress_status
         ");
         $processes = $processes->join('control_points as cp', 'p.id', '=', 'cp.process_id')
             ->join('domains as d', 'd.id', '=', 'p.domain_id')
@@ -350,6 +372,7 @@ if (!function_exists('getMissionProcesses')) {
             ->join('missions as m', 'm.id', '=', 'md.mission_id')
             ->groupBy('f.id', 'd.id', 'p.id', 'p.name', 'd.name', 'f.name')
             ->where('m.id', $mission->id);
+        // dd($processes->get(), $mission->id);
         return $processes;
     }
 }
@@ -408,6 +431,8 @@ if (!function_exists('recursivelyToArray')) {
                 $item = is_integer($item->keys()->first()) ?  recursivelyToArray($item->values()) : recursivelyToArray($item);
             } elseif (is_array($item)) {
                 $item = recursivelyToArray(collect($item));
+            } elseif ($item instanceof stdClass) {
+                $item = json_decode(json_encode($item), true);
             }
 
             return $item;
@@ -428,3 +453,192 @@ if (!function_exists('rememberKeyForCache')) {
         // return $prefix ? $prefix . '_user_' . auth()->user()->id . '_' . $rememberKey : '_user_' . auth()->user()->id . $rememberKey;
     }
 }
+
+if (!function_exists('sanitizeString')) {
+    function sanitizeString(?string $string)
+    {
+        $string = strip_tags($string);
+        // $nbsp = html_entity_decode("&nbsp;");
+        $string = str_replace('&nbsp;', " ", $string);
+        return $string;
+    }
+}
+
+
+if (!function_exists('flattenArray')) {
+    function flattenArray($nestedArray)
+    {
+        $result = [];
+
+        foreach ($nestedArray as $item) {
+            foreach ($item as $key => $value) {
+                if (array_key_exists($key, $result)) {
+                    // If the key already exists, combine values into an array
+                    if (!is_array($result[$key])) {
+                        $result[$key] = [$result[$key]];
+                    }
+                    $result[$key][] = $value;
+                } else {
+                    // If the key doesn't exist, set the value
+                    $result[$key] = $value;
+                }
+            }
+        }
+
+        return $result;
+    }
+}
+
+if (!function_exists('validateFields')) {
+    /**
+     * @param mixed $fields
+     * @param mixed $data
+     * @param bool $multipleFields
+     * @param string|int|null $rowKey
+     *
+     * @return void
+     */
+    function validateFields($fields, $data, bool $multipleFields = false, string|int $rowKey = null)
+    {
+        foreach ($fields as $key => $field) {
+            $maxLength = $field->max_length;
+            $minLength = $field->min_length;
+            $required = $field->required;
+            $is_integer_or_float = $field->is_integer_or_float;
+            $is_multiple = $field->is_multiple;
+            $distinct = $field->distinct;
+            $additional_rules = $field->additional_rules ?: null;
+            $type = $field->type;
+            $name = $field->name;
+            $label = strtolower($field->label);
+            $rules = [];
+            $messages = [];
+            $computedName = 'metadata.*.' . $key . '.' . $name;
+            $computedNameWithoutKey = 'metadata.*.*.' . $name;
+
+            if ($required) {
+                $rules = array_merge($rules, ['required']);
+                $messages[$computedNameWithoutKey . '.required'] = 'Le champ ' . __($label) . ' est obligatoire.';
+            } else {
+                $rules = array_merge($rules, ['nullable']);
+            }
+
+            if ($distinct) {
+                $rules = array_merge($rules, ['distinct']);
+                $messages[$computedNameWithoutKey . '.required'] = 'Le champ ' . __($label) . ' a une valeur en double.';
+            }
+
+            if ($type == 'number') {
+                if (!$is_integer_or_float) {
+                    $rules = array_merge($rules, ['regex:/^[0-9]+$/']);
+                    $messages[$computedNameWithoutKey . '.regex'] = 'Le champ ' . __($label) . ' doit être un nombre entier.';
+                } else {
+                    $rules = array_merge($rules, ['numeric']);
+                    $messages[$computedNameWithoutKey . '.numeric'] = 'Le champ ' . __($label) . ' doit être un nombre.';
+                }
+
+                if ($maxLength) {
+                    $rules = array_merge($rules, ['max_digits:' . $maxLength]);
+                    $messages[$computedNameWithoutKey . '.max_digits'] = 'Le champ ' . __($label) . ' ne doit pas dépasser ' . $maxLength . ' chiffres.';
+                }
+
+                if ($minLength) {
+                    $rules = array_merge($rules, ['min_digits:' . $minLength]);
+                    $messages[$computedNameWithoutKey . '.max_digits'] = 'Le champ ' . __($label) . ' doit pas contenir en moin ' . $maxLength . ' chiffres.';
+                }
+            }
+
+            if ($type == 'select') {
+                if ($is_multiple) {
+                    $rules = array_merge($rules, ['array']);
+                    $messages[$computedNameWithoutKey . '.array'] = 'Le champ ' . __($label) . ' doit pas être un tableau.';
+                } else {
+                    $rules = array_merge($rules, ['string']);
+                    $messages[$computedNameWithoutKey . '.array'] = 'Le champ ' . __($label) . ' doit pas être une chaine de caractères.';
+                }
+            }
+
+            if ($type == 'date') {
+                $rules = array_merge($rules, ['date_format:Y-m-d']);
+                $messages[$computedNameWithoutKey . '.date_format'] = 'Le champ ' . __($label) . ' ne correspond pas au format :format.';
+            }
+
+            if ($type == 'month') {
+                $rules = array_merge($rules, ['date_format:Y-m']);
+                $messages[$computedNameWithoutKey . '.date_format'] = 'Le champ ' . __($label) . ' ne correspond pas au format :format.';
+            }
+
+            if ($type == 'time') {
+                $rules = array_merge($rules, ['date_format:H:i:s']);
+                $messages[$computedNameWithoutKey . '.date_format'] = 'Le champ ' . __($label) . ' ne correspond pas au format :format.';
+            }
+
+            if ($type == 'datetime-local') {
+                $rules = array_merge($rules, ['date_format:Y-m-d\TH:i:s']);
+                $messages[$computedNameWithoutKey . '.date_format'] = 'Le champ ' . __($label) . ' ne correspond pas au format :format.';
+            }
+
+            if ($type == 'week') {
+                $rules = array_merge($rules, ['date']);
+                $messages[$computedNameWithoutKey . '.date'] = 'Le champ ' . __($label) . ' n\'est pas une date valide.';
+            }
+
+            if ($type == 'email') {
+                $rules = array_merge($rules, ['email']);
+                $messages[$computedNameWithoutKey . '.email'] = 'Le champ ' . __($label) . ' doit être une adresse e-mail valide.';
+            }
+
+            if ($type == 'tel') {
+                $rules = array_merge($rules, [new IsAlgerianPhoneNumber]);
+                $messages[$computedNameWithoutKey . '.tel'] = 'Le champ ' . __($label) . ' doit être un n° de téléphone algérien valide.';
+            }
+
+            if (in_array($type, ['text', 'textarea'])) {
+                $rules = array_merge($rules, ['string']);
+                $messages[$computedNameWithoutKey . '.string'] = 'Le champ ' . __($label) . ' doit être une chaine de caractère.';
+
+                if ($maxLength) {
+                    $rules = array_merge($rules, ['max:' . $maxLength]);
+                    $messages[$computedNameWithoutKey . '.max'] = 'Le champ ' . __($label) . ' ne peut contenir plus de :max caractères';
+                }
+                if ($minLength) {
+                    $rules = array_merge($rules, ['min:' . $maxLength]);
+                    $messages[$computedNameWithoutKey . '.min'] = 'Le champ ' . __($label) . ' doit contenir au moins :min caractères';
+                }
+            }
+
+            if ($additional_rules) {
+                $customRules = explode(',', $additional_rules);
+                foreach ($customRules as $rule) {
+                    $normailizedName = preg_replace('/_/', ' ', $rule);
+                    $normailizedName = preg_split('/[ ]/', ucwords($normailizedName));
+                    $normailizedName = implode('', $normailizedName) . 'Rule';
+                    $class = "\App\Rules\\" . $normailizedName;
+                    if (class_exists($class)) {
+                        array_push($rules, new $class($label));
+                    }
+                }
+            }
+
+            Validator::make($data, [$computedName => $rules], $messages)->validate();
+        }
+    }
+}
+
+// if (!function_exists('parse_query_string')) {
+//     function parse_query_string()
+//     {
+//         $queryString = Cache::put('missions_index_query_string', fn () => request()->getQueryString());
+//         $query = new stdClass;
+//         foreach (explode('&', $queryString) as $value) {
+//             $param = explode('=', $value);
+//             $key = isset($param[0]) ? $param[0] : null;
+//             if ($key) {
+//                 if (isset($param[1])) {
+//                     $query->$key = $param[1];
+//                 }
+//             }
+//         }
+//         return $query;
+//     }
+// }

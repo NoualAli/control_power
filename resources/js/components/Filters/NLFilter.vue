@@ -1,15 +1,12 @@
 <template>
     <NLContainer v-if="isOpen" extraClass="box" isFluid>
         <NLGrid gap="2">
-            <NLColumn v-for="(filter, name) in filters" v-if="!filter?.hide" :key="'filter-' + name" :lg="columns(filter)">
-                <NLSelect v-if="type(filter) == 'select' && !hide(filter?.hide)" v-model="filter.value" :name="name"
+            <NLColumn v-for="(filter, name) in filters" v-show="!filter?.hide" :key="'filter-' + name"
+                :lg="columns(filter)">
+                <NLSelect v-show="type(filter) == 'select' && !filter?.hide" v-model="filter.value" :name="name"
                     :label="label(filter)" :options="data(filter)" :multiple="multiple(filter)" />
-                <!-- <NLGrid gap="2" v-if="type(filter) == 'date-range'">
-                    <NLColumn :lg="columns(filter)" v-for="(attrData, attrName) in filter.attributes"
-                        :key="'filter-' + attrName" :class="data?.cols || 'col-lg-6'">
-                        <NLInput v-model="attrData.value" :name="attrName" :label="attrData.label" type="date" />
-                    </NLColumn>
-                </NLGrid> -->
+                <NLInputDate v-show="type(filter) == 'date' == !filter.hide" v-model="filter.value" :name="name"
+                    :label="filter.label" />
             </NLColumn>
         </NLGrid>
         <NLComponentLoader :isLoading="isLoading"></NLComponentLoader>
@@ -43,7 +40,7 @@ export default {
     },
     computed: {
         columns() {
-            return (filter) => filter?.cols || '2'
+            return (filter) => filter.hide ? 0 : filter?.cols || '2'
         },
         type() {
             return (filter) => filter?.type || 'select'
@@ -58,7 +55,7 @@ export default {
             return (filter) => filter?.data || []
         },
         hide() {
-            return (filter) => Boolean(filter?.hide)
+            return (filter) => !!filter?.hide
         },
     },
     watch: {

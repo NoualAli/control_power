@@ -12,10 +12,6 @@ class Validated extends Notification
 {
     use Queueable;
 
-    /**
-     * @var App\Models\Mission
-     */
-    private $mission;
 
     /**
      * @var string
@@ -23,13 +19,20 @@ class Validated extends Notification
     private $type;
 
     /**
+     * @var \App\Models\Mission
+     */
+    private $mission;
+
+    /**
      * Create a new notification instance.
+     *
+     * @param int|\App\Models\Mission $mission
      *
      * @return void
      */
-    public function __construct(Mission $mission, $type)
+    public function __construct(string|Mission $mission, $type)
     {
-        $this->mission = $mission;
+        $this->mission = is_string($mission) ? Mission::findOrFail($mission) : $mission;
         $this->type = $type;
     }
 
@@ -41,53 +44,24 @@ class Validated extends Notification
     private function getContent(): string
     {
 
-        $content = 'Mission <b>' . $this->mission->reference . '</b> a été réalisé';
-        switch ($this->type) {
-            case 'ci_report':
-                $content = 'La mission <b>' . $this->mission->reference . '</b> a été réalisée et validée par le <b>Contrôleur itinérant ' . auth()->user()->full_name_with_martial . '</b>';
-                break;
-            case 'cdc_report':
-                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Chef de Département Contrôle DRE ' . auth()->user()->full_name_with_martial . '</b>';
-                break;
-            case 'cc':
-                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Contrôleur central ' . auth()->user()->full_name_with_martial . '</b>';
-                break;
-            case 'cdc':
-                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Chef de Département de Contrôle Réseau ' . auth()->user()->full_name_with_martial . '</b>';
-                break;
-            case 'dcp':
-                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Directeur du Contrôle Permanent ' . auth()->user()->full_name_with_martial . '</b>';
-                break;
-            case 'da':
-                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Directeur d\'agence ' . auth()->user()->full_name_with_martial . '</b>';
-                break;
-            default:
-                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par ' . auth()->user()->full_name_with_martial . '</b>';
-                break;
-        }
-        return $content;
-    }
-
-    /**
-     * Get short content
-     *
-     * @return string
-     */
-    private function getShortContent(): string
-    {
-
         $content = 'Mission ' . $this->mission->reference . ' a été réalisé';
         switch ($this->type) {
             case 'ci_report':
                 $content = 'La mission ' . $this->mission->reference . ' a été réalisée et validée par le Contrôleur itinérant ' . auth()->user()->full_name_with_martial;
                 break;
+            case 'ci':
+                $content = 'La mission ' . $this->mission->reference . ' a été réalisée et validée par le Contrôleur itinérant ' . auth()->user()->full_name_with_martial;
+                break;
             case 'cdc_report':
+                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Chef de Département Contrôle DRE ' . auth()->user()->full_name_with_martial;
+                break;
+            case 'cdc':
                 $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Chef de Département Contrôle DRE ' . auth()->user()->full_name_with_martial;
                 break;
             case 'cc':
                 $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Contrôleur central ' . auth()->user()->full_name_with_martial;
                 break;
-            case 'cdc':
+            case 'cdcr':
                 $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Chef de Département de Contrôle Réseau ' . auth()->user()->full_name_with_martial;
                 break;
             case 'dcp':
@@ -104,16 +78,66 @@ class Validated extends Notification
     }
 
     /**
+     * Get short content
+     *
+     * @return string
+     */
+    private function getHtmlContent(): string
+    {
+
+        $content = 'Mission ' . $this->mission->reference . ' a été réalisé';
+        switch ($this->type) {
+            case 'ci_report':
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été réalisée et validée par le <b>Contrôleur itinérant ' . auth()->user()->full_name_with_martial . '</b>';
+                break;
+            case 'ci':
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été réalisée et validée par le <b>Contrôleur itinérant ' . auth()->user()->full_name_with_martial . '</b>';
+                break;
+            case 'cdc_report':
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Chef de Département Contrôle DRE ' . auth()->user()->full_name_with_martial . '</b>';
+                break;
+            case 'cdc':
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Chef de Département Contrôle DRE ' . auth()->user()->full_name_with_martial . '</b>';
+                break;
+            case 'cc':
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Contrôleur central ' . auth()->user()->full_name_with_martial . '</b>';
+                break;
+            case 'cdcr':
+                $content = 'La mission <b>' . $this->mission->reference . '</b> a été vérifiée et validée par le <b>Chef de Département de Contrôle Réseau ' . auth()->user()->full_name_with_martial . '</b>';
+                break;
+            case 'dcp':
+                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par le Directeur du Contrôle Permanent ' . auth()->user()->full_name_with_martial;
+                break;
+            case 'da':
+                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée, régularisée et validée par le Directeur d\'agence ' . auth()->user()->full_name_with_martial;
+                break;
+            default:
+                $content = 'La mission ' . $this->mission->reference . ' a été vérifiée et validée par ' . auth()->user()->full_name_with_martial;
+                break;
+        }
+
+        return $content;
+    }
+
+    /**
      * Get email subject
      *
      * @return string
      */
     private function getTitle(): string
     {
-        if ($this->type == 'ci_report') {
+        if ($this->type == 'ci' || 'ci_report') {
             return 'Mission ' . $this->mission->reference . ' réalisée et validée par ' . auth()->user()->full_name_with_martial;
         }
-        return 'Mission ' . $this->mission->reference . ' vérifiée et validée par ' . auth()->user()->full_name_with_martial;
+        return 'Mission ' . $this->mission->reference . ' traitée et validée par ' . auth()->user()->full_name_with_martial;
+    }
+
+    private function getObject(): string
+    {
+        if ($this->type == 'ci' || 'ci_report') {
+            return 'MISSION ' . $this->mission->reference . ' REALISEE ET VALIDEE PAR ' . auth()->user()->full_name_with_martial . ' - ' . env('APP_NAME');
+        }
+        return 'MISSION ' . $this->mission->reference . ' TRAITEE ER VALIDEE PAR ' . auth()->user()->full_name_with_martial . ' - ' . env('APP_NAME');
     }
 
     /**
@@ -133,10 +157,16 @@ class Validated extends Notification
      */
     public function via($notifiable)
     {
-        if (app()->environment('production')) {
-            return ['mail', 'database'];
+        $channels = collect([]);
+        $setting = $notifiable->notification_settings()->whereRelation('type', 'code', 'mission_validated')->first();
+        if ($setting?->database_is_enabled) {
+            $channels->push('database');
         }
-        return ['database'];
+
+        if ($setting?->email_is_enabled && !config('mail.disabled')) {
+            $channels->push('mail');
+        }
+        return $channels->toArray();
     }
 
     /**
@@ -148,7 +178,7 @@ class Validated extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject($this->getTitle())
+            ->subject($this->getObject())
             ->line($this->getContent())
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
             ->action('Voir la mission', url('/missions/' . $this->mission->id))
@@ -168,7 +198,8 @@ class Validated extends Notification
             'id' => $this->mission->id,
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
-            'short_content' => $this->getShortContent(),
+            'short_content' => $this->getHtmlContent(),
+            'subject' => $this->getObject(),
             'title' => $this->getTitle(),
             'emitted_by' => auth()->user()->username,
         ];

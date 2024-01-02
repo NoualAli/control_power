@@ -31,9 +31,9 @@
                     <td>{{ $controlPoint->major_fact_str }}</td>
                     <td>{{ implode(',', $controlPoint->scores_arr) }}</td>
                     @php
-                        $fields = $controlPoint->fields ? array_map(fn($item) => $item[1], $controlPoint->fields) : null;
+                        $fields = $controlPoint->fields ? $controlPoint->fields->pluck('label')->join(', ') : null;
                     @endphp
-                    <td>{{ $fields ? implode(', ', array_column($fields, 'label')) : '-' }}</td>
+                    <td>{{ $fields ? $fields : '-' }}</td>
                 </tr>
             @endforeach
         </tbody>

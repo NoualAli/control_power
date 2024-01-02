@@ -18,7 +18,7 @@
                 <NLColumn>
                     <NLFile @uploaded="handleMedia" @deleted="handleMedia" @loaded="handleMedia" v-model="form.media"
                         name="media" label="Pièces jointes" attachableType="App\Models\MissionDetailRegularization"
-                        :form="form" multiple />
+                        :form="form" multiple :folder="folderName" />
                 </NLColumn>
             </NLForm>
             <!-- Loader -->
@@ -37,6 +37,7 @@
 import { Form } from 'vform';
 import NLForm from '../components/NLForm'
 import NLComponentLoader from '../components/NLComponentLoader'
+import { slugify } from '../plugins/helpers';
 export default {
     name: 'MissionRegularizationForm',
     components: { NLForm, NLComponentLoader },
@@ -53,6 +54,11 @@ export default {
             }
         },
     },
+    computed: {
+        folderName() {
+            return 'Régularisations/' + this.slugify(this.detail?.campaign?.reference) + '/' + this.slugify(this.detail?.mission?.reference);
+        }
+    },
     data() {
         return {
             formIsLoading: false,
@@ -66,9 +72,9 @@ export default {
             isLoading: false,
         }
     },
-    // created() {
-    //     this.initData()
-    // },
+    created() {
+        this.initData()
+    },
     methods: {
         handleMedia(files) {
             this.form.media = files
@@ -79,6 +85,7 @@ export default {
         initData() {
             this.isLoading = true
             this.form.reset()
+            this.form.errors.errors = {}
             this.form.mission_detail_id = this.detail?.id
             this.isLoading = false
         },

@@ -39,7 +39,7 @@ class CreateMissionDetailsTable extends Migration
                 $table->timestamp('controlled_by_cc_at')->nullable();
                 $table->timestamp('controlled_by_cdcr_at')->nullable();
                 $table->timestamp('controlled_by_dcp_at')->nullable();
-                $table->timestamp('major_fact_dispatched_at')->nullable();
+                $table->timestamp('major_fact_is_dispatched_at')->nullable();
                 $table->timestamps();
                 $table->softDeletes();
             } else {
@@ -48,7 +48,7 @@ class CreateMissionDetailsTable extends Migration
                 $table->timestamp('controlled_by_cc_at', 7)->nullable();
                 $table->timestamp('controlled_by_cdcr_at', 7)->nullable();
                 $table->timestamp('controlled_by_dcp_at', 7)->nullable();
-                $table->timestamp('major_fact_dispatched_at', 7)->nullable();
+                $table->timestamp('major_fact_is_dispatched_at', 7)->nullable();
                 $table->timestamps(7);
                 $table->softDeletes('deleted_at', 7);
             }

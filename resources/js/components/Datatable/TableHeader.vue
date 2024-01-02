@@ -55,6 +55,7 @@ export default {
     },
     methods: {
         handleSorting() {
+
             if (this.sortable) {
                 if (!this.direction) {
                     this.direction = 'desc'
@@ -63,7 +64,8 @@ export default {
                 } else {
                     this.direction = null
                 }
-                this.$emit('sorted', { column: this.column, direction: this.direction })
+                let sortingColumn = typeof this.sortable !== 'boolean' ? this.sortable : this.column.field
+                this.$emit('sorted', { column: this.column, sortingColumn, direction: this.direction })
             }
         }
     }

@@ -13,7 +13,7 @@ class UserCreatedNotification extends Notification
     use Queueable;
 
     /**
-     * @var App\Models\User
+     * @var \App\Models\User
      */
     private $user;
 
@@ -24,7 +24,7 @@ class UserCreatedNotification extends Notification
 
     /**
      * Create a new notification instance.
-     * @param App\Models\User $user
+     * @param \App\Models\User $user
      * @param string $password
      * @return void
      */
@@ -41,7 +41,7 @@ class UserCreatedNotification extends Notification
      */
     private function getContent(): array
     {
-        $role = $this->user->username == 'DGA' ? 'Directeur Général Adjoint' : $this->user->role->name;
+        $role = $this->user->role->name;
         $ligns = [
             'Nous vous informons que votre compte (Profil : ' . $role . ') a été créé avec succès.',
             'Voici vos informations d\'authentification :',
@@ -64,7 +64,7 @@ class UserCreatedNotification extends Notification
      */
     private function getTitle(): string
     {
-        return 'CREATION DE VOTRE COMPTE - PLATEFROME CONTROL POWER';
+        return 'CREATION DE VOTRE COMPTE - ' . env('APP_NAME');
     }
 
     /**
@@ -84,10 +84,10 @@ class UserCreatedNotification extends Notification
      */
     public function via($notifiable)
     {
-        if (app()->environment('production')) {
+        if (!config('mail.disabled')) {
             return ['mail'];
         }
-        return ['mail'];
+        return [];
     }
 
     /**

@@ -1,31 +1,43 @@
 .tags
+    margin: 0
     display: flex
     justify-content: start
     align-items: center
     flex-wrap: wrap
     gap: .5rem
-    .tag
-        flex: 1 0 21%
+    &.is-even
+        .tag
+            flex: 1 0 21%
 .tag
-    // padding: .5rem
+    display: flex
+    align-items: center
+    justify-content: space-between
+    flex-wrap: wrap
+    gap: 1rem
+    padding: 10px
     background-color: $primary-light
     color: $white
     border-radius: 4px
     text-align: center
-    display: flex
-    align-items: center
-    justify-content: center
     height: 40px
-    width: 40px
+    width: auto
+    &.is-centered
+        justify-content: center
+    &.is-start
+        justify-content: start
+    &:hover
+        background-color: $primary
     &:first-child
         margin: 0
     @each $value in $colors-list
         $color: nth($value, 2)
         &.is-#{nth($value, 1)}
             border: 1px solid $color
-            background-color: $color
+            background-color: rgba($color , .9)
             color: darkOrWhiteFont($color)
-            // &:hover
-            //     color: darkOrWhiteFont(nth($color, 2))
-            //     background-color: lighten(nth($color, 2), 10%)
-            //     border-color: lighten(nth($color, 2), 10%)
+            &:hover
+                background-color: $color
+    & .close
+        cursor: pointer
+        &:hover
+            color: $danger

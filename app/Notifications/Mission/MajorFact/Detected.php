@@ -13,18 +13,20 @@ class Detected extends Notification
     use Queueable;
 
     /**
-     * @var App\Models\MissionDetail
+     * @var \App\Models\MissionDetail
      */
     private $detail;
 
     /**
      * Create a new notification instance.
      *
+     * @param string|\App\Models\MissionDetail
+     *
      * @return void
      */
-    public function __construct(MissionDetail $detail)
+    public function __construct(string|MissionDetail $detail)
     {
-        $this->detail = $detail;
+        $this->detail = is_string($detail) ? MissionDetail::findOrFail($detail) : $detail;
     }
 
     /**
@@ -35,10 +37,16 @@ class Detected extends Notification
      */
     public function via($notifiable)
     {
-        if (app()->environment('production')) {
-            return ['mail', 'database'];
+        $channels = collect([]);
+        $setting = $notifiable->notification_settings()->whereRelation('type', 'code', 'mission_major_fact_detected')->first();
+        if ($setting?->database_is_enabled) {
+            $channels->push('database');
         }
-        return ['database'];
+
+        if ($setting?->email_is_enabled && !config('mail.disabled')) {
+            $channels->push('mail');
+        }
+        return $channels->toArray();
     }
 
     /**
@@ -58,7 +66,7 @@ class Detected extends Notification
      */
     private function getTitle(): string
     {
-        return 'Fait majeur détecter';
+        return 'FAIT MAJEUR DETECTER - ' . $this->detail?->mission?->reference . ' - ' . env('APP_NAME');
     }
 
     /**
@@ -68,7 +76,7 @@ class Detected extends Notification
      */
     private function getContent(): string
     {
-        return 'Un fait majeur vient d\'être détecter dans la mission ' . $this->detail->mission->reference;
+        return 'Un fait majeur vient d\'être détecter dans la mission ' . $this->detail?->mission?->reference;
     }
 
     /**

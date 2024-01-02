@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\ControlCampaign;
 
+use App\Rules\CheckCampaignDate;
 use App\Rules\MaxLengthQuill;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -14,7 +15,7 @@ class UpdateRequest extends FormRequest
      */
     public function authorize()
     {
-        return isAbleTo('edit_control_campaign') && (request()->campaign->remaining_days_before_start > 5 || !request()->campaign->validated_by_id);
+        return isAbleTo('edit_control_campaign') && !boolval(intval(request()->campaign->is_validated));
     }
 
     /**
@@ -24,11 +25,10 @@ class UpdateRequest extends FormRequest
      */
     public function rules()
     {
-        $id = request()->campaign->id;
         return [
             'description' => ['required', 'string', new MaxLengthQuill(3000)],
-            'start_date' => ['required', 'date'],
-            'end_date' => ['required', 'date', 'after:start'],
+            'start_date' => ['required', 'date', new CheckCampaignDate],
+            'end_date' => ['required', 'date', 'after:start', new CheckCampaignDate],
             'pcf' => ['required', 'array'],
         ];
     }

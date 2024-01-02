@@ -5,19 +5,24 @@
         </template>
         <template #actions>
             <router-link v-if="can('view_mission')"
-                :to="{ name: 'campaign-missions', params: { campaignId: campaign?.current?.id } }" class="btn">
+                :to="{ name: 'campaign-missions', params: { campaignId: campaign?.current?.id } }" class="btn has-icon">
+                <i class="las la-eye icon"></i>
                 Missions
             </router-link>
-            <router-link
-                v-if="(campaign?.current?.remaining_days_before_start > 5 && can('edit_control_campaign')) && !campaign?.current.is_validated"
+            <router-link v-if="can('view_mission')"
+                :to="{ name: 'campaign-statistics', params: { campaignId: campaign?.current?.id } }" class="btn has-icon">
+                <i class="las la-chart-bar icon"></i>
+                Statistiques
+            </router-link>
+            <router-link v-if="(!Boolean(Number(campaign?.current?.is_validated)) && can('edit_control_campaign'))"
                 class="btn btn-warning" :to="{ name: 'campaigns-edit', params: { campaignId: campaign?.current?.id } }">
                 <i class="las la-edit icon" />
+                Modifier
             </router-link>
-            <button
-                v-if="(campaign?.current?.remaining_days_before_start > 5 && can('delete_control_campaign')) && !campaign?.current.is_validated"
+            <NLButton v-if="(!Boolean(Number(campaign?.current?.is_validated)) && can('delete_control_campaign'))"
                 class="btn btn-danger has-icon" @click.stop="destroy" :loading="destroyInProgress" label="Supprimer">
                 <i class="las la-trash icon" />
-            </button>
+            </NLButton>
             <NLButton v-if="!campaign?.current?.validated_by_id && can('validate_control_campaign')" class="btn btn-info"
                 @click.stop="validate(campaign?.current)" :loading="validationInProgress" label="Valider">
                 <i class="las la-check icon has-icon" />
@@ -36,7 +41,7 @@
                         {{ reference }}
                     </span>
                 </NLColumn>
-                <NLColumn v-if="is('cdcr,dcp')" lg="4">
+                <NLColumn v-if="is('cdcr,dcp,admin,root')" lg="4">
                     <span class="text-bold">
                         Etat:
                     </span>
@@ -89,6 +94,35 @@
                         </NLColumn>
                     </NLGrid>
                 </NLColumn>
+                <NLColumn lg="12">
+                    <NLGrid>
+                        <NLColumn lg="4">
+                            <span class="text-bold">
+                                Crée par:
+                            </span>
+                            <span>
+                                {{ campaign?.current?.creator_full_name }}
+                            </span>
+                        </NLColumn>
+
+                        <NLColumn lg="4">
+                            <span class="text-bold">
+                                Validée par:
+                            </span>
+                            <span>
+                                {{ campaign?.current?.validator_full_name }}
+                            </span>
+                        </NLColumn>
+                        <NLColumn lg="4" v-if="is(['admin', 'root', 'dcp', 'cdcr'])">
+                            <span class="text-bold">
+                                Test:
+                            </span>
+                            <span>
+                                {{ campaign?.current?.is_for_testing_str }}
+                            </span>
+                        </NLColumn>
+                    </NLGrid>
+                </NLColumn>
                 <NLColumn>
                     <span class="text-bold">
                         Description:
@@ -100,15 +134,43 @@
                 </NLColumn>
             </NLGrid>
         </div>
-        <div class="d-flex align-items gap-2" v-if="isDcp && totalMissions == totalValidatedMissions">
-            <a :href="'/excel-export?export=synthesis' + campaign?.current?.id" target="_blank"
-                class="btn btn-excel has-icon">
+        <NLFlex lgJustifyContent="start" gap="2" v-if="is('root')">
+            <NLButton v-if="totalMissions" class="btn btn-pdf has-icon" @click.prevent="generateReports(true)"
+                label="Regénérer tous les rapports" :loading="reGenerateReportsIsLoading">
+                <i class="las la-file-pdf icon" />
+            </NLButton>
+            <NLButton v-if="totalMissions" class="btn btn-pdf has-icon" @click.prevent="generateReports(false)"
+                label="Regénérer les rapports manquants" :loading="generateMissingReportsIsLoading">
+                <i class="las la-file-pdf icon" />
+            </NLButton>
+        </NLFlex>
+
+        <NLFlex lgJustifyContent="start" gap="2"
+            v-if="canExportSynthesis && totalMissions == totalValidatedMissions && totalMissions > 0 && totalValidatedMissions > 0 && !is('root')">
+            <!-- Download files -->
+            <button v-if="!is(['ci', 'da', 'cc', 'admin'])" class="btn btn-info has-icon" @click="downloadZip()">
+                <i class="las la-file-archive icon" />
+                Pièces jointes
+            </button>
+            <NLButton v-if="totalMissions && is(['dcp', 'cdcr'])" class="btn btn-pdf has-icon"
+                @click.prevent="generateReports" label="Regénérer les rapports manquants"
+                :loading="reGenerateReportsIsLoading">
+                <i class="las la-file-pdf icon" />
+            </NLButton>
+
+            <a :href="'/excel-export?export=synthesis&campaign=' + campaign?.current?.id" target="_blank"
+                class="btn btn-office-excel has-icon">
                 <i class="las la-file-excel icon" />
-                Exporter la synthèse
+                Récapitulatif des notations
             </a>
-        </div>
+            <a :href="'/excel-export?export=synthesis_reports&campaign=' + campaign?.current?.id" target="_blank"
+                class="btn btn-office-excel has-icon">
+                <i class="las la-file-excel icon" />
+                Récapitulatif des constats
+            </a>
+        </NLFlex>
         <!-- Processes List -->
-        <NLDatatable :key="renderKey" v-if="campaign?.current?.id" :columns="columns" :details="details"
+        <NLDatatable :refresh="refresh" v-if="campaign?.current?.id" :columns="columns" :details="details"
             title="Liste des processus" :urlPrefix="'campaigns/processes/' + campaign?.current?.id"
             detailsUrlPrefix="processes" @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
             <template #actions-before="{ item, callback }"
@@ -125,12 +187,16 @@
 import { mapGetters } from 'vuex'
 import api from '../../plugins/api'
 import { hasRole } from '../../plugins/user'
+import { catchError } from '../../plugins/swal'
 export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     data() {
         return {
-            renderKey: 0,
+            destroyInProgress: false,
+            generateMissingReportsIsLoading: false,
+            reGenerateReportsIsLoading: false,
+            refresh: 0,
             validationInProgress: false,
             columns: [
                 {
@@ -157,24 +223,7 @@ export default {
                     hasMany: true
                 }
             ],
-            // filters: {
-            //     family: {
-            //         label: 'Famille',
-            //         name: 'family',
-            //         multiple: true,
-            //         data: null,
-            //         value: null
-            //     },
-            //     domain: {
-            //         label: 'Domaine',
-            //         name: 'domain',
-            //         multiple: true,
-            //         data: null,
-            //         value: null,
-            //         dependsOn: 'family'
-            //     },
-            // },
-            isDcp: null,
+            canExportSynthesis: null,
         }
     },
     computed: {
@@ -185,13 +234,12 @@ export default {
             return this.campaign?.current?.reference
         },
         state() {
-            return this.campaign?.current?.is_validated ? 'Validé' : 'En attente de validation'
+            return Boolean(Number(this.campaign?.current?.is_validated)) ? 'Validé' : 'En attente de validation'
         },
         start() {
             let startDate = this.campaign?.current?.start_date
-            let remainingDaysBeforeStart = Math.abs(this.campaign?.current?.remaining_days_before_start)
+            let remainingDaysBeforeStart = this.campaign?.current?.remaining_days_before_start
             let sufix = ''
-
             if (remainingDaysBeforeStart == 1) {
                 sufix = ' / ' + remainingDaysBeforeStart + ' jour'
             } else if (remainingDaysBeforeStart > 1) {
@@ -238,9 +286,59 @@ export default {
         this.initData()
     },
     methods: {
+        /**
+         * Export or Preview report
+         */
+        generateReports(forceAll = false) {
+            let confirmTitle = forceAll ? 'Voulez-vous vraiment regénérer tous les rapports <b>existants / manquant</b> de la campagne de contrôle <b>' + this.campaign?.current?.reference + '</b>' : 'Voulez-vous vraiment générer tous les rapports manquants de la campagne de contrôle <b>' + this.campaign?.current?.reference + '</b>'
+            this.$swal.confirm_update(confirmTitle).then(action => {
+                if (action.isConfirmed) {
+                    let url = 'campaigns/' + this.campaign?.current?.id + '/reports?action=generate&all=0';
+                    let successMessage = 'La génération des rapports des missions de la campagne de contrôle ' + this.campaign?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.'
+                    let errorMessage = 'On s\'excuse il y\'a eu un problème avec la fonction de génération des rapports concernant la campagne de contrôle ' + this.campaign?.current?.reference + ', veuilez réessayer plus tard, si le proboème perssiste veuillez contacter votre développeur.'
+                    let title = 'Génération des rapports PDF'
+                    if (forceAll) {
+                        this.reGenerateReportsIsLoading = true
+                        url = 'campaigns/' + this.campaign?.current?.id + '/reports?action=generate&all=1';
+                        successMessage = 'La re-génération des rapports des missions de la campagne de contrôle ' + this.campaign?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.'
+                        errorMessage = 'On s\'excuse il y\'a eu un problème avec la fonction de re-génération des rapports concernant la campagne de contrôle ' + this.campaign?.current?.reference + ', veuilez réessayer plus tard, si le proboème perssiste veuillez contacter votre développeur.'
+                        title = 'Re-génération des rapports PDF'
+                    } else {
+                        this.generateMissingReportsIsLoading = true
+                    }
+                    this.$api.post(url).then((response) => {
+                        if (forceAll) {
+                            this.reGenerateReportsIsLoading = false
+                        } else {
+                            this.generateMissingReportsIsLoading = false
+                        }
+                        if (response.data.status) {
+                            this.$swal.alert_success(successMessage, title)
+                        } else {
+                            this.$swal.alert_success(errorMessage, title)
+                        }
+                    }).catch((error) => {
+                        if (forceAll) {
+                            this.reGenerateReportsIsLoading = false
+                        } else {
+                            this.generateMissingReportsIsLoading = false
+                        }
+
+                        this.$swal.catchError(error);
+                    })
+                }
+            })
+        },
+        /**
+         * Download mission's and detail's media
+         *
+         */
+        downloadZip() {
+            window.open('/zip/ControlCampaign/' + this.campaign?.current?.id)
+        },
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
-            this.isDcp = hasRole('dcp')
+            this.canExportSynthesis = hasRole([ 'dcp', 'cdcr' ])
             this.close()
             const campaignId = this.$route.params.campaignId
             this.$store.dispatch('campaigns/fetch', { campaignId }).then(() => {
@@ -248,8 +346,6 @@ export default {
                 if (this.$breadcrumbs.value[ length - 1 ].label === 'Détails campagne') {
                     this.$breadcrumbs.value[ length - 1 ].label = 'Détails campagne ' + this.campaign.current?.reference
                 }
-                this.renderKey += 1
-                // this.$store.dispatch('settings/updatePageLoading', false)
             })
         },
         loadControlPoints(process) {
@@ -269,16 +365,15 @@ export default {
                             this.initData()
                             this.$store.dispatch('settings/updatePageLoading', false)
                             this.$swal.toast_success(response.data.message)
-                            this.validationInProgress = false
                         } else {
                             this.$swal.toast_error(response.data.message)
-                            this.validationInProgress = false
                         }
+                        this.validationInProgress = false
                     })
                 }
             }).catch(error => {
-                this.$swal.alert_error(error)
                 this.validationInProgress = false
+                this.$swal.alert_error(error)
             })
         },
 
@@ -286,21 +381,20 @@ export default {
          * Delete campaign
          */
         destroy(e) {
-            this.destroyInProgress = true
             this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
+                    this.destroyInProgress = true
                     api.delete('campaigns/' + this.campaign?.current?.id).then(response => {
                         if (response.data.status) {
                             this.$swal.toast_success(response.data.message)
                             this.$router.push({ name: 'campaigns' })
-                            this.destroyInProgress = false
                         } else {
                             this.$swal.alert_error(response.data.message)
-                            this.destroyInProgress = false
                         }
-                    }).catch(error => {
-                        console.log(error)
                         this.destroyInProgress = false
+                    }).catch(error => {
+                        this.destroyInProgress = false
+                        this.$swal.catchError(error)
                     })
                 }
             })
@@ -314,7 +408,11 @@ export default {
         detachProcess(item) {
             return this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
-                    return api.delete('campaigns/' + this.campaign?.current?.id + '/process/' + item.id)
+                    return api.delete('campaigns/' + this.campaign?.current?.id + '/process/' + item.id).then((response) => {
+                        if (response?.data?.status) {
+                            this.refresh += 1
+                        }
+                    })
                 }
             })
         },

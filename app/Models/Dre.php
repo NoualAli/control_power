@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
@@ -15,6 +16,7 @@ class Dre extends BaseModel
     protected $fillable = [
         'name',
         'code',
+        'is_for_testing',
     ];
 
     protected $perPage = 10;
@@ -23,16 +25,20 @@ class Dre extends BaseModel
 
     public $appends = [
         'full_name',
-        // 'agencies_str'
+        'is_for_testing_str'
     ];
 
     public $timestamps = false;
 
-    // public $with = ['agencies'];
 
     /**
      * Getters
      */
+    public function getIsForTestingStrAttribute()
+    {
+        return $this->is_for_testing ? 'Oui' : 'Non';
+    }
+
     public function getNameAttribute($name)
     {
         return strtoupper($name);
@@ -72,5 +78,17 @@ class Dre extends BaseModel
     public function details()
     {
         return $this->hasManyDeep(MissionDetail::class, [Agency::class, Mission::class]);
+    }
+
+    /**
+     * Scopes
+     */
+    public function scopeIsForTesting(Builder $query)
+    {
+        return $query->where('is_for_testing', true);
+    }
+    public function scopeIsNotForTesting(Builder $query)
+    {
+        return $query->where('is_for_testing', false);
     }
 }

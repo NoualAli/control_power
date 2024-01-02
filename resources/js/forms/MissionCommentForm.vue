@@ -17,16 +17,18 @@
                     <NLFile v-if="form.currentMode == 2" @uploaded="handleMedia" @deleted="handleMedia"
                         @loaded="handleMedia" v-model="form.closing_report" :name="'closing_report'" label="PV de clôture"
                         attachable-type="App\Models\Mission" :attachable-id="mission.id" :form="form"
-                        folder="closing_report" accepted="jpg,jpeg,png" :canDelete="canDeleteMedia()"
-                        :readonly="![1, 2].includes(form.currentMode)" multiple labelRequired
-                        :helpText="'- Uniquement les fichiers de type jpg,jpeg,png sont accéptés\n- Chaque fichier ne doit pas dépassé 2Mo soit 2048Ko'" />
+                        accepted="jpg,jpeg,png" :canDelete="canDeleteMedia()" :readonly="![1, 2].includes(form.currentMode)"
+                        multiple labelRequired
+                        :helpText="'- Uniquement les fichiers de type jpg,jpeg,png sont accéptés\n- Chaque fichier ne doit pas dépassé 2Mo soit 2048Ko'"
+                        :folder="fields.file.folderName" />
                     <!-- CI -->
                     <NLFile v-if="form.currentMode == 1" @uploaded="handleMedia" @deleted="handleMedia"
                         @loaded="handleMedia" v-model="form.mission_order" name="mission_order" label="Ordre de mission"
-                        attachable-type="App\Models\Mission" :attachable-id="mission.id" :form="form" folder="mission_order"
+                        attachable-type="App\Models\Mission" :attachable-id="mission.id" :form="form"
                         accepted="jpg,jpeg,png" placeholder="Téléverser votre ordre de mission"
                         :canDelete="canDeleteMedia()" :readonly="![1, 2].includes(form.currentMode)" multiple labelRequired
-                        :helpText="'- Uniquement les fichiers de type jpg,jpeg,png sont accéptés\n- Chaque fichier ne doit pas dépassé 2Mo soit 2048Ko'" />
+                        :helpText="'- Uniquement les fichiers de type jpg,jpeg,png sont accéptés\n- Chaque fichier ne doit pas dépassé 2Mo soit 2048Ko'"
+                        :folder="fields.file.folderName" />
                 </NLColumn>
                 <NLColumn>
                     <NLSwitch type="is-success" v-model="form.validated" :name="fields.validated.name" :form="form"
@@ -43,9 +45,7 @@
                 </NLColumn>
                 <NLColumn>
                     <NLFile v-model="form[fields.file.name]" v-if="form[fields.file.name] && isReadonly && !isLoading"
-                        :name="fields.file.name" :label="fields.file.label" attachable-type="App\Models\Mission"
-                        :attachable-id="mission.id" :form="form" :readonly="true" />
-
+                        :label="fields.file.label" :readonly="true" />
                 </NLColumn>
             </NLGrid>
 
@@ -85,7 +85,7 @@ import { Form } from 'vform';
 import api from '../plugins/api';
 import NLComponentLoader from '../components/NLComponentLoader'
 import { hasRole } from '../plugins/user';
-
+import { slugify } from '../plugins/helpers';
 export default {
     name: 'MissionDetailForm',
     emits: [ 'success', 'close' ],
@@ -109,49 +109,6 @@ export default {
             }
         },
     },
-    computed: {
-        // canDeleteMedia() {
-        //     if (this.form.currentMode == 1) {
-        //         return !this.mission.is_validated_by_ci
-        //     } else if (this.form.currentMode == 2) {
-        //         return !this.mission.is_validated_by_cdc
-        //     }
-        //     return false
-        // },
-        // canCreateComment() {
-        //     if (this.type == 'ci_report') {
-        //         return this.can('create_ci_report')
-        //     } else if (this.type == 'cdc_report') {
-        //         return this.can('create_cdc_report')
-        //     }
-        //     return false
-        // },
-        // commentExists() {
-        //     return !!this.mission[ this.type ]
-        // },
-        // content() {
-        //     return this.mission[ this.type ]?.content
-        // },
-        // validatedAt() {
-        //     if (this.type == 'ci_report') {
-        //         return this.mission?.ci_validation_at
-        //     } else if (this.type == 'cdc_report') {
-        //         return this.mission?.cdc_validation_at
-        //     }
-        //     return false
-        // },
-        // isValidated() {
-        //     if (this.type == 'ci_report') {
-        //         return this.mission?.is_validated_by_ci ? true : false
-        //     } else if (this.type == 'cdc_report') {
-        //         return this.mission?.is_validated_by_cdc ? true : false
-        //     }
-        //     return false
-        // }
-    },
-    // created() {
-    //     console.log(this.show, this.type, this.missionId, this.readonly);
-    // },
     data() {
         return {
             form: new Form({
@@ -309,13 +266,11 @@ export default {
                 placeholder: 'Ecrivez votre compte-rendu',
                 name: 'content'
             }
-
             this.fields.file = {
                 label: 'Ordre de mission',
                 name: 'mission_order',
+                folderName: 'Ordres de mission' + '/' + this.slugify(this.mission?.campaign?.reference) + '/' + this.slugify(this.mission?.reference)
             }
-            // console.log(this.form);
-            // console.log(this.form.mission_order);
         },
         /**
          * Initialize cdc report data
@@ -327,7 +282,7 @@ export default {
             this.form.id = this.commentExists() ? mission?.cdc_report?.id : null
             this.form.content = this.content()
             this.form.closing_report = Object.assign({}, mission?.closing_report?.map((report) => report.id))
-
+            console.log(mission);
             this.title = 'Conclusion du chef de département sur la mission ' + mission?.reference
             this.fields.content = {
                 label: 'Votre conclusion',
@@ -337,7 +292,8 @@ export default {
 
             this.fields.file = {
                 label: 'PV de clôture',
-                name: 'closing_report'
+                name: 'closing_report',
+                folderName: 'Pv de clôture' + '/' + this.slugify(this.mission?.campaign?.reference) + '/' + this.slugify(this.mission?.reference)
             }
         },
         /**

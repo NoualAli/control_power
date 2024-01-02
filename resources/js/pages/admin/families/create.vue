@@ -1,5 +1,5 @@
 <template>
-    <div v-if="can('create_familly')">
+    <div v-if="can('create_family')">
         <ContentHeader title="Ajouter une nouvelle famille" />
         <ContentBody>
             <NLForm :action="create" :form="form">
@@ -22,7 +22,7 @@
 import { Form } from 'vform'
 export default {
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     data() {
         return {
             form: new Form({

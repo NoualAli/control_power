@@ -13,18 +13,19 @@ class Created extends Notification
     use Queueable;
 
     /**
-     * @var App\Models\ControlCampaign
+     * @var int|\App\Models\ControlCampaign
      */
     private $campaign;
 
     /**
      * Create a new notification instance.
+     * @param string|\App\Models\ControlCampaign
      *
      * @return void
      */
-    public function __construct(ControlCampaign $campaign)
+    public function __construct(string|ControlCampaign $campaign)
     {
-        $this->campaign = $campaign;
+        $this->campaign = is_string($campaign) ? ControlCampaign::findOrFail($campaign) : $campaign;
     }
 
     /**
@@ -35,10 +36,16 @@ class Created extends Notification
      */
     public function via($notifiable)
     {
-        if (app()->environment('production')) {
-            return ['mail', 'database'];
+        $channels = collect([]);
+        $setting = $notifiable->notification_settings()->whereRelation('type', 'code', 'control_campaign_created')->first();
+        if ($setting?->database_is_enabled) {
+            $channels->push('database');
         }
-        return ['database'];
+
+        if ($setting?->email_is_enabled && !config('mail.disabled')) {
+            $channels->push('mail');
+        }
+        return $channels->toArray();
     }
 
     /**
@@ -49,7 +56,6 @@ class Created extends Notification
     private function getUrl(): string
     {
         return url('/campaigns/' . $this->campaign->id);
-        // return url('/campaigns/' . $this->campaign->id);
     }
 
     /**
@@ -59,7 +65,17 @@ class Created extends Notification
      */
     private function getTitle($notifiable): string
     {
-        return  hasRole('cdcr', $notifiable) && $this->campaign?->validated_at ? 'Validation de la campagne de contrôle ' . $this->campaign->reference : 'Création d\'une nouvelle campagne de contrôle ' . $this->campaign->reference;
+        return  hasRole('cdcr', $notifiable) && $this->campaign?->validated_at ? 'VALIDATION DE LA CAMPAGNE DE CONTRÔLE ' . $this->campaign->reference . ' - ' . env('APP_NAME') : 'CRÉATION D\'UNE NOUVELLE CAMPAGNE DE CONTRÔLE ' . $this->campaign->reference . ' - ' . env('APP_NAME');
+    }
+
+    /**
+     * Get Email / Notification content
+     *
+     * @return string
+     */
+    private function getHtmlContent($notifiable): string
+    {
+        return hasRole('cdcr', $notifiable) && $this->campaign?->validated_at ? 'Nous vous informons que la campagne de contrôle avec la référence <b>' . $this->campaign->reference . '</b> vient d\'être validé' : 'Nous vous informons qu\'une nouvelle campagne de contrôle avec la référence <b>' . $this->campaign->reference . '</b> vient d\'être créer';
     }
 
     /**
@@ -106,10 +122,10 @@ class Created extends Notification
     {
         return [
             'id' => $this->campaign->id,
-            'url' => $this->getUrl(),
             'content' => $this->getContent($notifiable),
+            'short_content' => $this->getHtmlContent($notifiable),
             'title' => $this->getTitle($notifiable),
-            'emitted_by' => auth()->user()->full_name_with_martial_with_martial
+            'emitted_by' => auth()->user()->username,
         ];
     }
 }

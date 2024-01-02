@@ -19,6 +19,12 @@
                     <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required
                         placeholder="Veuillez saisir le nom de processus" />
                 </NLColumn>
+                <!-- Docs -->
+                <NLColumn>
+                    <NLFile :key="refresh" v-model="form.media" :form="form" name="media" label="Documentation"
+                        attachable-type="App\Models\Process" @uploaded="handleMedia" @deleted="handleMedia"
+                        @loaded="handleMedia" />
+                </NLColumn>
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
                         <NLButton :loading="form.busy" label="Ajouter" />
@@ -34,15 +40,17 @@ import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 export default {
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     data() {
         return {
+            refresh: 0,
             familliesList: [],
             domainsList: [],
             form: new Form({
                 name: null,
                 family_id: null,
-                domain_id: null
+                domain_id: null,
+                media: {},
             })
         }
     },
@@ -78,12 +86,16 @@ export default {
                 this.domainsList = []
             }
         },
+        handleMedia(files) {
+            this.form.media = files
+        },
         create() {
             this.form.post('processes').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
-                    // this.form.reset()
                     this.form.name = null
+                    this.form.media = {}
+                    this.refresh += 1
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }

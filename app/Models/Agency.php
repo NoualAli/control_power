@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
@@ -15,7 +16,8 @@ class Agency extends BaseModel
         'name',
         'code',
         'dre_id',
-        'category_id'
+        'category_id',
+        'is_for_testing',
     ];
 
     protected $perPage = 10;
@@ -25,12 +27,17 @@ class Agency extends BaseModel
     protected $searchable = ['name', 'code'];
 
     protected $appends = [
-        'full_name'
+        'full_name',
+        'is_for_testing_str'
     ];
 
     /**
      * Getters
      */
+    public function getIsForTestingStrAttribute()
+    {
+        return $this->is_for_testing ? 'Oui' : 'Non';
+    }
     public function getFullNameAttribute()
     {
         return $this->code . ' - ' . $this->name;
@@ -76,5 +83,17 @@ class Agency extends BaseModel
     public function unusableProcesses()
     {
         return $this->processes()->wherePivot('is_usable', false);
+    }
+
+    /**
+     * Scopes
+     */
+    public function scopeIsForTesting(Builder $query)
+    {
+        return $query->where('is_for_testing', true);
+    }
+    public function scopeIsNotForTesting(Builder $query)
+    {
+        return $query->where('is_for_testing', false);
     }
 }

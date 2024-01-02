@@ -66,10 +66,7 @@ class CategoryController extends Controller
                 'status' => true
             ]);
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], 500);
+            return throwedError($th);
         }
     }
 
@@ -115,10 +112,7 @@ class CategoryController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], 500);
+            return throwedError($th);
         }
     }
 
@@ -138,10 +132,7 @@ class CategoryController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], 500);
+            return throwedError($th);
         }
     }
 

@@ -1,17 +1,24 @@
 <template>
     <div v-if="can('view_mission')">
-        <ContentHeader v-if="campaignId">
+        <ContentHeader>
             <template #actions>
-                <router-link v-if="can('create_mission')" :to="{ name: 'missions-create', params: { campaignId } }"
-                    class="btn btn-info">
+                <router-link v-if="can('create_mission') && campaignId"
+                    :to="{ name: 'missions-create', params: { campaignId } }" class="btn btn-info">
                     Ajouter
                 </router-link>
+                <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true"
+                    v-if="is(['root', 'admin', 'cdcr', 'dcp'])">
+                    <i class="las la-file-excel icon" />
+                    Exporter
+                </button>
             </template>
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" :filters="filters"
-                title="Suivi des réalisations des missions" urlPrefix="missions" :key="forceReload"
-                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
+                title="Suivi des réalisations des missions" urlPrefix="missions" :refresh="refresh"
+                @dataLoaded="handleDataLoaded" />
+            <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl + '&export'"
+                @close="this.excelExportIsOpen = false" @success="this.excelExportIsOpen = false" :hideOptions="true" />
         </ContentBody>
     </div>
 </template>
@@ -20,12 +27,16 @@
 import { mapGetters } from 'vuex'
 import { hasRole } from '../../plugins/user'
 import * as MissionState from '../../store/global/MissionStates'
+import ExcelExportModal from '../../Modals/ExcelExportModal';
 export default {
+    components: { ExcelExportModal },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     data() {
         return {
-            forceReload: 1,
+            currentUrl: null,
+            excelExportIsOpen: false,
+            refresh: 0,
             campaignId: null,
             columns: [
                 {
@@ -194,14 +205,15 @@ export default {
                     multiple: true,
                     data: null,
                     value: null,
-                    hide: hasRole([ 'cdc', 'ci' ])
+                    hide: hasRole([ 'cdc', 'ci', 'da' ])
                 },
                 agency: {
                     label: 'Agence',
                     cols: 3,
                     multiple: true,
                     data: null,
-                    value: null
+                    value: null,
+                    hide: hasRole([ 'da' ])
                 },
                 current_state: {
                     label: 'État',
@@ -240,7 +252,8 @@ export default {
                             id: MissionState.DONE,
                             label: MissionState.DONE_STR
                         }
-                    ]
+                    ],
+                    hide: hasRole([ 'da', 'cdc', 'ci' ])
                 },
 
                 progress_status: {
@@ -275,6 +288,7 @@ export default {
                             label: '= 100%'
                         },
                     ],
+                    hide: hasRole([ 'da' ]),
                     value: null
                 },
 
@@ -312,6 +326,10 @@ export default {
         this.initData()
     },
     methods: {
+        handleDataLoaded(response) {
+            this.currentUrl = response.url
+            this.$store.dispatch('settings/updatePageLoading', false)
+        },
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
             const length = this.$breadcrumbs.value.length
@@ -327,15 +345,17 @@ export default {
             }
         },
         show(e) {
-            return this.$router.push({ name: 'mission', params: { missionId: e.item.id } })
+            // return this.$router.push({ name: 'mission', params: { missionId: e.item.id } })
+            window.open(this.$router.resolve({ name: 'mission', params: { missionId: e.item.id } }).href, '_blank');
         },
         edit(e) {
-            return this.$router.push({ name: 'missions-edit', params: { missionId: e.item.id } })
+            // return this.$router.push({ name: 'missions-edit', params: { missionId: e.item.id } })
+            window.open(this.$router.resolve({ name: 'missions-edit', params: { missionId: e.item.id } }).href, '_blank');
         },
         destroy(e) {
             return this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
-                    this.forceReload += 1
+                    this.refresh += 1
                     return this.$api.delete('missions/' + e.item.id)
                 }
             })

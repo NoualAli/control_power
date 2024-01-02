@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\ModulesExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Module\ManageRequest;
 use App\Http\Resources\ModuleResource;
@@ -9,6 +10,7 @@ use App\Models\Module;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\ExcelExportService;
 use Illuminate\Support\Facades\DB;
 
 class ModuleController extends Controller
@@ -21,6 +23,12 @@ class ModuleController extends Controller
     public function index()
     {
         $modules = Module::with('permissions');
+        $export = request('export', []);
+        $shouldExport = count($export);
+
+        if ($shouldExport) {
+            return (new ExcelExportService($modules, ModulesExport::class, 'liste_des_modules.xlsx', $export))->download();
+        }
         $modules = ModuleResource::collection($modules->get());
         return $modules;
     }
@@ -47,10 +55,7 @@ class ModuleController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], 500);
+            return throwedError($th);
         }
     }
 }

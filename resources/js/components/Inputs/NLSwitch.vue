@@ -1,6 +1,6 @@
 <template>
     <NLCheckableContainer :id="getId" :name="name" :form="form" :label="label" :help-text="helpText">
-        <input :id="getId" :key="forcedKey" v-model="selected" type="checkbox"
+        <input :id="getId" :key="refresh" v-model="selected" type="checkbox"
             :class="[{ 'is-danger': form?.errors.has(name) }, 'switch-input']" :name="name" @change="updateValue">
         <div class="switch" :class="type" :data-true-label="trueLabel" :data-false-label="falseLabel"
             @click="updateValue" />
@@ -26,7 +26,7 @@ export default {
     emits: [ 'update:modelValue' ],
     data() {
         return {
-            forcedKey: false,
+            refresh: false,
             selected: this.modelValue
         }
     },
@@ -34,7 +34,7 @@ export default {
         modelValue(newValue, oldValue) {
             if (newValue !== oldValue) {
                 this.selected = newValue
-                this.forcedKey = true
+                this.refresh = true
             }
         },
         selected(newValue, oldValue) {

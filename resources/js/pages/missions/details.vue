@@ -4,14 +4,20 @@
             <NLGrid>
                 <NLColumn lg="1" />
                 <NLColumn lg="11">
-                    <div class="tags">
+                    <div class="tags is-even">
                         <button class="btn btn-info" @click.prevent="showDocumentation" v-if="process?.media?.length"
                             title="Afficher la documentation du processus">
                             <i class="las la-file icon"></i>
                         </button>
-                        <span class="tag"><i class="las la-tag icon mr-1"></i> {{ process?.family?.name }}</span>
-                        <span class="tag"><i class="las la-tags icon mr-1"></i> {{ process?.domain?.name }}</span>
-                        <span class="tag"><i class="las la-project-diagram icon mr-1"></i> {{ process?.name }}</span>
+                        <span class="tag is-start">
+                            <i class="las la-tag icon mr-1"></i> {{ process?.family?.name }}
+                        </span>
+                        <span class="tag is-start">
+                            <i class="las la-tags icon mr-1"></i> {{ process?.domain?.name }}
+                        </span>
+                        <span class="tag is-start">
+                            <i class="las la-project-diagram icon mr-1"></i> {{ process?.name }}
+                        </span>
                     </div>
                 </NLColumn>
                 <NLColumn lg="1" />
@@ -27,7 +33,7 @@
                             </NLFlex>
                         </div>
                         <div v-if="detail.score" class="box border-1 border-solid"
-                            :class="[{ 'border-success': detail?.score == 1 && !detail?.major_fact }, { 'border-warning': [3].includes(Number(detail?.score)) && !detail?.major_fact }, { 'border-warning': [4].includes(Number(detail?.score)) && !detail?.major_fact }, { 'border-info': [2].includes(Number(detail?.score)) && !detail?.major_fact }, { 'border-dark-grey': [4].includes(Number(detail?.score)) && !detail?.major_fact }, { 'border-danger': detail?.major_fact }]">
+                            :class="[{ 'border-success': detail?.score == 1 && !detail?.major_fact }, { 'border-warning': [3, 4].includes(Number(detail?.score)) && !detail?.major_fact && !is(['ci', 'cdc', 'da']) }, { 'border-info': [2].includes(Number(detail?.score)) && !detail?.major_fact && !is(['ci', 'cdc', 'da']) }, { 'border-danger': detail?.major_fact }, { 'border-warning': [2, 3, 4].includes(Number(detail?.score)) && !detail?.major_fact && is(['ci', 'cdc', 'da']) }]">
                             <NLGrid>
                                 <!-- Control Point name -->
                                 <NLColumn>
@@ -35,18 +41,11 @@
                                 </NLColumn>
 
                                 <!-- Major fact -->
-                                <NLColumn lg="4" v-if="Number(detail?.score) !== 5">
-                                    <b>Fait majeur:</b>
-                                </NLColumn>
-                                <NLColumn lg="8" v-if="Number(detail?.score) !== 5">
-                                    <span v-if="!detail?.major_fact">
-                                        <i class="las la-check-circle icon text-success" />
-                                        Non
-                                    </span>
-                                    <span v-else>
-                                        <i class="las la-times-circle icon text-danger" />
-                                        Oui
-                                    </span>
+                                <NLColumn v-if="detail?.major_fact">
+                                    <b class="text-danger">
+                                        Fait majeur déclencher par {{ detail?.major_fact_is_detected_by_full_name }}
+                                        le {{ detail?.major_fact_is_detected_at }}
+                                    </b>
                                 </NLColumn>
 
                                 <!-- Score -->
@@ -99,37 +98,57 @@
                                         </button>
                                         <!-- CDC -->
                                         <button
-                                            v-if="mode == 2 && !detail?.major_fact && !mission?.is_validated_by_cdc && mission?.is_validated_by_ci && can('create_cdc_report,validate_cdc_report')"
+                                            v-if="mode == 2 && !detail?.major_fact && !mission?.is_validated_by_cdc && can('create_cdc_report,validate_cdc_report')"
                                             class="btn btn-warning has-icon" @click="edit(detail)">
                                             <i class="las la-pen icon" />
                                             Modifier
                                         </button>
 
-                                        <!-- CDCR -->
                                         <button
-                                            v-if="mode == 4 && !detail?.major_fact_dispatched_at && (mission?.has_dcp_controllers ? mission?.is_validated_by_cc && !mission?.is_validated_by_cdcr : !mission?.is_validated_by_cdcr) && can(['make_first_validation', 'process_mission']) && [2, 3, 4].includes(Number(detail?.score))"
-                                            class="btn btn-warning has-icon" @click="edit(detail)">
+                                            v-if="(mode == 2 && !mission?.is_validated_by_dcp && !mission?.is_validated_by_cdcr && !detail?.major_fact_is_dispatched_to_dcp_at && !detail.regularization && row?.major_fact && is('cdc'))"
+                                            class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
+                                            <i class="las la-pen icon" />
+                                            Traiter
+                                        </button>
+
+                                        <!-- CDCR -->
+                                        <button v-if="mode == 4 &&
+                                            !(detail?.major_fact_is_detected_by_id == user().id)
+                                            && !detail?.major_fact_is_dispatched_at
+                                            && (mission?.has_dcp_controllers ? mission?.is_validated_by_cc && !mission?.is_validated_by_cdcr : !mission?.is_validated_by_cdcr)
+                                            && [2, 3, 4].includes(Number(detail?.score))
+                                            && is('cdcr')" class="btn btn-warning has-icon" @click="edit(detail)">
                                             <i class="las la-pen icon" />
                                             Traiter
                                         </button>
 
                                         <!-- CC -->
-                                        <button
-                                            v-if="mode == 3 && !detail?.major_fact_dispatched_at && detail.assigned_to_cc_id == currentUser.id && !mission?.is_validated_by_cc && [2, 3, 4].includes(Number(detail?.score))"
-                                            class="btn btn-warning has-icon" @click="edit(detail)">
+                                        <button v-if="mode == 3
+                                            && !detail.major_fact
+                                            && !detail?.major_fact_is_dispatched_at
+                                            && detail.assigned_to_cc_id == user().id
+                                            && !mission?.is_validated_by_cc
+                                            && [2, 3, 4].includes(Number(detail?.score))
+                                            && is('cc')" class="btn btn-warning has-icon" @click="edit(detail)">
                                             <i class="las la-pen icon" />
                                             Traiter
                                         </button>
 
                                         <!-- DCP -->
                                         <button
-                                            v-if="(mode == 5 && !mission?.is_validated_by_dcp && mission.is_validated_by_cdcr && !detail?.major_fact_dispatched_at && [2, 3, 4].includes(Number(detail?.score)) || (detail?.major_fact && !detail?.major_fact_dispatched_at && [3, 4].includes(Number(detail?.score)))) && can('make_second_validation')"
+                                            v-if="(mode == 5
+                                                && !(detail?.major_fact_is_detected_by_id == user().id)
+                                                && !mission?.is_validated_by_dcp
+                                                && mission.is_validated_by_cdcr
+                                                && !detail?.major_fact_is_dispatched_at
+                                                && [2, 3, 4].includes(Number(detail?.score))
+                                                || (detail?.major_fact && !detail?.major_fact_is_dispatched_at && !(detail?.major_fact_is_detected_by_id == user().id) && [3, 4].includes(Number(detail?.score)))) && is('dcp')"
                                             class="btn btn-warning has-icon" @click="edit(detail)">
                                             <i class="las la-pen icon" />
                                             Traiter
                                         </button>
                                         <button
-                                            v-if="mode == 5 && !detail?.major_fact_dispatched_at && detail?.major_fact && can('dispatch_major_fact')"
+                                            v-if="mode == 5 && !detail?.major_fact_is_dispatched_at && detail?.major_fact && is('dcp')"
                                             class="btn btn-info has-icon" @click.prevent="notify(detail)">
                                             <i class="las la-bell icon" />
                                             Notifier
@@ -137,7 +156,7 @@
 
                                         <!-- Agency director -->
                                         <button
-                                            v-if="mission?.is_validated_by_dcp && !detail?.is_regularized && !detail?.major_fact && Number(detail?.score) !== 1 && can('regularize_mission_detail')"
+                                            v-if="mission?.is_validated_by_dcp && !detail?.is_regularized && !detail?.major_fact && Number(detail?.score) !== 1 && is('da')"
                                             class="btn btn-warning has-icon" @click="regularize(detail)">
                                             <i class="las la-check icon" />
                                             Régulariser
@@ -198,7 +217,6 @@ export default {
                 regularize: false,
                 processInformations: false,
             },
-            currentUser: null,
         }
     },
     computed: {
@@ -220,7 +238,6 @@ export default {
             this.close()
             const length = this.$breadcrumbs.value.length
             if (reloadAll) {
-                this.currentUser = user()
                 this.$store.dispatch('settings/updatePageLoading', true)
             }
             this.$store.dispatch('missions/fetchDetails', { missionId: this.$route.params.missionId, processId: this.$route.params.processId }).then(() => {

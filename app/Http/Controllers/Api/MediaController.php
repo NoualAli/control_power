@@ -4,31 +4,83 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Media\StoreRequest;
+use App\Http\Resources\MediaResource;
 use App\Models\Media;
-use DragonCode\Support\Facades\Filesystem\File;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Image;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use stdClass;
 
 class MediaController extends Controller
 {
     /**
-     * @return Illuminate\Database\Eloquent\Collection
+     * Display paginated files liste
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection|\Illuminate\Http\JsonResponse|array
      */
-    public function index()
+    public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection|\Illuminate\Http\JsonResponse|array
     {
-        $files = explode(',', request()->media);
-        return Media::whereIn('id', $files)->get();
+        $media = getMedia();
+        $filter = request('filter', null);
+        $fetchFilters = request()->has('fetchFilters');
+        $search = request('search', null);
+        $sort = request('sort', null);
+        $perPage = request('perPage', 10);
+
+        try {
+            if ($fetchFilters) {
+                return $this->filters($media);
+            }
+
+            if ($sort) {
+                $media = $media->reorder()->sortByMultiple($sort);
+            }
+
+            if ($search) {
+                $media = $media->search(['m.original_name'], $search);
+            }
+
+            if ($filter) {
+                $media = $this->filter($media, $filter);
+            }
+
+            $media = $media->paginate($perPage)->onEachSide(1);
+            return MediaResource::collection($media);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage(),
+                'status' => false
+            ]);
+        }
+    }
+
+    /**
+     * @param string $media
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(string $media): \Illuminate\Http\JsonResponse
+    {
+        $media = getMedia($media)->reorder();
+
+        $media = MediaResource::collection($media->get()->unique('id'));
+        $all = request()->has('all');
+        if (!$all) {
+            return response()->json($media->first());
+        }
+        return response()->json($media);
     }
 
     /**
      * Store files into database and storage
      *
-     * @param App\Requests\Media\StoreRequest $request
+     * @param \App\Http\Requests\Media\StoreRequest $request
      *
-     * @return Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|array|null
      */
-    public function store(StoreRequest $request)
+    public function store(StoreRequest $request): \Illuminate\Http\JsonResponse|array|null
     {
         return DB::transaction(function () use ($request) {
             $files = request()->file();
@@ -56,100 +108,71 @@ class MediaController extends Controller
     /**
      * Upload file to public storage (with support for image size optimization)
      *
-     * @param UploadedFile $file
+     * @param \Illuminate\Http\UploadedFile $file
      *
      * @return array
      */
-    private function uploadFile(UploadedFile $file, string $folder)
+    private function uploadFile(UploadedFile $file, string $folder): array
     {
         $hashName = $file->hashName();
         $originalName = $file->getClientOriginalName();
-        $tmpFolder = 'uploads/tmp';
         $extension = strtolower($file->getClientOriginalExtension());
         $mimetype = $file->getClientMimeType();
         $size = $file->getSize();
-
-        $path = public_path($folder . '/' . $hashName);
-        $tmpPath = public_path($tmpFolder . '/' . $hashName);
-        if (!file_exists($folder)) {
-            mkdir($folder);
+        $storageFolder = 'public/' . $folder;
+        $storageFolder = Str::endsWith($storageFolder, '/') ? substr($storageFolder, 0, strlen($storageFolder) - 1) : $storageFolder;
+        if (!Storage::directoryExists($storageFolder)) {
+            Storage::createDirectory($storageFolder);
         }
-        $accepted = request()->has('accepted') && !empty(request()->accepted) ? request()->accepted : 'jpg,jpeg,png,doc,docx,xls,xlsx,pdf';
-        $mimes = $this->determineMimetypes(explode(',', $accepted));
-        if (in_array($file->getClientMimeType(), $mimes)) {
-            $file->move($tmpFolder, $hashName);
-            $img = Image::make($tmpPath)->orientate();
-            // $watermark = Image::make(storage_path('images/brand.png'))->resize(250, 125);
-            // $img = $img->insert($watermark, 'bottom-right', 10, 10);
-            $img = $img->save($path, 60);
-            $size = $img->filesize();
-            File::delete($tmpPath);
-        }
-
-        return compact('hashName', 'originalName', 'folder', 'extension', 'mimetype', 'size');
+        Storage::putFileAs($storageFolder, $file, $hashName);
+        return compact('hashName', 'originalName', 'folder', 'storageFolder', 'extension', 'mimetype', 'size', 'file');
     }
 
-    private function determineMimetypes(array $extensions)
+    /**
+     * @param \App\Http\Requests\Media\StoreRequest $request
+     * @param \Illuminate\Http\UploadedFile $file
+     *
+     * @return stdClass|\Illuminate\Http\JsonResponse
+     */
+    private function storeInDatabase(StoreRequest $request, UploadedFile $file): stdClass|\Illuminate\Http\JsonResponse
     {
-        $mimes = [];
-        foreach ($extensions as $extension) {
-            switch ($extension) {
-                case 'jpg':
-                    array_push($mimes, 'image/jpeg');
-                    break;
-                case 'jpeg':
-                    array_push($mimes, 'image/jpeg');
-                    break;
-                case 'png':
-                    array_push($mimes, 'image/png');
-                    break;
-                case 'doc':
-                    array_push($mimes, 'application/msword');
-                    break;
-                case 'doc':
-                    array_push($mimes, 'application/msword');
-                    break;
-                case 'docx':
-                    array_push($mimes, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-                    break;
-                case 'xls':
-                    array_push($mimes, 'application/vnd.ms-excel');
-                    break;
-                case 'xlsx':
-                    array_push($mimes, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-                    break;
-                case 'pdf':
-                    array_push($mimes, 'application/pdf');
-                    break;
-                default:
-                    abort(404, 'L\'extension ' . $extension . ' n\'est pas prise en charge.');
-                    break;
-            }
+        try {
+            $folder = $request->folder;
+            extract($this->uploadFile($file, $folder));
+            $attachable = $request->has('attachable') ? $request->attachable : [];
+            $attachableId = $attachable && isset($request->attachable['id']) && !empty($request->attachable['id']) ? $request->attachable['id'] : null;
+            $attachableType = $attachable && isset($request->attachable['type']) && !empty($request->attachable['type']) ? $request->attachable['type'] : null;
+
+            $id = Str::uuid();
+
+            // $payload = $this->getPayload($attachableId, $attachableType, $folder);
+
+            $insertedFile = DB::table('media')->insert([
+                'id' => $id,
+                'original_name' => $originalName,
+                'hash_name' => $hashName,
+                'folder' => $folder,
+                'extension' => $extension,
+                'mimetype' => $mimetype,
+                'size' => $size,
+                'uploaded_by_id' => auth()->user()->id,
+                'created_at' => now(),
+                // 'payload' => $payload,
+            ]);
+            $media = DB::table('has_media')->insert([
+                'attachable_id' => $attachableId,
+                'attachable_type' => $attachableType,
+                'media_id' => $id,
+            ]);
+
+            $file = getSingleMedia($id);
+
+            return $file;
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage(),
+            ], 500);
         }
-        return $mimes;
-    }
-
-    private function storeInDatabase(StoreRequest $request, UploadedFile $file)
-    {
-        $folder = $request->folder;
-        extract($this->uploadFile($file, $folder));
-        $attachable = $request->has('attachable') ? $request->attachable : [];
-        $attachableId = $attachable && isset($request->attachable['id']) && !empty($request->attachable['id']) ? $request->attachable['id'] : null;
-        $attachableType = $attachable && isset($request->attachable['type']) && !empty($request->attachable['type']) ? $request->attachable['type'] : null;
-
-        $uploadedFile = Media::create([
-            'original_name' => $originalName,
-            'hash_name' => $hashName,
-            'folder' => $folder,
-            'extension' => $extension,
-            'mimetype' => $mimetype,
-            'size' => $size,
-            'attachable_id' => $attachableId,
-            'attachable_type' => $attachableType,
-            'uploaded_by_id' => auth()->user()->id
-        ]);
-
-        return $uploadedFile;
     }
 
     /**
@@ -157,32 +180,186 @@ class MediaController extends Controller
      *
      * @param Media $media
      *
-     * @return Illuminate\Http\JsonResponse|
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Media $media)
+    public function destroy(Media $media): \Illuminate\Http\JsonResponse
     {
         try {
+            $message = DELETE_SUCCESS;
+            $status = true;
+            $code = 200;
             // delete file from database
             if ($media->delete()) {
                 // delete file from storage
-                if (File::exists(public_path($media->path))) {
-                    File::delete(public_path($media->path));
+                if (Storage::exists($media->path)) {
+                    if (!Storage::delete($media->path)) {
+                        $message = "Une erreur s'est produite lors de la tentative de suppression du fichier";
+                        $status = false;
+                        $code = 500;
+                    }
+                } elseif (file_exists('storage/' . $media->path)) {
+                    if (!unlink('storage/' . $media->path)) {
+                        $message = "Une erreur s'est produite lors de la tentative de suppression du fichier";
+                        $status = false;
+                        $code = 500;
+                    }
                 }
-                return response()->json([
-                    'payload' => $media,
-                    'message' => DELETE_ERROR,
-                    'status' => true,
-                ]);
             } else {
-                return response()->json([
-                    'message' => DELETE_ERROR,
-                    'status' => false,
-                ]);
+                $message = "Une erreur s'est produite lors de la tentative de suppression des informations du fichier";
+                $status = false;
+                $code = 500;
             }
+
+            return response()->json([
+                'payload' => $media,
+                'message' => $message,
+                'status' => $status,
+            ], $code);
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => $th->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Destroy multiple media from storage and database
+     *
+     * @param string $media
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroyMultiple(string $media): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $media = Media::whereIn('id', explode(',', $media))->get();
+            $deleteStatus = collect([]);
+            foreach ($media as $file) {
+                // delete file from database
+                if ($file->delete()) {
+                    // delete file from storage
+                    if (Storage::exists($file->path)) {
+                        $line = new stdClass;
+                        $line->file = $file;
+                        $line->deleted = Storage::delete($file->path);
+                        $deleteStatus->push($line);
+                    }
+                } elseif (file_exists('storage/' . $file->path)) {
+                    $line = new stdClass;
+                    $line->file = $file;
+                    $line->deleted = unlink('storage/' . $file->path);
+                    $deleteStatus->push($line);
+                }
+            }
+            $hasErrors = $deleteStatus->filter(fn ($item) => !$item->deleted);
+            $status = $hasErrors->count();
+            $message = $status ? DELETE_ERROR : DELETE_SUCCESS;
+            $code = $status ? 500 : 200;
+            return response()->json([
+                'payload' => $deleteStatus,
+                'message' => $message,
+                'status' => !$status,
+            ], $code);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get details filters data
+     *
+     * @param Builder $missions
+     *
+     * @return array
+     */
+    public function filters(Builder $media): array
+    {
+        $users = $media
+            ->distinct()
+            ->select('m.uploaded_by_id', 'u.first_name', 'u.last_name', 'u.id')
+            ->reorder()
+            ->get()->map(function ($item) {
+                $item->id = $item->id ?: '-';
+                $item->full_name = $item->first_name && $item->last_name ? ucfirst(strtolower($item->first_name)) . ' ' . ucfirst(strtolower($item->last_name)) : 'Système';
+                unset($item->first_name, $item->last_name, $item->uploaded_by_id);
+                return $item;
+            });
+        $users = formatForSelect(recursivelyToArray($users), 'full_name');
+        $types = collect([
+            [
+                'id' => "attachable_type = 'App\Models\Mission' AND folder = 'uploads/closing_report'",
+                'label' => 'PV de clôture'
+            ],
+            [
+                'id' => "attachable_type = 'App\Models\Mission' AND folder = 'uploads/mission_order'",
+                'label' => 'Ordre de mission'
+            ],
+            [
+                'id' => "attachable_type = 'App\Models\MissionDetail'",
+                'label' => 'Justificatif point de contrôle'
+            ],
+            [
+                'id' => "attachable_type = 'App\Models\MissionDetailRegularization'",
+                'label' => 'Justificatif régularisation'
+            ],
+            [
+                'id' => "attachable_type = 'App\Models\Process' AND folder = 'references\Circulaire'",
+                'label' => 'Circulaire (processus)'
+            ],
+            [
+                'id' => "attachable_type = 'App\Models\Process' AND folder = 'references\Note'",
+                'label' => 'Note (processus)'
+            ],
+            [
+                'id' => "attachable_type = 'App\Models\Process' AND folder = 'references\Lettre-circulaire'",
+                'label' => 'Lettre-circulaire (processus)'
+            ],
+            [
+                'id' => "attachable_type = 'App\Models\Process' AND folder = 'references\Guide 1er niveau'",
+                'label' => 'Guide 1er niveau (processus)'
+            ],
+        ])->toArray();
+
+        // dd($types);
+        return compact('users', 'types');
+    }
+
+    /**
+     * Filter data
+     *
+     * @param Builder $media
+     * @param array $filter
+     *
+     * @return Builder
+     */
+    public function filter(Builder $media, array $filter): Builder
+    {
+        if (isset($filter['users'])) {
+            $values = explode(',', $filter['users']);
+            $values = array_map(function ($item) {
+                $item = $item == '-' ? null : $item;
+                return $item;
+            }, $values);
+            $media = $media->whereIn('uploaded_by_id', $values);
+            if (in_array(null, $values)) {
+                $media = $media->orWhereNull('uploaded_by_id');
+            }
+        }
+
+        if (isset($filter['types'])) {
+            $values = explode(',', $filter['types']);
+            foreach ($values as $value) {
+                $media = $media->orWhereRaw($value);
+            }
+        }
+
+        return $media;
+    }
+
+    private function getPayload(string|int $attachableId, string $attachableType, string $folder)
+    {
+        // TODO
     }
 }

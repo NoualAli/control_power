@@ -5,8 +5,14 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MajorFactResource;
 use App\Models\MajorFact;
+use App\Models\MissionDetail;
+use App\Models\User;
+use App\Notifications\Mission\MajorFact\Detected;
+use App\Notifications\Mission\MajorFact\Rejected;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class MajorFactController extends Controller
 {
@@ -25,6 +31,7 @@ class MajorFactController extends Controller
         $perPage = request('perPage', 10);
         $fetchAll = request()->has('fetchAll');
         $campaign = request('campaign_id', null);
+
         try {
 
             $details = getMajorFacts();
@@ -35,18 +42,18 @@ class MajorFactController extends Controller
             if ($campaign) {
                 $details = $details->where('control_campaign_id', $campaign);
             }
+
             if ($sort) {
                 $details = $details->sortByMultiple($sort);
             } else {
-                $details = $details->orderBy('md.created_at', 'DESC')->orderBy('md.major_fact_dispatched_at', 'DESC');
+                $details = $details->orderBy('md.created_at', 'DESC')->orderBy('md.major_fact_is_dispatched_at', 'DESC');
             }
 
             if ($search) {
-                $details = $details->search($search);
+                $details = $details->search(['m.report'], $search);
             }
 
             if ($filter) {
-                // $details = $details->filter($filter);
                 $details = $this->filter($details, $filter);
             }
 
@@ -57,31 +64,9 @@ class MajorFactController extends Controller
             }
             return $details;
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], 500);
+            return throwedError($th);
         }
     }
-
-    // private function majorFacts()
-    // {
-    //     $majorFacts = MajorFact::with([
-    //         'controlPoint'  => fn ($query) => $query->with(['process'  => fn ($query) => $query->with(['domain'  => fn ($query) => $query->with('family')])]),
-    //         'agency'  => fn ($query) => $query->with('dre'),
-    //         'mission' => fn ($query) => $query->with(['campaign'])
-    //     ]);
-    //     if (hasRole(['dcp', 'cdcr'])) {
-    //         $majorFacts = $majorFacts->onlyMajorFacts()->orderBy('major_fact_dispatched_at');
-    //     } elseif (hasRole(['cdc', 'ci', 'cc'])) {
-    //         $majorFacts = auth()->user()->details()->onlyMajorFacts();
-    //     } elseif (hasRole(['ig', 'dg', 'cdrcp', 'der'])) {
-    //         $majorFacts = $majorFacts->onlyDispatchedMajorFacts()->orderBy('major_fact_dispatched_at');
-    //     } elseif (hasRole(['da', 'dre'])) {
-    //         $majorFacts = auth()->user()->details()->onlyDispatchedMajorFacts()->orderBy('major_fact_dispatched_at');
-    //     }
-    //     return $majorFacts;
-    // }
 
     /**
      * Get details filters data
@@ -174,7 +159,7 @@ class MajorFactController extends Controller
     {
         if (isset($filter['id'])) {
             $value = $filter['id'];
-            $details = $details->where('md.id', $value);
+            $details = $details->having('md.id', "$value");
         }
 
         if (isset($filter['campaign'])) {
@@ -216,7 +201,14 @@ class MajorFactController extends Controller
             $values = explode(',', $filter['process']);
             $details = $details->whereIn('process_id', $values);
         }
-
+        if (isset($filter['with_metadata'])) {
+            $value = $filter['with_metadata'];
+            if ($value == 'Oui') {
+                $details = $details->whereNotNull('metadata');
+            } else {
+                $details = $details->whereNull('metadata');
+            }
+        }
         if (isset($filter['is_regularized'])) {
             $value = $filter['is_regularized'] == 'Non levée' ? 0 : 1;
             $details = $details->where('is_regularized', $value);
@@ -225,36 +217,103 @@ class MajorFactController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Send notification for specified major fact
      *
-     * @param  \App\Models\MajorFact  $majorFact
-     * @return \Illuminate\Http\Response
+     * @param MissionDetail $detail
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function show(MajorFact $majorFact)
+    public function notify(MissionDetail $detail)
     {
-        //
+        try {
+            $users = collect([]);
+            $result = true;
+            $user = auth()->user();
+            $userFullName = $user->full_name . ' (' . $user->role->code . ')';
+            if (hasRole('cdc')) {
+                $result = $detail->update([
+                    'major_fact_is_dispatched_to_dcp_at' => now(),
+                    'major_fact_is_dispatched_to_dcp_by_id' => $user->id,
+                    'major_fact_is_dispatched_to_dcp_by_full_name' => $userFullName,
+                ]);
+                $users = User::whereRoles(['cdcr', 'dcp'])->isActive()->get();
+            } elseif (hasRole('dcp')) {
+                $result = $detail->update([
+                    'major_fact_is_dispatched_at' => now(),
+                    'major_fact_is_dispatched_by_id' => $user->id,
+                    'major_fact_is_dispatched_by_full_name' => $userFullName,
+                ]);
+                $roles = ['cdrcp', 'ig', 'dg', 'dga', 'der', 'deac', 'sg'];
+                $users = User::whereRoles($roles)->isActive()->get();
+                $users = User::whereRoles(['dre', 'da'])->whereRelation('agencies', 'agencies.id', $detail->mission->agency_id)->get()->merge($users);
+            }
+
+            if ($users->count() && $result) {
+                foreach ($users as $user) {
+                    Notification::send($user, new Detected($detail));
+                }
+            }
+            return actionResponse($result, NOTIFICATION_SUCCESS);
+        } catch (\Throwable $th) {
+            return throwedError($th);
+        }
     }
 
     /**
-     * Update the specified resource in storage.
+     * Reject specified major fact
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\MajorFact  $majorFact
-     * @return \Illuminate\Http\Response
+     * @param MissionDetail $detail
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, MajorFact $majorFact)
+    public function reject(MissionDetail $detail)
     {
-        //
-    }
+        try {
+            $result = DB::transaction(function () use ($detail) {
+                $user = auth()->user();
+                $userFullName = $user->full_name . ' (' . $user->role->code . ')';
+                $result = $detail->update([
+                    'major_fact' => false,
+                    'major_fact_is_rejected' => true,
+                    'major_fact_is_rejected_by_full_name' => $userFullName,
+                    'major_fact_is_rejected_by_id' => $user->id,
+                    'major_fact_is_rejected_at' => now(),
+                    'major_fact_is_dipatched_to_dcp_at' => null,
+                    'major_fact_is_dipatched_to_dcp_by_full_name' => null,
+                    'major_fact_is_dipatched_to_dcp_by_id' => null,
+                ]);
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\MajorFact  $majorFact
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(MajorFact $majorFact)
-    {
-        //
+                return $result;
+            });
+
+            $majorFactDetectorRole = $detail->majorFactDetector?->role?->code;
+            $users = collect([]);
+            if (hasRole('cdc')) {
+                $users = $detail->mission->dreControllers;
+            } elseif (hasRole('cdcr')) {
+                if (in_array($majorFactDetectorRole, ['cdc', 'ci'])) {
+                    $users = User::whereRoles('cdc')->isActive()->whereRelation('agencies', 'agencies.id', $detail->mission->agency_id)->get();
+                } else {
+                    $users = User::whereRoles('cc')->isActive()->get();
+                }
+            } elseif (hasRole('dcp')) {
+                if (in_array($majorFactDetectorRole, ['cdc', 'ci'])) {
+                    $users = User::whereRoles('cdc')->isActive()->whereRelation('agencies', 'agencies.id', $detail->mission->agency_id)->get();
+                    $users = $users->merge(User::whereRoles('cdcr')->isActive()->get());
+                } else {
+                    $users = User::whereRoles('cdcr')->isActive()->get();
+                }
+            }
+
+            if ($result) {
+                foreach ($users as $user) {
+                    Notification::send($user, new Rejected($detail));
+                }
+            }
+
+            return actionResponse($result, 'Fait majeur rejeter avec succès');
+        } catch (\Throwable $th) {
+            return throwedError($th);
+        }
     }
 }

@@ -35,6 +35,6 @@ class IsAlgerianPhoneNumber implements Rule
      */
     public function message()
     {
-        return __('The :attribute must be a valid Algerian phone number.');
+        return __('Le champ :attribute doit être un n° de téléphone algérien valide.');
     }
 }

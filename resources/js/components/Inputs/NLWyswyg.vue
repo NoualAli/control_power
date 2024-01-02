@@ -1,16 +1,16 @@
 <template>
     <InputContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired" :length="length"
         :current-length="currentLength" v-if="!readonly">
-        <VueEditor :id="getId" :editor-toolbar="editorSettings" class="input"
-            :class="[{ 'is-danger': form?.errors.has(name) }]" :name="name" :autocomplete="autocomplete"
-            :autofocus="autofocus" v-model="currentValue" :max-length="length" :placeholder="placeholder || label"
-            :value="currentValue" :help-text="helpText" @textChange="onInput" v-bind="$attrs"
-            @ready="quill => { editorQuill = quill }" />
+        <VueEditor :id="getId" :editor-toolbar="editorSettings"
+            :class="[{ 'is-danger': form?.errors.has(name), 'disabled': disabled }, 'input']" :name="name"
+            :disabled="disabled" :autocomplete="autocomplete" :autofocus="autofocus" v-model="currentValue"
+            :max-length="length" :placeholder="placeholder || label" :value="currentValue" :help-text="helpText"
+            @textChange="onInput" v-bind="$attrs" @ready="quill => { editorQuill = quill }" />
     </InputContainer>
-    <NLContainer isFluid v-else>
+    <div class="input-base-container" v-else>
         <label class="label">{{ label }}</label>
         <div class="content text-normal my-2" v-html="currentValue"></div>
-    </NLContainer>
+    </div>
 </template>
 <script>
 import InputContainer from './InputContainer'
@@ -33,6 +33,7 @@ export default {
         placeholder: { type: String, default: '' },
         modelValue: { type: [ String, Number, null ], default: null },
         readonly: { type: Boolean, default: false },
+        disabled: { type: Boolean, default: false },
         length: { type: [ Number, null ], default: null },
         helpText: { type: String, default: null }
     },
@@ -43,20 +44,20 @@ export default {
             currentLength: 0,
             currentValue: this.modelValue,
             editorSettings: [
-                [ { header: [ 1, 2, 3, 4, 5, 6, false ] } ],
+                [ { header: [ 1, 2, 3, false ] } ],
                 // [ { 'font': [ 'Archivo' ] } ],
-                [ { size: [ 'small', 'medium', 'large' ] } ],
+                // [ { size: [ 'small', 'medium', 'large' ] } ],
                 [ { align: [] } ],
                 [ { list: 'ordered' }, { list: 'bullet' } ],
-                [ 'bold', 'italic', 'underline', 'strike' ],
-                [ 'blockquote' ],
+                // [ 'bold', 'italic', 'underline', 'strike' ],
+                // [ 'blockquote' ],
                 [ { script: 'sub' }, { script: 'super' } ],
                 [ { indent: '-1' }, { indent: '+1' } ],
                 [ { direction: 'ltr' }, { direction: 'rtl' } ],
-                [
-                    { color: [ '#000000', '#fcfcfc', '#FAFAFA', '#D9D9D9', '#717171', '#2d3436', '#3D4756', '#363636', '#3D2E2C', '#125741', '#b18028', '#CC0000', '#ff4444', '#ffbb33', '#FF8800', '#00C851', '#007E33', '#33b5e5', '#0099CC', 'transparent' ] },
-                    { background: [ '#000000', '#fcfcfc', '#FAFAFA', '#D9D9D9', '#717171', '#2d3436', '#3D4756', '#363636', '#3D2E2C', '#125741', '#b18028', '#CC0000', '#ff4444', '#ffbb33', '#FF8800', '#00C851', '#007E33', '#33b5e5', '#0099CC', 'transparent' ] }
-                ],
+                // [
+                //     { color: [ '#000000', '#fcfcfc', '#FAFAFA', '#D9D9D9', '#717171', '#2d3436', '#3D4756', '#363636', '#3D2E2C', '#125741', '#b18028', '#CC0000', '#ff4444', '#ffbb33', '#FF8800', '#00C851', '#007E33', '#33b5e5', '#0099CC', 'transparent' ] },
+                //     { background: [ '#000000', '#fcfcfc', '#FAFAFA', '#D9D9D9', '#717171', '#2d3436', '#3D4756', '#363636', '#3D2E2C', '#125741', '#b18028', '#CC0000', '#ff4444', '#ffbb33', '#FF8800', '#00C851', '#007E33', '#33b5e5', '#0099CC', 'transparent' ] }
+                // ],
                 [ 'clean' ]
             ]
         }

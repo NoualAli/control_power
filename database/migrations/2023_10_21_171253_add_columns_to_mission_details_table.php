@@ -32,8 +32,8 @@ return new class extends Migration
     public function down()
     {
         Schema::table('mission_details', function (Blueprint $table) {
-            $table->removeColumn('major_fact_detected_at');
-            $table->removeColumn('major_fact_dispatched_to_dcp_at');
+            $table->removeColumn('major_fact_is_detected_at');
+            $table->removeColumn('major_fact_is_dispatched_to_dcp_at');
         });
     }
 };

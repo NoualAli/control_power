@@ -1,34 +1,37 @@
 <template>
-    <div v-if="can('view_familly')">
+    <div v-if="can('view_family')">
         <ContentHeader>
             <template #actions>
-                <router-link v-if="can('create_familly')" :to="{ name: 'families-create' }" class="btn btn-info">
+                <router-link v-if="can('create_family')" :to="{ name: 'families-create' }" class="btn btn-info">
                     Ajouter
                 </router-link>
-                <a href="/excel-export?export=families" target="_blank" class="btn btn-excel has-icon">
+                <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
                     <i class="las la-file-excel icon" />
                     Exporter
-                </a>
+                </button>
             </template>
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" title="Liste des familles" urlPrefix="families" @edit="edit"
-                @delete="destroy" :key="forceReload"
-                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
+                @delete="destroy" :refresh="refresh" @dataLoaded="handleDataLoaded">
                 <template #actions-before="{ item }">
-                    <a class="btn btn-excel" :href="'/excel-export?export=families&id=' + item.id" target="_blank">
+                    <a class="btn btn-office-excel" :href="'/excel-export?export=families&id=' + item.id" target="_blank">
                         <i class="las la-file-excel icon" />
                     </a>
                 </template>
             </NLDatatable>
+            <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl"
+                @close="this.excelExportIsOpen = false" @success="this.excelExportIsOpen = false" />
         </ContentBody>
     </div>
 </template>
 
 <script>
+import ExcelExportModal from '../../../Modals/ExcelExportModal';
 export default {
+    components: { ExcelExportModal },
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     metaInfo() {
         return { title: 'Famille' }
     },
@@ -37,7 +40,9 @@ export default {
     },
     data() {
         return {
-            forceReload: 1,
+            currentUrl: null,
+            excelExportIsOpen: false,
+            refresh: 0,
             columns: [
                 {
                     label: 'Nom',
@@ -51,15 +56,19 @@ export default {
             ],
             actions: {
                 edit: (item) => {
-                    return this.can('edit_familly')
+                    return this.can('edit_family')
                 },
                 delete: (item) => {
-                    return this.can('delete_familly')
+                    return this.can('delete_family')
                 }
             }
         }
     },
     methods: {
+        handleDataLoaded(response) {
+            this.currentUrl = response.url
+            this.$store.dispatch('settings/updatePageLoading', false)
+        },
         /**
          * Redirige vers la page d'edition
          * @param {Object} item
@@ -77,7 +86,7 @@ export default {
                 if (action.isConfirmed) {
                     api.delete('families/' + item.id).then(response => {
                         if (response.data.status) {
-                            this.forceReload += 1
+                            this.refresh += 1
                             this.$swal.toast_success(response.data.message)
                         } else {
                             this.$swal.toast_error(response.data.message)

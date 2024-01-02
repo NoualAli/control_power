@@ -27,30 +27,65 @@ export const mutations = {
 }
 
 export const actions = {
-    async fetchAnomalies({ commit }, onlyCurrentCampaign = false) {
-        const url = onlyCurrentCampaign ? '/statistics/anomalies?onlyCurrentCampaign' : '/statistics/anomalies'
+    async fetchAnomalies({ commit }, { onlyCurrentCampaign = false, currentCampaign = null }) {
+        let url = '/statistics/anomalies'
+        if (onlyCurrentCampaign && !currentCampaign) {
+            url += '?onlyCurrentCampaign'
+        }
+
+        if (currentCampaign && !onlyCurrentCampaign) {
+            url += '?campaign=' + currentCampaign
+        }
         const { data } = await api.get(url)
         commit('FETCH_ANOMALIES', { data })
     },
-    async fetchMajorFacts({ commit }, onlyCurrentCampaign = false) {
-        const url = onlyCurrentCampaign ? '/statistics/majorFacts?onlyCurrentCampaign' : '/statistics/majorFacts'
+    async fetchMajorFacts({ commit }, { onlyCurrentCampaign = false, currentCampaign = null }) {
+        let url = '/statistics/majorFacts'
+        if (onlyCurrentCampaign && !currentCampaign) {
+            url += '?onlyCurrentCampaign'
+        }
+
+        if (currentCampaign && !onlyCurrentCampaign) {
+            url += '?campaign=' + currentCampaign
+        }
         const { data } = await api.get(url)
         commit('FETCH_MAJOR_FACTS', { data })
     },
-    async fetchRegularizations({ commit }, onlyCurrentCampaign = false) {
-        const url = onlyCurrentCampaign ? '/statistics/regularizations?onlyCurrentCampaign' : '/statistics/regularizations'
+    async fetchRegularizations({ commit }, { onlyCurrentCampaign = false, currentCampaign = null }) {
+        let url = '/statistics/regularizations'
+        if (onlyCurrentCampaign && !currentCampaign) {
+            url += '?onlyCurrentCampaign'
+        }
+
+        if (currentCampaign && !onlyCurrentCampaign) {
+            url += '?campaign=' + currentCampaign
+        }
         const { data } = await api.get(url)
         commit('FETCH_REGULARIZATIONS', { data })
     },
-    async fetchScores({ commit }, onlyCurrentCampaign = false) {
-        const url = onlyCurrentCampaign ? '/statistics/scores?onlyCurrentCampaign' : '/statistics/scores'
+    async fetchScores({ commit }, { onlyCurrentCampaign = false, currentCampaign = null }) {
+        let url = '/statistics/scores'
+        if (onlyCurrentCampaign && !currentCampaign) {
+            url += '?onlyCurrentCampaign'
+        }
+
+        if (currentCampaign && !onlyCurrentCampaign) {
+            url += '?campaign=' + currentCampaign
+        }
+
         const { data } = await api.get(url)
         commit('FETCH_SCORES', { data })
     },
-    async fetchRealisationStates({ commit }, onlyCurrentCampaign = false) {
-        const url = onlyCurrentCampaign ? '/statistics/realisationStates?onlyCurrentCampaign' : '/statistics/realisationStates'
+    async fetchRealisationStates({ commit }, { onlyCurrentCampaign = false, currentCampaign = null }) {
+        let url = '/statistics/realisationStates'
+        if (onlyCurrentCampaign && !currentCampaign) {
+            url += '?onlyCurrentCampaign'
+        }
+
+        if (currentCampaign && !onlyCurrentCampaign) {
+            url += '?campaign=' + currentCampaign
+        }
         const { data } = await api.get(url)
-        // console.log(data)
         commit('FETCH_REALISATION_STATES', { data })
     }
 }

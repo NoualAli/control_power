@@ -108,7 +108,7 @@ class DataController extends Controller
         $today = today()->format('Y-m-d');
         $missions = $missions->select(
             DB::raw('SUM(CASE WHEN m.current_state = 1 THEN 1 ELSE 0 END) as todo'),
-            DB::raw('SUM(CASE WHEN m.current_state = 2 OR m.current_state = 4 THEN 1 ELSE 0 END) as active'),
+            DB::raw('SUM(CASE WHEN m.current_state = 2 OR m.current_state = 3 OR m.current_state = 4 THEN 1 ELSE 0 END) as active'),
             DB::raw('SUM(CASE WHEN m.current_state = 9 THEN 1 ELSE 0 END) as delay'),
             DB::raw('SUM(CASE WHEN m.current_state = 5 OR m.current_state = 6 OR m.current_state = 7 OR m.current_state = 8 THEN 1 ELSE 0 END) as done'),
         )->get()->first();
@@ -145,12 +145,13 @@ class DataController extends Controller
             [
                 'axis' => 'y',
                 "label" => "Classement des notations",
-                "data" => [],
+                "data" => $details->values(),
                 'backgroundColor' => $backgroundColor,
                 'borderColor' => $borderColor,
                 'borderWidth' => $borderWidth,
             ]
         ];
+        return compact('labels', 'datasets');
     }
 
     /**
@@ -230,7 +231,8 @@ class DataController extends Controller
                 ->select(DB::raw("CONCAT(d.code, ' - ', d.name) as dre_name"), DB::raw("CONCAT(a.code, ' - ', a.name) as agency_name"), 'm.reference')
                 ->leftJoin('agencies as a', 'a.dre_id', 'd.id')
                 ->join('missions as m', 'm.agency_id', 'a.id')
-                ->where(DB::raw("CONCAT(d.code, ' - ', d.name)"), $dre);
+                ->where(DB::raw("CONCAT(d.code, ' - ', d.name)"), $dre)
+                ->whereIn('m.id', $missions->pluck('id'));
             $totalAchieved = (clone $dreMissions)->whereNotNull('m.cdc_validation_by_id')->count();
             $total = (clone $dreMissions)->count();
             $rate = $total ? number_format(($totalAchieved * 100) / $total, 2) : 0;
@@ -422,12 +424,8 @@ class DataController extends Controller
      */
     private function missionsMajorFacts(): array
     {
-        $missions = $this->getMissions()->select(DB::raw('COUNT(md.major_fact) as total_major_facts'), 'm.reference as mission');
-        if (!hasRole('cc')) {
-            $missions = $missions->join('mission_details as md', 'md.mission_id', 'm.id');
-        }
+        $missions = $this->getMajorFacts()->select(DB::raw('COUNT(CASE WHEN md.major_fact_is_dispatched_at IS NOT NULL THEN 1 ELSE 0 END)  as total_major_facts'), 'm.reference as mission');
         $missions = $missions
-            ->where('md.major_fact', true)
             ->groupBy('m.reference')
             ->orderBy('total_major_facts', 'DESC')
             ->take(10)
@@ -442,10 +440,8 @@ class DataController extends Controller
      */
     private function campaignsMajorFacts(): array
     {
-        $campaigns = $this->getCampaigns()
-            ->addSelect(DB::raw('COUNT(md.id) as total_major_facts'))
-            ->join('mission_details as md', 'm.id', 'md.mission_id')
-            ->where('md.major_fact', true)
+        $campaigns = $this->getMajorFacts()
+            ->select(DB::raw('COUNT(md.id) as total_major_facts'), 'c.reference')
             ->orderBy('total_major_facts', 'DESC')
             ->take(10)
             ->get()
@@ -460,13 +456,12 @@ class DataController extends Controller
      */
     private function familiesMajorFacts(): array
     {
-        $majorFacts = $this->getDetails()
+        $majorFacts = $this->getMajorFacts()
             ->select(DB::raw('COUNT(*) as count'), 'f.name as family')
             ->join('control_points as cp', 'cp.id', '=', 'md.control_point_id')
             ->join('processes as p', 'p.id', '=', 'cp.process_id')
             ->join('domains as dm', 'dm.id', '=', 'p.domain_id')
             ->join('families as f', 'f.id', '=', 'dm.family_id')
-            ->where('md.major_fact', true)
             ->groupBy('f.name')
             ->orderBy('count', 'DESC')
             ->get();
@@ -497,12 +492,11 @@ class DataController extends Controller
      */
     private function domainsMajorFacts(): array
     {
-        $domains = $this->getDetails()
+        $domains = $this->getMajorFacts()
             ->select(DB::raw('COUNT(md.id) as total_major_facts'), 'dm.name as domain')
             ->join('control_points as cp', 'cp.id', '=', 'md.control_point_id')
             ->join('processes as p', 'p.id', '=', 'cp.process_id')
             ->join('domains as dm', 'dm.id', '=', 'p.domain_id')
-            ->where('md.major_fact', true)
             ->groupBy('dm.name')
             ->orderBy('total_major_facts', 'DESC')
             ->take(10)
@@ -518,9 +512,8 @@ class DataController extends Controller
      */
     private function dresMajorFacts(): array
     {
-        $majorFacts = $this->getDetails()
+        $majorFacts = $this->getMajorFacts()
             ->select(DB::raw('COUNT(md.id) as count'), 'd.name as dre')
-            ->where('md.major_fact', true)
             ->groupBy('d.name')
             ->get()->mapWithKeys(function ($data, $key) {
                 $dre = $data->dre;
@@ -547,9 +540,8 @@ class DataController extends Controller
      */
     private function agenciesMajorFacts(): array
     {
-        $majorFacts = $this->getDetails()
+        $majorFacts = $this->getMajorFacts()
             ->select(DB::raw('COUNT(*) as total_major_facts'), DB::raw("CONCAT(a.code, ' - ', a.name) as agency"))
-            ->where('md.major_fact', true)
             ->groupBy(DB::raw("CONCAT(a.code, ' - ', a.name)"))
             ->orderBy('total_major_facts', 'DESC')
             ->take(10)
@@ -568,24 +560,30 @@ class DataController extends Controller
             ->select('c.reference as campaign', 'c.id as campaign_id')
             ->join('missions as m', 'c.id', 'm.control_campaign_id');
 
-        // if (request()->has('onlyCurrentCampaign')) {
-        //     $campaigns = $this->getCampaigns()->whereNotNull('validated_at')->orderBy('id', 'DESC')->first();
-        // }
-
         $user = auth()->user();
         if (hasRole('ci')) {
             $campaigns = $campaigns->join('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')->where('mhc.user_id', $user->id);
         } elseif (hasRole('cdc')) {
             $campaigns = $campaigns->where('m.created_by_id', $user->id);
-        } elseif (hasRole('cc')) {
-            $campaigns = $campaigns->where('md.assigned_to_cc_id', $user->id);
         } elseif (hasRole('da')) {
             $campaigns = $campaigns->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
         } elseif (hasRole('dre')) {
             $campaigns = $campaigns->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
         }
+        $campaigns = $campaigns->whereNotNull('c.validated_at')->where('c.is_for_testing', false);
 
-        $campaigns = $campaigns->whereNotNull('validated_at')->groupBy('c.reference', 'c.id');
+        if (request()->has('onlyCurrentCampaign') && !request()->has('campaign')) {
+            $currentCampaign = getControlCampaigns()->whereNotNull('validated_at')->orderBy('c.validated_at', 'DESC')->first();
+            if ($currentCampaign) {
+                $campaigns = $campaigns->where('m.control_campaign_id', $currentCampaign?->id);
+            }
+        }
+        if (request()->has('campaign') && !request()->has('onlyCurrentCampaign')) {
+            $campaign = request('campaign');
+            $campaigns = $campaigns->where('c.id', $campaign);
+        }
+
+        $campaigns = $campaigns->groupBy('c.reference', 'c.id');
         return $campaigns;
     }
 
@@ -608,12 +606,17 @@ class DataController extends Controller
             ->join('agencies as a', 'a.id', 'm.agency_id')
             ->join('dres as d', 'd.id', 'a.dre_id');
 
-        if (request()->has('onlyCurrentCampaign')) {
-            $currentCampaign = $this->getCampaigns()->whereNotNull('validated_at')->orderBy('c.id', 'DESC')->first();
+        if (request()->has('onlyCurrentCampaign') && !request()->has('campaign')) {
+            $currentCampaign = getControlCampaigns()->whereNotNull('validated_at')->where('c.is_for_testing', false)->orderBy('validated_at', 'DESC')->first();
             if ($currentCampaign) {
-                $details = $details->where('m.control_campaign_id', $currentCampaign?->campaign_id);
+                $details = $details->where('m.control_campaign_id', $currentCampaign?->id);
             }
         }
+        if (request()->has('campaign') && !request()->has('onlyCurrentCampaign')) {
+            $campaign = request('campaign');
+            $details = $details->where('m.control_campaign_id', $campaign);
+        }
+
         $user = auth()->user();
         if (hasRole('ci')) {
             $details = $details->join('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')->where('mhc.user_id', $user->id);
@@ -626,6 +629,63 @@ class DataController extends Controller
         } elseif (hasRole('dre')) {
             $details = $details->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
         }
+        $details = $details->where('m.is_for_testing', false);
+        return $details;
+    }
+
+    /**
+     * Fetch Mission Details
+     *
+     * @return Builder
+     */
+    private function getMajorFacts()
+    {
+        $columns = ['m.id', 'm.reference', 'c.reference', DB::raw('CONCAT(d.code, " - ", d.name) as dre'), DB::raw('CONCAT(a.code, " - ", a.name) as agency'), 'md.score', 'm.control_campaign_id'];
+        if (env('DB_CONNECTION') == 'sqlsrv') {
+            $columns = ['m.id', 'c.reference', 'm.reference', DB::raw("CONCAT(d.code, ' - ', d.name) as dre"), DB::raw("CONCAT(a.code, ' - ', a.name) as agency"), 'md.score', 'm.control_campaign_id'];
+        }
+
+        $details = DB::table('mission_details as md')
+            ->select($columns)
+            ->whereNotNull('md.score')
+            ->join('missions as m', 'm.id', 'md.mission_id')
+            ->join('control_campaigns as c', 'c.id', 'm.control_campaign_id')
+            ->join('agencies as a', 'a.id', 'm.agency_id')
+            ->join('dres as d', 'd.id', 'a.dre_id');
+
+        if (request()->has('onlyCurrentCampaign') && !request()->has('campaign')) {
+            $currentCampaign = getControlCampaigns()->whereNotNull('validated_at')->where('c.is_for_testing', false)->orderBy('validated_at', 'DESC')->first();
+            if ($currentCampaign) {
+                $details = $details->where('m.control_campaign_id', $currentCampaign?->id);
+            }
+        }
+        if (request()->has('campaign') && !request()->has('onlyCurrentCampaign')) {
+            $campaign = request('campaign');
+            $details = $details->where('m.control_campaign_id', $campaign);
+        }
+
+        $user = auth()->user();
+        if (hasRole('ci')) {
+            $details = $details->join('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')->where('mhc.user_id', $user->id);
+        } elseif (hasRole('cdc')) {
+            $details = $details->where('m.created_by_id', $user->id);
+        } elseif (hasRole('cc')) {
+            $details = $details->where('md.assigned_to_cc_id', $user->id);
+        } elseif (hasRole('da')) {
+            $details = $details->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
+        } elseif (hasRole('dre')) {
+            $details = $details->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
+        }
+
+        // if (hasRole(['dcp', 'cdcr', 'cc', 'cdrcp'])) {
+        //     $details = $details->whereNotNull('md.major_fact_is_dispatched_to_dcp_at');
+        // } elseif (hasRole(['dg', 'ig', 'sg', 'der', 'deac', 'dga'])) {
+        // }
+        $details = $details->whereNotNull('md.major_fact_is_dispatched_at');
+
+        $details = $details->where('m.is_for_testing', false);
+
+        $details->groupBy('c.reference');
         return $details;
     }
 
@@ -645,13 +705,19 @@ class DataController extends Controller
             ->join('agencies as a', 'a.id', 'm.agency_id')
             ->join('dres as d', 'd.id', 'a.dre_id');
 
-        if (request()->has('onlyCurrentCampaign')) {
-            $currentCampaign = $this->getCampaigns()->whereNotNull('validated_at')->orderBy('c.id', 'DESC')->first();
+        if (request()->has('onlyCurrentCampaign') && !request()->has('campaign')) {
+            $currentCampaign = getControlCampaigns()->whereNotNull('validated_at')->where('c.is_for_testing', false)->orderBy('validated_at', 'DESC')->first();
             if ($currentCampaign) {
-                $missions = $missions->where('m.control_campaign_id', $currentCampaign?->campaign_id);
+                $missions = $missions->where('m.control_campaign_id', $currentCampaign?->id);
             }
         }
+        if (request()->has('campaign') && !request()->has('onlyCurrentCampaign')) {
+            $campaign = request('campaign');
+            $missions = $missions->where('m.control_campaign_id', $campaign);
+        }
+
         $user = auth()->user();
+
         if (hasRole('ci')) {
             $missions = $missions->join('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')->where('mhc.user_id', $user->id);
         } elseif (hasRole('cdc')) {
@@ -663,6 +729,7 @@ class DataController extends Controller
         } elseif (hasRole('dre')) {
             $missions = $missions->whereIn('m.agency_id', $user->agencies->pluck('id'));
         }
+        $missions = $missions->where('m.is_for_testing', false);
 
         return $missions;
     }

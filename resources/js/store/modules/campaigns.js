@@ -12,6 +12,9 @@ export const state = {
 }
 
 export const mutations = {
+    FETCH_CURRENT(state, data) {
+        state.current = data
+    },
     FETCH_ALL(state, data) {
         state.all = data
     },
@@ -27,7 +30,7 @@ export const mutations = {
     FETCH_PLANNINGS(state, data) {
         state.plannings = data
     },
-    FETCh_SAMPLES(state, data) {
+    FETCH_SAMPLES(state, data) {
         state.samples = data
     },
     FETCH_SAMPLE_DETAILS(state, data) {
@@ -47,10 +50,16 @@ export const actions = {
         const { data } = await api.get('campaigns')
         commit('FETCH_PAGINATED', { paginated: data })
     },
-    async fetchCurrent({ commit }) {
-        const { data } = await api.get('campaigns/current')
+    async fetchCurrent({ commit }, { latestCampaign = false, currentCampaign = true }) {
+        let url = 'campaigns/campaign';
+        if (latestCampaign) {
+            url = 'campaigns/campaign?latest'
+        } else if (currentCampaign) {
+            url = 'campaigns/campaign?current'
+        }
+        const { data } = await api.get(url)
         commit('FETCH_CURRENT', { current: data })
-        return Promise.resolve()
+        return Promise.resolve(data)
     },
     async fetch({ commit }, { campaignId, edit = false }) {
         try {
@@ -80,15 +89,24 @@ export const actions = {
     },
     async fetchSamples({ commit }, { campaignId, agencyId }) {
         const { data } = await api.get('campaigns/' + campaignId + '/agency/' + agencyId)
-        commit('FETCh_SAMPLES', { samples: data })
+        commit('FETCH_SAMPLES', { samples: data })
     },
     async fetchSampleDetails({ commit }, { sampleId }) {
         const { data } = await api.get('campaigns/sample/' + sampleId + '/details')
         commit('FETCh_SAMPLE_DETAILS', { details: data })
     },
-    async fetchNextReference({ commit }) {
+    async fetchNextReference({ commit }, { isValidated = false, isForTesting = false }) {
         try {
-            const { data } = await api.get('campaigns/next-reference')
+            let url = 'campaigns/next-reference'
+            if (isForTesting && !isValidated) {
+                url += '?is_for_testing'
+            } else if (isForTesting && isValidated) {
+                url += '?is_for_testing&is_validated'
+            } else if (!isForTesting && isValidated) {
+                url += '?is_validated'
+            }
+
+            const { data } = await api.get(url)
             commit('FETCH_NEXT_REFERENCE', { nextReference: data })
         } catch (error) {
             console.error(error)

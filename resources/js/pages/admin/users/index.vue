@@ -5,37 +5,50 @@
                 <router-link v-if="can('create_user')" :to="{ name: 'users-create' }" class="btn btn-info">
                     Ajouter
                 </router-link>
-                <a href="/excel-export?export=users" target="_blank" class="btn btn-excel has-icon">
+                <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
                     <i class="las la-file-excel icon" />
                     Exporter
-                </a>
+                </button>
             </template>
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" :details="details" title="Liste des utilisateurs"
-                urlPrefix="users" @edit="edit" @delete="destroy" :refresh="refresh"
-                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
+                urlPrefix="users" @edit="edit" @delete="destroy" :refresh="refresh" @dataLoaded="handleDataLoaded">
                 <template #actions-before="{ item }">
-                    <a class="btn btn-excel" :href="'/excel-export?export=users&id=' + item.id" target="_blank">
+                    <a class="btn btn-office-excel" v-if="!item.must_change_password"
+                        :href="'/excel-export?export=users&id=' + item.id" target="_blank">
                         <i class="las la-file-excel icon" />
                     </a>
+                    <NLButton class="btn btn-danger"
+                        v-if="!isCurrent(item) && !item.must_change_password && is(['root', 'admin'])"
+                        @click.prevent="reset(item)">
+                        <i class="las la-backspace icon" />
+                    </NLButton>
                 </template>
             </NLDatatable>
+            <ExcelExportModal :show="excelExportIsOpen" :route="this.currentUrl" @close="this.excelExportIsOpen = false"
+                @success="this.excelExportIsOpen = false" />
         </ContentBody>
     </div>
 </template>
 
 <script>
 import { hasRole, user } from '../../../plugins/user'
+import ExcelExportModal from '../../../Modals/ExcelExportModal';
 import api from '../../../plugins/api'
 export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],
+    components: {
+        ExcelExportModal
+    },
     created() {
         this.$store.dispatch('settings/updatePageLoading', true)
     },
     data() {
         return {
+            excelExportIsOpen: false,
+            currentUrl: null,
             refresh: 1,
             columns: [
                 {
@@ -152,15 +165,21 @@ export default {
         }
     },
     methods: {
+        handleDataLoaded(response) {
+            this.currentUrl = response.url
+            this.$store.dispatch('settings/updatePageLoading', false)
+        },
         /**
-         * Vérifie si la ligne correspond à l'utilisateur actuel
+         * check if user is current
+         *
          * @param {Object} item
          */
         isCurrent(item) {
             return item?.id === user()?.id
         },
         /**
-         * Redirige vers la page d'edition
+         * Redirect to edit form
+         *
          * @param {Object} e
          */
         edit(e) {
@@ -168,7 +187,31 @@ export default {
         },
 
         /**
-         * Supprime la ressource
+         * Reset basic user informations
+         *
+         * @param {Object} user
+         */
+        reset(user) {
+            return this.$swal.confirm_destroy("Voulez-vous vraiment réinitialiser les informations de l'utilisateur <b>" + user?.username + "</b>").then((action) => {
+                if (action.isConfirmed) {
+                    return this.$api.post('users/reset/' + user?.id).then(response => {
+                        if (response.data.status) {
+                            this.refresh += 1
+                            return this.$swal.toast_success(response.data.message)
+                        } else {
+                            return this.$swal.toast_error(response.data.message)
+                        }
+                    })
+                }
+            }).catch(error => {
+                console.error(error)
+                this.$swal.alert_error()
+            })
+        },
+
+        /**
+         * Destroy user
+         *
          * @param {Object} e
          */
         destroy(e) {

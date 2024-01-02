@@ -21,6 +21,14 @@ export const helpersMixin = {
             return fifteenDaysLater.toISOString().split('T')[ 0 ];
         },
         /**
+         * Create slug from string
+         * @param {String} string
+         * @param {String} separator
+         */
+        slugify(string, separator = '_') {
+            return string?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, '').replace(/[^\w\s-]/g, '').replace(/\s+/g, separator).replace(/--+/g, separator).trim()
+        },
+        /**
          * Ask user to confirm page leaving
          *
          * @param {Closure} next

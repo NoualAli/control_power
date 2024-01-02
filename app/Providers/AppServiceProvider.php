@@ -7,6 +7,8 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Dusk\DuskServiceProvider;
+use Opcodes\LogViewer\Facades\LogViewer;
+
 // use Martinezart87\CustomSqlServerConnector\CustomSqlServerConnector;
 
 class AppServiceProvider extends ServiceProvider
@@ -18,6 +20,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        LogViewer::auth(function ($request) {
+            return strtolower($request->user()->role->code) == 'root';
+        });
         if ($this->app->runningUnitTests()) {
             Schema::defaultStringLength(191);
         }

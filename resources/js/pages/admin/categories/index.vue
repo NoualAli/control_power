@@ -9,7 +9,7 @@
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" title="Liste des catégories" urlPrefix="categories"
-                @edit="edit" @delete="destroy" :key="forceReload"
+                @edit="edit" @delete="destroy" :refresh="refresh"
                 @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
         </ContentBody>
     </div>
@@ -19,13 +19,13 @@
 import api from '~/plugins/api'
 export default {
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     metaInfo() {
         return { title: 'Catégories' }
     },
     data() {
         return {
-            forceReload: 1,
+            refresh: 0,
             columns: [
                 {
                     label: 'Nom',
@@ -69,7 +69,7 @@ export default {
                 if (action.isConfirmed) {
                     api.delete('categories/' + item.id).then(response => {
                         if (response.data.status) {
-                            this.forceReload += 1
+                            this.refresh += 1
                             this.$swal.toast_success(response.data.message)
                         } else {
                             this.$swal.toast_error(response.data.message)

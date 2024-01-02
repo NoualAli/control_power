@@ -13,18 +13,19 @@ class Deleted extends Notification
     use Queueable;
 
     /**
-     * @var App\Models\ControlCampaign
+     * @var int|\App\Models\ControlCampaign
      */
     private $campaign;
 
     /**
      * Create a new notification instance.
+     * @param string|\App\Models\ControlCampaign
      *
      * @return void
      */
-    public function __construct(ControlCampaign $campaign)
+    public function __construct(string|ControlCampaign $campaign)
     {
-        $this->campaign = $campaign;
+        $this->campaign = is_string($campaign) ? ControlCampaign::findOrFail($campaign) : $campaign;
     }
 
     /**
@@ -35,10 +36,16 @@ class Deleted extends Notification
      */
     public function via($notifiable)
     {
-        if (app()->environment('production')) {
-            return ['mail', 'database'];
+        $channels = collect([]);
+        $setting = $notifiable->notification_settings()->whereRelation('type', 'code', 'control_campaign_deleted')->first();
+        if ($setting?->database_is_enabled) {
+            $channels->push('database');
         }
-        return ['database'];
+
+        if ($setting?->email_is_enabled && !config('mail.disabled')) {
+            $channels->push('mail');
+        }
+        return $channels->toArray();
     }
 
     /**
@@ -48,7 +55,17 @@ class Deleted extends Notification
      */
     private function getTitle(): string
     {
-        return  'Campagne de contrôle ' . $this->campaign->reference . ' annulée';
+        return  'CAMPAGNE DE CONTRÔLE ' . $this->campaign->reference . ' ANNULE - ' . env('APP_NAME');
+    }
+
+    /**
+     * Get Email / Notification content
+     *
+     * @return string
+     */
+    private function getHtmlContent(): string
+    {
+        return 'Nous vous faisons savoir que la campagne de contrôle sous la référence <b>' . $this->campaign->reference . '</b> a été annulée.';
     }
 
     /**
@@ -86,7 +103,9 @@ class Deleted extends Notification
         return [
             'id' => $this->campaign->id,
             'content' => $this->getContent(),
-            'title' => $this->getTItle(),
+            'short_content' => $this->getHtmlContent(),
+            'title' => $this->getTitle(),
+            'emitted_by' => auth()->user()->username,
         ];
     }
 }

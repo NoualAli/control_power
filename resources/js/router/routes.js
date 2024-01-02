@@ -26,6 +26,9 @@ export default [
         }
     },
 
+    /**
+     * Database backups
+     */
     {
         path: '/admin/backup/db',
         name: 'admin-backup-db',
@@ -38,10 +41,24 @@ export default [
     },
 
     /**
+     * Uploaded and generated files
+     */
+    {
+        path: '/admin/files',
+        name: 'admin-server-files',
+        component: page('admin/files/index.vue'),
+        meta: {
+            breadcrumb: {
+                label: 'Fichiers'
+            }
+        }
+    },
+
+    /**
      * Auth
      */
     { path: '/login', name: 'login', component: page('auth/login.vue') },
-    { path: '/password/new', name: 'password.new', component: page('auth/password/new.vue') },
+    { path: '/password/reset', name: 'password.reset', component: page('auth/reset.vue') },
 
     /**
      * Profile settings
@@ -360,6 +377,7 @@ export default [
             }
         }
     },
+
     /**
     * Control points
     */
@@ -396,6 +414,44 @@ export default [
             }
         }
     },
+
+    /**
+    * Control points
+    */
+    {
+        path: '/admin/fields',
+        name: 'fields-index',
+        component: page('admin/fields/index.vue'),
+        meta: {
+            breadcrumb: {
+                label: 'Champs'
+
+            }
+        }
+    },
+    {
+        path: '/admin/fields/create',
+        name: 'fields-create',
+        component: page('admin/fields/create.vue'),
+        meta: {
+            breadcrumb: {
+                label: 'Nouveau champs',
+                parent: 'fields-index'
+            }
+        }
+    },
+    {
+        path: '/admin/fields/edit/:field',
+        name: 'fields-edit',
+        component: page('admin/fields/edit.vue'),
+        meta: {
+            breadcrumb: {
+                label: 'Edition champs',
+                parent: 'fields-index'
+            }
+        }
+    },
+
     /**
      * Control campaigns
      */
@@ -450,6 +506,16 @@ export default [
             breadcrumb: {
                 parent: 'campaign',
                 label: 'Missions'
+            }
+        }
+    },
+    {
+        path: '/campaigns/:campaignId/statistics',
+        name: 'campaign-statistics',
+        component: page('campaigns/statistics.vue'),
+        meta: {
+            breadcrumb: {
+                label: 'Statistiques'
             }
         }
     },
@@ -510,25 +576,14 @@ export default [
             }
         }
     },
-    // {
-    //     path: '/missions/:missionId/execute/:processId?',
-    //     name: 'mission-details-execute',
-    //     component: page('missions/execute.vue'),
-    //     meta: {
-    //         breadcrumb: {
-    //             parent: 'mission',
-    //             label: 'Exécution de la mission'
-    //         }
-    //     }
-    // },
 
     /**
      * Global
      */
     {
-        path: '/global/details',
-        name: 'global-details',
-        component: page('global/details.vue'),
+        path: '/anomalies',
+        name: 'anomalies',
+        component: page('global/anomalies.vue'),
         meta: {
             breadcrumb: {
                 label: 'Anomalie • Notation • Plan de redressement',
@@ -572,7 +627,17 @@ export default [
         component: page('notifications/index'),
         meta: {
             breadcrumb: {
-                label: 'Centre de notification'
+                label: 'Centre des notifications'
+            }
+        }
+    },
+    {
+        path: '/notifications/settings',
+        name: 'notifications-settings',
+        component: page('notifications/settings'),
+        meta: {
+            breadcrumb: {
+                label: 'Paramètre du centre des notifications'
             }
         }
     },

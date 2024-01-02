@@ -5,38 +5,38 @@
             <NLForm :action="create" :form="form">
                 <!-- Firstname -->
                 <NLColumn lg="6" md="6">
-                    <NLInput v-model="form.first_name" :form="form" name="firstname" label="Prénom" />
+                    <NLInput v-model="form.first_name" :form="form" name="firstname" label="Prénom" labelRequired
+                        :length="50" />
                 </NLColumn>
 
                 <!-- Lastname -->
                 <NLColumn lg="6" md="6">
-                    <NLInput v-model="form.last_name" :form="form" name="last_name" label="Nom de famille" />
+                    <NLInput v-model="form.last_name" :form="form" name="last_name" label="Nom de famille" labelRequired
+                        :length="50" />
                 </NLColumn>
 
                 <!-- Registration number -->
                 <NLColumn lg="6" md="6">
                     <NLInput v-model="form.registration_number" :form="form" name="registration_number" label="Matricule"
-                        type="number" length="5" />
+                        type="number" :length="5" labelRequired />
                 </NLColumn>
 
                 <!-- Username -->
                 <NLColumn lg="6" md="6">
-                    <NLInput v-model="form.username" :form="form" name="username" label="Nom d'utilisateur"
-                        label-required />
+                    <NLInput v-model="form.username" :form="form" name="username" label="Nom d'utilisateur" label-required
+                        :length="30" />
                 </NLColumn>
-
 
                 <!-- Email -->
                 <NLColumn lg="6" md="6">
                     <NLInput v-model="form.email" :form="form" name="email" label="Adresse e-mail" label-required
-                        type="email" />
+                        type="email" :length="100" />
                 </NLColumn>
 
                 <!-- Phone -->
                 <NLColumn lg="6" md="6">
                     <NLInput v-model="form.phone" :form="form" name="phone" label="N° de téléphone" type="phone" />
                 </NLColumn>
-
 
                 <!-- Role -->
                 <NLColumn lg="6" md="6">
@@ -63,22 +63,26 @@
                         <!-- Password -->
                         <NLColumn lg="4" md="4">
                             <NLInput v-model="form.password" :form="form" label="Mot de passe" name="password"
-                                type="password" label-required />
+                                type="password"
+                                helpText="Si vous ne saisissez aucun mot de passe alors le mot de passe par défaut sera attribuer à l'utilisateur" />
                         </NLColumn>
                         <!-- Password Confirmation -->
                         <NLColumn lg="4" md="4">
                             <NLInput v-model="form.password_confirmation" :form="form" label="Confirmation du mot de passe"
-                                name="password_confirmation" type="password" label-required />
+                                name="password_confirmation" type="password" />
                         </NLColumn>
                     </NLGrid>
                 </NLColumn>
 
                 <!-- Active -->
-                <NLColumn v-if="showIsActiveSwitch">
+                <NLColumn v-if="showIsActiveSwitch" lg="6">
                     <NLSwitch v-model="form.is_active" name="is_active" :form="form" label="Le compte est activé ?"
                         type="is-success" />
                 </NLColumn>
-
+                <NLColumn lg="6">
+                    <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form" label="Utilisateur TEST"
+                        type="is-success" />
+                </NLColumn>
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
                         <NLButton :loading="form.busy" label="Ajouter" />
@@ -111,6 +115,8 @@ export default {
                 is_active: false,
                 gender: 1,
                 registration_number: null,
+                is_for_testing: false,
+                phone: null,
             }),
             dresList: [],
             rolesList: [],

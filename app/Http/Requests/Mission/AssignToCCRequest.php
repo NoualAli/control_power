@@ -13,6 +13,7 @@ class AssignToCCRequest extends FormRequest
      */
     public function authorize()
     {
+        dd('test');
         return isAbleTo('assign_mission_processing');
     }
 

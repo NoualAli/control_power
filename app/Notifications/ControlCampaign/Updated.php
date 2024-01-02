@@ -13,18 +13,19 @@ class Updated extends Notification
     use Queueable;
 
     /**
-     * @var App\Models\ControlCampaign
+     * @var int|\App\Models\ControlCampaign
      */
     private $campaign;
 
     /**
      * Create a new notification instance.
+     * @param string|\App\Models\ControlCampaign
      *
      * @return void
      */
-    public function __construct(ControlCampaign $campaign)
+    public function __construct(string|ControlCampaign $campaign)
     {
-        $this->campaign = $campaign;
+        $this->campaign = is_string($campaign) ? ControlCampaign::findOrFail($campaign) : $campaign;
     }
 
     /**
@@ -35,10 +36,16 @@ class Updated extends Notification
      */
     public function via($notifiable)
     {
-        if (app()->environment('production')) {
-            return ['mail', 'database'];
+        $channels = collect([]);
+        $setting = $notifiable->notification_settings()->whereRelation('type', 'code', 'control_campaign_updated')->first();
+        if ($setting?->database_is_enabled) {
+            $channels->push('database');
         }
-        return ['database'];
+
+        if ($setting?->email_is_enabled && !config('mail.disabled')) {
+            $channels->push('mail');
+        }
+        return $channels->toArray();
     }
 
     /**
@@ -49,7 +56,6 @@ class Updated extends Notification
     private function getUrl(): string
     {
         return url('/campaigns/' . $this->campaign->id);
-        // return url('/campaigns/' . $this->campaign->id);
     }
 
     /**
@@ -59,7 +65,7 @@ class Updated extends Notification
      */
     private function getTitle(): string
     {
-        return 'Mise à jour de la campagne de contrôle ' . $this->campaign->reference;
+        return 'MISE À JOUR DE LA CAMPAGNE DE CONTRÔLE ' . $this->campaign->reference . ' - ' . env('APP_NAME');
     }
 
     /**
@@ -102,6 +108,7 @@ class Updated extends Notification
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
             'title' => $this->getTitle(),
+            'emitted_by' => auth()->user()->username,
         ];
     }
 }

@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\ProcessesExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Process\StoreRequest;
 use App\Http\Requests\Process\UpdateRequest;
 use App\Http\Resources\ProcessResource;
 use App\Models\ControlPoint;
 use App\Models\Process;
+use App\Services\ExcelExportService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class ProcessController extends Controller
 {
@@ -27,6 +30,13 @@ class ProcessController extends Controller
         $fetchFilters = request()->has('fetchFilters');
         $perPage = request('perPage', 10);
         $fetchAll = request()->has('fetchAll');
+
+        $export = request('export', []);
+        $shouldExport = count($export);
+
+        if ($shouldExport) {
+            return (new ExcelExportService($processes, ProcessesExport::class, 'liste_des_processus.xlsx', $export))->download();
+        }
 
         if ($filter) {
             $processes = $processes->filter($filter);
@@ -52,20 +62,26 @@ class ProcessController extends Controller
     public function store(StoreRequest $request): JsonResponse
     {
         try {
-            $data = $request->validated();
-            $process = Process::create($data);
+            DB::transaction(function () use ($request) {
+                $data = $request->validated();
+                $media = $data['media'];
+                unset($data['media']);
+                $process = Process::create($data);
+                foreach ($media as $id) {
+                    $media = DB::table('has_media')->updateOrInsert([
+                        'attachable_id' => $process->id,
+                        'attachable_type' => Process::class,
+                        'media_id' => $id,
+                    ]);
+                }
+            });
 
             return response()->json([
                 'message' => CREATE_SUCCESS,
                 'status' => true
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], $code);
+            return throwedError($th);
         }
     }
     /**
@@ -100,12 +116,7 @@ class ProcessController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], $code);
+            return throwedError($th);
         }
     }
 
@@ -125,12 +136,7 @@ class ProcessController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], $code);
+            return throwedError($th);
         }
     }
 }

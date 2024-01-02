@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 use Znck\Eloquent\Traits\BelongsToThrough;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use stdClass;
@@ -42,11 +41,24 @@ class MissionDetail extends BaseModel
         'controlled_by_cc_id',
         'controlled_by_cdcr_id',
         'controlled_by_dcp_id',
-        'major_fact_dispatched_at',
+        'major_fact_is_dispatched_at',
         'regularization_id',
         'is_regularized',
-        'major_fact_detected_at',
-        'major_fact_dispatched_to_dcp_at',
+        'major_fact_is_detected_at',
+        'major_fact_is_dispatched_to_dcp_at',
+        'cdc_full_name',
+        'cdcr_full_name',
+        'dcp_full_name',
+        'major_fact_is_detected_by_full_name',
+        'major_fact_is_detected_by_id',
+        'major_fact_is_rejected',
+        'major_fact_is_rejected_by_full_name',
+        'major_fact_is_rejected_by_id',
+        'major_fact_is_rejected_at',
+        'major_fact_is_dispatched_by_id',
+        'major_fact_is_dispatched_by_full_name',
+        'major_fact_is_dispatched_to_dcp_by_id',
+        'major_fact_is_dispatched_to_dcp_by_full_name',
     ];
 
     protected $filter = 'App\Filters\MissionDetail';
@@ -63,8 +75,12 @@ class MissionDetail extends BaseModel
         'controlled_by_cdcr_at' => 'datetime:d-m-Y H:i',
         'controlled_by_dcp_at' => 'datetime:d-m-Y H:i',
         'processed_at' => 'datetime:d-m-Y H:i',
-        'major_fact_dispatched_at' => 'datetime:d-m-Y H:i',
-        'major_fact' => 'boolean'
+        'major_fact_is_dispatched_to_dcp_at' => 'datetime:d-m-Y H:i',
+        'major_fact_is_dispatched_at' => 'datetime:d-m-Y H:i',
+        'major_fact_is_detected_at' => 'datetime:d-m-Y H:i',
+        'major_fact_is_rejected_at' => 'datetime:d-m-Y H:i',
+        'major_fact' => 'boolean',
+        'major_fact_is_rejected' => 'boolean'
     ];
 
     public $appends = [
@@ -87,27 +103,7 @@ class MissionDetail extends BaseModel
      */
     public function getReportAttribute()
     {
-        // if (auth()->check()) {
-        //     // if (hasRole('ci')) {
-        //         //     $column = 'ci_report';
-        //         // } elseif (hasRole('cdc')) {
-        //             //     $column = $this->cdc_report ? 'cdc_report' : 'ci_report';
-        //             // } else {
-        //     //     if ($this->cdc_report) {
-        //         //         $column = 'cdc_report';
-        //         //     } else {
-        //             //         $column = 'ci_report';
-        //             //     }
-        //             // }
-        //         } else {
-        //             // if ($this->cdc_report) {
-        //                 //     $column = 'cdc_report';
-        //                 // } else {
-        //                     //     $column = 'ci_report';
-        //     // }
-        // }
         $column = $this->cdc_report ? 'cdc_report' : 'ci_report';
-        // $isControlledByCdc = $this->cdc_report ? '(Contrôler par CDC)' : '';
 
         return $this->$column;
     }
@@ -173,7 +169,7 @@ class MissionDetail extends BaseModel
 
     public function getIsDispatchedAttribute()
     {
-        return boolval($this->major_fact_dispatched_at);
+        return boolval($this->major_fact_is_dispatched_at);
     }
 
     public function getScoreTagAttribute()
@@ -194,16 +190,38 @@ class MissionDetail extends BaseModel
         return '<div class="tag ' . $style . '">' . $score . '</div>';
     }
 
+    public function getMetadataAttribute($metadata)
+    {
+        return json_decode($metadata);
+    }
+
     public function getParsedMetadataAttribute()
     {
-        return collect($this->metadata)->flatten()->groupBy('label')->map(function ($data) {
-            return collect($data)->map(function ($item) {
-                $item = collect($item);
-                unset($item['rules']);
-                $values = $item->values()->map(fn ($value, $index) => $index == 1 ? $value : null)->filter(fn ($item) => $item)->flatten();
-                return $values;
-            });
-        });
+        $metadata = is_string($this->getAttributes()['metadata']) ? json_decode($this->getAttributes()['metadata']) : [];
+
+        $lines = 0;
+        $headings = [];
+        if (is_string($metadata)) {
+            $metadata = json_decode($this->metadata);
+        }
+        if (is_array($metadata)) {
+            $metadata = recursive_collect($metadata);
+            $lines = $metadata->count();
+
+            $headings = $metadata->flatten()->map(function ($item) {
+                return $item->label;
+            })->unique()->toArray();
+
+            $keys = $metadata->flatten()->map(function ($item) {
+                return $item->key;
+            })->unique()->toArray();
+
+            $metadata = $metadata->map(function ($item) {
+                unset($item->key, $item->additional_rules, $item->id, $item->is_multiple);
+                return $item;
+            })->toArray();
+        }
+        return compact('metadata', 'headings', 'keys', 'lines');
     }
 
     public function getInlineMetadataAttribute()
@@ -298,8 +316,12 @@ class MissionDetail extends BaseModel
 
     public function dcpController()
     {
-        // dd($this->controller('cc'));
         return $this->controller('cc');
+    }
+
+    public function majorFactDetector()
+    {
+        return $this->belongsTo(User::class, 'major_fact_is_detected_by_id');
     }
 
 
@@ -430,6 +452,7 @@ class MissionDetail extends BaseModel
     {
         return $query->orWhere('major_fact', true);
     }
+
     /**
      * Get only validated major facts
      *
@@ -439,7 +462,7 @@ class MissionDetail extends BaseModel
      */
     public function scopeOnlyDispatchedMajorFacts($query)
     {
-        return $query->onlyMajorFacts()->where('major_fact_dispatched_at', '!=', null);
+        return $query->onlyMajorFacts()->where('major_fact_is_dispatched_at', '!=', null);
     }
 
     public function scopeOnlyUnregularized($query)

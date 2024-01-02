@@ -25,6 +25,9 @@
                     </div>
                 </div>
                 <div class="actions-side">
+                    <b class="app_version text-dark">
+                        V {{ CURRENT_VERSION }}
+                    </b>
                     <div class="user-profile">
                         <router-link :to="{ name: 'profile' }" class="username text-bold d-flex full-center gap-2">
                             <div class="avatar">
@@ -65,7 +68,7 @@ import NLSidebar from '../components/Sidebar/NLSidebar'
 import Child from '../components/Child'
 import { mapGetters } from 'vuex'
 import NLPageLoader from '../components/NLPageLoader'
-import store from '~/store'
+import * as APP from '~/store/global/version'
 export default {
     name: 'MainLayout',
     components: {
@@ -73,7 +76,7 @@ export default {
         Child,
         NLPageLoader
     },
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     data() {
         return {
             totalUnreadNotifications: 0
@@ -86,6 +89,9 @@ export default {
             notifications: 'notifications/totalUnread',
             pageLoadingState: 'settings/pageIsLoading',
         }),
+        CURRENT_VERSION() {
+            return APP.CURRENT_VERSION
+        }
     },
     watch: {
         "notifications.totalUnread"(newValue, oldValue) {

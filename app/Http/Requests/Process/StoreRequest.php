@@ -26,7 +26,9 @@ class StoreRequest extends FormRequest
         return [
             'family_id' => ['required', 'exists:families,id'],
             'domain_id' => ['required', 'exists:domains,id'],
-            'name' => ['required', 'string', 'max:255', 'unique:processes']
+            'name' => ['required', 'string', 'max:255', 'unique:processes'],
+            'media' => ['nullable', 'array'],
+            'media.*' => ['exists:media,id']
         ];
     }
 }

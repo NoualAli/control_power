@@ -26,20 +26,15 @@
                 <NLColumn>
                     <NLSwitch v-model="form.has_major_fact" name="has_major_fact" :form="form" label="Fait majeur" />
                 </NLColumn>
-                <!-- Major fact types -->
-                <NLColumn v-if="form.has_major_fact">
-                    <NLRepeater name="major_fact_types" :row-schema="majorFactTypesSchema" :form="form"
-                        title="Types des faits majeur" add-button-label="Ajouter un type" />
+                <!-- Sampling Fields -->
+                <NLColumn lg="6" md="6">
+                    <NLSelect v-model="form.sampling_fields" :form="form" name="sampling_fields"
+                        label="Champs d'échantillonnage" :options="fieldsList" multiple />
                 </NLColumn>
                 <!-- Scores -->
                 <NLColumn>
                     <NLRepeater name="scores" :row-schema="scoresSchema" :form="form" title="Notation"
                         add-button-label="Ajouter une notation" />
-                </NLColumn>
-                <!-- Fields -->
-                <NLColumn>
-                    <NLRepeater name="fields" :row-schema="fieldsSchema" :form="form" title="Metadata"
-                        add-button-label="Ajouter un champs" />
                 </NLColumn>
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
@@ -56,23 +51,13 @@ import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 export default {
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     data() {
         return {
             familliesList: [],
             domainsList: [],
             processesList: [],
-            validationRulesList: [],
-            majorFactTypesSchema: [
-                {
-                    type: 'text',
-                    label: 'Type',
-                    name: 'type',
-                    placeholder: 'Veuillez saisir le type',
-                    required: true,
-                    style: 'col-12'
-                }
-            ],
+            fieldsList: [],
             scoresSchema: [
                 {
                     type: 'number',
@@ -91,191 +76,14 @@ export default {
                     style: 'col-12 col-lg-6'
                 }
             ],
-            fieldsSchema: [
-                {
-                    type: 'select',
-                    label: 'Type',
-                    name: 'type',
-                    required: true,
-                    style: 'col-12 col-lg-3',
-                    options: [
-                        {
-                            id: 'text',
-                            label: 'Text'
-                        },
-                        {
-                            id: 'textarea',
-                            label: 'Textarea'
-                        },
-                        {
-                            id: 'number',
-                            label: 'Number'
-                        },
-                        {
-                            id: 'select',
-                            label: 'Select'
-                        },
-                        {
-                            id: 'date',
-                            label: 'Date'
-                        },
-                        {
-                            id: 'datetime',
-                            label: 'DateTime'
-                        },
-                        {
-                            id: 'month',
-                            label: 'Month'
-                        },
-                        {
-                            id: 'week',
-                            label: 'Week'
-                        },
-                        {
-                            id: 'time',
-                            label: 'Time'
-                        },
-                        {
-                            id: 'email',
-                            label: 'Email'
-                        },
-                        {
-                            id: 'tel',
-                            label: 'Tel'
-                        }
-                    ]
-                },
-                {
-                    type: 'text',
-                    label: 'Label',
-                    name: 'label',
-                    placeholder: 'Veuillez saisir le label du champs',
-                    required: true,
-                    style: 'col-12 col-lg-3'
-                },
-                {
-                    type: 'text',
-                    label: 'Nom',
-                    name: 'name',
-                    placeholder: 'Veuillez saisir le nom du champs dans la base de données',
-                    required: true,
-                    style: 'col-12 col-lg-3'
-                },
-                {
-                    type: 'number',
-                    label: 'Taille',
-                    name: 'length',
-                    placeholder: 'Veuillez saisir la taille du champs dans la base de données',
-                    required: true,
-                    default: 255,
-                    style: 'col-12 col-lg-3'
-                },
-                {
-                    type: 'select',
-                    label: 'Nombre de colonnes',
-                    name: 'style',
-                    required: true,
-                    style: 'col-12 col-lg-3',
-                    options: [
-                        {
-                            id: 'col-12 col-lg-1',
-                            label: '1'
-                        },
-                        {
-                            id: 'col-12 col-lg-2',
-                            label: '2'
-                        },
-                        {
-                            id: 'col-12 col-lg-3',
-                            label: '3'
-                        },
-                        {
-                            id: 'col-12 col-lg-4',
-                            label: '4'
-                        },
-                        {
-                            id: 'col-12 col-lg-5',
-                            label: '5'
-                        },
-                        {
-                            id: 'col-12 col-lg-6',
-                            label: '6'
-                        },
-                        {
-                            id: 'col-12 col-lg-7',
-                            label: '7'
-                        },
-                        {
-                            id: 'col-12 col-lg-8',
-                            label: '8'
-                        },
-                        {
-                            id: 'col-12 col-lg-9',
-                            label: '9'
-                        },
-                        {
-                            id: 'col-12 col-lg-10',
-                            label: '10'
-                        },
-                        {
-                            id: 'col-12 col-lg-11',
-                            label: '11'
-                        },
-                        {
-                            id: 'col-12 col-lg-12',
-                            label: '12'
-                        }
-                    ]
-                },
-                {
-                    type: 'text',
-                    label: 'Identifiant',
-                    name: 'id',
-                    placeholder: 'Veuillez saisir l\'identifiant du champs',
-                    style: 'col-12 col-lg-3'
-                },
-                {
-                    type: 'text',
-                    label: 'Placeholder',
-                    name: 'placeholder',
-                    placeholder: 'Veuillez saisir le placeholder du champs',
-                    style: 'col-12 col-lg-3'
-                },
-                {
-                    type: 'text',
-                    label: 'Texte d\'aide',
-                    name: 'help_text',
-                    placeholder: 'Veuillez saisir le texte d\'aide du champs',
-                    style: 'col-12 col-lg-3'
-                },
-                {
-                    type: 'select',
-                    label: 'Règles de validation',
-                    name: 'rules',
-                    required: true,
-                    style: 'col-12',
-                    multiple: true,
-                    placeholder: 'Veuillez choisir une ou plusieurs règles de validation',
-                    options: [
-                        { id: 'nullable', label: 'Facultatif' },
-                        { id: 'required', label: 'Obligatoire' },
-                        { id: 'distinct', label: 'Distinct' },
-                        { id: 'email', label: 'Adresse e-mail' },
-                        { id: 'integer', label: 'Nombre entier' },
-                        { id: 'float', label: 'Nombre flottant' },
-                        { id: 'boolean', label: 'Booléen' }
-                    ]
-                }
-            ],
             form: new Form({
                 name: null,
                 family_id: null,
                 domain_id: null,
                 process_id: null,
-                major_fact_types: [],
                 has_major_fact: false,
                 scores: [],
-                fields: []
+                sampling_fields: [],
             })
         }
     },
@@ -285,7 +93,7 @@ export default {
             domain: 'domains/processes',
             families: 'families/all',
             controlPoint: 'controlPoints/current',
-            validationRules: 'settings/validationRules'
+            fields: 'fields/all'
         })
     },
     watch: {
@@ -304,16 +112,17 @@ export default {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
             this.$store.dispatch('controlPoints/fetch', this.$route.params.controlPoint).then(() => {
+                this.$store.dispatch('fields/fetchAll').then(() => {
+                    this.fieldsList = this.fields.all
+                })
                 this.loadFamillies()
-                this.loadValidationRules()
                 this.form.name = this.controlPoint.current.name
                 this.form.family_id = this.controlPoint.current.family.id
                 this.form.domain_id = this.controlPoint.current.domain.id
                 this.form.process_id = this.controlPoint.current.process.id
                 this.form.has_major_fact = this.controlPoint.current.has_major_fact
                 this.form.scores = this.controlPoint.current.scores ? this.controlPoint.current.scores : []
-                this.form.fields = this.controlPoint.current.fields ? this.controlPoint.current.fields : []
-                this.form.major_fact_types = this.controlPoint.current.major_fact_types ? this.controlPoint.current.major_fact_types : []
+                this.form.sampling_fields = this.controlPoint.current.fields ? this.controlPoint.current.fields.map((field) => field.id) : []
             })
         },
         /**
@@ -353,29 +162,10 @@ export default {
                 this.processesList = []
             }
         },
-        /**
-       * Récupère la liste des règles de validation
-       */
-        loadValidationRules() {
-            // this.$store.dispatch('settings/fetchValidationRules').then(() => {
-            //   this.validationRulesList = this.validationRules.validationRules
-            //   this.fieldsSchema[ this.fieldsSchema.length - 1 ].options = this.validationRulesList
-            // })
-            this.validationRulesList = [
-                { id: 'nullable', label: 'Facultatif' },
-                { id: 'required', label: 'Obligatoire' },
-                { id: 'distinct', label: 'Distinct' },
-                { id: 'email', label: 'Adresse e-mail' },
-                { id: 'integer', label: 'Nombre entier' },
-                { id: 'float', label: 'Nombre flottant' },
-                { id: 'boolean', label: 'Booléen' }
-            ]
-        },
         update() {
             this.form.put('control-points/' + this.$route.params.controlPoint).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
-                    this.$router.push({ name: 'control-points-index' })
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }

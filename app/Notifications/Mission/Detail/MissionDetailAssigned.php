@@ -15,20 +15,25 @@ class MissionDetailAssigned extends Notification
     use Queueable;
 
     /**
-     * @var App\Models\User
+     * @var \App\Models\User
      */
     protected $controller;
 
     /**
-     * @var App\Models\Mission
+     * @var \App\Models\Mission
      */
     protected $mission;
 
     /**
-     * @var Illuminate\Database\Eloquent\Collection
+     * @var \Illuminate\Database\Eloquent\Collection
      */
     protected $processes;
 
+    /**
+     * @param \App\Models\User $controller
+     * @param \App\Models\Mission $mission
+     * @param Collection $processes
+     */
     public function __construct(User $controller, Mission $mission, Collection $processes)
     {
         $this->controller = $controller;
@@ -71,7 +76,7 @@ class MissionDetailAssigned extends Notification
     private function getTitle(): string
     {
         $totalProcesses = $this->processes->count();
-        return $totalProcesses > 1 ? 'Assignation des processus dans la mission ' . $this->mission->reference : 'Assignation d\'un processus dans la mission ' . $this->mission->reference;
+        return $totalProcesses > 1 ? 'ASSIGNATION DES PROCESSUS - ' . $this->mission->reference . ' - ' . env('APP_NAME') : 'ASSIGNATION D\'UN PROCESSUS - ' . $this->mission->reference . ' - ' . env('APP_NAME');
     }
 
     /**
@@ -92,10 +97,16 @@ class MissionDetailAssigned extends Notification
      */
     public function via($notifiable)
     {
-        if (app()->environment('production')) {
-            return ['mail', 'database'];
+        $channels = collect([]);
+        $setting = $notifiable->notification_settings()->whereRelation('type', 'code', 'mission_assigned')->first();
+        if ($setting?->database_is_enabled) {
+            $channels->push('database');
         }
-        return ['database'];
+
+        if ($setting?->email_is_enabled && !config('mail.disabled')) {
+            $channels->push('mail');
+        }
+        return $channels->toArray();
     }
 
     /**
@@ -114,17 +125,6 @@ class MissionDetailAssigned extends Notification
             ->action('Voir la mission', $this->getUrl())
             ->line('Merci d\'utiliser ControlPower')
             ->success();
-
-        // return (new MailMessage)
-        //     ->subject($this->getTitle())
-        //     ->greeting('Bonjour ' . $this->controller->full_name)
-        //     ->line($this->getContent())
-        //     ->line('Liste des processus:')
-        //     ->view('email_views.processes_list')
-        //     ->with(['htmlContent' => 'test'])
-        //     ->action('Voir la mission', $this->getUrl())
-        //     ->line('Merci d\'utiliser ControlPower')
-        //     ->success();
     }
 
     /**

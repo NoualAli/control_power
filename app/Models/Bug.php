@@ -26,7 +26,8 @@ class Bug extends BaseModel
     protected $casts = [
         'type' => 'integer',
         'priority' => 'integer',
-        'fixed_at' => 'datetime:d-m-Y'
+        'fixed_at' => 'datetime:d-m-Y',
+        'created_at' => 'datetime:d-m-Y'
     ];
 
     protected const TYPES = [
@@ -45,6 +46,8 @@ class Bug extends BaseModel
         'Urgente'
     ];
 
+    public $appends = ['priority_html', 'state_html', 'media_links_list'];
+
     public static function boot()
     {
         parent::boot();
@@ -52,6 +55,19 @@ class Bug extends BaseModel
         static::creating(function ($model) {
             $model->reference = 'bt-' . str_pad(Bug::count() + 1, 4, 0, STR_PAD_LEFT);
         });
+    }
+
+    public function getStateHtmlAttribute()
+    {
+        $icon = 'las la-exclamation-triangle';
+        $color = 'text-warning';
+        $title = "En attente";
+        if ($this->is_fixed) {
+            $icon = 'las la-check-circle';
+            $color = 'text-success';
+            $title = "Résolut";
+        }
+        return "<i class='icon $icon $color' title='$title'></i>";
     }
 
     public function getTypeAttribute($type)
@@ -83,14 +99,14 @@ class Bug extends BaseModel
                 $class = 'bg-grey text-dark';
                 break;
         }
-        return '<div class="container">' .
-            '<div class="has-border-radius d-inline-block p-1 text-bold text-center ' . $class . '">' . $priorityStr . '</div>' .
-            '</div>';
+        return '<span class="container">' .
+            '<span class="has-border-radius d-inline-block p-1 text-bold text-center ' . $class . '">' . $priorityStr . '</span>' .
+            '</span>';
     }
 
     public function getIsFixedAttribute()
     {
-        return !$this->fixed_at ? 'En attente' : 'Fixé';
+        return (bool) $this->fixed_at;
     }
 
     /**

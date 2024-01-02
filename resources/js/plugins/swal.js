@@ -14,8 +14,8 @@ export function confirm({ icon = 'question', title = '', message = '', showConfi
         position: 'center',
         confirmButtonColor: '#00C851',
         cancelButtonColor: '#CC0000',
-        confirmButtonText: 'Ok',
-        cancelButtonText: 'Annuler',
+        confirmButtonText: 'Oui',
+        cancelButtonText: 'Non',
         showConfirmButton,
         showCancelButton,
         html: message
@@ -173,3 +173,36 @@ export function loading(progress, message = 'Chargement en cours...') {
         }
     })
 }
+
+export function catchError(error, silent = false) {
+    let errorMessage = "Quelque chose s'est mal passé. Veuillez réessayer, si le problème persiste, veuillez contacter l'administrateur du serveur."
+    const status = error?.response?.status
+    if (error.response && status !== 422) {
+        // la requête a été faite et le code de réponse du serveur n’est pas dans
+        // la plage 2xx
+        errorMessage = error?.response?.data.message
+        console.error(error?.response?.data);
+        console.error(error?.response?.status);
+        console.error(error?.response?.headers);
+    } else if (error?.request && status !== 422) {
+        // la requête a été faite mais aucune réponse n’a été reçue
+        // `error.request` est une instance de XMLHttpRequest dans le navigateur
+        // et une instance de http.ClientRequest avec node.js
+        console.log(error?.request);
+
+    } else if (error.response && status == 422) {
+        console.error(error.response)
+    } else {
+        // quelque chose s’est passé lors de la construction de la requête et cela
+        // a provoqué une erreur
+        if (status !== 422) {
+            errorMessage = error?.message
+            console.error('Error', errorMessage);
+        }
+    }
+    if (!silent) {
+        alert_error(errorMessage)
+    }
+    console.log(error?.config);
+}
+

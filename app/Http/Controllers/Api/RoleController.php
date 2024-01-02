@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\RolesExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Role\StoreRequest;
 use App\Http\Requests\Role\UpdateRequest;
 use App\Http\Resources\RoleResource;
 use App\Models\Role;
+use App\Services\ExcelExportService;
 use Illuminate\Http\JsonResponse;
 
 class RoleController extends Controller
@@ -27,7 +29,12 @@ class RoleController extends Controller
         $fetchFilters = request()->has('fetchFilters');
         $perPage = request('perPage', 10);
         $fetchAll = request()->has('fetchAll');
+        $export = request('export', []);
+        $shouldExport = count($export);
 
+        if ($shouldExport) {
+            return (new ExcelExportService($roles, RolesExport::class, 'liste_des_rôles_utilisateur.xlsx', $export))->download();
+        }
         if ($filter) {
             $roles = $roles->filter($filter);
         }
@@ -64,10 +71,7 @@ class RoleController extends Controller
                 'status' => true
             ]);
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], 500);
+            return throwedError($th);
         }
     }
     /**
@@ -105,10 +109,7 @@ class RoleController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], 500);
+            return throwedError($th);
         }
     }
 
@@ -129,10 +130,7 @@ class RoleController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], 500);
+            return throwedError($th);
         }
     }
 }

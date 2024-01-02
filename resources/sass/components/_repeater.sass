@@ -1,6 +1,6 @@
 $repeater-border: 2px solid $primary
 $repeater-border-radius: 10px
-$repeater-padding: 10px
+$repeater-padding: 1rem
 
 .repeater
     width: 100%
@@ -10,4 +10,14 @@ $repeater-padding: 10px
     border-radius: $repeater-border-radius
     background-color: $white
     &-row
-        border-bottom: 1px solid $primary
+        position: relative !important
+        padding-bottom: 2rem
+        &::after
+            content: ''
+            position: absolute
+            bottom: 1rem
+            left: 50%
+            transform: translateX(-50%)
+            width: 90%
+            height: 1px
+            background-color: $primary

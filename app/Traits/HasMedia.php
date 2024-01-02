@@ -16,16 +16,21 @@ trait HasMedia
         return $this->media->map(fn ($item) => $item->id);
     }
 
+    public function getMediaLinksListAttribute()
+    {
+        return $this->media->map(fn ($item) => $item->storage_link);
+    }
+
     /**
      * Relationships
      */
     public function media()
     {
-        return $this->morphMany(Media::class, 'attachable');
+        return $this->morphToMany(Media::class, 'attachable', 'has_media');
     }
 
     public function images()
     {
-        return $this->morphMany(Media::class, 'attachable')->whereIn('extension', ['jpg', 'jpeg', 'png', 'svg']);
+        return $this->media()->whereIn('extension', ['jpg', 'jpeg', 'png', 'svg']);
     }
 }

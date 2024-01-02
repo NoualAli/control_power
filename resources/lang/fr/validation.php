@@ -239,7 +239,10 @@ return [
         'closing_report' => 'PV de clôture',
         'mission_order' => 'ordre de mission',
         'closing_report.*' => 'PV de clôture',
-        'controller' => 'contrôleur'
+        'controller' => 'contrôleur',
+        'start_date' => 'date de début',
+        'end_date' => 'date de fin',
+        'agency' => 'agence'
     ],
 
 ];

@@ -5,11 +5,10 @@ namespace App\Exports;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithProperties;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Events\AfterSheet;
 
-class ControlPointsExport extends BaseExport implements FromView, WithProperties
+class ControlPointsExport extends BaseExport implements FromView, WithProperties, ShouldAutoSize
 {
 
     /**

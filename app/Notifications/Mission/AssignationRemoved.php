@@ -11,19 +11,22 @@ use Illuminate\Notifications\Notification;
 class AssignationRemoved extends Notification
 {
     use Queueable;
+
     /**
-     * @var App\Models\Mission
+     * @var \App\Models\Mission
      */
     private $mission;
 
     /**
      * Create a new notification instance.
      *
+     * @param string|\App\Models\Mission $mission
+     *
      * @return void
      */
-    public function __construct(Mission $mission)
+    public function __construct(string|Mission $mission)
     {
-        $this->mission = $mission;
+        $this->mission = is_string($mission) ? Mission::findOrFail($mission) : $mission;
     }
 
     /**
@@ -44,7 +47,7 @@ class AssignationRemoved extends Notification
      */
     private function getTitle(): string
     {
-        return 'Révocation de mission';
+        return 'REVOCATION DE LA MISSION ' . $this->mission->reference . ' - ' . env('APP_NAME');
     }
 
     /**
@@ -65,10 +68,16 @@ class AssignationRemoved extends Notification
      */
     public function via($notifiable)
     {
-        if (app()->environment('production')) {
-            return ['mail', 'database'];
+        $channels = collect([]);
+        $setting = $notifiable->notification_settings()->whereRelation('type', 'code', 'mission_assignation_removed')->first();
+        if ($setting?->database_is_enabled) {
+            $channels->push('database');
         }
-        return ['database'];
+
+        if ($setting?->email_is_enabled && !config('mail.disabled')) {
+            $channels->push('mail');
+        }
+        return $channels->toArray();
     }
 
     /**

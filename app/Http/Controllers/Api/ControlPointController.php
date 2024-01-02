@@ -2,12 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\ControlPointsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ControlPoint\StoreRequest;
 use App\Http\Requests\ControlPoint\UpdateRequest;
 use App\Http\Resources\ControlPointResource;
 use App\Models\ControlPoint;
+use App\Models\Field;
+use App\Services\ExcelExportService;
+use Illuminate\Support\Arr;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use stdClass;
 
 class ControlPointController extends Controller
 {
@@ -18,6 +24,8 @@ class ControlPointController extends Controller
      */
     public function index()
     {
+        isAbleOrAbort('view_control_point');
+
         $controlPoints = new ControlPoint();
 
         $search = request('search', null);
@@ -25,6 +33,12 @@ class ControlPointController extends Controller
         $filter = request('filter', null);
         $fetchFilters = request()->has('fetchFilters');
         $fetchAll = request('fetchAll', false);
+        $export = request('export', []);
+        $shouldExport = count($export);
+
+        if ($shouldExport) {
+            return (new ExcelExportService($controlPoints, ControlPointsExport::class, 'liste_des_points_de_contrôle.xlsx', $export))->download();
+        }
         if ($fetchFilters) {
             return $this->filters();
         }
@@ -64,22 +78,17 @@ class ControlPointController extends Controller
     {
         $data = $request->validated();
         try {
-            $data['scores'] = count($data['scores']) ? $data['scores'] : null;
-            $data['fields'] = count($data['fields']) ? $data['fields'] : null;
-            // $data['major_fact_types'] = count($data['major_fact_types']) ? $data['major_fact_types'] : null;
-            $controlPoint = ControlPoint::create($data);
-
-            return response()->json([
-                'message' => CREATE_SUCCESS,
-                'status' => true
-            ]);
+            $controlPoint = DB::transaction(function () use ($data) {
+                $data['scores'] = count($data['scores']) ? $data['scores'] : null;
+                $fields = $data['sampling_fields'];
+                $controlPoint = ControlPoint::create($data);
+                $controlPoint->fields()->sync($fields);
+                return $controlPoint;
+            });
+            $status = $controlPoint->wasRecentlyCreated;
+            return actionResponse($status, CREATE_SUCCESS, CREATE_ERROR);
         } catch (\Throwable $th) {
-            $code = 500;
-
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], $code);
+            return throwedError($th);
         }
     }
     /**
@@ -91,7 +100,7 @@ class ControlPointController extends Controller
     public function show(ControlPoint $controlPoint): JsonResponse
     {
         isAbleOrAbort('view_control_point');
-        $controlPoint->load(['family', 'domain', 'process']);
+        $controlPoint->load(['family', 'domain', 'process', 'fields']);
         return response()->json($controlPoint);
     }
 
@@ -107,28 +116,20 @@ class ControlPointController extends Controller
     {
         try {
             $data = $request->validated();
-            if (is_null($controlPoint->scores) || empty($controlPoint->scores)) {
-                $data['scores'] = $data['scores'] ?: null;
-            }
-            if (is_null($controlPoint->fields) || empty($controlPoint->fields)) {
-                $data['fields'] = $data['fields'] ?: null;
-            }
+            $status = DB::transaction(function () use ($controlPoint, $data) {
+                if (is_null($controlPoint->scores) || empty($controlPoint->scores)) {
+                    $data['scores'] = $data['scores'] ?: null;
+                }
+                $fields = $data['sampling_fields'];
 
-            // if (is_null($controlPoint->major_fact_types) || empty($controlPoint->major_fact_types)) {
-            //     $data['major_fact_types'] =  count($data['major_fact_types']) ? $data['major_fact_types'] : null;
-            // }
-            $controlPoint->update($data);
-            return response()->json([
-                'message' => UPDATE_SUCCESS,
-                'status' => true,
-            ]);
+                $update = $controlPoint->update($data);
+                $sync = $controlPoint->fields()->sync($fields);
+                return $update && $sync;
+            });
+
+            return actionResponse($status, UPDATE_SUCCESS, UPDATE_SUCCESS);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], $code);
+            return throwedError($th);
         }
     }
 
@@ -142,18 +143,10 @@ class ControlPointController extends Controller
     {
         isAbleOrAbort('delete_control_point');
         try {
-            $controlPoint->delete();
-            return response()->json([
-                'message' => DELETE_SUCCESS,
-                'status' => true,
-            ]);
+            $status = $controlPoint->delete();
+            return actionResponse($status, DELETE_SUCCESS, DELETE_ERROR);
         } catch (\Throwable $th) {
-            $code = 500;
-
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], 500);
+            return throwedError($th);
         }
     }
 }

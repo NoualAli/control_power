@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\ControlPointController;
 use App\Http\Controllers\Api\DomainController;
 use App\Http\Controllers\Api\DreController;
 use App\Http\Controllers\Api\FamilyController;
+use App\Http\Controllers\Api\FieldController;
 use App\Http\Controllers\Api\MajorFactController;
 use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\MissionAssignationController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\Api\Settings\PasswordController;
 use App\Http\Controllers\Api\ReferenceController;
 use App\Http\Controllers\Api\MissionDetailRegularizationController;
 use App\Http\Controllers\Api\ModuleController;
+use App\Http\Controllers\Api\NotificationSettingController;
 use App\Http\Controllers\Api\Settings\SettingController;
 use Illuminate\Support\Facades\Route;
 
@@ -49,7 +51,7 @@ Route::group(['middleware' => 'auth:api'], function () {
 
         // Route::patch('settings/profile/{user}', [ProfileController::class, 'update']);
         Route::patch('settings/password/{user}', [PasswordController::class, 'update']);
-        Route::get('settings/laravel/rules', [SettingController::class, 'getValidationRules']);
+        Route::patch('settings/reset/{user}', [SettingController::class, 'reset']);
 
         Route::prefix('backup-db')->controller(BackupController::class)->group(function () {
             Route::get('/', 'index');
@@ -80,6 +82,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('/', 'store');
             Route::put('info/{user}', 'updateInfo');
             Route::put('password/{user}', 'updatePassword');
+            Route::post('reset/{user}', 'reset');
             Route::delete('{user}', 'destroy');
         });
 
@@ -128,12 +131,24 @@ Route::group(['middleware' => 'auth:api'], function () {
         });
 
         /**
+         * Fields
+         */
+        Route::prefix('fields')->controller(FieldController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::get('{field}', 'show');
+            Route::post('/', 'store');
+            Route::put('{field}', 'update');
+            Route::delete('{field}', 'destroy');
+        });
+
+        /**
          * Control campaigns
          */
         Route::prefix('campaigns')->controller(ControlCampaignController::class)->group(function () {
             Route::get('/', 'index');
             Route::post('/', 'store');
-            Route::get('/current', 'current');
+            Route::post('/{campaign}/reports', 'generateReports');
+            Route::get('/campaign', 'campaign');
             Route::get('/next-reference', 'getNextReference');
             Route::get('/{campaign}', 'show');
             Route::get('/processes/{campaign}', 'processes');
@@ -151,7 +166,6 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/', 'index');
             Route::get('/{mission}', 'show');
             Route::get('/{mission}/report', 'handleReport');
-            Route::get('/{mission}/report/check-if-is-generated', 'missionReportIsGenerated');
             Route::get('/{mission}/processes', 'processes');
             Route::put('{mission}', 'update');
             // Route::put('{mission}/assign', 'assignToCC');
@@ -189,12 +203,17 @@ Route::group(['middleware' => 'auth:api'], function () {
          * Details
          */
         Route::prefix('details')->controller(MissionDetailController::class)->group(function () {
-            Route::get('/', 'index');
-            // Route::get('/major-facts', 'majorFacts');
-            Route::prefix('major-facts')->controller(MajorFactController::class)->group(function () {
-                Route::get('/', 'index');
-            });
+            Route::get('/{mission?}', 'index');
         });
+        Route::prefix('major-facts')->controller(MajorFactController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::put('{detail}', 'reject');
+            Route::post('{detail}', 'notify');
+        });
+
+        /**
+         * Regularizations
+         */
         Route::prefix('regularize')->controller(MissionDetailRegularizationController::class)->group(function () {
             Route::post('{detail}', 'store');
             Route::get('{detail}/history', 'show');
@@ -225,10 +244,12 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::put('{category}', 'update');
             Route::delete('{category}', 'destroy');
         });
-        Route::prefix('upload')->controller(MediaController::class)->group(function () {
+        Route::prefix('media')->controller(MediaController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::get('{media}', 'show');
             Route::post('/', 'store');
             Route::delete('{media}', 'destroy');
-            Route::get('/', 'index');
+            Route::delete('{media}/multiple', 'destroyMultiple');
         });
 
         /**
@@ -244,17 +265,20 @@ Route::group(['middleware' => 'auth:api'], function () {
 
         Route::prefix('notifications')->controller(NotificationController::class)->group(function () {
             Route::get('/', 'index');
-            Route::put('/', 'update');
-            // Route::get('total-unread-major-facts', 'total_unread_major_facts');
+            Route::put('/', 'read');
             Route::get('unreadNotifications', 'unreadNotifications');
             Route::post('read-major-facts', 'read_major_facts');
-            Route::post('major-fact/{majorFact}', 'dispatchMajorFact');
+            Route::prefix('settings')->controller(NotificationSettingController::class)->group(function () {
+                Route::get('{user}', 'index');
+                Route::put('{user}', 'update');
+            });
         });
 
         Route::prefix('bugs')->controller(BugController::class)->group(function () {
             Route::get('/', 'index');
             Route::post('/', 'store');
             Route::get('{bug}', 'show');
+            Route::put('{bug}', 'resolve');
         });
 
         Route::prefix('comments')->controller(CommentController::class)->group(function () {

@@ -1,6 +1,7 @@
 <template>
-    <Table :key="key" :filters="filters" :isLoading="isLoading" @search="(e) => this.loadData({ search: e })" :title="title"
-        @toggleFilter="toggleFilterState" :isSearchable="isSearchable">
+    <Table :searchValue="searchValue" :key="key" :filters="filters" :isLoading="isLoading"
+        @search="(e) => this.loadData({ search: e })" :title="title" @toggleFilter="toggleFilterState"
+        :isSearchable="isSearchable">
         <template #filter>
             <!-- Table filters -->
             <NLFilter :filters="filters" :isOpen="filterIsOpen" :customUrl="filtersCustomUrl" :urlPrefix="filtersUrlPrefix"
@@ -101,6 +102,7 @@ export default {
         filtersUrlPrefix: { type: String, required: false, default: null },
         isSearchable: { type: Boolean, required: false, default: true },
         refresh: { type: Number, required: false, default: 0 },
+        searchValue: { type: [ String, null ], required: false, default: null }
     },
     data() {
         return {
@@ -112,6 +114,7 @@ export default {
             isLoading: false,
             data: null,
             url: null,
+            activeDetailsRowsId: [],
             activeDetailsRows: [],
             filterIsOpen: false,
             activeFilters: {},
@@ -173,7 +176,7 @@ export default {
             }
         },
         detailIsActive() {
-            return (value) => this.activeDetailsRows.includes(value[ this.rowId ])
+            return (value) => this.activeDetailsRowsId.includes(value[ this.rowId ])
         },
         noDataColspan() {
             let additionalCols = 1
@@ -205,16 +208,17 @@ export default {
          */
         loadData({ page = 1, perPage = this.perPage, search = this.search, sorting = this.sorting, filters = this.activeFilters }) {
             this.isLoading = true
-            this.page = page
-            this.perPage = perPage
-            this.search = search
-            this.activeFilters = filters
-            this.handleSorting(sorting)
-            this.getUrl()
+            this.page = page;
+            this.perPage = perPage;
+            this.search = search;
+            this.activeFilters = filters;
+            this.handleSorting(sorting);
+            this.getUrl();
+
             api.get(this.url).then(response => {
                 this.isLoading = false
                 this.data = response.data
-                this.$emit('dataLoaded', this.data)
+                this.$emit('dataLoaded', { data: this.data, url: this.url })
             }).catch(error => {
                 this.isLoading = false
             })
@@ -235,7 +239,7 @@ export default {
          * @param {*} item
          */
         handleSorting(item) {
-            const sortBy = item?.column?.sortBy !== undefined && item?.column?.sortBy !== null ? item?.column?.sortBy : item?.column?.field
+            const sortBy = item?.sortingColumn !== undefined && item?.sortingColumn !== null ? item?.sortingColumn : item?.column?.field
             if (item?.direction) {
                 this.sorting[ sortBy ] = item.direction
             } else {
@@ -300,15 +304,16 @@ export default {
          * @param {Object} value
          */
         toggleDetailsRow(value) {
-            if (this.activeDetailsRows.includes(value[ this.rowId ])) {
-                const index = this.activeDetailsRows.indexOf(value[ this.rowId ]);
+            if (this.activeDetailsRowsId.includes(value[ this.rowId ])) {
+                const index = this.activeDetailsRowsId.indexOf(value[ this.rowId ]);
                 if (index !== -1) {
-                    this.activeDetailsRows.splice(index, 1);
+                    this.activeDetailsRowsId.splice(index, 1);
                 }
             } else {
-                this.activeDetailsRows.push(value[ this.rowId ])
+                this.activeDetailsRowsId.push(value[ this.rowId ])
+                this.activeDetailsRows.push(value)
             }
-            this.$emit('detailsChanged', this.activeDetailsRows)
+            this.$emit('detailsChanged', { activeDetailsRowsId: this.activeDetailsRowsId, activeDetailsRows: this.activeDetailsRows })
         },
 
         /**

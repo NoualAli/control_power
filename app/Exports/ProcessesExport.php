@@ -8,7 +8,7 @@ use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithProperties;
 
-class ProcessesExport implements FromView, WithProperties, ShouldAutoSize
+class ProcessesExport extends BaseExport implements FromView, WithProperties, ShouldAutoSize
 {
 
     /**

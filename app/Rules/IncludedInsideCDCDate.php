@@ -18,9 +18,11 @@ class IncludedInsideCDCDate implements Rule
      *
      * @return void
      */
-    public function __construct(int $campaign)
+    public function __construct(?string $campaign = null)
     {
-        $this->campaign = ControlCampaign::findOrFail($campaign);
+        if ($campaign) {
+            $this->campaign = ControlCampaign::findOrFail($campaign);
+        }
     }
 
     /**
@@ -32,10 +34,13 @@ class IncludedInsideCDCDate implements Rule
      */
     public function passes($attribute, $value)
     {
-        $startDate = Carbon::parse($this->campaign->start_date);
-        $endDate = Carbon::parse($this->campaign->end_date);
-        $date = Carbon::parse($value);
-        return $date->between($startDate, $endDate);
+        if ($this->campaign) {
+            $startDate = Carbon::parse($this->campaign->start_date);
+            $endDate = Carbon::parse($this->campaign->end_date);
+            $date = Carbon::parse($value);
+            return $date->between($startDate, $endDate);
+        }
+        return true;
     }
 
     /**

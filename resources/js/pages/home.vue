@@ -119,9 +119,9 @@ export default {
         savePNG(element) {
             const canvas = document.querySelector(`#${element}`)
             const title = canvas.dataset.title
-            const dataURL = canvas.toDataURL('image/jpeg')
+            const dataURL = canvas.toDataURL('image/png')
             const link = document.createElement('a')
-            link.download = title ? `${title}.jpg` : 'canvas.jpg'
+            link.download = title ? `${title}.png` : 'canvas.png'
             link.href = dataURL
             link.click()
         }

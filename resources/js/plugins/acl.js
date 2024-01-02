@@ -1,5 +1,5 @@
 import api from './api'
-import { hasRole, isAbleTo } from './user'
+import { hasRole, isAbleTo, user } from './user'
 import { ls_get } from './crypto'
 
 // app.mixin() there is no longer mixin in vue
@@ -14,6 +14,11 @@ export const aclMixin = {
         is() {
             return (roles) => {
                 return hasRole(roles)
+            }
+        },
+        user() {
+            return () => {
+                return user()
             }
         }
     }

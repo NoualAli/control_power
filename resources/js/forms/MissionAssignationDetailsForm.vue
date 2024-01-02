@@ -19,9 +19,9 @@
                         loading-text="Chargement des PCF en cours..." label-required :disableBranchNodes="true" />
                 </NLColumn>
             </NLForm>
-            <NLDatatable :columns="columns" title="PCF assignés"
+            <NLDatatable :isSearchable="false" :columns="columns" title="PCF assignés"
                 :customUrl="'/missions/' + this.mission.id + '/assigned-processes/' + form.controller" urlPrefix=""
-                :key="forceReload" v-if="form.controller">
+                :refresh="refresh" v-if="form.controller">
                 <template #actions-before="{ item, callback }" v-if="is('cdcr')">
                     <button class="btn btn-danger has-icon" @click.stop="callback(detachProcess, item)">
                         <i class="las la-unlink icon" />
@@ -65,10 +65,9 @@ export default {
         },
         "form.controller"(newValue, oldValue) {
             if (this.newValue !== oldValue) {
-                this.forceReload += 1
+                this.refresh += 1
                 return
             }
-            // console.log(newValue, oldValue);
         }
     },
     data() {
@@ -82,7 +81,7 @@ export default {
             isLoading: true,
             controllersList: [],
             pcfList: [],
-            forceReload: 1,
+            refresh: 0,
             columns: [
                 {
                     label: 'Famille',
@@ -110,7 +109,8 @@ export default {
                 if (action.isConfirmed) {
                     api.delete('missions/' + this.mission.id + '/assign/' + item.process_id + '/' + this.form.controller + '/' + this.type).then(response => {
                         this.$swal.toast_success(response?.data?.message)
-                        this.forceReload += 1
+                        this.refresh += 1
+                        this.$emit('success')
                         this.fetchNotDispatchedPCF()
                     }).catch(error => {
                         this.$swal.alert_error()
@@ -173,7 +173,7 @@ export default {
                     this.$emit('success')
                     this.form.reset()
                     this.initData()
-                    this.forceReload += 1
+                    this.refresh += 1
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }

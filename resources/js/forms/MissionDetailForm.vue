@@ -8,7 +8,9 @@
         <template #default>
             <NLForm :form="form" :action="save" v-if="!isLoading">
                 <!-- Major fact -->
-                <NLColumn v-if="data?.control_point?.has_major_fact && ([2, 3, 4]).includes(Number(form.score))">
+                <NLColumn
+                    v-if="data?.control_point?.has_major_fact && ([2, 3, 4]).includes(Number(form.score))
+                        && !data.major_fact && (!Boolean(data?.controlled_by_ci_at) || !Boolean(data?.controlled_by_cdc_at) || !Boolean(data?.controlled_by_cdcr_at) || !Boolean(data?.controlled_by_cc_at) || !Boolean(data?.controlled_by_dcp_at))">
                     <NLSwitch type="is-danger" v-model="form.major_fact" :name="'major_fact'" :form="form"
                         label="Fait majeur" />
                 </NLColumn>
@@ -18,23 +20,33 @@
                         <!-- score -->
                         <NLColumn>
                             <NLSelect v-model="form.score" :name="'score'" label="Notation" :form="form"
-                                :options="scoresList" label-required v-if="[1, 2].includes(form.currentMode)" />
-                            <NLInput v-model="data.appreciation" label="Notation" readonly v-else />
+                                :options="scoresList" label-required
+                                v-if="[1, 2].includes(form.currentMode) && !data?.major_fact" />
+                            <NLInput v-model="data.appreciation" label="Notation" :readonly="true" v-else />
                         </NLColumn>
                         <!-- Metadata -->
                         <NLColumn
-                            v-if="data?.control_point.fields && Number(form.score) > 0 && [1, 2].includes(form.currentMode)"
+                            v-if="data?.control_point?.fields?.length && Number(form.score) > 0 && [1, 2].includes(form.currentMode)"
                             extraClass="mb-4">
                             <div class="repeater">
                                 <h2 class="mb-6">
                                     Informations supplémentaires
                                 </h2>
                                 <!-- Repeater row -->
-                                <NLGrid v-for="( item, dataRow ) in  form.metadata " :key="'metadata-' + dataRow"
+                                <NLGrid v-for="( item, dataRow ) in  form.metadata" :key="'metadata-' + dataRow"
                                     extraClass="my-6 repeater-row">
                                     <NLColumn>
+                                        <NLFlex alignItems="center">
+                                            <b>Ligne n° {{ dataRow + 1 }}</b>
+
+                                            <!-- Remove current row -->
+                                            <i class="las la-trash-alt text-danger icon is-clickable"
+                                                @click="removeRow(dataRow)"></i>
+                                        </NLFlex>
+                                    </NLColumn>
+                                    <NLColumn>
                                         <NLGrid>
-                                            <NLColumn sm="11" lg="11" md="11">
+                                            <NLColumn>
                                                 <NLGrid>
                                                     <div v-for="( input, index ) in  setupFields(data?.control_point.fields) "
                                                         :key="'metadata-input-' + input.name + '-' + dataRow + '-id'"
@@ -42,55 +54,43 @@
                                                         <!-- Defining different inputs -->
                                                         <NLInput v-if="isInput(input.type)"
                                                             :id="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                                                            v-model="form.metadata[dataRow][index][input.name]" :form="form"
+                                                            v-model="form.metadata[dataRow][index].value" :form="form"
                                                             :label="input.label" :placeholder="input.placeholder"
                                                             :type="input.type" :label-required="input.required"
-                                                            :name="'metadata.' + dataRow + '.' + index + '.' + input.name" />
-
-                                                        <NLTextarea v-if="input.type === 'textarea'"
-                                                            :id="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                                                            v-model="form.metadata[dataRow][index][input.name]" :form="form"
-                                                            :label="input.label" :placeholder="input.placeholder"
-                                                            :type="input.type" :label-required="input.required"
+                                                            :length="input.length"
                                                             :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                                                            :length="input.length" />
+                                                            :helpText="input.help_text" />
 
-                                                        <NLWyswyg v-if="input.type === 'wyswyg'"
-                                                            :id="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                                                            v-model="form.metadata[dataRow][index][input.name]" :form="form"
-                                                            :label="input.label" :placeholder="input.placeholder"
-                                                            :type="input.type" :label-required="input.required"
-                                                            :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                                                            :length="input.length" />
 
                                                         <NLSelect v-if="input.type === 'select'"
                                                             :id="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                                                            v-model="form.metadata[dataRow][index][input.name]" :form="form"
-                                                            :label="input.label" :type="input.type"
-                                                            :label-required="input.required"
+                                                            :options="input.options" :helpText="input.help_text"
+                                                            v-model="form.metadata[dataRow][index].value" :form="form"
+                                                            :label="input.label" :label-required="input.required"
                                                             :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                                                            :options="input.options"
                                                             :placeholder="input.placeholder || 'Choisissez une option...'"
                                                             :multiple="input.multiple" />
+
+                                                        <NLTextarea v-if="input.type === 'textarea'"
+                                                            :id="'metadata.' + dataRow + '.' + index + '.' + input.name"
+                                                            v-model="form.metadata[dataRow][index].value" :form="form"
+                                                            :label="input.label" :placeholder="input.placeholder"
+                                                            :type="input.type" :label-required="input.required"
+                                                            :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
+                                                            :length="input.length" :helpText="input.help_text" />
                                                     </div>
                                                 </NLGrid>
-                                            </NLColumn>
-                                            <!-- Remove current row -->
-                                            <NLColumn lg="1" md="1" sm="1" v-if="dataRow >= 0"
-                                                extraClass="p-0 d-flex justify-start align-center">
-                                                <div class="btn btn-danger" @click="removeRow(dataRow)">
-                                                    <i class="las la-trash-alt icon"></i>
-                                                </div>
                                             </NLColumn>
                                         </NLGrid>
                                     </NLColumn>
                                 </NLGrid>
                                 <!-- Add new row -->
-                                <div class="d-flex justify-start align-center">
-                                    <span class="btn" @click="addRow(data?.control_point.fields)" title="alt + '+'">
+                                <NLFlex lgAlignItems="center">
+                                    <span class="btn has-icon" @click="addRow(data?.control_point.fields)"
+                                        title="alt + '+'">
                                         <i class="las la-plus" />
                                     </span>
-                                </div>
+                                </NLFlex>
                             </div>
                         </NLColumn>
 
@@ -104,7 +104,7 @@
                                         <table>
                                             <thead>
                                                 <tr>
-                                                    <th v-for="( heading, indexHeading ) in  currentMetadata.keys "
+                                                    <th v-for="( heading, indexHeading ) in  currentMetadata.headings "
                                                         :key="indexHeading" class="text-left">
                                                         {{ heading }}
                                                     </th>
@@ -115,7 +115,7 @@
                                                     <td v-for="( items, index ) in  data "
                                                         :key="'metadata-row-' + row + '-item-' + index" class="text-left">
                                                         <template v-for="( item, key ) in  items ">
-                                                            <span v-if="key !== 'label' && key !== 'rules'"
+                                                            <span v-if="key !== 'label' && key !== 'additional_rules'"
                                                                 :key="'metadata-row-' + row + '-item-' + index + key + '-content'">
                                                                 {{ item || '-' }}
                                                             </span>
@@ -150,10 +150,11 @@
                     </NLGrid>
                 </NLColumn>
                 <!-- Media (attachements) -->
-                <NLColumn :lg="isContainerExpanded ? 4 : 12">
+                <NLColumn :lg="isContainerExpanded ? 4 : 12"
+                    v-if="[1, 2].includes(form.currentMode) || (![1, 2].includes(form.currentMode) && Object.values(form.media).length)">
                     <NLFile @uploaded="handleMedia" @deleted="handleMedia" @loaded="handleMedia" v-model="form.media"
                         :name="'media'" label="Pièces jointes" attachable-type="App\Models\MissionDetail"
-                        :attachable-id="form.detail" :form="form" multiple :canDelete="canDeleteMedia"
+                        :folder="folderName" :attachable-id="form.detail" :form="form" multiple :canDelete="canDeleteMedia"
                         :readonly="![1, 2].includes(form.currentMode)" />
                 </NLColumn>
             </NLForm>
@@ -172,6 +173,7 @@ import NLForm from '../components/NLForm';
 import { Form } from 'vform';
 import { mapGetters } from 'vuex';
 import { hasRole } from '../plugins/user';
+import { slugify } from '../plugins/helpers';
 import NLComponentLoader from '../components/NLComponentLoader'
 export default {
     name: 'MissionDetailForm',
@@ -197,6 +199,9 @@ export default {
                 return !this.currentMission.is_validated_by_dcp
             }
             return false
+        },
+        folderName() {
+            return 'Justificatifs/' + this.slugify(this.detail?.detail?.mission?.campaign?.reference) + '/' + this.slugify(this.detail?.detail?.mission?.reference);
         }
     },
     mounted() {
@@ -236,16 +241,21 @@ export default {
             }),
             currentMission: {},
             isContainerExpanded: false,
-            currentMetadata: {},
+            currentMetadata: [],
             scoresList: [],
             isLoading: false,
         }
     },
     methods: {
+        /**
+         * Force update form media
+         */
         handleMedia(files) {
             this.form.media = files
         },
-
+        /**
+         * Handle keyboard shortcut
+         */
         handleKeyboard() {
             window.addEventListener('keyup', e => {
                 if (this.data?.control_point?.fields && Number(this.form.score) > 1 && [ 1, 2 ].includes(this.form.currentMode)) {
@@ -264,25 +274,33 @@ export default {
                 }
             })
         },
+        /**
+         * Expand and reduce modal
+         */
         handleDetailForm(e) {
             this.isContainerExpanded = e
         },
+        /**
+         * Close modal
+         */
         close() {
             this.currentMission = {}
-            this.currentMetadata = {}
+            this.currentMetadata = []
             this.scoresList = []
             this.isLoading = false
             this.form.reset()
             this.$emit('close')
         },
         /**
-         * Initialize form
+         * Init form and other data
          */
         initData() {
             this.isLoading = !this.isLoading
             this.$store.dispatch('details/fetch', this.data?.id).then(() => {
                 const detail = this.detail.detail
-                this.currentMetadata.keys = typeof detail?.parsed_metadata == 'object' && Object.values(detail?.parsed_metadata).length ? Object.keys(detail?.parsed_metadata) : null
+                const metadata = detail.parsed_metadata?.metadata
+                this.currentMetadata.headings = detail.parsed_metadata?.headings
+                this.currentMetadata.keys = detail.parsed_metadata?.keys
                 if (hasRole([ 'ci' ])) {
                     this.form.currentMode = 1 // Execution mode
                 } else if (hasRole('cdc')) {
@@ -296,7 +314,7 @@ export default {
                 } else {
                     this.form.currentMode = 6 // Readonly mode
                 }
-
+                this.form.errors.errors = {}
                 this.currentMission = detail.mission
                 this.form.mission = detail.mission_id
                 this.form.process = Number(detail.control_point.process_id)
@@ -307,10 +325,11 @@ export default {
                 this.form.recovery_plan = detail.recovery_plan
                 this.form.score = detail.score ? parseInt(detail.score) : null
                 this.form.major_fact = !!detail.major_fact
-                this.form.metadata = detail.metadata || []
+                this.form.metadata = metadata
                 this.isLoading = !this.isLoading
                 this.setupScores(this.data?.control_point.scores)
-            }).catch(error => console.log(error))
+                this.loadMissingMetadata()
+            }).catch(error => this.$swal.catchError(error))
         },
         /**
          * Save detail
@@ -336,26 +355,62 @@ export default {
             })
         },
         /**
-         * Initialise les champs supplémentaire pour chaque point de contrôle
+         * Init additional fields for each control point
          *
          * @param {Array} fields
          */
         setupFields(fields) {
-            return fields?.map(field => {
-                const type = Object.prototype.hasOwnProperty.call(field, 0) ? field[ 0 ].type : ''
-                const label = Object.prototype.hasOwnProperty.call(field, 1) ? field[ 1 ].label : ''
-                const name = Object.prototype.hasOwnProperty.call(field, 2) ? field[ 2 ].name : ''
-                const length = Object.prototype.hasOwnProperty.call(field, 3) ? field[ 3 ].length : null
-                const style = Object.prototype.hasOwnProperty.call(field, 4) ? field[ 4 ].style : ''
-                const id = Object.prototype.hasOwnProperty.call(field, 5) ? field[ 5 ].id : ''
-                const placeholder = Object.prototype.hasOwnProperty.call(field, 6) ? field[ 6 ].placeholder : ''
-                const help_text = Object.prototype.hasOwnProperty.call(field, 7) ? field[ 7 ].help_text : ''
-                const rules = Object.prototype.hasOwnProperty.call(field, 8) ? field[ 8 ].rules : []
-                return { type, label, name, length, style, id, placeholder, help_text, rules }
+            fields = fields?.map(field => {
+                const type = field?.type
+                const label = field?.label
+                const name = field?.name
+                const length = field?.max_length || null
+                const style = 'col-12 col-lg-' + field?.columns
+                const placeholder = field?.placeholder
+                const help_text = field?.help_text
+                const required = field?.required
+                const additional_rules = field?.additional_rules || []
+                const id = field.id
+                let options = []
+                let multiple = field.is_multiple
+                if (field.options) {
+                    let optionsArray = field.options.split(',')
+                    optionsArray.forEach(option => {
+                        options.push({ id: option, label: option })
+                    })
+                }
+                return { type, label, name, length, style, id, placeholder, help_text, additional_rules, required, options, multiple }
+            })
+            return fields
+        },
+        /**
+         * Load missing metadata in case if a new field was added in course of mission
+         */
+        loadMissingMetadata() {
+            const fields = this.data?.control_point?.fields
+            const fieldTypes = fields?.map(field => field.name)
+            const existingKeys = [ ...this.currentMetadata.keys ]
+            const unexistingKeys = fieldTypes?.filter(key => !existingKeys?.includes(key))
+            const fieldsToLoad = fields?.filter(field => unexistingKeys?.includes(field.name))
+            const metadata = this.form.metadata
+            metadata.forEach(row => {
+                fieldsToLoad.forEach(field => {
+                    {
+                        const element = field
+                        const key = element.name
+                        let is_multiple = element.is_multiple
+                        let is_major_fact = false
+                        let value = element.default !== undefined ? element.default : null
+                        let label = element.label
+                        let additional_rules = element.additional_rules
+                        let id = element.id
+                        row.push({ key, value, label, additional_rules, id, is_multiple, is_major_fact });
+                    }
+                })
             })
         },
         /**
-         * Initialise les notations pour chaque point de contrôle
+         * Init scores for each control point
          *
          * @param {Array|null} scores
          */
@@ -370,7 +425,7 @@ export default {
             }
         },
         /**
-         * Ajouter une ligne dans le répéteur
+         * Add new row to additional informations
          *
          * @param {Number} fields Index du champs
          */
@@ -379,29 +434,37 @@ export default {
             const schema = []
             for (let index = 0; index < fields.length; index++) {
                 const element = fields[ index ]
-                const name = element.name
-                let defaultValue = element.default !== undefined ? element.default : ''
-                defaultValue = element.multiple ? [] : ''
-                schema.push({ [ name ]: defaultValue, label: element.label, rules: element.rules })
+                const key = element.name
+                let is_multiple = element.multiple
+                let is_major_fact = false
+                let value = element.default !== undefined ? element.default : null
+                let label = element.label
+                let additional_rules = element.additional_rules
+                let id = element.id
+                value = element.is_multiple ? [] : null
+                schema.push({ key, value, label, additional_rules, id, is_multiple, is_major_fact })
             }
             if (this.form.metadata) this.form.metadata.push(schema)
         },
         /**
-         * Supprimer une ligne du répéteur
+         * Delete a row from additional informations
          *
          * @param {Number} row
-         * @param {Number} field
          */
-        removeRow(field) {
-            this.form.metadata.splice(field, 1)
+        removeRow(row) {
+            this.$swal.confirm_destroy(`Voulez-vous vraiment supprimer la ligne n° ${row + 1}`).then(action => {
+                if (action.isConfirmed) {
+                    this.form.metadata.splice(row, 1)
+                }
+            })
         },
         /**
-         * Vérifie que la valeur est un input valide
+         * Check if value is a valid input type
          *
          * @param {String} value
          */
         isInput(value) {
-            return [ 'text', 'date', 'datetime', 'time', 'week', 'number', 'tel', 'email', 'month', 'url' ].includes(value)
+            return [ 'text', 'date', 'datetime-local', 'time', 'week', 'number', 'tel', 'email', 'month', 'url' ].includes(value)
         },
     }
 }

@@ -1,5 +1,3 @@
-<!-- eslint-disable vue/multi-word-component-names -->
-<!-- eslint-disable vue/no-v-html -->
 <template>
     <div v-if="can('view_control_point')">
         <ContentHeader>
@@ -8,30 +6,36 @@
                     class="btn btn-info">
                     Ajouter
                 </router-link>
-                <a href="/excel-export?export=control_points" target="_blank" class="btn btn-excel has-icon">
+                <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
                     <i class="las la-file-excel icon" />
                     Exporter
-                </a>
+                </button>
             </template>
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :filters="filters" :details="details" :actions="actions"
                 title="Liste des points de contrôle" urlPrefix="control-points" @edit="edit" @delete="destroy"
-                :key="forceRealod" @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
+                :refresh="refresh" @dataLoaded="handleDataLoaded" />
+            <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl"
+                @close="this.excelExportIsOpen = false" @success="this.excelExportIsOpen = false" />
         </ContentBody>
     </div>
 </template>
 
 <script>
+import ExcelExportModal from '../../../Modals/ExcelExportModal';
 export default {
+    components: { ExcelExportModal },
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     metaInfo() {
         return { title: 'Points de contrôle' }
     },
     data() {
         return {
-            forceRealod: 1,
+            currentUrl: null,
+            excelExportIsOpen: false,
+            refresh: 0,
             columns: [
                 {
                     label: 'Famille',
@@ -83,6 +87,11 @@ export default {
                     field: 'scores_str',
                     isHtml: true
                 },
+                // {
+                //     label: 'Métadonnées',
+                //     field: 'fields.label',
+                //     hasMany: true
+                // }
             ],
             actions: {
                 edit: (item) => {
@@ -123,6 +132,10 @@ export default {
         this.$store.dispatch('settings/updatePageLoading', true)
     },
     methods: {
+        handleDataLoaded(response) {
+            this.currentUrl = response.url
+            this.$store.dispatch('settings/updatePageLoading', false)
+        },
         /**
          * Redirige vers la page d'edition
          * @param {Object} item
@@ -140,7 +153,7 @@ export default {
                 if (action.isConfirmed) {
                     this.$api.delete('control-points/' + item.id).then(response => {
                         if (response.data.status) {
-                            this.forceRealod += 1
+                            this.refresh += 1
                             this.$swal.toast_success(response.data.message)
                         } else {
                             this.$swal.toast_error(response.data.message)

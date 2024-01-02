@@ -2,23 +2,20 @@
 
 namespace App\Jobs;
 
-use App\Events\MissionReportGeneratedEvent;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Mission;
 use App\Models\User;
 use App\Notifications\ReportNotification;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
-
-use function PHPUnit\Framework\directoryExists;
+use Illuminate\Support\Str;
 
 class GenerateMissionReportPdf implements ShouldQueue
 {
@@ -31,6 +28,8 @@ class GenerateMissionReportPdf implements ShouldQueue
      */
     protected $mission;
 
+    protected $notify;
+
     /**
      * @var array
      */
@@ -41,9 +40,10 @@ class GenerateMissionReportPdf implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(Mission $mission)
+    public function __construct(Mission $mission, $notify = true)
     {
         $this->mission = $mission;
+        $this->notify = $notify;
     }
 
     /**
@@ -66,54 +66,73 @@ class GenerateMissionReportPdf implements ShouldQueue
                 'total_anomalies' => $mission->details()->whereAnomaly()->count(),
                 'total_major_facts' => $mission->details()->onlyMajorFacts()->count(),
             ];
-            if (!Storage::exists($this->filepath())) {
-                $pdf = Pdf::loadView('export.report', compact('mission', 'campaign', 'details', 'stats'));
-                $pdf->render();
-                $canvas = $pdf->get_canvas();
-                $cpdf = $canvas->get_cpdf();
+            $pdf = Pdf::loadView('export.report', compact('mission', 'campaign', 'details', 'stats'));
+            $pdf->render();
+            $canvas = $pdf->get_canvas();
+            $cpdf = $canvas->get_cpdf();
 
-                $font = $pdf->getFontMetrics()->get_font("helvetica", "bold");
+            $font = $pdf->getFontMetrics()->get_font("helvetica", "bold");
 
-                $firstPageId = $cpdf->getFirstPageId();
-                $objects = $cpdf->objects;
-                $pages = array_filter($objects, function ($v) {
-                    return $v['t'] == 'page';
-                });
-                $number = 1;
-                foreach ($pages as $pageId => $page) {
-                    if (($pageId + 1) !== $firstPageId) {
-                        $canvas->reopen_object($pageId + 1);
-                        $canvas->text(525, 807, $number, $font, 13, [.07, .34, .25]);
-                        $canvas->close_object();
-                        $number++;
-                    }
+            $firstPageId = $cpdf->getFirstPageId();
+            $objects = $cpdf->objects;
+            $pages = array_filter($objects, function ($v) {
+                return $v['t'] == 'page';
+            });
+            $number = 1;
+            foreach ($pages as $pageId => $page) {
+                if (($pageId + 1) !== $firstPageId) {
+                    $canvas->reopen_object($pageId + 1);
+                    $canvas->text(525, 807, $number, $font, 13, [.07, .34, .25]);
+                    $canvas->close_object();
+                    $number++;
                 }
-                $content = $pdf->download()->getOriginalContent();
+            }
+            $content = $pdf->download()->getOriginalContent();
 
-                Storage::put($this->filepath(), $content);
-                $notify = User::whereRoles(['cdcr', 'cdrcp', 'dcp']);
-                $notify = User::whereRoles(['dre', 'da'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($notify->get());
-                $notify = $notify->merge($mission->dcpControllers)->merge($mission->dreControllers);
-                $end = now();
-                $difference = $end->diffInRealMilliseconds($start);
-                // event(new MissionReportGeneratedEvent($mission));
-                foreach ($notify as $user) {
-                    // event(new MissionReportGeneratedEvent($mission, $user));
+            Storage::put($this->filepath(), $content);
+            $notifiables = User::whereRoles(['cdcr', 'cdrcp', 'dcp'])->where('is_active', true)->get();
+            $notifiables = User::whereRoles(['dre', 'da'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->where('is_active', true)->get()->merge($notifiables);
+            $notifiables = $notifiables->merge($mission->dcpControllers)->merge($mission->dreControllers);
+            $end = now();
+            $difference = $end->diffInRealMilliseconds($start);
+
+            /**
+             * Store pdf informations in database
+             */
+            if (Storage::fileExists($this->filepath())) {
+                $id = Str::uuid();
+                $insertedFile = DB::table('media')->insert([
+                    'id' => $id,
+                    'original_name' => $this->getFileName(true),
+                    'hash_name' => $this->getFileName(true),
+                    'folder' => $this->dirPath(true),
+                    'extension' => 'pdf',
+                    'mimetype' => 'application/pd',
+                    'size' => Storage::fileSize($this->filepath()),
+                    'created_at' => now(),
+                    'payload' => json_encode([
+                        'name' => $mission->reference,
+                    ]),
+                ]);
+                $media = DB::table('has_media')->insert([
+                    'attachable_id' => $mission->id,
+                    'attachable_type' => Mission::class,
+                    'media_id' => $id,
+                ]);
+            }
+
+            /**
+             * Notify users after pdf is generated
+             */
+            if ($this->notify) {
+                foreach ($notifiables as $user) {
                     Notification::send($user, new ReportNotification($mission));
                 }
-            } else {
-                redirect($this->filepath());
             }
         } catch (\Throwable $th) {
             echo $th->getMessage() . ' ' . $th->getLine() . ' ' . $th->getFile();
         }
     }
-
-    public function getResponse()
-    {
-        return $this->response;
-    }
-
 
     /**
      * Generate file path
@@ -122,11 +141,9 @@ class GenerateMissionReportPdf implements ShouldQueue
      *
      * @return string
      */
-    private function filepath($relative = true): string
+    private function filepath(): string
     {
-        $relativePath = $this->dirPath($relative) . '\\' . $this->mission->report_name . '.pdf';
-        return $relativePath;
-        return $relative ? $relativePath : public_path($relativePath);
+        return $this->dirPath() . '\\' . $this->getFileName(true);
     }
 
     /**
@@ -134,13 +151,27 @@ class GenerateMissionReportPdf implements ShouldQueue
      *
      * @return string
      */
-    private function dirPath($relative = true): string
+    private function dirPath(bool $public_path = false): string
     {
-        $relativePath = 'exported\campaigns\\' . $this->mission->campaign->reference . '\\missions';
+        $relativePath = $public_path ? 'exported\campaigns\\' . $this->mission->campaign->reference . '\\missions' : 'public\\exported\campaigns\\' . $this->mission->campaign->reference . '\\missions';
         if (!Storage::directoryExists($relativePath)) {
             Storage::makeDirectory($relativePath);
         }
         return $relativePath;
+    }
+
+    /**
+     * @param bool $withExtension
+     *
+     * @return string
+     */
+    public function getFileName(bool $withExtension = false): string
+    {
+        $extension = '';
+        if ($withExtension) {
+            $extension = '.pdf';
+        }
+        return  $this->mission->report_name . $extension;
     }
 
     /**

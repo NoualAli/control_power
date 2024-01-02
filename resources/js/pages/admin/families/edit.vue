@@ -1,5 +1,5 @@
 <template>
-    <div v-if="can('edit_familly')">
+    <div v-if="can('edit_family')">
         <ContentBody>
             <NLForm :action="update" :form="form">
                 <!-- Name -->
@@ -22,7 +22,7 @@ import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 export default {
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     computed: {
         ...mapGetters({
             family: 'families/current'

@@ -10,7 +10,6 @@ trait IsSortable
     {
         foreach ($sortArray as $key => $value) {
             $key = str_contains($key, '.') ? explode('.', $key) : $key;
-
             if (is_array($key)) {
                 $relatedModel = $key[0];
                 $className = $this->getNormalizedName($relatedModel);
@@ -19,10 +18,7 @@ trait IsSortable
                 if (!class_exists($class)) {
                     continue;
                 } else {
-                    $relatedTable = (new $class)->getTable();
-                    $currentModel = $query->getModel();
-                    $currentTable = $currentModel->getTable();
-                    $query = $query->orderBy($class::select($field)->limit(1));
+                    $query = $query->orderBy($class::select($field)->limit(1), $value);
                 }
             } else {
                 $query = $query->orderBy($key, $value);

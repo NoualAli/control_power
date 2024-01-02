@@ -5,38 +5,42 @@
                 <router-link v-if="can('create_dre')" :to="{ name: 'dre-create' }" class="btn btn-info">
                     Ajouter
                 </router-link>
-                <a href="/excel-export?export=dres" target="_blank" class="btn btn-excel has-icon">
+                <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
                     <i class="las la-file-excel icon" />
                     Exporter
-                </a>
+                </button>
             </template>
         </ContentHeader>
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" title="Liste des DRE" urlPrefix="dre" @edit="edit"
-                @delete="destroy" :key="forceReload"
-                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
+                @delete="destroy" :refresh="refresh" @dataLoaded="handleDataLoaded">
                 <template #actions-before="{ item }">
-                    <a class="btn btn-excel" :href="'/excel-export?export=dres&id=' + item.id" target="_blank">
+                    <a class="btn btn-office-excel" :href="'/excel-export?export=dres&id=' + item.id" target="_blank">
                         <i class="las la-file-excel icon" />
                     </a>
                 </template>
             </NLDatatable>
+            <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl"
+                @close="this.excelExportIsOpen = false" @success="this.excelExportIsOpen = false" />
         </ContentBody>
     </div>
 </template>
 
 <script>
 import NLDatatable from '../../../components/Datatable/NLDatatable'
+import ExcelExportModal from '../../../Modals/ExcelExportModal';
 export default {
-    components: { NLDatatable },
+    components: { NLDatatable, ExcelExportModal },
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     metaInfo() {
         return { title: 'Dre' }
     },
     data() {
         return {
-            forceReload: 1,
+            currentUrl: null,
+            excelExportIsOpen: false,
+            refresh: 0,
             columns: [
                 {
                     label: 'Code',
@@ -67,6 +71,11 @@ export default {
         this.$store.dispatch('settings/updatePageLoading', true)
     },
     methods: {
+        handleDataLoaded(response) {
+            this.currentUrl = response.url
+            this.$store.dispatch('settings/updatePageLoading', false)
+        },
+
         /**
          * Redirige vers la page d'edition
          * @param {Object} item
@@ -84,7 +93,7 @@ export default {
                 if (action.isConfirmed) {
                     api.delete('dre/' + item.id).then(response => {
                         if (response.data.status) {
-                            this.forceReload += 1
+                            this.refresh += 1
                             this.$swal.toast_success(response.data.message)
                         } else {
                             this.$swal.toast_error(response.data.message)

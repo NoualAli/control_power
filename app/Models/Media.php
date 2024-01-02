@@ -23,7 +23,7 @@ class Media extends BaseModel
         'payload'
     ];
 
-    protected $appends = ['link', 'type', 'path', 'icon', 'is_owner'];
+    protected $appends = ['link', 'type', 'path', 'icon', 'is_owner', 'storage_link'];
 
     protected $casts = [
         'payload' => 'object'
@@ -53,6 +53,14 @@ class Media extends BaseModel
     public function getPathAttribute(): string
     {
         return $this->folder . '/' . $this->hash_name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStorageLinkAttribute(): string
+    {
+        return env('APP_URL') . '/storage/' . $this->folder . '/' . $this->hash_name;
     }
 
     /**

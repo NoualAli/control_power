@@ -120,7 +120,8 @@ export default {
         chartOptions: { type: Object, required: false },
         horizontalBarOptions: { type: Object, required: false },
         onlyCurrentCampaign: { type: Boolean, required: false, default: true },
-        userRole: { type: String, required: false, default: null }
+        userRole: { type: String, required: false, default: null },
+        currentCampaign: { type: String, required: false, default: null }
     },
     data() {
         return {
@@ -140,7 +141,8 @@ export default {
     methods: {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
-            this.$store.dispatch('statistics/fetchScores', this.onlyCurrentCampaign).then(() => {
+            console.log({ onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign });
+            this.$store.dispatch('statistics/fetchScores', { onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign }).then(() => {
                 this.charts.globalScores = this.scores.data.globalScores
                 this.charts.avgScoreByFamily = this.scores.data.avgScoreByFamily
                 this.tables.avgScoreByDre = this.scores.data.avgScoreByDre

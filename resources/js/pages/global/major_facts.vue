@@ -1,12 +1,13 @@
 
 <template>
     <ContentBody>
-        <NLDatatable :columns="columns" :actions="actions" :filters="filters" title="Faits majeurs"
-            urlPrefix="details/major-facts" @show="show" :refresh="refresh"
+        <NLDatatable :searchValue="searchValue" :columns="columns" :actions="actions" :filters="filters"
+            title="Faits majeurs" urlPrefix="major-facts" @show="show" :refresh="refresh" :isSearchable="false"
             @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
 
         <!-- View control point informations -->
-        <MissionDetailModal :rowSelected="rowSelected" :show="modals.show" @showForm="showForm" @close="close" />
+        <MissionDetailModal :rowSelected="rowSelected" :show="modals.show" @success="success" @showForm="showForm"
+            @close="close" />
 
         <!-- Traitement du point de contrôle -->
         <MissionDetailForm :data="rowSelected" :show="modals.edit" @success="success" @close="close" />
@@ -29,6 +30,7 @@ export default {
         return {
             rowSelected: null,
             refresh: 0,
+            searchValue: null,
             columns: [
                 {
                     label: 'CDC-ID',
@@ -65,9 +67,30 @@ export default {
                     length: 50
                 },
                 {
-                    label: 'Transmis le',
-                    field: 'is_dispatched',
-                    hide: hasRole([ 'cc', 'cdcr', 'cdc', 'ci' ])
+                    label: 'Validé',
+                    field: 'is_validated',
+                    isHtml: true,
+                    methods: {
+                        showField(item) {
+                            let icon = 'exclamation-triangle'
+                            let color = 'text-warning'
+                            let title = 'En attente de traitement'
+                            if (item.is_validated == 1) {
+                                icon = 'check-circle'
+                                color = 'text-success'
+                                title = 'Validé'
+                            } else if (item.is_pending == 1 && item.is_rejected == 0) {
+                                icon = 'exclamation-triangle'
+                                color = 'text-warning'
+                                title = 'En attente de traitement'
+                            } else if (item.is_rejected == 1 && item.is_pending == 0) {
+                                icon = 'times-circle'
+                                color = 'text-danger'
+                                title = 'Rejeté'
+                            }
+                            return `<i class="las la-${icon} ${color} icon" title="${title}"></i>`
+                        }
+                    }
                 }
             ],
             actions: {
@@ -79,6 +102,11 @@ export default {
                 regularize: false
             },
             filters: {
+                id: {
+                    hide: true,
+                    data: null,
+                    value: null
+                },
                 campaign: {
                     label: 'Campagne de contrôle',
                     cols: 3,
@@ -161,12 +189,32 @@ export default {
                     ],
                     value: null,
                     hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
-                }
+                },
+                with_metadata: {
+                    label: 'Avec échantillonage',
+                    multiple: false,
+                    value: null,
+                    data: [
+                        {
+                            id: 'Non',
+                            label: 'Non'
+                        },
+                        {
+                            id: 'Oui',
+                            label: 'Oui'
+                        }
+                    ]
+                },
             },
         }
     },
     created() {
         this.$store.dispatch('settings/updatePageLoading', true)
+        if (this.$route?.query?.id) {
+            this.filters.id.value = this.$route?.query?.id
+        } else if (this.$route.query[ 'filter[id]' ]) {
+            this.filters.id.value = this.$route?.query[ 'filter[id]' ]
+        }
     },
     methods: {
         /**
@@ -176,7 +224,7 @@ export default {
          */
         success(e) {
             this.refresh += 1
-            this.close()
+            this.show(this.rowSelected)
         },
         /**
         * Affiche le modal des informations du point de contrôle

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\FamiliesExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Family\StoreRequest;
 use App\Http\Requests\Family\UpdateRequest;
 use App\Http\Resources\FamilyResource;
 use App\Models\Domain;
 use App\Models\Family;
+use App\Services\ExcelExportService;
 use Illuminate\Http\JsonResponse;
 
 class FamilyController extends Controller
@@ -29,6 +31,13 @@ class FamilyController extends Controller
         $perPage = request('perPage', 10);
         $fetchAll = request()->has('fetchAll');
         $withChildren = request()->has('withChildren');
+
+        $export = request('export', []);
+        $shouldExport = count($export);
+
+        if ($shouldExport) {
+            return (new ExcelExportService($families, FamiliesExport::class, 'liste_des_familles.xlsx', $export))->download();
+        }
 
         if ($filter) {
             $families = $families->filter($filter);
@@ -67,12 +76,7 @@ class FamilyController extends Controller
                 'status' => true
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], $code);
+            return throwedError($th);
         }
     }
     /**
@@ -107,12 +111,7 @@ class FamilyController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], $code);
+            return throwedError($th);
         }
     }
 
@@ -132,12 +131,7 @@ class FamilyController extends Controller
                 'status' => true,
             ]);
         } catch (\Throwable $th) {
-            $code = $th->getCode() ?: 500;
-
-            return response()->json([
-                'message' => $th->getMessage(),
-                'status' => false
-            ], $code);
+            return throwedError($th);
         }
     }
 }

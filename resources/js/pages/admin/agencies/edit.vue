@@ -2,6 +2,11 @@
     <div v-if="can('edit_agency')">
         <ContentBody>
             <NLForm :action="update" :form="form">
+                <NLColumn>
+                    <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form" label="Agence TEST"
+                        type="is-success" />
+                </NLColumn>
+
                 <!-- Code -->
                 <NLColumn lg="6" md="6">
                     <NLInput v-model="form.code" type="number" :form="form" name="code" label="Code" label-required />
@@ -47,7 +52,7 @@ import { mapGetters } from 'vuex'
 
 export default {
     layout: 'MainLayout',
-    middleware: [ 'auth', 'admin' ],
+    middleware: [ 'auth' ],
     data() {
         return {
             dresList: [],
@@ -60,7 +65,8 @@ export default {
                 dre_id: null,
                 category_id: null,
                 pcf_usable: [],
-                pcf_unusable: []
+                pcf_unusable: [],
+                is_for_testing: false,
             })
         }
     },

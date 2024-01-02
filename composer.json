@@ -21,6 +21,7 @@
         "laravel/tinker": "^2.6",
         "laravel/ui": "^3.3",
         "maatwebsite/excel": "^3.1",
+        "opcodesio/log-viewer": "^3.1",
         "orangehill/iseed": "^3.0",
         "predis/predis": "^2.2",
         "staudenmeir/belongs-to-through": "^2.5",
@@ -53,7 +54,9 @@
         },
         "files": [
             "app/Helpers/Main.php",
-            "app/Helpers/Data.php"
+            "app/Helpers/Data.php",
+            "app/Helpers/Media.php",
+            "app/Helpers/Response.php"
         ]
     },
     "scripts": {

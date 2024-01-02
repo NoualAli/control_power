@@ -28,6 +28,7 @@ class UpdateRequest extends FormRequest
         return [
             'name' => ['required', 'unique:roles,name,' . $id . ',id', 'string', 'max:255'],
             'code' => ['required', 'unique:roles,code,' . $id . ',id', 'numeric'],
+            'is_for_testing' => ['required', 'boolean'],
         ];
     }
 }

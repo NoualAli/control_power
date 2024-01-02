@@ -34,6 +34,7 @@ class SynthesisExport implements FromView, WithStyles, WithProperties, ShouldAut
 
         // Set cell background and text color based on score
         $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
+
         for ($row = 3; $row <= $sheet->getHighestRow(); $row++) {
             for ($colIndex = 5; $colIndex <= $highestColumnIndex; $colIndex++) {
                 $col = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
@@ -48,13 +49,13 @@ class SynthesisExport implements FromView, WithStyles, WithProperties, ShouldAut
                     ],
                 ];
 
-                if ($cellValue == 1) {
+                if ($cellValue >= 1 && $cellValue < 2) {
                     $style['fill']['startColor']['argb'] = 'FF00C851';
                     $style['font']['color']['argb'] = 'FFFFFFFF';
-                } else if ($cellValue == 2) {
+                } else if ($cellValue >= 2 && $cellValue < 3) {
                     $style['fill']['startColor']['argb'] = 'FF33b5e5';
                     $style['font']['color']['argb'] = 'FFFFFFFF';
-                } elseif ($cellValue == 3) {
+                } elseif ($cellValue >= 3 && $cellValue < 4) {
                     $style['fill']['startColor']['argb'] = 'FFFFbb33';
                     $style['font']['color']['argb'] = 'FF333333';
                 } elseif ($cellValue == 4) {
