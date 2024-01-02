@@ -14,8 +14,8 @@
 </template>
 
 <script>
-import NLGrid from '../Grid/NLGrid'
-import NLComponentLoader from '../NLComponentLoader'
+import NLGrid from '../Grid/NLGrid.vue'
+import NLComponentLoader from '../NLComponentLoader.vue'
 export default {
     components: { NLGrid, NLComponentLoader },
     name: 'NLFilter',

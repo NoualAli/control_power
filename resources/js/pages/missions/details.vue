@@ -187,10 +187,10 @@
 </template>
 
 <script>
-import MissionDetailForm from '../../forms/MissionDetailForm'
-import MissionDetailModal from '../../Modals/MissionDetailModal'
-import MissionRegularizationForm from '../../forms/MissionRegularizationForm'
-import ProcessInformationsModal from '../../Modals/ProcessInformationsModal'
+import MissionDetailForm from '../../forms/MissionDetailForm.vue'
+import MissionDetailModal from '../../Modals/MissionDetailModal.vue'
+import MissionRegularizationForm from '../../forms/MissionRegularizationForm.vue'
+import ProcessInformationsModal from '../../Modals/ProcessInformationsModal.vue'
 import { mapGetters } from 'vuex'
 import { user } from '../../plugins/user'
 export default {

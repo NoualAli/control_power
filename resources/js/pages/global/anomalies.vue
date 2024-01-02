@@ -16,10 +16,10 @@
 </template>
 <script>
 import { hasRole, user } from '../../plugins/user'
-import Alert from '../../components/Alert'
-import MissionDetailModal from '../../Modals/MissionDetailModal'
-import MissionDetailForm from '../../forms/MissionDetailForm'
-import MissionRegularizationForm from '../../forms/MissionRegularizationForm'
+import Alert from '../../components/Alert.vue'
+import MissionDetailModal from '../../Modals/MissionDetailModal.vue'
+import MissionDetailForm from '../../forms/MissionDetailForm.vue'
+import MissionRegularizationForm from '../../forms/MissionRegularizationForm.vue'
 export default {
     components: { Alert, MissionDetailForm, MissionDetailModal, MissionRegularizationForm },
     layout: 'MainLayout',

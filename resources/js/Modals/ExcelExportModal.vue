@@ -32,11 +32,11 @@
 </template>
 
 <script>
-import NLGrid from '../components/Grid/NLGrid'
-import NLSwitch from '../components/Inputs/NLSwitch'
-import NLColumn from '../components/Grid/NLColumn'
-import NLForm from '../components/NLForm'
-import NLModal from '../components/NLModal'
+import NLGrid from '../components/Grid/NLGrid.vue'
+import NLSwitch from '../components/Inputs/NLSwitch.vue'
+import NLColumn from '../components/Grid/NLColumn.vue'
+import NLForm from '../components/NLForm.vue'
+import NLModal from '../components/NLModal.vue'
 export default {
     components: {
         NLGrid,

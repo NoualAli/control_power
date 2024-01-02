@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import NLContainer from '../NLContainer'
+import NLContainer from '../NLContainer.vue'
 export default {
     components: { NLContainer },
     name: 'DetailsRow',

@@ -169,12 +169,12 @@
 </template>
 
 <script>
-import NLForm from '../components/NLForm';
+import NLForm from '../components/NLForm.vue';
 import { Form } from 'vform';
 import { mapGetters } from 'vuex';
 import { hasRole } from '../plugins/user';
 import { slugify } from '../plugins/helpers';
-import NLComponentLoader from '../components/NLComponentLoader'
+import NLComponentLoader from '../components/NLComponentLoader.vue'
 export default {
     name: 'MissionDetailForm',
     emits: [ 'success', 'close' ],

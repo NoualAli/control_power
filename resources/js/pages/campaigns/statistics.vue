@@ -53,10 +53,10 @@
 </template>
 
 <script>
-import Anomalies from '../dashboard/second_level/Anomalies'
-import MajorFacts from '../dashboard/second_level/MajorFacts'
-import Scores from '../dashboard/second_level/Scores'
-import Missions from '../dashboard/second_level/Missions'
+import Anomalies from '../dashboard/second_level/Anomalies.vue'
+import MajorFacts from '../dashboard/second_level/MajorFacts.vue'
+import Scores from '../dashboard/second_level/Scores.vue'
+import Missions from '../dashboard/second_level/Missions.vue'
 import { user } from '../../plugins/user'
 export default {
     components: {

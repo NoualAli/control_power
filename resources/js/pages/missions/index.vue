@@ -27,7 +27,7 @@
 import { mapGetters } from 'vuex'
 import { hasRole } from '../../plugins/user'
 import * as MissionState from '../../store/global/MissionStates'
-import ExcelExportModal from '../../Modals/ExcelExportModal';
+import ExcelExportModal from '../../Modals/ExcelExportModal.vue';
 export default {
     components: { ExcelExportModal },
     layout: 'MainLayout',

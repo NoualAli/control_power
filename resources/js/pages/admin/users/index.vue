@@ -34,7 +34,7 @@
 
 <script>
 import { hasRole, user } from '../../../plugins/user'
-import ExcelExportModal from '../../../Modals/ExcelExportModal';
+import ExcelExportModal from '../../../Modals/ExcelExportModal.vue';
 import api from '../../../plugins/api'
 export default {
     layout: 'MainLayout',

@@ -94,10 +94,10 @@
 </template>
 
 <script>
-import NLFlex from '../../components/Grid/NLFlex'
-import NLColumn from '../../components/Grid/NLColumn'
-import NLForm from '../../components/NLForm'
-import ContentBody from '../../components/ContentBody'
+import NLFlex from '../../components/Grid/NLFlex.vue'
+import NLColumn from '../../components/Grid/NLColumn.vue'
+import NLForm from '../../components/NLForm.vue'
+import ContentBody from '../../components/ContentBody.vue'
 import { mapGetters } from 'vuex'
 import Form from 'vform'
 export default {
