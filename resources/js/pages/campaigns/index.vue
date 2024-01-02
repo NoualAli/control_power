@@ -57,7 +57,7 @@ export default {
                 },
                 {
                     label: 'Etat',
-                    field: 'validated_by_id',
+                    field: 'validator_full_name',
                     hide: !hasRole([ 'dcp', 'cdcr' ]),
                     methods: {
                         showField(item) {
