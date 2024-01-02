@@ -17,8 +17,8 @@
 
 <script>
 
-import NLInput from './NLInput.vue'
-import InputContainer from './InputContainer.vue'
+import NLInput from './NLInput'
+import InputContainer from './InputContainer'
 export default {
     name: 'NLTagInput',
     components: {

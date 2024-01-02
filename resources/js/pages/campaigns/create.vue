@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import NLColumn from '../../components/Grid/NLColumn.vue'
+import NLColumn from '../../components/Grid/NLColumn'
 import { mapGetters } from 'vuex'
 import { Form } from 'vform'
 import { hasRole } from '~/plugins/user'

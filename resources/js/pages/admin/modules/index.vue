@@ -47,13 +47,13 @@
 </template>
 
 <script>
-import NLListItem from '../../../components/List/NLListItem.vue'
-import NLList from '../../../components/List/NLList.vue'
-import NLForm from '../../../components/NLForm.vue'
-import NLGrid from '../../../components/Grid/NLGrid.vue'
-import NLColumn from '../../../components/Grid/NLColumn.vue'
-import NLCheckableContainer from '../../../components/Inputs/NLCheckableContainer.vue'
-import ExcelExportModal from '../../../Modals/ExcelExportModal.vue';
+import NLListItem from '../../../components/List/NLListItem'
+import NLList from '../../../components/List/NLList'
+import NLForm from '../../../components/NLForm'
+import NLGrid from '../../../components/Grid/NLGrid'
+import NLColumn from '../../../components/Grid/NLColumn'
+import NLCheckableContainer from '../../../components/Inputs/NLCheckableContainer'
+import ExcelExportModal from '../../../Modals/ExcelExportModal';
 import Form from 'vform'
 export default {
     components: {

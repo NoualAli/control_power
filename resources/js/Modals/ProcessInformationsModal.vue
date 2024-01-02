@@ -60,8 +60,8 @@
 </template>
 
 <script>
-import NLColumn from '../components/Grid/NLColumn.vue'
-import NLFlex from '../components/Grid/NLFlex.vue'
+import NLColumn from '../components/Grid/NLColumn'
+import NLFlex from '../components/Grid/NLFlex'
 export default {
     components: {
         NLColumn, NLFlex

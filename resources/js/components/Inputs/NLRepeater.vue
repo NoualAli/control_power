@@ -52,9 +52,9 @@
 
 <script>
 // import Treeselect from 'vue3-treeselect'
-import NLSelect from './NLSelect.vue'
-import InputContainer from './InputContainer.vue'
-import NLInput from './NLInput.vue'
+import NLSelect from './NLSelect'
+import InputContainer from './InputContainer'
+import NLInput from './NLInput'
 // import Treeselect from '@riophae/vue-treeselect'
 export default {
   name: 'NLRepeater',

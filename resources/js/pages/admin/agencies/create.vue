@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import NLForm from '../../../components/NLForm.vue'
+import NLForm from '../../../components/NLForm'
 import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 

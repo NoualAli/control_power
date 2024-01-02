@@ -27,8 +27,8 @@
 </template>
 
 <script>
-import NLDatatable from '../../../components/Datatable/NLDatatable.vue'
-import ExcelExportModal from '../../../Modals/ExcelExportModal.vue';
+import NLDatatable from '../../../components/Datatable/NLDatatable'
+import ExcelExportModal from '../../../Modals/ExcelExportModal';
 export default {
     components: { NLDatatable, ExcelExportModal },
     layout: 'MainLayout',

@@ -29,7 +29,7 @@
 
 <script>
 import { hasRole } from '../../plugins/user'
-import ExcelExportModal from '../../Modals/ExcelExportModal.vue';
+import ExcelExportModal from '../../Modals/ExcelExportModal';
 export default {
     middleware: [ 'auth' ],
     layout: 'MainLayout',

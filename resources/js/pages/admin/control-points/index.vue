@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import ExcelExportModal from '../../../Modals/ExcelExportModal.vue';
+import ExcelExportModal from '../../../Modals/ExcelExportModal';
 export default {
     components: { ExcelExportModal },
     layout: 'MainLayout',

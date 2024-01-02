@@ -8,12 +8,12 @@
     </ContentBody>
 </template>
 <script>
-import ProcessInformationsModal from '../../Modals/ProcessInformationsModal.vue'
-import NLColumn from '../../components/Grid/NLColumn.vue'
-import NLGrid from '../../components/Grid/NLGrid.vue'
-import NLListItem from '../../components/List/NLListItem.vue'
-import NLList from '../../components/List/NLList.vue'
-import NLModal from '../../components/NLModal.vue'
+import ProcessInformationsModal from '../../Modals/ProcessInformationsModal'
+import NLColumn from '../../components/Grid/NLColumn'
+import NLGrid from '../../components/Grid/NLGrid'
+import NLListItem from '../../components/List/NLListItem'
+import NLList from '../../components/List/NLList'
+import NLModal from '../../components/NLModal'
 export default {
     components: {
         ProcessInformationsModal,

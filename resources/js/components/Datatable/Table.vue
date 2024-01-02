@@ -36,13 +36,13 @@
 </template>
 
 <script>
-import NLButton from '../Inputs/NLButton.vue'
-import NLFlex from '../Grid/NLFlex.vue'
-import NLSelect from '../Inputs/NLSelect.vue'
-import SearchBar from './SearchBar.vue'
-import TableFoot from './TableFoot.vue'
-import TableBody from './TableBody.vue'
-import TableHead from './TableHead.vue'
+import NLButton from '../Inputs/NLButton'
+import NLFlex from '../Grid/NLFlex'
+import NLSelect from '../Inputs/NLSelect'
+import SearchBar from './SearchBar'
+import TableFoot from './TableFoot'
+import TableBody from './TableBody'
+import TableHead from './TableHead'
 
 export default {
     components: {

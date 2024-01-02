@@ -64,10 +64,10 @@
 </template>
 
 <script>
-import NLSidebar from '../components/Sidebar/NLSidebar.vue'
-import Child from '../components/Child.vue'
+import NLSidebar from '../components/Sidebar/NLSidebar'
+import Child from '../components/Child'
 import { mapGetters } from 'vuex'
-import NLPageLoader from '../components/NLPageLoader.vue'
+import NLPageLoader from '../components/NLPageLoader'
 import * as APP from '~/store/global/version'
 export default {
     name: 'MainLayout',

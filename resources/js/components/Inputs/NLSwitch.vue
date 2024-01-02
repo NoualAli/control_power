@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import NLCheckableContainer from './NLCheckableContainer.vue'
+import NLCheckableContainer from './NLCheckableContainer'
 export default {
     name: 'NLSwitch',
     components: { NLCheckableContainer },

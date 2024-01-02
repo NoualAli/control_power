@@ -15,7 +15,7 @@
 
 <script>
 
-import InputContainer from './InputContainer.vue'
+import InputContainer from './InputContainer'
 export default {
     name: 'NLInputDate',
     components: { InputContainer },

@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import ExcelExportModal from '../../../Modals/ExcelExportModal.vue';
+import ExcelExportModal from '../../../Modals/ExcelExportModal';
 export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],

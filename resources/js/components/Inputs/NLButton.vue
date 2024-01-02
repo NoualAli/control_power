@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import NLFlex from '../Grid/NLFlex.vue'
+import NLFlex from '../Grid/NLFlex'
 export default {
     components: { NLFlex },
     name: 'NLButton',
