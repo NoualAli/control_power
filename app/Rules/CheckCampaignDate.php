@@ -37,17 +37,20 @@ class CheckCampaignDate implements Rule
      */
     public function passes($attribute, $value)
     {
-        $greatterOrEquelThanToday = Carbon::parse($value)->diffInDays(today(), false) <= 0;
-        // Fetch all campaigns that are'nt for testing and are validated
-        $this->lastCampaign = ControlCampaign::isNotForTesting()->validated()->whereYear('start_date', Carbon::parse(request()->start_date)->format('Y'))->orderBy('start_date', 'ASC')->first();
-        // If we get results we can process to check
-        if ($this->lastCampaign instanceof ControlCampaign) {
-            $this->endDate = Carbon::parse($this->lastCampaign?->end_date);
-            // Check if value is greatter than last campaign end date and greatter than today date
-            return Carbon::parse($this->endDate)->diffInDays($value, false) > 0 && $greatterOrEquelThanToday;
+        if (!request('is_for_testing')) {
+            $greatterOrEquelThanToday = Carbon::parse($value)->diffInDays(today(), false) <= 0;
+            // Fetch all campaigns that are'nt for testing and are validated
+            $this->lastCampaign = ControlCampaign::isNotForTesting()->validated()->whereYear('start_date', Carbon::parse(request()->start_date)->format('Y'))->orderBy('start_date', 'ASC')->first();
+            // If we get results we can process to check
+            if ($this->lastCampaign instanceof ControlCampaign) {
+                $this->endDate = Carbon::parse($this->lastCampaign?->end_date);
+                // Check if value is greatter than last campaign end date and greatter than today date
+                return Carbon::parse($this->endDate)->diffInDays($value, false) > 0 && $greatterOrEquelThanToday;
+            }
+            // By default we check if date is greatter or equal to today date
+            return $greatterOrEquelThanToday;
         }
-        // By default we check if date is greatter or equal to today date
-        return $greatterOrEquelThanToday;
+        return true;
     }
 
     /**
