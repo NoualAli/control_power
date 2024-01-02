@@ -40,9 +40,9 @@
 
 <script>
 import api from '../plugins/api'
-import NLForm from '../components/NLForm'
+import NLForm from '../components/NLForm.vue'
 import { Form } from 'vform'
-import NLComponentLoader from '../components/NLComponentLoader'
+import NLComponentLoader from '../components/NLComponentLoader.vue'
 import { confirm_destroy } from '../plugins/swal'
 export default {
     name: 'MissionAssignationDetailsForm',

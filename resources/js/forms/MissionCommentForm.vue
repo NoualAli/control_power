@@ -80,10 +80,10 @@
 </template>
 
 <script>
-import NLForm from '../components/NLForm';
+import NLForm from '../components/NLForm.vue';
 import { Form } from 'vform';
 import api from '../plugins/api';
-import NLComponentLoader from '../components/NLComponentLoader'
+import NLComponentLoader from '../components/NLComponentLoader.vue'
 import { hasRole } from '../plugins/user';
 import { slugify } from '../plugins/helpers';
 export default {

@@ -5,7 +5,7 @@
 </template>
 
 <script>
-// import Loading from './Loading'
+// import Loading from './Loading.vue'
 import Loading from 'vue-loading-overlay'
 import defaultLayout from '~/layouts/default.vue'
 import { markRaw } from 'vue'

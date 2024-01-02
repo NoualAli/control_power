@@ -43,7 +43,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import NLInput from '../../components/Inputs/NLInput'
+import NLInput from '../../components/Inputs/NLInput.vue'
 import NLButton from '../../components/Inputs/NLButton.vue'
 import Form from 'vform'
 import * as APP from '~/store/global/version'

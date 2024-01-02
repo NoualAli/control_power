@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import NLPageLoader from './NLPageLoader'
+import NLPageLoader from './NLPageLoader.vue'
 import { mapGetters } from 'vuex';
 export default {
     components: { NLPageLoader },

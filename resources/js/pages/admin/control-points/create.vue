@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import NLRepeater from '../../../components/Inputs/NLRepeater'
+import NLRepeater from '../../../components/Inputs/NLRepeater.vue'
 import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 export default {

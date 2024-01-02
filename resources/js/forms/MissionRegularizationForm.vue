@@ -35,8 +35,8 @@
 
 <script>
 import { Form } from 'vform';
-import NLForm from '../components/NLForm'
-import NLComponentLoader from '../components/NLComponentLoader'
+import NLForm from '../components/NLForm.vue'
+import NLComponentLoader from '../components/NLComponentLoader.vue'
 import { slugify } from '../plugins/helpers';
 export default {
     name: 'MissionRegularizationForm',

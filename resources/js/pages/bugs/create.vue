@@ -44,10 +44,10 @@
 </template>
 
 <script>
-import Alert from '../../components/Alert'
-import NLGrid from '../../components/Grid/NLGrid'
-import NLFile from '../../components/Inputs/NLFile'
-import NLColumn from '../../components/Grid/NLColumn'
+import Alert from '../../components/Alert.vue'
+import NLGrid from '../../components/Grid/NLGrid.vue'
+import NLFile from '../../components/Inputs/NLFile.vue'
+import NLColumn from '../../components/Grid/NLColumn.vue'
 import { Form } from 'vform'
 
 export default {

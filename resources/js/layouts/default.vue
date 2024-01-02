@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import Child from '../components/Child'
+import Child from '../components/Child.vue'
 // import Navbar from '~/components/Navbar'
 
 export default {

@@ -415,13 +415,13 @@
 </template>
 
 <script>
-import MissionCommentForm from '../../forms/MissionCommentForm'
+import MissionCommentForm from '../../forms/MissionCommentForm.vue'
 import MissionAssignationDetailsForm from '../../forms/MissionAssignationDetailsForm.vue'
 import { mapGetters } from 'vuex'
 import { Form } from 'vform'
 import api from '../../plugins/api'
 import { hasRole, user } from '../../plugins/user'
-import ExcelExportModal from '../../Modals/ExcelExportModal';
+import ExcelExportModal from '../../Modals/ExcelExportModal.vue';
 export default {
     components: {
         ExcelExportModal,

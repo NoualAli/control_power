@@ -76,8 +76,8 @@
 </template>
 
 <script>
-import NLSwitch from '../../../components/Inputs/NLSwitch'
-import NLColumn from '../../../components/Grid/NLColumn'
+import NLSwitch from '../../../components/Inputs/NLSwitch.vue'
+import NLColumn from '../../../components/Grid/NLColumn.vue'
 import { Form } from 'vform'
 import { mapGetters } from 'vuex'
 export default {

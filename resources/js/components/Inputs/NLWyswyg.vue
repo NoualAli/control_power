@@ -13,7 +13,7 @@
     </div>
 </template>
 <script>
-import InputContainer from './InputContainer'
+import InputContainer from './InputContainer.vue'
 import { VueEditor } from 'vue3-editor'
 export default {
     name: 'NLWyswyg',

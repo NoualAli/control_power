@@ -72,14 +72,14 @@
 </template>
 
 <script>
-import TableData from './TableData'
-import TableHeader from './TableHeader'
-import TableRow from './TableRow'
-import TablePagination from './TablePagination'
-import TableAction from './TableAction'
-import DetailsRow from './DetailsRow'
-import Table from './Table'
-import NLFilter from '../Filters/NLFilter'
+import TableData from './TableData.vue'
+import TableHeader from './TableHeader.vue'
+import TableRow from './TableRow.vue'
+import TablePagination from './TablePagination.vue'
+import TableAction from './TableAction.vue'
+import DetailsRow from './DetailsRow.vue'
+import Table from './Table.vue'
+import NLFilter from '../Filters/NLFilter.vue'
 import api from '../../plugins/api'
 
 export default {

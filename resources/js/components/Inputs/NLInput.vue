@@ -21,7 +21,7 @@
 
 <script>
 
-import InputContainer from './InputContainer'
+import InputContainer from './InputContainer.vue'
 export default {
     name: 'NLInput',
     components: { InputContainer },
