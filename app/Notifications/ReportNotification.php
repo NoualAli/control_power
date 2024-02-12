@@ -37,7 +37,7 @@ class ReportNotification extends Notification
      */
     private function getHtmlContent(): string
     {
-        return 'Nous vous informons que le rapport PDF de la mission <b>' . $this->mission->reference . '</b> est maintenant disponible.';
+        return '<p>Nous vous informons que le rapport PDF de la mission <b>' . $this->mission->reference . '</b> est maintenant disponible.</p>';
     }
 
     /**

@@ -7,9 +7,13 @@
         </template>
         <template #default>
             <NLForm :form="form" :action="save" v-if="!isLoading">
-                <NLColumn>
+                <NLColumn lg="6">
                     <NLSwitch v-model="form.is_regularized" type="is-success" name="is_regularized" :form="form"
                         label="Levée ?" />
+                </NLColumn>
+                <NLColumn lg="6">
+                    <NLSwitch v-model="form.is_sanitation_in_progress" type="is-success" name="is_sanitation_in_progress"
+                        :form="form" label="En cours d'assainissement ?" />
                 </NLColumn>
                 <NLColumn>
                     <NLWyswyg v-model="form.action_to_be_taken" name="action_to_be_taken" label="Action à engager"
@@ -53,6 +57,16 @@ export default {
                 this.isLoading = false
             }
         },
+        "form.is_regularized"(newVal, oldVal) {
+            if (newVal) {
+                this.form.is_sanitation_in_progress = false
+            }
+        },
+        "form.is_sanitation_in_progress"(newVal, oldVal) {
+            if (newVal) {
+                this.form.is_regularized = false
+            }
+        }
     },
     computed: {
         folderName() {
@@ -66,6 +80,7 @@ export default {
                 mission_detail_id: null,
                 action_to_be_taken: null,
                 is_regularized: false,
+                is_sanitation_in_progress: false,
                 media: {}
             }),
             isContainerExpanded: false,

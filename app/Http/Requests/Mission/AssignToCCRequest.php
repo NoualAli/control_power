@@ -13,7 +13,6 @@ class AssignToCCRequest extends FormRequest
      */
     public function authorize()
     {
-        dd('test');
         return isAbleTo('assign_mission_processing');
     }
 
@@ -24,7 +23,7 @@ class AssignToCCRequest extends FormRequest
      */
     public function rules()
     {
-        if (request()->mission->dcpControllers()->count()) {
+        if (request()->mission->dcpController) {
             $controllersRequired = 'nullable';
         } else {
             $controllersRequired = 'required';

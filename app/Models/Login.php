@@ -65,6 +65,10 @@ class Login extends BaseModel
 
     public function getLastActivityAttribute($last_activity)
     {
-        return !empty($last_activity) && $last_activity !== null ? Carbon::parse($last_activity)->diffForHumans() : Carbon::parse($this->created_at)->format('d-m-Y H:i:s');
+        if (!empty($last_activity) && $last_activity !== null) {
+            $last_activity = Carbon::parse($last_activity);
+            return $last_activity->diffInDays() > 14 ? $last_activity->format('d-m-Y H:i') : $last_activity->diffForHumans();
+        }
+        return null;
     }
 }

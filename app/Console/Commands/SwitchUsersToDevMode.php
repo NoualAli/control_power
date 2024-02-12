@@ -13,7 +13,7 @@ class SwitchUsersToDevMode extends Command
      *
      * @var string
      */
-    protected $signature = 'devmode:users';
+    protected $signature = 'users-devmode';
 
     /**
      * The console command description.

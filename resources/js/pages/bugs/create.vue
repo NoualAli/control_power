@@ -146,7 +146,7 @@ export default {
                 }
                 this.formIsLoading = false
             }).catch(error => {
-                console.log(error)
+                this.$swal.catchError(error)
                 this.formIsLoading = false
             })
         }

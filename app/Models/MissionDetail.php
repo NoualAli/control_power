@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\HasMedia;
 use App\Traits\HasScopes;
 use App\Traits\HasUuid;
+use App\Traits\IsCommentable;
 use App\Traits\IsFilterable;
 use App\Traits\IsSearchable;
 use Carbon\Carbon;
@@ -18,9 +19,10 @@ use stdClass;
 
 class MissionDetail extends BaseModel
 {
-    use HasFactory, SoftDeletes, HasUuid, HasRelationships, BelongsToThrough, HasMedia, IsFilterable, IsSearchable, HasScopes;
+    use HasFactory, SoftDeletes, HasUuid, HasRelationships, BelongsToThrough, HasMedia, IsFilterable, IsSearchable, HasScopes, IsCommentable;
 
     public $fillable = [
+        'reference',
         'control_point_id',
         'mission_id',
         'ci_report',
@@ -43,7 +45,6 @@ class MissionDetail extends BaseModel
         'controlled_by_dcp_id',
         'major_fact_is_dispatched_at',
         'regularization_id',
-        'is_regularized',
         'major_fact_is_detected_at',
         'major_fact_is_dispatched_to_dcp_at',
         'cdc_full_name',
@@ -51,7 +52,8 @@ class MissionDetail extends BaseModel
         'dcp_full_name',
         'major_fact_is_detected_by_full_name',
         'major_fact_is_detected_by_id',
-        'major_fact_is_rejected',
+        'major_fact_is_rejected_at_dcp',
+        'major_fact_is_rejected_at_dre',
         'major_fact_is_rejected_by_full_name',
         'major_fact_is_rejected_by_id',
         'major_fact_is_rejected_at',
@@ -59,6 +61,9 @@ class MissionDetail extends BaseModel
         'major_fact_is_dispatched_by_full_name',
         'major_fact_is_dispatched_to_dcp_by_id',
         'major_fact_is_dispatched_to_dcp_by_full_name',
+        'reg_is_rejected',
+        'reg_is_regularized',
+        'reg_is_sanitation_in_progress',
     ];
 
     protected $filter = 'App\Filters\MissionDetail';
@@ -80,16 +85,19 @@ class MissionDetail extends BaseModel
         'major_fact_is_detected_at' => 'datetime:d-m-Y H:i',
         'major_fact_is_rejected_at' => 'datetime:d-m-Y H:i',
         'major_fact' => 'boolean',
-        'major_fact_is_rejected' => 'boolean'
+        'major_fact_is_rejected_at_dcp' => 'boolean',
+        'major_fact_is_rejected_at_dre' => 'boolean',
+        'reg_is_rejected' => 'boolean',
+        'reg_is_regularized' => 'boolean',
+        'reg_is_sanitation_in_progress' => 'boolean'
     ];
 
     public $appends = [
         'appreciation',
         'parsed_metadata',
-        'major_fact_str',
+        // 'major_fact_str',
         'score_tag',
         'report',
-        'is_regularized',
         'is_regularized_str',
         'is_controlled_by_ci',
         'is_controlled_by_cdc',
@@ -145,7 +153,7 @@ class MissionDetail extends BaseModel
 
     public function getIsRegularizedStrAttribute()
     {
-        return $this->is_regularized ? 'Levée' : 'Non levée';
+        return $this->reg_is_regularized ? 'Levée' : 'Non levée';
     }
 
     public function getExecutedAtAttribute($controlled_by_ci_at)
@@ -187,7 +195,7 @@ class MissionDetail extends BaseModel
             $style = 'is-grey';
         }
 
-        return '<div class="tag ' . $style . '">' . $score . '</div>';
+        return '<div class="tag is-centered ' . $style . '">' . $score . '</div>';
     }
 
     public function getMetadataAttribute($metadata)
@@ -245,13 +253,18 @@ class MissionDetail extends BaseModel
         return $newMetadata;
     }
 
-    public function getMajorFactStrAttribute()
-    {
-        return $this->major_fact ? '<i class="las la-times-circle text-danger text-medium icon" title="Oui"></i>' : '<i class="las la-check-circle text-success text-medium icon" title="Non"></i>';
-    }
+    // public function getMajorFactStrAttribute()
+    // {
+    //     return $this->major_fact ? '<i class="las la-times-circle text-danger text-medium icon" title="Oui"></i>' : '<i class="las la-check-circle text-success text-medium icon" title="Non"></i>';
+    // }
     /**
      * Relationships
      */
+    public function observations()
+    {
+        return $this->comments()->orderBy('created_at', 'DESC');
+    }
+
     public function campaign()
     {
         return $this->belongsToThrough(ControlCampaign::class, Mission::class);
@@ -295,7 +308,7 @@ class MissionDetail extends BaseModel
 
     public function validatedRegularization()
     {
-        return $this->belongsTo(MissionDetailRegularization::class)->where('is_regularized', true);
+        return $this->belongsTo(MissionDetailRegularization::class)->where('reg_is_regularized', true);
     }
 
     public function regularization()
@@ -426,7 +439,7 @@ class MissionDetail extends BaseModel
      */
     public function scopeWhereAnomaly(Builder $query)
     {
-        return $query->whereIn('score', [2, 3, 4, '2', '3', '4']);
+        return $query->whereIn('score', [2, 3, 4, '2', '3', '4'])->where('major_fact', false);
     }
 
     /**
@@ -467,12 +480,17 @@ class MissionDetail extends BaseModel
 
     public function scopeOnlyUnregularized($query)
     {
-        return $query->doesntHave('regularizations')->orWhereHas('regularizations', fn ($regularization) => $regularization->where('is_regularized', false));
+        return $query->where('reg_is_regularized', false);
     }
 
     public function scopeOnlyRegularized($query)
     {
-        return $query->whereHas('regularizations', fn ($regularization) => $regularization->where('is_regularized', true));
+        return $query->where('reg_is_regularized', true);
+    }
+
+    public function scopeOnlyRejected($query)
+    {
+        return $query->where('reg_is_rejected', true);
     }
 
     public function scopeNotDispatched($query, ?string $type = null)
@@ -485,10 +503,6 @@ class MissionDetail extends BaseModel
             return $query->whereNull('assigned_to_cc_id')->whereNull('assigned_to_ci_id');
         }
     }
-
-    // public function scopeWithControllers($query, ?string $type = null){
-
-    // }
 
     public function scopeDispatched($query, ?string $type = null)
     {

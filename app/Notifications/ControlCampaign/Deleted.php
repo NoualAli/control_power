@@ -65,7 +65,7 @@ class Deleted extends Notification
      */
     private function getHtmlContent(): string
     {
-        return 'Nous vous faisons savoir que la campagne de contrôle sous la référence <b>' . $this->campaign->reference . '</b> a été annulée.';
+        return '<p>Nous vous faisons savoir que la campagne de contrôle sous la référence <b>' . $this->campaign->reference . '</b> a été annulée.<p>';
     }
 
     /**

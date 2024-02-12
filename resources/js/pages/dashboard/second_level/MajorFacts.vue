@@ -1,13 +1,15 @@
 <template>
     <!-- Major facts -->
     <NLGrid gap="4">
-        <!-- Faits majeur par famille -->
+        <!-- Faits majeurs par famille -->
         <NLColumn lg="6" class="box">
             <div class="d-flex align-center justify-between">
-                <h2>Faits majeur par famille</h2>
+                <h2>Faits majeurs par famille</h2>
                 <button class="btn btn-info has-icon" @click.prevent="savePNG('familiesMajorFacts')"
                     v-if="charts.families.datasets[0].data.length">
-                    <i class="las la-save icon" />
+                    <span class="material-icons material-symbols-rounded icon">
+                        save
+                    </span>
                 </button>
             </div>
             <NLContainer extraClass="d-flex full-center" isFluid>
@@ -20,13 +22,15 @@
                 </div>
             </NLContainer>
         </NLColumn>
-        <!-- Faits majeur par DRE -->
+        <!-- Faits majeurs par DRE -->
         <NLColumn lg="6" class="box">
             <div class="d-flex align-center justify-between">
-                <h2>Faits majeur par DRE</h2>
+                <h2>Faits majeurs par DRE</h2>
                 <button class="btn btn-info has-icon" @click.prevent="savePNG('dresMajorFacts')"
                     v-if="charts.dres.datasets[0].data.length">
-                    <i class="las la-save icon" />
+                    <span class="material-icons material-symbols-rounded icon">
+                        save
+                    </span>
                 </button>
             </div>
             <NLContainer extraClass="d-flex full-center" isFluid>
@@ -39,10 +43,10 @@
                 </div>
             </NLContainer>
         </NLColumn>
-        <!-- 10 domaines contenant un nombre des faits majeur élevé -->
+        <!-- 10 domaines contenant un nombre des faits majeurs élevé -->
         <NLColumn lg="6">
             <div class="box">
-                <h2>Les 10 Domaines contenant un nombre des faits majeur élevés</h2>
+                <h2>Les 10 Domaines contenant un nombre des faits majeurs élevés</h2>
                 <div class="table-container" v-if="tables.domains.length">
                     <table>
                         <thead>
@@ -66,10 +70,10 @@
                 </div>
             </div>
         </NLColumn>
-        <!-- 10 agences contenant un nombre des faits majeur élevé -->
+        <!-- 10 agences contenant un nombre des faits majeurs élevé -->
         <NLColumn lg="6">
             <div class="box">
-                <h2>Les 10 Agences contenant un nombre des faits majeur élevés</h2>
+                <h2>Les 10 Agences contenant un nombre des faits majeurs élevés</h2>
                 <div class="table-container" v-if="tables.agencies.length">
                     <table>
                         <thead>
@@ -93,10 +97,10 @@
                 </div>
             </div>
         </NLColumn>
-        <!-- 10 missions contenant un nombre des faits majeur élevé -->
+        <!-- 10 missions contenant un nombre des faits majeurs élevé -->
         <NLColumn lg="6">
             <div class="box">
-                <h2>Les 10 Missions contenant un nombre des faits majeur élevés</h2>
+                <h2>Les 10 Missions contenant un nombre des faits majeurs élevés</h2>
                 <div class="table-container" v-if="tables.missions.length">
                     <table>
                         <thead>
@@ -120,10 +124,10 @@
                 </div>
             </div>
         </NLColumn>
-        <!-- 10 campagnes de contrôle contenant un nombre des faits majeur élevé -->
+        <!-- 10 campagnes de contrôle contenant un nombre des faits majeurs élevé -->
         <NLColumn lg="6">
             <div class="box">
-                <h2>Les 10 Campagnes de contrôle contenant un nombre des faits majeur élevés</h2>
+                <h2>Les 10 Campagnes de contrôle contenant un nombre des faits majeurs élevés</h2>
                 <div class="table-container" v-if="tables.campaigns.length">
                     <table>
                         <thead>

@@ -66,13 +66,13 @@
             <button
                 v-if="type == 'ci_report' && !isValidated() && commentExists() && !editMode && canCreateComment() && isReadonly"
                 class="btn btn-warning has-icon" @click.prevent="switchEditMode()">
-                <i class="las la-edit icon" />
-                Editer le compte-rendu
+                <NLIcon name="edit" />
+                Editer le conclusion
             </button>
             <button
                 v-if="type == 'cdc_report' && !isValidated() && commentExists() && !editMode && canCreateComment() && isReadonly"
                 class="btn btn-warning has-icon" @click.prevent="switchEditMode()">
-                <i class="las la-edit icon" />
+                <NLIcon name="edit" />
                 Editer la conclusion
             </button>
         </template>
@@ -130,8 +130,8 @@ export default {
             forceReload: 1,
             fields: {
                 content: {
-                    label: 'Votre compte-rendu',
-                    placeholder: 'Ecrivez votre compte-rendu',
+                    label: 'Votre conclusion',
+                    placeholder: 'Ecrivez votre conclusion',
                     name: 'content'
                 },
                 validated: {
@@ -260,10 +260,10 @@ export default {
             this.form.content = this.content()
             this.form.mission_order = Object.assign({}, mission?.mission_order?.map((order) => order.id))
 
-            this.title = 'Compte-rendu du contrôleur sur la mission ' + mission?.reference
+            this.title = 'Conclusion du contrôleur sur la mission ' + mission?.reference
             this.fields.content = {
-                label: 'Votre compte-rendu',
-                placeholder: 'Ecrivez votre compte-rendu',
+                label: 'Conclusion',
+                placeholder: 'Ecrivez votre conclusion',
                 name: 'content'
             }
             this.fields.file = {
@@ -282,7 +282,7 @@ export default {
             this.form.id = this.commentExists() ? mission?.cdc_report?.id : null
             this.form.content = this.content()
             this.form.closing_report = Object.assign({}, mission?.closing_report?.map((report) => report.id))
-            console.log(mission);
+
             this.title = 'Conclusion du chef de département sur la mission ' + mission?.reference
             this.fields.content = {
                 label: 'Votre conclusion',
@@ -335,7 +335,7 @@ export default {
                 // this.isLoading = false
             }).catch(error => {
                 // this.isLoading = false
-                console.log(error)
+                this.$swal.catchError(error)
             })
         },
         /**

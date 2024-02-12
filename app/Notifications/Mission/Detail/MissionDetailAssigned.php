@@ -25,34 +25,14 @@ class MissionDetailAssigned extends Notification
     protected $mission;
 
     /**
-     * @var \Illuminate\Database\Eloquent\Collection
-     */
-    protected $processes;
-
-    /**
      * @param \App\Models\User $controller
      * @param \App\Models\Mission $mission
      * @param Collection $processes
      */
-    public function __construct(User $controller, Mission $mission, Collection $processes)
+    public function __construct(User $controller, Mission $mission)
     {
         $this->controller = $controller;
         $this->mission = $mission;
-        $this->processes = $processes;
-    }
-
-
-
-
-
-    private function getProcessesString()
-    {
-        $content = '<ul>';
-        foreach ($this->processes as $process) {
-            $content .= '<li>' . $process->name . '</li>';
-        }
-        $content .= '</ul>';
-        return $content;
     }
 
     /**
@@ -62,10 +42,21 @@ class MissionDetailAssigned extends Notification
      */
     private function getContent(): string
     {
-        $totalProcesses = $this->processes->count();
-        $content = $totalProcesses > 1 ? "Des processus vous on était affectés" : "Un processus vous a était affecté";
-        $content .= " pour traitement dans la mission " . $this->mission->reference;
+        $content = "La mission avec la référence {$this->mission->reference} vous a été assignée";
+
         return $content;
+    }
+
+    /**
+     * Get notification body
+     *
+     * @return string
+     */
+    private function getHtmlContent(): string
+    {
+        $content = "La mission <b>" . $this->mission->reference . "</b> vous a été assignée.";
+
+        return "<p>$content</p>";
     }
 
     /**
@@ -75,8 +66,9 @@ class MissionDetailAssigned extends Notification
      */
     private function getTitle(): string
     {
-        $totalProcesses = $this->processes->count();
-        return $totalProcesses > 1 ? 'ASSIGNATION DES PROCESSUS - ' . $this->mission->reference . ' - ' . env('APP_NAME') : 'ASSIGNATION D\'UN PROCESSUS - ' . $this->mission->reference . ' - ' . env('APP_NAME');
+        return 'ASSIGNATION DE LA MISSION ' . $this->mission->reference;
+        // $totalProcesses = is_array($this->processes) ? count($this->processes) : $this->processes->count();
+        // return $totalProcesses > 1 ? 'ASSIGNATION DES PROCESSUS - ' . $this->mission->reference . ' - ' . env('APP_NAME') : 'ASSIGNATION D\'UN PROCESSUS - ' . $this->mission->reference . ' - ' . env('APP_NAME');
     }
 
     /**
@@ -139,6 +131,7 @@ class MissionDetailAssigned extends Notification
             'id' => $this->mission->id,
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
+            'short_content' => $this->getHtmlContent(),
             'title' => $this->getTitle(),
             'emitted_by' => auth()->user()->username,
         ];

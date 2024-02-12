@@ -2,6 +2,9 @@
 
 namespace App\Exports;
 
+use App\Enums\EventLogTypes;
+use App\Models\EventLog;
+use App\Models\Field;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -18,6 +21,7 @@ class FieldExport extends BaseExport implements FromView, WithProperties, Should
 
     public function view(): View
     {
+        EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => Field::class]);
         $fields = $this->data;
         return view('export.fields', compact('fields'));
     }

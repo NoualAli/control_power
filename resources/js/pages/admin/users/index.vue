@@ -1,29 +1,39 @@
 <template>
     <div v-if="can('view_user')">
-        <ContentHeader>
-            <template #actions>
+        <!-- <ContentHeader>
+            <template #right-actions>
                 <router-link v-if="can('create_user')" :to="{ name: 'users-create' }" class="btn btn-info">
                     Ajouter
                 </router-link>
                 <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
-                    <i class="las la-file-excel icon" />
+                    <NLIcon name="table" />
                     Exporter
                 </button>
             </template>
-        </ContentHeader>
+        </ContentHeader> -->
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" :details="details" title="Liste des utilisateurs"
                 urlPrefix="users" @edit="edit" @delete="destroy" :refresh="refresh" @dataLoaded="handleDataLoaded">
                 <template #actions-before="{ item }">
                     <a class="btn btn-office-excel" v-if="!item.must_change_password"
                         :href="'/excel-export?export=users&id=' + item.id" target="_blank">
-                        <i class="las la-file-excel icon" />
+                        <NLIcon name="table" />
                     </a>
                     <NLButton class="btn btn-danger"
                         v-if="!isCurrent(item) && !item.must_change_password && is(['root', 'admin'])"
                         @click.prevent="reset(item)">
-                        <i class="las la-backspace icon" />
+                        <NLIcon name="backspace" />
                     </NLButton>
+                </template>
+                <template #table-actions>
+                    <router-link v-if="can('create_user')" :to="{ name: 'users-create' }" class="btn has-icon">
+                        <NLIcon name="add" />
+                        Ajouter
+                    </router-link>
+                    <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
+                        <NLIcon name="table" />
+                        Exporter
+                    </button>
                 </template>
             </NLDatatable>
             <ExcelExportModal :show="excelExportIsOpen" :route="this.currentUrl" @close="this.excelExportIsOpen = false"
@@ -63,7 +73,7 @@ export default {
                 {
                     label: 'Adresse email',
                     field: 'email',
-                    sortable: true
+                    sortable: true,
                 },
                 {
                     label: 'N° de téléphone',
@@ -79,15 +89,15 @@ export default {
                     field: 'role',
                 },
                 {
-                    label: 'Actif',
+                    label: 'Etat',
                     field: 'is_active',
                     isHtml: true,
                     methods: {
                         showField(item) {
                             if (item.is_active) {
-                                return '<i class="las la-check-circle icon text-success"></i>'
+                                return '<span class="tag is-success">Actif</span>'
                             }
-                            return '<i class="las la-times-circle icon text-danger"></i>'
+                            return '<span class="tag is-warning">Inactif</span>'
                         }
                     }
                 },
@@ -149,7 +159,7 @@ export default {
                     show: (item) => {
                         let condition = !this.isCurrent(item) && this.can('edit_user') && item?.role_code !== 'root'
                         if (hasRole('cdcr')) {
-                            return condition && ![ 'admin', 'root', 'dg', 'ig', 'sg', 'dcp', 'cdrcp', 'der', 'deac', 'dga' ].includes(item.role_code)
+                            return condition && ![ 'admin', 'root', 'dg', 'ig', 'sg', 'dcp', 'cdrcp', 'der', 'cder', 'deac', 'dga' ].includes(item.role_code)
                         }
                         return condition
                     },
@@ -183,7 +193,8 @@ export default {
          * @param {Object} e
          */
         edit(e) {
-            return this.$router.push({ name: 'users-edit', params: { user: e.item.id } })
+            window.open(this.$router.resolve({ name: 'users-edit', params: { user: e.item.id } }).href, '_blank')
+            // return this.$router.push({ name: 'users-edit', params: { user: e.item.id } })
         },
 
         /**
@@ -192,7 +203,7 @@ export default {
          * @param {Object} user
          */
         reset(user) {
-            return this.$swal.confirm_destroy("Voulez-vous vraiment réinitialiser les informations de l'utilisateur <b>" + user?.username + "</b>").then((action) => {
+            return this.$swal.confirm_destroy("Êtes-vous sûr de vouloir réinitialiser les informations de l'utilisateur <b>" + user?.username + "</b>").then((action) => {
                 if (action.isConfirmed) {
                     return this.$api.post('users/reset/' + user?.id).then(response => {
                         if (response.data.status) {

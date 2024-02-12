@@ -16,7 +16,8 @@ class StoreRequest extends FormRequest
     {
         $currentUser = auth()->user()->id;
         $mission = request()->mission;
-        return isAbleTo(['create_ci_report', 'create_cdc_report']) && ($mission->dreControllers->contains('id', $currentUser) || $currentUser == request()->mission->created_by_id);
+        // dd($currentUser, $mission->dreController->id, $mission->created_by_id);
+        return isAbleTo(['create_ci_report', 'create_cdc_report']) && ($mission->dreController?->id == $currentUser || $currentUser == $mission->created_by_id);
     }
 
     /**
@@ -49,9 +50,9 @@ class StoreRequest extends FormRequest
         $type = request()->type;
         if ($type == 'ci_report') {
             return [
-                'content.required' => 'Le champ compte-rendu est obligatoire.',
-                'content.string' => 'Le champ compte-rendu doit être une chaine de caractaire.',
-                'content.max' => 'Le champ compte-rendu ne doit pas dépasser 3000 caractaires.',
+                'content.required' => 'Le champ conclusion est obligatoire.',
+                'content.string' => 'Le champ conclusion doit être une chaine de caractaire.',
+                'content.max' => 'Le champ conclusion ne doit pas dépasser 3000 caractaires.',
             ];
         } elseif ($type == 'cdc_report') {
             return [

@@ -3,7 +3,6 @@
 use App\Models\Domain;
 use App\Models\Dre;
 use App\Models\Family;
-use App\Models\Mission;
 use App\Models\User;
 use App\Rules\IsAlgerianPhoneNumber;
 use Carbon\Carbon;
@@ -83,7 +82,7 @@ if (!function_exists('hasDre')) {
     function hasDre(string|array $dres): bool
     {
         $user = auth()->user();
-        $userDres = $user->dres->pluck('name')->toArray();
+        $userDres = $user->dres->pluck('full_name')->toArray();
         if (is_array($dres)) {
             $hasDre = [];
             foreach ($dres as $dre) {
@@ -338,45 +337,6 @@ if (!function_exists('generateCDCRef')) {
     }
 }
 
-if (!function_exists('getMissionProcesses')) {
-    /**
-     * Load mission processes
-     *
-     * @param Mission $mission
-     *
-     * @return Illuminate\Database\Query\Builder
-     */
-    function getMissionProcesses(Mission $mission)
-    {
-        $processes = DB::table('processes as p');
-        $processes = $processes->selectRaw("
-            p.id as process_id,
-            p.name as process,
-            d.name as domain,
-            f.name as family,
-            f.id as family_id,
-            d.id as domain_id,
-            CASE WHEN COUNT(CASE WHEN md.major_fact > 0 THEN 1 ELSE NULL END) > 0 THEN 'Oui' ELSE 'Non' END AS major_fact,
-            COUNT(CASE WHEN score IN (2, 3, 4) THEN 1 ELSE NULL END) AS total_anomalies,
-            COUNT(cp.id) as control_points_count,
-            AVG(md.score) as avg_score,
-            COUNT(md.id) AS total_mission_details,
-            SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) AS scored_mission_details,
-            (COUNT(CASE WHEN score IN (2, 3, 4) THEN 1 ELSE NULL END) * 100) / NULLIF(COUNT(md.id), 0) AS anomalies_rate,
-            (COUNT(md.score) * 100) / NULLIF(COUNT(md.id), 0) AS progress_status
-        ");
-        $processes = $processes->join('control_points as cp', 'p.id', '=', 'cp.process_id')
-            ->join('domains as d', 'd.id', '=', 'p.domain_id')
-            ->join('families as f', 'f.id', '=', 'd.family_id')
-            ->join('mission_details as md', 'cp.id', '=', 'md.control_point_id')
-            ->join('missions as m', 'm.id', '=', 'md.mission_id')
-            ->groupBy('f.id', 'd.id', 'p.id', 'p.name', 'd.name', 'f.name')
-            ->where('m.id', $mission->id);
-        // dd($processes->get(), $mission->id);
-        return $processes;
-    }
-}
-
 if (!function_exists('loadAgencies')) {
     /**
      * @param array $data
@@ -625,20 +585,72 @@ if (!function_exists('validateFields')) {
     }
 }
 
-// if (!function_exists('parse_query_string')) {
-//     function parse_query_string()
-//     {
-//         $queryString = Cache::put('missions_index_query_string', fn () => request()->getQueryString());
-//         $query = new stdClass;
-//         foreach (explode('&', $queryString) as $value) {
-//             $param = explode('=', $value);
-//             $key = isset($param[0]) ? $param[0] : null;
-//             if ($key) {
-//                 if (isset($param[1])) {
-//                     $query->$key = $param[1];
-//                 }
-//             }
-//         }
-//         return $query;
-//     }
-// }
+if (!function_exists('getUserFullNameWithRole')) {
+    /**
+     * Display user fullname with role code and martial status or not
+     *
+     * @param User|string|int|null $user
+     * @param bool $withMartial
+     *
+     * @return string
+     */
+    function getUserFullNameWithRole(User|string|int $user = null, bool $withMartial = true, bool $abbreviated = false)
+    {
+        if (is_integer($user) || is_string($user)) {
+            $user = User::findOrFail($user);
+        }
+        $user = $user ?: auth()->user();
+        if ($abbreviated) {
+            return $withMartial ? $user->martial_status . ' ' . $user->abbreviated_name : $user->abbreviated_name;
+        }
+        $fullName = $withMartial ? $user->full_name_with_martial : $user->full_name;
+        return $fullName . ' (' . strtoupper($user->role->code) . ')';
+    }
+}
+
+if (!function_exists('normalizeFullName')) {
+    /**
+     * Sanitize user fullname and remove role code
+     *
+     * @param string|null $fullName
+     *
+     * @return string
+     */
+    function normalizeFullName(?string $fullName)
+    {
+        if ($fullName) {
+            $fullName = str_replace([' (CDC)', ' (CDCR', ' (CC)', ' (DCP)', ' (DA)', ' (CI)'], '', $fullName);
+            $fullNameParts = explode(' ', $fullName);
+            $fullNameParts = array_map(function ($part) {
+                return ucfirst(strtolower($part));
+            }, $fullNameParts);
+
+            $fullName = implode(' ', $fullNameParts);
+        }
+
+        return $fullName;
+    }
+}
+
+if (!function_exists('daysRemainingStr')) {
+    /**
+     * Format diff in days to human string
+     *
+     * @param string $from
+     * @param string|null $to
+     *
+     * @return string
+     */
+    function daysRemainingStr(string $from, ?string $to = null)
+    {
+        if ($from && $to) {
+            $daysRemaining = $from > 1 ? $from . ' jours' : $from . ' jour';
+            if ($from < 0 && $to) {
+                return 'En cours';
+            }
+            return $to ? $daysRemaining : '-';
+        }
+        $daysRemaining = $from > 1 ? abs($from) . ' jours' : abs($from) . ' jour';
+        return $from ? $daysRemaining : '-';
+    }
+}

@@ -35,14 +35,12 @@ export default {
         currentLength: { type: [ Number, String ], default: null },
         helpText: { type: String, default: null }
     },
-    methods: {
+    computed: {
         getFieldErrors(fieldName) {
             const errors = this.form?.errors.any() ? this.form.errors.errors : false
             const fieldErrors = []
-            // console.log(errors)
             if (errors) {
                 for (const error of errors) {
-                    console.log(error?.field?.startsWith(fieldName), error, fieldName)
                     if (error?.field?.startsWith(fieldName)) {
                         fieldErrors.push(error.msg)
                     }

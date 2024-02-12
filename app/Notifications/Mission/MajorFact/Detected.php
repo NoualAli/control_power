@@ -76,7 +76,17 @@ class Detected extends Notification
      */
     private function getContent(): string
     {
-        return 'Un fait majeur vient d\'être détecter dans la mission ' . $this->detail?->mission?->reference;
+        return 'Un fait majeur vient d\'être détecté dans la mission ' . $this->detail?->mission?->reference;
+    }
+
+    /**
+     * Get Notification content
+     *
+     * @return string
+     */
+    private function getHtmlContent(): string
+    {
+        return '<p>Un fait majeur vient d\'être détecté dans la mission <b>' . $this->detail?->mission?->reference . '</b></p>';
     }
 
     /**
@@ -108,6 +118,7 @@ class Detected extends Notification
             'id' => $this->detail->id,
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
+            'short_content' => $this->getHtmlContent(),
             'title' => $this->getTitle(),
             'emitted_by' => auth()->user()->username,
         ];

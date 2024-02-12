@@ -1,35 +1,38 @@
 <template>
     <ContentBody v-if="can('view_control_campaign')">
-        <NLGrid gap="4" extraClass=" mb-4">
-            <NLColumn lg="3">
-                <button class="btn btn-info w-100" :class="{ 'is-active': currentSection == 'realisationStates' }"
-                    @click="setCurrentSection('realisationStates')">
-                    Suivi de la réalisation des missions
-                </button>
-            </NLColumn>
-            <NLColumn lg="3">
-                <button class="btn btn-warning w-100" :class="{ 'is-active': currentSection == 'scores' }"
-                    @click="setCurrentSection('scores')">
-                    Statistiques des notations
-                </button>
-            </NLColumn>
-            <NLColumn lg="3">
-                <button class="btn btn-danger-dark w-100" :class="{ 'is-active': currentSection == 'anomalies' }"
-                    @click="setCurrentSection('anomalies')">
-                    Statistiques des anomalies
-                </button>
-            </NLColumn>
-            <NLColumn lg="3">
-                <button class="btn btn-danger-dark w-100" :class="{ 'is-active': currentSection == 'majorFacts' }"
-                    @click="setCurrentSection('majorFacts')">
-                    Statistiques des faits majeur
-                </button>
-            </NLColumn>
-        </NLGrid>
+        <NLFlex alignItems="center" lgJustifyContent="start" gap="2" extraClass="my-4" wrap>
+            <button :disabled="currentSection == 'missionsStates'" class="btn"
+                :class="{ 'is-active': currentSection == 'missionsStates' }" @click="setCurrentSection('missionsStates')"
+                v-if="!is('da')">
+                <NLIcon name="checklist" />
+                Suivi de la réalisation des missions
+            </button>
+            <button :disabled="currentSection == 'scores'" class="btn" :class="{ 'is-active': currentSection == 'scores' }"
+                @click="setCurrentSection('scores')">
+                <NLIcon name="format_list_numbered" />
+                Statistiques des notations
+            </button>
+            <button :disabled="currentSection == 'anomalies'" class="btn"
+                :class="{ 'is-active': currentSection == 'anomalies' }" @click="setCurrentSection('anomalies')">
+                <NLIcon name="breaking_news" />
+                Statistiques des anomalies
+            </button>
+            <button :disabled="currentSection == 'majorFacts'" class="btn"
+                :class="{ 'is-active': currentSection == 'majorFacts' }" @click="setCurrentSection('majorFacts')"
+                v-if="!is('da')">
+                <NLIcon name="brightness_alert" />
+                Statistiques des faits majeurs
+            </button>
+            <button :disabled="currentSection == 'KPI'" class="btn" :class="{ 'is-active': currentSection == 'KPI' }"
+                @click="setCurrentSection('KPI')" v-if="is(['dcp', 'cdcr'])">
+                <NLIcon name="trophy" />
+                KPI
+            </button>
+        </NLFlex>
 
         <!-- Suivi de la réalisation des missions -->
         <Missions :onlyCurrentCampaign="false" :currentCampaign="currentCampaign"
-            v-if="currentSection == 'realisationStates' && can('view_control_campaign')" :userRole="userRole"
+            v-if="currentSection == 'missionsStates' && can('view_control_campaign')" :userRole="userRole"
             :circularChartOptions="circularChartOptions" @savePNG="savePNG" />
 
 
@@ -48,7 +51,8 @@
             v-if="currentSection == 'majorFacts' && can('view_control_campaign')" :userRole="userRole"
             :circularChartOptions="circularChartOptions" @savePNG="savePNG" :horizontalBarOptions="horizontalBarOptions" />
 
-        <!-- <NLGrid gap="6" v-if="currentSection == 'regularizations'" /> -->
+        <!-- KPI -->
+        <KPI v-if="currentSection == 'KPI' && !is('da')" :userRole="userRole" @savePNG="savePNG" />
     </ContentBody>
 </template>
 
@@ -57,6 +61,7 @@ import Anomalies from '../dashboard/second_level/Anomalies'
 import MajorFacts from '../dashboard/second_level/MajorFacts'
 import Scores from '../dashboard/second_level/Scores'
 import Missions from '../dashboard/second_level/Missions'
+import KPI from '../dashboard/second_level/KPI'
 import { user } from '../../plugins/user'
 export default {
     components: {
@@ -64,6 +69,7 @@ export default {
         MajorFacts,
         Scores,
         Missions,
+        KPI
     },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
@@ -106,7 +112,7 @@ export default {
         }
     },
     created() {
-        this.setCurrentSection('realisationStates')
+        this.setCurrentSection('missionsStates')
         this.currentCampaign = this.$route?.params?.campaignId
         this.userRole = user()?.role?.code
     },

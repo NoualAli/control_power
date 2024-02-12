@@ -2,6 +2,9 @@
 
 namespace App\Exports;
 
+use App\Enums\EventLogTypes;
+use App\Models\Bug;
+use App\Models\EventLog;
 use Illuminate\View\View;
 use Illuminate\Database\Eloquent\Collection;
 use Maatwebsite\Excel\Concerns\FromView;
@@ -22,6 +25,7 @@ class BugExport extends BaseExport implements FromView, WithProperties, ShouldAu
 
     public function view(): View
     {
+        EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => Bug::class]);
         $bugs = $this->data;
         return view('export.bugs', compact('bugs'));
     }

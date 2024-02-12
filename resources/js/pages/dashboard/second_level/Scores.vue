@@ -8,7 +8,9 @@
                     <h2>Classement des notations</h2>
                     <button class="btn btn-info has-icon" @click.prevent="savePNG('globalScores')"
                         v-if="charts.globalScores.datasets[0].data.length">
-                        <i class="las la-save icon" />
+                        <span class="material-icons material-symbols-rounded icon">
+                            save
+                        </span>
                     </button>
                 </div>
                 <NLContainer extraClass="d-flex full-center" isFluid>
@@ -29,7 +31,9 @@
                 <h2>Notations moyennes par famille</h2>
                 <button class="btn btn-info has-icon" @click.prevent="savePNG('avgScoreByFamily')"
                     v-if="charts.avgScoreByFamily.datasets[0].data.length">
-                    <i class="las la-save icon" />
+                    <span class="material-icons material-symbols-rounded icon">
+                        save
+                    </span>
                 </button>
             </div>
             <NLContainer extraClass="d-flex full-center" isFluid>
@@ -72,7 +76,7 @@
         </NLColumn>
 
         <!-- Notations moyennes par DRE -->
-        <NLColumn lg="6">
+        <NLColumn lg="6" v-if="!is('da')">
             <div class="box">
                 <h2>Notations moyennes par DRE</h2>
                 <div class="table-container" v-if="tables.avgScoreByDre.length">
@@ -141,7 +145,6 @@ export default {
     methods: {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
-            console.log({ onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign });
             this.$store.dispatch('statistics/fetchScores', { onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign }).then(() => {
                 this.charts.globalScores = this.scores.data.globalScores
                 this.charts.avgScoreByFamily = this.scores.data.avgScoreByFamily

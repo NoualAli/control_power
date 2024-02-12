@@ -10,7 +10,7 @@
             </main>
             <div class="footer-container">
                 <p>
-                    VERSION {{ app_version }} &copy; {{ currentYear }} - Tous droits réservés - BNA
+                    VERSION {{ app_version }} &copy; {{ currentYear }}
                 </p>
             </div>
         </div>

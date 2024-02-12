@@ -27,13 +27,16 @@ import NLGrid from './Grid/NLGrid'
 import NLColumn from './Grid/NLColumn'
 import NLFlex from './Grid/NLFlex'
 import NLForm from './NLForm'
+import NLIcon from './NLIcon'
+import NLTooltip from './NLTooltip'
+// import simplebar from 'simplebar-vue';
 // import NLPageLoader from './NLPageLoader'
-// import NLComponentLoader from './NLComponentLoader.vue'
+// import NLComponentLoader from './NLComponentLoader'
 // Components that are registered globaly.
 export function useComponents(app) {
     [
-        // NLPageLoader,
-        // NLComponentLoader
+        NLTooltip,
+        NLIcon,
         NLInputDate,
         NLForm,
         NLRadios,

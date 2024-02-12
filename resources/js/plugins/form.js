@@ -4,9 +4,6 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import store from '~/store'
 import * as swal from '../plugins/swal'
-import { encryptData } from './crypto'
-
-
 const instance = axios.create({
     headers: {
 
@@ -14,7 +11,7 @@ const instance = axios.create({
         Accept: 'application/json'
 
     },
-    baseURL: '/api/',
+    baseURL: '/api/v1',
 })
 
 instance.interceptors.response.use(response => response, error => {
@@ -22,10 +19,9 @@ instance.interceptors.response.use(response => response, error => {
     let message = error?.response?.data?.message
     const title = status + ' ' + error?.response?.statusText
     if (status === 401) {
-        swal.alert_error(message, "Erreur 401")
-            .then(() => {
-                store.commit('auth/LOGOUT')
-            })
+        swal.alert_error('Vous avez dépassé le délai accordé à votre session, cette dernière a expiré, veuillez vous reconnecter de nouveau', '401 Session expirée')
+        store.commit('auth/LOGOUT')
+        return this.$router.push({ name: 'login' })
     }
     if (status === 422) {
         let totalErrors = Object.entries(error?.response?.data?.errors).length
@@ -41,7 +37,7 @@ instance.interceptors.response.use(response => response, error => {
         swal.alert_error(message, title)
             .then(() => {
                 store.commit('auth/LOGOUT')
-                location.reload()
+                return this.$router.push({ name: 'login' })
             })
     }
 
@@ -72,7 +68,11 @@ async function serverError(response) {
             customClass: { container: 'server-error-modal' },
             didDestroy: () => { serverErrorModalShown = false },
             grow: 'fullscreen',
-            padding: 0
+            padding: 0,
+            backdrop: `rgb(18, 87, 65, .4)`,
+            animation: true,
+            denyButtonColor: "#CC0000",
+            confirmButtonColor: "#007E33",
         })
 
         serverErrorModalShown = true
@@ -80,10 +80,14 @@ async function serverError(response) {
         Swal.fire({
             icon: 'error',
             title: 'Oops...',
-            text: 'Quelque chose s\'est mal passé ! Veuillez réessayer.',
+            text: response?.data?.message || 'Quelque chose s\'est mal passé ! Veuillez réessayer.',
             reverseButtons: true,
             confirmButtonText: 'ok',
-            cancelButtonText: 'Annuler'
+            cancelButtonText: 'Annuler',
+            backdrop: `rgb(18, 87, 65, .4)`,
+            animation: true,
+            denyButtonColor: "#CC0000",
+            confirmButtonColor: "#007E33",
         })
     }
 }

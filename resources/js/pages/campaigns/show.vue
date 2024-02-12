@@ -1,185 +1,221 @@
 <template>
     <ContentHeader v-if="can('view_control_campaign')">
-        <template #title>
+        <!-- <template #title>
             Informations de la campagne de contrôle
+        </template> -->
+        <template #left-actions>
+            <NLColumn>
+                <!-- Control campaign actions -->
+                <NLFlex lgJustifyContent="start" gap="2" v-if="is('root')">
+                    <NLButton v-if="totalMissions" class="has-icon" @click.prevent="generateReports(true)"
+                        label="Regénérer tous les rapports" :loading="reGenerateReportsIsLoading">
+                        <!-- <i class="las la-file-pdf icon" /> -->
+                        <NLIcon name="picture_as_pdf" />
+                    </NLButton>
+                    <NLButton v-if="totalMissions" class="has-icon" @click.prevent="generateReports(false)"
+                        label="Regénérer les rapports manquants" :loading="generateMissingReportsIsLoading">
+                        <NLIcon name="picture_as_pdf" />
+                    </NLButton>
+                </NLFlex>
+                <NLFlex lgJustifyContent="start" gap="2"
+                    v-if="totalMissions == totalValidatedMissions && totalMissions > 0 && totalValidatedMissions > 0 && is(['cdrcp', 'dcp', 'cdcr', 'cdc'])">
+                    <!-- Download files -->
+                    <NLButton label="Pièces jointes" class="has-icon" @click="downloadZip()"
+                        v-if="is(['cdrcp', 'dcp', 'cdcr',])">
+                        <NLIcon name="folder_zip" />
+                    </NLButton>
+                    <NLButton v-if="totalMissions && is(['dcp', 'cdcr'])" class="has-icon" @click.prevent="generateReports"
+                        label="Regénérer les rapports manquants" :loading="reGenerateReportsIsLoading">
+                        <NLIcon name="picture_as_pdf" />
+                    </NLButton>
+                    <NLButton v-if="totalMissions && is(['dcp', 'cdcr'])" class="has-icon"
+                        @click.prevent="handleUploadSynthesisBox" label="Téléversement synthèse">
+                        <NLIcon name="cloud_upload" />
+                    </NLButton>
+                    <a :href="'/excel-export?export=synthesis&campaign=' + campaign?.current?.id" target="_blank"
+                        class="btn has-icon"
+                        v-if="is(['cdcr', 'dcp', 'cdc', 'cdrcp']) && totalMissions == totalValidatedMissions">
+                        <NLIcon name="table" />
+                        Récapitulatif des notations
+                    </a>
+                    <a :href="'/excel-export?export=synthesis_reports&campaign=' + campaign?.current?.id" target="_blank"
+                        class="btn has-icon" v-if="is(['cdcr', 'dcp', 'cdrcp']) && totalMissions == totalValidatedMissions">
+                        <NLIcon name="table" />
+                        Récapitulatif des constats
+                    </a>
+                </NLFlex>
+            </NLColumn>
         </template>
-        <template #actions>
-            <router-link v-if="can('view_mission')"
+        <template #right-actions>
+            <router-link v-if="can('view_mission') && Boolean(Number(campaign?.current?.is_validated))"
                 :to="{ name: 'campaign-missions', params: { campaignId: campaign?.current?.id } }" class="btn has-icon">
-                <i class="las la-eye icon"></i>
+                <!-- <i class="las la-eye icon"></i> -->
+                <NLIcon name="visibility" />
                 Missions
             </router-link>
-            <router-link v-if="can('view_mission')"
+            <router-link v-if="can('view_mission') && Boolean(Number(campaign?.current?.is_validated))"
                 :to="{ name: 'campaign-statistics', params: { campaignId: campaign?.current?.id } }" class="btn has-icon">
-                <i class="las la-chart-bar icon"></i>
+                <NLIcon name="pie_chart" />
+                <!-- <i class="las la-chart-bar icon"></i> -->
                 Statistiques
             </router-link>
             <router-link v-if="(!Boolean(Number(campaign?.current?.is_validated)) && can('edit_control_campaign'))"
-                class="btn btn-warning" :to="{ name: 'campaigns-edit', params: { campaignId: campaign?.current?.id } }">
-                <i class="las la-edit icon" />
+                class="btn btn-warning has-icon"
+                :to="{ name: 'campaigns-edit', params: { campaignId: campaign?.current?.id } }">
+                <NLIcon name="edit" />
                 Modifier
             </router-link>
-            <NLButton v-if="(!Boolean(Number(campaign?.current?.is_validated)) && can('delete_control_campaign'))"
+            <NLButton
+                v-if="!Boolean(Number(campaign?.current?.is_validated)) && (user().id == campaign?.current?.created_by_id || is('dcp'))"
                 class="btn btn-danger has-icon" @click.stop="destroy" :loading="destroyInProgress" label="Supprimer">
-                <i class="las la-trash icon" />
+                <NLIcon name="delete" />
             </NLButton>
-            <NLButton v-if="!campaign?.current?.validated_by_id && can('validate_control_campaign')" class="btn btn-info"
-                @click.stop="validate(campaign?.current)" :loading="validationInProgress" label="Valider">
-                <i class="las la-check icon has-icon" />
+            <NLButton v-if="!campaign?.current?.validated_by_id && can('validate_control_campaign')"
+                class="btn btn-info has-icon" @click.stop="validate(campaign?.current)" :loading="validationInProgress"
+                label="Valider">
+                <NLIcon name="check" />
             </NLButton>
         </template>
     </ContentHeader>
+
     <ContentBody v-if="can('view_control_campaign')">
-        <!-- Control campaign informations -->
-        <div class="box mb-10">
-            <NLGrid class="grid gap-12">
-                <NLColumn lg="4">
-                    <span class="text-bold">
-                        Référence:
-                    </span>
-                    <span>
-                        {{ reference }}
-                    </span>
-                </NLColumn>
-                <NLColumn v-if="is('cdcr,dcp,admin,root')" lg="4">
-                    <span class="text-bold">
-                        Etat:
-                    </span>
-                    <span>
-                        {{ state }}
-                    </span>
-                </NLColumn>
-                <NLColumn lg="4">
-                    <NLGrid class="grid">
-                        <NLColumn>
-                            <NLGrid>
-                                <NLColumn lg="6">
-                                    <span class="text-bold">
-                                        Début:
-                                    </span>
-                                    <span>
-                                        {{ start }}
-                                    </span>
-                                </NLColumn>
-                                <NLColumn lg="6">
-                                    <span class="text-bold">
-                                        Fin:
-                                    </span>
-                                    <span>
-                                        {{ end }}
-                                    </span>
-                                </NLColumn>
-                            </NLGrid>
-                        </NLColumn>
-                    </NLGrid>
-                </NLColumn>
-                <NLColumn lg="12">
-                    <NLGrid>
-                        <NLColumn lg="4">
-                            <span class="text-bold">
-                                Total missions:
-                            </span>
-                            <span>
-                                {{ totalMissions }}
-                            </span>
-                        </NLColumn>
+        <NLGrid gap="6">
+            <NLColumn>
+                <NLGrid extraClass="box">
+                    <NLColumn lg="4">
+                        <span class="text-bold">
+                            Référence:
+                        </span>
+                        <span>
+                            {{ reference }}
+                        </span>
+                    </NLColumn>
+                    <NLColumn v-if="is('cdcr,dcp,admin,root')" lg="4">
+                        <span class="text-bold">
+                            Etat:
+                        </span>
+                        <span>
+                            {{ state }}
+                        </span>
+                    </NLColumn>
+                    <NLColumn lg="4">
+                        <NLGrid class="grid">
+                            <NLColumn>
+                                <NLGrid>
+                                    <NLColumn lg="6">
+                                        <span class="text-bold">
+                                            Début:
+                                        </span>
+                                        <span>
+                                            {{ start }}
+                                        </span>
+                                    </NLColumn>
+                                    <NLColumn lg="6">
+                                        <span class="text-bold">
+                                            Fin:
+                                        </span>
+                                        <span>
+                                            {{ end }}
+                                        </span>
+                                    </NLColumn>
+                                </NLGrid>
+                            </NLColumn>
+                        </NLGrid>
+                    </NLColumn>
+                    <NLColumn lg="12" v-if="Boolean(Number(campaign?.current?.is_validated))">
+                        <NLGrid>
+                            <NLColumn lg="4">
+                                <span class="text-bold">
+                                    Total missions:
+                                </span>
+                                <span>
+                                    {{ totalMissions }}
+                                </span>
+                            </NLColumn>
 
-                        <NLColumn lg="4">
-                            <span class="text-bold">
-                                Total validées:
-                            </span>
-                            <span>
-                                {{ totalValidatedMissionsWithPercent }}
-                            </span>
-                        </NLColumn>
-                    </NLGrid>
-                </NLColumn>
-                <NLColumn lg="12">
-                    <NLGrid>
-                        <NLColumn lg="4">
-                            <span class="text-bold">
-                                Crée par:
-                            </span>
-                            <span>
-                                {{ campaign?.current?.creator_full_name }}
-                            </span>
-                        </NLColumn>
+                            <NLColumn lg="4">
+                                <span class="text-bold">
+                                    Total validées:
+                                </span>
+                                <span>
+                                    {{ totalValidatedMissionsWithPercent }}
+                                </span>
+                            </NLColumn>
 
-                        <NLColumn lg="4">
-                            <span class="text-bold">
-                                Validée par:
-                            </span>
-                            <span>
-                                {{ campaign?.current?.validator_full_name }}
-                            </span>
-                        </NLColumn>
-                        <NLColumn lg="4" v-if="is(['admin', 'root', 'dcp', 'cdcr'])">
-                            <span class="text-bold">
-                                Test:
-                            </span>
-                            <span>
-                                {{ campaign?.current?.is_for_testing_str }}
-                            </span>
-                        </NLColumn>
-                    </NLGrid>
-                </NLColumn>
-                <NLColumn>
-                    <span class="text-bold">
-                        Description:
-                    </span>
-                    <br>
-                    <div v-if="campaign?.current?.description !== '-'" class="mt-2 content text-normal"
-                        v-html="campaign?.current?.description" />
-                    <span v-else />
-                </NLColumn>
-            </NLGrid>
-        </div>
-        <NLFlex lgJustifyContent="start" gap="2" v-if="is('root')">
-            <NLButton v-if="totalMissions" class="btn btn-pdf has-icon" @click.prevent="generateReports(true)"
-                label="Regénérer tous les rapports" :loading="reGenerateReportsIsLoading">
-                <i class="las la-file-pdf icon" />
-            </NLButton>
-            <NLButton v-if="totalMissions" class="btn btn-pdf has-icon" @click.prevent="generateReports(false)"
-                label="Regénérer les rapports manquants" :loading="generateMissingReportsIsLoading">
-                <i class="las la-file-pdf icon" />
-            </NLButton>
-        </NLFlex>
+                            <NLColumn lg="4">
+                                <span class="text-bold">
+                                    Taux de couverture:
+                                </span>
+                                <span>
+                                    {{ realisationRate }}
+                                </span>
+                            </NLColumn>
+                        </NLGrid>
+                    </NLColumn>
+                    <NLColumn lg="12">
+                        <NLGrid>
+                            <NLColumn lg="4">
+                                <span class="text-bold">
+                                    Crée par:
+                                </span>
+                                <span>
+                                    {{ campaign?.current?.creator_full_name }}
+                                </span>
+                            </NLColumn>
 
-        <NLFlex lgJustifyContent="start" gap="2"
-            v-if="canExportSynthesis && totalMissions == totalValidatedMissions && totalMissions > 0 && totalValidatedMissions > 0 && !is('root')">
-            <!-- Download files -->
-            <button v-if="!is(['ci', 'da', 'cc', 'admin'])" class="btn btn-info has-icon" @click="downloadZip()">
-                <i class="las la-file-archive icon" />
-                Pièces jointes
-            </button>
-            <NLButton v-if="totalMissions && is(['dcp', 'cdcr'])" class="btn btn-pdf has-icon"
-                @click.prevent="generateReports" label="Regénérer les rapports manquants"
-                :loading="reGenerateReportsIsLoading">
-                <i class="las la-file-pdf icon" />
-            </NLButton>
+                            <NLColumn lg="4">
+                                <span class="text-bold">
+                                    Validée par:
+                                </span>
+                                <span>
+                                    {{ campaign?.current?.validator_full_name }}
+                                </span>
+                            </NLColumn>
+                            <NLColumn lg="4"
+                                v-if="is(['admin', 'root', 'dcp', 'cdcr']) && campaign?.current?.is_for_testing">
+                                <span class="text-bold">
+                                    Test:
+                                </span>
+                                <span>
+                                    {{ campaign?.current?.is_for_testing_str }}
+                                </span>
+                            </NLColumn>
+                        </NLGrid>
+                    </NLColumn>
+                    <NLColumn>
+                        <span class="text-bold">
+                            Description:
+                        </span>
+                        <br>
+                        <NLReadMore :value="campaign?.current?.description" maxDisplayLength="250"></NLReadMore>
+                    </NLColumn>
+                </NLGrid>
+            </NLColumn>
 
-            <a :href="'/excel-export?export=synthesis&campaign=' + campaign?.current?.id" target="_blank"
-                class="btn btn-office-excel has-icon">
-                <i class="las la-file-excel icon" />
-                Récapitulatif des notations
-            </a>
-            <a :href="'/excel-export?export=synthesis_reports&campaign=' + campaign?.current?.id" target="_blank"
-                class="btn btn-office-excel has-icon">
-                <i class="las la-file-excel icon" />
-                Récapitulatif des constats
-            </a>
-        </NLFlex>
-        <!-- Processes List -->
-        <NLDatatable :refresh="refresh" v-if="campaign?.current?.id" :columns="columns" :details="details"
-            title="Liste des processus" :urlPrefix="'campaigns/processes/' + campaign?.current?.id"
-            detailsUrlPrefix="processes" @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
-            <template #actions-before="{ item, callback }"
-                v-if="can('edit_control_campaign') && !campaign?.current.validated_by_id && is(['dcp'])">
-                <button class="btn btn-danger has-icon" @click.stop="callback(detachProcess, item)">
-                    <i class="las la-unlink icon" />
-                </button>
-            </template>
-        </NLDatatable>
+            <NLColumn v-if="is(['dcp', 'cdcr']) && showUploadSynthesisBox">
+                <NLGrid extraClass="box">
+                    <NLColumn>
+                        <NLFile @uploaded="handleMedia" @deleted="handleMedia" @loaded="handleMedia"
+                            v-model="form.synthesis" :name="'media'" label="Synthèse"
+                            attachable-type="App\Models\ControlCampaign" folder="Synthèses"
+                            :attachable-id="campaign?.current?.id" :form="form" multiple />
+                    </NLColumn>
+                </NLGrid>
+            </NLColumn>
+            <NLColumn>
+                <!-- Processes List -->
+                <NLDatatable :refresh="refresh" v-if="campaign?.current?.id" :columns="columns" :details="details"
+                    :urlPrefix="'campaigns/processes/' + campaign?.current?.id" detailsUrlPrefix="processes"
+                    @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
+                    <template #actions-before="{ item, callback }"
+                        v-if="can('edit_control_campaign') && !campaign?.current?.validated_by_id && (user().id == campaign?.current?.created_by_id || is('dcp'))">
+                        <button class="btn btn-danger has-icon" @click.stop="callback(detachProcess, item)">
+                            <i class="las la-unlink icon" />
+                        </button>
+                    </template>
+                </NLDatatable>
+            </NLColumn>
+        </NLGrid>
     </ContentBody>
 </template>
 
@@ -187,10 +223,12 @@
 import { mapGetters } from 'vuex'
 import api from '../../plugins/api'
 import { hasRole } from '../../plugins/user'
-import { catchError } from '../../plugins/swal'
+import NLReadMore from '../../components/NLReadMore'
+import { Form } from 'vform'
 export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],
+    components: { NLReadMore },
     data() {
         return {
             destroyInProgress: false,
@@ -201,15 +239,15 @@ export default {
             columns: [
                 {
                     label: 'Famille',
-                    field: 'family_name'
+                    field: 'family'
                 },
                 {
                     label: 'Domaine',
-                    field: 'domain_name'
+                    field: 'domain'
                 },
                 {
                     label: 'Processus',
-                    field: 'name'
+                    field: 'process'
                 },
                 {
                     label: 'Total points de contrôle',
@@ -223,7 +261,11 @@ export default {
                     hasMany: true
                 }
             ],
+            form: new Form({
+                synthesis: [],
+            }),
             canExportSynthesis: null,
+            showUploadSynthesisBox: false,
         }
     },
     computed: {
@@ -267,16 +309,30 @@ export default {
         },
 
         totalMissions() {
-            return this.campaign?.current?.total_missions
+            return hasRole([ 'dre', 'cdc', 'ci' ]) ? this.campaign?.current?.total_missions_dre : this.campaign?.current?.total_missions
         },
 
         totalValidatedMissions() {
-            return this.campaign?.current?.total_mission_validated
+            return hasRole([ 'dre', 'cdc', 'ci' ]) ? this.campaign?.current?.total_missions_validated_dre : this.campaign?.current?.total_missions_validated
+        },
+
+        realisationRate() {
+            let rate = 0.00
+            if (hasRole([ 'dre', 'cdc', 'ci' ])) {
+                rate = this.campaign?.current?.realisation_rate_dre
+            } else {
+                rate = this.campaign?.current?.realisation_rate
+            }
+
+            if (this.totalMissions) {
+                return Number(rate).toFixed(2) + '%'
+            }
+            return '-'
         },
 
         totalValidatedMissionsWithPercent() {
-            let totalValidatedMissions = this.campaign?.current?.total_mission_validated
-            let totalMissions = this.campaign?.current?.total_missions
+            let totalValidatedMissions = this.totalValidatedMissions
+            let totalMissions = this.totalMissions
             let percent = ((100 * totalValidatedMissions) / totalMissions).toFixed(2)
             return totalValidatedMissions > 0 ? totalValidatedMissions + ' (' + percent + '%)' : '0%'
         }
@@ -286,11 +342,17 @@ export default {
         this.initData()
     },
     methods: {
+        handleMedia(files) {
+            this.form.synthesis = files
+        },
+        handleUploadSynthesisBox() {
+            this.showUploadSynthesisBox = !this.showUploadSynthesisBox
+        },
         /**
          * Export or Preview report
          */
         generateReports(forceAll = false) {
-            let confirmTitle = forceAll ? 'Voulez-vous vraiment regénérer tous les rapports <b>existants / manquant</b> de la campagne de contrôle <b>' + this.campaign?.current?.reference + '</b>' : 'Voulez-vous vraiment générer tous les rapports manquants de la campagne de contrôle <b>' + this.campaign?.current?.reference + '</b>'
+            let confirmTitle = forceAll ? 'Êtes-vous sûr de vouloir regénérer tous les rapports <b>existants / manquant</b> de la campagne de contrôle <b>' + this.campaign?.current?.reference + '</b>' : 'Êtes-vous sûr de vouloir générer tous les rapports manquants de la campagne de contrôle <b>' + this.campaign?.current?.reference + '</b>'
             this.$swal.confirm_update(confirmTitle).then(action => {
                 if (action.isConfirmed) {
                     let url = 'campaigns/' + this.campaign?.current?.id + '/reports?action=generate&all=0';
@@ -342,11 +404,12 @@ export default {
             this.close()
             const campaignId = this.$route.params.campaignId
             this.$store.dispatch('campaigns/fetch', { campaignId }).then(() => {
+                this.form.synthesis = Object.assign({}, this.campaign?.current?.synthesis?.map((file) => file.id))
                 const length = this.$breadcrumbs.value.length
                 if (this.$breadcrumbs.value[ length - 1 ].label === 'Détails campagne') {
                     this.$breadcrumbs.value[ length - 1 ].label = 'Détails campagne ' + this.campaign.current?.reference
                 }
-            })
+            }).catch(error => this.$swal.catchError(error))
         },
         loadControlPoints(process) {
             this.$store.dispatch('processes/fetch', { id: process.id, onlyControlPoints: true }).then(() => { this.control_points = this.process.controlPoints })
@@ -369,11 +432,11 @@ export default {
                             this.$swal.toast_error(response.data.message)
                         }
                         this.validationInProgress = false
+                    }).catch(error => {
+                        this.validationInProgress = false
+                        this.$swal.catchError(error)
                     })
                 }
-            }).catch(error => {
-                this.validationInProgress = false
-                this.$swal.alert_error(error)
             })
         },
 

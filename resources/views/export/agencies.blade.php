@@ -23,8 +23,8 @@
                 <tr>
                     <td>{{ $agency->code }}</td>
                     <td>{{ $agency->name }}</td>
-                    <td>{{ $agency->category->name }}</td>
-                    <td>{{ $agency->dre->full_name }}</td>
+                    <td>{{ $agency->category }}</td>
+                    <td>{{ $agency->dre }}</td>
                 </tr>
             @endforeach
         </tbody>

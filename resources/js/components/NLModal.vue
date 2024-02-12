@@ -2,7 +2,7 @@
     <Transition name="modal">
         <div class="modal" v-if="show" :class="{ 'active': isOpen, 'reduced': isReduced, 'expanded': isExpanded }">
             <div class="modal-overlay" @click.stop="close"></div>
-            <div class="modal-card">
+            <div class="modal-card  border-1 border-primary">
                 <header class="modal-header">
                     <NLGrid extraClass="w-100">
                         <NLColumn lg="11" sm="11" md="11">
@@ -96,7 +96,6 @@ export default {
         },
         setShowSlots() {
             this.showFooter = this.$slots.footer
-            // console.log(this.$slots.footer()[ 0 ].children.default());
         },
         handleExpansion() {
             this.isExpanded = !this.isExpanded

@@ -71,7 +71,7 @@ class BugFixed extends Notification
      */
     private function getHtmlContent($notifiable): string
     {
-        return 'Nous vous informons que le bug avec la référence <b>' . $this->bug->reference . '</b> de type <b>' . $this->bug->type . '</b> vient d\'être résolut';
+        return '<p>Nous vous informons que le bug avec la référence <b>' . $this->bug->reference . '</b> de type <b>' . $this->bug->type . '</b> vient d\'être résolut.</p>';
     }
 
     /**

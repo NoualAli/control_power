@@ -1,0 +1,51 @@
+$tooltip-bg: rgba($primary, .9)
+$tooltip-color: $white
+$tooltip-shadow: 0 0 2px rgba($primary, .3)
+$tooltip-min-width: 200px
+$tooltip-padding: 10px 20px
+$tooltip-fs: 13px
+$tooltip-radius: .5rem
+
+.has-tooltip
+    display: inline-block
+    // min-width: 200px
+    width: auto
+    position: relative
+    & .tooltip
+        min-width: $tooltip-min-width
+        width: auto
+        padding: $tooltip-padding
+        color: $tooltip-color
+        background-color: $tooltip-bg
+        font-weight: normal
+        font-size: $tooltip-fs
+        border-radius: $tooltip-radius
+        position: absolute
+        z-index: 14
+        box-sizing: border-box
+        box-shadow: $tooltip-shadow
+        visibility: hidden
+        white-space: nowrap
+        opacity: 0
+        transition: opacity 0.8s
+        &.is-top
+            top: -20px
+            left: 50%
+            transform: translate(-25%, -100%)
+        &.is-bottom
+            top: 45px
+            left: 50%
+            transform: translate(-50%, 0)
+        &.is-left
+            top: 50%
+            right: 100%
+            margin-right: 20px
+            transform: translate(0, -50%)
+        &.is-right
+            top: 50%
+            left: 100%
+            margin-left: 20px
+            transform: translate(0, -50%)
+    &:hover .tooltip
+        visibility: visible
+        opacity: 1

@@ -16,6 +16,16 @@ class MissionResource extends JsonResource
     public function toArray($request)
     {
         isAbleOrAbort('view_mission');
+        if (hasRole('ci')) {
+            $isLate = $this->is_late_ci;
+        } elseif (hasRole('cdc')) {
+            $isLate = $this->is_late_ci || $this->is_late_cdc;
+        } elseif (hasRole('da')) {
+            $isLate = $this->is_late_da;
+        } else {
+            $isLate = $this->is_late_ci || $this->is_late_cdc;
+        }
+
         return [
             'id' => $this->id,
             'campaign' => $this->campaign,
@@ -25,9 +35,9 @@ class MissionResource extends JsonResource
             'current_state' => (int) $this->current_state,
             'end_date' => $this->end_date,
             'start_date' => $this->start_date,
-            'remaining_days_before_start' => $this->remainingDaysBeforeStartStr($this->remaining_days_before_start, $this->remaining_days_before_end),
+            'remaining_days_before_start' => $this->remaining_days_before_start,
             'progress_status' => $this->total_controlled_md ? number_format($this->total_controlled_md * 100 / $this->total_md) : 0,
-            'avg_score' => (float) $this->avg_score,
+            'avg_score' => $this->avg_score,
             'is_validated_by_dcp' => $this->is_validated_by_dcp,
             'is_validated_by_cdcr' => $this->is_validated_by_cdcr,
             'is_validated_by_cdc' => $this->is_validated_by_cdc,
@@ -35,24 +45,9 @@ class MissionResource extends JsonResource
             'is_validated_by_cc' => $this->is_validated_by_cc,
             'is_late_ci' => (bool) $this->is_late_ci,
             'is_late_cdc' => (bool) $this->is_late_cdc,
-            'is_late_cdcr' => (bool) $this->is_late_cdcr,
-            'is_late_dcp' => (bool) $this->is_late_dcp,
-            'is_late_da' => (bool) $this->is_late_da,
-            'is_late' => (bool) $this->is_late,
-            // 'is_late_user' => $this->is_late_user,
+            'is_late' => (bool) $isLate,
+            'dre_controller_full_name' => normalizeFullName($this->dre_controller_full_name),
+            'dcp_controller_full_name' => trim($this->dcp_controller_full_name) ? normalizeFullName($this->dcp_controller_full_name) : '-',
         ];
-    }
-
-    /**
-     * @return string
-     */
-    private function remainingDaysBeforeStartStr($remaining_days_before_start, $remaining_days_before_end): string
-    {
-        $remainingDays = $remaining_days_before_start > 1 ? $remaining_days_before_start . ' jours' : $remaining_days_before_start . ' jour';
-
-        if ($remaining_days_before_start < 0 && $remaining_days_before_end) {
-            return 'En cours';
-        }
-        return $remaining_days_before_end ? $remainingDays : '-';
     }
 }

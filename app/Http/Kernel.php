@@ -2,11 +2,14 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\IsActive;
+use App\Http\Middleware\IsRoot;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
 {
+    // protected $requestPerMinute = env('APP_ENV') !== 'dev' ? '30' : '150';
     /**
      * The application's global HTTP middleware stack.
      *
@@ -47,7 +50,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            'throttle:120,1',
+            // 'throttle:350,1',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
@@ -70,6 +73,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'role' => RoleMiddleware::class,
-        'is_active' => \App\Http\Middleware\IsActive::class,
+        'is_active' => IsActive::class,
+        'is_root' => IsRoot::class
     ];
 }

@@ -14,8 +14,7 @@ class MajorFactResource extends JsonResource
      */
     public function toArray($request)
     {
-        // $majorFactIsPending = $this->major_fact_is_pending;
-        $majorFactIsRejected = $this->major_fact_is_rejected;
+        $majorFactIsRejected = ($this->major_fact_is_rejected_at_dre || $this->major_fact_is_rejected_at_dcp);
         if (hasRole(['cdc', 'ci'])) {
             $majorFactIsDispatched = $this->major_fact_is_dispatched_to_dcp;
         } else {
@@ -26,17 +25,41 @@ class MajorFactResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'reference' => $this->reference,
             'cdc_reference' => $this->campaign,
             'mission_reference' => $this->mission,
-            'dre_full_name' => $this->dre,
-            'agency_full_name' => $this->agency,
-            'family_name' => $this->family,
-            'domain_name' => $this->domain,
-            'process_name' => $this->process,
-            'control_point_name' => $this->control_point,
-            'is_validated' => (bool) $majorFactIsDispatched,
-            'is_pending' => (bool) $majorFactIsPending,
-            'is_rejected' => (bool) $majorFactIsRejected,
+            'dre' => $this->dre,
+            'agency' => $this->agency,
+            'family' => $this->family,
+            'domain' => $this->domain,
+            'process' => $this->process,
+            'control_point' => $this->control_point,
+            'major_fact_is_validated' => (bool) $majorFactIsDispatched,
+            'major_fact_is_pending' => (bool) $majorFactIsPending,
+            'major_fact_is_rejected' => (bool) $majorFactIsRejected,
+            'is_regularized' => $this->reg_is_regularized,
+            'is_rejected' => $this->reg_is_rejected,
+            'is_sanitation_in_progress' => $this->reg_is_sanitation_in_progress,
+            'state' => $this->state(),
         ];
+    }
+
+    private function state()
+    {
+        $isRegularized = boolval($this->reg_is_regularized);
+        $isRejected = boolVal($this->reg_is_rejected);
+        if (!$this->reg_is_sanitation_in_progress) {
+            if ($isRegularized && !$isRejected) {
+                return 'Levée';
+            } elseif ($isRegularized && !$isRejected) {
+                return 'Levée et validée';
+            } elseif (!$isRegularized && !$isRejected) {
+                return 'Non levée';
+            } elseif (!$isRegularized && $isRejected) {
+                return 'Rejetée';
+            }
+        } else {
+            return "En cours d'assainissement";
+        }
     }
 }

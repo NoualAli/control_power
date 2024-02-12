@@ -16,28 +16,31 @@
     gap: .5rem
     padding: 10px
     background-color: $primary-light
-    color: $white
+    color: darkOrWhiteFont($primary-light)
     border-radius: 4px
     text-align: center
     height: 40px
+    min-width: 50px
     width: auto
+    word-break: break-all
+    white-space: nowrap
     &.is-centered
         justify-content: center
     &.is-start
         justify-content: start
-    &:hover
-        background-color: $primary
     &:first-child
         margin: 0
     @each $value in $colors-list
         $color: nth($value, 2)
         &.is-#{nth($value, 1)}
             border: 1px solid $color
-            background-color: rgba($color , .9)
+            background-color: $color
             color: darkOrWhiteFont($color)
-            &:hover
-                background-color: $color
     & .close
         cursor: pointer
         &:hover
             color: $danger
+
+.btn-tag
+    padding: 7px 10px !important
+    border-color: $primary !important

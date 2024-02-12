@@ -17,29 +17,32 @@
         <template #default>
             <NLGrid gap="6">
                 <!-- Major fact -->
-                <NLColumn v-if="row?.major_fact || Boolean(row?.major_fact_is_rejected)">
+                <NLColumn
+                    v-if="(row?.major_fact || (Boolean(row?.major_fact_is_rejected_at_dre) && Boolean(row?.major_fact_is_rejected_at_dcp))) && !is('da')">
                     <NLGrid gap="6" extraClass="box">
                         <NLColumn>
                             <h2>Fait majeur</h2>
                         </NLColumn>
                         <NLColumn extraClass="text-danger text-bold">
-                            Fait majeur déclencher par {{ row?.major_fact_is_detected_by_full_name }}
+                            Fait majeur déclenché par {{ row?.major_fact_is_detected_by_full_name }}
                             le {{ row?.major_fact_is_detected_at }}
                         </NLColumn>
                         <NLColumn
                             v-if="Boolean(row?.major_fact_is_dispatched_to_dcp_at) && row?.major_fact_is_dispatched_to_dcp_by_full_name !== row?.major_fact_is_detected_by_full_name"
                             extraClass="text-bold">
-                            Fait majeur valider par {{ row?.major_fact_is_dispatched_to_dcp_by_full_name }}
+                            Fait majeur validé par {{ row?.major_fact_is_dispatched_to_dcp_by_full_name }}
                             le {{ row?.major_fact_is_dispatched_to_dcp_at }}
                         </NLColumn>
-                        <NLColumn v-if="Boolean(row?.major_fact_is_rejected)" extraClass="text-bold">
+                        <NLColumn
+                            v-if="(Boolean(row?.major_fact_is_rejected_at_dre) && Boolean(row?.major_fact_is_rejected_at_dcp))"
+                            extraClass="text-bold">
                             Fait majeur rejeter par {{ row?.major_fact_is_rejected_by_full_name }}
                             le {{ row?.major_fact_is_rejected_at }}
                         </NLColumn>
                         <NLColumn
                             v-if="Boolean(row?.major_fact_is_dispatched_at) && row?.major_fact_is_dispatched_by_full_name !== row?.major_fact_is_detected_by_full_name"
                             extraClass="text-bold">
-                            Fait majeur valider par {{ row?.major_fact_is_dispatched_by_full_name }}
+                            Fait majeur validé par {{ row?.major_fact_is_dispatched_by_full_name }}
                             le {{ row?.major_fact_is_dispatched_at }}
                         </NLColumn>
                     </NLGrid>
@@ -50,7 +53,7 @@
                             <h2>Informations de base</h2>
                         </NLColumn>
                         <!-- Basic informations -->
-                        <NLColumn v-if="row?.major_fact && row?.major_fact_is_dispatched_at">
+                        <NLColumn v-if="row?.major_fact && row?.major_fact_is_dispatched_at && !is('da')">
                             <span class="label">Date de transmission: </span>
                             <span v-html="row?.major_fact_is_dispatched_at" />
                         </NLColumn>
@@ -85,11 +88,27 @@
                                 <span v-html="row?.score_tag" v-if="!is(['ci', 'cdc', 'da'])"></span>
                             </NLFlex>
                         </NLColumn>
+                        <!-- Regularization -->
+                        <NLColumn v-if="row?.mission?.is_validated_by_dcp">
+                            <b>Régularisation:</b>
+                            <span v-if="row?.reg_is_regularized">
+                                Levée
+                            </span>
+                            <span v-else-if="row?.reg_is_rejected">
+                                Rejetée
+                            </span>
+                            <span v-else-if="row?.reg_is_sanitation_in_progress">
+                                En cours d'assainissement
+                            </span>
+                            <span v-else>
+                                Non levée
+                            </span>
+                        </NLColumn>
                     </NLGrid>
                 </NLColumn>
 
                 <!-- Metadata -->
-                <NLColumn v-if="row?.parsed_metadata?.lines" extraClass="list-ite">
+                <NLColumn v-if="row?.parsed_metadata?.lines" extraClass="list-item">
                     <div class="list-item-content no-bg grid">
                         <NLColumn :class="{ 'col-lg-8': !row?.parsed_metadata?.lines }">
                             <div class="table-container " v-if="row?.parsed_metadata?.lines">
@@ -127,10 +146,10 @@
                             <h2>Constat</h2>
                         </NLColumn>
                         <NLColumn>
-                            <span v-html="row?.report || '-'" class="content my-2 text-normal"></span>
-                            <span>
-                                {{ row?.cdc_report?.length ? '(Modifier par CDC)' : '' }}
-                            </span>
+                            <span v-html="row?.observation?.content || '-'" class="content my-2 text-normal"></span>
+                            <!-- <span class="text-bold">
+                                {{ row?.observation?.creator_full_name || '' }}
+                            </span> -->
                         </NLColumn>
                     </NLGrid>
                 </NLColumn>
@@ -164,19 +183,120 @@
                     <h2>Historique des actions de régularisation</h2>
                     <NLGrid gap="6" v-if="row?.regularizations?.length" v-for="regularization in row?.regularizations"
                         class="p-4 has-border-radius-1 border-1 border-solid my-6"
-                        :class="[{ 'border-success': regularization.is_regularized }, { 'border-warning': !regularization.is_regularized }]">
+                        :class="[{ 'border-success': regularization.is_regularized }, { 'border-info': !regularization.is_regularized }]">
+                        <NLColumn v-if="Boolean(Number(regularization.is_rejected))"
+                            class="border-warning p-4 has-border-radius-1 border-1 border-solid my-6">
+                            <NLGrid>
+                                <NLColumn>
+                                    <label class="label">
+                                        Commentaire du rejet
+                                    </label>
+                                    <div v-html="regularization.rejection_comment" class="mt-3"></div>
+                                </NLColumn>
+                                <NLColumn>
+                                    <NLFlex lgJustifyContent="between" lgAlignItems="center" alignItems="center">
+                                        <span>{{ regularization.rejector_full_name }}</span>
+                                        <span>{{ regularization.rejected_at }}</span>
+                                    </NLFlex>
+                                </NLColumn>
+                            </NLGrid>
+                        </NLColumn>
                         <NLColumn>
-                            <label class="label">Action à engager</label>
+                            <label class="label">
+                                Etat
+                            </label>
+                            <p class="mt-3" v-if="regularization.is_regularized">
+                                Levée
+                            </p>
+                            <p class="mt-3" v-else-if="regularization.is_rejected">
+                                Rejetée
+                            </p>
+                            <p class="mt-3"
+                                v-else-if="regularization.is_sanitation_in_progress && !regularization.is_rejected">
+                                En cours d'assainissement
+                            </p>
+                            <p class="mt-3" v-else>
+                                Non levée
+                            </p>
+                        </NLColumn>
+                        <NLColumn>
+                            <label class="label">
+                                Action à engager
+                            </label>
                             <div v-html="regularization.action_to_be_taken" class="mt-3"></div>
                         </NLColumn>
                         <NLColumn v-if="regularization.media.length">
                             <NLFile v-model="regularization.media_array" label="Pièces jointes" readonly isFlat />
                         </NLColumn>
+
+                        <!-- Regularization actions -->
                         <NLColumn>
-                            <NLFlex lgJustifyContent="end">
-                                {{ regularization.created_at }}
+                            <NLFlex lgJustifyContent="between" lgAlignItems="center" alignItems="center">
+                                <span>{{ regularization.creator_full_name }}</span>
+                                <span>{{ regularization.created_at }}</span>
                             </NLFlex>
                         </NLColumn>
+                        <NLColumn>
+                            <NLFlex lgJustifyContent="between" lgAlignItems="center" alignItems="center">
+                                <!-- Regularization actions -->
+                                <NLFlex lgJustifyContent="end" lgAlignItems="center" alignItems="center">
+                                    <button
+                                        v-if="!regularization.is_rejected && !regularizationRejectionIsOpen && regularization.is_regularized && can('reject_regularization')"
+                                        class="btn btn-danger has-icon"
+                                        @click.stop="openRegularizationCommentForm(regularization)">
+                                        <i class="las la-ban"></i>
+                                        Rejeter
+                                    </button>
+                                    <!-- <button v-if="!derCommentFormIsOpen && is('der')" class="btn btn-info has-icon"
+                                        @click.stop="openDerRegularizationCommentForm(regularization)">
+                                        <i class="las la-comment"></i>
+                                        Ajouter un commentaire
+                                    </button> -->
+                                </NLFlex>
+                            </NLFlex>
+                        </NLColumn>
+
+                        <NLColumn
+                            v-if="(regularizationRejectionIsOpen && regularization.id == regularizationRejectionForm.regularization_id) || (derCommentFormIsOpen && regularization.id == derCommentForm.regularization_id)">
+                            <div class="divider"></div>
+                        </NLColumn>
+
+                        <!-- Regularization rejection form -->
+                        <NLColumn
+                            v-if="regularizationRejectionIsOpen && regularization.id == regularizationRejectionForm.regularization_id">
+                            <NLForm :action="handleRegularizationRejection" :form="regularizationRejectionForm">
+                                <NLColumn>
+                                    <NLWyswyg v-model="regularizationRejectionForm.comment" name="comment"
+                                        label="Commentaire" placeholder="Justifié le rejet de cette régularisation"
+                                        :form="regularizationRejectionForm" :length="1000" label-required />
+                                </NLColumn>
+                                <NLColumn>
+                                    <!-- Submit Button -->
+                                    <div class="col-12 d-flex justify-end align-center">
+                                        <NLButton :loading="regularizationRejectionForm.isBusy" label="Enregistrer"
+                                            @click="handleRegularizationRejection" />
+                                    </div>
+                                </NLColumn>
+                            </NLForm>
+                        </NLColumn>
+
+                        <!-- DER comment form -->
+                        <!-- <NLColumn v-if="derCommentFormIsOpen && regularization.id == derCommentForm.regularization_id">
+                            <NLForm :action="handleDerCommentForm" :form="derCommentForm">
+                                <NLColumn>
+                                    <NLWyswyg v-model="derCommentForm.comment" name="comment" label="Commentaire"
+                                        placeholder="Ajoutez votre commentaire" :form="derCommentForm" :length="1000"
+                                        label-required />
+                                </NLColumn>
+                                <NLColumn> -->
+                        <!-- Submit Button -->
+                        <!-- <div class="col-12 d-flex justify-end align-center">
+                                        <NLButton :loading="regularizationRejectionForm.isBusy" label="Enregistrer"
+                                            @click="handleDerCommentForm" />
+                                    </div>
+                                </NLColumn>
+                            </NLForm>
+                        </NLColumn> -->
                     </NLGrid>
                     <div class="text-center text-bold my-6" v-else>
                         Aucune entrée
@@ -186,32 +306,33 @@
         </template>
         <template #footer>
             <!-- CI -->
-            <button v-if="currentMode == 1 && !row?.mission?.is_validated_by_ci && !row?.major_fact && is('ci')"
+            <button
+                v-if="currentMode == 1 && !row?.mission?.is_validated_by_ci && !row?.cdc_report && !row?.major_fact && is('ci') && user().id == row?.mission?.assigned_to_ci_id"
                 class="btn btn-warning has-icon" @click="showForm(row, 'edit')">
-                <i class="las la-pen icon" />
+                <NLIcon name="edit" />
                 Modifier
             </button>
 
             <!-- CDC -->
             <button v-if="currentMode == 2 && !row?.mission?.is_validated_by_cdc && !row?.major_fact && is('cdc')"
                 class="btn btn-warning has-icon" @click="showForm(row, 'edit')">
-                <i class="las la-pen icon" />
+                <NLIcon name="edit" />
                 Modifier
             </button>
             <button
                 v-if="(currentMode == 2 && !row?.mission?.is_validated_by_dcp && !row?.mission?.is_validated_by_cdcr && !row?.major_fact_is_dispatched_to_dcp_at && !row.regularization && [2, 3, 4].includes(Number(row?.score)) && row?.major_fact && is('cdc'))"
                 class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
-                <i class="las la-pen icon" />
+                <NLIcon name="edit" />
                 Traiter
             </button>
             <button
-                v-if="currentMode == 2 && !row?.major_fact_is_dispatched_to_dcp_at && !row.major_fact_is_rejected && row?.major_fact && is('cdc')"
+                v-if="currentMode == 2 && !row?.major_fact_is_dispatched_to_dcp_at && !row.major_fact_is_rejected_at_dre && row?.major_fact && is('cdc')"
                 class="btn btn-info has-icon" @click.prevent="notify(row)">
-                <i class="las la-bell icon" />
+                <NLIcon name="notifications" />
                 Notifier
             </button>
             <button
-                v-if="currentMode == 2 && !row?.major_fact_is_dispatched_to_dcp_at && !row.major_fact_is_rejected && row.major_fact_is_detected_by_id !== user().id && row?.major_fact && is('cdc')"
+                v-if="currentMode == 2 && !row?.major_fact_is_dispatched_to_dcp_at && !row.major_fact_is_rejected_at_dre && row.major_fact_is_detected_by_id !== user().id && row?.major_fact && is('cdc')"
                 class="btn btn-danger has-icon" @click.prevent="reject(row)">
                 <i class="las la-ban icon" />
                 Rejeter
@@ -220,11 +341,11 @@
             <!-- CC -->
             <button v-if="currentMode == 3
                 && !row.major_fact
-                && row.assigned_to_cc_id == user().id
+                && row?.mission?.assigned_to_cc_id == user().id
                 && !row?.mission?.is_validated_by_cc
                 && [2, 3, 4].includes(Number(row?.score))
                 && is('cc')" class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
-                <i class="las la-pen icon" />
+                <NLIcon name="edit" />
                 Traiter
             </button>
 
@@ -232,16 +353,16 @@
             <button v-if="(currentMode == 4
                 && !(row?.major_fact_is_detected_by_id == user().id)
                 && !row?.major_fact_is_dispatched_at
-                && (row?.mission?.has_dcp_controllers ? row?.mission?.is_validated_by_cc && !row?.mission?.is_validated_by_cdcr : !row?.mission?.is_validated_by_cdcr)
+                && (row?.mission?.assigned_to_cc_id ? row?.mission?.is_validated_by_cc && !row?.mission?.is_validated_by_cdcr : !row?.mission?.is_validated_by_cdcr)
                 && row?.mission?.is_validated_by_cdc
                 && [2, 3, 4].includes(Number(row?.score)))
                 || (row?.major_fact && !row?.major_fact_is_dispatched_at && !(row?.major_fact_is_detected_by_id == user().id) && [2, 3, 4].includes(Number(row?.score)))
                 && is('cdcr')" class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
-                <i class="las la-pen icon" />
+                <NLIcon name="edit" />
                 Traiter
             </button>
             <button
-                v-if="currentMode == 4 && !row?.major_fact_is_dispatched_at && !row.major_fact_is_rejected && row.major_fact_is_detected_by_id !== user().id && row?.major_fact && is('cdcr')"
+                v-if="currentMode == 4 && !row?.major_fact_is_dispatched_at && !row.major_fact_is_rejected_at_dcp && row.major_fact_is_detected_by_id !== user().id && row?.major_fact && is('cdcr')"
                 class="btn btn-danger has-icon" @click.prevent="reject(row)">
                 <i class="las la-ban icon" />
                 Rejeter
@@ -251,34 +372,34 @@
             <button v-if="(currentMode == 5
                 && !(row?.major_fact_is_detected_by_id == user().id)
                 && !row?.mission?.is_validated_by_dcp
-                && !row.major_fact_is_rejected
-                && row?.mission?.is_validated_by_cdcr
+                && !row.major_fact_is_rejected_at_dcp
+                && row?.mission?.is_validated_by_cdc
                 && !row?.major_fact_is_dispatched_at
                 && !row.regularization
                 && [2, 3, 4].includes(Number(row?.score))
                 || (row?.major_fact && !row?.major_fact_is_dispatched_at && !(row?.major_fact_is_detected_by_id == user().id) && [2, 3, 4].includes(Number(row?.score))))
                 && is('dcp')" class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
-                <i class="las la-pen icon" />
+                <NLIcon name="edit" />
                 Traiter
             </button>
             <button
-                v-if="currentMode == 5 && !row?.major_fact_is_dispatched_at && !row.major_fact_is_rejected && row?.major_fact && row?.major_fact_is_dispatched_to_dcp_at && is('dcp')"
+                v-if="currentMode == 5 && !row?.major_fact_is_dispatched_at && !row.major_fact_is_rejected_at_dcp && row?.major_fact && row?.major_fact_is_dispatched_to_dcp_at && is('dcp')"
                 class="btn btn-info has-icon" @click.prevent="notify(row)">
-                <i class="las la-bell icon" />
+                <NLIcon name="notifications" />
                 Notifier
             </button>
             <button
-                v-if="currentMode == 5 && !row?.major_fact_is_dispatched_at && !row.major_fact_is_rejected && row.major_fact_is_detected_by_id !== user().id && row?.major_fact && is('dcp')"
+                v-if="currentMode == 5 && !row?.major_fact_is_dispatched_at && !row.major_fact_is_rejected_at_dcp && row.major_fact_is_detected_by_id !== user().id && row?.major_fact && is('dcp')"
                 class="btn btn-danger has-icon" @click.prevent="reject(row)">
                 <i class="las la-ban icon" />
                 Rejeter
             </button>
 
-            <!-- Agency director -->
+            <!-- DA -->
             <button
-                v-if="currentMode == 6 && row?.mission?.is_validated_by_dcp && !row?.major_fact && !row?.is_regularized && Number(row?.score) !== 1 && is('da')"
+                v-if="currentMode == 6 && row?.mission?.is_validated_by_dcp && !row?.reg_is_regularized && Number(row?.score) !== 1 && is('da')"
                 class="btn btn-warning has-icon" @click="showForm(row, 'regularization')">
-                <i class="las la-check icon" />
+                <NLIcon name="check" />
                 Régulariser
             </button>
         </template>
@@ -288,6 +409,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { hasRole, user } from '../plugins/user';
+import Form from 'vform';
 export default {
     name: 'MissionDetailModal',
     emits: [ 'close', 'showForm', 'success' ],
@@ -311,22 +433,85 @@ export default {
                 this.row = null
                 this.currentMetadata.keys = null
                 this.isLoading = false
+                this.closeRgularizationCommentForm()
             }
         }
     },
+    // mounted() {
+    //     this.initData()
+    // },
     data() {
         return {
             row: null,
+            regularizationRejectionIsOpen: false,
+            // derCommentFormIsOpen: false,
             currentMetadata: {
                 keys: null
             },
             isLoading: false,
             currentMode: 1,
             currentUser: null,
+            regularizationRejectionForm: new Form({
+                comment: null,
+                regularization_id: null,
+            }),
+            // derCommentForm: new Form({
+            //     comment: null,
+            //     regularization_id: null,
+            // }),
         }
     },
 
     methods: {
+        openRegularizationCommentForm(regularization) {
+            this.regularizationRejectionIsOpen = true
+            this.regularizationRejectionForm.regularization_id = regularization?.id
+        },
+        closeRgularizationCommentForm() {
+            this.regularizationRejectionIsOpen = false
+            this.regularizationRejectionForm.reset()
+        },
+        // openDerRegularizationCommentForm(regularization) {
+        //     this.derCommentFormIsOpen = true
+        //     this.derCommentForm.regularization_id = regularization?.id
+        // },
+        // closeDerRegularizationCommentForm() {
+        //     this.derCommentFormIsOpen = false
+        //     this.derCommentForm.reset()
+        // },
+        handleRegularizationRejection() {
+            this.$swal.confirm_update("Êtes-vous sûr de vouloir rejeter cette régularisation?").then((action) => {
+                if (action.isConfirmed) {
+                    this.regularizationRejectionForm.put("regularize/" + this.regularizationRejectionForm.regularization_id + '/reject')
+                        .then(response => {
+                            if (response.status) {
+                                this.closeRgularizationCommentForm()
+                                this.$emit('success', response)
+                                this.initData()
+                                this.$swal.toast_success(response.data.message)
+                            } else {
+                                this.$swal.alert_error(response.data.message)
+                            }
+                        }).catch(error => this.$swal.catchError(error))
+                }
+            })
+        },
+        // handleRegularizationValidation(regularization) {
+        //     this.$swal.confirm_update("Êtes-vous sûr de vouloir valider cette régularisation?").then((action) => {
+        //         if (action.isConfirmed) {
+        //             this.$api.put("regularize/" + regularization.id + '/accept')
+        //                 .then(response => {
+        //                     if (response.status) {
+        //                         this.$emit('success', response)
+        //                         this.initData()
+        //                         this.$swal.toast_success(response.data.message)
+        //                     } else {
+        //                         this.$swal.alert_error(response.data.message)
+        //                     }
+        //                 }).catch(error => this.$swal.catchError(error))
+        //         }
+        //     })
+        // },
         /**
          *
          * @param {*} row
@@ -347,11 +532,11 @@ export default {
         },
 
         /**
-         *
+         *  Initialize data
          */
         initData() {
             this.isLoading = true
-            if (this.rowSelected?.id && this.isLoading && !this.row) {
+            if (this.rowSelected?.id && this.isLoading) {
                 this.currentUser = user()
                 this.$store.dispatch('details/fetch', this.rowSelected.id).then(() => {
                     this.row = this.detail.detail

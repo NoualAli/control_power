@@ -19,7 +19,12 @@
                 <th>Processus</th>
                 <th>Points de contrôle</th>
                 @foreach ($dres as $dre)
-                    <th colspan="{{ $dre->total_agencies + 1 }}">{{ $dre->dre }}</th>
+                    @if (hasRole('cdc') && hasDre($dre->dre))
+                        <th colspan="{{ $dre->total_agencies + 1 }}">{{ $dre->dre }}</th>
+                    @elseif(hasRole('cdc') && !hasDre($dre->dre))
+                    @else
+                        <th colspan="{{ $dre->total_agencies + 1 }}">{{ $dre->dre }}</th>
+                    @endif
                 @endforeach
             </tr>
 
@@ -27,18 +32,29 @@
             <tr>
                 <td colspan="4"></td>
                 @foreach ($dres as $dre)
-                    @foreach ($dre->agencies as $agency)
-                        <td>{{ $agency->agency }}</td>
-                    @endforeach
-                    <td colspan="1">Moyenne</td>
+                    @if (hasRole('cdc') && hasDre($dre->dre))
+                        @foreach ($dre->agencies as $agency)
+                            <td>{{ $agency->agency }}</td>
+                        @endforeach
+                        <td colspan="1">Moyenne</td>
+                    @elseif (hasRole('cdc') && !hasDre($dre->dre))
+                    @else
+                        @foreach ($dre->agencies as $agency)
+                            <td>{{ $agency->agency }}</td>
+                        @endforeach
+                        <td colspan="1">Moyenne</td>
+                    @endif
                 @endforeach
-                <td>Moyenne du point de contrôle</td>
+                @if (!hasRole('cdc'))
+                    <td>Moyenne du point de contrôle</td>
+                @endif
             </tr>
         </thead>
 
         <tbody>
             @php
                 $dreAvgs = [];
+                $totalDreControlPoints = [];
             @endphp
             {{-- Liste des points de contrôle --}}
             @foreach ($controlPoints as $controlPoint)
@@ -54,38 +70,83 @@
 
                     {{-- Liste des notations pour chaque points de contrôle dans chaque agence --}}
                     @foreach ($dres as $dre)
-                        @php
-                            $scoreSum = 0;
-                            $totalAnomalies = 0;
-                            $totalAgencies = $dre->agencies->count();
-                        @endphp
-                        @foreach ($dre->agencies as $agency)
+                        @if (hasRole('cdc') && hasDre($dre->dre))
                             @php
-                                $data = $agency->data->filter(fn($item) => $item->family == $controlPoint->family && $item->domain == $controlPoint->domain && $item->process == $controlPoint->process && $item->control_point == $controlPoint->control_point)->first();
+                                $scoreSum = 0;
+                                $totalAnomalies = 0;
+                                $totalAgencies = $dre->agencies->count();
                             @endphp
-                            @if ($data && $data->agency == $agency->agency)
+                            @foreach ($dre->agencies as $agency)
                                 @php
-                                    $scoreSum += $data->score;
-                                    $controlPointScore += $data->score;
-                                    $totalScored += 1;
+                                    $data = $agency->data->filter(fn($item) => $item->family == $controlPoint->family && $item->domain == $controlPoint->domain && $item->process == $controlPoint->process && $item->control_point == $controlPoint->control_point)->first();
                                 @endphp
-                                <td>{{ $data->score }}</td>
-                            @else
-                                <td></td>
-                            @endif
-                        @endforeach
-                        @php
-                            $avgScore = $scoreSum > 0 ? sprintf('%.2f', $scoreSum / $totalAgencies) : $scoreSum;
-                            $dreAvgs[$dre->dre] = isset($dreAvgs[$dre->dre]) ? $dreAvgs[$dre->dre] + $avgScore : $avgScore;
-                        @endphp
-                        <td>{{ $avgScore }}</td>
+                                @if ($data && $data->agency == $agency->agency)
+                                    @php
+                                        if (!$data->is_disabled) {
+                                            $controlPointScore += $data->score;
+                                            $scoreSum += $data->score;
+                                            $totalScored += 1;
+                                            $totalDreControlPoints[$dre->dre] = isset($totalDreControlPoints[$dre->dre]) ? $totalDreControlPoints[$dre->dre] + 1 : 1;
+                                        }
+                                    @endphp
+                                    <td>{{ $data->is_disabled ? '-' : $data->score }}</td>
+                                @else
+                                    <td></td>
+                                @endif
+                            @endforeach
+                            @php
+                                if (hasRole('cdc') && hasDre($dre->dre)) {
+                                    $avgScore = $scoreSum > 0 ? sprintf('%.2f', $scoreSum / $totalAgencies) : $scoreSum;
+                                    $dreAvgs[$dre->dre] = isset($dreAvgs[$dre->dre]) ? $dreAvgs[$dre->dre] + $avgScore : $avgScore;
+                                } elseif (hasRole('cdc') && !hasDre($dre->dre)) {
+                                    $avgScore = 0;
+                                    $dreAvgs[$dre->dre] = 0;
+                                } else {
+                                    $avgScore = $scoreSum > 0 ? sprintf('%.2f', $scoreSum / $totalAgencies) : $scoreSum;
+                                    $dreAvgs[$dre->dre] = isset($dreAvgs[$dre->dre]) ? $dreAvgs[$dre->dre] + $avgScore : $avgScore;
+                                }
+                            @endphp
+                            <td>{{ $avgScore }}</td>
+                        @elseif (hasRole('cdc') && !hasDre($dre->dre))
+                        @else
+                            @php
+                                $scoreSum = 0;
+                                $totalAnomalies = 0;
+                                $totalAgencies = $dre->agencies->count();
+                            @endphp
+                            @foreach ($dre->agencies as $agency)
+                                @php
+                                    $data = $agency->data->filter(fn($item) => $item->family == $controlPoint->family && $item->domain == $controlPoint->domain && $item->process == $controlPoint->process && $item->control_point == $controlPoint->control_point)->first();
+                                @endphp
+                                @if ($data && $data->agency == $agency->agency)
+                                    @php
+                                        if (!$data->is_disabled) {
+                                            $controlPointScore += $data->score;
+                                            $scoreSum += $data->score;
+                                            $totalScored += 1;
+                                            $totalDreControlPoints[$dre->dre] = isset($totalDreControlPoints[$dre->dre]) ? $totalDreControlPoints[$dre->dre] + 1 : 1;
+                                        }
+                                    @endphp
+                                    <td>{{ $data->is_disabled ? '-' : $data->score }}</td>
+                                @else
+                                    <td></td>
+                                @endif
+                            @endforeach
+                            @php
+                                $avgScore = $scoreSum > 0 ? sprintf('%.2f', $scoreSum / $totalAgencies) : $scoreSum;
+                                $dreAvgs[$dre->dre] = isset($dreAvgs[$dre->dre]) ? $dreAvgs[$dre->dre] + $avgScore : $avgScore;
+                            @endphp
+                            <td>{{ $avgScore }}</td>
+                        @endif
                     @endforeach
                     @php
-                        $controlPointAvgScore = $controlPointScore >= 0 ? sprintf('%.2f', $controlPointScore / $totalScored) : $totalScored;
+                        $controlPointAvgScore = $controlPointScore > 0 ? sprintf('%.2f', $controlPointScore / $totalScored) : $totalScored;
                     @endphp
-                    <td>
-                        {{ $controlPointAvgScore }}
-                    </td>
+                    @if (!hasRole('cdc'))
+                        <td>
+                            {{ $controlPointAvgScore }}
+                        </td>
+                    @endif
                 </tr>
             @endforeach
         </tbody>
@@ -93,16 +154,31 @@
             <tr>
                 <td colspan="4"></td>
                 @foreach ($dres as $dre)
-                    @php
-                        $avg = $dreAvgs[$dre->dre] > 0 ? sprintf('%.2f', $dreAvgs[$dre->dre] / $controlPoints->count()) : $dreAvgs[$dre->dre];
-                    @endphp
-                    <td colspan="{{ $dre->agencies->count() }}"></td>
-                    <td>{{ $avg }}</td>
+                    @if (hasRole('cdc') && hasDre($dre->dre))
+                        @php
+                            $avg = isset($dreAvgs[$dre->dre]) && $dreAvgs[$dre->dre] > 0 ? sprintf('%.2f', $dreAvgs[$dre->dre] / $totalDreControlPoints[$dre->dre]) : $dreAvgs[$dre->dre];
+                        @endphp
+                        <td colspan="{{ $dre->agencies->count() }}"></td>
+                        <td>{{ $avg }}</td>
+                    @elseif(hasRole('cdc') && !hasDre($dre->dre))
+                    @else
+                        @php
+                            $avg = isset($dreAvgs[$dre->dre]) && $dreAvgs[$dre->dre] > 0 ? sprintf('%.2f', $dreAvgs[$dre->dre] / $totalDreControlPoints[$dre->dre]) : $dreAvgs[$dre->dre];
+                        @endphp
+                        <td colspan="{{ $dre->agencies->count() }}"></td>
+                        <td>{{ $avg }}</td>
+                    @endif
                 @endforeach
                 @php
-                    $avg = array_sum(array_values($dreAvgs)) > 0 ? sprintf('%.2f', array_sum(array_values($dreAvgs)) / ($dres->count() * $controlPoints->count())) : array_sum(array_values($dreAvgs));
+                    if (hasRole('cdc')) {
+                        $avg = 0;
+                    } else {
+                        $avg = array_sum(array_values($dreAvgs)) > 0 ? sprintf('%.2f', array_sum(array_values($dreAvgs)) / ($dres->count() * array_sum(array_values($totalDreControlPoints)))) : array_sum(array_values($dreAvgs));
+                    }
                 @endphp
-                <td>{{ $avg }}</td>
+                @if (!hasRole('cdc'))
+                    <td>{{ $avg }}</td>
+                @endif
             </tr>
         </tfoot>
     </table>

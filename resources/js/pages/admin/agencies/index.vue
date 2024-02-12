@@ -1,26 +1,21 @@
 <template>
-    <div v-if="can('view_agency')">
-        <ContentHeader>
-            <template #actions>
-                <router-link v-if="can(['create_agency'])" :to="{ name: 'agencies-create' }" class="btn btn-info">
+    <ContentBody v-if="can('view_agency')">
+        <NLDatatable :columns="columns" :filters="filters" :actions="actions" urlPrefix="agencies" @edit="edit"
+            @delete="destroy" @dataLoaded="handleDataLoaded" :refresh="refresh">
+            <template #table-actions>
+                <router-link v-if="can(['create_agency'])" :to="{ name: 'agencies-create' }" class="btn has-icon">
+                    <NLIcon name="add" />
                     Ajouter
                 </router-link>
                 <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
-                    <i class="las la-file-excel icon" />
+                    <NLIcon name="table" />
                     Exporter
                 </button>
             </template>
-            <template #title>
-                Liste des agences
-            </template>
-        </ContentHeader>
-        <ContentBody>
-            <NLDatatable :columns="columns" :actions="actions" urlPrefix="agencies" @edit="edit" @delete="destroy"
-                @dataLoaded="handleDataLoaded" :refresh="refresh" />
-            <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl"
-                @close="this.excelExportIsOpen = false" @success="this.excelExportIsOpen = false" />
-        </ContentBody>
-    </div>
+        </NLDatatable>
+        <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl"
+            @close="this.excelExportIsOpen = false" @success="this.excelExportIsOpen = false" />
+    </ContentBody>
 </template>
 
 <script>
@@ -58,13 +53,35 @@ export default {
                     field: 'dre_full_name'
                 }
             ],
-            actions: {
-                edit: (item) => {
-                    return this.can('edit_agency')
+            filters: {
+                dres: {
+                    label: 'DRE',
+                    cols: 3,
+                    multiple: true,
+                    data: null,
+                    value: null,
                 },
-                delete: (item) => {
-                    return this.can('delete_agency')
-                }
+                categories: {
+                    label: 'Catégories',
+                    cols: 3,
+                    multiple: true,
+                    data: null,
+                    value: null,
+                },
+            },
+            actions: {
+                edit: {
+                    show: (item) => {
+                        return this.can('edit_agency')
+                    },
+                    apply: this.edit
+                },
+                delete: {
+                    show: (item) => {
+                        return this.can('delete_agency')
+                    },
+                    apply: this.destroy
+                },
             }
         }
     },
@@ -78,10 +95,11 @@ export default {
         },
         /**
          * Redirige vers la page d'edition
-         * @param {Object} item
+         * @param {Object} e
          */
-        edit(item) {
-            this.$router.push({ name: 'agencies-edit', params: { agency: item.id } })
+        edit(e) {
+            // this.$router.push({ name: 'agencies-edit', params: { agency: e.item.id } })
+            window.open(this.$router.resolve({ name: 'agencies-edit', params: { agency: e.item.id } }).href, '_blank')
         },
 
         /**

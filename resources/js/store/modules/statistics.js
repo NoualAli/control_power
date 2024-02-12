@@ -5,7 +5,8 @@ export const state = {
     majorFacts: null,
     regularizations: null,
     scores: null,
-    realisationStates: null
+    missionsStates: null,
+    KPI: null,
 }
 
 export const mutations = {
@@ -21,8 +22,11 @@ export const mutations = {
     FETCH_SCORES(state, data) {
         state.scores = data
     },
-    FETCH_REALISATION_STATES(state, data) {
-        state.realisationStates = data
+    FETCH_KPI(state, data) {
+        state.KPI = data
+    },
+    FETCH_MISSIONS_STATES(state, data) {
+        state.missionsStates = data
     }
 }
 
@@ -39,8 +43,20 @@ export const actions = {
         const { data } = await api.get(url)
         commit('FETCH_ANOMALIES', { data })
     },
+    async fetchKPI({ commit }, { onlyCurrentCampaign = false, currentCampaign = null }) {
+        let url = '/statistics/kpi/v1'
+        if (onlyCurrentCampaign && !currentCampaign) {
+            url += '?onlyCurrentCampaign'
+        }
+
+        if (currentCampaign && !onlyCurrentCampaign) {
+            url += '?campaign=' + currentCampaign
+        }
+        const { data } = await api.get(url)
+        commit('FETCH_KPI', { data })
+    },
     async fetchMajorFacts({ commit }, { onlyCurrentCampaign = false, currentCampaign = null }) {
-        let url = '/statistics/majorFacts'
+        let url = '/statistics/major-facts'
         if (onlyCurrentCampaign && !currentCampaign) {
             url += '?onlyCurrentCampaign'
         }
@@ -76,8 +92,8 @@ export const actions = {
         const { data } = await api.get(url)
         commit('FETCH_SCORES', { data })
     },
-    async fetchRealisationStates({ commit }, { onlyCurrentCampaign = false, currentCampaign = null }) {
-        let url = '/statistics/realisationStates'
+    async fetchMissionsStates({ commit }, { onlyCurrentCampaign = false, currentCampaign = null }) {
+        let url = '/statistics/missions-states'
         if (onlyCurrentCampaign && !currentCampaign) {
             url += '?onlyCurrentCampaign'
         }
@@ -86,7 +102,7 @@ export const actions = {
             url += '?campaign=' + currentCampaign
         }
         const { data } = await api.get(url)
-        commit('FETCH_REALISATION_STATES', { data })
+        commit('FETCH_MISSIONS_STATES', { data })
     }
 }
 
@@ -95,5 +111,6 @@ export const getters = {
     majorFacts: state => state.majorFacts,
     regularizations: state => state.regularizations,
     scores: state => state.scores,
-    realisationStates: state => state.realisationStates
+    missionsStates: state => state.missionsStates,
+    KPI: state => state.KPI
 }

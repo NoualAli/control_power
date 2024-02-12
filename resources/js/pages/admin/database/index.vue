@@ -1,7 +1,7 @@
 <template>
     <div v-if="is('root')">
         <!-- <ContentHeader>
-            <template #actions>
+            <template #right-actions>
                 <NLButton :loading="isBackup" v-if="is('root')" class="btn btn-info" label="Sauvegarder"
                     @click.stop="backup" />
             </template>
@@ -38,18 +38,17 @@ export default {
                 {
                     label: 'Nom',
                     field: 'name',
+                    sortable: true,
                 },
                 {
                     label: 'Taille',
                     field: 'size',
-                },
-                {
-                    label: 'Extension',
-                    field: 'extension',
+                    sortable: true,
                 },
                 {
                     label: 'Date',
                     field: 'created_at',
+                    sortable: true,
                 }
             ],
             actions: {
@@ -85,7 +84,7 @@ export default {
                 }
             }).catch(error => {
                 this.isBackup = true
-                console.log(error)
+                this.$swal.catchError(error)
             })
         },
         destroy(item) {

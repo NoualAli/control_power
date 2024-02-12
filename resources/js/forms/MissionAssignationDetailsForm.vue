@@ -10,16 +10,11 @@
                 <NLColumn>
                     <NLSelect v-model="form.controller" name="controllers" :form="form" :options="controllersList"
                         label="Contrôleur" placeholder="Choisissez un contrôleur"
-                        no-options-text="Aucun contrôleur disponible" loading-text="Chargement des contrôleurs en cours..."
-                        label-required />
-                </NLColumn>
-                <NLColumn>
-                    <NLSelect v-model="form.pcf" :form="form" name="pcf" :options="pcfList" label="PCF" :multiple="true"
-                        placeholder="Choisissez un ou plusieurs PCF" no-options-text="Aucun PCF disponible"
-                        loading-text="Chargement des PCF en cours..." label-required :disableBranchNodes="true" />
+                        no-options-text="Aucun contrôleur disponible"
+                        loading-text="Chargement des contrôleurs en cours..." />
                 </NLColumn>
             </NLForm>
-            <NLDatatable :isSearchable="false" :columns="columns" title="PCF assignés"
+            <!-- <NLDatatable :isSearchable="false" :columns="columns" title="PCF assignés"
                 :customUrl="'/missions/' + this.mission.id + '/assigned-processes/' + form.controller" urlPrefix=""
                 :refresh="refresh" v-if="form.controller">
                 <template #actions-before="{ item, callback }" v-if="is('cdcr')">
@@ -27,7 +22,7 @@
                         <i class="las la-unlink icon" />
                     </button>
                 </template>
-            </NLDatatable>
+            </NLDatatable> -->
             <!-- Loader -->
             <NLComponentLoader :isLoading="isLoading"></NLComponentLoader>
         </template>
@@ -43,7 +38,7 @@ import api from '../plugins/api'
 import NLForm from '../components/NLForm'
 import { Form } from 'vform'
 import NLComponentLoader from '../components/NLComponentLoader'
-import { confirm_destroy } from '../plugins/swal'
+import { confirm } from '../plugins/swal'
 export default {
     name: 'MissionAssignationDetailsForm',
     emits: [ 'success', 'close' ],
@@ -66,6 +61,11 @@ export default {
         "form.controller"(newValue, oldValue) {
             if (this.newValue !== oldValue) {
                 this.refresh += 1
+                if (newValue == this.mission.assigned_to_cc_id) {
+                    this.form.is_validator = true
+                } else {
+                    this.form.is_validator = false
+                }
                 return
             }
         }
@@ -76,6 +76,7 @@ export default {
             form: new Form({
                 controller: null,
                 pcf: [],
+                is_validator: false,
             }),
             isContainerExpanded: false,
             isLoading: true,
@@ -98,6 +99,9 @@ export default {
             ]
         }
     },
+    // mounted() {
+    //     this.initData()
+    // },
     methods: {
         /**
          * Remove specified process assignation
@@ -105,7 +109,7 @@ export default {
          * @param {Object} item
          */
         detachProcess(item) {
-            confirm_destroy().then((action) => {
+            confirm({ message: "Êtes-vous sûr de vouloir détaché le processus <b>" + item?.process_name + "</b>" }).then((action) => {
                 if (action.isConfirmed) {
                     api.delete('missions/' + this.mission.id + '/assign/' + item.process_id + '/' + this.form.controller + '/' + this.type).then(response => {
                         this.$swal.toast_success(response?.data?.message)
@@ -145,10 +149,14 @@ export default {
             this.isLoading = true
             this.currentMission = this.mission
             api.get('missions/' + this.mission.id + '/loadAssignationData/' + this.type).then((response) => {
-                this.pcfList = response.data.pcfList
+                if (this.type == 'cc') {
+                    this.form.controller = response.data.controller
+                } else {
+                    this.pcfList = response.data.pcfList
+                }
                 this.controllersList = response.data.controllersList
                 this.isLoading = false
-            }).catch(error => console.log(error))
+            }).catch(error => this.$swal.catchError(error))
         },
 
         /**
@@ -159,7 +167,7 @@ export default {
             api.get('missions/' + this.mission.id + '/not-dispatched-processes/' + this.type).then((response) => {
                 this.pcfList = response.data
                 this.isLoading = false
-            }).catch(error => console.log(error))
+            }).catch(error => this.$swal.catchError(error))
         },
 
         /**
@@ -179,7 +187,7 @@ export default {
                 }
                 this.formIsLoading = false
             }).catch(error => {
-                console.log(error)
+                this.$swal.catchError(error)
                 this.formIsLoading = false
             })
         },

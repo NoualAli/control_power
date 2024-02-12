@@ -2,6 +2,9 @@
 
 namespace App\Exports;
 
+use App\Enums\EventLogTypes;
+use App\Models\EventLog;
+use App\Models\Family;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
@@ -23,6 +26,7 @@ class FamiliesExport extends BaseExport implements FromView, WithProperties, Sho
 
     public function view(): View
     {
+        EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => Family::class]);
         $families = $this->data;
         return view('export.families', compact('families'));
     }

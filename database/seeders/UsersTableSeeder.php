@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Notifications\UpdateUsernamesNotification;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 
 class UsersTableSeeder extends Seeder
@@ -20,8 +21,10 @@ class UsersTableSeeder extends Seeder
     {
         DB::transaction(function () {
             try {
+                print_r("  Mise à jour des utilisateurs en cours \n");
                 $roles = DB::table('roles')->whereIn('code', ['da', 'cdc', 'dre', 'cdcr'])->get();
                 $updated = 0;
+                // $updated += DB::table('users')->where('username', 'DGA')->update(['active_role_id' => 15]);
                 $currentUser = collect([]);
                 foreach ($roles as $role) {
                     $currentRole = $role;
@@ -72,14 +75,11 @@ class UsersTableSeeder extends Seeder
                             'username' => $user->new_username
                         ]);
                         if (env('APP_ENV') !== 'dev') {
-                            Notification::send(User::findOrFail($user->id), new UpdateUsernamesNotification($role, $user));
                         }
-                        if ($result) {
-                            $updated += 1;
-                        }
+                        Notification::send(User::findOrFail($user->id), new UpdateUsernamesNotification($role, $user));
+                        $updated += 1;
                     }
                 }
-                print_r('Total utilisateurs mis à jour: ' . $updated . '\\n');
             } catch (\Throwable $th) {
                 dd($th->getMessage(), $currentRole, $currentUser);
             }

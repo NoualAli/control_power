@@ -1,6 +1,8 @@
 <template>
     <router-link class="sidebar-item" :to="{ name: route }">
-        <i :class="icon" class="sidebar-icon"></i>
+        <!-- <i :class="icon" class="sidebar-icon"></i> -->
+        <NLIcon :name="iconName" v-if="iconName" />
+        <slot></slot>
         <span class="sidebar-icon_text">
             {{ label }}
         </span>
@@ -17,9 +19,9 @@ export default {
         label: { type: String, required: true }
     },
     computed: {
-        icon() {
-            return this.iconName !== "" && this.iconName !== null ? `${this.iconPrefix} ${this.iconName}` : 'las la-question-circle'
-        }
+        // icon() {
+        //     return this.iconName !== "" && this.iconName !== null ? `${this.iconPrefix} ${this.iconName}` : 'las la-question-circle'
+        // }
     }
 }
 </script>

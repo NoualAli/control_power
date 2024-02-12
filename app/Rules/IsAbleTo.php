@@ -31,6 +31,7 @@ class IsAbleTo implements Rule
     {
         $user = User::findOrFail($value);
         return $user->isAbleTo($this->ability);
+        // return hasRole('ci');
     }
 
     /**

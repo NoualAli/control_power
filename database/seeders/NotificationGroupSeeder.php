@@ -27,6 +27,10 @@ class NotificationGroupSeeder extends Seeder
                     'code' => 'missions',
                     'label' => 'Missions',
                 ],
+                [
+                    'code' => 'major_facts',
+                    'label' => 'Faits majeurs',
+                ],
             ]);
         });
     }

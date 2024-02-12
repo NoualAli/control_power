@@ -46,25 +46,32 @@ class ExcelExportService
 
             if ($keep_sorting) {
                 $sorting = request('sort');
-                $model = $model->sortByMultiple($sorting);
+                if ($sorting) {
+                    $model = $model->sortByMultiple($sorting);
+                }
+            } else {
+                $model = $model->reorder();
             }
 
             if ($keep_search) {
                 $search = request('search');
-                $model = $model->search($search);
+                if ($search) {
+                    $model = $model->search($search);
+                }
             }
 
             if ($keep_current_pagination) {
-                $perPage = request('perPage');
-                if ($keep_current_page) {
-                    $page = request('page');
-                    $model = $model->paginate($perPage, ['*'], 'page', $page);
-                    Paginator::currentPageResolver(function () use ($page) {
-                        return (int) $page;
-                    });
-                } else {
-                    $model = $model->paginate($perPage);
-                }
+                $perPage = request('perPage', 10);
+                $page = request('page', 1);
+                $model = $model->paginate($perPage, ['*'], 'page', $page);
+                Paginator::currentPageResolver(function () use ($page) {
+                    return (int) $page;
+                });
+                // if ($keep_current_page) {
+                //     $page = request('page', 1);
+                // } else {
+                //     $model = $model->paginate($perPage);
+                // }
             } else {
                 $model = $model->get();
             }

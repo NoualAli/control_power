@@ -17,7 +17,6 @@ class BackupResource extends JsonResource
         return [
             'name' => $this->name,
             'size' => $this->size,
-            'extension' => $this->extension,
             'created_at' => $this->created_at,
             'path' => $this->path,
         ];

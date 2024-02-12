@@ -6,7 +6,7 @@
             </small>
         </template>
         <template #default>
-            <NLForm :form="form" :action="save" v-if="!isLoading">
+            <NLForm :form="form" :action="save" v-if="!isLoading" @change="() => alert('test')">
                 <!-- Major fact -->
                 <NLColumn
                     v-if="data?.control_point?.has_major_fact && ([2, 3, 4]).includes(Number(form.score))
@@ -18,12 +18,23 @@
                     :class="{ 'col-lg-12': !isContainerExpanded, 'col-lg-8': isContainerExpanded }">
                     <NLGrid>
                         <!-- score -->
-                        <NLColumn>
+                        <NLColumn v-if="[1, 2].includes(form.currentMode)">
                             <NLSelect v-model="form.score" :name="'score'" label="Notation" :form="form"
                                 :options="scoresList" label-required
                                 v-if="[1, 2].includes(form.currentMode) && !data?.major_fact" />
-                            <NLInput v-model="data.appreciation" label="Notation" :readonly="true" v-else />
+                            <!-- <NLInput v-model="data.appreciation" label="Notation" :readonly="true" v-else /> -->
                         </NLColumn>
+                        <NLColumn v-else>
+                            <NLGrid>
+                                <NLColumn>
+                                    <h2>Notation</h2>
+                                </NLColumn>
+                                <NLColumn>
+                                    {{ data.appreciation }}
+                                </NLColumn>
+                            </NLGrid>
+                        </NLColumn>
+
                         <!-- Metadata -->
                         <NLColumn
                             v-if="data?.control_point?.fields?.length && Number(form.score) > 0 && [1, 2].includes(form.currentMode)"
@@ -96,52 +107,56 @@
 
                         <NLColumn v-else-if="![1, 2].includes(form.currentMode) && data?.metadata" extraClass="list-item">
                             <div class="list-item-content no-bg grid">
-                                <div class="col-12" :class="{ 'col-lg-4': !data?.metadata }">
-                                    <b>Informations supplémentaires:</b>
-                                </div>
-                                <div class="col-12" :class="{ 'col-lg-8': !data?.metadata }">
-                                    <div class="table-container" v-if="data?.metadata">
+                                <NLColumn :class="{ 'col-lg-8': !data?.parsed_metadata?.lines }">
+                                    <div class="table-container " v-if="data?.parsed_metadata?.lines">
+                                        <h2>
+                                            Informations supplémentaires
+                                        </h2>
                                         <table>
                                             <thead>
                                                 <tr>
-                                                    <th v-for="( heading, indexHeading ) in  currentMetadata.headings "
+                                                    <th v-for="( heading, indexHeading ) in  data?.parsed_metadata?.headings"
                                                         :key="indexHeading" class="text-left">
                                                         {{ heading }}
                                                     </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr v-for="( data, row ) in  data?.metadata " :key="'metadata-row-' + row">
-                                                    <td v-for="( items, index ) in  data "
-                                                        :key="'metadata-row-' + row + '-item-' + index" class="text-left">
-                                                        <template v-for="( item, key ) in  items ">
-                                                            <span v-if="key !== 'label' && key !== 'additional_rules'"
-                                                                :key="'metadata-row-' + row + '-item-' + index + key + '-content'">
-                                                                {{ item || '-' }}
-                                                            </span>
-                                                        </template>
+                                                <tr v-for="( line, indexLine ) in data?.parsed_metadata?.lines"
+                                                    :key="'metadata-row-' + indexLine">
+                                                    <td
+                                                        v-for="( heading, indexHeading ) in  data?.parsed_metadata?.headings">
+                                                        {{ data?.parsed_metadata?.metadata[indexLine][indexHeading]?.value
+                                                        }}
                                                     </td>
                                                 </tr>
                                             </tbody>
                                         </table>
                                     </div>
                                     <span v-else>-</span>
-                                </div>
+                                </NLColumn>
                             </div>
                         </NLColumn>
 
                         <!-- Report -->
-                        <NLColumn>
-                            <NLWyswyg :length="1000" v-model="form.report" :name="'report'" label="Constat" :form="form"
+                        <NLColumn v-if="[1, 2].includes(form.currentMode)">
+                            <NLWyswyg :length="2500" v-model="form.report" :name="'report'" label="Constat" :form="form"
                                 :placeholder="![1, 2, 3, 4].includes(Number(form.score)) && !form.major_fact ? 'Constat' : 'Ajouter votre constat'"
                                 :label-required="[1, 2, 3, 4].includes(Number(form.score)) || form.major_fact"
                                 :readonly="![1, 2].includes(form.currentMode)"
                                 :disabled="![1, 2, 3, 4].includes(Number(form.score)) && !form.major_fact" />
                         </NLColumn>
-
+                        <NLColumn v-else>
+                            <NLGrid>
+                                <NLColumn>
+                                    <h2>Constat</h2>
+                                </NLColumn>
+                                <NLColumn v-html="form.report"></NLColumn>
+                            </NLGrid>
+                        </NLColumn>
                         <!-- Recovery plan -->
                         <NLColumn>
-                            <NLWyswyg :length="1000" v-model="form.recovery_plan" :name="'recovery_plan'"
+                            <NLWyswyg :length="2500" v-model="form.recovery_plan" :name="'recovery_plan'"
                                 label="Plan de redressement" :form="form"
                                 :placeholder="![2, 3, 4].includes(Number(form.score)) && !form.major_fact ? '' : 'Ajouter votre plan de redressement'"
                                 :label-required="[2, 3, 4].includes(Number(form.score)) || form.major_fact"
@@ -227,6 +242,16 @@ export default {
     data() {
         return {
             formIsLoading: false,
+            originalData: {
+                mission: null,
+                process: null,
+                detail: null,
+                report: null,
+                recovery_plan: null,
+                score: null,
+                major_fact: null,
+            },
+            originalMetadata: [],
             form: new Form({
                 currentMode: 1,
                 mission: null,
@@ -284,18 +309,54 @@ export default {
          * Close modal
          */
         close() {
-            this.currentMission = {}
-            this.currentMetadata = []
-            this.scoresList = []
-            this.isLoading = false
-            this.form.reset()
-            this.$emit('close')
+            let canLeave = this.checkIfCanLeave()
+            if (canLeave) {
+                this.$swal.confirm({ message: "Êtes-vous sûr de vouloir quitter sans enregistrer ?", confirmButtonText: 'Oui' }).then(action => {
+                    if (action.isConfirmed) {
+                        this.currentMission = {}
+                        this.currentMetadata = []
+                        this.scoresList = []
+                        this.isLoading = false
+                        this.form.reset()
+                        this.$emit('close')
+                    }
+                })
+            } else {
+                this.currentMission = {}
+                this.currentMetadata = []
+                this.scoresList = []
+                this.isLoading = false
+                this.form.reset()
+                this.$emit('close')
+            }
+        },
+        /**
+         * Check whatever if user changed form values or not
+         */
+        checkIfCanLeave() {
+            let data = JSON.stringify({
+                mission: this.form.mission,
+                process: this.form.process,
+                detail: this.form.detail,
+                report: this.form.report,
+                recovery_plan: this.form.recovery_plan,
+                score: parseInt(this.form.score),
+                major_fact: this.form.major_fact,
+            })
+            let originalData = JSON.stringify(this.originalData)
+
+            let metadata = JSON.stringify(this.form.metadata)
+            let originalMetadata = JSON.stringify(this.originalMetadata)
+
+            return data != originalData || metadata !== originalMetadata
         },
         /**
          * Init form and other data
          */
         initData() {
             this.isLoading = !this.isLoading
+            this.originalMetadata = JSON.parse(this.data?.metadata) || []
+
             this.$store.dispatch('details/fetch', this.data?.id).then(() => {
                 const detail = this.detail.detail
                 const metadata = detail.parsed_metadata?.metadata
@@ -320,38 +381,51 @@ export default {
                 this.form.process = Number(detail.control_point.process_id)
                 this.form.detail = detail.id
                 this.form.media = detail.media.length ? detail.media.map(file => file.id) : []
-                this.form.detail = detail.id
-                this.form.report = detail.report
+                this.form.report = detail?.observation?.content
                 this.form.recovery_plan = detail.recovery_plan
                 this.form.score = detail.score ? parseInt(detail.score) : null
                 this.form.major_fact = !!detail.major_fact
-                this.form.metadata = metadata
+                this.form.metadata = metadata || []
                 this.isLoading = !this.isLoading
+
+
                 this.setupScores(this.data?.control_point.scores)
                 this.loadMissingMetadata()
+
+                this.originalData.mission = detail.mission_id
+                this.originalData.process = Number(detail.control_point.process_id)
+                this.originalData.detail = detail.id
+                this.originalData.report = detail?.observation?.content
+                this.originalData.recovery_plan = detail.recovery_plan
+                this.originalData.score = detail.score ? parseInt(detail.score) : null
+                this.originalData.major_fact = !!detail.major_fact
             }).catch(error => this.$swal.catchError(error))
         },
         /**
          * Save detail
          */
         save() {
-            this.formIsLoading = true
-            this.form.post('missions/details/' + this.data.mission_id).then(response => {
-                if (response.data.status) {
-                    this.$swal.toast_success(response.data.message)
-                    this.$emit('success', response)
-                } else {
-                    this.$swal.alert_error(response.data.message)
-                }
-                this.formIsLoading = false
-            }).catch(error => {
-                let message = error.message
-                if (error.response.status === 422) {
-                    message = 'Les données fournies sont invalides.'
-                }
-                this.$swal.toast_error(message)
-                this.formIsLoading = false
+            this.$swal.confirm({ message: "Êtes-vous sûr de vouloir enregistrer ces informations ?", confirmButtonText: 'Oui' }).then(action => {
+                if (action.isConfirmed) {
+                    this.formIsLoading = true
+                    this.form.post('missions/details/' + this.data.mission_id).then(response => {
+                        if (response.data.status) {
+                            this.$swal.toast_success(response.data.message)
+                            this.$emit('success', response)
+                        } else {
+                            this.$swal.alert_error(response.data.message)
+                        }
+                        this.formIsLoading = false
+                    }).catch(error => {
+                        let message = error.message
+                        if (error.response.status === 422) {
+                            message = 'Les données fournies sont invalides.'
+                        }
+                        this.$swal.toast_error(message)
+                        this.formIsLoading = false
 
+                    })
+                }
             })
         },
         /**
@@ -452,7 +526,7 @@ export default {
          * @param {Number} row
          */
         removeRow(row) {
-            this.$swal.confirm_destroy(`Voulez-vous vraiment supprimer la ligne n° ${row + 1}`).then(action => {
+            this.$swal.confirm_destroy(`Êtes-vous sûr de vouloir supprimer la ligne n° ${row + 1}`).then(action => {
                 if (action.isConfirmed) {
                     this.form.metadata.splice(row, 1)
                 }

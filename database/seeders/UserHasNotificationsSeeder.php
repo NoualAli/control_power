@@ -27,11 +27,11 @@ class UserHasNotificationsSeeder extends Seeder
                 foreach ($users as $user) {
                     $currentUser = $user;
                     if (in_array($user->code, ['ci', 'cc'])) {
-                        $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['mission_assignation_removed', 'mission_assigned', 'mission_updated', 'mission_validated', 'mission_major_fact_rejected'])->get()->pluck('id');
+                        $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['mission_assignation_removed', 'mission_assigned', 'mission_updated', 'mission_validated', 'mission_deleted', 'mission_major_fact_rejected', 'mission_pdf_repport_generated'])->get()->pluck('id');
                     } elseif ($user->code == 'cdc') {
                         $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['control_campaign_created', 'control_campaign_deleted', 'control_campaign_updated', 'mission_major_fact_detected', 'mission_validated', 'mission_pdf_repport_generated', 'mission_major_fact_rejected'])->get()->pluck('id');
                     } elseif ($user->code == 'da') {
-                        $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['mission_major_fact_detected', 'mission_validated', 'mission_pdf_repport_generated'])->get()->pluck('id');
+                        $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['mission_validated', 'mission_pdf_repport_generated', 'mission_detail_regularization_rejected'])->get()->pluck('id');
                     } elseif (in_array($user->code, ['dg', 'ig', 'dga', 'sg', 'der', 'deac', 'cdrcp', 'dre', 'dcp', 'cdcr'])) {
                         $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['control_campaign_created', 'control_campaign_deleted', 'control_campaign_updated', 'mission_major_fact_detected', 'mission_validated', 'mission_pdf_repport_generated'])->get()->pluck('id');
                     } else {
@@ -41,7 +41,7 @@ class UserHasNotificationsSeeder extends Seeder
                     if ($notificationTypes->isNotEmpty()) {
                         foreach ($notificationTypes as $type) {
                             $currentType = $type;
-                            if (in_array($user->code, ['dg', 'ig', 'dga', 'sg', 'der', 'deac', 'cdrcp', 'dcp', 'cdcr', 'dre'])) {
+                            if (in_array($user->code, ['dg', 'ig', 'dga', 'sg', 'der', 'deac', 'cdrcp', 'dre', 'dcp', 'cdcr'])) {
                                 $databaseIsEnabled = true;
                                 $emailIsEnabled = false;
                             } else {

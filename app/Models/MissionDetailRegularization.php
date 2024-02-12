@@ -4,13 +4,14 @@ namespace App\Models;
 
 use App\Traits\HasMedia;
 use App\Traits\HasUuid;
+use App\Traits\IsCommentable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
 class MissionDetailRegularization extends BaseModel
 {
-    use HasFactory, HasUuid, HasMedia;
+    use HasFactory, HasUuid, HasMedia, IsCommentable;
 
     protected $fillable = [
         'action_to_be_taken',
@@ -18,6 +19,13 @@ class MissionDetailRegularization extends BaseModel
         'created_by_id',
         'mission_detail_id',
         'is_regularized',
+        'creator_full_name',
+        'rejector_full_name',
+        'is_sanitation_in_progress',
+        'is_rejected',
+        'rejection_comment',
+        'rejected_at',
+        'rejected_by_id',
     ];
 
     public $timestamps = false;
@@ -26,7 +34,10 @@ class MissionDetailRegularization extends BaseModel
 
     public $casts = [
         'is_regularized' => 'boolean',
-        'created_at' => 'datetime'
+        'is_rejected' => 'boolean',
+        'is_sanitation_in_progress' => 'boolean',
+        'created_at' => 'datetime',
+        'rejected_at' => 'datetime',
     ];
 
     public function getRegularizedAttribute()
@@ -34,22 +45,38 @@ class MissionDetailRegularization extends BaseModel
         return $this->is_regularized ? 'Levée' : 'Non levée';
     }
 
-    public function getCreatedAtAttribute($regularized_at)
+    public function getCreatedAtAttribute($created_at)
     {
-        return $regularized_at ? Carbon::parse($regularized_at)->format('d-m-Y H:i') : null;
+        return $created_at ? Carbon::parse($created_at)->format('d-m-Y H:i') : null;
     }
+
+    public function getRejectedAtAttribute($rejected_at)
+    {
+        return $rejected_at ? Carbon::parse($rejected_at)->format('d-m-Y H:i') : null;
+    }
+
 
     /**
      * Relationships
      */
     public function detail()
     {
-        return $this->belongsTo(MissionDetail::class);
+        return $this->belongsTo(MissionDetail::class, 'mission_detail_id');
     }
 
     public function regularizator()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'created_by_id');
+    }
+
+    public function rejector()
+    {
+        return $this->belongsTo(User::class, 'rejected_by_id');
+    }
+
+    public function derComment()
+    {
+        return $this->comment()->where('type', 'der_comment');
     }
 
     /**
@@ -63,5 +90,10 @@ class MissionDetailRegularization extends BaseModel
     public function scopeOnlyRegularized($query)
     {
         return $query->where('is_regularized', true);
+    }
+
+    public function scopeOnlyRejected($query)
+    {
+        return $query->where('is_rejected', true);
     }
 }

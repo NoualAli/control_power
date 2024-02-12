@@ -27,8 +27,16 @@ class StoreRequest extends FormRequest
             'family_id' => ['required', 'exists:families,id'],
             'domain_id' => ['required', 'exists:domains,id'],
             'name' => ['required', 'string', 'max:255', 'unique:processes'],
-            'media' => ['nullable', 'array'],
-            'media.*' => ['exists:media,id']
+            'others' => ['nullable', 'array'],
+            'others.*' => ['exists:media,id'],
+            'notes' => ['nullable', 'array'],
+            'notes.*' => ['exists:media,id'],
+            'circulaires' => ['nullable', 'array'],
+            'circulaires.*' => ['exists:media,id'],
+            'lettreCirculaires' => ['nullable', 'array'],
+            'lettreCirculaires.*' => ['exists:media,id'],
+            'guidesPremierNiveau' => ['nullable', 'array'],
+            'guidesPremierNiveau.*' => ['exists:media,id'],
         ];
     }
 }

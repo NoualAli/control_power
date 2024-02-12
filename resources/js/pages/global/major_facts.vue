@@ -1,9 +1,8 @@
 
 <template>
     <ContentBody>
-        <NLDatatable :searchValue="searchValue" :columns="columns" :actions="actions" :filters="filters"
-            title="Faits majeurs" urlPrefix="major-facts" @show="show" :refresh="refresh" :isSearchable="false"
-            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
+        <NLDatatable :columns="columns" :actions="actions" :filters="filters" title="Faits majeurs" urlPrefix="major-facts"
+            @show="show" :refresh="refresh" @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
 
         <!-- View control point informations -->
         <MissionDetailModal :rowSelected="rowSelected" :show="modals.show" @success="success" @showForm="showForm"
@@ -30,60 +29,69 @@ export default {
         return {
             rowSelected: null,
             refresh: 0,
-            searchValue: null,
             columns: [
                 {
-                    label: 'CDC-ID',
-                    field: 'cdc_reference'
-                },
-                {
-                    label: 'RAP-ID',
-                    field: 'mission_reference'
+                    label: 'Référence',
+                    field: 'reference',
                 },
                 {
                     label: 'DRE',
-                    field: 'dre_full_name',
-                    hide: hasRole([ 'cdc', 'ci', 'da', 'dre' ])
+                    field: 'dre',
+                    hide: hasRole([ 'cdc', 'da', 'ci' ]),
+                    sortable: true,
                 },
                 {
                     label: 'Agence',
-                    field: 'agency_full_name'
+                    field: 'agency',
+                    hide: hasRole([ 'da' ]),
+                    sortable: true,
                 },
                 {
                     label: 'Famille',
-                    field: 'family_name'
+                    field: 'family',
+                    // hide: !hasRole([ 'cdcr', 'dcp', 'cc' ]),
+                    sortable: true,
+                    length: 50,
                 },
                 {
                     label: 'Domaine',
-                    field: 'domain_name'
+                    field: 'domain',
+                    // hide: !hasRole([ 'cdcr', 'dcp', 'cc' ]),
+                    sortable: true,
+                    length: 30,
                 },
                 {
                     label: 'Processus',
-                    field: 'process_name'
+                    field: 'process',
+                    // hide: !hasRole([ 'cdcr', 'dcp', 'cc' ]),
+                    sortable: true,
+                    length: 50,
                 },
                 {
                     label: 'Point de contrôle',
-                    field: 'control_point_name',
-                    length: 50
+                    field: 'control_point',
+                    length: 50,
+                    // hide: !hasRole([ 'cdcr', 'dcp', 'cc' ]),
+                    sortable: true,
                 },
                 {
                     label: 'Validé',
-                    field: 'is_validated',
+                    field: 'major_fact_is_validated',
                     isHtml: true,
                     methods: {
                         showField(item) {
                             let icon = 'exclamation-triangle'
                             let color = 'text-warning'
                             let title = 'En attente de traitement'
-                            if (item.is_validated == 1) {
+                            if (item.major_fact_is_validated == 1) {
                                 icon = 'check-circle'
                                 color = 'text-success'
                                 title = 'Validé'
-                            } else if (item.is_pending == 1 && item.is_rejected == 0) {
+                            } else if (item.major_fact_is_pending == 1 && item.major_fact_is_rejected == 0) {
                                 icon = 'exclamation-triangle'
                                 color = 'text-warning'
                                 title = 'En attente de traitement'
-                            } else if (item.is_rejected == 1 && item.is_pending == 0) {
+                            } else if (item.major_fact_is_rejected == 1 && item.major_fact_is_pending == 0) {
                                 icon = 'times-circle'
                                 color = 'text-danger'
                                 title = 'Rejeté'
@@ -91,6 +99,10 @@ export default {
                             return `<i class="las la-${icon} ${color} icon" title="${title}"></i>`
                         }
                     }
+                },
+                {
+                    label: 'Etat',
+                    field: 'state',
                 }
             ],
             actions: {
@@ -154,41 +166,28 @@ export default {
                     data: null,
                     value: null
                 },
-                is_regularized: {
-                    label: 'Régularisation',
+                state: {
+                    label: 'Etat',
                     multiple: false,
                     value: null,
-                    hide: hasRole([ 'cdc', 'ci' ]),
                     data: [
                         {
                             id: 'Non levée',
                             label: 'Non levée'
                         },
                         {
+                            id: 'En cours d\'assainissement',
+                            label: 'En cours d\'assainissement'
+                        },
+                        {
                             id: 'Levée',
                             label: 'Levée'
+                        },
+                        {
+                            id: 'Rejetée',
+                            label: 'Rejetée'
                         }
                     ]
-                },
-                score: {
-                    label: 'Notation',
-                    multiple: true,
-                    data: [
-                        {
-                            id: 2,
-                            label: 2
-                        },
-                        {
-                            id: 3,
-                            label: 3
-                        },
-                        {
-                            id: 4,
-                            label: 4
-                        }
-                    ],
-                    value: null,
-                    hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
                 },
                 with_metadata: {
                     label: 'Avec échantillonage',

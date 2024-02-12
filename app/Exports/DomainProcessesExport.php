@@ -2,7 +2,10 @@
 
 namespace App\Exports;
 
+use App\Enums\EventLogTypes;
 use App\Models\Domain;
+use App\Models\EventLog;
+use App\Models\Process;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -25,6 +28,7 @@ class DomainProcessesExport extends BaseExport implements FromView, WithProperti
     {
         $processes = $this->data->processes;
         $domain = $this->data;
+        EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => Domain::class, 'attachable_id' => $domain->id, 'payload' => ['content' => 'Liste des processus du domaine ' . $domain->name]]);
         return view('export.domain_processes', compact('processes', 'domain'));
     }
 

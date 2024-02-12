@@ -19,11 +19,13 @@ use App\Exports\RolesExport;
 use App\Exports\SynthesisExport;
 use App\Exports\SynthesisWithReportsExport;
 use App\Exports\UsersExport;
+use App\Http\Controllers\Controller;
 use App\Models\Agency;
 use App\Models\ControlPoint;
 use App\Models\Domain;
 use App\Models\Dre;
 use App\Models\Family;
+use App\Models\MissionDetail;
 use App\Models\Module;
 use App\Models\Process;
 use App\Models\Role;
@@ -37,7 +39,7 @@ class ExportController extends Controller
 {
     public function export(Request $request)
     {
-        if (hasRole(['admin', 'root', 'dcp'])) {
+        if (hasRole(['cdrcp', 'dcp', 'cdcr', 'cdc', 'root', 'admin'])) {
             $exportValue = $request->export;
             if ($exportValue == 'users') {
                 return $this->users($request);
@@ -72,7 +74,6 @@ class ExportController extends Controller
     private function synthesis(Request $request, bool $withReports = false)
     {
         $controlCampaign = DB::table('control_campaigns')->select('id', 'reference')->where('id', $request->campaign)->first();
-
         $agencies = DB::table('missions', 'm')->select([
             'd.id as dre_id',
             DB::raw("CONCAT(d.code, ' ', d.name) as dre"),
@@ -86,7 +87,7 @@ class ExportController extends Controller
 
         $dresFromAgencies = (clone $agencies)->select([
             'd.id as dre_id',
-            DB::raw("CONCAT(d.code, ' ', d.name) as dre"),
+            DB::raw("CONCAT(d.code, ' - ', d.name) as dre"),
         ])->groupBy('d.id', 'd.name', 'd.code')
             ->orderBy('d.code')
             ->orderBy('d.name')
@@ -97,7 +98,10 @@ class ExportController extends Controller
             'd.name as domain',
             'p.name as process',
             'cp.name as control_point',
+            'md.id',
             'score',
+            'is_disabled',
+            'reg_is_regularized',
             DB::raw("CONCAT(dres.code, ' ', dres.name) as dre"),
             DB::raw("CONCAT(a.code, ' ', a.name) as agency"),
             'a.id as agency_id'
@@ -112,11 +116,14 @@ class ExportController extends Controller
             ->leftJoin('families as f', 'f.id', 'd.family_id')
             ->where('cc.id', $request->campaign)
             ->whereIn('score', [1, 2, 3, 4])
+            ->where('is_disabled', false)
             ->orderBy('f.id')
             ->orderBy('d.id')
             ->orderBy('p.id')
             ->orderBy('cp.name');
-        // dd($missionDetails->get());
+        if (hasRole('cdc')) {
+            $missionDetails = $missionDetails->whereIn('a.id', auth()->user()->agencies->pluck('id')->toArray());
+        }
         $dres = collect([]);
         foreach ($dresFromAgencies as $dre) {
             $dreAgencies = (clone $agencies)->where('dre_id', $dre->dre_id)->get();
@@ -129,15 +136,16 @@ class ExportController extends Controller
                 $single_dre->agencies = $dreAgencies;
                 foreach ($single_dre->agencies as $agency) {
                     if ($withReports) {
-                        $missionDetails = $missionDetails->addSelect(['cdc_report', 'ci_report', 'recovery_plan']);
+                        $missionDetails = $missionDetails->addSelect('recovery_plan');
                     }
 
                     $agency->data = (clone $missionDetails)->where('dres.id', $dre->dre_id)->where('a.id', $agency->agency_id)->get();
 
                     if ($withReports) {
                         $agency->data->map(function ($item) {
-                            $item->report = $item->cdc_report ?: $item->ci_report;
-                            unset($item->cdc_report, $item->ci_report);
+                            $observation = DB::table('comments')->where('commentable_type', MissionDetail::class)->where('commentable_id', $item->id)->whereIn('type', ['ci_observation', 'cdc_observation'])
+                                ->orderBy('created_at', 'DESC')->first();
+                            $item->observation = $observation->content;
                             return $item;
                         });
                     }
@@ -152,6 +160,7 @@ class ExportController extends Controller
                 'd.name as domain',
                 'p.name as process',
                 'cp.name as control_point',
+                'cp.id',
             ])
             ->leftJoin('processes as p', 'p.id', 'ccp.process_id')
             ->leftJoin('control_points as cp', 'p.id', 'cp.process_id')
@@ -163,7 +172,6 @@ class ExportController extends Controller
             ->orderBy('p.id')
             ->orderBy('cp.id')
             ->get();
-
 
         if ($withReports) {
             return Excel::download(new SynthesisWithReportsExport(compact('dres', 'controlPoints', 'controlCampaign')), 'synthèse-constast-' . $controlCampaign->reference . '.xlsx');

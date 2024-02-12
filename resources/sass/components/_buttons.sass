@@ -1,15 +1,23 @@
 // Buttons
-$btn-padding: 10px 15px
+$btn-padding: 13px 15px
+$btn-has-icon-padding: 10px 15px
 $btn-radius-full: 100px
 $btn-radius: 6px
-$btn-color: $primary
-$btn-border: 1px solid $primary
 $btn-shadow: 0 0.0625em 0.125em rgb(10 10 10 / 5%)
 $btn-fs: 1rem
-$btn-bg: $white
-
+// $btn-color: $primary
+// $btn-border: 1px solid $primary
+// $btn-bg: $white
+$btn-color: darkOrWhiteFont($primary)
+$btn-border: 1px solid darken($primary, 10%)
+$btn-bg: $primary
+$btn-active-bg: $grey
+$btn-active-color: $primary
+$btn-active-border-color: $primary
 // Hover
-$btn-hover-bg: $primary
+// $btn-hover-bg: $primary
+$btn-hover-bg: #198754
+$btn-hover-color: $primary
 $btn-hover-shadow: 0px 0px 1.3px rgba(0, 0, 0, 0.016), 0px 0px 4.2px rgba(0, 0, 0, 0.024), 0px 0px 19px rgba(0, 0, 0, 0.04)
 
 .btn-group
@@ -27,13 +35,24 @@ $btn-hover-shadow: 0px 0px 1.3px rgba(0, 0, 0, 0.016), 0px 0px 4.2px rgba(0, 0, 
 .btn
     padding: $btn-padding
     border-radius: $btn-radius
-    color: $btn-color
+    color: $white
     border: $btn-border
     box-shadow: $btn-shadow
     font-size: $btn-fs
     background-color: $btn-bg
     cursor: pointer
+    display: inline-flex
+    justify-content: center
+    align-items: center
+    gap: 0 5px
     transition: .1s ease
+    &:disabled
+        cursor: not-allowed
+        background-color: $btn-active-bg
+        color: $btn-active-color
+        &:hover
+            color: $btn-active-color
+            background-color: $btn-active-bg
     &.is-radius
         border-radius: $btn-radius-full
     & .btn-text
@@ -52,33 +71,41 @@ $btn-hover-shadow: 0px 0px 1.3px rgba(0, 0, 0, 0.016), 0px 0px 4.2px rgba(0, 0, 
             display: block
     &.btn-submit
         border-radius: 100px
+    &.is-active
+        background-color: $btn-active-bg
+        color: $btn-active-color
+        border-color: $btn-active-border-color
     &:hover
         background-color: $btn-hover-bg
         color: darkOrWhiteFont($btn-hover-bg)
         box-shadow: $btn-hover-shadow
+        border-color: lighten($btn-bg, 10%)
     @each $color in $colors-list
         &.btn-#{nth($color, 1)}
-            background-color: lighten(nth($color, 2), 60%)
-            color: nth($color, 2)
-            border-color: lighten(nth($color, 2), 10%)
+            background-color: nth($color, 2)
+            color: darkOrWhiteFont(nth($color, 2))
+            border-color: darken(nth($color, 2), 10%)
             & .icon
                 stroke-width: 0
                 stroke: currentColor
                 fill: currentColor
             &:hover
                 color: darkOrWhiteFont(nth($color, 2))
-                background-color: lighten(nth($color, 2), 10%)
-                border-color: lighten(nth($color, 2), 10%)
+                background-color: darken(nth($color, 2), 10%)
                 & .icon
                     stroke: darkOrWhiteFont(nth($color, 2))
             &.is-active
                 background-color: nth($color, 2)
                 color: darkOrWhiteFont(nth($color, 2))
-                border-color: nth($color, 2), 10%
+                border-color: darken(nth($color, 2), 10%)
+            &:disabled
+                background-color: nth($color, 2)
+                color: darkOrWhiteFont(nth($color, 2))
+                border-color: darken(nth($color, 2), 10%)
             &.reverse
                 background-color: transparent
                 color: nth($color, 2)
-                border-color: nth($color, 2), 10%
+                border-color: darken(nth($color, 2), 10%)
                 &:hover
                     background-color: nth($color, 2)
                     color: darkOrWhiteFont(nth($color, 2))
@@ -88,6 +115,12 @@ $btn-hover-shadow: 0px 0px 1.3px rgba(0, 0, 0, 0.016), 0px 0px 4.2px rgba(0, 0, 
         justify-content: center
         align-items: center
         gap: 0 5px
+        padding: $btn-has-icon-padding
+        & .icon
+            // font-size: $btn-fs
+
+.btn-filter
+    padding: 6px !important
 
 .btn-loading
     position: relative
@@ -95,7 +128,7 @@ $btn-hover-shadow: 0px 0px 1.3px rgba(0, 0, 0, 0.016), 0px 0px 4.2px rgba(0, 0, 
     color: transparent !important
     &:after
         animation: spinAround 500ms infinite linear
-        border: 2px solid #dbdbdb
+        border: 2px solid $light
         border-radius: 50%
         border-right-color: transparent
         border-top-color: transparent

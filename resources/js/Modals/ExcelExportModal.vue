@@ -8,23 +8,23 @@
                 <NLColumn lg="6">
                     <NLSwitch label="Garder la recherche actuelle" v-model="keep_search" />
                 </NLColumn>
-                <NLColumn lg="6">
+                <!-- <NLColumn lg="6">
                     <NLSwitch label="Garder les filtres actuels" v-model="keep_filters" />
-                </NLColumn>
+                </NLColumn> -->
                 <NLColumn lg="6">
                     <NLSwitch label="Garder le trie actuel" v-model="keep_sorting" />
                 </NLColumn>
                 <NLColumn lg="6">
                     <NLSwitch label="Garder la pagination actuelle" v-model="keep_current_pagination" />
                 </NLColumn>
-                <NLColumn lg="6">
+                <!-- <NLColumn lg="6">
                     <NLSwitch label="Depuis la page actuelle" v-model="keep_current_page" />
-                </NLColumn>
+                </NLColumn> -->
             </NLGrid>
         </template>
         <template #footer>
             <button class="btn btn-office-excel has-icon" @click.stop="exportExcel">
-                <i class="las la-file-excel icon" />
+                <NLIcon name="table" />
                 Exporter
             </button>
         </template>

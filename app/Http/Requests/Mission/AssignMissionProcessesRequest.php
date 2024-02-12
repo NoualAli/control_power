@@ -41,8 +41,9 @@ class AssignMissionProcessesRequest extends FormRequest
     public function rules()
     {
         return [
-            'controller' => ['required', 'exists:users,id'],
-            'pcf' => ['required', 'array'],
+            'controller' => ['nullable', 'exists:users,id'],
+            // 'pcf' => ['nullable', 'array'],
+            // 'is_validator' => ['required', 'boolean']
         ];
     }
 }

@@ -4,20 +4,38 @@
             <NLGrid>
                 <NLColumn lg="1" />
                 <NLColumn lg="11">
-                    <div class="tags is-even">
-                        <button class="btn btn-info" @click.prevent="showDocumentation" v-if="process?.media?.length"
-                            title="Afficher la documentation du processus">
-                            <i class="las la-file icon"></i>
-                        </button>
-                        <span class="tag is-start">
-                            <i class="las la-tag icon mr-1"></i> {{ process?.family?.name }}
+                    <div class="tags">
+                        <span class="btn btn-tag p-0" @click.prevent="showDocumentation" v-if="process?.media?.length">
+                            <NLIcon name="description" />
+                            Référence
                         </span>
-                        <span class="tag is-start">
-                            <i class="las la-tags icon mr-1"></i> {{ process?.domain?.name }}
-                        </span>
-                        <span class="tag is-start">
-                            <i class="las la-project-diagram icon mr-1"></i> {{ process?.name }}
-                        </span>
+                        <NLTooltip type="bottom">
+                            <template #content>
+                                <b>Famille</b>
+                                <p class="mt-2">{{ process?.family?.name }}</p>
+                            </template>
+                            <span class="tag is-start">
+                                <NLIcon name="tenancy" /> {{ str_slice(process?.family?.name, 50) }}
+                            </span>
+                        </NLTooltip>
+                        <NLTooltip type="bottom">
+                            <template #content>
+                                <b>Domaine</b>
+                                <p class="mt-2">{{ process?.domain?.name }}</p>
+                            </template>
+                            <span class="tag is-start">
+                                <NLIcon name="network_node" /> {{ str_slice(process?.domain?.name, 50) }}
+                            </span>
+                        </NLTooltip>
+                        <NLTooltip title="Processus" type="bottom">
+                            <template #content>
+                                <b>Processus</b>
+                                <p class="mt-2">{{ process?.name }}</p>
+                            </template>
+                            <span class="tag is-start">
+                                <NLIcon name="account_tree" /> {{ str_slice(process?.name, 50) }}
+                            </span>
+                        </NLTooltip>
                     </div>
                 </NLColumn>
                 <NLColumn lg="1" />
@@ -28,7 +46,8 @@
                                 <p class="text-bold">
                                     {{ detail.control_point.name }}
                                 </p>
-                                <NLButton type="info" label="Contrôler" v-if="mode == 1 && !detail?.score"
+                                <NLButton type="info" label="Contrôler"
+                                    v-if="mode == 1 && !detail?.score && user().id == mission.assigned_to_ci_id"
                                     @click="showForm({ row: detail, type: 'edit' })" />
                             </NLFlex>
                         </div>
@@ -41,9 +60,9 @@
                                 </NLColumn>
 
                                 <!-- Major fact -->
-                                <NLColumn v-if="detail?.major_fact">
+                                <NLColumn v-if="detail?.major_fact && !is('da')">
                                     <b class="text-danger">
-                                        Fait majeur déclencher par {{ detail?.major_fact_is_detected_by_full_name }}
+                                        Fait majeur déclenché par {{ detail?.major_fact_is_detected_by_full_name }}
                                         le {{ detail?.major_fact_is_detected_at }}
                                     </b>
                                 </NLColumn>
@@ -60,7 +79,8 @@
                                 <NLColumn lg="4" v-if="Number(detail?.score) !== 5">
                                     <b>Constat:</b>
                                 </NLColumn>
-                                <NLColumn lg="8" v-if="Number(detail?.score) !== 5" v-html="detail?.report || '-'">
+                                <NLColumn lg="8" v-if="Number(detail?.score) !== 5 && detail?.observation?.content"
+                                    v-html="detail?.observation?.content || '-'">
                                 </NLColumn>
                                 <!-- Recovery plan -->
                                 <NLColumn lg="4" v-if="Number(detail?.score) !== 5">
@@ -70,44 +90,51 @@
                                 </NLColumn>
 
                                 <!-- Regularization -->
-                                <NLColumn v-if="detail?.regularization?.regularized && Number(detail?.score) !== 5">
-                                    <NLGrid>
-                                        <NLColumn lg="4">
-                                            <b>Régularisation:</b>
-                                        </NLColumn>
-                                        <div lg="8">
-                                            {{ detail?.regularization?.regularized || '-' }}
-                                        </div>
-                                    </NLGrid>
+                                <NLColumn lg="4" v-if="mission?.is_validated_by_dcp">
+                                    <b>Régularisation:</b>
+                                </NLColumn>
+                                <NLColumn lg="8" v-if="mission?.is_validated_by_dcp">
+                                    <p v-if="detail?.reg_is_regularized">
+                                        Levée
+                                    </p>
+                                    <p v-else-if="detail?.reg_is_rejected">
+                                        Rejetée
+                                    </p>
+                                    <p v-else-if="detail?.reg_is_sanitation_in_progress && !detail?.reg_is_rejected">
+                                        En cours d'assainissement
+                                    </p>
+                                    <p v-else>
+                                        Non levée
+                                    </p>
                                 </NLColumn>
 
                                 <!-- Actions -->
                                 <NLColumn extraClass="d-flex justify-end align-center" v-if="Number(detail?.score) !== 5">
                                     <NLFlex gap="2">
                                         <button class="btn btn-info has-icon" @click="show(detail)">
-                                            <i class="las la-eye icon" />
+                                            <NLIcon name="visibility" />
                                             Voir plus
                                         </button>
 
                                         <!-- CI -->
                                         <button
-                                            v-if="mode == 1 && !detail?.major_fact && !mission?.is_validated_by_ci && can('create_ci_report')"
+                                            v-if="mode == 1 && !detail?.major_fact && !mission?.is_validated_by_ci && user().id == mission.assigned_to_ci_id"
                                             class="btn btn-warning has-icon" @click="edit(detail)">
-                                            <i class="las la-pen icon" />
+                                            <NLIcon name="edit" />
                                             Modifier
                                         </button>
                                         <!-- CDC -->
                                         <button
                                             v-if="mode == 2 && !detail?.major_fact && !mission?.is_validated_by_cdc && can('create_cdc_report,validate_cdc_report')"
                                             class="btn btn-warning has-icon" @click="edit(detail)">
-                                            <i class="las la-pen icon" />
+                                            <NLIcon name="edit" />
                                             Modifier
                                         </button>
 
                                         <button
                                             v-if="(mode == 2 && !mission?.is_validated_by_dcp && !mission?.is_validated_by_cdcr && !detail?.major_fact_is_dispatched_to_dcp_at && !detail.regularization && row?.major_fact && is('cdc'))"
                                             class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
-                                            <i class="las la-pen icon" />
+                                            <NLIcon name="edit" />
                                             Traiter
                                         </button>
 
@@ -115,10 +142,10 @@
                                         <button v-if="mode == 4 &&
                                             !(detail?.major_fact_is_detected_by_id == user().id)
                                             && !detail?.major_fact_is_dispatched_at
-                                            && (mission?.has_dcp_controllers ? mission?.is_validated_by_cc && !mission?.is_validated_by_cdcr : !mission?.is_validated_by_cdcr)
+                                            && (mission?.assigned_to_cc_id ? mission?.is_validated_by_cc && !mission?.is_validated_by_cdcr : !mission?.is_validated_by_cdcr)
                                             && [2, 3, 4].includes(Number(detail?.score))
                                             && is('cdcr')" class="btn btn-warning has-icon" @click="edit(detail)">
-                                            <i class="las la-pen icon" />
+                                            <NLIcon name="edit" />
                                             Traiter
                                         </button>
 
@@ -126,11 +153,11 @@
                                         <button v-if="mode == 3
                                             && !detail.major_fact
                                             && !detail?.major_fact_is_dispatched_at
-                                            && detail.assigned_to_cc_id == user().id
+                                            && mission.assigned_to_cc_id == user().id
                                             && !mission?.is_validated_by_cc
                                             && [2, 3, 4].includes(Number(detail?.score))
                                             && is('cc')" class="btn btn-warning has-icon" @click="edit(detail)">
-                                            <i class="las la-pen icon" />
+                                            <NLIcon name="edit" />
                                             Traiter
                                         </button>
 
@@ -139,26 +166,26 @@
                                             v-if="(mode == 5
                                                 && !(detail?.major_fact_is_detected_by_id == user().id)
                                                 && !mission?.is_validated_by_dcp
-                                                && mission.is_validated_by_cdcr
+                                                && mission.is_validated_by_cdc
                                                 && !detail?.major_fact_is_dispatched_at
                                                 && [2, 3, 4].includes(Number(detail?.score))
                                                 || (detail?.major_fact && !detail?.major_fact_is_dispatched_at && !(detail?.major_fact_is_detected_by_id == user().id) && [3, 4].includes(Number(detail?.score)))) && is('dcp')"
                                             class="btn btn-warning has-icon" @click="edit(detail)">
-                                            <i class="las la-pen icon" />
+                                            <NLIcon name="edit" />
                                             Traiter
                                         </button>
                                         <button
                                             v-if="mode == 5 && !detail?.major_fact_is_dispatched_at && detail?.major_fact && is('dcp')"
                                             class="btn btn-info has-icon" @click.prevent="notify(detail)">
-                                            <i class="las la-bell icon" />
+                                            <NLIcon name="notifications" />
                                             Notifier
                                         </button>
 
                                         <!-- Agency director -->
                                         <button
-                                            v-if="mission?.is_validated_by_dcp && !detail?.is_regularized && !detail?.major_fact && Number(detail?.score) !== 1 && is('da')"
+                                            v-if="mission?.is_validated_by_dcp && !detail?.reg_is_regularized && Number(detail?.score) !== 1 && is('da')"
                                             class="btn btn-warning has-icon" @click="regularize(detail)">
-                                            <i class="las la-check icon" />
+                                            <NLIcon name="done" />
                                             Régulariser
                                         </button>
                                     </NLFlex>
@@ -166,7 +193,6 @@
                             </NLGrid>
                         </div>
                     </div>
-
                 </NLColumn>
             </NLGrid>
         </NLContainer>
@@ -237,9 +263,7 @@ export default {
         initData(reloadAll = true) {
             this.close()
             const length = this.$breadcrumbs.value.length
-            if (reloadAll) {
-                this.$store.dispatch('settings/updatePageLoading', true)
-            }
+            this.$store.dispatch('settings/updatePageLoading', true)
             this.$store.dispatch('missions/fetchDetails', { missionId: this.$route.params.missionId, processId: this.$route.params.processId }).then(() => {
                 this.details = this.config.detailsConfig.details
                 this.mission = this.config.detailsConfig.mission
@@ -248,11 +272,25 @@ export default {
                 if (reloadAll) {
                     this.$breadcrumbs.value[ length - 1 ].label = this.process?.name
                     this.$breadcrumbs.value[ length - 3 ].label = 'Mission ' + this.mission?.reference
-                    this.$store.dispatch('settings/updatePageLoading', false)
+                }
+                this.$store.dispatch('settings/updatePageLoading', false)
+            })
+        },
+        /**
+         * Notify major fact
+         */
+        notify(row) {
+            this.$swal.confirm({ title: 'Notification fait majeur', message: 'Voulez-vous notifier les autorités concernées ?' }).then(action => {
+                if (action.isConfirmed) {
+                    this.$api.post('major-facts/' + row.id).then(response => {
+                        this.$swal.toast_success(response.data.message)
+                        this.initData()
+                    }).catch(error => {
+                        this.$swal.alert_error(error)
+                    })
                 }
             })
         },
-
         showDocumentation() {
             this.modals.processInformations = true
         },

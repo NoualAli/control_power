@@ -1,29 +1,26 @@
 <template>
-    <div v-if="can('view_process')">
-        <ContentHeader>
-            <template #actions>
-                <router-link v-if="can('create_process')" :to="{ name: 'processes-create' }" class="btn btn-info">
+    <ContentBody v-if="can('view_process')">
+        <NLDatatable :filters="filters" :columns="columns" :actions="actions" title="Liste des processus"
+            urlPrefix="processes" @edit="edit" @delete="destroy" :refresh="refresh" @dataLoaded="handleDataLoaded">
+            <!-- <template #actions-before="{ item }">
+                <a class="btn btn-office-excel" :href="'/excel-export?export=processes&id=' + item.id" target="_blank">
+                    <NLIcon name="table" />
+                </a>
+            </template> -->
+            <template #table-actions>
+                <router-link v-if="can('create_process')" :to="{ name: 'processes-create' }" class="btn has-icon">
+                    <NLIcon name="add" />
                     Ajouter
                 </router-link>
-                <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
-                    <i class="las la-file-excel icon" />
+                <!-- <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
+                    <NLIcon name="table" />
                     Exporter
-                </button>
+                </button> -->
             </template>
-        </ContentHeader>
-        <ContentBody>
-            <NLDatatable :columns="columns" :actions="actions" title="Liste des processus" urlPrefix="processes"
-                @edit="edit" @delete="destroy" :refresh="refresh" @dataLoaded="handleDataLoaded">
-                <template #actions-before="{ item }">
-                    <a class="btn btn-office-excel" :href="'/excel-export?export=processes&id=' + item.id" target="_blank">
-                        <i class="las la-file-excel icon" />
-                    </a>
-                </template>
-            </NLDatatable>
-            <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl"
-                @close="this.excelExportIsOpen = false" @success="this.excelExportIsOpen = false" />
-        </ContentBody>
-    </div>
+        </NLDatatable>
+        <!-- <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl"
+            @close="this.excelExportIsOpen = false" @success="this.excelExportIsOpen = false" /> -->
+    </ContentBody>
 </template>
 
 <script>
@@ -46,22 +43,42 @@ export default {
             columns: [
                 {
                     label: 'Famille',
-                    field: 'family_name'
+                    field: 'family',
+                    sortable: true
                 },
                 {
                     label: 'Domaine',
-                    field: 'domain_name'
+                    field: 'domain',
+                    sortable: true
                 },
                 {
-                    label: 'Nom',
-                    field: 'name',
+                    label: 'Processus',
+                    field: 'process',
                     sortable: true
                 },
                 {
                     label: 'Nombres de points de contrôle',
-                    field: 'control_points_count'
+                    field: 'control_points_count',
+                    sortable: true
                 }
             ],
+            filters: {
+                family: {
+                    label: 'Famille',
+                    name: 'family',
+                    multiple: true,
+                    data: null,
+                    value: null
+                },
+                domain: {
+                    label: 'Domaine',
+                    name: 'domain',
+                    multiple: true,
+                    data: null,
+                    value: null,
+                    dependsOn: 'family'
+                }
+            },
             actions: {
                 edit: (item) => {
                     return this.can('edit_process')
@@ -82,7 +99,7 @@ export default {
          * @param {Object} item
          */
         edit(item) {
-            this.$router.push({ name: 'processes-edit', params: { process: item.id } })
+            window.open(this.$router.resolve({ name: 'processes-edit', params: { process: item.id } }).href, '_blank')
         },
 
         /**
@@ -102,8 +119,7 @@ export default {
                     })
                 }
             }).catch(error => {
-                console.log(error)
-                this.$swal.alert_error()
+                this.$swal.catchError(error)
             })
         },
     }

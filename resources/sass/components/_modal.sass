@@ -1,8 +1,8 @@
-$modal-card-bg: $body-bg
+$modal-card-bg: $cream
 $modal-card-radius: 6px
 $modal-card-padding: 0 1.25rem
 $modal-card-shadows: 0px 1.2px 3.6px rgba(0, 0, 0, 0.11), 0px 6.4px 14.4px rgba(0, 0, 0, 0.13)
-$modal-overlay-bg: rgba(#242424, .5)
+$modal-overlay-bg: rgb(18, 87, 65, .4)
 $modal-header-height: 4rem
 $modal-footer-height: 4rem
 $modal-header-padding: 1rem
@@ -27,6 +27,7 @@ $modal-footer-padding: 1rem
             width: 100vw
             max-width: 100%
             height: 100vh
+            max-height: 100%
             transform: scale(0)
             transition: .2s ease-in-out
         & .modal-body
@@ -64,7 +65,7 @@ $modal-footer-padding: 1rem
         top: 0
         left: 0
         background-color: $modal-overlay-bg
-        height: 100%
+        height: 100vh
         width: 100%
         opacity: 0
         z-index: -1000
@@ -80,9 +81,13 @@ $modal-footer-padding: 1rem
         min-width: 648px
         max-width: 1024px
         margin: 0 auto
-        max-height: 100%
-        height: 95%
+        // max-height: 100%
+        // height: 95%
+        height: auto
+        min-height: 300px
+        max-height: 95%
         overflow-y: auto
+        overflow-x: visible
         z-index: 30
         transition: .2s ease-in-out
         background-color: $modal-card-bg
@@ -116,7 +121,8 @@ $modal-footer-padding: 1rem
             min-height: calc( 95% - ($modal-footer-height + $modal-header-height) )
             max-height: calc(100vh - ($modal-footer-height + $modal-header-height))
             height: auto
-            overflow: auto
+            overflow-y: auto
+            overflow-x: visible
             width: 100%
             padding: 1rem
         & .modal-footer

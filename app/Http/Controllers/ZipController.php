@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +34,7 @@ class ZipController extends Controller
     {
         $media = $this->getMedia($type, $id)->get();
         $mission = getMissions()->where('m.id', $id)->first();
-        $details = getMissionDetails()->where('mission_id', $id)->get();
+        $details = getMissionDetails()->where('md.mission_id', $id)->get();
         foreach ($details as $detail) {
             $detailMedia = $this->getMedia('MissionDetail', $detail->id)->get();
             if ($detailMedia->count()) {

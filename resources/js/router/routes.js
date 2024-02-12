@@ -22,7 +22,9 @@ export default [
         name: 'admin-dashboard',
         component: page('admin_dashboard.vue'),
         meta: {
-            breadcrumb: false
+            breadcrumb: {
+                label: 'Tableau de board'
+            }
         }
     },
 
@@ -120,7 +122,6 @@ export default [
         component: page('admin/roles/index.vue'),
         meta: {
             breadcrumb: {
-
                 label: 'Rôles'
             }
         }
@@ -207,7 +208,6 @@ export default [
         meta: {
             breadcrumb: {
                 label: 'Agences'
-
             }
         }
     },
@@ -243,7 +243,6 @@ export default [
         meta: {
             breadcrumb: {
                 label: 'Catégorie'
-
             }
         }
     },
@@ -279,7 +278,6 @@ export default [
         meta: {
             breadcrumb: {
                 label: 'Familles'
-
             }
         }
     },
@@ -315,7 +313,6 @@ export default [
         meta: {
             breadcrumb: {
                 label: 'Domaines'
-
             }
         }
     },
@@ -351,7 +348,6 @@ export default [
         meta: {
             breadcrumb: {
                 label: 'Processus'
-
             }
         }
     },
@@ -388,7 +384,6 @@ export default [
         meta: {
             breadcrumb: {
                 label: 'Points de contrôle'
-
             }
         }
     },
@@ -425,7 +420,6 @@ export default [
         meta: {
             breadcrumb: {
                 label: 'Champs'
-
             }
         }
     },
@@ -461,7 +455,7 @@ export default [
         component: page('campaigns/index.vue'),
         meta: {
             breadcrumb: {
-                label: 'Suivi du planning annuel'
+                label: 'Planning annuel'
             }
         }
     },
@@ -471,7 +465,7 @@ export default [
         component: page('campaigns/create.vue'),
         meta: {
             breadcrumb: {
-                label: 'Ajouter une nouvelle campagne de contrôle',
+                label: 'Nouvelle Campgne',
                 parent: 'campaigns'
             }
         }
@@ -493,8 +487,8 @@ export default [
         component: page('campaigns/edit.vue'),
         meta: {
             breadcrumb: {
-                label: 'Edition campagne de contrôle',
-                parent: 'campaign'
+                label: 'Edition campagne',
+                parent: 'campaigns',
             }
         }
     },
@@ -505,7 +499,7 @@ export default [
         meta: {
             breadcrumb: {
                 parent: 'campaign',
-                label: 'Missions'
+                label: 'Suivi des missions'
             }
         }
     },
@@ -528,7 +522,7 @@ export default [
         component: page('missions/index.vue'),
         meta: {
             breadcrumb: {
-                label: 'Missions'
+                label: 'Suivi des missions'
             }
         }
     },
@@ -539,7 +533,7 @@ export default [
         meta: {
             breadcrumb: {
                 parent: 'missions',
-                label: 'Répartition des missions de contrôle'
+                label: 'Répartition des missions'
             }
         }
     },
@@ -561,7 +555,7 @@ export default [
         meta: {
             breadcrumb: {
                 parent: 'missions',
-                label: 'Edition mission de contrôle'
+                label: 'Modification des informations de la mission'
             }
         }
     },
@@ -572,7 +566,7 @@ export default [
         meta: {
             breadcrumb: {
                 parent: 'mission',
-                label: ''
+                label: 'Détails de mission'
             }
         }
     },
@@ -586,7 +580,7 @@ export default [
         component: page('global/anomalies.vue'),
         meta: {
             breadcrumb: {
-                label: 'Anomalie • Notation • Plan de redressement',
+                label: 'Plans de redressement',
                 parent: ''
             }
         }
@@ -613,7 +607,7 @@ export default [
         component: page('reference/pcf.vue'),
         meta: {
             breadcrumb: {
-                label: 'Références PCF'
+                label: 'Références'
             }
         }
     },

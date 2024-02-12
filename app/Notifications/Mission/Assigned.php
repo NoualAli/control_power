@@ -41,13 +41,24 @@ class Assigned extends Notification
     }
 
     /**
+     * Get notification body
+     *
+     * @return string
+     */
+    private function getHtmlContent(): string
+    {
+        $content = "<p>Une nouvelle mission avec la référence <b>" . $this->mission->reference . "</b> pour l'agence <b>" . $this->mission->agency->full_name . "</b> vous a été assigné.<p>";
+        return $content;
+    }
+
+    /**
      * Get email subject
      *
      * @return string
      */
     private function getTitle(): string
     {
-        return 'ASSIGNATION DE MISSION - ' . env('APP_NAME');
+        return 'ASSIGNATION DE LA MISSION ' . $this->mission->reference . ' - ' . env('APP_NAME');
     }
 
     /**
@@ -88,13 +99,11 @@ class Assigned extends Notification
      */
     public function toMail($notifiable)
     {
-        $startLine = "La mission commence le " . $this->mission->start;
-        $endLine = "La mission se termine le " . $this->mission->end;
+        $startLine = "La mission commence le " . $this->mission->start  . " et se termine " . $this->mission->end;
         return (new MailMessage)
             ->subject($this->getTitle())
             ->line($this->getContent())
             ->line($startLine)
-            ->line($endLine)
             ->action('Voir la mission', $this->getUrl())
             ->line('Merci d\'utiliser ControlPower')
             ->success();
@@ -112,6 +121,7 @@ class Assigned extends Notification
             'id' => $this->mission->id,
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
+            'short_content' => $this->getHtmlContent(),
             'title' => $this->getTitle(),
             'emitted_by' => auth()->user()->username,
         ];

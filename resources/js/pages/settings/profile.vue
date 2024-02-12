@@ -53,13 +53,14 @@
 
                 <!-- Password -->
                 <NLColumn lg="4" md="4">
-                    <NLInput v-model="passwordForm.password" :form="passwordForm" label="Mot de passe" name="password"
-                        type="password" label-required />
+                    <NLInput v-model="passwordForm.new_password" :form="passwordForm" label="Nouveau mot de passe"
+                        name="new_password" type="password" label-required />
                 </NLColumn>
                 <!-- Password Confirmation -->
                 <NLColumn lg="4" md="4">
-                    <NLInput v-model="passwordForm.password_confirmation" :form="passwordForm"
-                        label="Confirmation mot de passe" name="password_confirmation" type="password" label-required />
+                    <NLInput v-model="passwordForm.new_password_confirmation" :form="passwordForm"
+                        label="Confirmation du nouveau mot de passe" name="new_password_confirmation" type="password"
+                        label-required />
                 </NLColumn>
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
@@ -97,9 +98,9 @@ export default {
                 last_name: ''
             }),
             passwordForm: new Form({
-                password: '',
+                new_password: '',
                 current_password: '',
-                password_confirmation: ''
+                new_password_confirmation: ''
             }),
 
             columns: [
@@ -155,7 +156,7 @@ export default {
                     this.$swal.alert_error(response.data.message)
                 }
             }).catch(error => {
-                console.log(error)
+                this.$swal.catchError(error)
             })
         },
         updatePassword() {
@@ -167,7 +168,7 @@ export default {
                     this.$swal.alert_error(response.data.message)
                 }
             }).catch(error => {
-                console.log(error)
+                this.$swal.catchError(error)
             })
         }
     }

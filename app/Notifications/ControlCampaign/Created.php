@@ -65,7 +65,7 @@ class Created extends Notification
      */
     private function getTitle($notifiable): string
     {
-        return  hasRole('cdcr', $notifiable) && $this->campaign?->validated_at ? 'VALIDATION DE LA CAMPAGNE DE CONTRÔLE ' . $this->campaign->reference . ' - ' . env('APP_NAME') : 'CRÉATION D\'UNE NOUVELLE CAMPAGNE DE CONTRÔLE ' . $this->campaign->reference . ' - ' . env('APP_NAME');
+        return  hasRole('cdcr', $notifiable) && $this->campaign?->validated_at ? 'VALIDATION DE LA CAMPAGNE DE CONTRÔLE ' . $this->campaign->reference . ' - ' . env('APP_NAME') : 'PLANIFICATION D\'UNE NOUVELLE CAMPAGNE DE CONTRÔLE ' . $this->campaign->reference . ' - ' . env('APP_NAME');
     }
 
     /**
@@ -75,7 +75,7 @@ class Created extends Notification
      */
     private function getHtmlContent($notifiable): string
     {
-        return hasRole('cdcr', $notifiable) && $this->campaign?->validated_at ? 'Nous vous informons que la campagne de contrôle avec la référence <b>' . $this->campaign->reference . '</b> vient d\'être validé' : 'Nous vous informons qu\'une nouvelle campagne de contrôle avec la référence <b>' . $this->campaign->reference . '</b> vient d\'être créer';
+        return hasRole('cdcr', $notifiable) && $this->campaign?->validated_at ? '<p>Nous vous informons que la campagne de contrôle avec la référence <b>' . $this->campaign->reference . '</b> vient d\'être validé.</p>' : '<p>Nous vous informons qu\'une nouvelle campagne de contrôle avec la référence <b>' . $this->campaign->reference . '</b> vient d\'être planifiée.</p>';
     }
 
     /**
@@ -85,7 +85,7 @@ class Created extends Notification
      */
     private function getContent($notifiable): string
     {
-        return hasRole('cdcr', $notifiable) && $this->campaign?->validated_at ? 'Nous vous informons que la campagne de contrôle avec la référence ' . $this->campaign->reference . ' vient d\'être validé' : 'Nous vous informons qu\'une nouvelle campagne de contrôle avec la référence ' . $this->campaign->reference . ' vient d\'être créer';
+        return hasRole('cdcr', $notifiable) && $this->campaign?->validated_at ? 'Nous vous informons que la campagne de contrôle avec la référence ' . $this->campaign->reference . ' vient d\'être validé' : 'Nous vous informons qu\'une nouvelle campagne de contrôle avec la référence ' . $this->campaign->reference . ' vient d\'être planifiée';
     }
 
     /**
@@ -99,13 +99,13 @@ class Created extends Notification
         $startingSuffix = $this->campaign->remaining_days_before_start > 1 ? ' jours' : ' jour';
         $endingSuffix = $this->campaign->remaining_days_before_end > 1 ? ' jours' : ' jour';
         $startingLine = 'La campagne débutera le ' . $this->campaign->start_date . ' dans exactement ' . $this->campaign->remaining_days_before_start . $startingSuffix;
-        $endingLine = 'La campagne se terminera le ' . $this->campaign->end_date . ' dans exactement ' . $this->campaign->remaining_days_before_end . $endingSuffix;
+        $endingLine = ' et se terminera le ' . $this->campaign->end_date . ' dans exactement ' . $this->campaign->remaining_days_before_end . $endingSuffix;
+        $startingLine .= $endingLine;
 
         return (new MailMessage)
             ->subject($this->getTitle($notifiable))
             ->line($this->getContent($notifiable))
             ->line($startingLine)
-            ->line($endingLine)
             ->line('Pour plus de détails veuillez cliquer sur le lien ci-dessous')
             ->action('Voir la campagne de contrôle', $this->getUrl())
             ->line('Merci d\'utiliser ControlPower!')

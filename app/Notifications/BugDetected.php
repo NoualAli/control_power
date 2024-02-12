@@ -71,7 +71,7 @@ class BugDetected extends Notification
      */
     private function getHtmlContent($notifiable): string
     {
-        return 'Nous vous informons qu\'un bug avec la référence <b>' . $this->bug->reference . '</b> de type <b>' . $this->bug->type . '</b> avec une priorité <b>' . $this->bug->priority_str . '</b> vient d\'être signalé';
+        return '<p>Nous vous informons qu\'un bug avec la référence <b>' . $this->bug->reference . '</b> de type <b>' . $this->bug->type . '</b> avec une priorité <b>' . $this->bug->priority_str . '</b> vient d\'être signalé.</p>';
     }
 
     /**

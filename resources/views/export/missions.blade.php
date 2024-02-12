@@ -20,16 +20,25 @@
                 <th>DRE</th>
                 <th>Agence</th>
                 <th>Créateur</th>
+                <th>Contrôleur</th>
                 <th>Validateur (CI)</th>
                 <th>Validateur (CDC)</th>
-                <th>Temps de validation (CI - CDC)</th>
+                @if (hasRole(['cdrcp', 'dcp', 'cdcr', 'cc']))
+                    <th>Temps de validation (CI - CDC)</th>
+                @endif
                 <th>Validateur (CC)</th>
                 <th>Validateur (CDCR)</th>
-                <th>Temps de validation (CDC - CDCR)</th>
+                @if (hasRole(['cdrcp', 'dcp', 'cdcr', 'cc']))
+                    <th>Temps de validation (CDC - CDCR)</th>
+                @endif
                 <th>Validateur (DCP)</th>
-                <th>Temps de validation (CDCR - DCP)</th>
+                @if (hasRole(['cdrcp', 'dcp', 'cdcr', 'cc']))
+                    <th>Temps de validation (CDCR - DCP)</th>
+                @endif
                 <th>Validateur (DA)</th>
-                <th>Temps de validation (DCP - DA)</th>
+                @if (hasRole(['cdrcp', 'dcp', 'cdcr', 'cc']))
+                    <th>Temps de validation (DCP - DA)</th>
+                @endif
                 <th>Moyenne</th>
                 <th>Total points de contrôle</th>
                 <th>Total points de contrôle (contrôlés)</th>
@@ -38,54 +47,73 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($missions as $mission)
-                <tr>
-                    <td>{{ $mission?->reference }}</td>
-                    <td>{{ $mission?->campaign }}</td>
-                    <td>{{ $mission?->dre }}</td>
-                    <td>{{ $mission?->agency }}</td>
-                    <td>{{ $mission?->creator_full_name }}</td>
-                    <td>{{ $mission?->ci_validator_full_name }}</td>
-                    <td>{{ $mission?->cdc_validator_full_name }}</td>
-                    @if (!empty($mission?->time_left_ci_cdc))
+            @if ($missions)
+                @foreach ($missions as $mission)
+                    <tr>
+                        <td>{{ $mission?->reference }}</td>
+                        <td>{{ $mission?->campaign }}</td>
+                        <td>{{ $mission?->dre }}</td>
+                        <td>{{ $mission?->agency }}</td>
+                        <td>{{ $mission?->creator_full_name }}</td>
+                        <td>{{ $mission?->dre_controller_full_name }}</td>
+                        <td>{{ $mission?->ci_validator_full_name ?: '-' }}</td>
+                        <td>{{ $mission?->cdc_validator_full_name ?: '-' }}</td>
+                        @if (hasRole(['cdrcp', 'dcp', 'cdcr', 'cc']))
+                            @if (!empty($mission?->time_left_ci_cdc))
+                                <td>
+                                    {{ $mission?->time_left_ci_cdc > 1 ? $mission?->time_left_ci_cdc . ' jours' : $mission?->time_left_ci_cdc . ' jour' }}
+                                </td>
+                            @else
+                                <td>-</td>
+                            @endif
+                        @endif
                         <td>
-                            {{ $mission?->time_left_ci_cdc > 1 ? $mission?->time_left_ci_cdc . ' jours' : $mission?->time_left_ci_cdc . ' jour' }}
+                            {{ !empty($mission?->cc_validator_full_name) ? $mission?->cc_validator_full_name : '-' }}
                         </td>
-                    @else
-                        <td>-</td>
-                    @endif
-                    <td>{{ $mission?->cc_validator_full_name }}</td>
-                    <td>{{ $mission?->cdcr_validator_full_name }}</td>
-                    @if (!empty($mission?->time_left_cdc_cdcr))
                         <td>
-                            {{ $mission?->time_left_cdc_cdcr > 1 ? $mission?->time_left_cdc_cdcr . ' jours' : $mission?->time_left_cdc_cdcr . ' jour' }}
+                            {{ !empty($mission?->cdcr_validator_full_name) ? $mission?->cdcr_validator_full_name : '-' }}
                         </td>
-                    @else
-                        <td>-</td>
-                    @endif
-                    <td>{{ $mission?->dcp_validator_full_name }}</td>
-                    @if (!empty($mission?->time_left_cdcr_dcp))
+                        @if (hasRole(['cdrcp', 'dcp', 'cdcr', 'cc']))
+                            @if (!empty($mission?->time_left_cdc_cdcr))
+                                <td>
+                                    {{ $mission?->time_left_cdc_cdcr > 1 ? $mission?->time_left_cdc_cdcr . ' jours' : $mission?->time_left_cdc_cdcr . ' jour' }}
+                                </td>
+                            @else
+                                <td>-</td>
+                            @endif
+                        @endif
                         <td>
-                            {{ $mission?->time_left_cdcr_dcp > 1 ? $mission?->time_left_cdcr_dcp . ' jours' : $mission?->time_left_cdcr_dcp . ' jour' }}
+                            {{ !empty($mission?->dcp_validator_full_name) ? $mission?->dcp_validator_full_name : '-' }}
                         </td>
-                    @else
-                        <td>-</td>
-                    @endif
-                    <td>{{ $mission?->da_validator_full_name }}</td>
-                    @if (!empty($mission?->time_left_dcp_da))
+                        @if (hasRole(['cdrcp', 'dcp', 'cdcr', 'cc']))
+                            @if (!empty($mission?->time_left_cdcr_dcp))
+                                <td>
+                                    {{ $mission?->time_left_cdcr_dcp > 1 ? $mission?->time_left_cdcr_dcp . ' jours' : $mission?->time_left_cdcr_dcp . ' jour' }}
+                                </td>
+                            @else
+                                <td>-</td>
+                            @endif
+                        @endif
                         <td>
-                            {{ $mission?->time_left_dcp_da > 1 ? $mission?->time_left_dcp_da . ' jours' : $mission?->time_left_dcp_da . ' jour' }}
+                            {{ !empty($mission?->da_validator_full_name) ? $mission?->da_validator_full_name : '-' }}
                         </td>
-                    @else
-                        <td>-</td>
-                    @endif
-                    <td>{{ $mission?->avg_score }}</td>
-                    <td>{{ $mission?->total_md }}</td>
-                    <td>{{ $mission?->total_controlled_md }}</td>
-                    <td>{{ $mission?->progress_rate }}%</td>
-                    <td>{{ translateMissionState($mission?->current_state) }}</td>
-                </tr>
-            @endforeach
+                        @if (hasRole(['cdrcp', 'dcp', 'cdcr', 'cc']))
+                            @if (!empty($mission?->time_left_dcp_da))
+                                <td>
+                                    {{ $mission?->time_left_dcp_da > 1 ? $mission?->time_left_dcp_da . ' jours' : $mission?->time_left_dcp_da . ' jour' }}
+                                </td>
+                            @else
+                                <td>-</td>
+                            @endif
+                        @endif
+                        <td>{{ $mission?->avg_score }}</td>
+                        <td>{{ $mission?->total_md }}</td>
+                        <td>{{ $mission?->total_controlled_md }}</td>
+                        <td>{{ $mission?->progress_rate }}%</td>
+                        <td>{{ translateMissionState($mission?->current_state) }}</td>
+                    </tr>
+                @endforeach
+            @endif
         </tbody>
     </table>
 </body>

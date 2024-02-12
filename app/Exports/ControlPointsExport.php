@@ -2,6 +2,9 @@
 
 namespace App\Exports;
 
+use App\Enums\EventLogTypes;
+use App\Models\ControlPoint;
+use App\Models\EventLog;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
@@ -23,6 +26,7 @@ class ControlPointsExport extends BaseExport implements FromView, WithProperties
 
     public function view(): View
     {
+        EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => ControlPoint::class]);
         $controlPoints = $this->data;
         return view('export.control_points', compact('controlPoints'));
     }

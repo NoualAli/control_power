@@ -14,7 +14,7 @@
 $app = new Illuminate\Foundation\Application(
     $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
 );
-
+$app->loadEnvironmentFrom('.ec69008394c5046c2cd04dd83d0fa8f565bb53f6635f88409d566786708cbbed');
 /*
 |--------------------------------------------------------------------------
 | Bind Important Interfaces

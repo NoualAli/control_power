@@ -1,12 +1,12 @@
 <template>
     <div>
         <ContentHeader>
-            <template #actions>
+            <template #right-actions>
                 <router-link :to="{ name: 'bugs-create' }" class="btn btn-info">
                     Signaler un bug
                 </router-link>
                 <button class="btn btn-office-excel has-icon" @click="openExcelExport">
-                    <i class="las la-file-excel icon" />
+                    <NLIcon name="table" />
                     Exporter
                 </button>
             </template>

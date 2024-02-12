@@ -3,7 +3,7 @@ $form-radius: 5px
 // Inputs
 $input-padding: 10px
 $input-border-radius: 4px
-$input-border: 2px solid $primary
+$input-border: 1px solid $primary
 $input-bgc: $white
 $input-font-size: 12px
 $input-inset-shadow: inset 0 0.0625em 0.125em rgb(10 10 10 / 5%)
@@ -34,6 +34,9 @@ form
     max-width: 100vw
     height: auto
     margin: 0 !important
+    &::selection
+        color: $white
+        background-color: $primary !important
     // height: calc(100% - 3.2rem)
 .select
     &.vue-treeselect--disabled
@@ -55,40 +58,13 @@ form
             box-shadow: $input-inset-shadow, $input-shadow
             transition: .1s ease
             color: $input-color
+            &:focus,&:hover
+                box-shadow: 0 0 0 0.125em rgba($primary,.25)
         @each $color in $colors-list
             &.is-#{nth($color, 1)}
                 & .vue-treeselect__control
-                    border: 2px solid lighten(nth($color, 2), 10%) !important
-// .vue-treeselect__x-container
-//     display: none !important
+                    border: 1px solid lighten(nth($color, 2), 10%) !important
 
-.nl-select
-    position: relative
-    // margin: 1rem 0
-    outline: none
-    width: 100%
-    padding: $input-padding
-    border: $input-border !important
-    border-radius: $input-border-radius
-    background-color: $white
-    font-size: $input-font-size
-    box-shadow: $input-inset-shadow, $input-shadow
-    transition: .1s ease
-    color: $input-color
-    &:focus
-        background-color: $primary
-        color: $white
-        & option
-            background-color: $input-bgc
-            color: $input-color
-    @each $color in $colors-list
-        &.is-#{nth($color, 1)}
-            border-color: lighten(nth($color, 2), 10%)
-            &:hover
-                border-color: nth($color, 2)
-            &:focus
-                background-color: nth($color, 2)
-                color: $white
 .quillWrapper
     background-color: $white !important
     color: $input-color !important
@@ -121,10 +97,13 @@ form
     box-shadow: $input-inset-shadow, $input-shadow
     transition: .1s ease
     color: $input-color
+    caret-color: $primary
     &.is-for-auth
         border-radius: 0 !important
         border: none
         border-left: 3px solid $primary
+        &:focus,&:hover
+            box-shadow: none
         & + .show-password-btn
             border: none !important
     &:is(textarea)
@@ -141,9 +120,14 @@ form
         cursor: not-allowed
         &::placeholder
             color: $input-disabled-color
+    &:focus,&:hover
+        box-shadow: 0 0 0 0.125em rgba($primary,.25)
     @each $color in $colors-list
         &.is-#{nth($color, 1)}
             border-color: lighten(nth($color, 2), 10%)
+            caret-color: nth($color, 2)
+            &:focus
+                box-shadow: 0 0 0 0.125em rgba(nth($color, 2),.25)
             &:hover
                 border-color: nth($color, 2)
 
@@ -245,14 +229,13 @@ form
     position: relative
     & .show-password-btn
         cursor: pointer
-        padding: $input-padding
-        font-size: $input-font-size
-        height: 100%
-        width: 36px
+        // padding: 0 !important
+        // height: 100%
+        // width: 36px
         display: flex
         justify-content: center
         align-content: center
-        padding: $input-padding
+        padding: calc( $input-padding - .3rem)
         border: $input-border
         border-left: none
         background-color: $white
@@ -299,10 +282,13 @@ form
     height: 25px
     border-radius: 5px
     background-color: $white
-    box-shadow: 0.5px 1px 2.2px rgba(0, 0, 0, 0.008),1.1px 2.4px 5.3px rgba(0, 0, 0, 0.012),2.1px 4.5px 10px rgba(0, 0, 0, 0.015),3.8px 8px 17.9px rgba(0, 0, 0, 0.018),7.1px 15px 33.4px rgba(0, 0, 0, 0.022),17px 36px 80px rgba(0, 0, 0, 0.03)
+    // box-shadow: 0.5px 1px 2.2px rgba(0, 0, 0, 0.008),1.1px 2.4px 5.3px rgba(0, 0, 0, 0.012),2.1px 4.5px 10px rgba(0, 0, 0, 0.015),3.8px 8px 17.9px rgba(0, 0, 0, 0.018),7.1px 15px 33.4px rgba(0, 0, 0, 0.022),17px 36px 80px rgba(0, 0, 0, 0.03)
     border: 1px solid $primary
     cursor: pointer
     transition: .2s ease-in-out
+    &:hover
+        &::after
+            box-shadow: 0.5px 1px 2.2px rgba(0, 0, 0, 0.008),1.1px 2.4px 5.3px rgba(0, 0, 0, 0.012),2.1px 4.5px 10px rgba(0, 0, 0, 0.015),3.8px 8px 17.9px rgba(0, 0, 0, 0.018),7.1px 15px 33.4px rgba(0, 0, 0, 0.022),17px 36px 80px rgba(0, 0, 0, 0.03)
     &::after
         content: attr(data-false-label)
         position: absolute
@@ -313,7 +299,7 @@ form
         width: 35px
         border-radius: 5px
         background-color: $white
-        box-shadow: 0.5px 1px 2.2px rgba(0, 0, 0, 0.034),1.1px 2.4px 5.3px rgba(0, 0, 0, 0.048),2.1px 4.5px 10px rgba(0, 0, 0, 0.06),3.8px 8px 17.9px rgba(0, 0, 0, 0.072),7.1px 15px 33.4px rgba(0, 0, 0, 0.086), 17px 36px 80px rgba(0, 0, 0, 0.12)
+        // box-shadow: 0.5px 1px 2.2px rgba(0, 0, 0, 0.034),1.1px 2.4px 5.3px rgba(0, 0, 0, 0.048),2.1px 4.5px 10px rgba(0, 0, 0, 0.06),3.8px 8px 17.9px rgba(0, 0, 0, 0.072),7.1px 15px 33.4px rgba(0, 0, 0, 0.086), 17px 36px 80px rgba(0, 0, 0, 0.12)
         border: 1px solid $primary
         display: flex
         justify-content: center
@@ -321,26 +307,27 @@ form
         transition: .2s ease-in-out
     @each $color in $colors-list
         &.is-#{nth($color, 1)}
-            box-shadow: 0.5px 1px 2.2px rgba(nth($color, 2), 0.008),1.1px 2.4px 5.3px rgba(nth($color, 2), 0.012),2.1px 4.5px 10px rgba(nth($color, 2), 0.015),3.8px 8px 17.9px rgba(nth($color, 2), 0.018),7.1px 15px 33.4px rgba(nth($color, 2), 0.022),17px 36px 80px rgba(nth($color, 2), 0.03)
             border: 1px solid nth($color, 2)
             &::after
-                box-shadow: 0.5px 1px 2.2px rgba(nth($color, 2), 0.034),1.1px 2.4px 5.3px rgba(nth($color, 2), 0.048),2.1px 4.5px 10px rgba(nth($color, 2), 0.06),3.8px 8px 17.9px rgba(nth($color, 2), 0.072),7.1px 15px 33.4px rgba(nth($color, 2), 0.086), 17px 36px 80px rgba(nth($color, 2), 0.12)
                 border: 1px solid nth($color, 2)
+            &:hover
+                &::after
+                    box-shadow: 0.5px 1px 2.2px rgba(nth($color, 2), 0.034),1.1px 2.4px 5.3px rgba(nth($color, 2), 0.048),2.1px 4.5px 10px rgba(nth($color, 2), 0.06),3.8px 8px 17.9px rgba(nth($color, 2), 0.072),7.1px 15px 33.4px rgba(nth($color, 2), 0.086), 17px 36px 80px rgba(nth($color, 2), 0.12)
 .switch-input:checked ~ .switch
-    background-color: $success
+    background-color: rgba($success, .5)
     border: 1px solid $success
     &::after
         content: attr(data-true-label)
         color: $success
         left: 35px
-        box-shadow: 0.5px 1px 2.2px rgba($success, 0.034),1.1px 2.4px 5.3px rgba($success, 0.048),2.1px 4.5px 10px rgba($success, 0.06),3.8px 8px 17.9px rgba($success, 0.072),7.1px 15px 33.4px rgba($success, 0.086), 17px 36px 80px rgba($success, 0.12)
+        // box-shadow: 0.5px 1px 2.2px rgba($success, 0.034),1.1px 2.4px 5.3px rgba($success, 0.048),2.1px 4.5px 10px rgba($success, 0.06),3.8px 8px 17.9px rgba($success, 0.072),7.1px 15px 33.4px rgba($success, 0.086), 17px 36px 80px rgba($success, 0.12)
         border: 1px solid $success
     @each $color in $colors-list
         &.is-#{nth($color, 1)}
-            background-color: nth($color, 2)
+            background-color: rgba(nth($color, 2), .5)
             border: 1px solid nth($color, 2)
             &::after
-                box-shadow: 0.5px 1px 2.2px rgba(nth($color, 2), 0.034),1.1px 2.4px 5.3px rgba(nth($color, 2), 0.048),2.1px 4.5px 10px rgba(nth($color, 2), 0.06),3.8px 8px 17.9px rgba(nth($color, 2), 0.072),7.1px 15px 33.4px rgba(nth($color, 2), 0.086), 17px 36px 80px rgba(nth($color, 2), 0.12)
+                // box-shadow: 0.5px 1px 2.2px rgba(nth($color, 2), 0.034),1.1px 2.4px 5.3px rgba(nth($color, 2), 0.048),2.1px 4.5px 10px rgba(nth($color, 2), 0.06),3.8px 8px 17.9px rgba(nth($color, 2), 0.072),7.1px 15px 33.4px rgba(nth($color, 2), 0.086), 17px 36px 80px rgba(nth($color, 2), 0.12)
                 border: 1px solid nth($color, 2)
                 color: nth($color, 2)
 
@@ -353,18 +340,19 @@ form
     align-items: center
     margin: 1rem 0
     outline: none
-    width: 100% !important
-    height: 100% !important
-    min-height: 200px
+    width: 100%
+    height: 78px
+    // min-height: 200px
     padding: $input-padding
     border: $input-border
     border-radius: $input-border-radius
-    background-color: lighten($primary-light, 75)
+    background-color: transparent
     font-size: $input-font-size
     box-shadow: $input-inset-shadow, $input-shadow
     transition: .1s ease
     color: $input-color
     overflow-y: auto
+    font-size: 12px
     &.is-flat
         padding: 0
         border: none
@@ -376,34 +364,73 @@ form
             &:hover
                 border-color: nth($color, 2)
     &.is-readonly
-        height: auto !important
+        min-height: 100px
+        height: auto
+    &.is-dragging
+        box-shadow: none
+        border: none
+        background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='4' ry='4' stroke='black' stroke-width='1' stroke-dasharray='6%2c 14' stroke-dashoffset='2' stroke-linecap='square'/%3e%3c/svg%3e")
+        & .file-uploader
+            opacity: .5
     &.has-files
         display: block
         & .files-list
             display: block
 
 .files-list
-    display: none
+    display: flex
+    justify-content: start
+    align-items: center
+    flex-wrap: wrap
+    gap: 1rem
     width: 100%
     height: auto
-    cursor: auto
     &.is-visible
         display: block
+    &.is-readonly
+        margin: 1rem 0
     & .delete-btn
         cursor: pointer
     & .list-file-item
-        background-color: rgba($primary-extra-light, .8)
-        padding: 6px 12px
+        position: relative
+        width: 250px
+        background-color: $white
+        padding: .5rem 1rem
         font-size: 14px
-        border-radius: 3px
+        border-radius: $input-border-radius
         display: flex
         align-items: center
         justify-content: space-between
         box-shadow: 0 1px 3px rgba(0, 0, 0, .1),0 1px 2px 0 rgba(0, 0, 0, .06)
         transition: .2s ease
+        &.file-progress-overlay
+            &::after
+                content: attr(data-progress)
+                position: absolute
+                top: 0
+                left: 0
+                width: 100%
+                height: 100%
+                border-radius: $input-border-radius
+                background-color: rgba($primary, .8)
+                color: $white
+                font-weight: bold
+                display: flex
+                align-items: center
+                justify-content: center
         &:hover
-            background-color: $primary-extra-light
+            background-color: $primary
+            & .file_name_link
+                color: $white
+                & .icon
+                    color: $white
+                &:hover
+                    color: $white
         & .file_name_link
+            display: flex
+            justify-content: start
+            align-items: center
+            gap: .3rem
             color: $primary-light
             transition: .2s ease
             &:hover
@@ -413,6 +440,7 @@ form
     display: flex
     justify-content: center
     align-items: center
+    flex-direction: column
     gap: .5rem
     z-index: 10
     cursor: pointer

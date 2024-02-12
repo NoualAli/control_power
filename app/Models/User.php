@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
@@ -81,6 +82,7 @@ class User extends Authenticatable implements JWTSubject
     protected $appends = [
         'full_name',
         'abbreviated_name',
+        'abbreviated_name_with_martial',
         'dres_str',
         'gender_str',
         'martial_status',
@@ -94,6 +96,37 @@ class User extends Authenticatable implements JWTSubject
     /**
      * Getters
      */
+    public function getMissionDetailsAttribute()
+    {
+        if (hasRole('ci', $this)) {
+            $column = 'assigned_to_ci_id';
+        } elseif (hasRole('cc', $this)) {
+            $column = 'assigned_to_cc_id';
+        }
+        $details = DB::table('mission_details as md')
+            ->select(['md.*'])
+            ->leftJoin('missions as m', 'm.id', 'md.mission_id');
+
+        if (hasRole(['ci', 'cc'])) {
+            $details = $details->leftJoin('users as u', 'u.id', 'md.' . $column)->whereNotNull('md.' . $column);
+            $details = $details->whereNotNull('m.' . $column);
+        }
+
+        if (hasRole(['ci', 'cc'])) {
+            $details = $details->where(function ($query) {
+                $column = '';
+                if (hasRole('ci', $this)) {
+                    $column = 'assigned_to_ci_id';
+                } elseif (hasRole('cc', $this)) {
+                    $column = 'assigned_to_cc_id';
+                }
+                $query->where('m.' . $column, $this->id)->orWhere('md.' . $column, $this->id);
+            });
+        }
+
+        $details = $details->get()->flatten();
+        return $details;
+    }
     public function getIsForTestingStrAttribute()
     {
         return $this->is_for_testing ? 'Oui' : 'Non';
@@ -111,7 +144,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function getMartialStatusAttribute()
     {
-        return $this->gender == 1 ? 'Mr' : 'Mme';
+        return $this->gender == 1 ? 'M' : 'Mme';
     }
 
     public function getAuthorizationsAttribute()
@@ -125,11 +158,15 @@ class User extends Authenticatable implements JWTSubject
 
     public function getPermissionsArrAttribute()
     {
-        return $this->roles->pluck('permissions')->flatten()->pluck('code')->toArray();
+        return $this->role->permissions->pluck('code')->toArray();
     }
     public function getAbbreviatedNameAttribute()
     {
         return $this->first_name && $this->last_name ? substr(strtoupper($this->first_name), 0, 1) . '.' . strtoupper($this->last_name) : $this->full_name;
+    }
+    public function getAbbreviatedNameWithMartialAttribute()
+    {
+        return $this->first_name && $this->last_name ? $this->martial_status . substr(strtoupper($this->first_name), 0, 1) . '.' . strtoupper($this->last_name) : $this->full_name_with_martial;
     }
     public function getFullNameAttribute()
     {
@@ -189,10 +226,9 @@ class User extends Authenticatable implements JWTSubject
         if (hasRole('cdc')) {
             return $this->hasMany(Mission::class, 'created_by_id');
         } elseif (hasRole('ci')) {
-            return $this->belongsToMany(Mission::class, 'mission_has_controllers');
+            return $this->belongsTo(Mission::class, 'assigned_to_ci_id');
         } elseif (hasRole('cc')) {
-            return Mission::whereRelation('details', 'assigned_to_cc_id', $this->id)->distinct();
-            return $this->hasManyThrough(Mission::class, MissionDetail::class, 'mission_details.assigned_to_cc_id', 'missions.id', 'users.id', 'mission_details.mission_id')->distinct('id');
+            return $this->belongsTo(Mission::class, 'assigned_to_cc_id');
         } elseif (hasRole(['da', 'dre'])) {
             return $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->missions());
         }
@@ -203,32 +239,32 @@ class User extends Authenticatable implements JWTSubject
         if (hasRole(['dcp', 'cdcr'])) {
             return $this->hasMany(ControlCampaign::class, 'created_by_id');
         } elseif (hasRole(['ci', 'cc'])) {
-            return ControlCampaign::whereIn('id', function ($query) {
-                $query->select('control_campaigns.id')
-                    ->from('control_campaigns')
-                    ->join('missions', 'missions.control_campaign_id', '=', 'control_campaigns.id')
-                    ->join('mission_has_controllers', 'mission_has_controllers.mission_id', '=', 'missions.id')
-                    ->where('mission_has_controllers.user_id', '=', $this->id);
-            })->groupBy('control_campaigns.id', 'control_campaigns.description', 'control_campaigns.start', 'control_campaigns.end', 'control_campaigns.reference', 'control_campaigns.created_by_id', 'control_campaigns.validated_by_id', 'control_campaigns.validated_at', 'control_campaigns.created_at', 'control_campaigns.updated_at', 'control_campaigns.deleted_at')->distinct();
+            // return ControlCampaign::whereIn('id', function ($query) {
+            //     $query->select('control_campaigns.id')
+            //         ->from('control_campaigns')
+            //         ->join('missions', 'missions.control_campaign_id', '=', 'control_campaigns.id')
+            //         ->join('mission_has_controllers', 'mission_has_controllers.mission_id', '=', 'missions.id')
+            //         ->where('mission_has_controllers.user_id', '=', $this->id);
+            // })->groupBy('control_campaigns.id', 'control_campaigns.description', 'control_campaigns.start', 'control_campaigns.end', 'control_campaigns.reference', 'control_campaigns.created_by_id', 'control_campaigns.validated_by_id', 'control_campaigns.validated_at', 'control_campaigns.created_at', 'control_campaigns.updated_at', 'control_campaigns.deleted_at')->distinct();
         }
     }
 
-    public function details(User $user = null)
-    {
-        try {
-            if (hasRole('ci', $user)) {
-                return $this->hasManyDeep(MissionDetail::class, [MissionHasController::class, Mission::class]);
-            } else if (hasRole('cc', $user)) {
-                return $this->hasMany(MissionDetail::class, 'assigned_to_cc_id');
-            } elseif (hasRole('cdc', $user)) {
-                return $this->hasManyDeep(MissionDetail::class, [Mission::class], ['created_by_id']);
-            } elseif (hasRole(['da', 'dre'], $user)) {
-                return $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->details());
-            }
-        } catch (\Throwable $th) {
-            dd($th->getMessage());
-        }
-    }
+    // public function details(User $user = null)
+    // {
+    //     try {
+    //         if (hasRole('ci', $user)) {
+    //             return $this->hasManyThrough(MissionDetail::class, Mission::class, 'assigned_to_ci_id');
+    //         } else if (hasRole('cc', $user)) {
+    //             return $this->hasManyThrough(MissionDetail::class, Mission::class, 'assigned_to_cc_id');
+    //         } elseif (hasRole('cdc', $user)) {
+    //             return $this->hasManyDeep(MissionDetail::class, [Mission::class], ['created_by_id']);
+    //         } elseif (hasRole(['da', 'dre'], $user)) {
+    //             return $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->details());
+    //         }
+    //     } catch (\Throwable $th) {
+    //         dd($th->getMessage());
+    //     }
+    // }
 
     public function majorFacts()
     {

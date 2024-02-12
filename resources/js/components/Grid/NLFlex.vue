@@ -1,6 +1,6 @@
 <template>
     <div class="d-flex"
-        :class="[gapPrefixed, fullCenter, getFormatedJustifyContent, getFormatedAlignItems, getFormatedDirection, extraClass]">
+        :class="{ 'is-wrap': wrap }, [gapPrefixed, fullCenter, getFormatedJustifyContent, getFormatedAlignItems, getFormatedDirection, extraClass]">
         <slot></slot>
     </div>
 </template >
@@ -9,6 +9,10 @@
 export default {
     name: 'NLFlex',
     props: {
+        wrap: {
+            type: Boolean,
+            default: false,
+        },
         extraClass: {
             type: String,
             required: false,

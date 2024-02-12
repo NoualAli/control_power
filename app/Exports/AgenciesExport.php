@@ -2,6 +2,9 @@
 
 namespace App\Exports;
 
+use App\Enums\EventLogTypes;
+use App\Models\Agency;
+use App\Models\EventLog;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -19,6 +22,7 @@ class AgenciesExport extends BaseExport implements FromView, WithProperties, Sho
 
     public function view(): View
     {
+        EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => Agency::class]);
         $agencies = $this->data;
         return view('export.agencies', compact('agencies'));
     }

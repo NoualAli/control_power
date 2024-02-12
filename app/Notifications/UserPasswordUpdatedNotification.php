@@ -57,6 +57,16 @@ class UserPasswordUpdatedNotification extends Notification
     }
 
     /**
+     * Get notification body
+     *
+     * @return array
+     */
+    private function getHtmlContent(): string
+    {
+        return '<p>Nous vous informons que le mot de passe de votre compte a été réinitialisé avec succès.</p>';
+    }
+
+    /**
      * Get email subject
      *
      * @return string
@@ -127,6 +137,7 @@ class UserPasswordUpdatedNotification extends Notification
             'id' => $this->user->id,
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
+            'short_content' => $this->getHtmlContent(),
             'title' => $this->getTitle(),
             'emitted_by' => auth()->user()->username,
         ];

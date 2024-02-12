@@ -2,6 +2,9 @@
 
 namespace App\Exports;
 
+use App\Enums\EventLogTypes;
+use App\Models\EventLog;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
@@ -23,6 +26,7 @@ class UsersExport extends BaseExport implements FromView, WithProperties, Should
 
     public function view(): View
     {
+        EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => User::class]);
         $users = $this->data;
         return view('export.users', compact('users'));
     }

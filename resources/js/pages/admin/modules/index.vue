@@ -1,9 +1,9 @@
 <template>
     <div v-if="can('view_module')">
         <ContentHeader>
-            <template #actions>
+            <template #right-actions>
                 <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
-                    <i class="las la-file-excel icon" />
+                    <NLIcon name="table" />
                     Exporter
                 </button>
             </template>
@@ -94,7 +94,7 @@ export default {
                 this.permissions = this.currentRole.permissions.map((permission) => permission.id)
                 this.form.permissions = this.permissions
             }).catch(error => {
-                console.log(error);
+                this.$swal.catchError(error)
             })
         }
     },
@@ -114,12 +114,12 @@ export default {
                     this.modules = response?.data?.data
                     this.$store.dispatch('settings/updatePageLoading', false)
                 }).catch(error => {
-                    console.log(error);
+                    this.$swal.catchError(error)
                     this.$store.dispatch('settings/updatePageLoading', false)
                 })
 
             }).catch(error => {
-                console.log(error);
+                this.$swal.catchError(error)
                 this.$store.dispatch('settings/updatePageLoading', false)
             })
 
@@ -134,7 +134,7 @@ export default {
 
                 }
             }).catch(error => {
-                console.log(error);
+                this.$swal.catchError(error)
             })
             this.form.put('modules').then(response => {
                 if (response.data.status) {
@@ -143,7 +143,7 @@ export default {
                     this.$swal.alert_error(response.data.message)
                 }
             }).catch(error => {
-                console.log(error)
+                this.$swal.catchError(error)
             })
         },
 

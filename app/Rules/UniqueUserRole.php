@@ -55,14 +55,14 @@ class UniqueUserRole implements Rule
                 if ($this->user) {
                     $users = $users->where('id', '!=', $this->user->id);
                 }
-                return !$users->count();
+                return !$users->get()->count();
             } elseif ($value == 11) {
                 // Vérifier qu'un seul directeur d'agence actif existe
                 $users = User::whereRoles('da')->where('is_active', true)->whereHas('agencies', fn ($query) =>  $query->whereIn('agencies.id', [$this->agency->id]));
                 if ($this->user) {
                     $users = $users->where('id', '!=', $this->user->id);
                 }
-                return !$users->count();
+                return !$users->get()->count();
             } elseif (in_array($value, [13, 5])) {
                 // Vérifier qu'un seul chef de département de contrôle / dre actif existe
                 $role = $value == 13 ? 'dre' : 'cdc';
@@ -70,7 +70,7 @@ class UniqueUserRole implements Rule
                 if ($this->user) {
                     $users = $users->where('id', '!=', $this->user->id);
                 }
-                return !$users->count();
+                return !$users->get()->count();
             }
         }
         return true;

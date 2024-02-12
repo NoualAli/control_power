@@ -2,6 +2,8 @@
 
 namespace App\Exports;
 
+use App\Enums\EventLogTypes;
+use App\Models\EventLog;
 use App\Models\Role;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
@@ -25,6 +27,7 @@ class RolePermissionsExport extends BaseExport implements FromView, WithProperti
     {
         $permissions = $this->data->permissions;
         $role = $this->data;
+        EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => Role::class, 'attachable_id' => $role->id, 'payload' => ['content' => 'Liste des permissions du rôle ' . $role->full_name]]);
         return view('export.role_permissions', compact('permissions', 'role'));
     }
 

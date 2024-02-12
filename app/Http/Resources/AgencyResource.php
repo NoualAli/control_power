@@ -18,8 +18,8 @@ class AgencyResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'code' => $this->code,
-            'category' => $this->category->name,
-            'dre_full_name'  => $this->dre->full_name,
+            'category' => $this->category,
+            'dre_full_name'  => $this->dre,
         ];
     }
 }

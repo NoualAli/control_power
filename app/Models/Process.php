@@ -63,4 +63,24 @@ class Process extends BaseModel
     {
         return $this->hasManyThrough(ControlCampaign::class, ControlCampaignProcess::class);
     }
+    public function notes()
+    {
+        return $this->media()->whereIn('folder', ['references\Note', 'references/Note', 'uploads/references/Note']);
+    }
+    public function circulaires()
+    {
+        return $this->media()->whereIn('folder', ['references\Circulaire', 'references/Circulaire', 'uploads/references/Circulaire']);
+    }
+    public function lettresCirculaire()
+    {
+        return $this->media()->whereIn('folder', ['references\Lettre-circulaire', 'references/Lettre-circulaire', 'uploads/references/Lettre-circulaire']);
+    }
+    public function guidesPremierNiveau()
+    {
+        return $this->media()->whereIn('folder', ['references\Guide 1er niveau', 'references/Guide 1er niveau', 'uploads/references/Guide 1er niveau']);
+    }
+    public function others()
+    {
+        return $this->media()->whereIn('folder', ['references\Autre', 'references/Autre', 'uploads/references/Autre']);
+    }
 }

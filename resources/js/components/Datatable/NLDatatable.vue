@@ -8,6 +8,9 @@
                 :parentUrlPrefix="urlPrefix" @filtered="(e) => this.loadData({ filters: e })"
                 @unloaded="() => this.loadData({ page: 1 })" />
         </template>
+        <template #table-actions>
+            <slot name="table-actions"></slot>
+        </template>
         <template #head>
             <!-- Table head -->
             <TableRow>
@@ -19,7 +22,7 @@
                     @sorted="(e) => this.loadData({ sorting: e })" />
 
                 <!-- Table header actions label -->
-                <TableHeader :key="'th-' + columns.length" :column="actionsColumn" v-if="hasActions" />
+                <TableHeader :key="'th-' + columns.length" :column="actionsColumn" v-if="hasActions" class="cell-actions" />
             </TableRow>
         </template>
 
@@ -118,13 +121,12 @@ export default {
             activeDetailsRows: [],
             filterIsOpen: false,
             activeFilters: {},
-            key: 1,
-            forceFilterReload: 0
+            key: 0,
         }
     },
     watch: {
         refresh(newVal, oldVal) {
-            if (newVal !== oldVal) {
+            if (newVal !== oldVal && newVal) {
                 this.loadData({ page: this.page, perPage: this.perPage, search: this.search, sorting: this.sorting, filters: this.activeFilters })
             }
         }
@@ -190,7 +192,7 @@ export default {
         }
     },
     created() {
-        // this.loadData({ page: 1, perPage: 10 })
+        this.loadData({ page: 1, perPage: 10 })
     },
     unmounted() {
         this.data = null
@@ -221,6 +223,7 @@ export default {
                 this.$emit('dataLoaded', { data: this.data, url: this.url })
             }).catch(error => {
                 this.isLoading = false
+                this.$swal.catchError(error)
             })
 
         },
@@ -229,7 +232,7 @@ export default {
          * Generate url after each call
          */
         getUrl() {
-            this.url = this.customUrl ? this.customUrl + this.urlPrefix : window.Laravel.baseUrl + '/api/' + this.urlPrefix
+            this.url = this.customUrl ? this.customUrl + this.urlPrefix : window.Laravel.baseUrl + '/api/v1/' + this.urlPrefix
             this.url += this.formatQueryString()
         },
 

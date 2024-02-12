@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasDates;
+use App\Traits\HasMedia;
 use App\Traits\HasScopes;
 use App\Traits\HasUuid;
 use App\Traits\IsFilterable;
@@ -15,7 +16,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 class ControlCampaign extends BaseModel
 {
-    use HasFactory, HasUuid, SoftDeletes, IsSearchable, IsSortable, IsFilterable, HasDates, HasRelationships, HasScopes;
+    use HasFactory, HasUuid, SoftDeletes, IsSearchable, IsSortable, IsFilterable, HasDates, HasRelationships, HasScopes, HasMedia;
 
     protected $fillable = [
         'description',
@@ -110,6 +111,11 @@ class ControlCampaign extends BaseModel
     public function processes()
     {
         return $this->belongsToMany(Process::class, 'control_campaign_processes');
+    }
+
+    public function synthesis()
+    {
+        return $this->media()->where('folder', 'Synthèses');
     }
 
     /**

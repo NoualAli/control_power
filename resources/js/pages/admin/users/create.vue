@@ -18,7 +18,7 @@
                 <!-- Registration number -->
                 <NLColumn lg="6" md="6">
                     <NLInput v-model="form.registration_number" :form="form" name="registration_number" label="Matricule"
-                        type="number" :length="5" labelRequired />
+                        type="number" :length="5" />
                 </NLColumn>
 
                 <!-- Username -->
@@ -79,10 +79,10 @@
                     <NLSwitch v-model="form.is_active" name="is_active" :form="form" label="Le compte est activé ?"
                         type="is-success" />
                 </NLColumn>
-                <NLColumn lg="6">
+                <!-- <NLColumn lg="6">
                     <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form" label="Utilisateur TEST"
                         type="is-success" />
-                </NLColumn>
+                </NLColumn> -->
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
                         <NLButton :loading="form.busy" label="Ajouter" />
@@ -199,7 +199,7 @@ export default {
                     this.$swal.alert_error(response.data.message)
                 }
             }).catch(error => {
-                console.log(error)
+                this.$swal.catchError(error)
             })
         },
         getPlaceholder(id) {

@@ -29,6 +29,16 @@ export const helpersMixin = {
             return string?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, '').replace(/[^\w\s-]/g, '').replace(/\s+/g, separator).replace(/--+/g, separator).trim()
         },
         /**
+         * Display only part of the string that is smaller than the given length
+         *
+         * @param {String} str
+         * @param {Number} length
+         * @returns
+         */
+        str_slice(str, length) {
+            return str.length > length ? str.slice(0, length) + '...' : str
+        },
+        /**
          * Ask user to confirm page leaving
          *
          * @param {Closure} next

@@ -23,7 +23,7 @@
                         <!-- Registration number -->
                         <NLColumn lg="6" md="6">
                             <NLInput v-model="form.registration_number" :form="form" name="registration_number"
-                                label="Matricule" type="number" :length="5" labelRequired />
+                                label="Matricule" type="number" :length="5" />
                         </NLColumn>
 
                         <!-- Username -->
@@ -70,10 +70,10 @@
                                 type="is-success" />
                         </NLColumn>
                         <!-- Testing -->
-                        <NLColumn lg="6">
+                        <!-- <NLColumn lg="6">
                             <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form"
                                 label="Utilisateur TEST" type="is-success" />
-                        </NLColumn>
+                        </NLColumn> -->
 
                         <NLColumn>
                             <NLFlex lgJustifyContent="end">
@@ -240,19 +240,21 @@ export default {
                         this.form.registration_number = this.user.current.registration_number
                         this.form.is_for_testing = this.user.current.is_for_testing
                         this.form.role = this.user.current.active_role_id
-                        if ([ 13, 5 ].includes(this.form.role)) {
+
+                        if ([ 13, 5 ].includes(Number(this.user.current.active_role_id))) {
                             this.showDres = true
                             this.form.agencies = 'd-' + this.user?.current?.dres[ 0 ]?.id
                         }
-                        if (this.form.role == 6) {
+                        if (Number(this.user.current.active_role_id) == 6) {
                             this.showDres = true
                             this.form.agencies = this.user?.current?.agencies.map(item => item.id)
                         }
-                        if (this.form.role == 11) {
+                        if (Number(this.user.current.active_role_id) == 11) {
                             this.showDres = true
                             this.form.agencies = this.user?.current?.agencies[ 0 ]?.id
                         }
-                        this.initDreAndAgencies(this.form.role)
+
+                        this.initDreAndAgencies(Number(this.user.current.active_role_id))
                         this.$store.dispatch('notifications/fetchSettings', this.user.current.id).then(() => {
                             this.notificationsSettingsList = this.notifications.settings
                             this.initNotifications()
@@ -272,7 +274,7 @@ export default {
                             this.$swal.alert_error(response.data.message)
                         }
                     }).catch(error => {
-                        console.log(error)
+                        this.$swal.catchError(error)
                     })
                 }
             })
@@ -288,7 +290,7 @@ export default {
                             this.$swal.alert_error(response.data.message)
                         }
                     }).catch(error => {
-                        console.log(error)
+                        this.$swal.catchError(error)
                     })
                 }
             })
@@ -303,7 +305,7 @@ export default {
                             this.$swal.alert_error(response.data.message)
                         }
                     }).catch(error => {
-                        console.log(error)
+                        this.$swal.catchError(error)
                     })
                 }
             })

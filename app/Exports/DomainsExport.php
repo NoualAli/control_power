@@ -2,6 +2,9 @@
 
 namespace App\Exports;
 
+use App\Enums\EventLogTypes;
+use App\Models\Domain;
+use App\Models\EventLog;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
@@ -23,6 +26,7 @@ class DomainsExport extends BaseExport implements FromView, ShouldAutoSize, With
 
     public function view(): View
     {
+        EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => Domain::class]);
         $domains = $this->data;
         return view('export.domains', compact('domains'));
     }

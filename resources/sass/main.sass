@@ -5,6 +5,8 @@ $layout-h: 100vh
 $navbar-height: 64px
 
 $content-container-height: calc(100vh - $navbar-height)
+$content-container-bg: $cream
+$content-container-border-radius: 1rem
 
 $sidebar-container-w: 85px
 $sidebar-container-w-active: 232px
@@ -18,11 +20,12 @@ $sidebar-header-h: $navbar-height
 $sidebar-footer-h: $navbar-height
 $sidebar-body-h: calc($sidebar-container-h - ($sidebar-header-h + $sidebar-footer-h))
 $sidebar-bg: $primary
+$header-bg: $primary
 
 $sidebar-links-color: $white
 $sidebar-links-active-color: $dark
 $sidebar-links-active-bg: $white
-$sidebar-links-active-hover-bg: $sidebar-links-active-bg
+$sidebar-links-hover-bg: $cream
 
 $main-container-w: calc( 100vw - $sidebar-container-w )
 $main-container-w-sm: 100vw
@@ -53,7 +56,7 @@ body
     font-size: $body-fs
     color: $main-text-color !important
 main
-    padding: 1rem 0
+    padding: 1rem
     height: auto
 footer
     background-color: $grey
@@ -63,13 +66,6 @@ footer
     align-items: center
     font-weight: bold
     font-family: inherit
-
-// .main-layout
-//     min-height: 100vh
-//     height: 100vh
-//     max-height: 100vh
-//     overflow: hidden
-
 a
     text-decoration: none
     &.has-icon
@@ -95,40 +91,64 @@ a
     max-width: $layout-w
     overflow: hidden
     display: flex
-    gap: 0 !important
+    gap: 0
     & .main-container
         position: relative
+        display: flex
+        flex-direction: column
+        padding-bottom: 1rem
+        padding-right: 1rem
         width: $main-container-w
         height: $main-container-h
         overflow: hidden
         background-color: $main-container-bg
-        border-right: 1px solid $grey
         & .header-container
             height: $navbar-height
-            border-bottom: 1px solid $white
             position: relative
             display: flex
             justify-content: space-between
             align-items: center
             gap: 0 20px
             color: $white
-            background-color: $primary-extra-light
-            box-shadow: 0 1px 3px rgba(0, 0, 0, .1),0 1px 2px 0 rgba(0, 0, 0, .06)
+            background-color: $header-bg
+            font-size: 1rem
+            // box-shadow: 0 1px 3px rgba(0, 0, 0, .1),0 1px 2px 0 rgba(0, 0, 0, .06)
             z-index: 6
+            & .bug-link
+                color: $white
+                & *
+                    font-size: 1.7rem !important
             & .notification-link
-                color: $dark
+                color: $white
+                position: relative
+                & *
+                    font-size: 1.7rem !important
                 &.notified
-                    color: $danger
-                    & i
-                        -webkit-animation: ring 1.5s ease infinite
-                        animation: ring 1.5s ease infinite
-                        transform-origin-x: 50%
-                        transform-origin-y: 0px
-                        transform-origin-z: initial
-                        &::after
+                    &::after
+                        content: attr(data-total-notifications)
+                        position: absolute
+                        right: -7px
+                        top: -7px
+                        height: 15px
+                        width: 15px
+                        border-radius: 50%
+                        background-color: $danger
+                        color: $white
+                        display: flex
+                        justify-content: center
+                        align-items: center
+                        padding: 2px
+                        line-height: 1
+                    // & i
+                    //     -webkit-animation: ring 1.5s ease infinite
+                    //     animation: ring 1.5s ease infinite
+                    //     transform-origin-x: 50%
+                    //     transform-origin-y: 0px
+                    //     transform-origin-z: initial
+                    //     &::after
 
             & .username
-                color: $dark
+                color: $white
             & ::selection
                 color: $white
                 background-color: $primary
@@ -155,12 +175,18 @@ a
                     font-weight: 600
                     font-size: 14px
         & .content-container
+            border-radius: $content-container-border-radius
+            border-top-right-radius: 0
+            border-bottom-right-radius: 0
+            background: $content-container-bg
             position: relative
             height: $content-container-height
             overflow: auto
-            scrollbar-color: $primary $secondary
-            scrollbar-width: thin
-            scrollbar-gutter: stable
+            // scrollbar-track-color: $primary
+            // scrollbar-color: $primary $cream
+            // scrollbar-width: thin
+            // scrollbar-gutter: stable both-edges
+            scroll-margin: 0
             & ::selection
                 color: $white
                 background-color: $primary
@@ -172,25 +198,24 @@ a
             left: 0
             top: 0
 .am-breadcrumbs__list
+    position: relative
     display: flex
     align-items: center
     flex-wrap: wrap
     gap: 10px 20px
     list-style: none
-    // color: $grey
-    & .parent-breadcrumb
-        position: relative
+    color: $white
+    & .am-breadcrumbs__link_current
+        color: $white !important
+    & .am-breadcrumbs__link
+        color: $grey
+        &:hover
+            color: $white
         @media screen and (max-width: $desktop)
             display: none
         & a
             display: block
             color: $white
-        &::after
-            content: '/'
-            position: absolute
-            right: -10px
-            top: 50%
-            transform: translateY(-50%)
 
 .no-data
     position: relative
@@ -202,18 +227,18 @@ a
         width: auto
 
 ::-webkit-scrollbar
-    width: 10px
+    width: 5px
 
 ::-webkit-scrollbar-track
-    background-color: $primary-extra-light
-
-// ::-webkit-scrollbar-thumb
-//     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3)
+    background-color: $cream
 
 ::-webkit-scrollbar-thumb
-    background-image: linear-gradient(180deg, $primary 0%, $secondary 99%)
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3)
+
+::-webkit-scrollbar-thumb
+    background-image: linear-gradient(180deg, $primary 0%, $primary-light 99%)
     box-shadow: inset 2px 2px 5px 0 rgba(#fff, 0.5)
-    border-radius: 100px
+    border-radius: 1rem
 
 .badge
     display: flex
@@ -240,6 +265,7 @@ a
     width: 40px
     border-radius: 50%
     background-color: $white
+    color: $dracula
     &.is-bordered
         border: 1px solid $dracula
     & img
@@ -253,10 +279,8 @@ a
 
 a
     text-decoration: none
-    &:link
-        color: $primary
-    &:visited
-        color: $primary
+    // &:link
+    //     color: $primary
     &:hover
         color: $primary
     &:active
@@ -470,9 +494,6 @@ ul
         width: 75%
         transform: translateX(-50%)
         background-color: $primary
-
-.btn-filter
-    padding: 6px 10px
 
 .component-loader-container
     position: absolute

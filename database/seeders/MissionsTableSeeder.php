@@ -19,14 +19,21 @@ class MissionsTableSeeder extends Seeder
     public function run()
     {
         DB::transaction(function () {
-            $missions = getMissions()->addSelect(['ci_validation_at'])->get();
+            $missions = getMissions()->addSelect(['ci_validation_at', 'ci_validation_by_id', 'm.created_by_id', 'm.cdc_validation_by_id', 'm.cdcr_validation_by_id', 'm.dcp_validation_by_id', 'm.da_validation_by_id'])
+                ->groupBy('m.created_by_id', 'm.cdc_validation_by_id', 'm.cdcr_validation_by_id', 'm.dcp_validation_by_id', 'm.da_validation_by_id')->get();
             $results = collect([]);
             foreach ($missions as $mission) {
                 $missionFirstDetailControlled = getMissionDetails($mission->id)->select(['controlled_by_ci_at'])->orderBy('controlled_by_ci_at')->first()?->controlled_by_ci_at;
                 $missionRealEnd = $mission->ci_validation_at;
                 $result = DB::table('missions')->where('id', $mission->id)->update([
+                    'assigned_to_ci_id' => $mission->ci_validation_by_id,
                     'real_start' => $missionFirstDetailControlled,
                     'real_end' => $missionRealEnd,
+                    'creator_full_name' => $mission->created_by_id ? getUserFullNameWithRole($mission->created_by_id) : null,
+                    'cdc_validator_full_name' => $mission->cdc_validation_by_id ? getUserFullNameWithRole($mission->cdc_validation_by_id) : null,
+                    'cdcr_validator_full_name' => $mission->cdcr_validation_by_id ? getUserFullNameWithRole($mission->cdcr_validation_by_id) : null,
+                    'dcp_validator_full_name' => $mission->dcp_validation_by_id ? getUserFullNameWithRole($mission->dcp_validation_by_id) : null,
+                    'da_validator_full_name' => $mission->da_validation_by_id ? getUserFullNameWithRole($mission->da_validation_by_id) : null,
                 ]);
 
                 $results->push(['reference' => $mission->reference, 'status' => $result]);
@@ -35,52 +42,15 @@ class MissionsTableSeeder extends Seeder
                 dd($results->pluck('reference')->join(', '));
             }
 
-            $missions = DB::table('missions as m')
-                ->select([
-                    'm.id',
-                    'm.reference',
-                    DB::raw("CONCAT(cdc.first_name, ' ', cdc.last_name) AS fk_cdc_validator_full_name"),
-                    DB::raw("CONCAT(cdcr.first_name, ' ', cdcr.last_name) AS fk_cdcr_validator_full_name"),
-                    DB::raw("CONCAT(dcp.first_name, ' ', dcp.last_name) AS fk_dcp_validator_full_name"),
-                    DB::raw("CONCAT(da.first_name, ' ', da.last_name) AS fk_da_validator_full_name"),
-                    DB::raw("CONCAT(cr.first_name, ' ', cr.last_name) AS fk_creator_full_name"),
-                ])
-                ->leftJoin('users as cr', 'cr.id', 'm.created_by_id')
-                ->leftJoin('users as da', 'da.id', 'm.da_validation_by_id')
-                ->leftJoin('users as dcp', 'dcp.id', 'm.dcp_validation_by_id')
-                ->leftJoin('users as cdcr', 'cdcr.id', 'm.cdcr_validation_by_id')
-                ->leftJoin('users as cdc', 'cdc.id', 'm.cdc_validation_by_id')
-                ->where('m.level', 2);
-
-            $missions = $missions->groupBy(
-                'm.id',
-                'm.reference',
-                'cdc.last_name',
-                'cdc.first_name',
-                'cdcr.last_name',
-                'cdcr.first_name',
-                'dcp.last_name',
-                'dcp.first_name',
-                'da.last_name',
-                'da.first_name',
-                'cr.last_name',
-                'cr.first_name',
-            );
-            $missions = $missions->get();
-            foreach ($missions as $mission) {
-                DB::table('missions')->where('id', $mission->id)->update([
-                    'cdc_validator_full_name' => $mission->fk_cdc_validator_full_name,
-                    'cdcr_validator_full_name' => $mission->fk_cdcr_validator_full_name,
-                    'dcp_validator_full_name' => $mission->fk_dcp_validator_full_name,
-                    'da_validator_full_name' => strlen($mission->fk_da_validator_full_name) ? $mission->fk_da_validator_full_name : NULL,
-                    'creator_full_name' => $mission->fk_creator_full_name,
-                ]);
-            }
-
             Schema::table('missions', function (Blueprint $table) {
                 $table->dropColumn('reel_end');
                 $table->dropColumn('reel_start');
             });
+            // Check if the table exists before dropping it
+            if (Schema::hasTable('mission_has_controllers')) {
+                DB::table('mission_has_controllers')->delete();
+                Schema::dropColumns('mission_has_controllers', 'control_agency');
+            }
         });
     }
 }

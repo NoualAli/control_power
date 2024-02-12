@@ -6,84 +6,99 @@
         </div>
         <div class="sidebar-body">
             <div class="sidebar-title" />
-            <NLSidebarItem label="Tableau de bord" route="home" iconName="la-tachometer-alt" />
-            <NLSidebarItem label="Utilisateurs" route="users-index" iconName="la-users" v-if="can('view_user')" />
-            <NLSidebarItem label="Roles" route="roles-index" iconName="la-user-shield" v-if="can('view_role')" />
-            <NLSidebarItem label="Modules" route="modules-index" iconName="la-user-cog" v-if="can('view_module')" />
-            <NLSidebarItem label="Dre" route="dre-index" iconName="la-building" v-if="can('view_dre')" />
-            <NLSidebarItem label="Agences" route="agencies-index" iconName="la-landmark" v-if="can('view_agency')" />
-            <NLSidebarItem label="Catégories" route="categories-index" iconName="la-landmark"
-                v-if="can('view_categories')" />
-            <NLSidebarItem label="Familles" route="families-index" iconName="la-tag" v-if="can('view_family')" />
-            <NLSidebarItem label="Domaines" route="domains-index" iconName="la-tags" v-if="can('view_domain')" />
-            <NLSidebarItem label="Processus" route="processes-index" iconName="la-project-diagram"
-                v-if="can('view_process')" />
-            <NLSidebarItem label="Points de contrôle" route="control-points-index" iconName="la-list-alt"
-                v-if="can('view_control_point')" />
-            <NLSidebarItem label="Champs" route="fields-index" iconPrefix="lab" iconName="la-wpforms"
-                v-if="can('view_field')" />
-            <NLSidebarItem label="Répartition des missions de contrôle" route="missions-create" iconName="la-calendar-day"
+            <NLSidebarItem label="Tableau de bord" route="home" iconName="dashboard">
+            </NLSidebarItem>
+            <NLSidebarItem label="Répartition des missions" route="missions-create" iconName="calendar_add_on"
                 v-if="can('create_mission')" />
-            <NLSidebarItem label="Ajouter une campagne de contrôle" route="campaigns-create" iconName="la-calendar-plus"
-                v-if="can('create_control_campaign')" />
-            <NLSidebarItem label="Suivi du planning annuel" route="campaigns" iconName="la-calendar"
-                v-if="can('view_control_campaign')" />
-            <NLSidebarItem label="Suivi des réalisations des missions" route="missions" iconName="la-eye"
-                v-if="can('view_mission')" />
-            <NLSidebarItem label="Anomalie • Notation • Plan de redressement" route="anomalies" iconPrefix="lab"
-                iconName="la-stack-overflow" v-if="can('view_mission_detail')" />
-            <NLSidebarItem label="Faits majeur" route="major-facts" iconName="la-exclamation-triangle"
-                v-if="can('view_major_fact')" />
-            <NLSidebarItem label="Backup DB" route="admin-backup-db" v-if="is('root')" iconName="la-database" />
-            <NLSidebarItem label="Fichiers" route="admin-server-files" v-if="is('root')" iconName="la-file-alt" />
+            <NLSidebarItem label="Nouvelle campagne" route="campaigns-create" iconName="calendar_add_on"
+                v-if="can('create_control_campaign')">
+                <!-- Ajouter une campagne de contrôle -->
+            </NLSidebarItem>
+            <NLSidebarItem label="Planning annuel" route="campaigns" iconName="calendar_month"
+                v-if="can('view_control_campaign')">
+                <!-- Suivi du planning annuel -->
+            </NLSidebarItem>
+            <NLSidebarItem label="Suivi des missions" route="missions" iconName="visibility" v-if="can('view_mission')">
+                <!-- Suivi des réalisations des missions -->
+            </NLSidebarItem>
+            <NLSidebarItem label="Plans de redressement" route="anomalies" iconPrefix="lab" iconName="breaking_news"
+                v-if="can('view_mission_detail')">
+            </NLSidebarItem>
+            <NLSidebarItem label="Faits majeurs" route="major-facts" iconName="brightness_alert"
+                v-if="can('view_major_fact')">
+            </NLSidebarItem>
+            <NLSidebarItem label="Références" route="references-pcf" iconName="quick_reference_all">
+            </NLSidebarItem>
+            <NLSidebarItem label="Utilisateurs" route="users-index" iconName="group" v-if="can('view_user')">
+            </NLSidebarItem>
+            <NLSidebarItem label="Roles" route="roles-index" iconName="shield_person" v-if="can('view_role')">
+            </NLSidebarItem>
+            <NLSidebarItem label="Modules" route="modules-index" iconName="shield_lock" v-if="can('view_module')">
+            </NLSidebarItem>
+            <NLSidebarItem label="DRE" route="dre-index" iconName="domain" v-if="can('view_dre')">
+            </NLSidebarItem>
+            <NLSidebarItem label="Agences" route="agencies-index" iconName="account_balance" v-if="can('view_agency')">
+            </NLSidebarItem>
+            <NLSidebarItem label="Catégories" route="categories-index" iconName="tag" v-if="can('view_category')">
+            </NLSidebarItem>
+            <NLSidebarItem label="Familles" route="families-index" iconName="tenancy" v-if="can('view_family')">
+            </NLSidebarItem>
+            <NLSidebarItem label="Domaines" route="domains-index" iconName="network_node" v-if="can('view_domain')">
+            </NLSidebarItem>
+            <NLSidebarItem label="Processus" route="processes-index" iconName="account_tree" v-if="can('view_process')">
+            </NLSidebarItem>
+            <NLSidebarItem label="Points de contrôle" route="control-points-index" iconName="list"
+                v-if="can('view_control_point')">
+            </NLSidebarItem>
+            <NLSidebarItem label="Champs" route="fields-index" iconPrefix="lab" iconName="dataset" v-if="can('view_field')">
+            </NLSidebarItem>
+            <NLSidebarItem label="Backup DB" route="admin-backup-db" v-if="is('root')" iconName="database">
+            </NLSidebarItem>
+            <NLSidebarItem label="Fichiers" route="admin-server-files" v-if="is('root')" iconName="storage">
+            </NLSidebarItem>
             <a class="sidebar-item" href="/log-viewer" target="_blank" v-if="is('root')">
-                <i class="las la-bug sidebar-icon"></i>
+                <NLIcon name="description" />
                 <span class="sidebar-icon_text">
                     Logs
                 </span>
             </a>
-            <!-- <NLSidebarItem label="Bugs" route="bugs-index" iconName="la-bug" /> -->
-            <!-- <NLSidebarItem label="Validation des rapports" route="missions-not-validated" iconName="la-clipboard-check"
-                v-if="can('validate_report')" /> -->
-            <!-- <router-link v-if="can('view_major_facts,view_major_fact')" class="sidebar-item"
-                :class="{ 'has-badge': unreadMajorFacts }" :to="{ name: 'major-facts' }">
-                <i class="las la-exclamation-triangle sidebar-icon" />
-                <span class="icon-text">
-                    Faits majeur
+            <a class="sidebar-item" href="/env-editor" target="_blank" v-if="is('root')">
+                <NLIcon name="settings_applications" />
+                <span class="sidebar-icon_text">
+                    .env
                 </span>
-                <div v-if="unreadMajorFacts" class="badge is-blink">
-                    {{ unreadMajorFacts }}
-                </div>
-            </router-link> -->
-
-            <NLSidebarItem label="Références PCF" route="references-pcf" iconName="la-newspaper" />
+            </a>
         </div>
 
         <div class="sidebar-footer">
             <a href="logout" @click.prevent="logout" class="sidebar-item logout-btn" :class="{ 'is-loading': isLogout }"
                 v-if="!isLogout">
-                <i class="las la-sign-out-alt sidebar-icon" v-if="!isLogout"></i>
+                <NLIcon name="logout" v-if="!isLogout" class="sidebar-icon" />
+                <!-- <i class="las la-sign-out-alt sidebar-icon" v-if="!isLogout"></i> -->
                 <i class="las la-spinner la-spin sidebar-icon" v-else></i>
-                <span class="sidebar-icon_text" v-if="!isLogout">
+                <!-- <span class="sidebar-icon_text" v-if="!isLogout">
                     Déconnexion
                 </span>
-                <span class="sidebar-icon_text" v-else>Déconnexion en cours</span>
+                <span class="sidebar-icon_text" v-else>Déconnexion en cours</span> -->
             </a>
             <div class="sidebar-item logout-btn" :class="{ 'is-loading': isLogout }" v-else>
                 <i class="las la-spinner la-spin sidebar-icon"></i>
-                <span class="sidebar-icon_text">Déconnexion en cours</span>
+                <!-- <span class="sidebar-icon_text">Déconnexion en cours</span> -->
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import NLIcon from '../NLIcon'
 // import { Store } from 'vuex'
 import NLSidebarItem from './NLSidebarItem.vue'
 import NLSidebarSubmenu from './NLSidebarSubmenu.vue'
 export default {
     name: "NLSidebar",
-    components: { NLSidebarItem, NLSidebarSubmenu },
+    components: {
+        NLIcon, NLSidebarItem, NLSidebarSubmenu
+    },
     data() {
         return {
             isLogout: false

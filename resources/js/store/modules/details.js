@@ -78,7 +78,7 @@ export const actions = {
     },
     async fetchGlobal({ commit }) {
         try {
-            const { data } = await api.get('details')
+            const { data } = await api.get('anomalies')
             commit('FETCH_GLOBAL', { global: data })
         } catch (error) {
             console.error(error);
@@ -86,7 +86,7 @@ export const actions = {
     },
     async fetchMajorFacts({ commit }) {
         try {
-            const { data } = await api.get('details/major-facts')
+            const { data } = await api.get('major-facts')
             commit('FETCH_MAJOR_FACTS', { majorFacts: data })
         } catch (error) {
             console.error(error);

@@ -3,9 +3,13 @@
         :style="{ 'max-width': length }">
         <slot :class="childClass"></slot>
 
-        <span :class="childClass" v-html="showField" v-if="isHtml"></span>
+        <span
+            :class="[childClass, { 'd-flex justify-center align-center': align == 'center', 'd-flex justify-start align-center': align == 'left', 'd-flex justify-end align-center': align == 'right' }]"
+            v-html="showField" v-if="isHtml"></span>
 
-        <span :class="childClass" title="" v-else>
+        <span
+            :class="[childClass, { 'd-flex justify-center align-center': align == 'center', 'd-flex justify-start align-center': align == 'left', 'd-flex justify-end align-center': align == 'right' }]"
+            v-else>
             {{ showField }}
         </span>
     </td>

@@ -9,7 +9,8 @@
 
             <div v-if="type == 'password'" class="show-password-btn has-icon"
                 :class="{ 'is-danger': form?.errors.has(name) }" @click="toggleType">
-                <i class="las text-small" :class="eyeIcon" />
+                <!-- <i class="las text-small" :class="eyeIcon" /> -->
+                <NLIcon :name="eyeIcon" />
             </div>
         </div>
     </InputContainer>
@@ -21,10 +22,13 @@
 
 <script>
 
+import NLIcon from '../NLIcon'
 import InputContainer from './InputContainer'
 export default {
     name: 'NLInput',
-    components: { InputContainer },
+    components: {
+        NLIcon, InputContainer
+    },
     props: {
         form: { type: Object, required: false, default: null },
         autocomplete: { type: String, default: 'off' },
@@ -45,7 +49,7 @@ export default {
     data() {
         return {
             finalType: this.type,
-            eyeIcon: 'las la-eye',
+            eyeIcon: 'visibility',
             isForAuth: false,
             currentLength: 0
         }
@@ -75,12 +79,10 @@ export default {
          * @param {Object} $event
          */
         onInput($event) {
-            // console.log($event.target.value)
             let value = $event.target.value
             this.currentLength = value.length
 
             if (this.type === 'number') {
-                // console.log(value)
                 value = this.sanitizeInput(value)
             }
 
@@ -105,10 +107,12 @@ export default {
         toggleType() {
             if (this.finalType === 'password') {
                 this.finalType = 'text'
-                this.eyeIcon = 'las la-eye-slash'
+                // this.eyeIcon = 'las la-eye-slash'
+                this.eyeIcon = 'visibility_off'
             } else {
                 this.finalType = 'password'
-                this.eyeIcon = 'las la-eye'
+                // this.eyeIcon = 'las la-eye'
+                this.eyeIcon = 'visibility'
             }
         },
         isNumber($event) {

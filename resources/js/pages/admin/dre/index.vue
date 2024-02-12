@@ -1,23 +1,33 @@
 <template>
     <div v-if="can('view_dre')">
-        <ContentHeader>
-            <template #actions>
+        <!-- <ContentHeader>
+            <template #right-actions>
                 <router-link v-if="can('create_dre')" :to="{ name: 'dre-create' }" class="btn btn-info">
                     Ajouter
                 </router-link>
                 <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
-                    <i class="las la-file-excel icon" />
+                    <NLIcon name="table" />
                     Exporter
                 </button>
             </template>
-        </ContentHeader>
+        </ContentHeader> -->
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" title="Liste des DRE" urlPrefix="dre" @edit="edit"
                 @delete="destroy" :refresh="refresh" @dataLoaded="handleDataLoaded">
                 <template #actions-before="{ item }">
                     <a class="btn btn-office-excel" :href="'/excel-export?export=dres&id=' + item.id" target="_blank">
-                        <i class="las la-file-excel icon" />
+                        <NLIcon name="table" />
                     </a>
+                </template>
+                <template #table-actions>
+                    <router-link v-if="can('create_dre')" :to="{ name: 'dre-create' }" class="btn has-icon">
+                        <NLIcon name="add" />
+                        Ajouter
+                    </router-link>
+                    <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
+                        <NLIcon name="table" />
+                        Exporter
+                    </button>
                 </template>
             </NLDatatable>
             <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl"
@@ -58,12 +68,18 @@ export default {
                 }
             ],
             actions: {
-                edit: (item) => {
-                    return this.can('edit_dre')
+                edit: {
+                    show: (item) => {
+                        return this.can('edit_dre')
+                    },
+                    apply: this.edit
                 },
-                delete: (item) => {
-                    return this.can('delete_dre')
-                }
+                delete: {
+                    show: (item) => {
+                        return this.can('delete_dre')
+                    },
+                    apply: this.destroy
+                },
             }
         }
     },

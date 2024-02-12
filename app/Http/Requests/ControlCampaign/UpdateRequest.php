@@ -27,8 +27,8 @@ class UpdateRequest extends FormRequest
     {
         return [
             'description' => ['required', 'string', new MaxLengthQuill(3000)],
-            'start_date' => ['required', 'date', new CheckCampaignDate],
-            'end_date' => ['required', 'date', 'after:start', new CheckCampaignDate],
+            'start_date' => ['required', 'date', new CheckCampaignDate(request('campaign'))],
+            'end_date' => ['required', 'date', 'after:start', new CheckCampaignDate(request('campaign'))],
             'pcf' => ['required', 'array'],
         ];
     }

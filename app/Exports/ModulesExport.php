@@ -2,6 +2,9 @@
 
 namespace App\Exports;
 
+use App\Enums\EventLogTypes;
+use App\Models\EventLog;
+use App\Models\Module;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
@@ -23,6 +26,7 @@ class ModulesExport extends BaseExport implements FromView, WithProperties, Shou
 
     public function view(): View
     {
+        EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => Module::class]);
         $modules = $this->data;
         return view('export.modules', compact('modules'));
     }

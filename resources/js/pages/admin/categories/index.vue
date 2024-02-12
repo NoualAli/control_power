@@ -1,16 +1,23 @@
 <template>
     <div v-if="can('view_category')">
-        <ContentHeader>
-            <template #actions>
+        <!-- <ContentHeader>
+            <template #right-actions>
                 <router-link v-if="can('create_category')" :to="{ name: 'categories-create' }" class="btn btn-info">
                     Ajouter
                 </router-link>
             </template>
-        </ContentHeader>
+        </ContentHeader> -->
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" title="Liste des catégories" urlPrefix="categories"
                 @edit="edit" @delete="destroy" :refresh="refresh"
-                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
+                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
+                <template #table-actions>
+                    <router-link v-if="can('create_category')" :to="{ name: 'categories-create' }" class="btn has-icon">
+                        <NLIcon name="add" />
+                        Ajouter
+                    </router-link>
+                </template>
+            </NLDatatable>
         </ContentBody>
     </div>
 </template>

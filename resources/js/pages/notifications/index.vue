@@ -3,7 +3,7 @@
         <template #title>
             Centre des notifications
         </template>
-        <template class="d-flex justify-between align-center gap-3 mb-9" #actions>
+        <template #right-actions>
             <router-link :to="{ name: 'notifications-settings' }" class="btn btn-info has-icon">
                 <i class="las la-cog icon"></i>
                 Paramètres

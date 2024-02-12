@@ -2,6 +2,9 @@
 
 namespace App\Exports;
 
+use App\Enums\EventLogTypes;
+use App\Models\EventLog;
+use App\Models\Login;
 use App\Models\User;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
@@ -25,6 +28,7 @@ class LoginsExport extends BaseExport implements FromView, WithProperties, Shoul
     {
         $logins = $this->data?->logins;
         $user = $this->data;
+        EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => User::class, 'attachable_id' => $user->id, 'payload' => ['content' => 'Liste des connexions de l\'utilisateur ' . $user->full_name]]);
         return view('export.logins', compact('logins', 'user'));
     }
 

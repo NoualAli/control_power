@@ -17,6 +17,7 @@ class Comment extends Model
         'created_by_id',
         'commentable_type',
         'commentable_id',
+        'creator_full_name'
     ];
 
     /**

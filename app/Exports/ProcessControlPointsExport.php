@@ -2,6 +2,8 @@
 
 namespace App\Exports;
 
+use App\Enums\EventLogTypes;
+use App\Models\EventLog;
 use App\Models\Process;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
@@ -25,6 +27,7 @@ class ProcessControlPointsExport extends BaseExport implements FromView, WithPro
     {
         $controlPoints = $this->data->control_points;
         $process = $this->data;
+        EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => Process::class, 'attachable_id' => $process->id, 'payload' => ['content' => 'Liste de points de contrôles du processus ' . $process->name]]);
         return view('export.process_control_points', compact('controlPoints', 'process'));
     }
 

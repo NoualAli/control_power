@@ -19,7 +19,8 @@ return new class extends Migration
             $table->string('major_fact_is_detected_by_full_name')->nullable();
             $table->string('major_fact_is_rejected_by_full_name')->nullable();
 
-            $table->boolean('major_fact_is_rejected')->default(false);
+            $table->boolean('major_fact_is_rejected_at_dre')->default(false);
+            $table->boolean('major_fact_is_rejected_at_dcp')->default(false);
 
             // Foreign keys
             $table->foreignId('major_fact_is_detected_by_id')->nullable()->constrained('users');
@@ -49,7 +50,8 @@ return new class extends Migration
             $table->dropConstrainedForeignId('major_fact_is_dispatched_by_id');
 
             $table->dropColumn('major_fact_is_detected_by_full_name');
-            $table->dropColumn('major_fact_is_rejected');
+            $table->dropColumn('major_fact_is_rejected_at_dcp');
+            $table->dropColumn('major_fact_is_rejected_at_dre');
             $table->dropColumn('major_fact_is_rejected_by_full_name');
             $table->dropColumn('major_fact_is_rejected_at');
         });

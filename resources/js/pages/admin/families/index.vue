@@ -1,29 +1,26 @@
 <template>
-    <div v-if="can('view_family')">
-        <ContentHeader>
-            <template #actions>
-                <router-link v-if="can('create_family')" :to="{ name: 'families-create' }" class="btn btn-info">
+    <ContentBody v-if="can('view_family')">
+        <NLDatatable :columns="columns" :actions="actions" title="Liste des familles" urlPrefix="families" @edit="edit"
+            @delete="destroy" :refresh="refresh" @dataLoaded="handleDataLoaded">
+            <!-- <template #actions-before="{ item }">
+                    <a class="btn btn-office-excel" :href="'/excel-export?export=families&id=' + item.id" target="_blank">
+                        <NLIcon name="table" />
+                    </a>
+                </template> -->
+            <template #table-actions>
+                <router-link v-if="can('create_family')" :to="{ name: 'families-create' }" class="btn has-icon">
+                    <NLIcon name="add" />
                     Ajouter
                 </router-link>
-                <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
-                    <i class="las la-file-excel icon" />
-                    Exporter
-                </button>
+                <!-- <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
+                        <NLIcon name="table" />
+                        Exporter
+                    </button> -->
             </template>
-        </ContentHeader>
-        <ContentBody>
-            <NLDatatable :columns="columns" :actions="actions" title="Liste des familles" urlPrefix="families" @edit="edit"
-                @delete="destroy" :refresh="refresh" @dataLoaded="handleDataLoaded">
-                <template #actions-before="{ item }">
-                    <a class="btn btn-office-excel" :href="'/excel-export?export=families&id=' + item.id" target="_blank">
-                        <i class="las la-file-excel icon" />
-                    </a>
-                </template>
-            </NLDatatable>
-            <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl"
-                @close="this.excelExportIsOpen = false" @success="this.excelExportIsOpen = false" />
-        </ContentBody>
-    </div>
+        </NLDatatable>
+        <!-- <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl"
+                @close="this.excelExportIsOpen = false" @success="this.excelExportIsOpen = false" /> -->
+    </ContentBody>
 </template>
 
 <script>
@@ -45,7 +42,7 @@ export default {
             refresh: 0,
             columns: [
                 {
-                    label: 'Nom',
+                    label: 'Famille',
                     field: 'name',
                     sortable: true
                 },

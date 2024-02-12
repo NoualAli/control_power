@@ -22,7 +22,7 @@ trait HasRoles
     }
     public function getPermissionsArrAttribute()
     {
-        return $this->roles->pluck('permissions')->flatten()->pluck('name')->toArray();
+        return $this->role->pluck('permissions')->flatten()->pluck('name')->toArray();
     }
 
     /**

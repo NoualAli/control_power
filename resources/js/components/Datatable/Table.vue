@@ -1,18 +1,19 @@
 <template>
     <slot name="filter"></slot>
     <NLFlex extraClass="my-6">
-        <NLHeading type="2">{{ title }}</NLHeading>
-        <NLFlex>
+        <!-- <NLHeading type="2">{{ title }}</NLHeading> -->
+        <NLFlex alignItems="center" gap="2">
+            <NLButton class="btn-filter" :class="{ 'btn-danger': filterIsOpen }" v-if="hasFilters"
+                @click.stop="(e) => this.handleFilterState(e)">
+                <NLIcon name="filter_list" v-if="!filterIsOpen" />
+                <NLIcon name="filter_list_off" v-if="filterIsOpen" />
+            </NLButton>
             <SearchBar @search="(e) => this.$emit('search', e)" :searchValue="searchValue" v-if="isSearchable" />
-            <button class="btn btn-filter" :class="{ 'btn-danger': filterIsOpen, 'btn-info': !filterIsOpen }"
-                v-if="hasFilters" @click.stop="(e) => this.handleFilterState(e)">
-                <i class="las la-filter icon" v-if="!filterIsOpen"></i>
-                <i class="las la-times icon" v-else></i>
-            </button>
+        </NLFlex>
+        <NLFlex extraClass="actions" gap="2" alignItems="center" justifyContent="end">
+            <slot name="table-actions"></slot>
         </NLFlex>
     </NLFlex>
-    <!-- <NLContainer extraClass="my-6 p-none" isFluid>
-    </NLContainer> -->
     <div class="table-container">
         <table>
             <TableHead>
@@ -26,16 +27,13 @@
             </TableFoot>
         </table>
         <slot name="pagination"></slot>
-        <div class="component-loader-container" v-if="isLoading">
-            <div class="component-loader"></div>
-            <div class="component-loader-text">
-                Chargement en cours
-            </div>
-        </div>
+        <NLComponentLoader :isLoading="isLoading" />
     </div>
 </template>
 
 <script>
+import NLComponentLoader from '../NLComponentLoader'
+import NLIcon from '../NLIcon'
 import NLButton from '../Inputs/NLButton'
 import NLFlex from '../Grid/NLFlex'
 import NLSelect from '../Inputs/NLSelect'
@@ -46,6 +44,8 @@ import TableHead from './TableHead'
 
 export default {
     components: {
+        NLComponentLoader,
+        NLIcon,
         NLButton,
         NLFlex,
         NLSelect,

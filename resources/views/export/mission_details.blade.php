@@ -60,10 +60,10 @@
                     @if (!hasRole(['ci', 'cdc', 'da']))
                         <td>{{ $detail->score }}</td>
                     @endif
-                    <td>{{ boolVal(intVal($detail->is_regularized)) ? 'Levée' : 'Non levée' }}</td>
-                    @if (!empty(sanitizeString($detail->ci_report)) || !empty(sanitizeString($detail->report)))
+                    <td>{{ boolVal(intVal($detail->reg_is_regularized)) ? 'Levée' : 'Non levée' }}</td>
+                    @if (!empty(sanitizeString($detail->observation)))
                         <td>
-                            {{ hasRole('ci') ? sanitizeString($detail->ci_report) : sanitizeString($detail->report) }}
+                            {{ sanitizeString($detail->observation) }}
                         </td>
                     @else
                         <td>-</td>
@@ -79,9 +79,15 @@
                         {{ !empty($detail->major_fact_is_detected_at) ? Carbon\Carbon::parse($detail->major_fact_is_detected_at)->format('d-m-Y') : '-' }}
                     </td>
                     <td>
-                        @if (boolVal(intVal($detail->major_fact_is_rejected)) && boolVal(intVal($detail->major_fact)))
+                        @if (
+                            (boolVal(intVal($detail->major_fact_is_rejected_at_dcp)) ||
+                                boolVal(intVal($detail->major_fact_is_rejected_at_dre))) &&
+                                boolVal(intVal($detail->major_fact)))
                             Réjéter
-                        @elseif(!boolVal(intVal($detail->major_fact_is_rejected)) && boolVal(intVal($detail->major_fact)))
+                        @elseif(
+                            !(boolVal(intVal($detail->major_fact_is_rejected_at_dcp)) ||
+                                boolVal(intVal($detail->major_fact_is_rejected_at_dre))
+                            ) && boolVal(intVal($detail->major_fact)))
                             En attente
                         @elseif(
                             (boolVal(intVal($detail->major_fact_is_dispatched_to_dcp)) ||

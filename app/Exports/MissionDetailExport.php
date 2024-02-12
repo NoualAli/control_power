@@ -2,6 +2,9 @@
 
 namespace App\Exports;
 
+use App\Enums\EventLogTypes;
+use App\Models\EventLog;
+use App\Models\MissionDetail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
@@ -28,10 +31,13 @@ class MissionDetailExport extends BaseExport implements FromView, WithProperties
             $controlPoint = DB::table('control_points')->select('scores')->where('id', $detail->control_point_id)->first();
             $appreciation = collect(json_decode($controlPoint->scores))->filter(fn ($score) => $score[0]->score == $detail->score)->first();
             $detail->appreciation = isset($appreciation[1]) ? $appreciation[1]?->label : null;
+            $observation = DB::table('comments')->where('commentable_type', MissionDetail::class)->where('commentable_id', $detail->id)->whereIn('type', ['ci_observation', 'cdc_observation'])
+                ->orderBy('created_at', 'DESC')->first();
+            $detail->observation = $observation->content;
             return $detail;
         });
-        // dd($details->filter(fn ($detail) => $detail->metadata));
         $missionReference = $this->missionReference;
+        EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => MissionDetail::class, 'payload' => ['content' => 'Détails de la mission ' . $missionReference]]);
         return view('export.mission_details', compact('details', 'missionReference'));
     }
 

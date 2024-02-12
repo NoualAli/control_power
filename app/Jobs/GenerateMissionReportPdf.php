@@ -53,12 +53,19 @@ class GenerateMissionReportPdf implements ShouldQueue
      */
     public function handle()
     {
+        print "\n\n  --------------------------------------------------------------------------------------------------------\n\n";
+        print_r("  Début de la génération du rapport PDF de la mission " . $this->mission->reference . "\n");
         try {
+            $fileExists = Storage::fileExists($this->filepath());
             $mission = $this->mission;
             $start = now();
             $mission->unsetRelations();
             $mission->load(['details', 'campaign']);
-            $details = $mission->details()->whereIn('score', [1, 2, 3, 4])->get()->groupBy('family.name');
+            $details = $mission->details()->whereIn('score', [1, 2, 3, 4])->get()->map(function ($detail) {
+                $detail->observation = $detail->observations()->first() ?: null;
+                return $detail;
+            })->groupBy('family.name');
+
             $campaign = $mission->campaign;
             $stats = [
                 'avg_score' => $mission->avg_score,
@@ -88,20 +95,28 @@ class GenerateMissionReportPdf implements ShouldQueue
                 }
             }
             $content = $pdf->download()->getOriginalContent();
-
             Storage::put($this->filepath(), $content);
             $notifiables = User::whereRoles(['cdcr', 'cdrcp', 'dcp'])->where('is_active', true)->get();
             $notifiables = User::whereRoles(['dre', 'da'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->where('is_active', true)->get()->merge($notifiables);
-            $notifiables = $notifiables->merge($mission->dcpControllers)->merge($mission->dreControllers);
+            $notifiables = $notifiables->merge([$mission->dreController]);
+            if ($mission->dcp_controller) {
+                $dcpController = $mission->dcp_controller;
+                $notifiables = $notifiables->merge($dcpController);
+            }
             $end = now();
-            $difference = $end->diffInRealMilliseconds($start);
-
+            $difference = $end->diffInMinutes($start);
+            if ($difference < 1) {
+                $difference = $end->diffInSeconds($start);
+                $difference = $difference > 1 ? $difference . ' secondes' : $difference . ' sconde';
+            } else {
+                $difference = $difference > 1 ? $difference . ' minutes' : $difference . ' minute';
+            }
             /**
              * Store pdf informations in database
              */
-            if (Storage::fileExists($this->filepath())) {
+            if ($fileExists) {
                 $id = Str::uuid();
-                $insertedFile = DB::table('media')->insert([
+                $insertedFile = DB::table('media')->updateOrInsert([
                     'id' => $id,
                     'original_name' => $this->getFileName(true),
                     'hash_name' => $this->getFileName(true),
@@ -114,7 +129,7 @@ class GenerateMissionReportPdf implements ShouldQueue
                         'name' => $mission->reference,
                     ]),
                 ]);
-                $media = DB::table('has_media')->insert([
+                $media = DB::table('has_media')->updateOrInsert([
                     'attachable_id' => $mission->id,
                     'attachable_type' => Mission::class,
                     'media_id' => $id,
@@ -124,11 +139,13 @@ class GenerateMissionReportPdf implements ShouldQueue
             /**
              * Notify users after pdf is generated
              */
-            if ($this->notify) {
+            if (!$fileExists) {
                 foreach ($notifiables as $user) {
                     Notification::send($user, new ReportNotification($mission));
                 }
             }
+            print_r("  Rapport PDF de la mission " . $this->mission->reference . " généré avec succès sous le nom : " . $this->getFileName(true) . "\n");
+            print_r("  La génération a prit au total $difference\n");
         } catch (\Throwable $th) {
             echo $th->getMessage() . ' ' . $th->getLine() . ' ' . $th->getFile();
         }

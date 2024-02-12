@@ -3,13 +3,10 @@
 namespace App\Providers;
 
 use App\Models\ControlCampaign;
-use App\Models\MissionDetail;
 use App\Observers\CampaignObserver;
-use App\Observers\MissionDetailObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -33,6 +30,5 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         ControlCampaign::observe(CampaignObserver::class);
-        MissionDetail::observe(MissionDetailObserver::class);
     }
 }

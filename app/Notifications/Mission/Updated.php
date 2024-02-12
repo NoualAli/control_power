@@ -41,6 +41,17 @@ class Updated extends Notification
     }
 
     /**
+     * Get notification body
+     *
+     * @return string
+     */
+    private function getHtmlContent(): string
+    {
+        $content = "<p>La mission <b>" . $this->mission->reference . "</b> pour l'agence <b>" . $this->mission->agency->full_name . "</b> a été mise à jour.<p>";
+        return $content;
+    }
+
+    /**
      * Get email subject
      *
      * @return string
@@ -88,13 +99,11 @@ class Updated extends Notification
      */
     public function toMail($notifiable)
     {
-        $startLine = "La mission commence le " . $this->mission->start;
-        $endLine = "La mission se termine le " . $this->mission->end;
+        $startLine = "La mission commence le " . $this->mission->start . " et se termine " . $this->mission->end;
         return (new MailMessage)
             ->subject($this->getTitle())
             ->line($this->getContent())
             ->line($startLine)
-            ->line($endLine)
             ->action('Voir la mission', $this->getUrl())
             ->line('Merci d\'utiliser ControlPower')
             ->success();
@@ -112,6 +121,7 @@ class Updated extends Notification
             'id' => $this->mission->id,
             'url' => $this->getUrl(),
             'content' => $this->getContent(),
+            'short_content' => $this->getHtmlContent(),
             'title' => $this->getTitle(),
             'emitted_by' => auth()->user()->username,
         ];

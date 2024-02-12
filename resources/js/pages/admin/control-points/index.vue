@@ -1,21 +1,33 @@
 <template>
     <div v-if="can('view_control_point')">
-        <ContentHeader>
-            <template #actions>
+        <!-- <ContentHeader>
+            <template #right-actions>
                 <router-link v-if="can('create_control_point')" :to="{ name: 'control-points-create' }"
                     class="btn btn-info">
                     Ajouter
                 </router-link>
                 <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
-                    <i class="las la-file-excel icon" />
+                    <NLIcon name="table" />
                     Exporter
                 </button>
             </template>
-        </ContentHeader>
+        </ContentHeader> -->
         <ContentBody>
             <NLDatatable :columns="columns" :filters="filters" :details="details" :actions="actions"
                 title="Liste des points de contrôle" urlPrefix="control-points" @edit="edit" @delete="destroy"
-                :refresh="refresh" @dataLoaded="handleDataLoaded" />
+                :refresh="refresh" @dataLoaded="handleDataLoaded">
+                <template #table-actions>
+                    <router-link v-if="can('create_control_point')" :to="{ name: 'control-points-create' }"
+                        class="btn has-icon">
+                        <NLIcon name="add" />
+                        Ajouter
+                    </router-link>
+                    <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
+                        <NLIcon name="table" />
+                        Exporter
+                    </button>
+                </template>
+            </NLDatatable>
             <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl"
                 @close="this.excelExportIsOpen = false" @success="this.excelExportIsOpen = false" />
         </ContentBody>
@@ -141,7 +153,8 @@ export default {
          * @param {Object} item
          */
         edit(item) {
-            this.$router.push({ name: 'control-points-edit', params: { controlPoint: item.id } })
+            // this.$router.push({ name: 'control-points-edit', params: { controlPoint: item.id } })
+            window.open(this.$router.resolve({ name: 'control-points-edit', params: { controlPoint: item.id } }).href, '_blank')
         },
 
         /**

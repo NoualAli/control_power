@@ -67,7 +67,3 @@ trait HasDres
         });
     }
 }
-// levé / non levé
-// Action engagé / Action à engagé - Cause
-// piece joints
-// Commentaire

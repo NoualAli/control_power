@@ -68,7 +68,6 @@ export default {
             const value = event.target.value;
             const isChecked = event.target.checked;
             // const id = event.target.id;
-            // console.log(isChecked);
             return isChecked
             // return itemValue !== undefined && Object.values(this.checkedValues).includes(itemValue.id);
         }

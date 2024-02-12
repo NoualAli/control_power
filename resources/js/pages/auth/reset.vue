@@ -1,5 +1,5 @@
 <template>
-    <NLGrid class="box auth-box reset" gap="6" v-if="shouldReset">
+    <NLGrid class="box auth-box reset border-1 border-primary" gap="6" v-if="shouldReset">
         <NLColumn class="auth-box__header">
             <img src="/storage/assets/brand.svg" class="auth-brand">
             <span class="auth-box__title" v-if="showForm">
@@ -69,10 +69,10 @@
             </div>
         </NLColumn>
         <NLColumn class="text-center d-block d-lg-none">
-            VERSION {{ CURRENT_VERSION }} &copy; {{ currentYear }} - Tous droits réservés - BNA
+            VERSION {{ CURRENT_VERSION }} &copy; {{ currentYear }}
         </NLColumn>
     </NLGrid>
-    <NLGrid class="box auth-box" gap="6" v-else>
+    <NLGrid class="box auth-box border-1 border-primary" gap="6" v-else>
         <NLColumn class="auth-box__header">
             <img src="/storage/assets/brand.svg" class="auth-brand">
             <span class="auth-box__title">
@@ -83,14 +83,14 @@
             <form method="POST" @submit.prevent="renew" @keydown="passwordForm.onKeydown($event)" v-if="showForm">
                 <NLGrid gap="2" class="my-2">
                     <NLColumn>
-                        <NLInput v-model="passwordForm.password" name="password" label="Mot de passe" class="is-for-auth"
-                            placeholder="Veuillez renseigner un nouveau mot de passe" :form="passwordForm" type="password"
-                            labelRequired />
+                        <NLInput v-model="passwordForm.new_password" name="new_password" label="Nouveau mot de passe"
+                            class="is-for-auth" placeholder="Veuillez renseigner un nouveau mot de passe"
+                            :form="passwordForm" type="password" labelRequired />
                     </NLColumn>
 
                     <NLColumn>
-                        <NLInput v-model="passwordForm.password_confirmation" name="password_confirmation"
-                            label="Confirmation mot de passe" class="is-for-auth"
+                        <NLInput v-model="passwordForm.new_password_confirmation" name="new_password_confirmation"
+                            label="Confirmation du nouveau mot de passe" class="is-for-auth"
                             placeholder="Veuillez confirmer votre nouveau mot de passe" :form="passwordForm" type="password"
                             labelRequired />
                     </NLColumn>
@@ -106,7 +106,7 @@
             </div>
         </NLColumn>
         <NLColumn class="text-center d-block d-lg-none">
-            VERSION {{ CURRENT_VERSION }} &copy; {{ currentYear }} - Tous droits réservés - BNA
+            VERSION {{ CURRENT_VERSION }} &copy; {{ currentYear }}
         </NLColumn>
     </NLGrid>
 </template>
@@ -151,8 +151,8 @@ export default {
             password_confirmation: null,
         }),
         passwordForm: new Form({
-            password: null,
-            password_confirmation: null,
+            new_password: null,
+            new_password_confirmation: null,
         }),
         shouldReset: false,
         showForm: true,
@@ -180,7 +180,7 @@ export default {
                     this.showForm = true
                 }
             }).catch(error => {
-                this.$swal.catchError(error)
+                this.$swal.catchError(error, true)
                 this.showForm = true
             })
         },

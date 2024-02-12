@@ -91,7 +91,7 @@ export default {
         removeTag(index) {
             if (this.tags.length) {
                 this.tags.splice(index, 1);
-                console.log(this.tags);
+
                 this.$emit('update:modelValue', this.tags)
             }
         },

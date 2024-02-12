@@ -51,7 +51,6 @@ export const actions = {
             url += edit ? '?edit' : ''
             const { data } = await api.get(url)
             if (onlyProcesses) {
-                console.log(data)
                 commit('FETCH_PROCESSES', { processes: data })
             } else {
                 commit('FETCH', { current: data })
@@ -60,9 +59,17 @@ export const actions = {
 
         }
     },
-    async fetchConfig({ commit }, campaignId = null) {
+    async fetchConfig({ commit }, params = { missionId: null, campaignId: null }) {
         try {
-            const url = campaignId !== null && campaignId !== undefined && campaignId !== '' ? 'missions/concerns/config?campaign_id=' + campaignId : 'missions/concerns/config'
+            let url = 'missions/concerns/config'
+            if (params.missionId && !params.campaignId) {
+                url += '?mission_id=' + params.missionId
+            } else if (params.campaignId && !params.missionId) {
+                url += '?campaign_id=' + params.campaignId
+            } else if (params.campaignId && params.missionId) {
+                url += '?mission_id=' + params.missionId + '&campaign_id=' + params.campaignId
+            }
+
             const { data } = await api.get(url)
             commit('FETCH_CONFIG', { config: data })
         } catch (error) {
@@ -70,7 +77,7 @@ export const actions = {
         }
     },
     async fetchDetails({ commit }, { missionId, processId }) {
-        const url = 'missions/' + missionId + '/details/' + processId
+        const url = 'missions/' + missionId + '/processes/' + processId
         try {
             const { data } = await api.get(url)
             commit('FETCH_DETAILS', { detailsConfig: data })

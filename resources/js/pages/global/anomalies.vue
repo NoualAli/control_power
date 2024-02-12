@@ -1,11 +1,12 @@
 <template>
     <ContentBody>
-        <NLDatatable :columns="columns" :actions="actions" :filters="filters" @show="show"
-            title="Anomalie • Notation • Plan de redressement" urlPrefix="details"
-            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" :refresh="refresh" />
+        <NLDatatable :columns="columns" :actions="actions" :filters="filters" @show="show" title="Plans de redressement"
+            urlPrefix="anomalies" @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)"
+            :refresh="refresh" />
 
         <!-- View control point informations -->
-        <MissionDetailModal :rowSelected="rowSelected" :show="modals.show" @showForm="showForm" @close="close" />
+        <MissionDetailModal :rowSelected="rowSelected" :show="modals.show" @showForm="showForm" @success="success"
+            @close="close" />
 
         <!-- Traitement du point de contrôle -->
         <MissionDetailForm :data="rowSelected" :show="modals.edit" @success="success" @close="close" />
@@ -15,7 +16,7 @@
     </ContentBody>
 </template>
 <script>
-import { hasRole, user } from '../../plugins/user'
+import { hasRole } from '../../plugins/user'
 import Alert from '../../components/Alert'
 import MissionDetailModal from '../../Modals/MissionDetailModal'
 import MissionDetailForm from '../../forms/MissionDetailForm'
@@ -30,19 +31,13 @@ export default {
             refresh: 0,
             columns: [
                 {
-                    label: 'CDC-ID',
-                    field: 'campaign',
-                    sortable: true,
-                },
-                {
-                    label: 'RAP-ID',
-                    field: 'mission',
-                    sortable: true,
+                    label: 'Référence',
+                    field: 'reference',
                 },
                 {
                     label: 'DRE',
                     field: 'dre',
-                    hide: hasRole([ 'cdc', 'ci', 'da', 'dre' ]),
+                    hide: hasRole([ 'cdc', 'da', 'ci' ]),
                     sortable: true,
                 },
                 {
@@ -54,18 +49,21 @@ export default {
                 {
                     label: 'Famille',
                     field: 'family',
+                    // hide: !hasRole([ 'cdcr', 'dcp', 'cc' ]),
                     sortable: true,
                     length: 50,
                 },
                 {
                     label: 'Domaine',
                     field: 'domain',
+                    // hide: !hasRole([ 'cdcr', 'dcp', 'cc' ]),
                     sortable: true,
                     length: 30,
                 },
                 {
                     label: 'Processus',
                     field: 'process',
+                    // hide: !hasRole([ 'cdcr', 'dcp', 'cc' ]),
                     sortable: true,
                     length: 50,
                 },
@@ -73,13 +71,14 @@ export default {
                     label: 'Point de contrôle',
                     field: 'control_point',
                     length: 50,
+                    // hide: !hasRole([ 'cdcr', 'dcp', 'cc' ]),
                     sortable: true,
                 },
                 {
                     label: 'Notation',
                     field: 'score',
                     align: 'center',
-                    hide: hasRole([ 'cdc', 'ci' ]),
+                    hide: hasRole([ 'cdc', 'ci', 'da' ]),
                     sortable: true,
                     isHtml: true,
                     methods: {
@@ -98,18 +97,18 @@ export default {
                                 style = 'is-grey';
                             }
 
-                            return '<div class="tag is-centered ' + style + '">' + score + '</div>';
+                            return '<span class="tag is-centered ' + style + '">' + score + '</span>';
                         }
                     }
                 },
-                {
-                    label: 'Contrôlé',
-                    field: 'is_controlled',
-                    hide: !hasRole([ 'cdc', 'ci', 'cdcr', 'cc', 'dcp' ])
-                },
+                // {
+                //     label: 'Contrôlé',
+                //     field: 'is_controlled',
+                //     hide: !hasRole([ 'cdc', 'ci', 'cdcr', 'cc', 'dcp' ])
+                // },
                 {
                     label: 'Etat',
-                    field: 'is_regularized_str',
+                    field: 'state',
                 }
             ],
             actions: {
@@ -121,6 +120,11 @@ export default {
                 regularize: false
             },
             filters: {
+                id: {
+                    hide: true,
+                    data: null,
+                    value: null
+                },
                 campaign: {
                     label: 'Campagne de contrôle',
                     cols: 3,
@@ -141,14 +145,16 @@ export default {
                     cols: 3,
                     multiple: true,
                     data: null,
-                    value: null
+                    value: null,
+                    hide: hasRole([ 'da' ])
                 },
                 mission: {
                     label: 'Mission',
                     cols: 3,
                     multiple: true,
                     data: null,
-                    value: null
+                    value: null,
+                    hide: hasRole([ 'da' ])
                 },
                 family: {
                     label: 'Famille',
@@ -168,8 +174,8 @@ export default {
                     data: null,
                     value: null
                 },
-                is_regularized: {
-                    label: 'Régularisation',
+                state: {
+                    label: 'Etat',
                     multiple: false,
                     value: null,
                     data: [
@@ -178,8 +184,16 @@ export default {
                             label: 'Non levée'
                         },
                         {
+                            id: 'En cours d\'assainissement',
+                            label: 'En cours d\'assainissement'
+                        },
+                        {
                             id: 'Levée',
                             label: 'Levée'
+                        },
+                        {
+                            id: 'Rejetée',
+                            label: 'Rejetée'
                         }
                     ]
                 },
@@ -201,12 +215,13 @@ export default {
                         }
                     ],
                     value: null,
-                    hide: !hasRole([ 'dcp', 'cdcr', 'cc' ]),
+                    hide: hasRole([ 'ci', 'cdc', 'da' ]),
                 },
                 is_controlled: {
                     label: 'Contrôlé',
                     multiple: false,
                     value: null,
+                    hide: !hasRole([ 'dcp', 'cdcr', 'cc', 'ci', 'cdc' ]),
                     data: [
                         {
                             id: 'Non',
@@ -238,6 +253,11 @@ export default {
     },
     created() {
         this.$store.dispatch('settings/updatePageLoading', true)
+        if (this.$route?.query?.id) {
+            this.filters.id.value = this.$route?.query?.id
+        } else if (this.$route.query[ 'filter[id]' ]) {
+            this.filters.id.value = this.$route?.query[ 'filter[id]' ]
+        }
     },
     methods: {
         /**

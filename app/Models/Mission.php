@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Znck\Eloquent\Traits\BelongsToThrough;
@@ -59,6 +60,8 @@ class Mission extends BaseModel
         'dcp_validator_full_name',
         'da_validator_full_name',
         'is_for_testing',
+        'assigned_to_cc_id',
+        'assigned_to_ci_id',
     ];
 
     protected $hidden = [
@@ -75,9 +78,6 @@ class Mission extends BaseModel
         'avg_score',
         'end',
         'start',
-        'has_dcp_controllers',
-        'dcp_controllers_str',
-        'dre_controllers_str',
         'is_validated_by_ci',
         'is_validated_by_cdc',
         'is_validated_by_cc',
@@ -98,6 +98,7 @@ class Mission extends BaseModel
         'is_late',
         'report_link',
         'is_for_testing_str',
+        'assistants_str',
     ];
 
     protected $casts = [
@@ -114,6 +115,10 @@ class Mission extends BaseModel
     /**
      * Getters
      */
+    public function getAssistantsStrAttribute()
+    {
+        return $this->assistants->pluck('id')->map(fn ($assistant) => normalizeFullName(getUserFullNameWithRole($assistant)))->join(', ');
+    }
 
     public function getIsForTestingStrAttribute()
     {
@@ -121,26 +126,43 @@ class Mission extends BaseModel
     }
     public function getIsLateAttribute()
     {
-        $programmedEnd = Carbon::parse($this->programmed_end);
+        $programmedStart = Carbon::parse($this->programmed_start);
         $realEnd = $this->real_end ?: Carbon::parse($this->real_end);
-        $ciValidationAt = $this->ci_validation_at ? Carbon::parse($this->ci_validation_at) : null;
         $cdcValidationAt = $this->cdc_validation_at ? Carbon::parse($this->cdc_validation_at) : null;
-        $cdcrValidationAt = $this->cdcr_validation_at ? Carbon::parse($this->cdcr_validation_at) : null;
-        $ccValidationAt = $this->cc_validation_at ? Carbon::parse($this->cc_validation_at) : null;
-        $dcpValidationAt = $this->dcp_validation_at ? Carbon::parse($this->dcp_validation_at) : null;
-        $daValidationAt = $this->da_validation_at ? Carbon::parse($this->da_validation_at) : null;
-        $today = today();
+        $ciValidationAt = $this->ci_validation_at ? Carbon::parse($this->ci_validation_at) : null;
+        // $dcpValidationAt = $this->dcp_validation_at ? Carbon::parse($this->dcp_validation_at) : null;
+        // $daValidationAt = $this->da_validation_at ? Carbon::parse($this->da_validation_at) : null;
         $isLate = false;
-        if ($programmedEnd->diffInDays($today) < 15 && $realEnd && $realEnd->diffInDays($programmedEnd, false) < 0) {
-            $isLate =  true;
-        } elseif ($cdcValidationAt && $cdcrValidationAt && $cdcValidationAt->diffInDays($cdcrValidationAt, false) > 5) {
-            $isLate = true;
-        } elseif ($dcpValidationAt && $cdcrValidationAt && $cdcrValidationAt->diffInDays($dcpValidationAt, false) > 5) {
-            $isLate = true;
-        } elseif ($dcpValidationAt && $dcpValidationAt->diffInDays($daValidationAt, false) > 5) {
-            $isLate = true;
+
+        if (hasRole('ci')) {
+            $diffInWeek = $programmedStart->diffInWeeks($realEnd, false);
+            $difference = $programmedStart->diffInDays($realEnd, false);
+
+            if ($diffInWeek) {
+                $difference = $difference + ($diffInWeek * 2);
+            }
+            $isLate = $difference > 15;
+        } elseif (hasRole('cdc')) {
+            $diffInWeek = $programmedStart->diffInWeeks($realEnd, false);
+            $difference = $programmedStart->diffInDays($realEnd, false);
+
+            if ($diffInWeek) {
+                $difference = $difference + ($diffInWeek * 2);
+            }
+
+            // Include comparison with cdc_validation_at
+            $isLate = $difference > 15 || ($cdcValidationAt && $cdcValidationAt->diffInDays($realEnd, false) > 15) || ($ciValidationAt && $ciValidationAt->diffInDays($realEnd, false) > 15);
+        } else {
+            // if ($daValidationAt && $dcpValidationAt) {
+            //     $daValidationAt = $daValidationAt->diffInDays($dcpValidationAt, false);
+            // } else if ($dcpValidationAt && !$daValidationAt) {
+            //     $daValidationAt = $dcpValidationAt->diffInDays(today(), false);
+            // } else {
+            //     $daValidationAt = 0;
+            // }
+            $isLate = $programmedStart->diffInDays($realEnd, false) > 15;
         }
-        // dd($daValidationAt->diffInDays($dcpValidationAt, false) > 5, $dcpValidationAt, $daValidationAt);
+        // dd($isLate);
         return $isLate;
     }
 
@@ -178,18 +200,19 @@ class Mission extends BaseModel
      */
     public function getRemainingDaysBeforeEndStrAttribute(): string
     {
-        $remainingDays = $this->remaining_days_before_end > 1 ? $this->remaining_days_before_end . ' jours' : $this->remaining_days_before_end . ' jour';
-        return $this->remaining_days_before_end ? ' / ' . $remainingDays : '';
+        return daysRemainingStr($this->remaining_days_before_end);
+        // $remainingDays = $this->remaining_days_before_end > 1 ? $this->remaining_days_before_end . ' jours' : $this->remaining_days_before_end . ' jour';
+        // return $this->remaining_days_before_end ? ' / ' . $remainingDays : '';
     }
 
     public function getTotalAnomaliesAttribute()
     {
-        return $this->details()->whereAnomaly()->count();
+        return $this->details()->whereAnomaly()->count() + $this->total_major_facts;
     }
 
     public function getAnomaliesRateAttribute()
     {
-        $anomalies = ($this->total_anomalies * 100);
+        $anomalies = (($this->total_anomalies) * 100);
         return $anomalies ? number_format($anomalies  / $this->total_details, 2) : 0;
     }
 
@@ -236,15 +259,6 @@ class Mission extends BaseModel
         return $date->format('d-m-Y');
     }
 
-    public function getHasDcpControllersAttribute()
-    {
-        return (bool) $this->dcpControllers->count();
-    }
-    public function getHasDreControllersAttribute()
-    {
-        return (bool) $this->dreControllers->count();
-    }
-
     public function getReferenceAttribute($reference)
     {
         if (!$this->dre_report_is_validated && !$this->dre_report_is_validated) {
@@ -261,14 +275,9 @@ class Mission extends BaseModel
         return $sum > 0 && $count > 0 ? addZero(round($sum / $count)) : 0;
     }
 
-    public function getDreControllersStrAttribute()
+    public function getDreControllerStrAttribute()
     {
-        return implode(', ', $this->dreControllers->pluck('full_name')->toArray());
-    }
-
-    public function getDcpControllersStrAttribute()
-    {
-        return implode(', ', $this->dcpControllers->pluck('full_name')->toArray());
+        return $this->dreController->full_name;
     }
 
     public function getProgressStatusAttribute()
@@ -283,7 +292,7 @@ class Mission extends BaseModel
     {
         $totalDetails = $this->details()->whereAnomaly()->count();
         $totalRegularized = $this->details()->onlyRegularized()->count();
-
+        // dd($totalDetails, $totalRegularized);
         return $totalRegularized ? number_format($totalRegularized * 100 / $totalDetails) : 0;
     }
 
@@ -358,41 +367,6 @@ class Mission extends BaseModel
         return boolval($this->da_validation_at) && boolval($this->dcp_validation_by_id);
     }
 
-    // public function getRealisationStateAttribute()
-    // {
-    //     // $today = now();
-    //     // $start = $this->programmed_start;
-    //     // $end = $this->programmed_end;
-    //     // $progressStatus = intval($this->progress_status);
-    //     // $startDiff = $today->diffInDays($start, false);
-    //     // $endDiff = $today->diffInDays($end, false);
-    //     // $totalControlled = $this->details()->controlled()->count();
-    //     // // dd($startDiff <= 0, $endDiff >= 0, $progressStatus < 100, $totalControlled);
-    //     // // dd($startDiff, $progressStatus, $totalControlled);
-    //     // if ($startDiff >= 0 && $progressStatus == 0 && !$totalControlled) {
-    //     //     $state = 'À réaliser';
-    //     // } else if ($startDiff < 0 && $progressStatus == 0 && !$totalControlled) {
-    //     //     $state = 'En retard';
-    //     // } else if ($startDiff <= 0 && $endDiff >= 0 && $progressStatus < 100 && $totalControlled) {
-    //     //     $state = 'En cours';
-    //     // } else if ($progressStatus >= 100 && ($this->ci_report_exists && $this->is_validated_by_ci && (!$this->cdc_report_exists || ($this->cdc_report_exists && !$this->is_validated_by_cdc)) || !$this->ci_report_exists)) {
-    //     //     $state = 'En attente de validation';
-    //     // } else if ($progressStatus >= 100 && $this->is_validated_by_cdc && !$this->is_validated_by_cdcr) {
-    //     //     $state = 'Validé et envoyé';
-    //     // } else if ($progressStatus >= 100 && $this->is_validated_by_cdc && $this->is_validated_by_cdcr && !$this->is_validated_by_dcp) {
-    //     //     $state = '1ère validation';
-    //     // } else if ($progressStatus >= 100 && $this->is_validated_by_cdc && $this->is_validated_by_dcp) {
-    //     //     $state = '2ème validation';
-    //     // } else if ($endDiff < 0 && $progressStatus < 100 && (!$this->is_validated_by_ci || !$this->is_validated_by_cdc)) {
-    //     //     $state = 'En retard';
-    //     // } elseif ($progressStatus && $totalControlled) {
-    //     //     return 'En cours';
-    //     // } else {
-    //     //     $state = 'Indéterminé';
-    //     // }
-    //     // return $state;
-    // }
-
     public function getCdcReportAttribute()
     {
         return $this->comments()->where('type', 'cdc_report')->first();
@@ -406,19 +380,20 @@ class Mission extends BaseModel
     /**
      * Relationships
      */
-    public function controllers()
+    public function assistants()
     {
-        return $this->belongsToMany(User::class, 'mission_has_controllers')->withPivot('control_agency');
-    }
-    public function dreControllers()
-    {
-        return $this->belongsToMany(User::class, 'mission_has_controllers')->withPivot('control_agency');
+        return $this->belongsToMany(User::class, 'mission_has_controllers', 'mission_id', 'user_id');
     }
 
-    public function dcpControllers()
+    public function dreController()
+    {
+        return $this->belongsTo(User::class, 'assigned_to_ci_id');
+    }
+
+    public function dcpController()
     {
 
-        return $this->hasManyThrough(User::class, MissionDetail::class, 'mission_id', 'id', 'id', 'assigned_to_cc_id')->distinct();
+        return $this->hasOne(User::class, 'assigned_to_cc_id');
     }
 
     public function creator()
@@ -439,7 +414,7 @@ class Mission extends BaseModel
     }
     public function details()
     {
-        return $this->hasMany(MissionDetail::class);
+        return $this->hasMany(MissionDetail::class)->where('is_disabled', false);
     }
 
     public function ciValidator()
@@ -472,12 +447,12 @@ class Mission extends BaseModel
 
     public function missionOrder()
     {
-        return $this->media()->whereLike('folder', '%uploads/Ordres de mission%');
+        return $this->media()->whereLike('folder', '%uploads/Ordres de mission%')->orWhere('folder', 'uploads/mission_order');
     }
 
     public function closingReport()
     {
-        return $this->media()->whereLike('folder', '%uploads/Pv de clôture%');
+        return $this->media()->whereLike('folder', '%uploads/Pv de clôture%')->orWhere('folder', 'uploads/closing_report');
     }
 
 
@@ -495,30 +470,6 @@ class Mission extends BaseModel
     public function scopeHasControllers($query)
     {
         return $query->whereHas('controllers');
-    }
-
-    /**
-     * Check if mission has DCP controllers
-     *
-     * @param mixed $query
-     *
-     * @return Builder
-     */
-    public function scopeHasDcpControllers($query)
-    {
-        return $query->whereHas('dcpControllers');
-    }
-
-    /**
-     * Check if mission has DRE controllers
-     *
-     * @param mixed $query
-     *
-     * @return Builder
-     */
-    public function scopeHasDreControllers($query)
-    {
-        return $query->whereHas('dreControllers');
     }
 
     /**

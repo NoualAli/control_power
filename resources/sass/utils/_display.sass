@@ -1,5 +1,8 @@
 .d-flex
-    // width: 100%
+    &.is-wrap
+        flex-wrap: wrap
+        & > *
+            flex-grow: 1
     @for $i from 0 through 12
         &.gap-#{$i}
             gap: $i * .25rem

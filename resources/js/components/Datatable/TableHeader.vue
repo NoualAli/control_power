@@ -1,10 +1,18 @@
 <template>
     <th @click="handleSorting" :colspan="colspan" :align="align"
         :class="[{ 'is-sortable': sortable, 'is-active': direction !== null }, thClass]" v-if="!hide" ref="table-header">
-        <slot :column="column"></slot>
-        {{ label }}
-        <i class="las la-arrow-down" :class="{ 'la-arrow-down': direction == 'asc', 'la-arrow-up': direction == 'desc' }"
-            v-if="sortable && (direction == 'asc' || direction == 'desc')"></i>
+        <span v-if="!isHtml">
+            <slot :column="column"></slot>
+            {{ label }}
+            <!-- <NLIcon name="arrow_downward" v-if="direction == 'asc'"/>
+            <NLIcon name="arrow_downward" v-if="direction == 'down'"/> -->
+            <i class="las la-arrow-down"
+                :class="{ 'la-arrow-down': direction == 'asc', 'la-arrow-up': direction == 'desc' }"
+                v-if="sortable && (direction == 'asc' || direction == 'desc')"></i>
+        </span>
+        <span
+            :class="[{ 'd-flex justify-center align-center': align == 'center', 'd-flex justify-start align-center': align == 'left', 'd-flex justify-end align-center': align == 'right' }]"
+            v-html="label" v-else></span>
     </th>
 </template>
 

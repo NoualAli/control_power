@@ -5,7 +5,7 @@ export const PENDING_CC_VALIDATION_STR = 'En attente de validation CC';
 export const PENDING_CDCR_VALIDATION_STR = 'En attente de validation CDCR';
 export const PENDING_DCP_VALIDATION_STR = 'En attente de validation DCP';
 export const PENDING_DA_VALIDATION_STR = 'En attente de validation DA';
-export const DONE_STR = 'Réalisée, validée et régularisée';
+export const DONE_STR = 'Réalisée et validée';
 
 export const TODO_CLASS = 'todo';
 export const ACTIVE_CLASS = 'active';

@@ -1,12 +1,12 @@
 <template>
     <NLForm :action="updateNotifications" :form="notificationsForm">
-        <NLColumn>
-            <h2>Paramètres du centre des notifications</h2>
-        </NLColumn>
+        <!-- <NLColumn>
+            <h2 class="is-underlined is-full">Paramètres du centre des notifications</h2>
+        </NLColumn> -->
         <NLColumn v-for="(notification, groupIndex) in notificationsSettingsList">
             <NLGrid>
                 <NLColumn>
-                    <h3>{{ notification.label }}</h3>
+                    <h3 class="is-underlined">{{ notification.label }}</h3>
                 </NLColumn>
                 <NLColumn v-for="(type, typeIndex) in notification.settings">
                     <NLGrid extraClass="border-bottom-1 border-primary">
@@ -24,6 +24,7 @@
                     </NLGrid>
                 </NLColumn>
             </NLGrid>
+            <NLColumn class="divider" v-if="notificationsSettingsList.length - 1 > groupIndex"></NLColumn>
         </NLColumn>
         <NLColumn>
             <NLFlex lgJustifyContent="end">
@@ -51,6 +52,7 @@ export default {
         }),
     },
     created() {
+        this.$store.dispatch('settings/updatePageLoading', true)
         this.$store.dispatch('notifications/fetchSettings', user().id).then(() => {
             this.notificationsSettingsList = this.notifications.settings
             this.initNotifications()
@@ -68,7 +70,7 @@ export default {
                             this.$swal.alert_error(response.data.message)
                         }
                     }).catch(error => {
-                        console.log(error)
+                        this.$swal.catchError(error)
                     })
                 }
             })

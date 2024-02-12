@@ -1,8 +1,7 @@
 <template>
     <ContentBody>
         <NLDatatable :columns="columns" :details="details" :filters="filters" :actions="actions" title="Références PCF"
-            urlPrefix="references/pcf" @action="handleActions" @show="handleActions"
-            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
+            urlPrefix="references/pcf" @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
 
         <ProcessInformationsModal :process="currentProcess" :show="!!currentProcess" @close="close" />
     </ContentBody>
@@ -33,18 +32,18 @@ export default {
             columns: [
                 {
                     label: 'Famille',
-                    field: 'family_name',
-                    filterable: 'family_id',
+                    field: 'family',
+                    sortable: true
                 },
                 {
                     label: 'Domaine',
-                    field: 'domain_name',
-                    filterable: 'domain_id',
+                    field: 'domain',
+                    sortable: true
                 },
                 {
                     label: 'Processus',
-                    field: 'process_name',
-                    filterable: 'process_id',
+                    field: 'process',
+                    sortable: true
                 },
             ],
             filters: {
@@ -66,21 +65,12 @@ export default {
             },
             details: [
                 {
-                    label: 'Famille',
-                    field: 'family.name',
-                },
-                {
-                    label: 'Domaine',
-                    field: 'domain.name',
-                },
-                {
-                    label: 'Processus',
-                    field: 'name',
-                },
-                {
                     label: 'Points de contrôle',
                     field: 'control_points.name',
-                    hasMany: true
+                    hasMany: true,
+                    cols: {
+                        lg: 12
+                    }
                 }
             ],
             actions: {
@@ -92,12 +82,8 @@ export default {
         }
     },
     methods: {
-        handleActions(e) {
-            console.log(e);
-        },
         show(item) {
             this.currentProcess = item.item
-            // this.$api.get('processes/' + item.item.id).then(response => this.currentProcess = response.data)
         },
         close() {
             this.currentProcess = null

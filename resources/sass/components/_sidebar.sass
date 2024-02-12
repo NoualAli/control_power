@@ -1,14 +1,14 @@
 .sidebar-container
     height: $sidebar-container-h
     width: $sidebar-container-w
-    border-right: 1px solid $white
+    // border-right: 1px solid $white
     background-color: $sidebar-bg
     overflow-x: hidden
     font-size: 1rem
     transition-property: width, overflow-x
     transition-duration: .2s
     transition-timing-function: ease
-    z-index: 5
+    z-index: 12
     & ::selection
         background-color: $sidebar-links-active-bg
         color: $sidebar-links-active-color
@@ -20,9 +20,23 @@
             &-item
                 justify-content: start
                 width: 100%
+                // width: calc($sidebar-container-w - 22px)
+                min-height: calc($sidebar-container-w - 22px)
+                border-radius: .5rem
+                border-top-left-radius: 0
+                border-bottom-left-radius: 0
+                padding: 1rem .8rem
             &-icon_text
+                // text-transform: uppercase
                 display: block
                 opacity: 1
+            &-body
+                padding-left: 0
+                &::after
+                    width: $sidebar-container-w-active
+                &::before
+                    width: $sidebar-container-w-active
+
             &-footer
                 width: $sidebar-container-w-active
                 & .logout-btn
@@ -93,8 +107,8 @@
             height: 100%
             width: $sidebar-container-w-active
             display: block
-            background-image: url('/storage/assets/bna_logo_monochrome.svg')
-            background-size: 95%
+            background-image: url('/storage/assets/brand_monochrome.png')
+            background-size: 55%
             background-repeat: no-repeat
             background-position: center
             z-index: 2
@@ -115,6 +129,7 @@
         align-content: center
         width: $sidebar-container-w
         transition: .2s ease
+        padding-bottom: 1rem
         & .logout-btn
             position: relative
             display: flex
@@ -122,52 +137,53 @@
             justify-content: center !important
             border-radius: 0 !important
             border: none
-            border-right: 1px solid $white
             margin: 0 !important
             width: $sidebar-container-w-active !important
             height: 100%
-            background-color: $primary
-            font-size: 1rem
+            font-size: .8rem
+            background-color: transparent !important
+            color: $white !important
             &:hover
-                background-color: $danger-dark !important
                 color: $white !important
                 font-weight: bold !important
                 & .sidebar-icon
-                    color: $white !important
+                    color: $danger-dark !important
             &.is-loading
                 cursor: not-allowed
                 opacity: .5
-                background-color: $danger-dark !important
+                // background-color: $danger-dark !important
                 user-select: none
     &-body
+        position: relative
         height: $sidebar-body-h
         overflow-x: hidden
         overflow-y: auto !important
-        border-bottom: 1px solid $grey
-        border-top: 1px solid $grey
         display: flex
         flex-direction: column
-        gap: 10px
-        padding: 9px
+        gap: .3rem
+        padding: .5rem
     &-item
-        // white-space: nowrap
         position: relative
-        // width: 100%
         width: calc($sidebar-container-w - 22px)
+        min-height: calc($sidebar-container-w - 22px)
         color: $white !important
         display: flex
         align-items: center
         justify-content: center
-        // justify-content: start
-        padding: 16px 11px
+        padding: 1rem
         gap: .5rem
-        border-radius: 6px
-        // transition: .2s ease-in-out
+        border-radius: 50%
         overflow: hidden
-        &:hover,&.router-link-exact-active
-            font-weight: 900 !important
-            background-color: $sidebar-links-active-bg
+        // transition: width .2s ease
+        &:hover
+            background-color: $sidebar-links-hover-bg
+            font-weight: 900
             color: $sidebar-links-active-color !important
+        &.router-link-exact-active
+            background-color: $sidebar-links-active-bg
+            font-weight: 900
+            color: $sidebar-links-active-color !important
+        &:hover,&.router-link-exact-active
             & .sidebar-icon
                 color: $primary
     &-icon
@@ -176,26 +192,3 @@
         font-size: .8rem
         opacity: 0
         display: none
-        // transition: opacity .2s ease-in-out
-    &-submenu
-        cursor: pointer
-        position: relative
-        overflow: hidden
-        border-radius: 6px
-        display: flex
-        flex-direction: column
-        justify-content: start
-        gap: 10px
-        height: 50px
-        max-height: 3000px
-        transition: .2s ease-in-out
-        &.expanded
-            overflow-y: auto
-            height: auto
-            background-color: $primary
-            & .is-active
-                font-weight: 900 !important
-                background-color: $sidebar-links-active-bg
-                color: $sidebar-links-active-color !important
-        & .sidebar-item
-            border-radius: none !important

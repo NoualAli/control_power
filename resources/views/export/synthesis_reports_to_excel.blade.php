@@ -51,6 +51,7 @@
         <tbody>
             @php
                 $dreAvgs = [];
+                $totalDreControlPoints = [];
             @endphp
             {{-- Liste des points de contrôle --}}
             @foreach ($controlPoints as $controlPoint)
@@ -77,12 +78,15 @@
                             @endphp
                             @if ($data && $data->agency == $agency->agency)
                                 @php
-                                    $scoreSum += $data->score;
-                                    $controlPointScore += $data->score;
-                                    $totalScored += 1;
+                                    if (!$data->is_disabled) {
+                                        $controlPointScore += $data->score;
+                                        $scoreSum += $data->score;
+                                        $totalScored += 1;
+                                        $totalDreControlPoints[$dre->dre] = isset($totalDreControlPoints[$dre->dre]) ? $totalDreControlPoints[$dre->dre] + 1 : 1;
+                                    }
                                 @endphp
-                                <td>{{ $data->score }}</td>
-                                <td>{{ sanitizeString($data?->report) }}</td>
+                                <td>{{ $data->is_disabled ? '-' : $data->score }}</td>
+                                <td>{{ sanitizeString($data?->observation) }}</td>
                                 <td>{{ sanitizeString($data?->recovery_plan) }}</td>
                             @else
                                 <td></td>
@@ -95,7 +99,7 @@
                         <td>{{ $avgScore }}</td>
                     @endforeach
                     @php
-                        $controlPointAvgScore = $controlPointScore >= 0 ? sprintf('%.2f', $controlPointScore / $totalScored) : $totalScored;
+                        $controlPointAvgScore = $controlPointScore > 0 ? sprintf('%.2f', $controlPointScore / $totalScored) : $totalScored;
                     @endphp
                     <td>
                         {{ $controlPointAvgScore }}
@@ -108,13 +112,13 @@
                 <td colspan="4"></td>
                 @foreach ($dres as $dre)
                     @php
-                        $avg = $dreAvgs[$dre->dre] > 0 ? sprintf('%.2f', $dreAvgs[$dre->dre] / $controlPoints->count()) : $dreAvgs[$dre->dre];
+                        $avg = $dreAvgs[$dre->dre] > 0 ? sprintf('%.2f', $dreAvgs[$dre->dre] / $totalDreControlPoints[$dre->dre]) : $dreAvgs[$dre->dre];
                     @endphp
-                    <td colspan="{{ $dre->agencies->count() * 3 }}"></td>
+                    <td colspan="{{ $dre->agencies->count() }}"></td>
                     <td>{{ $avg }}</td>
                 @endforeach
                 @php
-                    $avg = array_sum(array_values($dreAvgs)) > 0 ? sprintf('%.2f', array_sum(array_values($dreAvgs)) / ($dres->count() * $controlPoints->count())) : array_sum(array_values($dreAvgs));
+                    $avg = array_sum(array_values($dreAvgs)) > 0 ? sprintf('%.2f', array_sum(array_values($dreAvgs)) / ($dres->count() * array_sum(array_values($totalDreControlPoints)))) : array_sum(array_values($dreAvgs));
                 @endphp
                 <td>{{ $avg }}</td>
             </tr>

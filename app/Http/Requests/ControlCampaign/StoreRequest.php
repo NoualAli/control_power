@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\ControlCampaign;
 
+use App\Rules\CheckCampaginDateBeforeValidation;
 use App\Rules\CheckCampaignDate;
 use App\Rules\MaxLengthQuill;
 use Illuminate\Foundation\Http\FormRequest;
@@ -26,11 +27,11 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'description' => ['required', 'string', new MaxLengthQuill(3000)],
             'start_date' => ['required', 'date', new CheckCampaignDate],
             'end_date' => ['required', 'date', 'after:start', new CheckCampaignDate],
+            'description' => ['required', 'string', new MaxLengthQuill(3000)],
             'pcf' => ['required', 'array'],
-            'is_validated' => ['required', 'boolean'],
+            'is_validated' => ['required', 'boolean', new CheckCampaginDateBeforeValidation],
             'is_for_testing' => ['required', 'boolean'],
         ];
     }

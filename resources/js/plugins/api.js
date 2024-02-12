@@ -3,6 +3,7 @@ import Swal from 'sweetalert2'
 import axios from 'axios'
 import store from '~/store'
 import * as swal from '../plugins/swal'
+
 const api = axios.create({
     headers: {
 
@@ -10,23 +11,23 @@ const api = axios.create({
         Accept: 'application/json'
 
     },
-    baseURL: '/api/',
+    baseURL: '/api/v1',
     transformRequest: formData => formData
 })
 api.interceptors.response.use(response => response, error => {
+    console.log(router)
     const status = error?.response?.status
     const message = error?.response?.data?.message
     const title = status + ' ' + error?.response?.statusText
     if (status === 401) {
         swal.alert_error('Vous avez dépassé le délai accordé à votre session, cette dernière a expiré, veuillez vous reconnecter de nouveau', '401 Session expirée')
-            .then(() => {
-                store.commit('auth/LOGOUT')
-                window.location.href = '/login'
-            })
+        store.commit('auth/LOGOUT')
+        return this.$router.push({ name: 'login' })
     }
 
     if (status === 423) {
-        swal.alert_error(message, title).then(() => window.location.href = '/')
+        swal.alert_error(message, title)
+        // .then(() => this.$router.push({ name: 'login' }))
     }
 
     if (status === 404) {
@@ -36,13 +37,14 @@ api.interceptors.response.use(response => response, error => {
         swal.alert_error(message, title)
             .then(() => {
                 store.commit('auth/LOGOUT')
-                window.location.href = '/login'
+                return this.$router.push({ name: 'login' })
             })
     }
 
     if (status >= 500) {
         serverError(error.response)
     }
+
     return Promise.reject(error)
 })
 

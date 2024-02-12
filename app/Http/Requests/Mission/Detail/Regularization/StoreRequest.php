@@ -14,7 +14,6 @@ class StoreRequest extends FormRequest
      */
     public function authorize()
     {
-        // dd(request()->all());
         return isAbleTo('regularize_mission_detail');
     }
 
@@ -28,6 +27,7 @@ class StoreRequest extends FormRequest
         return [
             'mission_detail_id' => ['required', 'exists:mission_details,id'],
             'is_regularized' => ['required', 'boolean'],
+            'is_sanitation_in_progress' => ['required', 'boolean'],
             'action_to_be_taken' => ['required', 'max:1000'],
             'media' => ['nullable', 'array'],
             'media.*' => ['exists:media,id']

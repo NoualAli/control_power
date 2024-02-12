@@ -1,25 +1,26 @@
 <template>
-    <div v-if="can('view_control_campaign')">
-        <ContentHeader>
-            <template #actions>
-                <router-link v-if="can('create_control_campaign')" class="btn btn-info" :to="{ name: 'campaigns-create' }">
+    <ContentBody v-if="can('view_control_campaign')">
+        <NLDatatable :refresh="refresh" :columns="columns" :actions="actions" :filters="filters"
+            title="Suivi du planning annuel" urlPrefix="campaigns"
+            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
+            <template #actions-before="{ item, callback }">
+                <NLButton :loading="currentValidationBtnIsLoading == item.id" loadingLabel=""
+                    v-if="!item?.validated_by_id && can('validate_control_campaign')" class="btn btn-info has-icon"
+                    @click.stop="callback(validate, item)">
+                    <NLIcon name="check" />
+                </NLButton>
+            </template>
+            <template #table-actions>
+                <router-link v-if="can('create_control_campaign')" class="btn has-icon" :to="{ name: 'campaigns-create' }">
+                    <NLIcon name="add" />
                     Ajouter
                 </router-link>
             </template>
-        </ContentHeader>
-        <ContentBody>
-            <NLDatatable :refresh="refresh" :columns="columns" :actions="actions" :filters="filters"
-                title="Suivi du planning annuel" urlPrefix="campaigns"
-                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
-                <template #actions-before="{ item, callback }">
-                    <button v-if="!item?.validated_by_id && can('validate_control_campaign')" class="btn btn-info has-icon"
-                        @click.stop="callback(validate, item)">
-                        <i class="las la-check icon" />
-                    </button>
-                </template>
-            </NLDatatable>
-        </ContentBody>
-    </div>
+        </NLDatatable>
+        <NLFlex lgJustifyContent="end" lgAlignItems="center" mdJustifyContent="end" mdAlignItems="center">
+            <p class="text-italic">* Pourcentage des agences couvertes par rapport au total des missions réalisées</p>
+        </NLFlex>
+    </ContentBody>
 </template>
 
 <script>
@@ -31,6 +32,8 @@ export default {
         return {
             refresh: 0,
             yearsList: [],
+            currentValidationBtnIsLoading: null,
+            currentDestroyBtnIsLoading: null,
             columns: [
                 {
                     label: 'Référence',
@@ -48,26 +51,98 @@ export default {
                     sortable: true
                 },
                 {
-                    label: 'Début',
-                    field: 'remaining_days_before_start_str'
+                    label: 'Créateur',
+                    field: 'creator_full_name',
+                    sortable: true,
+                    hide: !hasRole([ 'dcp', 'cdcr' ])
                 },
                 {
-                    label: 'Fin',
-                    field: 'remaining_days_before_end_str'
-                },
-                {
-                    label: 'Etat',
+                    label: 'Validateur',
                     field: 'validator_full_name',
-                    hide: !hasRole([ 'dcp', 'cdcr' ]),
+                    sortable: true,
+                    hide: !hasRole([ 'dcp', 'cdcr' ])
+                },
+                {
+                    label: 'Missions planifiées',
+                    field: 'total_missions',
+                    align: 'center',
+                    sortable: true,
+                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da' ]),
                     methods: {
                         showField(item) {
-                            return item.validated_by_id ? 'Validé' : 'En attente de validation'
+                            return item?.validated_by_id ? item?.total_missions : '-'
                         }
                     }
                 },
                 {
-                    label: 'Test',
-                    field: 'is_for_testing'
+                    label: 'Missions réalisées',
+                    field: 'total_missions_validated',
+                    align: 'center',
+                    sortable: true,
+                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da' ]),
+                    methods: {
+                        showField(item) {
+                            return item?.validated_by_id ? item?.total_missions_validated : '-'
+                        }
+                    }
+                },
+                {
+                    label: 'Missions planifiées',
+                    field: 'total_missions_dre',
+                    align: 'center',
+                    sortable: true,
+                    hide: !hasRole([ 'cdc', 'dre' ])
+                },
+                {
+                    label: 'Missions réalisées',
+                    field: 'total_missions_validated_dre',
+                    align: 'center',
+                    sortable: true,
+                    hide: !hasRole([ 'cdc', 'dre' ])
+                },
+                {
+                    label: '* couverture %',
+                    field: 'realisation_rate_dre',
+                    align: 'center',
+                    sortable: true,
+                    hide: !hasRole([ 'cdc', 'dre' ]),
+                    methods: {
+                        showField(item) {
+                            return parseFloat(item?.realisation_rate_dre).toFixed(2) + '%'
+                        }
+                    }
+                },
+                {
+                    label: '* Couverture %',
+                    field: 'realisation_rate',
+                    align: 'center',
+                    sortable: true,
+                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da' ]),
+                    methods: {
+                        showField(item) {
+                            if (item?.validated_by_id) {
+                                return parseFloat(item?.realisation_rate).toFixed(2) + '%'
+                            } else {
+                                return '-'
+                            }
+                        }
+                    }
+                },
+                {
+                    label: 'Etat',
+                    field: 'validator_full_name',
+                    // align: 'center',
+                    hide: !hasRole([ 'dcp', 'cdcr' ]),
+                    isHtml: true,
+                    methods: {
+                        showField(item) {
+                            if (item.validated_by_id) {
+                                return `<div class="tags is-centered"><span class="tag is-centered w-auto is-success" title="Validée">Validée</span></div>`
+                            } else {
+                                return `<div class="tags is-centered"><span class="tag is-centered w-auto is-warning" title="En attente">En attente</span></div>`
+                            }
+                        },
+                    }
                 },
             ],
             actions: {
@@ -83,7 +158,11 @@ export default {
                 },
                 delete: {
                     show: (item) => {
-                        return this.can('delete_control_campaign') && !Boolean(Number(item.is_validated))
+                        if (this.is('dcp')) {
+                            return !Boolean(Number(item.is_validated))
+                        } else {
+                            return !Boolean(Number(item.is_validated)) && item.created_by_id == this.user().id
+                        }
                     },
                     apply: this.destroy
                 }
@@ -94,31 +173,31 @@ export default {
                     hide: !hasRole([ 'dcp', 'cdcr', 'root', 'admin' ]),
                     data: [
                         {
-                            id: "En attente de validation",
-                            label: 'En attente de validation'
+                            id: "En attente",
+                            label: 'En attente'
                         },
                         {
-                            id: "Validé",
-                            label: 'Validé'
+                            id: "Validée",
+                            label: 'Validée'
                         }
                     ],
                     value: null
                 },
-                test: {
-                    label: 'Test',
-                    hide: !hasRole([ 'dcp', 'cdcr', 'root', 'admin' ]),
-                    data: [
-                        {
-                            id: "Non",
-                            label: 'Non'
-                        },
-                        {
-                            id: "Oui",
-                            label: 'Oui'
-                        }
-                    ],
-                    value: null
-                },
+                // test: {
+                //     label: 'Test',
+                //     hide: !hasRole([ 'dcp', 'cdcr', 'root', 'admin' ]),
+                //     data: [
+                //         {
+                //             id: "Non",
+                //             label: 'Non'
+                //         },
+                //         {
+                //             id: "Oui",
+                //             label: 'Oui'
+                //         }
+                //     ],
+                //     value: null
+                // },
                 start: {
                     type: 'date',
                     label: 'Début',
@@ -173,13 +252,23 @@ export default {
          * @param {Object} item
          */
         validate(item) {
-            return this.$swal.confirm({ title: 'Validation', message: 'Validation de la campagne de contrôle ' + item.reference, icon: 'success' }).then(response => {
-                if (response.isConfirmed) {
-                    return this.$api.put('campaigns/' + item.id + '/validate').then(() => this.refresh += 1)
+            return this.$swal.confirm({ title: 'Validation', message: 'Validation de la campagne de contrôle ' + item.reference, icon: 'success' }).then(action => {
+                if (action.isConfirmed) {
+                    this.currentValidationBtnIsLoading = item.id
+                    return this.$api.put('campaigns/' + item.id + '/validate').then((response) => {
+                        this.refresh += 1
+                        this.currentValidationBtnIsLoading = null
+                        this.$swal.toast_success(response?.data?.message)
+                    }).catch(error => {
+                        this.currentValidationBtnIsLoading = null
+                        this.$swal.catchError(error, false)
+                    })
                 }
+                this.currentValidationBtnIsLoading = null
                 return response
             }).catch(error => {
-                this.$swal.alert_error(error)
+                this.currentValidationBtnIsLoading = null
+                this.$swal.catchError(error, false)
             })
         },
         /**
@@ -189,22 +278,16 @@ export default {
          */
         destroy(e) {
             return this.$swal.confirm_destroy().then(response => {
-                e.element.classList.add('is-loading')
-                e.element.disabled = true
                 if (response.isConfirmed) {
                     return this.$api.delete('campaigns/' + e.item.id).then(() => {
                         this.refresh += 1
-                        e.element.classList.remove('is-loading')
-                        e.element.disabled = false
+                        this.$swal.toast_success(response?.data?.message)
+                    }).catch(error => {
+                        this.$swal.catchError(error)
                     })
-                } else {
-                    e.element.classList.remove('is-loading')
-                    e.element.disabled = false
                 }
                 return response
             }).catch(error => {
-                e.element.classList.remove('is-loading')
-                e.element.disabled = false
                 this.$swal.catchError(error)
             })
         },

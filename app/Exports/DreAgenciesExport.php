@@ -2,7 +2,10 @@
 
 namespace App\Exports;
 
+use App\Enums\EventLogTypes;
+use App\Models\Agency;
 use App\Models\Dre;
+use App\Models\EventLog;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -25,6 +28,7 @@ class DreAgenciesExport extends BaseExport implements FromView, WithProperties, 
     {
         $agencies = $this->data->agencies;
         $dre = $this->data;
+        EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => Dre::class, 'attachable_id' => $dre->id, 'payload' => ['content' => 'Liste des agences ' . $dre->full_name]]);
         return view('export.dre_agencies', compact('agencies', 'dre'));
     }
 

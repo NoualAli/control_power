@@ -1,23 +1,33 @@
 <template>
     <div v-if="can('view_role')">
-        <ContentHeader>
-            <template #actions>
+        <!-- <ContentHeader>
+            <template #right-actions>
                 <router-link v-if="can('create_role')" :to="{ name: 'roles-create' }" class="btn btn-info">
                     Ajouter
                 </router-link>
                 <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
-                    <i class="las la-file-excel icon" />
+                    <NLIcon name="table" />
                     Exporter
                 </button>
             </template>
-        </ContentHeader>
+        </ContentHeader> -->
         <ContentBody>
             <NLDatatable :columns="columns" :actions="actions" title="Liste des rôles" urlPrefix="roles" @edit="edit"
                 @delete="destroy" :refresh="refresh" @dataLoaded="handleDataLoaded">
                 <template #actions-before="{ item }">
                     <a class="btn btn-office-excel" :href="'/excel-export?export=roles&id=' + item.id" target="_blank">
-                        <i class="las la-file-excel icon" />
+                        <NLIcon name="table" />
                     </a>
+                </template>
+                <template #table-actions>
+                    <router-link v-if="can('create_role')" :to="{ name: 'roles-create' }" class="btn has-icon">
+                        <NLIcon name="add" />
+                        Ajouter
+                    </router-link>
+                    <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
+                        <NLIcon name="table" />
+                        Exporter
+                    </button>
                 </template>
             </NLDatatable>
             <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl"

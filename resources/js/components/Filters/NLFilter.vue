@@ -52,7 +52,13 @@ export default {
             return (filter) => filter?.multiple || false
         },
         data() {
-            return (filter) => filter?.data || []
+            return (filter) => {
+                if (typeof filter.data == 'function') {
+                    return filter?.data() || []
+                } else {
+                    return filter?.data || []
+                }
+            }
         },
         hide() {
             return (filter) => !!filter?.hide
@@ -102,11 +108,12 @@ export default {
                 this.isLoaded = true
             }).catch(error => {
                 this.isLoading = false
+                this.$swal.catchError(error)
             })
         },
         getUrl() {
             let urlPrefix = this.urlPrefix || this.parentUrlPrefix
-            this.url = this.customUrl ? this.customUrl + urlPrefix : window.Laravel.baseUrl + '/api/' + urlPrefix
+            this.url = this.customUrl ? this.customUrl + urlPrefix : window.Laravel.baseUrl + '/api/v1/' + urlPrefix
             this.url += '?fetchFilters=true'
             this.url += this.activeFilterParams
         },

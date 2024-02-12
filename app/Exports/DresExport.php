@@ -2,6 +2,9 @@
 
 namespace App\Exports;
 
+use App\Enums\EventLogTypes;
+use App\Models\Dre;
+use App\Models\EventLog;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
@@ -23,6 +26,7 @@ class DresExport extends BaseExport implements FromView, WithProperties, ShouldA
 
     public function view(): View
     {
+        EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => Dre::class]);
         $dres = $this->data;
         return view('export.dres', compact('dres'));
     }

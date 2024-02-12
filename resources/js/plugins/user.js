@@ -45,7 +45,6 @@ export function isAbleTo($abilities = String | Array) {
                 can.push(userPermissions.includes($ability))
             }
         }
-        console.log(`can :${can}`)
         return can.includes(true)
     }
 }

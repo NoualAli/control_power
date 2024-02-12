@@ -2,24 +2,33 @@
     <NLModal :show="show" @close="close" :isLoading="isLoading">
         <template #title>
             <div class="tags">
-                <div class="tag is-start text-normal">
-                    <i class="las la-tag icon"></i>
-                    <p>
-                        {{ currentProcess?.family?.name }}
-                    </p>
-                </div>
-                <div class="tag is-start text-normal">
-                    <i class="las la-tags icon"></i>
-                    <p>
-                        {{ currentProcess.domain.name }}
-                    </p>
-                </div>
-                <div class="tag is-start text-normal">
-                    <i class="las la-project-diagram icon"></i>
-                    <p>
-                        {{ currentProcess?.name }}
-                    </p>
-                </div>
+                <NLTooltip type="bottom">
+                    <template #content>
+                        <b>Famille</b>
+                        <p class="mt-2">{{ currentProcess?.family?.name }}</p>
+                    </template>
+                    <span class="tag is-start text-normal">
+                        <NLIcon name="tenancy" /> {{ str_slice(currentProcess?.family?.name, 40) }}
+                    </span>
+                </NLTooltip>
+                <NLTooltip type="bottom">
+                    <template #content>
+                        <b>Domaine</b>
+                        <p class="mt-2">{{ currentProcess?.domain?.name }}</p>
+                    </template>
+                    <span class="tag is-start text-normal">
+                        <NLIcon name="network_node" /> {{ str_slice(currentProcess?.domain?.name, 40) }}
+                    </span>
+                </NLTooltip>
+                <NLTooltip title="Processus" type="bottom">
+                    <template #content>
+                        <b>Processus</b>
+                        <p class="mt-2">{{ currentProcess?.name }}</p>
+                    </template>
+                    <span class="tag is-start text-normal">
+                        <NLIcon name="account_tree" /> {{ str_slice(currentProcess?.name, 40) }}
+                    </span>
+                </NLTooltip>
             </div>
         </template>
         <template #default>
@@ -97,11 +106,10 @@ export default {
             this.isLoading = true
             this.$api.get('processes/' + this.process.id).then(response => {
                 this.currentProcess = response.data
-                console.log(this.currentProcess.domain.name);
                 this.isLoading = false
             }).catch(error => {
-                console.log(error);
                 this.isLoading = false
+                this.$swal.catchError(error)
             })
         }
     }

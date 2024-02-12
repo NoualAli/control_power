@@ -34,8 +34,8 @@ class StoreRequest extends FormRequest
             'password' => ['nullable', 'string', 'min:6', 'confirmed'],
             'role' => ['required', 'exists:roles,id', new UniqueUserRole(request('agencies'))],
             'is_active' => ['required', 'boolean'],
-            'gender' => ['required', 'boolean'],
-            'registration_number' => ['required', 'unique:users', 'numeric', 'max_digits:5'],
+            'gender' => ['required', 'integer', 'in:1,2'],
+            'registration_number' => ['nullable', 'unique:users', 'numeric', 'max_digits:5'],
             'is_for_testing' => ['required', 'boolean'],
         ];
         $role = request()->role;

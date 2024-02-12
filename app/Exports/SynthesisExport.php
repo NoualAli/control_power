@@ -2,6 +2,9 @@
 
 namespace App\Exports;
 
+use App\Enums\EventLogTypes;
+use App\Models\ControlCampaign;
+use App\Models\EventLog;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -24,6 +27,7 @@ class SynthesisExport implements FromView, WithStyles, WithProperties, ShouldAut
 
     public function view(): View
     {
+        EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => ControlCampaign::class, 'attachable_id' => $this->data['controlCampaign']->id, 'payload' => ['Syntèse de campagne de contrôle']]);
         return view('export.synthesis_to_excel', $this->data);
     }
 

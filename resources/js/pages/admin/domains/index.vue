@@ -1,29 +1,26 @@
 <template>
-    <div v-if="can('view_domain')">
-        <ContentHeader>
-            <template #actions>
-                <router-link v-if="can('create_domain')" :to="{ name: 'domains-create' }" class="btn btn-info">
+    <ContentBody v-if="can('view_domain')">
+        <NLDatatable :filters="filters" :columns="columns" :actions="actions" title="Liste des domaines" urlPrefix="domains"
+            @edit="edit" @delete="destroy" :refresh="refresh" @dataLoaded="handleDataLoaded">
+            <!-- <template #actions-before="{ item }">
+                <a class="btn btn-office-excel" :href="'/excel-export?export=domains&id=' + item.id" target="_blank">
+                    <NLIcon name="table" />
+                </a>
+            </template> -->
+            <template #table-actions>
+                <router-link v-if="can('create_domain')" :to="{ name: 'domains-create' }" class="btn has-icon">
+                    <NLIcon name="add" />
                     Ajouter
                 </router-link>
-                <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
-                    <i class="las la-file-excel icon" />
+                <!-- <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
+                    <NLIcon name="table" />
                     Exporter
-                </button>
+                </button> -->
             </template>
-        </ContentHeader>
-        <ContentBody>
-            <NLDatatable :columns="columns" :actions="actions" title="Liste des domaines" urlPrefix="domains" @edit="edit"
-                @delete="destroy" :refresh="refresh" @dataLoaded="handleDataLoaded">
-                <template #actions-before="{ item }">
-                    <a class="btn btn-office-excel" :href="'/excel-export?export=domains&id=' + item.id" target="_blank">
-                        <i class="las la-file-excel icon" />
-                    </a>
-                </template>
-            </NLDatatable>
-            <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl"
-                @close="this.excelExportIsOpen = false" @success="this.excelExportIsOpen = false" />
-        </ContentBody>
-    </div>
+        </NLDatatable>
+        <!-- <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl"
+            @close="this.excelExportIsOpen = false" @success="this.excelExportIsOpen = false" /> -->
+    </ContentBody>
 </template>
 
 <script>
@@ -43,18 +40,29 @@ export default {
             columns: [
                 {
                     label: 'Famille',
-                    field: 'family.name'
+                    field: 'family',
+                    sortable: true
                 },
                 {
-                    label: 'Nom',
-                    field: 'name',
+                    label: 'Domaine',
+                    field: 'domain',
                     sortable: true
                 },
                 {
                     label: 'Nombres de processus',
-                    field: 'processes_count'
+                    field: 'processes_count',
+                    sortable: true,
                 }
             ],
+            filters: {
+                family: {
+                    label: 'Famille',
+                    name: 'family',
+                    multiple: true,
+                    data: null,
+                    value: null
+                },
+            },
             actions: {
                 edit: (item) => {
                     return this.can('edit_domain')
@@ -78,7 +86,8 @@ export default {
          * @param {Object} item
          */
         edit(item) {
-            this.$router.push({ name: 'domains-edit', params: { domain: item.id } })
+            // this.$router.push({ name: 'domains-edit', params: { domain: item.id } })
+            window.open(this.$router.resolve({ name: 'domains-edit', params: { domain: item.id } }).href, '_blank')
         },
 
         /**

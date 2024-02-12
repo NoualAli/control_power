@@ -10,6 +10,7 @@
 
 <script>
 import Treeselect from '@veigit/vue3-treeselect'
+import 'vue3-treeselect/dist/vue3-treeselect.css'
 export default {
     name: 'NLSelect',
     components: { Treeselect },
@@ -30,7 +31,7 @@ export default {
     },
     data() {
         return {
-            forcedKey: -1,
+            forcedKey: 0,
             selected: this.modelValue
         }
     },
@@ -50,9 +51,9 @@ export default {
             immediate: true,
             deep: true,
             handler(newValue, oldValue) {
-                if (newValue !== oldValue) {
-                    this.$emit('update:modelValue', newValue)
-                }
+                this.$emit('update:modelValue', newValue)
+                // if (newValue !== oldValue) {
+                // }
             }
         },
         modelValue: {
@@ -60,8 +61,9 @@ export default {
             deep: true,
             handler(newValue, oldValue) {
                 if (!newValue || newValue.length === 0) {
-                    this?.$refs?.treeselect?.clear()
-                    this.forcedKey = -1
+                    this.$refs?.treeselect?.clear()
+                    this.$refs?.treeselect?.clearAllText()
+                    this.forcedKey = 0
                 }
 
                 if (newValue !== oldValue && newValue !== null && newValue !== undefined) {

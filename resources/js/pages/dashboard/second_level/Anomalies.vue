@@ -7,7 +7,9 @@
                 <h2>Anomalies par famille</h2>
                 <button class="btn btn-info has-icon" @click.prevent="savePNG('familiesAnomalies')"
                     v-if="charts.families.datasets[0].data.length">
-                    <i class="las la-save icon" />
+                    <span class="material-icons material-symbols-rounded icon">
+                        save
+                    </span>
                 </button>
             </div>
             <NLContainer extraClass="d-flex full-center" isFluid>
@@ -22,12 +24,14 @@
         </NLColumn>
 
         <!-- Anomalies par DRE -->
-        <NLColumn lg="6" class="box">
+        <NLColumn lg="6" class="box" v-if="!is('da')">
             <div class="d-flex align-center justify-between">
                 <h2>Anomalies par DRE</h2>
                 <button class="btn btn-info has-icon" @click.prevent="savePNG('dresAnomalies')"
                     v-if="charts.dres.datasets[0].data.length">
-                    <i class="las la-save icon" />
+                    <span class="material-icons material-symbols-rounded icon">
+                        save
+                    </span>
                 </button>
             </div>
             <NLContainer extraClass="d-flex full-center" isFluid>
@@ -68,7 +72,7 @@
             </div>
         </NLColumn>
         <!-- 10 agences contenant un nombre d'anomalies élevé -->
-        <NLColumn lg="6">
+        <NLColumn lg="6" v-if="!is('da')">
             <div class="box">
                 <h2>Les 10 Agences contenant un nombre d'anomalies élevées</h2>
                 <div class="table-container" v-if="tables.agencies.length">

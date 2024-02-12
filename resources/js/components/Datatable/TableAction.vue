@@ -1,13 +1,19 @@
 <template>
-    <NLButton v-if="show" :class="buttonClass" label="" @click.stop="emitAction">
-        <i class="las la-eye icon" v-if="type == 'show'" />
+    <NLButton v-if="show" :class="buttonClass" label="" loadingLabel="" @click.stop="emitAction">
+        <NLIcon name="visibility" v-if="type == 'show'" />
+        <NLIcon name="edit" v-if="type == 'edit'" />
+        <NLIcon name="delete" v-if="type == 'delete'" />
+
+        <!-- <i class="las la-eye icon" v-if="type == 'show'" />
         <i class="las la-trash icon" v-else-if="type == 'delete'" />
-        <i class="las la-edit icon" v-else-if="type == 'edit'" />
+        <i class="las la-edit icon" v-else-if="type == 'edit'" /> -->
     </NLButton>
 </template>
 
 <script>
+import NLIcon from '../NLIcon'
 export default {
+    components: { NLIcon },
     name: 'TableAction',
     emits: [ 'action' ],
     props: {
@@ -49,7 +55,7 @@ export default {
             return show
         },
         buttonClass() {
-            let defaultClass = 'btn'
+            let defaultClass = ''
             switch (this.type) {
                 case 'show':
                     defaultClass += ' btn-success'

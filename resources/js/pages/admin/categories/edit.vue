@@ -65,7 +65,7 @@ export default {
                     this.$swal.alert_error(response.data.message)
                 }
             }).catch(error => {
-                console.log(error)
+                this.$swal.catchError(error)
             })
         }
     }

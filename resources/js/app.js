@@ -17,6 +17,7 @@ import './plugins/charts'
 import { useComponents } from './components'
 import { aclMixin, defineDirectives } from './plugins/acl.js'
 import '~/store/global'
+import "simplebar/dist/simplebar.min.css";
 
 window.Swal = Swal
 window.api = api
@@ -50,4 +51,3 @@ app.config.errorHandler = (err, vm, info) => {
 app.mount('#app')
 
 require('./bootstrap')
-// require('./echo-realtime')

@@ -2,6 +2,10 @@
 
 namespace App\Http\Requests\Mission;
 
+use App\Rules\CanBeControlled;
+use App\Rules\CanNotBeAssistant;
+use App\Rules\CanNotBetAssistant;
+use App\Rules\CheckIfControllerHasMissionInDateRange;
 use App\Rules\IncludedInsideCDCDate;
 use App\Rules\IsAbleTo;
 use App\Rules\MaxLengthQuill;
@@ -18,7 +22,7 @@ class UpdateRequest extends FormRequest
     public function authorize()
     {
         $mission = request()->mission;
-        return isAbleTo('edit_mission') && $mission->remaining_days_before_start > 5;
+        return isAbleTo('edit_mission') && $mission->remaining_days_before_start > 0 && in_array($mission->agency_id, auth()->user()->agencies->pluck('id')->toArray());
     }
 
     /**
@@ -29,11 +33,21 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'controller' => ['required', 'exists:users,id', new IsAbleTo('control_agency')],
+            'control_campaign_id' => ['required', 'exists:control_campaigns,id'],
+            'head_of_mission_id' => ['required', 'exists:users,id', new IsAbleTo('control_agency'), new CheckIfControllerHasMissionInDateRange(request('mission'))],
+            'assistants' => ['nullable', 'array', 'max:2'],
+            'assistants.*' => ['exists:users,id', new IsAbleTo('control_agency'), new CheckIfControllerHasMissionInDateRange(request('mission')),  new CanNotBeAssistant(request('head_of_mission_id'))],
+            'agency_id' => ['required', 'exists:agencies,id', new CanBeControlled],
             'programmed_start' => ['required', 'date', new IncludedInsideCDCDate(request()->control_campaign_id)],
             'programmed_end' => ['required', 'date', 'after:programmed_start', new IncludedInsideCDCDate(request()->control_campaign_id), new MissionDontExceedFifteenDays(request()->programmed_start)],
             'note' => ['nullable', 'string', new MaxLengthQuill(1000)],
-            'is_for_testing' => ['required', 'boolean'],
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'assistants.max' => 'Une mission ne peut contenir plus de deux contrôleurs à la fois'
         ];
     }
 }

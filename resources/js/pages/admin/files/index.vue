@@ -1,7 +1,7 @@
 <template>
     <div>
         <ContentHeader>
-            <template #actions>
+            <template #right-actions>
 
             </template>
         </ContentHeader>
@@ -184,7 +184,7 @@ export default {
                             this.$swal.alert_error(response.data.message)
                         }
                     }).catch(function (error) {
-                        console.log(error);
+                        this.$swal.catchError(error)
                     })
                 }
             })

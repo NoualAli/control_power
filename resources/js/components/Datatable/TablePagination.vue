@@ -1,39 +1,41 @@
 <template>
-    <div class="pagination my-6 grid">
-        <div class="col-12 col-lg-2 d-flex align-center justify-center">
-            <div class="grid gap-2 w-100">
-                <div class="col-12 col-lg-4">
-                    <NLSelect name="per_page" :options="perPageChoices" v-model="perPage" class="disable-clear-value" />
-                </div>
-                <div class="col-12 col-lg-8 d-flex align-center justify-center gap-2">
-                    <span v-if="total">
+    <NLGrid extraClass="pagination my-6" v-if="total > 10">
+        <NLColumn lg="2" extraClass="d-flex align-center justify-center">
+            <NLGrid gap="2">
+                <NLColumn lg="4">
+                    <NLSelect name="per_page" :options="perPageChoices" v-model="perPage" class="disable-clear-value"
+                        v-if="total > 10" />
+                </NLColumn>
+                <NLColumn lg="8" extraClass="d-flex align-center justify-center gap-1" v-if="total && total > 10">
+                    <span>
                         {{ total }}
                     </span>
                     <span>
                         de {{ from }} à {{ to }}
                     </span>
-                </div>
-            </div>
-        </div>
-        <!-- .col-8.col-lg-7 -->
-        <div class="col-12 col-lg-1 d-flex justify-center align-center">
-            <button @click="handlePageChange(previousLink)" class="btn mx-2" v-if="previousLink">
-                Précédent
-            </button>
-        </div>
-        <div class="col-12 col-lg-8 d-flex align-center justify-center">
-            <button @click="handlePageChange(link?.url)" class="btn is-radius mx-2" :class="{ 'is-active': link.active }"
+                </NLColumn>
+            </NLGrid>
+        </NLColumn>
+        <NLColumn lg="1" extraClass="d-flex justify-center align-center">
+            <NLButton @click="handlePageChange(previousLink)" v-if="previousLink">
+                <!-- Précédent -->
+                <NLIcon name="navigate_before" />
+            </NLButton>
+        </NLColumn>
+        <NLColumn lg="8" extraClass="d-flex justify-center align-center gap-2">
+            <NLButton @click="handlePageChange(link?.url)"
+                :class="{ 'is-active': link.active, 'is-disabled': link.active || link.label == '...' }"
                 v-for="(link, index) in numericLinks" :key="'numeric-link-' + index" :id="'numeric-link-' + index"
-                :disabled="link.active || link.label == '...'" v-if="numericLinks?.length > 1">
-                {{ link.label }}
-            </button>
-        </div>
-        <div class="col-12 col-lg-1 d-flex justify-center align-center">
-            <button @click="handlePageChange(nextLink)" class="btn mx-2" v-if="nextLink">
-                Suivant
-            </button>
-        </div>
-    </div>
+                :disabled="link.active || link.label == '...'" v-if="numericLinks?.length > 1" :label="link.label">
+            </NLButton>
+        </NLColumn>
+        <NLColumn lg="1" extraClass="d-flex justify-center align-center">
+            <NLButton @click="handlePageChange(nextLink)" v-if="nextLink">
+                <!-- Suivant -->
+                <NLIcon name="navigate_next" />
+            </NLButton>
+        </NLColumn>
+    </NLGrid>
 </template>
 <script>
 export default {
