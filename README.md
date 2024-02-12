@@ -1,4 +1,4 @@
-<p align="center"><img src="https://github.com/NoualAli/power_control/blob/master/public/app/images/brand.png" width="256"></p>
+<p align="center"><img src="https://github.com/NoualAli/control_power/blob/master/storage/images/brand.svg" width="256"></p>
 <p align="center">
     <img src="https://img.shields.io/badge/version-1.0-%125741"/>
 </p>
