@@ -20,12 +20,57 @@
             &-item
                 justify-content: start
                 width: 100%
-                // width: calc($sidebar-container-w - 22px)
                 min-height: calc($sidebar-container-w - 22px)
                 border-radius: .5rem
                 border-top-left-radius: 0
                 border-bottom-left-radius: 0
                 padding: 1rem .8rem
+            &-submenu
+                cursor: pointer
+                position: relative
+                display: flex
+                align-items: center
+                justify-content: start
+                flex-direction: column
+                width: 100%
+                min-height: calc($sidebar-container-w - 22px)
+                // min-height: calc($sidebar-container-w - 22px)
+                border-radius: .5rem
+                border-top-left-radius: 0
+                border-bottom-left-radius: 0
+                color: $white !important
+                // gap: .5rem !important
+                overflow: hidden
+                & .sidebar-submenu-title
+                    display: flex
+                    align-items: center
+                    justify-content: space-between
+                    min-height: calc($sidebar-container-w - 22px)
+                    & .left-side
+                        display: flex
+                        align-items: center
+                        justify-content: space-around
+                        gap: .5rem
+                        width: auto
+                    & .right-side
+                        display: flex
+                        align-items: center
+                        justify-content: space-around
+                &.expanded
+                    min-height: auto
+                    height: auto
+                    overflow: visible
+                    background: darken($primary, 10%)
+                    & .sidebar-submenu-title
+                        margin-bottom: .3rem !important
+                        border-top-left-radius: 0
+                        border-bottom-left-radius: 0
+                        background-color: $sidebar-links-active-bg
+                        font-weight: 900
+                        color: $sidebar-links-active-color !important
+                    & .router-link-active
+                        border-top-left-radius: 0
+                        border-bottom-left-radius: 0
             &-icon_text
                 // text-transform: uppercase
                 display: block
@@ -166,7 +211,7 @@
         position: relative
         width: calc($sidebar-container-w - 22px)
         min-height: calc($sidebar-container-w - 22px)
-        color: $white !important
+        color: $white
         display: flex
         align-items: center
         justify-content: center
@@ -186,6 +231,36 @@
         &:hover,&.router-link-exact-active
             & .sidebar-icon
                 color: $primary
+    &-submenu
+        border-radius: 50%
+        width: calc($sidebar-container-w - 22px)
+        min-height: calc($sidebar-container-w - 22px)
+        overflow: hidden
+        & .sidebar-item:not(.sidebar-submenu-title)
+            display: none
+        & .sidebar-submenu-title
+            & .right-side
+                display: none
+        &.expanded
+            min-height: auto
+            height: auto
+            overflow: visible
+            border-radius: .5rem
+            background: darken($primary, 10%)
+            & .sidebar-submenu-title
+                margin: 0 !important
+                border-radius: .5rem
+                background-color: $sidebar-links-active-bg
+                font-weight: 900
+                color: $sidebar-links-active-color !important
+            & .sidebar-item:not(.sidebar-submenu-title)
+                display: flex
+            & .router-link-exact-active
+                border-radius: .5rem
+            & .sidebar-item
+                margin: .3rem 0
+            & .sidebar-item:last-child
+                margin-bottom: 0
     &-icon
         font-size: 2rem
     &-icon_text
