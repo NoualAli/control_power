@@ -1,28 +1,22 @@
 <template>
-    <div v-if="is('root')">
-        <!-- <ContentHeader>
-            <template #right-actions>
+    <ContentBody v-if="is('root')">
+        <NLDatatable :columns="columns" :actions="actions" title="Liste des sauvegardes de la base de données"
+            urlPrefix="backup-db" @delete="destroy" :refresh="refresh"
+            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
+            <template #table-actions>
                 <NLButton :loading="isBackup" v-if="is('root')" class="btn btn-info" label="Sauvegarder"
                     @click.stop="backup" />
             </template>
-        </ContentHeader> -->
-        <ContentBody>
-            <NLDatatable :columns="columns" :actions="actions" title="Liste des sauvegardes de la base de données"
-                urlPrefix="backup-db" @delete="destroy" :refresh="refresh"
-                @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
-                <template #actions-after="{ item }">
-                    <a @click.stop="download(item)" class="btn btn-info">
-                        <i class="las la-download icon" />
-                    </a>
-                </template>
-            </NLDatatable>
-        </ContentBody>
-    </div>
+            <template #actions-after="{ item }">
+                <a @click.stop="download(item)" class="btn btn-info">
+                    <i class="las la-download icon" />
+                </a>
+            </template>
+        </NLDatatable>
+    </ContentBody>
 </template>
 
 <script>
-import Form from 'vform'
-
 export default {
     name: 'BackupDB',
     layout: 'MainLayout',
@@ -74,11 +68,11 @@ export default {
          */
         backup() {
             this.isBackup = true
-            this.form.post('backup-db').then(response => {
+            this.$api.post('backup-db').then(response => {
                 this.isBackup = false
-                if (response.data.status) {
+                if (response.status == 200) {
                     this.refresh += 1
-                    this.$swal.toast_success(response.data.message)
+                    this.$swal.toast_success(response.data)
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }

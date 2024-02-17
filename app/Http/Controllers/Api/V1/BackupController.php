@@ -64,68 +64,36 @@ class BackupController extends Controller
     public function store()
     {
         $databaseName = env('DB_DATABASE');
+        $serverName = env('DB_HOST');
+        $username = env('DB_USERNAME');
+        $password = env('DB_PASSWORD');
         $today = today()->format('d-m-Y');
-        $filename = $databaseName . '_' . $today . '.bak';
-        $backupPath = database_path('bkps\\' . $filename);
-        $storageBackupPath = storage_path('app\bkps\\' . $filename);
-        if (!directoryExists(storage_path('app\bkps'))) {
-            mkdir(storage_path('app\bkps'));
-        }
+        $backupFilePath = 'D:\\control_power\\database\\bkps\\' . $today . '.bak';
 
-        if (file_exists($backupPath)) {
-            unlink($backupPath);
-        }
+        // Construct the command with proper quotes around the backup file path
+        $command = "sqlcmd -S $serverName -U $username -P $password -Q \"BACKUP DATABASE [$databaseName] TO DISK='$backupFilePath'\"";
 
-        $query = "BACKUP DATABASE [$databaseName] TO DISK = '$storageBackupPath' WITH NOFORMAT, NOINIT, NAME = N'control_power_prod-Complète Base de données Sauvegarde', SKIP, NOREWIND, NOUNLOAD, STATS = 10";
-        Log::info("Backup file path: " . $storageBackupPath);
         try {
-            $backup = DB::statement($query);
-
-            if ($backup) {
-                Log::info("Backup successful");
-                // FilesystemFile::move($storageBackupPath, $backupPath);
-                return response()->json([
-                    'message' => 'Base de données sauvegardée avec succès',
-                    'status' => true,
-                ]);
-            } else {
-                return response()->json([
-                    'message' => 'Une erreur est survenue lors de la tentative de sauvegarde de la base de données du fichier',
-                    'status' => false,
-                ]);
+            // Execute the command
+            if (file_exists($backupFilePath)) {
+                unlink($backupFilePath);
             }
+            $output = exec($command);
+            return is_string($output) ? mb_convert_encoding($output, 'ISO-8859-1', 'UTF-8') : $output;
         } catch (\Exception $e) {
             // Log the error for future reference
             Log::error("Backup failed. Error: " . $e->getMessage());
-
-            return response()->json([
-                'message' => 'Une erreur est survenue lors de la tentative de sauvegarde de la base de données du fichier\n' . $e->getMessage(),
-                'status' => false,
-            ]);
+            return throwedError($e);
         }
     }
-
     public function destroy(Request $request)
     {
         $file = database_path('bkps/' . $request->filename);
         if (file_exists($file)) {
             try {
-                if (unlink($file)) {
-                    return response()->json([
-                        'message' => 'Fichier supprimer avec succès',
-                        'status' => true,
-                    ]);
-                } else {
-                    return response()->json([
-                        'message' => 'Une erreur est survenue lors de la tentative de suppression du fichier',
-                        'status' => false,
-                    ]);
-                }
+                return actionResponse(unlink($file), 'Sauvegarde supprimer avec succès', 'Une erreur est survenue lors de la tentative de suppression du fichier');
             } catch (\Throwable $th) {
-                return response()->json([
-                    'message' => $th->getMessage(),
-                    'status' => false,
-                ]);
+                return throwedError($th);
             }
         }
     }
