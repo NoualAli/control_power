@@ -68,7 +68,7 @@ class BackupController extends Controller
         $username = env('DB_USERNAME');
         $password = env('DB_PASSWORD');
         $today = today()->format('d-m-Y');
-        $backupFilePath = 'D:\\control_power\\database\\bkps\\' . $today . '.bak';
+        $backupFilePath = database_path('bkps/' . $today . '.bak');
 
         // Construct the command with proper quotes around the backup file path
         $command = "sqlcmd -S $serverName -U $username -P $password -Q \"BACKUP DATABASE [$databaseName] TO DISK='$backupFilePath'\"";
