@@ -176,6 +176,7 @@
             position: absolute;
             bottom: -80px;
             font-size: 60px;
+            left: 40px
         }
 
         .box.agency .date {

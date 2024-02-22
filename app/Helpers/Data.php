@@ -909,7 +909,7 @@ if (!function_exists('getSingleMedia')) {
     {
         $media = getMedia($id)->first();
         $media->size_str = formatBytes($media->size);
-        $media->type = getMediaType($media->attachable_type, $media->folder);
+        $media->type = $media->attachable_type ? getMediaType($media->attachable_type, $media->folder) : null;
         $media->created_at_formatted = Carbon::parse($media->created_at)->diffForHumans();
         $media->full_name = $media->first_name && $media->last_name ? ucfirst(strtolower($media->first_name)) . ' ' . ucfirst(strtolower($media->last_name)) : 'Système';
         $media->path = $media->folder . '/' . $media->hash_name;
