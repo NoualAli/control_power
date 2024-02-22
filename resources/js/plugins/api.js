@@ -14,15 +14,15 @@ const api = axios.create({
     baseURL: '/api/v1',
     transformRequest: formData => formData
 })
+
 api.interceptors.response.use(response => response, error => {
-    console.log(router)
     const status = error?.response?.status
     const message = error?.response?.data?.message
     const title = status + ' ' + error?.response?.statusText
     if (status === 401) {
         swal.alert_error('Vous avez dépassé le délai accordé à votre session, cette dernière a expiré, veuillez vous reconnecter de nouveau', '401 Session expirée')
         store.commit('auth/LOGOUT')
-        return this.$router.push({ name: 'login' })
+        window.location.href = 'login'
     }
 
     if (status === 423) {
@@ -31,13 +31,13 @@ api.interceptors.response.use(response => response, error => {
     }
 
     if (status === 404) {
-        window.location.href = '/404'
+        swal.alert_error('Element introuvable', '404 introuvable')
     }
     if (status === 403 && store.getters[ 'auth/check' ]) {
         swal.alert_error(message, title)
             .then(() => {
                 store.commit('auth/LOGOUT')
-                return this.$router.push({ name: 'login' })
+                window.location.href = 'login'
             })
     }
 
