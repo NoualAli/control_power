@@ -20,8 +20,6 @@ class MissionResource extends JsonResource
             $isLate = $this->is_late_ci;
         } elseif (hasRole('cdc')) {
             $isLate = $this->is_late_ci || $this->is_late_cdc;
-        } elseif (hasRole('da')) {
-            $isLate = $this->is_late_da;
         } else {
             $isLate = $this->is_late_ci || $this->is_late_cdc;
         }
