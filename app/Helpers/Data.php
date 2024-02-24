@@ -886,7 +886,7 @@ if (!function_exists('getMedia')) {
     function getMedia(string|array $mediaIds = null)
     {
         $media = DB::table('media', 'm')->select([
-            'm.id', 'm.original_name', 'm.hash_name', 'm.folder', 'm.extension', 'm.mimetype', DB::raw('CAST(m.size as int) AS size'), 'm.payload', 'hm.attachable_type', 'hm.attachable_id', 'm.uploaded_by_id', 'm.created_at', 'm.payload',
+            'm.id', 'm.original_name', 'm.category', 'm.hash_name', 'm.folder', 'm.extension', 'm.mimetype', DB::raw('CAST(m.size as int) AS size'), 'm.payload', 'hm.attachable_type', 'hm.attachable_id', 'm.uploaded_by_id', 'm.created_at', 'm.payload',
             'u.username', 'u.first_name', 'u.last_name'
         ]);
 
@@ -917,6 +917,13 @@ if (!function_exists('getSingleMedia')) {
         $media->icon = getMediaIcon($media);
         $media->storage_link = getMediaStorageLink($media->folder, $media->hash_name);
         $media->is_owner = true;
+
+        $media->payload = json_decode($media->payload, true);
+        $payload = $media->payload;
+        $media->number = isset($payload['number']) ? $payload['number'] : null;
+        $media->date = isset($payload['date']) ? Carbon::parse($payload['date'])->format('d-m-Y') : null;
+        $media->object = isset($payload['object']) ? $payload['object'] : null;
+        unset($media->payload);
         return $media;
     }
 }

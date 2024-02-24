@@ -159,11 +159,13 @@ class MediaController extends Controller
                 'created_at' => now(),
                 // 'payload' => $payload,
             ]);
-            $media = DB::table('has_media')->insert([
-                'attachable_id' => $attachableId,
-                'attachable_type' => $attachableType,
-                'media_id' => $id,
-            ]);
+            if ($attachableId && $attachableType) {
+                $media = DB::table('has_media')->insert([
+                    'attachable_id' => $attachableId,
+                    'attachable_type' => $attachableType,
+                    'media_id' => $id,
+                ]);
+            }
 
             $file = getSingleMedia($id);
 

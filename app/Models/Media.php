@@ -20,7 +20,8 @@ class Media extends BaseModel
         'attachable_type',
         'attachable_id',
         'uploaded_by_id',
-        'payload'
+        'payload',
+        'category'
     ];
 
     protected $appends = ['link', 'type', 'path', 'icon', 'is_owner', 'storage_link'];

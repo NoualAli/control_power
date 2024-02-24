@@ -142,13 +142,23 @@ export default {
     },
     watch: {
         modelValue(newVal, oldVal) {
-            if (newVal !== oldVal) this.loadFiles(newVal.join(','))
+            if (newVal !== oldVal) {
+                if (this.multiple) {
+                    this.loadFiles(newVal.join(','))
+                } else {
+                    this.loadFiles(newVal)
+                }
+            }
         },
     },
     mounted() {
         this.isReadonly = this.readonly
         if (Object.values(this.modelValue).length) {
-            this.loadFiles(Object.values(this.modelValue).join(','))
+            if (this.multiple) {
+                this.loadFiles(Object.values(this.modelValue).join(','))
+            } else {
+                this.loadFiles(this.modelValue)
+            }
         }
     },
     methods: {
@@ -392,7 +402,11 @@ export default {
             data.append('attachable[type]', this.attachableType)
             let folder = 'uploads'
             if (this.folder.length) {
-                folder += '/' + this.folder
+                if (this.folder.startsWith('/')) {
+                    folder = this.folder.slice(1)
+                } else {
+                    folder += '/' + this.folder
+                }
             }
             data.append('folder', folder)
             // Show files while uploading
@@ -430,13 +444,22 @@ export default {
                         isUploaded: true
                     }
                     this.filesList.push(formattedFile)
+                    if (this.multiple) {
+                        this.form[ this.name ] = this.filesList.map((file) => file.id)
+                    } else {
+                        this.form[ this.name ] = this.filesList.map((file) => file.id)[ 0 ]
+                    }
                 });
                 const files = { ...this.files.map((file) => file.id) }
                 $event.target.value = ''
                 this.$emit('uploaded', files)
             }).catch(error => {
                 this.inProgress = false
-                this.$swal.catchError(error)
+                if (error?.response?.status == 413) {
+                    this.$swal.alert_error(error?.response?.data, error.message)
+                } else {
+                    this.$swal.catchError(error)
+                }
                 let fileName = this.filesList[ index ].name
                 for (const key in error?.response?.data?.errors) {
                     if (Object.hasOwnProperty.call(error?.response?.data?.errors, key)) {
