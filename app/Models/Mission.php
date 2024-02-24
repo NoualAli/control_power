@@ -447,12 +447,16 @@ class Mission extends BaseModel
 
     public function missionOrder()
     {
-        return $this->media()->whereLike('folder', '%uploads/Ordres de mission%')->orWhere('folder', 'uploads/mission_order');
+        return $this->media()->where(function ($query) {
+            $query->whereLike('folder', '%uploads/Ordres de mission%')->orWhere('folder', 'uploads/mission_order');
+        });
     }
 
     public function closingReport()
     {
-        return $this->media()->whereLike('folder', '%uploads/Pv de clôture%')->orWhere('folder', 'uploads/closing_report');
+        return $this->media()->where(function ($query) {
+            $query->whereLike('folder', '%uploads/Pv de clôture%')->orWhere('folder', 'uploads/closing_report');
+        });
     }
 
 
