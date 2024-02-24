@@ -44,11 +44,11 @@ export default {
                     field: 'reference',
                     sortable: true,
                 },
-                // {
-                //     label: 'Dre',
-                //     field: 'dre',
-                //     hide: hasRole([ 'cdc', 'ci' ])
-                // },
+                {
+                    label: 'Dre',
+                    field: 'dre',
+                    hide: hasRole([ 'cdc', 'ci' ])
+                },
                 // {
                 //     label: 'Agence',
                 //     field: 'agency'
