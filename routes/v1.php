@@ -34,6 +34,7 @@ use App\Http\Controllers\Api\V1\NotificationSettingController;
 use App\Http\Controllers\Api\V1\Settings\SettingController;
 use App\Http\Controllers\Api\V1\Statistics\KPIController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
+use App\Http\Controllers\API\V1\PCFController;
 
 Route::group(['middleware' => 'auth:api', 'prefix' => 'v1'], function () {
     /**
@@ -98,9 +99,18 @@ Route::group(['middleware' => 'auth:api', 'prefix' => 'v1'], function () {
         /**
          * Reference
          */
-        Route::prefix('references')->group(function () {
-            Route::get('/pcf', [ReferenceController::class, 'pcf']);
-            Route::get('/pcf/{process}', [ReferenceController::class, 'show']);
+        Route::prefix('references')->controller(ReferenceController::class)->group(function () {
+            Route::get('pcf', 'index');
+            Route::get('pcf/{process}', 'show');
+        });
+
+        Route::prefix('pcf')->controller(PCFController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::get('{media_id}', 'show');
+            Route::get('info/list/{media_id?}', 'info');
+            Route::post('/', 'store');
+            Route::put('{media_id}', 'update');
+            Route::delete('{media_id}', 'destroy');
         });
 
         /**

@@ -611,7 +611,38 @@ export default [
             }
         }
     },
-
+    {
+        path: '/admin/pcf/',
+        name: 'pcf-management',
+        component: page('admin/pcf/index.vue'),
+        meta: {
+            breadcrumb: {
+                label: 'Textes réglementaires'
+            }
+        }
+    },
+    {
+        path: '/admin/pcf/create',
+        name: 'pcf-management-create',
+        component: page('admin/pcf/create.vue'),
+        meta: {
+            breadcrumb: {
+                parent: 'pcf-management',
+                label: 'Ajouter un nouveau texte réglementaire'
+            }
+        }
+    },
+    {
+        path: '/admin/pcf/edit/:pcf',
+        name: 'pcf-management-edit',
+        component: page('admin/pcf/edit.vue'),
+        meta: {
+            breadcrumb: {
+                parent: 'pcf-management',
+                label: 'Edition texte réglementaire'
+            }
+        }
+    },
     /**
      * Notifications center
      */

@@ -247,7 +247,8 @@ return [
         'agency' => 'agence',
         'assistants' => 'contrôleurs',
         'assistants.*' => 'contrôleur',
-        'new_password' => 'nouveau mot de passe'
+        'new_password' => 'nouveau mot de passe',
+        'category' => 'catégorie'
     ],
 
 ];

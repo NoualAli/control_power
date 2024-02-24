@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\PCFResource;
+use App\Http\Resources\ReferenceResource;
 use App\Models\Process;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 class ReferenceController extends Controller
 {
-    public function pcf()
+    public function index()
     {
         $processes = DB::table('processes as p')
             ->select(['p.name as process', 'p.id', 'f.name as family', 'd.name as domain'])
@@ -41,7 +41,7 @@ class ReferenceController extends Controller
             $processes = $processes->sortByMultiple($sort);
         }
 
-        return PCFResource::collection($processes->paginate($perPage)->onEachSide(1));
+        return ReferenceResource::collection($processes->paginate($perPage)->onEachSide(1));
     }
 
     public function show(Process $process)

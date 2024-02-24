@@ -59,7 +59,9 @@
                 <NLSidebarItem label="Points de contrôle" route="control-points-index" iconName="list"
                     v-if="can('view_control_point')">
                 </NLSidebarItem>
-                <NLSidebarItem label="Champs" route="fields-index" iconPrefix="lab" iconName="dataset"
+                <NLSidebarItem label="Champs" route="fields-index" iconName="dataset" v-if="can('view_field')">
+                </NLSidebarItem>
+                <NLSidebarItem label="Textes réglementaires" route="pcf-management" iconName="quick_reference_all"
                     v-if="can('view_field')">
                 </NLSidebarItem>
             </NLSidebarSubmenu>
