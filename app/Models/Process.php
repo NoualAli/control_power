@@ -65,22 +65,18 @@ class Process extends BaseModel
     }
     public function notes()
     {
-        return $this->media()->whereIn('folder', ['references\Note', 'references/Note', 'uploads/references/Note']);
+        return $this->media()->whereIn('category', ['Circulaire', 'Lettre-circulaire', 'Note', 'Guide 1er niveau']);
     }
     public function circulaires()
     {
-        return $this->media()->whereIn('folder', ['references\Circulaire', 'references/Circulaire', 'uploads/references/Circulaire']);
+        return $this->media()->where('category', 'Circulaire');
     }
     public function lettresCirculaire()
     {
-        return $this->media()->whereIn('folder', ['references\Lettre-circulaire', 'references/Lettre-circulaire', 'uploads/references/Lettre-circulaire']);
+        return $this->media()->where('category', 'Lettre-circulaire');
     }
     public function guidesPremierNiveau()
     {
-        return $this->media()->whereIn('folder', ['references\Guide 1er niveau', 'references/Guide 1er niveau', 'uploads/references/Guide 1er niveau']);
-    }
-    public function others()
-    {
-        return $this->media()->whereIn('folder', ['references\Autre', 'references/Autre', 'uploads/references/Autre']);
+        return $this->media()->where('category', 'Guide 1er niveau');
     }
 }

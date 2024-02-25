@@ -28,7 +28,9 @@ class UpdateRequest extends FormRequest
         return [
             'family_id' => ['required', 'exists:families,id'],
             'domain_id' => ['required', 'exists:domains,id'],
-            'name' => ['required', 'string', 'max:255', 'unique:processes,name,' . $id . ',id']
+            'name' => ['required', 'string', 'max:255', 'unique:processes,name,' . $id . ',id'],
+            'regulations' => ['nullable', 'array'],
+            'regulations.*' => ['nullable', 'exists:media,id']
         ];
     }
 }

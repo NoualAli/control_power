@@ -5,6 +5,7 @@ use App\Models\Process;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 if (!function_exists('getMissions')) {
@@ -992,5 +993,19 @@ if (!function_exists('getMissionProcesses')) {
             return $processes->get()->first();
         }
         return $processes;
+    }
+}
+
+
+if (!function_exists('getRegulations')) {
+    /**
+     * Fetch all regulations
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    function getRegulations(): Collection
+    {
+        $regulations = DB::table('media')->select('id', 'original_name')->whereIn('category', ['Circulaire', 'Lettre-circulaire', 'Note', 'Guide 1er niveau'])->get();
+        return $regulations;
     }
 }

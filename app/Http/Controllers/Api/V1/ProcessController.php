@@ -76,21 +76,9 @@ class ProcessController extends Controller
             DB::transaction(function () use ($request) {
                 $data = $request->validated();
 
-                $notes = $data['notes'];
-                $circulaires = $data['circulaires'];
-                $lettreCirculaires = $data['lettreCirculaires'];
-                $guidePremierNiveau = $data['guidesPremierNiveau'];
-                $others = $data['others'];
-                unset($data['others'], $data['notes'], $data['circulairs'], $data['lettreCirculaires'], $data['guidesPremierNiveau']);
-                $media = array_merge($notes, $circulaires, $lettreCirculaires, $guidePremierNiveau, $others);
-
                 $process = Process::create($data);
-                foreach ($media as $id) {
-                    $media = DB::table('has_media')->updateOrInsert([
-                        'attachable_id' => $process->id,
-                        'attachable_type' => Process::class,
-                        'media_id' => $id,
-                    ]);
+                if (isset($data['regulations']) && !empty($data['regulations'])) {
+                    $process->media()->attach($data['regulations']);
                 }
             });
 
@@ -112,7 +100,12 @@ class ProcessController extends Controller
     {
         $processes = explode(',', $process);
         $onlyControlPoints = request()->has('onlyControlPoints');
-        $data = $onlyControlPoints ? formatForSelect(ControlPoint::whereIn('process_id', $processes)->get()->toArray()) : Process::findOrFail($process)->load(['family', 'domain', 'control_points', 'media', 'notes', 'circulaires', 'lettresCirculaire', 'others', 'guidesPremierNiveau']);
+        $data = $onlyControlPoints ? formatForSelect(ControlPoint::whereIn('process_id', $processes)->get()->toArray()) : Process::findOrFail($process)->load(['family', 'domain', 'control_points', 'media']);
+        if ($data instanceof Process) {
+            $data->regulations_id = $data->media->pluck('id')->toArray();
+            $data->regulations = formatForSelect(getRegulations()->toArray(), 'original_name');
+            $data->formatted_media = $data->media->groupBy('category');
+        }
         return response()->json($data);
     }
 
@@ -128,6 +121,9 @@ class ProcessController extends Controller
     {
         try {
             $data = $request->validated();
+            if (isset($data['regulations']) && !empty($data['regulations'])) {
+                $process->media()->sync($data['regulations']);
+            }
             $process->update($data);
             return response()->json([
                 'message' => UPDATE_SUCCESS,

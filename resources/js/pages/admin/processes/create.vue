@@ -19,42 +19,11 @@
                     <NLInput v-model="form.name" :form="form" name="name" label="Nom" label-required
                         placeholder="Veuillez saisir le nom de processus" />
                 </NLColumn>
-                <!-- Notes -->
+                <!-- Regulations -->
                 <NLColumn>
-                    <NLFile :key="'notes-' + refresh" v-model="form.notes" :form="form" name="notes" label="Notes"
-                        attachable-type="App\Models\Process" folder="references/Note"
-                        @uploaded="(e) => handleMedia(e, 'notes')" @deleted="(e) => handleMedia(e, 'notes')"
-                        @loaded="(e) => handleMedia(e, 'notes')" />
-                </NLColumn>
-                <!-- Circulaire -->
-                <NLColumn>
-                    <NLFile :key="'circulaires-' + refresh" v-model="form.circulaires" :form="form" name="circulaires"
-                        label="Circulaires" attachable-type="App\Models\Process" folder="references/Circulaire"
-                        @uploaded="(e) => handleMedia(e, 'circulaires')" @deleted="(e) => handleMedia(e, 'circulaires')"
-                        @loaded="(e) => handleMedia(e, 'circulaires')" />
-                </NLColumn>
-                <!-- Lettres-circulaire -->
-                <NLColumn>
-                    <NLFile :key="'lettre_circulaires-' + refresh" v-model="form.lettreCirculaires" :form="form"
-                        name="lettre_circulaires" label="Lettre-circulaire" attachable-type="App\Models\Process"
-                        folder="references/Lettre-circulaire" @uploaded="(e) => handleMedia(e, 'lettreCirculaires')"
-                        @deleted="(e) => handleMedia(e, 'lettreCirculaires')"
-                        @loaded="(e) => handleMedia(e, 'lettreCirculaires')" />
-                </NLColumn>
-                <!-- Guide 1er niveau -->
-                <NLColumn>
-                    <NLFile :key="'guides_premier_niveau-' + refresh" v-model="form.guidesPremierNiveau" :form="form"
-                        name="guides_premier_niveau" label="Guides 1er niveau" attachable-type="App\Models\Process"
-                        folder="references/Guide 1er niveau" @uploaded="(e) => handleMedia(e, 'guidesPremierNiveau')"
-                        @deleted="(e) => handleMedia(e, 'guidesPremierNiveau')"
-                        @loaded="(e) => handleMedia(e, 'guidesPremierNiveau')" />
-                </NLColumn>
-                <!-- Others -->
-                <NLColumn>
-                    <NLFile :key="'autres-' + refresh" v-model="form.others" :form="form" name="autres" label="Autres"
-                        attachable-type="App\Models\Process" folder="references/Autre"
-                        @uploaded="(e) => handleMedia(e, 'others')" @deleted="(e) => handleMedia(e, 'others')"
-                        @loaded="(e) => handleMedia(e, 'others')" />
+                    <NLSelect v-model="form.regulations" :form="form" name="regulations" label="Textes réglementaires"
+                        multiple placeholder="Veuillez choisir un ou plusieurs textes réglementaires"
+                        :options="regulations" />
                 </NLColumn>
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">
@@ -77,15 +46,12 @@ export default {
             refresh: 0,
             familliesList: [],
             domainsList: [],
+            regulations: [],
             form: new Form({
                 name: null,
                 family_id: null,
                 domain_id: null,
-                notes: {},
-                circulaires: {},
-                lettreCirculaires: {},
-                guidesPremierNiveau: {},
-                others: {},
+                regulations: [],
             })
         }
     },
@@ -109,7 +75,13 @@ export default {
             this.$store.dispatch('settings/updatePageLoading', true)
             this.$store.dispatch('families/fetchAll', false).then(() => {
                 this.familliesList = this.families.all
-                this.$store.dispatch('settings/updatePageLoading', false)
+                this.$api.get('pcf?fetchAll').then(response => {
+                    this.regulations = response.data
+                    this.$store.dispatch('settings/updatePageLoading', false)
+                }).catch(error => {
+                    this.$swal.catchError(error)
+                    this.$store.dispatch('settings/updatePageLoading', false)
+                })
             })
         },
         loadDomains(value) {

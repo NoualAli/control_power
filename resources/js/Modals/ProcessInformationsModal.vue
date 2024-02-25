@@ -42,24 +42,29 @@
                     </li>
                 </ul>
                 <NLGrid class="text-normal">
-                    <NLColumn v-if="Object.values(currentProcess.media).length">
+                    <NLColumn v-if="Object.values(currentProcess.formatted_media).length">
                         <h2>
                             Documentation
                         </h2>
                     </NLColumn>
-                    <NLColumn v-for="file in currentProcess?.media">
+                    <NLColumn v-for="(files, category) in currentProcess?.formatted_media">
                         <NLGrid gap="1">
-                            <NLColumn class="text-bold">
-                                {{ JSON.parse(file.payload).object }}
-                            </NLColumn>
                             <NLColumn>
-                                <a :href="file.storage_link" target="_blank" class="text-dark"
-                                    :download="file.original_name">
-                                    <i class="icon" :class="file.icon"></i>
-                                    {{ file.original_name }}
-                                </a>
+                                <h3 class="my-2">{{ category }}</h3>
                             </NLColumn>
-                            <NLColumn class="divider"></NLColumn>
+                            <NLColumn v-for="file in files">
+                                <NLColumn class="text-bold">
+                                    {{ file?.payload?.object }}
+                                </NLColumn>
+                                <NLColumn>
+                                    <a :href="file.storage_link" target="_blank" class="text-dark"
+                                        :download="file.original_name">
+                                        <i class="icon" :class="file.icon"></i>
+                                        {{ file.original_name }}
+                                    </a>
+                                </NLColumn>
+                                <NLColumn class="divider"></NLColumn>
+                            </NLColumn>
                         </NLGrid>
                     </NLColumn>
                 </NLGrid>

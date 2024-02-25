@@ -41,8 +41,8 @@ class PCFController extends Controller
             $pcf = $pcf->search(['m.original_name'], $search);
         }
 
-        $pcf = $fetchAll ? $pcf->get()->toJson() : PCFResource::collection($pcf->paginate($perPage)->onEachSide(1));
-        // dd($pcf);
+        $pcf = $fetchAll ? formatForSelect($pcf->get()->toArray(), 'original_name') : PCFResource::collection($pcf->paginate($perPage)->onEachSide(1));
+
         return $pcf;
     }
 
