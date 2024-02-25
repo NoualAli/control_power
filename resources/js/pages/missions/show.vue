@@ -241,7 +241,7 @@
                                 Chef de secteur:
                             </span>
                             <span>
-                                {{ mission?.current?.cc_validator?.abbreviated_name_with_martial }}
+                                {{ mission?.current?.cc_validator?.abbreviated_name_with_martial || '-' }}
                             </span>
                         </NLColumn>
                         <NLColumn lg="3">
