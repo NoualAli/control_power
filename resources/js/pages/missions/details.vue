@@ -52,11 +52,19 @@
                             </NLFlex>
                         </div>
                         <div v-if="detail.score" class="box border-1 border-solid"
-                            :class="[{ 'border-success': detail?.score == 1 && !detail?.major_fact }, { 'border-warning': [3, 4].includes(Number(detail?.score)) && !detail?.major_fact && !is(['ci', 'cdc', 'da']) }, { 'border-info': [2].includes(Number(detail?.score)) && !detail?.major_fact && !is(['ci', 'cdc', 'da']) }, { 'border-danger': detail?.major_fact }, { 'border-warning': [2, 3, 4].includes(Number(detail?.score)) && !detail?.major_fact && is(['ci', 'cdc', 'da']) }]">
-                            <NLGrid>
+                            :class="[{ 'p-none': detail?.id == rowIsLoading?.id, 'border-success': detail?.score == 1 && !detail?.major_fact }, { 'border-warning': [3, 4].includes(Number(detail?.score)) && !detail?.major_fact && !is(['ci', 'cdc', 'da']) }, { 'border-info': [2].includes(Number(detail?.score)) && !detail?.major_fact && !is(['ci', 'cdc', 'da']) }, { 'border-danger': detail?.major_fact }, { 'border-warning': [2, 3, 4].includes(Number(detail?.score)) && !detail?.major_fact && is(['ci', 'cdc', 'da']) }]">
+                            <NLGrid :class="[{ 'p-5': detail?.id == rowIsLoading?.id }]">
+                                <NLComponentLoader :isLoading="rowIsLoading?.id == detail?.id"></NLComponentLoader>
                                 <!-- Control Point name -->
                                 <NLColumn>
-                                    <h3>{{ detail?.control_point?.name }}</h3>
+                                    <NLFlex>
+                                        <h3>{{ detail?.control_point?.name }}</h3>
+                                        <NLTooltip title="Ce point a déjà été traiter" type="left">
+                                            <NLIcon name="check_circle" class="text-success is-clickable"
+                                                v-if="isControlled(detail)">
+                                            </NLIcon>
+                                        </NLTooltip>
+                                    </NLFlex>
                                 </NLColumn>
 
                                 <!-- Major fact -->
@@ -217,14 +225,16 @@ import MissionDetailForm from '../../forms/MissionDetailForm'
 import MissionDetailModal from '../../Modals/MissionDetailModal'
 import MissionRegularizationForm from '../../forms/MissionRegularizationForm'
 import ProcessInformationsModal from '../../Modals/ProcessInformationsModal'
+import NLComponentLoader from '../../components/NLComponentLoader'
 import { mapGetters } from 'vuex'
-import { user } from '../../plugins/user'
+import { hasRole, user } from '../../plugins/user'
 export default {
     components: {
         MissionDetailForm,
         MissionDetailModal,
         MissionRegularizationForm,
-        ProcessInformationsModal
+        ProcessInformationsModal,
+        NLComponentLoader
     },
     emits: [ 'loading' ],
     layout: 'MainLayout',
@@ -236,6 +246,7 @@ export default {
             mission: null,
             details: [],
             rowSelected: null,
+            rowIsLoading: null,
             mode: 1,
             modals: {
                 show: false,
@@ -250,7 +261,22 @@ export default {
             config: 'missions/detailsConfig',
             detail: 'details/detail',
             pageLoadingState: 'settings/pageIsLoading'
-        })
+        }),
+        isControlled() {
+            return (detail) => {
+                if (hasRole('cdc')) {
+                    return Boolean(detail?.controlled_by_cdc_id)
+                } else if (hasRole('cc')) {
+                    return Boolean(detail?.controlled_by_cc_id)
+                } else if (hasRole('cdcr')) {
+                    return Boolean(detail?.controlled_by_cdcr_id)
+                } else if (hasRole('dcp')) {
+                    return Boolean(detail?.controlled_by_dcp_id)
+                } else if (hasRole('da')) {
+                    return Boolean(detail?.reg_is_regularized)
+                }
+            }
+        }
     },
     created() {
         this.initData()
@@ -263,17 +289,20 @@ export default {
         initData(reloadAll = true) {
             this.close()
             const length = this.$breadcrumbs.value.length
-            this.$store.dispatch('settings/updatePageLoading', true)
+            if (reloadAll) {
+                this.$store.dispatch('settings/updatePageLoading', true)
+            }
             this.$store.dispatch('missions/fetchDetails', { missionId: this.$route.params.missionId, processId: this.$route.params.processId }).then(() => {
                 this.details = this.config.detailsConfig.details
                 this.mission = this.config.detailsConfig.mission
                 this.process = this.config.detailsConfig.process
                 this.mode = this.config.detailsConfig.mode
+                this.rowIsLoading = null
                 if (reloadAll) {
                     this.$breadcrumbs.value[ length - 1 ].label = this.process?.name
                     this.$breadcrumbs.value[ length - 3 ].label = 'Mission ' + this.mission?.reference
+                    this.$store.dispatch('settings/updatePageLoading', false)
                 }
-                this.$store.dispatch('settings/updatePageLoading', false)
             })
         },
         /**
@@ -348,6 +377,7 @@ export default {
          * Handle success event
          */
         success() {
+            this.rowIsLoading = this.rowSelected
             this.initData(false)
         },
 
