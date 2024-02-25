@@ -238,10 +238,10 @@
                         </NLColumn>
                         <NLColumn lg="3">
                             <span class="text-bold">
-                                Chef de mission:
+                                Chef de secteur:
                             </span>
                             <span>
-                                {{ mission?.current?.dcp_controller.abbreviated_name_with_martial }}
+                                {{ mission?.current?.cc_validator?.abbreviated_name_with_martial }}
                             </span>
                         </NLColumn>
                         <NLColumn lg="3">

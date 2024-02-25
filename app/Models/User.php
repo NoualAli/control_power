@@ -166,7 +166,7 @@ class User extends Authenticatable implements JWTSubject
     }
     public function getAbbreviatedNameWithMartialAttribute()
     {
-        return $this->first_name && $this->last_name ? $this->martial_status . substr(strtoupper($this->first_name), 0, 1) . '.' . strtoupper($this->last_name) : $this->full_name_with_martial;
+        return $this->first_name && $this->last_name ? $this->martial_status . ' ' . substr(strtoupper($this->first_name), 0, 1) . '.' . strtoupper($this->last_name) : $this->full_name_with_martial;
     }
     public function getFullNameAttribute()
     {
