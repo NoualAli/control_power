@@ -24,5 +24,6 @@ class EventLogTypes extends Enum
     const ATTACH = 'attach';
     const DETACH = 'detach';
     const CONTROL = 'control';
-    const EXPORT = 'EXPORT';
+    const EXPORT = 'export';
+    const DISPATCH = 'dispatch';
 }
