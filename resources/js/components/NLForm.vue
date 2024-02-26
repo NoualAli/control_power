@@ -1,5 +1,6 @@
 <template>
-    <form enctype="multipart/form-data" class="box grid gap-6" @submit.prevent="action" @keydown="form.onKeydown($event)">
+    <form enctype="multipart/form-data" :class="[{ 'box': hasBox }]" class="grid gap-6" @submit.prevent="action"
+        @keydown="form.onKeydown($event)">
         <NLColumn>
             <Alert v-if="form.errors.any()" type="is-danger" extraClass="mb-6">
                 <template #title>
@@ -24,7 +25,8 @@ export default {
     name: 'NLForm',
     props: {
         action: { type: Function, required: true },
-        form: { type: [ Object, null ], required: true }
+        form: { type: [ Object, null ], required: true },
+        hasBox: { type: Boolean, default: true },
     },
     computed: {
         formErrorsCount() {
