@@ -38,11 +38,10 @@ class KPI extends StatisticsData
             DB::raw("SUM(CASE WHEN m.ci_validation_at IS NOT NULL AND c.name = 'C' THEN 1 ELSE 0 END) as total_missions_validated_ag_c"),
         ]);
 
-        $data = $data->leftJoin('mission_has_controllers as mhc', 'mhc.mission_id', '=', 'm.id')
-            ->leftJoin('users as u', function ($join) {
-                $join->on('u.id', '=', 'm.assigned_to_ci_id');
-                $join->orOn('u.id', '=', 'mhc.user_id');
-            })
+        $data = $data->leftJoin('users as u', function ($join) {
+            $join->on('u.id', '=', 'm.assigned_to_ci_id');
+            // $join->orOn('u.id', '=', 'mhc.user_id');
+        })
             ->leftJoin('agencies as a', 'a.id', 'm.agency_id')
             ->leftJoin('categories as c', 'c.id', 'a.category_id')
             ->leftJoin('control_campaigns as cc', 'cc.id', 'm.control_campaign_id');
@@ -61,7 +60,7 @@ class KPI extends StatisticsData
             'u.gender',
         ]);
 
-        $data = $data->orderByRaw("(COUNT(CASE WHEN m.ci_validation_at IS NOT NULL THEN 1 ELSE NULL END) / (COUNT(DISTINCT m.id) + COUNT(DISTINCT mhc.mission_id))) * 100 DESC") // accomplish_rate
+        $data = $data->orderByRaw("(COUNT(CASE WHEN m.ci_validation_at IS NOT NULL THEN 1 ELSE NULL END) / COUNT(DISTINCT m.id)) * 100 DESC") // accomplish_rate
             ->orderByRaw("COUNT(DISTINCT m.id) DESC") // total_missions_assigned
             ->orderByRaw("COUNT(CASE WHEN m.ci_validation_at IS NOT NULL THEN 1 ELSE NULL END) DESC"); // total_missions_validated
 
@@ -140,11 +139,10 @@ class KPI extends StatisticsData
             DB::raw("COUNT(CASE WHEN m.ci_validation_at IS NOT NULL THEN 1 ELSE NULL END) as total_missions_validated"),
         ]);
 
-        $data = $data->leftJoin('mission_has_controllers as mhc', 'mhc.mission_id', '=', 'm.id')
-            ->leftJoin('users as u', function ($join) {
-                $join->on('u.id', '=', 'm.assigned_to_ci_id');
-                $join->orOn('u.id', '=', 'mhc.user_id');
-            })
+        $data = $data->leftJoin('users as u', function ($join) {
+            $join->on('u.id', '=', 'm.assigned_to_ci_id');
+            // $join->orOn('u.id', '=', 'mhc.user_id');
+        })
             ->leftJoin('agencies as a', 'a.id', 'm.agency_id')
             ->leftJoin('categories as c', 'c.id', 'a.category_id')
             ->leftJoin('control_campaigns as cc', 'cc.id', 'm.control_campaign_id');
@@ -197,8 +195,8 @@ class KPI extends StatisticsData
             DB::raw("CONCAT(u.last_name, ' ', u.first_name) as controller_full_name"),
             'u.gender',
             DB::raw("COUNT(DISTINCT m.id) as total_missions_assigned"),
-            DB::raw("COUNT(CASE WHEN m.ci_validation_at IS NULL THEN 1 ELSE NULL END) as total_missions_not_validated"),
-            DB::raw("(COUNT(CASE WHEN m.ci_validation_at IS NULL THEN 1 ELSE NULL END) / COUNT(DISTINCT m.id)) * 100 as missions_fall"),
+            DB::raw("COUNT(DISTINCT CASE WHEN m.ci_validation_at IS NULL THEN 1 ELSE NULL END) as total_missions_not_validated"),
+            DB::raw("(COUNT(DISTINCT CASE WHEN m.ci_validation_at IS NULL THEN 1 ELSE NULL END) / COUNT(DISTINCT m.id)) * 100 as missions_fall"),
             DB::raw("SUM(CASE WHEN c.name = 'AP' THEN 1 ELSE 0 END) as total_missions_assigned_ag_ap"),
             DB::raw("SUM(CASE WHEN m.ci_validation_at IS NULL AND c.name = 'AP' THEN 1 ELSE 0 END) as total_missions_not_validated_ag_ap"),
             DB::raw("SUM(CASE WHEN c.name = 'A' THEN 1 ELSE 0 END) as total_missions_assigned_ag_a"),
@@ -209,11 +207,10 @@ class KPI extends StatisticsData
             DB::raw("SUM(CASE WHEN m.ci_validation_at IS NULL AND c.name = 'C' THEN 1 ELSE 0 END) as total_missions_not_validated_ag_c"),
         ]);
 
-        $data = $data->leftJoin('mission_has_controllers as mhc', 'mhc.mission_id', '=', 'm.id')
-            ->leftJoin('users as u', function ($join) {
-                $join->on('u.id', '=', 'm.assigned_to_ci_id');
-                $join->orOn('u.id', '=', 'mhc.user_id');
-            })
+        $data = $data->leftJoin('users as u', function ($join) {
+            $join->on('u.id', '=', 'm.assigned_to_ci_id');
+            // $join->orOn('u.id', '=', 'mhc.user_id');
+        })
             ->leftJoin('agencies as a', 'a.id', 'm.agency_id')
             ->leftJoin('categories as c', 'c.id', 'a.category_id')
             ->leftJoin('control_campaigns as cc', 'cc.id', 'm.control_campaign_id');
