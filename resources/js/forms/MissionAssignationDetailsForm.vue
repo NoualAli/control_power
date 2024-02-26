@@ -1,36 +1,27 @@
 <template>
-    <NLModal :show="show" @isExpanded="handleDetailForm" @close="close">
-        <template #title>
-            <small>
-                {{ title }}
-            </small>
-        </template>
-        <template #default>
-            <NLForm :form="form" :action="save" v-if="!isLoading">
-                <NLColumn>
-                    <NLSelect v-model="form.controller" name="controllers" :form="form" :options="controllersList"
-                        label="Contrôleur" placeholder="Choisissez un contrôleur"
-                        no-options-text="Aucun contrôleur disponible"
-                        loading-text="Chargement des contrôleurs en cours..." />
-                </NLColumn>
-            </NLForm>
-            <!-- <NLDatatable :isSearchable="false" :columns="columns" title="PCF assignés"
-                :customUrl="'/missions/' + this.mission.id + '/assigned-processes/' + form.controller" urlPrefix=""
-                :refresh="refresh" v-if="form.controller">
-                <template #actions-before="{ item, callback }" v-if="is('cdcr')">
-                    <button class="btn btn-danger has-icon" @click.stop="callback(detachProcess, item)">
-                        <i class="las la-unlink icon" />
-                    </button>
-                </template>
-            </NLDatatable> -->
-            <!-- Loader -->
-            <NLComponentLoader :isLoading="isLoading"></NLComponentLoader>
-        </template>
-        <template #footer>
-            <!-- Submit Button -->
-            <NLButton :loading="formIsLoading" label="Enregistrer" @click.stop="save" />
-        </template>
-    </NLModal>
+    <div class="box my-10" v-if="show">
+        <NLGrid>
+            <NLColumn>
+                <h2>
+                    {{ title }}
+                </h2>
+            </NLColumn>
+            <NLColumn>
+                <NLForm :form="form" :action="save" v-if="!isLoading" :hasBox="false">
+                    <NLColumn>
+                        <NLSelect v-model="form.controller" name="controllers" :form="form" :options="controllersList"
+                            label="Contrôleur" placeholder="Choisissez un contrôleur"
+                            no-options-text="Aucun contrôleur disponible"
+                            loading-text="Chargement des contrôleurs en cours..." />
+                    </NLColumn>
+                    <NLColumn>
+                        <NLButton :loading="formIsLoading" label="Enregistrer" @click.stop="save" />
+                    </NLColumn>
+                    <NLComponentLoader :isLoading="isLoading"></NLComponentLoader>
+                </NLForm>
+            </NLColumn>
+        </NLGrid>
+    </div>
 </template>
 
 <script>
@@ -39,12 +30,13 @@ import NLForm from '../components/NLForm'
 import { Form } from 'vform'
 import NLComponentLoader from '../components/NLComponentLoader'
 import { confirm } from '../plugins/swal'
+import { hasRole } from '../plugins/user'
 export default {
     name: 'MissionAssignationDetailsForm',
     emits: [ 'success', 'close' ],
     components: { NLForm, NLComponentLoader },
     props: {
-        title: { type: String, default: null },
+        // title: { type: String, default: null },
         mission: { type: [ Object ], required: true },
         show: { type: Boolean, default: false },
         type: { type: String }
@@ -67,6 +59,15 @@ export default {
                     this.form.is_validator = false
                 }
                 return
+            }
+        }
+    },
+    computed: {
+        title() {
+            if (hasRole('cdcr')) {
+                return 'Déléguer le traitement des anomalies de la mission ' + this.mission?.reference
+            } else if (hasRole('der')) {
+                return 'Déléguer la mission ' + this.mission?.reference
             }
         }
     },
@@ -149,14 +150,20 @@ export default {
             this.isLoading = true
             this.currentMission = this.mission
             api.get('missions/' + this.mission.id + '/loadAssignationData/' + this.type).then((response) => {
-                if (this.type == 'cc') {
+                if ([ 'cc', 'cder' ].includes(this.type)) {
                     this.form.controller = response.data.controller
                 } else {
                     this.pcfList = response.data.pcfList
                 }
                 this.controllersList = response.data.controllersList
                 this.isLoading = false
-            }).catch(error => this.$swal.catchError(error))
+            }).catch(error => {
+                if (error?.response?.status == 422) {
+                    this.$swal.alert_error(error?.response?.data?.message)
+                } else {
+                    this.$swal.catchError(error, false)
+                }
+            })
         },
 
         /**

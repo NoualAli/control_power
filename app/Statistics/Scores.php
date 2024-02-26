@@ -25,6 +25,11 @@ class Scores extends StatisticsData
             $groupBy = ['score', 'created_by_id'];
         }
 
+        if (hasRole(['cder'])) {
+            $details = $details->addSelect('m.assigned_to_cder_id');
+            $groupBy = ['score', 'assigned_to_cder_id'];
+        }
+
         $details = $details->groupBy($groupBy);
         $details = $details->orderBy('score', 'DESC')->get()->pluck('scores_count', 'score');
         $labels = $details->keys();

@@ -17,7 +17,8 @@
                 </router-link>
             </template>
         </NLDatatable>
-        <NLFlex lgJustifyContent="end" lgAlignItems="center" mdJustifyContent="end" mdAlignItems="center">
+        <NLFlex lgJustifyContent="end" lgAlignItems="center" mdJustifyContent="end" mdAlignItems="center"
+            v-if="!is(['da', 'cder', 'ci'])">
             <p class="text-italic">* Pourcentage des agences couvertes par rapport au total des missions réalisées</p>
         </NLFlex>
     </ContentBody>
@@ -67,7 +68,7 @@ export default {
                     field: 'total_missions',
                     align: 'center',
                     sortable: true,
-                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da' ]),
+                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da', 'cder' ]),
                     methods: {
                         showField(item) {
                             return item?.validated_by_id ? item?.total_missions : '-'
@@ -79,7 +80,7 @@ export default {
                     field: 'total_missions_validated',
                     align: 'center',
                     sortable: true,
-                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da' ]),
+                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da', 'cder' ]),
                     methods: {
                         showField(item) {
                             return item?.validated_by_id ? item?.total_missions_validated : '-'
@@ -117,7 +118,7 @@ export default {
                     field: 'realisation_rate',
                     align: 'center',
                     sortable: true,
-                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da' ]),
+                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da', 'cder' ]),
                     methods: {
                         showField(item) {
                             if (item?.validated_by_id) {

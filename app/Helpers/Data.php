@@ -92,6 +92,7 @@ if (!function_exists('getMissions')) {
             ->leftJoin('users as dci', 'dci.id', 'm.assigned_to_ci_id')
             ->leftJoin('users as dcc', 'dcc.id', 'm.assigned_to_cc_id')
             ->leftJoin('users as ucc', 'ucc.id', 'm.cc_validation_by_id')
+            ->leftJoin('users as cder', 'cder.id', 'm.assigned_to_cder_id')
             ->where('m.level', $level)
             ->whereNull('m.deleted_at');
         $user = auth()->user();
@@ -111,6 +112,8 @@ if (!function_exists('getMissions')) {
                 });
             } elseif (hasRole('dre')) {
                 $missions = $missions->whereIn('m.agency_id', $user->agencies->pluck('id'));
+            } elseif (hasRole('cder')) {
+                $missions = $missions->where('m.assigned_to_cder_id', $user->id);
             }
         }
         $missions = $missions->groupBy(
@@ -151,6 +154,7 @@ if (!function_exists('getMissions')) {
             'm.dcp_validation_at',
             'm.da_validation_at',
         );
+        // dd($missions->toSql());
         if ($missionId) {
             return $missions->where('m.id', $missionId)->first();
         }
@@ -328,6 +332,8 @@ if (!function_exists('getMissionDetails')) {
             $details = $details->whereNotNull('m.assigned_to_cc_id', $user->id)->whereNotNull('m.cdc_validation_by_id');
         } elseif (hasRole('dcp')) {
             $details = $details->whereNotNull('m.cdcr_validation_by_id');
+        } elseif (hasRole('dcp')) {
+            $details = $details->whereNotNull('m.assigned_to_cder_id');
         } else {
             $details = $details->whereNotNull('m.dcp_validation_by_id');
         }
@@ -473,6 +479,8 @@ if (!function_exists('getMissionAnomalies')) {
             $details = $details->whereNotNull('m.assigned_to_cc_id', $user->id)->whereNotNull('m.cdc_validation_by_id');
         } elseif (hasRole('dcp')) {
             $details = $details->whereNotNull('m.cdcr_validation_by_id');
+        } elseif (hasRole('cder')) {
+            $details = $details->whereNotNull('m.cdcr_validation_by_id')->where('m.assigned_to_cder_id', $user->id);
         } else {
             $details = $details->whereNotNull('m.dcp_validation_by_id');
         }
@@ -582,6 +590,8 @@ if (!function_exists('getMajorFacts')) {
             });
         } elseif (hasRole(['root', 'admin'])) {
             $details = $details->whereNotNull('md.major_fact_is_detected_at');
+        } elseif (hasRole('cder')) {
+            $details = $details->whereNotNull('md.major_fact_is_detected_at')->where('m.assigned_to_cder_id', $user->id);
         } else {
             $details = $details->where('major_fact', true)->orWhereNotNull('md.major_fact_is_dispatched_at');
         }
@@ -704,6 +714,10 @@ if (!function_exists('getControlCampaigns')) {
         if (hasRole('ci')) {
             $campaigns = $campaigns->leftJoin('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')
                 ->where(fn ($query) => $query->where('m.assigned_to_ci_id', $user->id)->orWhere('mhc.user_id', $user->id));
+        }
+
+        if (hasRole('cder')) {
+            $campaigns = $campaigns->where('m.assigned_to_cder_id', $user->id);
         }
 
         if (hasRole(['dre', 'cdc', 'ci'])) {

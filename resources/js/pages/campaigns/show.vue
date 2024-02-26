@@ -124,7 +124,7 @@
                     </NLColumn>
                     <NLColumn lg="12" v-if="Boolean(Number(campaign?.current?.is_validated))">
                         <NLGrid>
-                            <NLColumn lg="4">
+                            <NLColumn lg="4" v-if="!is(['da', 'cder', 'ci'])">
                                 <span class="text-bold">
                                     Total missions:
                                 </span>
@@ -133,7 +133,7 @@
                                 </span>
                             </NLColumn>
 
-                            <NLColumn lg="4">
+                            <NLColumn lg="4" v-if="!is(['da', 'cder', 'ci'])">
                                 <span class="text-bold">
                                     Total validées:
                                 </span>
@@ -142,7 +142,7 @@
                                 </span>
                             </NLColumn>
 
-                            <NLColumn lg="4">
+                            <NLColumn lg="4" v-if="!is(['da', 'cder', 'ci'])">
                                 <span class="text-bold">
                                     Taux de couverture:
                                 </span>

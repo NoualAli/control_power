@@ -29,6 +29,8 @@ class AssignMissionProcessesRequest extends FormRequest
             return hasRole('cdc');
         } elseif ($this->type == 'cc') {
             return hasRole('cdcr');
+        } elseif ($this->type == 'cder') {
+            return hasRole('der');
         }
         return;
     }

@@ -72,9 +72,10 @@ class MissionProcessController extends Controller
         $condition = ($currentUser->id == $dreController
             || $currentUser->id == $dcpController
             || $mission->created_by_id == $currentUser->id
+            || ($mission->assigned_to_cder_at == $currentUser->id && hasRole('cder'))
             || in_array(auth()->user()->id, $dreAssistants)
             || (hasRole(['cdcr', 'dcp']) && $mission->is_validated_by_cdc)
-            || (hasRole(['dg', 'cdrcp', 'ig', 'der', 'cder', 'sg', 'deac', 'dga']) && $mission->is_validated_by_dcp)
+            || (hasRole(['dg', 'cdrcp', 'ig', 'der', 'sg', 'deac', 'dga']) && $mission->is_validated_by_dcp)
             || (hasRole(['dre', 'da']) && in_array($mission->agency->id, $agencies) && $mission->is_validated_by_dcp)
             || hasRole('root')
         );

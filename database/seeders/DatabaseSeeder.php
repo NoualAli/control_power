@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(UsersTableSeeder::class);
         // $this->call(NotificationGroupSeeder::class);
         // $this->call(NotificationTypeSeeder::class);
-        // $this->call(UserHasNotificationsSeeder::class);
+        $this->call(UserHasNotificationsSeeder::class);
         // $this->call(MissionsTableSeeder::class);
         // $this->call(UpdateControlCampaignsTable::class);
         $this->call(MediaTableSeeder::class);

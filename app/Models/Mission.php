@@ -62,6 +62,8 @@ class Mission extends BaseModel
         'is_for_testing',
         'assigned_to_cc_id',
         'assigned_to_ci_id',
+        'assigned_to_cder_id',
+        'assigned_to_cder_at',
     ];
 
     protected $hidden = [

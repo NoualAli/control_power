@@ -414,16 +414,20 @@
                 </NLButton>
             </NLFlex>
 
-            <!-- DA ACTIONS -->
-            <!-- <NLFlex lgJustifyContent="start" gap="2" v-if="is('da')">
-                <NLButton
-                    v-if="mission?.current?.is_validated_by_dcp && !mission?.current?.is_validated_by_da && mission?.current?.regularization_status == 100"
-                    class="has-icon" type="success" label="Valider la mission" :loading="isLoading.daValidation"
-                    @click.prevent="validateMission('da')">
-                    <NLIcon name="check_circle" />
+            <!-- DER ACTIONS -->
+            <NLFlex lgJustifyContent="start" gap="2" v-if="is('der')">
+                <NLButton v-if="Number(this.mission?.current?.current_state) == 8" class="has-icon"
+                    :type="!mission?.current?.assigned_to_cder_id ? 'info' : 'warning'"
+                    :label="!mission?.current?.assigned_to_cder_id ? 'Déléguer' : 'Modifier l\'assignation'"
+                    @click.prevent="showDispatchForm">
+                    <NLIcon name="account_circle" v-if="!mission?.current?.assigned_to_cder_id" />
+                    <NLIcon name="person_edit" v-else />
                 </NLButton>
-            </NLFlex> -->
+            </NLFlex>
         </NLFlex>
+        <!-- Assign mission processing -->
+        <MissionAssignationDetailsForm v-if="mission" :mission="mission?.current" isFluid :type="controllersType"
+            :show="modals.dispatch" @success="close({ reload: true })" @close="close({ type: 'dispatch' })" />
 
         <NLDatatable v-if="mission?.current?.id" :columns="columns" :details="details" title="Liste des processus"
             :urlPrefix="'missions/' + mission?.current?.id + '/processes'" detailsUrlPrefix="processes" :refresh="refresh"
@@ -460,10 +464,6 @@
         <MissionCommentForm v-if="mission" :type="commentType" :missionId="mission?.current?.id" :readonly="commentReadonly"
             :show="modals.comment" @success="success" @close="close" />
 
-        <!-- Assign mission processing -->
-        <MissionAssignationDetailsForm v-if="mission" :mission="mission?.current" type="cc"
-            :title="'Assigné le traitement des anomalies de la mission ' + mission?.current?.reference"
-            :show="modals.dispatch" @success="close({ reload: true })" @close="close({ type: 'dispatch' })" />
     </ContentBody>
 </template>
 
@@ -700,7 +700,14 @@ export default {
             }
 
             return status + is_late
-        }
+        },
+        controllersType() {
+            if (hasRole('cdcr')) {
+                return 'cc'
+            } else if (hasRole('der')) {
+                return 'cder'
+            }
+        },
     },
     created() {
         this.initData()
@@ -792,7 +799,7 @@ export default {
          * Show dispatch mission form to cc
          */
         showDispatchForm() {
-            this.modals.dispatch = true
+            this.modals.dispatch = !this.modals.dispatch
         },
 
         /**

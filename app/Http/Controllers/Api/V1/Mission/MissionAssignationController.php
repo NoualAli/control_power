@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1\Mission;
 
+use App\Enums\EventLogTypes;
 use App\Enums\MissionState;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Mission\AssignMissionProcessesRequest;
+use App\Models\EventLog;
 use App\Models\Mission;
 use App\Models\Process;
 use App\Models\User;
@@ -24,13 +26,14 @@ class MissionAssignationController extends Controller
      */
     public function loadAssignationData(Mission $mission, string $type)
     {
-        hasRoleOrAbort('cdcr');
-        if (in_array($type, ['ci', 'cc'])) {
+        // dd(auth()->user()->role->code, $type);
+        hasRoleOrAbort(['cdcr', 'der']);
+        if (in_array($type, ['ci', 'cc', 'cder'])) {
             if ($type == 'cc') {
                 $controllersList = formatForSelect(User::whereRoles(['cc'])->get()->filter(fn ($controller) => !$controller->total_mission_details)->toArray(), 'full_name');
                 $controller = $mission->assigned_to_cc_id;
                 return compact('controller', 'controllersList');
-            } else {
+            } elseif ($type == 'ci') {
                 $pcfList = $mission->notDispatchedProcesses($type);
                 $controllersList = User::whereRoles(['cc'])->get();
 
@@ -38,9 +41,13 @@ class MissionAssignationController extends Controller
 
                 $controllersList = formatForSelect($controllersList->filter(fn ($controller) => !$controller->total_mission_details)->toArray(), 'full_name');
                 return  compact('pcfList', 'controllersList');
+            } elseif ($type == 'cder') {
+                $controllersList = formatForSelect(User::whereRoles(['cder'])->get()->filter(fn ($controller) => !$controller->total_mission_details)->toArray(), 'full_name');
+                $controller = $mission->assigned_to_cder_id;
+                return compact('controller', 'controllersList');
             }
         } else {
-            abort(500, "Le type $type est un type inconnu");
+            abort(422, "Le type $type est un type inconnu");
         }
     }
 
@@ -57,24 +64,34 @@ class MissionAssignationController extends Controller
         try {
             $result = DB::transaction(function () use ($request, $mission, $type) {
                 $controller = $request->controller;
-                $currentState = $type == 'cc' ? MissionState::PENDING_CC_VALIDATION : MissionState::TODO;
+                $currentState = $mission->current_state;
+
+                if ($type == 'cc') {
+                    $currentState = MissionState::PENDING_CC_VALIDATION;
+                }
 
                 if ($controller) {
-                    $mission->update(['assigned_to_' . $type . '_id' => $controller, 'current_state' => $currentState]);
-                } else {
-                    $currentState = hasRole('cdcr') ? MissionState::PENDING_CDCR_VALIDATION : MissionState::TODO;
-                    $mission->update(['assigned_to_' . $type . '_id' => NULL, 'current_state' => $currentState]);
-                }
-                // if ($type == 'cc') {
-                //     $controllerDbColumn = 'assigned_to_cc_id';
-                // } elseif ($type == 'ci') {
-                //     $controllerDbColumn = 'assigned_to_ci_id';
-                // } else {
-                //     abort(500, "Le type $type est un type inconnu.");
-                // }
-                if ($controller) {
                     $controller = User::findOrFail($controller);
+                    $data = ['assigned_to_' . $type . '_id' => $controller->id, 'current_state' => $currentState];
+                    if ($type == 'cder') {
+                        $data = array_merge($data, ['assigned_to_cder_at' => now()]);
+                    }
+                    $mission->update($data);
+                    EventLog::store([
+                        'type' => EventLogTypes::DISPATCH,
+                        'attachable_type' => Mission::class,
+                        'attachable_id' => $mission->id,
+                        'payload' => [
+                            'success' => true,
+                            'content' => "Assignation de la mission $mission->reference à " . $controller->full_name_with_martial
+                        ]
+                    ]);
                     Notification::send($controller, new MissionDetailAssigned($controller, $mission));
+                } else {
+                    if (hasRole('cdcr')) {
+                        $currentState = MissionState::PENDING_CDCR_VALIDATION;
+                    }
+                    $mission->update(['assigned_to_' . $type . '_id' => NULL, 'current_state' => $currentState]);
                 }
 
                 return true;

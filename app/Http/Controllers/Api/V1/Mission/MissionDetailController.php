@@ -67,6 +67,7 @@ class MissionDetailController extends Controller
         } else {
             $details = $details;
         }
+        dd('test');
         return $details->whereAnomaly()->withoutMajorFacts();
     }
     /**

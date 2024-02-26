@@ -67,6 +67,8 @@ class StatisticsData
             $campaigns = $campaigns->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
         } elseif (hasRole('dre')) {
             $campaigns = $campaigns->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
+        } elseif (hasRole('cder')) {
+            $campaigns = $campaigns->where('m.assigned_to_cder_id', $user->id);
         }
         $campaigns = $campaigns->whereNotNull('c.validated_at')->where('c.is_for_testing', false);
         if (request()->has('onlyCurrentCampaign') && !request()->has('campaign')) {
@@ -125,6 +127,8 @@ class StatisticsData
             $details = $details->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
         } elseif (hasRole('dre')) {
             $details = $details->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
+        } elseif (hasRole('cder')) {
+            $details = $details->where('m.assigned_to_cder_id', $user->id);
         }
         $details = $details->whereNull('m.deleted_at')->where('md.is_disabled', false)->where('m.is_for_testing', false);
         return $details;
@@ -169,6 +173,8 @@ class StatisticsData
             $details = $details->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
         } elseif (hasRole('dre')) {
             $details = $details->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
+        } elseif (hasRole('cder')) {
+            $details = $details->where('m.assigned_to_cder_id', $user->id);
         }
 
         // if (hasRole(['dcp', 'cdcr', 'cc', 'cdrcp'])) {
@@ -224,6 +230,8 @@ class StatisticsData
             $missions = $missions->whereIn('m.agency_id', $user->agencies->pluck('id'));
         } elseif (hasRole('dre')) {
             $missions = $missions->whereIn('m.agency_id', $user->agencies->pluck('id'));
+        } elseif (hasRole('cder')) {
+            $missions = $missions->where('m.assigned_to_cder_id', $user->id);
         }
         $missions = $missions->where('m.is_for_testing', false)->whereNull('m.deleted_at');
 
