@@ -59,7 +59,7 @@ class AgencyController extends Controller
         }
 
         if ($search) {
-            $agencies = $agencies->search(['a.name'], $search);
+            $agencies = $agencies->search(['a.name', 'a.code'], $search);
         }
 
         $agencies = $fetchAll ? formatForSelect($agencies->get()->toArray(), 'full_name') : AgencyResource::collection($agencies->paginate($perPage)->onEachSide(1));
