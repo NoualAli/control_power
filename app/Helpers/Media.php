@@ -31,7 +31,7 @@ if (!function_exists('getMediaType')) {
      *
      * @return string
      */
-    function getMediaType(string $attachableType, string $folder): string
+    function getMediaType(?string $attachableType = null, ?string $folder = null): string
     {
         if ($attachableType == 'App\\Models\\Mission' && $folder == 'uploads/closing_report') {
             return 'PV de clôture';
