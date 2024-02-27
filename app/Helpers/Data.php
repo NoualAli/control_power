@@ -933,11 +933,13 @@ if (!function_exists('getSingleMedia')) {
         $media->storage_link = getMediaStorageLink($media->folder, $media->hash_name);
         $media->is_owner = true;
 
-        $media->payload = json_decode($media->payload, true);
+        $media->payload = json_decode(json_decode($media->payload), true);
         $payload = $media->payload;
+        // dd($payload);
         $media->number = isset($payload['number']) ? $payload['number'] : null;
         $media->date = isset($payload['date']) ? Carbon::parse($payload['date'])->format('d-m-Y') : null;
         $media->object = isset($payload['object']) ? $payload['object'] : null;
+        // dd($media->number);
         unset($media->payload);
         return $media;
     }
