@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PCF\StoreRequest;
+use App\Http\Requests\PCF\UpdateRequest;
 use App\Http\Resources\PCFResource;
 use App\Models\Media;
 use App\Models\Process;
@@ -98,14 +99,40 @@ class PCFController extends Controller
         if ($media_id) {
             $media = getSingleMedia($media_id);
             $media_pcf = DB::table('has_media')->where('media_id', $media_id)->where('attachable_type', Process::class)->get()->pluck('attachable_id')->toArray();
-            // dd($media);
         }
 
         return compact('pcf', 'media_pcf', 'media');
     }
 
-    public function update()
+    public function update(UpdateRequest $request, string $media_id)
     {
+        try {
+            $result = DB::transaction(function () use ($request, $media_id) {
+                $data = $request->validated();
+                $processes = [];
+                unset($data['media']);
+                $payload = json_encode($data) ?: null;
+
+                $media = Media::findOrFail($media_id);
+                if (isset($data['pcf'])) {
+                    $processes = pcfToProcesses($data['pcf']);
+                    unset($data['pcf']);
+                    foreach ($processes as $process) {
+                        DB::table('has_media')->updateOrInsert([
+                            'media_id' => $media->id,
+                            'attachable_type' => Process::class,
+                            'attachable_id' => $process
+                        ]);
+                    }
+                }
+
+                return $media->update(['payload' => $payload, 'category' => $data['category']]);
+            });
+
+            return actionResponse($result, "Texte réglementaire mis à jour avec succès", UPDATE_ERROR, $result ? SERVER_SUCCESS : SERVER_ERROR);
+        } catch (\Throwable $th) {
+            return throwedError($th);
+        }
     }
 
     public function destroy(string $media_id)

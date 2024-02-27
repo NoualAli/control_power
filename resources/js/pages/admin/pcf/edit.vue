@@ -118,7 +118,7 @@ export default {
             })
         },
         update() {
-            this.form.put('pcf').then(response => {
+            this.form.put('pcf/' + this.$route.params.pcf).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                 } else {
