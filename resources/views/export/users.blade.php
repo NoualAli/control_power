@@ -35,10 +35,10 @@
                     <td>{{ $user->email }}</td>
                     <td>{{ $user->phone ?: '-' }}</td>
                     <td>{{ $user->dres_str }}</td>
-                    <td>{{ strtoupper($user->role->code) . ' - ' . $user->role->name }}</td>
-                    <td>{{ $user->is_active ? 'Oui' : 'Non' }}</td>
+                    <td>{{ strtoupper($user->code) . ' - ' . $user->role }}</td>
+                    <td>{{ boolval($user->is_active) ? 'Oui' : 'Non' }}</td>
                     <td>{{ $user->created_at }}</td>
-                    <td>{{ $user->last_login?->getAttributes()['last_activity'] ? \Carbon\Carbon::parse($user->last_login->getAttributes()['last_activity'])->format('d-m-Y H:i:s') : '-' }}
+                    <td>{{ $user->last_activity ? \Carbon\Carbon::parse($user->last_activity)->format('d-m-Y H:i:s') : '-' }}
                     </td>
                 </tr>
             @endforeach

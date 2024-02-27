@@ -6,6 +6,7 @@ use App\Enums\EventLogTypes;
 use App\Models\EventLog;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -19,7 +20,7 @@ class UsersExport extends BaseExport implements FromView, WithProperties, Should
      */
     private $data;
 
-    public function __construct(Collection $data)
+    public function __construct(Collection|SupportCollection $data)
     {
         $this->data = $data;
     }

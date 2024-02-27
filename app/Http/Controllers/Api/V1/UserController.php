@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Exports\LoginsExport;
 use App\Exports\UsersExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreRequest;
@@ -10,14 +9,12 @@ use App\Http\Requests\User\UpdateUserInfoRequest;
 use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Resources\LoginHistoryResource;
 use App\Http\Resources\UserResource;
-use App\Models\Media;
 use App\Models\User;
 use App\Notifications\ResetUserNotification;
 use App\Notifications\UserCreatedNotification;
-use App\Notifications\UserInforUpdatedNotification;
-use App\Notifications\UserInfoUpdatedNotification;
 use App\Notifications\UserPasswordUpdatedNotification;
 use App\Services\ExcelExportService;
+use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -48,7 +45,6 @@ class UserController extends Controller
     public function index()
     {
         isAbleOrAbort('view_user');
-        $users = User::with(['dres', 'role', 'last_login']);
 
         $filter = request('filter', null);
         $search = request('search', null);
@@ -59,32 +55,43 @@ class UserController extends Controller
         $export = request('export', []);
         $shouldExport = count($export);
 
-        if ($shouldExport) {
-            return (new ExcelExportService($users, UsersExport::class, 'liste_des_utilisateurs.xlsx', $export))->download();
-        }
+        try {
+            $users = getUsers();
+            if ($shouldExport) {
+                return (new ExcelExportService($users, UsersExport::class, 'liste_des_utilisateurs.xlsx', $export))->download();
+            }
 
-        if ($filter) {
-            $users = $users->filter($filter);
-        }
 
-        if ($sort) {
-            $users = $users->sortByMultiple($sort);
-        }
+            if ($fetchFilters) {
+                return $this->fetchFilters();
+            }
 
-        if ($search) {
-            $users = $users->search($search);
-        }
 
-        if ($fetchAll) {
-            $users = formatForSelect($users->get()->toArray(), 'full_name');
-        } elseif (request()->has('dre_id')) {
-            $users = $users->where('dre_id', request()->dre_id)->get();
-        } else {
-            $perPage = request('perPage', 10);
-            $users = UserResource::collection($users->paginate($perPage)->onEachSide(1));
-        }
+            if ($sort) {
+                $users = $users->sortByMultiple($sort);
+            }
 
-        return $users;
+            if ($search) {
+                $users = $users->search(['u.username', 'u.first_name', 'u.last_name', 'email', 'u.phone'], $search);
+            }
+
+            if ($filter) {
+                $users = $this->filter($users, $filter);
+            }
+
+            if ($fetchAll) {
+                $users = formatForSelect($users->get()->toArray(), 'full_name');
+            } elseif (request()->has('dre_id')) {
+                $users = $users->where('dre_id', request()->dre_id)->get();
+            } else {
+                $perPage = request('perPage', 10);
+                $users = UserResource::collection($users->paginate($perPage)->onEachSide(1));
+            }
+
+            return $users;
+        } catch (\Throwable $th) {
+            return throwedError($th);
+        }
     }
 
     /**
@@ -277,5 +284,41 @@ class UserController extends Controller
         } catch (\Throwable $th) {
             return throwedError($th);
         }
+    }
+
+    /**
+     * Fetch filter data to use
+     *
+     * @return array
+     */
+    private function fetchFilters(): array
+    {
+        $roles = DB::table('roles AS r')
+            ->select('r.id', DB::raw("CONCAT(UPPER(r.code), ' - ',
+            UPPER(SUBSTRING(r.name, 1, 1)) + LOWER(SUBSTRING(r.name, 2, CHARINDEX(' ', r.name + ' ', 2) - 2)) +
+            CASE WHEN CHARINDEX(' ', r.name, 2) > 0 THEN ' ' + UPPER(SUBSTRING(r.name, CHARINDEX(' ', r.name, 2) + 1, 1)) + LOWER(SUBSTRING(r.name, CHARINDEX(' ', r.name, 2) + 2, LEN(r.name) - CHARINDEX(' ', r.name, 2))) ELSE '' END
+            ) AS role"))
+            ->rightJoin('users AS u', 'r.id', 'u.active_role_id')
+            ->groupBy(['r.id', 'r.code', 'r.name'])
+            ->get();
+
+        $roles = formatForSelect($roles->toArray(), 'role');
+        return compact('roles');
+    }
+
+    private function filter(Builder $users, array $filter): Builder
+    {
+        if (isset($filter['roles'])) {
+            $roles = explode(',', $filter['roles']);
+            $users = $users->whereIn('active_role_id', $roles);
+        }
+
+        if (isset($filter['is_active'])) {
+            $active = $filter['is_active'] == 1 ?: 0;
+            dd($active);
+            $users = $users->where('is_active', $active);
+        }
+        // dd($users->get());
+        return $users;
     }
 }

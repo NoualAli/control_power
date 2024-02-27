@@ -1023,3 +1023,45 @@ if (!function_exists('getRegulations')) {
         return $regulations;
     }
 }
+
+if (!function_exists('getUsers')) {
+    function getUsers()
+    {
+        $columns = [
+            'u.id',
+            'u.username',
+            DB::raw("CONCAT(u.first_name, ' ', u.last_name) AS full_name"),
+            'u.is_active',
+            'u.email',
+            'u.phone',
+            'u.must_change_password',
+            'r.code',
+            'r.name AS role',
+            'u.created_at',
+            'u.registration_number',
+            DB::raw("(CASE WHEN u.gender = 1 THEN 'Homme' ELSE 'Femme' END) AS gender_str"),
+            DB::raw("
+            STUFF((
+                SELECT DISTINCT ', ' + d.name
+                FROM user_has_agencies AS ua
+                LEFT JOIN agencies AS a ON ua.agency_id = a.id
+                LEFT JOIN dres AS d ON a.dre_id = d.id
+                WHERE ua.user_id = u.id
+                FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS dres_str
+            "),
+            DB::raw("MAX(l.created_at) AS last_activity")
+        ];
+        $users = DB::table('users as u')
+            ->select($columns)
+            ->leftJoin('roles as r', 'u.active_role_id', '=', 'r.id')
+            ->leftJoin('logins as l', 'u.id', '=', 'l.user_id')
+            ->groupBy('u.id', 'u.username', 'u.first_name', 'u.last_name', 'u.email', 'u.phone', 'u.must_change_password', 'r.code', 'r.name', 'u.is_active', 'u.created_at', 'u.registration_number', 'u.gender');
+
+        if (!hasRole(['root', 'admin'])) {
+            // $users = $users->whereIn('r.code', ['ci', 'cdc', 'dre', 'der', 'da', 'cder', 'dcp', 'cdrcp']);
+            $users = $users->whereNotIn('r.code', ['root', 'admin']);
+        }
+
+        return $users;
+    }
+}

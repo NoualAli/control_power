@@ -1,8 +1,22 @@
 <template>
-    <div v-if="can('view_user')">
-        <!-- <ContentHeader>
-            <template #right-actions>
-                <router-link v-if="can('create_user')" :to="{ name: 'users-create' }" class="btn btn-info">
+    <ContentBody v-if="can('view_user')">
+        <NLDatatable :columns="columns" :actions="actions" :details="details" :filters="filters"
+            title="Liste des utilisateurs" urlPrefix="users" @edit="edit" @delete="destroy" :refresh="refresh"
+            @dataLoaded="handleDataLoaded">
+            <template #actions-before="{ item }">
+                <a class="btn btn-office-excel" v-if="!item.must_change_password && is(['root', 'admin'])"
+                    :href="'/excel-export?export=users&id=' + item.id" target="_blank">
+                    <NLIcon name="table" />
+                </a>
+                <NLButton class="btn btn-danger"
+                    v-if="!isCurrent(item) && !item.must_change_password && is(['root', 'admin'])"
+                    @click.prevent="reset(item)">
+                    <NLIcon name="backspace" />
+                </NLButton>
+            </template>
+            <template #table-actions>
+                <router-link v-if="can('create_user')" :to="{ name: 'users-create' }" class="btn has-icon">
+                    <NLIcon name="add" />
                     Ajouter
                 </router-link>
                 <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
@@ -10,36 +24,10 @@
                     Exporter
                 </button>
             </template>
-        </ContentHeader> -->
-        <ContentBody>
-            <NLDatatable :columns="columns" :actions="actions" :details="details" title="Liste des utilisateurs"
-                urlPrefix="users" @edit="edit" @delete="destroy" :refresh="refresh" @dataLoaded="handleDataLoaded">
-                <template #actions-before="{ item }">
-                    <a class="btn btn-office-excel" v-if="!item.must_change_password"
-                        :href="'/excel-export?export=users&id=' + item.id" target="_blank">
-                        <NLIcon name="table" />
-                    </a>
-                    <NLButton class="btn btn-danger"
-                        v-if="!isCurrent(item) && !item.must_change_password && is(['root', 'admin'])"
-                        @click.prevent="reset(item)">
-                        <NLIcon name="backspace" />
-                    </NLButton>
-                </template>
-                <template #table-actions>
-                    <router-link v-if="can('create_user')" :to="{ name: 'users-create' }" class="btn has-icon">
-                        <NLIcon name="add" />
-                        Ajouter
-                    </router-link>
-                    <button class="btn btn-office-excel has-icon" @click="this.excelExportIsOpen = true">
-                        <NLIcon name="table" />
-                        Exporter
-                    </button>
-                </template>
-            </NLDatatable>
-            <ExcelExportModal :show="excelExportIsOpen" :route="this.currentUrl" @close="this.excelExportIsOpen = false"
-                @success="this.excelExportIsOpen = false" />
-        </ContentBody>
-    </div>
+        </NLDatatable>
+        <ExcelExportModal :show="excelExportIsOpen" :route="this.currentUrl" @close="this.excelExportIsOpen = false"
+            @success="this.excelExportIsOpen = false" />
+    </ContentBody>
 </template>
 
 <script>
@@ -68,7 +56,8 @@ export default {
                 },
                 {
                     label: 'Nom complet',
-                    field: 'full_name'
+                    field: 'full_name',
+                    sortable: true,
                 },
                 {
                     label: 'Adresse email',
@@ -78,7 +67,6 @@ export default {
                 {
                     label: 'N° de téléphone',
                     field: 'phone',
-                    sortable: true
                 },
                 {
                     label: 'DRE',
@@ -87,6 +75,7 @@ export default {
                 {
                     label: 'Rôle',
                     field: 'role',
+                    sortable: true,
                 },
                 {
                     label: 'Etat',
@@ -105,53 +94,26 @@ export default {
                     label: 'Dernière connexion',
                     field: 'last_login',
                     // sortable: true,
+                    hide: !hasRole([ 'root', 'admin' ])
                 },
                 {
                     label: 'Date de création',
                     field: 'created_at',
                     sortable: true,
+                    hide: !hasRole([ 'root', 'admin' ])
                 },
             ],
             details: [
                 {
-                    label: "Nom d'utilisateur",
-                    field: 'username',
-                },
-                {
-                    label: 'Nom complet',
-                    field: 'full_name_with_martial'
-                },
-                {
                     label: 'Genre',
-                    field: 'gender_str'
-                },
-                {
-                    label: 'Adresse email',
-                    field: 'email',
-                },
-                {
-                    label: 'N° de téléphone',
-                    field: 'phone',
-                },
-                {
-                    label: 'DRE',
-                    field: 'dres_str'
+                    field: 'gender_str',
+                    cols: {
+                        lg: 2
+                    }
                 },
                 {
                     label: 'Agences',
                     field: 'agencies_str'
-                },
-                {
-                    label: 'Rôle',
-                    field: 'role.name'
-                },
-                {
-                    label: 'Dernière connexion',
-                    field: 'last_login.last_activity',
-                },
-                {
-                    label: 'Date de création',
-                    field: 'created_at',
                 },
             ],
             actions: {
@@ -171,6 +133,30 @@ export default {
                     },
                     apply: this.destroy
                 }
+            },
+            filters: {
+                roles: {
+                    label: 'Rôle',
+                    data: null,
+                    value: null,
+                    multiple: true,
+                    cols: 4
+                },
+                // is_active: {
+                //     label: 'Etat',
+                //     data: [
+                //         {
+                //             id: 1,
+                //             label: 'Actif',
+                //         },
+                //         {
+                //             id: 2,
+                //             label: 'Inactif',
+                //         },
+                //     ],
+                //     multiple: false,
+                //     value: null,
+                // }
             }
         }
     },
