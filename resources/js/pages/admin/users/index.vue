@@ -105,6 +105,13 @@ export default {
             ],
             details: [
                 {
+                    label: 'Matricule',
+                    field: 'registration_number',
+                    cols: {
+                        lg: 2
+                    }
+                },
+                {
                     label: 'Genre',
                     field: 'gender_str',
                     cols: {
@@ -113,7 +120,7 @@ export default {
                 },
                 {
                     label: 'Agences',
-                    field: 'agencies_str'
+                    field: 'agencies_str',
                 },
             ],
             actions: {
