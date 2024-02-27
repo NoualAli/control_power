@@ -243,7 +243,14 @@ export default {
                             isOwner: file?.is_owner,
                             isUploaded: true
                         }
-                        this.filesList.push(formattedFile)
+                        // this.filesList.push(formattedFile)
+                        // Check if the file with the same id already exists in filesList
+                        let exists = this.filesList.some(existingFile => existingFile.id === formattedFile.id);
+
+                        // If the file does not exist in the list, push it
+                        if (!exists) {
+                            this.filesList.push(formattedFile);
+                        }
                     });
                     this.$emit('loaded', files);
                 }).catch(error => {
@@ -315,80 +322,7 @@ export default {
             try {
                 if (!this.readonly) {
                     this.visibleLoadingText = this.loadingText
-                    const data = new FormData()
-
-                    // if (this.multiple) {
-                    //     for (let i = 0; i < files.length; i++) {
-                    //         data.append(`${this.name}[]`, files[ i ])
-                    //     }
-                    // } else {
-                    //     data.append(this.name, files[ 0 ])
-                    // }
-
                     files.forEach(file => this.uploadFile(file, $event))
-                    // this.form.errors = {}
-                    // if (files.length) {
-                    //     data.append('accepted', this.accepted)
-                    //     data.append('attachable[id]', this.attachableId)
-                    //     data.append('attachable[type]', this.attachableType)
-                    //     let folder = 'uploads'
-                    //     if (this.folder.length) {
-                    //         folder += '/' + this.folder
-                    //     }
-                    //     data.append('folder', folder)
-
-                    //     // Show files while uploading
-                    //     files.forEach(file => {
-                    //         let formattedFile = {
-                    //             id: null,
-                    //             name: file?.name,
-                    //             size: null,
-                    //             type: file?.type,
-                    //             extension: null,
-                    //             link: null,
-                    //             icon: 'las la-file',
-                    //             isOwner: false,
-                    //             isUploaded: false
-                    //         }
-                    //         this.filesList.push(formattedFile)
-                    //     });
-                    //     // Upload files
-                    //     this.$api.post('media', data, {
-                    //         onUploadProgress: (progressEvent) => this.setProgress(progressEvent)
-                    //     }).then(response => {
-                    //         this.inProgress = false
-                    //         this.files.push(...response.data)
-                    //         this.filesList = []
-                    //         this.files.forEach(file => {
-                    //             let formattedFile = {
-                    //                 id: file?.id,
-                    //                 name: file?.original_name,
-                    //                 size: file?.size_str,
-                    //                 type: file?.type,
-                    //                 extension: file?.extension,
-                    //                 link: file?.storage_link,
-                    //                 icon: file?.icon,
-                    //                 isOwner: file?.is_owner,
-                    //                 isUploaded: true
-                    //             }
-                    //             this.filesList.push(formattedFile)
-                    //         });
-                    //         const files = { ...this.files.map((file) => file.id) }
-                    //         this.$emit('uploaded', files)
-                    //         $event.target.value = ''
-                    //     }).catch(error => {
-                    //         this.inProgress = false
-                    //         let i = 0
-
-                    //         for (const key in error?.response?.data?.errors) {
-                    //             if (Object.hasOwnProperty.call(error.response.data.errors, key)) {
-                    //                 const element = error.response.data.errors[ key ];
-                    //                 this.form.errors.set(this.name, element[ 0 ].replace(`du champ ${this.name}.${i}`, `${i + 1} du champ ${this.label.toLowerCase()}`))
-                    //                 i += 1
-                    //             }
-                    //         }
-                    //     })
-                    // }
                 }
             } catch (error) {
                 this.$swal.catchError(error)
@@ -478,9 +412,7 @@ export default {
         setProgress(progressEvent, index) {
             if (progressEvent?.total) {
                 this.progress[ this.progress.indexOf(index) ] = Math.round((progressEvent.loaded * 100) / progressEvent?.total)
-                // this.progress = Math.round((progressEvent.loaded * 100) / progressEvent?.total)
             } else {
-                // this.progress = 0
                 this.progress[ this.progress.indexOf(index) ] = 0
             }
         },
