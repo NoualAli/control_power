@@ -29,7 +29,7 @@
             </NLSidebarItem>
 
             <NLSidebarSubmenu iconName="manage_accounts" label="Gestion utilisateurs"
-                v-if="can('view_user') || can('view_role') || can('view_module')">
+                v-if="(can('view_user') || can('view_role') || can('view_module')) && is(['root', 'admin'])">
                 <NLSidebarItem label="Utilisateurs" route="users-index" iconName="group" v-if="can('view_user')">
                 </NLSidebarItem>
                 <NLSidebarItem label="Roles" route="roles-index" iconName="shield_person" v-if="can('view_role')">
@@ -37,6 +37,10 @@
                 <NLSidebarItem label="Modules" route="modules-index" iconName="shield_lock" v-if="can('view_module')">
                 </NLSidebarItem>
             </NLSidebarSubmenu>
+
+            <NLSidebarItem label="Utilisateurs" route="users-index" iconName="group"
+                v-if="can('view_user') && !is(['root', 'admin'])">
+            </NLSidebarItem>
 
             <NLSidebarSubmenu iconName="location_city" label="Localisations"
                 v-if="can('view_dre') || can('view_agency') || can('view_category')">
