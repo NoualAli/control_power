@@ -24,28 +24,40 @@ class MissionResource extends JsonResource
             $isLate = $this->is_late_ci || $this->is_late_cdc;
         }
 
-        return [
+        $data = [
             'id' => $this->id,
             'campaign' => $this->campaign,
             'reference' => $this->reference,
             'dre' => $this->dre,
-            'agency' => $this->agency,
-            'current_state' => (int) $this->current_state,
-            'end_date' => $this->end_date,
             'start_date' => $this->start_date,
-            'remaining_days_before_start' => $this->remaining_days_before_start,
+            'end_date' => $this->end_date,
             'progress_status' => $this->total_controlled_md ? number_format($this->total_controlled_md * 100 / $this->total_md) : 0,
-            'avg_score' => $this->avg_score,
-            'is_validated_by_dcp' => $this->is_validated_by_dcp,
-            'is_validated_by_cdcr' => $this->is_validated_by_cdcr,
-            'is_validated_by_cdc' => $this->is_validated_by_cdc,
-            'is_validated_by_ci' => $this->is_validated_by_ci,
-            'is_validated_by_cc' => $this->is_validated_by_cc,
-            'is_late_ci' => (bool) $this->is_late_ci,
-            'is_late_cdc' => (bool) $this->is_late_cdc,
-            'is_late' => (bool) $isLate,
             'dre_controller_full_name' => normalizeFullName($this->dre_controller_full_name),
-            'dcp_controller_full_name' => trim($this->dcp_controller_full_name) ? normalizeFullName($this->dcp_controller_full_name) : '-',
+
+            'is_validated_by_dcp' => $this->is_validated_by_dcp,
+            'is_validated_by_cdc' => $this->is_validated_by_cdc,
+            'is_late' => (bool) $isLate,
+            'avg_score' => $this->avg_score,
+            'current_state' => (int) $this->current_state,
+            'remaining_days_before_start' => $this->remaining_days_before_start,
         ];
+
+        if (hasRole(['cdcr', 'dcp', 'cc'])) {
+            $data['dcp_controller_full_name'] = trim($this->dcp_controller_full_name) ? normalizeFullName($this->dcp_controller_full_name) : '-';
+        } elseif (hasRole(['der'])) {
+            $data['der_controller_full_name'] = trim($this->der_controller_full_name) ? normalizeFullName($this->der_controller_full_name) : '-';
+        } elseif (hasRole(['da'])) {
+            unset($data['dre_controller_full_name']);
+        }
+
+        if (!hasRole(['cdcr', 'cc', 'dcp'])) {
+            unset($data['is_validated_by_cdc']);
+        }
+
+        if (hasRole(['cdc', 'ci', 'da'])) {
+            unset($data['avg_score']);
+        }
+
+        return $data;
     }
 }

@@ -78,6 +78,13 @@ export default {
                     sortable: true,
                 },
                 {
+                    label: 'Contrôleur DER',
+                    field: 'der_controller_full_name',
+                    hide: !hasRole([ 'der' ]),
+                    // align: 'center',
+                    sortable: true,
+                },
+                {
                     label: 'Moyenne',
                     field: 'avg_score',
                     hide: hasRole([ 'cdc', 'ci', 'da' ]),
@@ -207,7 +214,7 @@ export default {
                     field: 'progress_rate',
                     align: 'center',
                     sortable: true,
-                    hide: hasRole([ 'cc', 'da' ]),
+                    hide: hasRole([ 'cc', 'cder' ]),
                     methods: {
                         showField(item) {
                             return item.progress_status + '%'

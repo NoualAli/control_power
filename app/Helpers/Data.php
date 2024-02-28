@@ -27,6 +27,7 @@ if (!function_exists('getMissions')) {
             'm.da_validator_full_name',
             DB::raw("CONCAT(dci.first_name, ' ', dci.last_name) AS dre_controller_full_name"),
             DB::raw("CONCAT(dcc.first_name, ' ', dcc.last_name) AS dcp_controller_full_name"),
+            DB::raw("CONCAT(cder.first_name, ' ', cder.last_name) AS der_controller_full_name"),
             DB::raw("CONCAT(ci.first_name, ' ', ci.last_name) AS ci_validator_full_name"),
             DB::raw("CONCAT(ucc.first_name, ' ', ucc.last_name) AS cc_validator_full_name"),
             DB::raw("CONCAT(d.code, ' - ', d.name) as dre"),
@@ -108,7 +109,7 @@ if (!function_exists('getMissions')) {
                 });
             } elseif (hasRole('da')) {
                 $missions = $missions->where(function ($query) use ($user) {
-                    $query->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
+                    $query->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereDate('programmed_start', '<=', today()->format('Y-m-d'));
                 });
             } elseif (hasRole('dre')) {
                 $missions = $missions->whereIn('m.agency_id', $user->agencies->pluck('id'));
@@ -148,6 +149,8 @@ if (!function_exists('getMissions')) {
             'ci.last_name',
             'ucc.last_name',
             'ucc.first_name',
+            'cder.first_name',
+            'cder.last_name',
             'm.ci_validation_at',
             'm.cdc_validation_at',
             'm.cdcr_validation_at',
