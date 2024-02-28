@@ -184,23 +184,6 @@
                     <NLGrid gap="6" v-if="row?.regularizations?.length" v-for="regularization in row?.regularizations"
                         class="p-4 has-border-radius-1 border-1 border-solid my-6"
                         :class="[{ 'border-success': regularization.is_regularized }, { 'border-info': !regularization.is_regularized }]">
-                        <NLColumn v-if="Boolean(Number(regularization.is_rejected))"
-                            class="border-warning p-4 has-border-radius-1 border-1 border-solid my-6">
-                            <NLGrid>
-                                <NLColumn>
-                                    <label class="label">
-                                        Commentaire du rejet
-                                    </label>
-                                    <div v-html="regularization.rejection_comment" class="mt-3"></div>
-                                </NLColumn>
-                                <NLColumn>
-                                    <NLFlex lgJustifyContent="between" lgAlignItems="center" alignItems="center">
-                                        <span>{{ regularization.rejector_full_name }}</span>
-                                        <span>{{ regularization.rejected_at }}</span>
-                                    </NLFlex>
-                                </NLColumn>
-                            </NLGrid>
-                        </NLColumn>
                         <NLColumn>
                             <label class="label">
                                 Etat
@@ -219,48 +202,66 @@
                                 Non levée
                             </p>
                         </NLColumn>
+                        <NLColumn v-for="comment in regularization.comments">
+                            <NLGrid>
+                                <NLColumn>
+                                    <label class="label">
+                                        Commentaire
+                                    </label>
+                                    <div v-html="comment.content" class="mt-3"></div>
+                                </NLColumn>
+                                <NLColumn>
+                                    <NLFlex lgJustifyContent="between" lgAlignItems="center" alignItems="center">
+                                        <span>{{ comment.creator_full_name }}</span>
+                                        <span>{{ comment.created_at }}</span>
+                                    </NLFlex>
+                                </NLColumn>
+                            </NLGrid>
+                        </NLColumn>.
                         <NLColumn>
                             <label class="label">
-                                Action à engager
+                                Actions engagées
                             </label>
                             <div v-html="regularization.action_to_be_taken" class="mt-3"></div>
                         </NLColumn>
                         <NLColumn v-if="regularization.media.length">
                             <NLFile v-model="regularization.media_array" label="Pièces jointes" readonly isFlat />
                         </NLColumn>
-
-                        <!-- Regularization actions -->
                         <NLColumn>
                             <NLFlex lgJustifyContent="between" lgAlignItems="center" alignItems="center">
                                 <span>{{ regularization.creator_full_name }}</span>
                                 <span>{{ regularization.created_at }}</span>
                             </NLFlex>
                         </NLColumn>
+
+                        <!-- Regularization actions -->
                         <NLColumn>
                             <NLFlex lgJustifyContent="between" lgAlignItems="center" alignItems="center">
                                 <!-- Regularization actions -->
                                 <NLFlex lgJustifyContent="end" lgAlignItems="center" alignItems="center">
                                     <button
-                                        v-if="!regularization.is_rejected && !regularizationRejectionIsOpen && regularization.is_regularized && can('reject_regularization')"
+                                        v-if="!commentFormIsOpen && !regularization.is_rejected && !regularizationRejectionIsOpen && regularization.is_regularized && can('reject_regularization')"
                                         class="btn btn-danger has-icon"
-                                        @click.stop="openRegularizationCommentForm(regularization)">
+                                        @click.stop="openRegularizationRejectionCommentForm(regularization)">
                                         <i class="las la-ban"></i>
                                         Rejeter
                                     </button>
-                                    <!-- <button v-if="!derCommentFormIsOpen && is('der')" class="btn btn-info has-icon"
-                                        @click.stop="openDerRegularizationCommentForm(regularization)">
+                                    <button
+                                        v-if="!commentFormIsOpen && can('comment_regularization') && regularization.can_comment && !(regularization.is_rejected && user().id == regularization.rejected_by_id)"
+                                        class="btn btn-info has-icon"
+                                        @click.stop="openRegularizationCommentForm(regularization)">
                                         <i class="las la-comment"></i>
                                         Ajouter un commentaire
-                                    </button> -->
+                                    </button>
                                 </NLFlex>
                             </NLFlex>
                         </NLColumn>
 
                         <NLColumn
-                            v-if="(regularizationRejectionIsOpen && regularization.id == regularizationRejectionForm.regularization_id) || (derCommentFormIsOpen && regularization.id == derCommentForm.regularization_id)">
+                            v-if="(regularizationRejectionIsOpen && regularization.id == regularizationRejectionForm.regularization_id) || (commentFormIsOpen && regularization.id == commentForm.regularization_id)">
                             <div class="divider"></div>
                         </NLColumn>
-
+                        {{ regularization.comment }}
                         <!-- Regularization rejection form -->
                         <NLColumn
                             v-if="regularizationRejectionIsOpen && regularization.id == regularizationRejectionForm.regularization_id">
@@ -273,7 +274,7 @@
                                 <NLColumn>
                                     <!-- Submit Button -->
                                     <div class="col-12 d-flex justify-end align-center">
-                                        <NLButton :loading="regularizationRejectionForm.isBusy" label="Enregistrer"
+                                        <NLButton :loading="regularizationRejectionForm.busy" label="Enregistrer"
                                             @click="handleRegularizationRejection" />
                                     </div>
                                 </NLColumn>
@@ -281,22 +282,22 @@
                         </NLColumn>
 
                         <!-- DER comment form -->
-                        <!-- <NLColumn v-if="derCommentFormIsOpen && regularization.id == derCommentForm.regularization_id">
-                            <NLForm :action="handleDerCommentForm" :form="derCommentForm">
+                        <NLColumn v-if="commentFormIsOpen && regularization.id == commentForm.regularization_id">
+                            <NLForm :action="handleCommentForm" :form="commentForm">
                                 <NLColumn>
-                                    <NLWyswyg v-model="derCommentForm.comment" name="comment" label="Commentaire"
-                                        placeholder="Ajoutez votre commentaire" :form="derCommentForm" :length="1000"
+                                    <NLWyswyg v-model="commentForm.comment" name="comment" label="Commentaire"
+                                        placeholder="Ajoutez votre commentaire" :form="commentForm" :length="1000"
                                         label-required />
                                 </NLColumn>
-                                <NLColumn> -->
-                        <!-- Submit Button -->
-                        <!-- <div class="col-12 d-flex justify-end align-center">
-                                        <NLButton :loading="regularizationRejectionForm.isBusy" label="Enregistrer"
-                                            @click="handleDerCommentForm" />
+                                <NLColumn>
+                                    <!-- Submit Button -->
+                                    <div class="col-12 d-flex justify-end align-center">
+                                        <NLButton :loading="commentForm.busy" label="Enregistrer"
+                                            @click="handleCommentForm" />
                                     </div>
                                 </NLColumn>
                             </NLForm>
-                        </NLColumn> -->
+                        </NLColumn>
                     </NLGrid>
                     <div class="text-center text-bold my-6" v-else>
                         Aucune entrée
@@ -433,7 +434,7 @@ export default {
                 this.row = null
                 this.currentMetadata.keys = null
                 this.isLoading = false
-                this.closeRgularizationCommentForm()
+                this.closeRegularizationRejectionCommentForm()
             }
         }
     },
@@ -444,7 +445,7 @@ export default {
         return {
             row: null,
             regularizationRejectionIsOpen: false,
-            // derCommentFormIsOpen: false,
+            commentFormIsOpen: false,
             currentMetadata: {
                 keys: null
             },
@@ -455,37 +456,37 @@ export default {
                 comment: null,
                 regularization_id: null,
             }),
-            // derCommentForm: new Form({
-            //     comment: null,
-            //     regularization_id: null,
-            // }),
+            commentForm: new Form({
+                comment: null,
+                regularization_id: null,
+            }),
         }
     },
 
     methods: {
-        openRegularizationCommentForm(regularization) {
+        openRegularizationRejectionCommentForm(regularization) {
             this.regularizationRejectionIsOpen = true
             this.regularizationRejectionForm.regularization_id = regularization?.id
         },
-        closeRgularizationCommentForm() {
+        closeRegularizationRejectionCommentForm() {
             this.regularizationRejectionIsOpen = false
             this.regularizationRejectionForm.reset()
         },
-        // openDerRegularizationCommentForm(regularization) {
-        //     this.derCommentFormIsOpen = true
-        //     this.derCommentForm.regularization_id = regularization?.id
-        // },
-        // closeDerRegularizationCommentForm() {
-        //     this.derCommentFormIsOpen = false
-        //     this.derCommentForm.reset()
-        // },
+        openRegularizationCommentForm(regularization) {
+            this.commentFormIsOpen = true
+            this.commentForm.regularization_id = regularization?.id
+        },
+        closeRegularizationCommentForm() {
+            this.commentFormIsOpen = false
+            this.commentForm.reset()
+        },
         handleRegularizationRejection() {
             this.$swal.confirm_update("Êtes-vous sûr de vouloir rejeter cette régularisation?").then((action) => {
                 if (action.isConfirmed) {
                     this.regularizationRejectionForm.put("regularize/" + this.regularizationRejectionForm.regularization_id + '/reject')
                         .then(response => {
                             if (response.status) {
-                                this.closeRgularizationCommentForm()
+                                this.closeRegularizationRejectionCommentForm()
                                 this.$emit('success', response)
                                 this.initData()
                                 this.$swal.toast_success(response.data.message)
@@ -496,22 +497,20 @@ export default {
                 }
             })
         },
-        // handleRegularizationValidation(regularization) {
-        //     this.$swal.confirm_update("Êtes-vous sûr de vouloir valider cette régularisation?").then((action) => {
-        //         if (action.isConfirmed) {
-        //             this.$api.put("regularize/" + regularization.id + '/accept')
-        //                 .then(response => {
-        //                     if (response.status) {
-        //                         this.$emit('success', response)
-        //                         this.initData()
-        //                         this.$swal.toast_success(response.data.message)
-        //                     } else {
-        //                         this.$swal.alert_error(response.data.message)
-        //                     }
-        //                 }).catch(error => this.$swal.catchError(error))
-        //         }
-        //     })
-        // },
+        handleCommentForm() {
+            this.commentForm.post('regularize/' + this.commentForm.regularization_id + '/comment').then(response => {
+                if (response?.data?.status) {
+                    this.$swal.toast_success(response?.data?.message)
+                    this.commentForm.reset()
+                    this.commentFormIsOpen = false
+                    this.initData()
+                } else {
+                    this.$swal.toast_error(response?.data?.message)
+                }
+            }).catch(error => {
+                this.$swal.catchError(error)
+            })
+        },
         /**
          *
          * @param {*} row

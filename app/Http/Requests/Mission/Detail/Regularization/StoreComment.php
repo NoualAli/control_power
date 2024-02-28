@@ -4,7 +4,7 @@ namespace App\Http\Requests\Mission\Detail\Regularization;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreDerComment extends FormRequest
+class StoreComment extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class StoreDerComment extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return isAbleTo(['comment_regularization']);
     }
 
     /**
@@ -24,7 +24,7 @@ class StoreDerComment extends FormRequest
     public function rules()
     {
         return [
-            //
+            'comment' => ['required', 'max:1000'],
         ];
     }
 }

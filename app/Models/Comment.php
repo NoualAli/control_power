@@ -20,6 +20,10 @@ class Comment extends Model
         'creator_full_name'
     ];
 
+    public $casts = [
+        'created_at' => 'datetime:d-m-Y H:i'
+    ];
+
     /**
      * Relationships
      */

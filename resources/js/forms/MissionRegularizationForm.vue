@@ -16,8 +16,8 @@
                         :form="form" label="En cours d'assainissement ?" />
                 </NLColumn>
                 <NLColumn>
-                    <NLWyswyg v-model="form.action_to_be_taken" name="action_to_be_taken" label="Action à engager"
-                        placeholder="Décrivez l'action à engagée" :form="form" :length="1000" label-required />
+                    <NLWyswyg v-model="form.action_to_be_taken" name="action_to_be_taken" label="Actions engagées"
+                        placeholder="Décrivez les actions engagées" :form="form" :length="1000" label-required />
                 </NLColumn>
                 <NLColumn>
                     <NLFile @uploaded="handleMedia" @deleted="handleMedia" @loaded="handleMedia" v-model="form.media"

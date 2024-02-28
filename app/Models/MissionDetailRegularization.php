@@ -74,11 +74,6 @@ class MissionDetailRegularization extends BaseModel
         return $this->belongsTo(User::class, 'rejected_by_id');
     }
 
-    public function derComment()
-    {
-        return $this->comment()->where('type', 'der_comment');
-    }
-
     /**
      * Scopes
      */

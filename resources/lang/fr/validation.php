@@ -224,7 +224,7 @@ return [
         'has_major_fact' => 'faits majeurs',
         'regularized_at' => 'date de régularization',
         'committed_action' => 'action engagée',
-        'action_to_be_taken' => 'action à engagée',
+        'action_to_be_taken' => 'actions engagées',
         'reason' => 'cause',
         'pcf_usable' => 'pcf utilisable',
         'pcf_unusable' => 'pcf inutilisable',
@@ -248,7 +248,8 @@ return [
         'assistants' => 'contrôleurs',
         'assistants.*' => 'contrôleur',
         'new_password' => 'nouveau mot de passe',
-        'category' => 'catégorie'
+        'category' => 'catégorie',
+        'comment' => 'commentaire'
     ],
 
 ];

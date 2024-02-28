@@ -138,8 +138,14 @@ class MissionDetailController extends Controller
         // );
         $detail->show_regularizations = true;
         $detail->observation = $detail->observations()->count() ? $detail->observations()->first() : null;
+
         if ($detail->show_regularizations) {
-            $detail->load('regularizations');
+            $detail->load(['regularizations', 'regularizations.comments' => fn ($query) => $query->orderBy('created_at', 'DESC')]);
+            $detail->regularizations = $detail->regularizations->map(function ($regularization) {
+                // $regularization->comments = $regularization->comments()->orderBy('created_at', 'DESC')->get();
+                $regularization->can_comment = !in_array(auth()->user()->id, $regularization->comments->pluck('created_by_id')->toArray());
+                return $regularization;
+            });
         }
 
         $detail->load('mission', 'media', 'dre', 'agency', 'campaign', 'family', 'domain', 'process', 'controlPoint', 'controlPoint.fields');

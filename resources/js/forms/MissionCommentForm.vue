@@ -45,7 +45,7 @@
                 </NLColumn>
                 <NLColumn>
                     <NLFile v-model="form[fields.file.name]" v-if="form[fields.file.name] && isReadonly && !isLoading"
-                        :label="fields.file.label" :readonly="true" />
+                        :label="fields.file.label" :readonly="true" multiple />
                 </NLColumn>
             </NLGrid>
 

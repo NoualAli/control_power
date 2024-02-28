@@ -252,7 +252,7 @@ Route::group(['middleware' => 'auth:api', 'prefix' => 'v1'], function () {
             Route::post('{detail}', 'store');
             Route::put('{regularization}/reject', 'reject');
             Route::put('{regularization}/accept', 'accept');
-            // Route::put('{regularization}/der-comment', 'derComment');
+            Route::post('{regularization}/comment', 'comment');
             Route::get('{detail}/history', 'show');
         });
 
