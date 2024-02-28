@@ -120,8 +120,8 @@ export function toast({ icon = 'question', title = '', message = '', target = ''
             toast.addEventListener('mouseleave', Swal.resumeTimer)
             toast.addEventListener('click', () => {
                 if (target !== '' && target !== null) {
-                    // window.location.href = target
-                    this.$router.push({ name: 'login' })
+                    window.location.href = target
+                    // this.$router.push({ name: 'login' })
                     toast.remove(); // Remove the toast after it's clicked
                 }
             });
