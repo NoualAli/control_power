@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use App\Models\User;
 use App\Notifications\UpdateUsernamesNotification;
 use Illuminate\Database\Seeder;
@@ -35,7 +36,7 @@ class UsersTableSeeder extends Seeder
                         'password' => Hash::make('Azerty123'),
                         'is_active' => 1,
                         'created_at' => now(),
-                        'must_change_password' => 1,
+                        'must_change_password' => env('APP_ENV') == 'dev' ? 0 : 1,
                     ],
                     [
                         'last_name' => 'HADJOUMEUR',
@@ -49,7 +50,7 @@ class UsersTableSeeder extends Seeder
                         'password' => Hash::make('Azerty123'),
                         'is_active' => 1,
                         'created_at' => now(),
-                        'must_change_password' => 1,
+                        'must_change_password' => env('APP_ENV') == 'dev' ? 0 : 1,
                     ],
                     [
                         'last_name' => 'ASSOUANE',
@@ -63,7 +64,7 @@ class UsersTableSeeder extends Seeder
                         'password' => Hash::make('Azerty123'),
                         'is_active' => 1,
                         'created_at' => now(),
-                        'must_change_password' => 1,
+                        'must_change_password' => env('APP_ENV') == 'dev' ? 0 : 1,
                     ],
                     [
                         'last_name' => 'SEDDIKI',
@@ -77,7 +78,7 @@ class UsersTableSeeder extends Seeder
                         'password' => Hash::make('Azerty123'),
                         'is_active' => 1,
                         'created_at' => now(),
-                        'must_change_password' => 1,
+                        'must_change_password' => env('APP_ENV') == 'dev' ? 0 : 1,
                     ],
                     [
                         'last_name' => 'MERDJI',
@@ -91,7 +92,7 @@ class UsersTableSeeder extends Seeder
                         'password' => Hash::make('Azerty123'),
                         'is_active' => 1,
                         'created_at' => now(),
-                        'must_change_password' => 1,
+                        'must_change_password' => env('APP_ENV') == 'dev' ? 0 : 1,
                     ],
                     [
                         'last_name' => 'DJERRAD',
@@ -105,7 +106,7 @@ class UsersTableSeeder extends Seeder
                         'password' => Hash::make('Azerty123'),
                         'is_active' => 1,
                         'created_at' => now(),
-                        'must_change_password' => 1,
+                        'must_change_password' => env('APP_ENV') == 'dev' ? 0 : 1,
                     ],
                     [
                         'last_name' => 'KHELIOUENE',
@@ -119,7 +120,7 @@ class UsersTableSeeder extends Seeder
                         'password' => Hash::make('Azerty123'),
                         'is_active' => 1,
                         'created_at' => now(),
-                        'must_change_password' => 1,
+                        'must_change_password' => env('APP_ENV') == 'dev' ? 0 : 1,
                     ],
                     [
                         'last_name' => 'LATRECHE',
@@ -133,7 +134,7 @@ class UsersTableSeeder extends Seeder
                         'password' => Hash::make('Azerty123'),
                         'is_active' => 1,
                         'created_at' => now(),
-                        'must_change_password' => 1,
+                        'must_change_password' => env('APP_ENV') == 'dev' ? 0 : 1,
                     ],
                     [
                         'last_name' => 'DEBBAGHI',
@@ -147,7 +148,7 @@ class UsersTableSeeder extends Seeder
                         'password' => Hash::make('Azerty123'),
                         'is_active' => 1,
                         'created_at' => now(),
-                        'must_change_password' => 1,
+                        'must_change_password' => env('APP_ENV') == 'dev' ? 0 : 1,
                     ],
                     [
                         'last_name' => 'CHIKHI',
@@ -161,7 +162,7 @@ class UsersTableSeeder extends Seeder
                         'password' => Hash::make('Azerty123'),
                         'is_active' => 1,
                         'created_at' => now(),
-                        'must_change_password' => 1,
+                        'must_change_password' => env('APP_ENV') == 'dev' ? 0 : 1,
                     ],
                 ]);
                 if ($inserted) {
