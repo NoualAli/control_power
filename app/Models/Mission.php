@@ -220,7 +220,7 @@ class Mission extends BaseModel
 
     public function getTotalDetailsAttribute()
     {
-        return $this->details()->count();
+        return $this->details()->where('is_disabled', false)->count();
     }
 
     public function getHasMajorFactsAttribute()
