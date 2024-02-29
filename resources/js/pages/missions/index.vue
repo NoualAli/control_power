@@ -114,7 +114,7 @@ export default {
                 },
                 {
                     label: 'État',
-                    hide: !hasRole([ 'dcp', 'cdrcp', 'cdcr', 'cc', 'ci', 'cdc', 'da', 'root', 'admin' ]),
+                    // hide: !hasRole([ 'dcp', 'cdrcp', 'cdcr', 'cc', 'ci', 'cdc', 'da', 'root', 'admin' ]),
                     field: 'current_state',
                     isHtml: true,
                     align: 'center',
@@ -276,7 +276,7 @@ export default {
                     label: 'État',
                     cols: 3,
                     multiple: true,
-                    hide: !hasRole([ 'dcp', 'cdrcp', 'cdcr', 'cc', 'ci', 'cdc', 'root', 'admin' ]),
+                    // hide: !hasRole([ 'dcp', 'cdrcp', 'cdcr', 'cc', 'ci', 'cdc', 'root', 'admin' ]),
                     data: function () {
                         if (!hasRole([ 'cdrcp', 'dcp', 'cdcr', 'cc', 'root', 'admin' ])) {
                             return [
