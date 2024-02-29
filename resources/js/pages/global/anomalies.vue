@@ -114,11 +114,6 @@ export default {
             actions: {
                 show: true
             },
-            modals: {
-                show: false,
-                edit: false,
-                regularize: false
-            },
             filters: {
                 id: {
                     hide: true,
@@ -249,6 +244,11 @@ export default {
                     ]
                 },
             },
+            modals: {
+                show: false,
+                edit: false,
+                regularize: false,
+            },
         }
     },
     created() {
@@ -270,7 +270,6 @@ export default {
             const row = this.rowSelected
             this.modals.edit = false
             this.modals.regularize = false
-            // this.close()
             this.show(row)
         },
         /**
@@ -289,9 +288,9 @@ export default {
          */
         edit(row) {
             this.rowSelected = row
+            this.modals.edit = true
             this.modals.show = false
             this.modals.regularize = false
-            this.modals.edit = true
         },
 
         /**
@@ -300,11 +299,10 @@ export default {
          */
         regularize(row) {
             this.rowSelected = row
+            this.modals.regularize = true
             this.modals.show = false
             this.modals.edit = false
-            this.modals.regularize = true
         },
-
         /**
          * Handle close event
          */
@@ -322,10 +320,12 @@ export default {
          * @param {String} Object.type
          */
         showForm({ row, type }) {
-            if (type == 'processing' || type == 'edit') {
-                this.edit(row)
-            } else if (type == 'regularization') {
-                this.regularize(row)
+            const functionName = type.toLowerCase();
+            const fn = this[ functionName ];
+            if (fn && typeof fn === 'function') {
+                fn(row);
+            } else {
+                console.error('Function not found or not a function:', functionName);
             }
         }
     }
