@@ -579,14 +579,22 @@ if (!function_exists('getMajorFacts')) {
             ->join('families as f', 'f.id', 'dm.family_id');
 
         $user = auth()->user();
-        if (hasRole(['ci', 'cdc'])) {
+
+        if (hasRole('ci')) {
+            $details = $details->join('mission_has_controllers as mhc', 'mhc.mission_id', 'md.mission_id')->whereIn('agency_id', $user->agencies_arr)->where(function ($query) {
+                $query->where('major_fact', true)->OrWhereNotNull('md.major_fact_is_detected_at');
+            })
+                ->where(fn ($query) => $query->where('m.assigned_to_ci_id', $user->id)->orWhere('mhc.user_id', $user->id)->orWhere('controlled_by_ci_id', $user->id));
+        } elseif (hasRole('cdc')) {
             $details = $details->whereIn('agency_id', $user->agencies_arr)->where(function ($query) {
                 $query->where('major_fact', true)->OrWhereNotNull('md.major_fact_is_detected_at');
             });
-        } elseif (hasRole(['da', 'dre'])) {
+        } elseif (hasRole('dre')) {
             $details = $details->whereIn('agency_id', $user->agencies_arr)
                 ->whereNotNull('md.major_fact_is_dispatched_at');
-        } elseif (hasRole(['cdcr', 'dcp'])) {
+        } elseif (hasRole('da')) {
+            $details = $details->whereIn('agency_id', $user->agencies_arr)->whereNotNull('md.major_fact_is_dispatched_at')->whereNotNull('m.dcp_validation_by_id');
+        } elseif (hasRole(['dcp', 'cdcr'])) {
             $details = $details->where(function ($query) {
                 $query->whereNotNull('md.major_fact_is_dispatched_to_dcp_at')
                     ->WhereNotNull('md.major_fact_is_detected_at');
@@ -594,28 +602,13 @@ if (!function_exists('getMajorFacts')) {
         } elseif (hasRole(['root', 'admin'])) {
             $details = $details->whereNotNull('md.major_fact_is_detected_at');
         } elseif (hasRole('cder')) {
-            $details = $details->whereNotNull('md.major_fact_is_detected_at')->where('m.assigned_to_cder_id', $user->id);
+            $details = $details->whereNotNull('md.major_fact_is_dispatched_at')->where('m.assigned_to_cder_id', $user->id);
         } else {
-            $details = $details->where('major_fact', true)->orWhereNotNull('md.major_fact_is_dispatched_at');
+            $details = $details->whereNotNull('md.major_fact_is_dispatched_at');
         }
 
         if ($mission) {
             $details = $details->where('m.id', $mission);
-        }
-
-        $user = auth()->user();
-
-        if (hasRole(['dcp', 'cdcr'])) {
-            $details = $details->whereNotNull('md.major_fact_is_dispatched_to_dcp_at');
-        } elseif (hasRole('ci')) {
-            $details = $details->join('mission_has_controllers as mhc', 'mhc.mission_id', 'md.mission_id')
-                ->where(fn ($query) => $query->where('m.assigned_to_ci_id', $user->id)->orWhere('mhc.user_id', $user->id)->orWhere('controlled_by_ci_id', $user->id));
-        } elseif (hasRole('cdc')) {
-            $details = $details->whereIn('agency_id', $user->agencies->pluck('id'));
-        } elseif (hasRole('da')) {
-            $details = $details->whereIn('agency_id', $user->agencies->pluck('id')->toArray())->whereNotNull('m.dcp_validation_by_id');
-        } else {
-            $details->whereNotNull('major_fact_is_dispatched_at');
         }
 
         $details = $details->groupBy(
