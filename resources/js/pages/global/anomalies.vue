@@ -286,7 +286,7 @@ export default {
          * Affiche le modal pour modifer informations du point de contrôle
          *
          */
-        edit(row) {
+        processing(row) {
             this.rowSelected = row
             this.modals.edit = true
             this.modals.show = false

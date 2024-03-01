@@ -109,6 +109,20 @@ class MissionDetailController extends Controller
                         ]);
                     }
                 }
+                if (hasRole(['dcp', 'cdcr', 'cc'])) {
+                    if ($detail->additionalComments()->count() && $detail->additionalComments->first()->created_by_id == auth()->user()->id) {
+                        $detail->additionalComments->first()->update([
+                            'content' => $data['comment'],
+                        ]);
+                    } else {
+                        $detail->additionalComments()->create([
+                            'content' => $data['comment'],
+                            'created_by_id' => auth()->user()->id,
+                            'type' => auth()->user()->role->code . '_observation',
+                            'creator_full_name' => getUserFullNameWithRole(),
+                        ]);
+                    }
+                }
                 unset($data['detail'], $data['report']);
 
                 $this->updateDetail($data, $detail);
@@ -130,19 +144,13 @@ class MissionDetailController extends Controller
     public function show(MissionDetail $detail)
     {
         $detail->unsetRelations();
-        // $diffInDays = Carbon::parse($detail->mission->dcp_validation_at)->diffInDays(today());
-        // $diffInWeeks = Carbon::parse($detail->mission->dcp_validation_at)->diffInWeekdays(today());
-        // $detail->show_regularizations = (
-        //     $detail->mission->is_validated_by_dcp &&
-        //     (($diffInDays > (($diffInWeeks * 2) + 10) || $detail->mission->is_validated_by_da) || ((hasRole(['da', 'cdc', 'ci']) && in_array($detail->mission->agency_id, auth()->user()->agencies->pluck('id')->toArray()))) || hasRole('der'))
-        // );
         $detail->show_regularizations = true;
+        $detail->load('observations', 'additionalComments');
         $detail->observation = $detail->observations()->count() ? $detail->observations()->first() : null;
-
+        $detail->comment = $detail->additionalComments()->count() ? $detail->additionalComments()->first() : null;
         if ($detail->show_regularizations) {
             $detail->load(['regularizations', 'regularizations.comments' => fn ($query) => $query->orderBy('created_at', 'DESC')]);
             $detail->regularizations = $detail->regularizations->map(function ($regularization) {
-                // $regularization->comments = $regularization->comments()->orderBy('created_at', 'DESC')->get();
                 $regularization->can_comment = !in_array(auth()->user()->id, $regularization->comments->pluck('created_by_id')->toArray());
                 return $regularization;
             });

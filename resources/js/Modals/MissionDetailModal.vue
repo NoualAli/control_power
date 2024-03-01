@@ -12,6 +12,11 @@
                         {{ row?.mission?.reference }}
                     </small>
                 </router-link>
+                <div class="tag">
+                    <span class="text-center text-normal text-bold w-100">
+                        {{ row?.reference }}
+                    </span>
+                </div>
             </div>
         </template>
         <template #default>
@@ -49,10 +54,10 @@
                 </NLColumn>
                 <NLColumn>
                     <NLGrid gap="6" extraClass="box ">
+                        <!-- Basic informations -->
                         <NLColumn>
                             <h2>Informations de base</h2>
                         </NLColumn>
-                        <!-- Basic informations -->
                         <NLColumn v-if="row?.major_fact && row?.major_fact_is_dispatched_at && !is('da')">
                             <span class="label">Date de transmission: </span>
                             <span v-html="row?.major_fact_is_dispatched_at" />
@@ -159,6 +164,18 @@
                         </NLColumn>
                         <NLColumn>
                             <span v-html="row?.recovery_plan || '-'" class="content my-2 text-normal"></span>
+                        </NLColumn>
+                    </NLGrid>
+                </NLColumn>
+
+                <!-- Recovery plan -->
+                <NLColumn v-if="row.comment">
+                    <NLGrid gap="6" class="box ">
+                        <NLColumn>
+                            <h2>Commentaire</h2>
+                        </NLColumn>
+                        <NLColumn>
+                            <span v-html="row?.comment.content || '-'" class="content my-2 text-normal"></span>
                         </NLColumn>
                     </NLGrid>
                 </NLColumn>

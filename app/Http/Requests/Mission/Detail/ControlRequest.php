@@ -50,6 +50,11 @@ class ControlRequest extends FormRequest
         if (in_array($this->mode, [3, 4, 5])) {
             unset($rules['report'], $rules['score'], $rules['metadata']);
         }
+
+        if (hasRole(['dcp', 'cdcr', 'cc'])) {
+            $rules['comment'] = ['nullable', new MaxLengthQuill(2500)];
+        }
+
         return $rules;
     }
 

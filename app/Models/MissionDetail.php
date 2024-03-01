@@ -25,8 +25,6 @@ class MissionDetail extends BaseModel
         'reference',
         'control_point_id',
         'mission_id',
-        'ci_report',
-        'cdc_report',
         'recovery_plan',
         'score',
         'major_fact',
@@ -262,7 +260,12 @@ class MissionDetail extends BaseModel
      */
     public function observations()
     {
-        return $this->comments()->orderBy('created_at', 'DESC');
+        return $this->comments()->whereIn('type', ['ci_observation', 'cdc_observation'])->orderBy('created_at', 'DESC');
+    }
+
+    public function additionalComments()
+    {
+        return $this->comments()->whereIn('type', ['dcp_observation', 'cdcr_observation', 'cc_observation'])->orderBy('created_at', 'DESC');
     }
 
     public function campaign()

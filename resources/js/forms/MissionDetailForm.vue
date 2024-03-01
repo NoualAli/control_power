@@ -162,6 +162,12 @@
                                 :label-required="[2, 3, 4].includes(Number(form.score)) || form.major_fact"
                                 :disabled="![2, 3, 4].includes(Number(form.score)) && !form.major_fact" />
                         </NLColumn>
+
+                        <!-- Recovery plan -->
+                        <NLColumn v-if="is(['dcp', 'cdcr', 'cc'])">
+                            <NLWyswyg :length="2500" v-model="form.comment" :name="'comment'" label="Commentaire"
+                                :form="form" placeholder="Ajouter votre commentaire" />
+                        </NLColumn>
                     </NLGrid>
                 </NLColumn>
                 <!-- Media (attachements) -->
@@ -178,7 +184,7 @@
         </template>
         <!-- Submit Button -->
         <template #footer>
-            <NLButton :loading="formIsLoading" label="Enregistrer" @click="save" v-if="!isLoading" />
+            <NLButton :loading="form.busy" label="Enregistrer" @click="save" v-if="!isLoading" />
         </template>
     </NLModal>
 </template>
@@ -262,7 +268,8 @@ export default {
                 recovery_plan: null,
                 score: null,
                 major_fact: null,
-                metadata: []
+                metadata: [],
+                comment: null,
             }),
             currentMission: {},
             isContainerExpanded: false,
@@ -386,6 +393,7 @@ export default {
                 this.form.score = detail.score ? parseInt(detail.score) : null
                 this.form.major_fact = !!detail.major_fact
                 this.form.metadata = metadata || []
+                this.form.comment = detail?.comment?.content
                 this.isLoading = !this.isLoading
 
 

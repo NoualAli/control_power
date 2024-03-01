@@ -239,7 +239,7 @@ export default {
          * Affiche le modal pour modifer informations du point de contrôle
          *
          */
-        edit(row) {
+        processing(row) {
             this.rowSelected = row
             this.modals.show = false
             this.modals.regularize = false
@@ -274,10 +274,12 @@ export default {
          * @param {String} Object.type
          */
         showForm({ row, type }) {
-            if (type == 'processing' || type == 'edit') {
-                this.edit(row)
-            } else if (type == 'regularization') {
-                this.regularize(row)
+            const functionName = type.toLowerCase();
+            const fn = this[ functionName ];
+            if (fn && typeof fn === 'function') {
+                fn(row);
+            } else {
+                console.error('Function not found or not a function:', functionName);
             }
         }
     }
