@@ -16,7 +16,7 @@
                 <NLGrid gap="2" class="my-2">
                     <NLColumn>
                         <NLInput v-model="form.authLogin" name="authLogin" placeholder="Identifiant" :form="form"
-                            class="is-for-auth" />
+                            class="is-for-auth" autofocus />
                     </NLColumn>
                     <NLColumn>
                         <NLInput v-model="form.password" name="password" class="is-for-auth" placeholder="Mot de passe"
