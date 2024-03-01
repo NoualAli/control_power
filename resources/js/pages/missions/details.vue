@@ -67,6 +67,14 @@
                                     </NLFlex>
                                 </NLColumn>
 
+                                <!-- Score -->
+                                <NLColumn lg="2">
+                                    <b>Référence:</b>
+                                </NLColumn>
+                                <NLColumn lg="10" class="text-bold">
+                                    {{ detail?.reference }}
+                                </NLColumn>
+
                                 <!-- Major fact -->
                                 <NLColumn v-if="detail?.major_fact && !is('da')">
                                     <b class="text-danger">
@@ -76,32 +84,32 @@
                                 </NLColumn>
 
                                 <!-- Score -->
-                                <NLColumn lg="4" v-if="Number(detail?.score) !== 5">
+                                <NLColumn lg="2" v-if="Number(detail?.score) !== 5">
                                     <b>Appréciation:</b>
                                 </NLColumn>
-                                <NLColumn lg="8" v-if="Number(detail?.score) !== 5">
+                                <NLColumn lg="10" v-if="Number(detail?.score) !== 5">
                                     {{ detail?.appreciation }}
                                 </NLColumn>
 
                                 <!-- Report -->
-                                <NLColumn lg="4" v-if="Number(detail?.score) !== 5">
+                                <NLColumn lg="2" v-if="Number(detail?.score) !== 5">
                                     <b>Constat:</b>
                                 </NLColumn>
-                                <NLColumn lg="8" v-if="Number(detail?.score) !== 5 && detail?.observation?.content"
+                                <NLColumn lg="10" v-if="Number(detail?.score) !== 5 && detail?.observation?.content"
                                     v-html="detail?.observation?.content || '-'">
                                 </NLColumn>
                                 <!-- Recovery plan -->
-                                <NLColumn lg="4" v-if="Number(detail?.score) !== 5">
+                                <NLColumn lg="2" v-if="Number(detail?.score) !== 5">
                                     <b>Plan de redressement:</b>
                                 </NLColumn>
-                                <NLColumn lg="8" v-if="Number(detail?.score) !== 5" v-html="detail?.recovery_plan || '-'">
+                                <NLColumn lg="10" v-if="Number(detail?.score) !== 5" v-html="detail?.recovery_plan || '-'">
                                 </NLColumn>
 
                                 <!-- Regularization -->
-                                <NLColumn lg="4" v-if="mission?.is_validated_by_dcp">
+                                <NLColumn lg="2" v-if="mission?.is_validated_by_dcp">
                                     <b>Régularisation:</b>
                                 </NLColumn>
-                                <NLColumn lg="8" v-if="mission?.is_validated_by_dcp">
+                                <NLColumn lg="10" v-if="mission?.is_validated_by_dcp">
                                     <p v-if="detail?.reg_is_regularized">
                                         Levée
                                     </p>
