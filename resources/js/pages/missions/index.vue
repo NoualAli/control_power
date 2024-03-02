@@ -124,7 +124,6 @@ export default {
                             let title = ''
                             let state = ''
                             let is_late = Boolean(item.is_late) ? 'is-late' : ''
-                            console.log(item.is_late);
                             if (hasRole([ 'cdrcp', 'dcp', 'cdcr', 'cc', 'root', 'admin' ])) {
                                 switch (Number(item.current_state)) {
                                     case 1:
