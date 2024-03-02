@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schema;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,5 +19,6 @@ class DatabaseSeeder extends Seeder
         $this->call(UserHasNotificationsSeeder::class);
         $this->call(MissionsTableSeeder::class);
         $this->call(MediaTableSeeder::class);
+        Schema::dropIfExists('websockets_statistics_entries');
     }
 }
