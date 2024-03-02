@@ -24,7 +24,7 @@ class Missions extends StatisticsData
 
         if (hasRole('ci')) {
             $missions = $missions->addSelect(DB::raw(
-                '(CASE
+                'SUM(CASE
                     WHEN CAST(ISNULL(ci_validation_at, GETDATE()) AS DATE) > CAST(programmed_end AS DATE) THEN 1
                     ELSE 0
                 END) as delay'
