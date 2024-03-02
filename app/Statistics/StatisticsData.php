@@ -216,18 +216,17 @@ class StatisticsData
         $user = auth()->user();
 
         if (hasRole('ci')) {
-            $missions = $missions->leftJoin('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')
-                ->where(fn ($query) => $query->where('m.assigned_to_ci_id', $user->id)->orWhere('mhc.user_id', $user->id));
+            $missions = $missions->leftJoin('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')->where(fn ($query) => $query->where('m.assigned_to_ci_id', $user->id)->orWhere('mhc.user_id', $user->id));
         } elseif (hasRole('cdc')) {
             $missions = $missions->where('m.created_by_id', $user->id);
         } elseif (hasRole('cc')) {
-            $missions = $missions->leftJoin(DB::raw('(SELECT mission_id, COUNT(*) AS mission_details_count FROM mission_details WHERE assigned_to_cc_id = ' . $user->id . ' GROUP BY mission_id) AS mda'), 'm.id', '=', 'mda.mission_id');
-
-            // $missions = $missions->leftJoin('mission_details as md', 'md.mission_id', 'm.id')->where(function ($query) use ($user) {
-            //     $query->where('md.assigned_to_cc_id', $user->id)->orWhere('m.assigned_to_cc_id', $user->id);
-            // })->groupBy('m.id');
+            $missions = $missions->where(function ($query) use ($user) {
+                $query->where('m.assigned_to_cc_id', $user->id);
+            });
         } elseif (hasRole('da')) {
-            $missions = $missions->whereIn('m.agency_id', $user->agencies->pluck('id'));
+            $missions = $missions->where(function ($query) use ($user) {
+                $query->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereDate('programmed_start', '<=', today()->format('Y-m-d'));
+            });
         } elseif (hasRole('dre')) {
             $missions = $missions->whereIn('m.agency_id', $user->agencies->pluck('id'));
         } elseif (hasRole('cder')) {
