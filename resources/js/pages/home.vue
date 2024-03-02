@@ -1,5 +1,5 @@
 <template>
-    <ContentBody>
+    <ContentBody v-if="!isLoading">
         <NLFlex alignItems="center" lgJustifyContent="start" gap="2" extraClass="my-4" wrap>
             <button class="btn" :class="{ 'is-active': currentSection == 'missionsStates' }"
                 :disabled="currentSection == 'missionsStates'" @click="setCurrentSection('missionsStates')"
@@ -72,6 +72,7 @@ export default {
         return {
             currentSection: null,
             userRole: null,
+            isLoading: true,
         }
     },
     computed: {
@@ -123,6 +124,7 @@ export default {
          */
         setCurrentSection(section) {
             this.currentSection = section
+            this.isLoading = false
             // this.$store.dispatch('settings/updatePageLoading', false)
         },
         savePNG(element) {

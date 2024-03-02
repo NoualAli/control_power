@@ -1,7 +1,7 @@
 <template>
     <!-- Suivi de la réalisation des missions -->
     <NLGrid gap="4">
-        <NLColumn v-if="!is('da')">
+        <NLColumn v-if="!is('da') && !isLoading">
             <NLGrid gap="4">
                 <NLColumn>
                     <h2>Suivi de la réalisation des missions</h2>
@@ -165,7 +165,8 @@ export default {
             },
             cards: {
                 missionsState: null
-            }
+            },
+            isLoading: true,
         }
     },
     created() {
@@ -183,7 +184,7 @@ export default {
                 } else {
                     this.campaign = this.missionsStates.data.currentCampaign
                 }
-
+                this.isLoading = false
                 this.$store.dispatch('settings/updatePageLoading', false)
             })
         },
