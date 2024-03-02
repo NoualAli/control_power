@@ -13,7 +13,10 @@
                         <div class="text-bold text-white">
                             En retard
                         </div>
-                        <div class="text-extra-large text-bold text-white">{{ cards.missionsState['delay'] || 0 }}</div>
+                        <div class="text-extra-large text-bold text-white">
+                            {{ cards.missionsState['delay'] || 0 }} /
+                            {{ cards.missionsState['total_missions'] }}
+                        </div>
                     </router-link>
                 </NLColumn>
                 <NLColumn lg="3" extraClass="box is-info d-flex align-center gap-4">
@@ -24,7 +27,8 @@
                             À réalisées
                         </div>
                         <div class="text-extra-large text-white text-bold">
-                            {{ cards.missionsState['todo'] || 0 }}
+                            {{ cards.missionsState['todo'] || 0 }} /
+                            {{ cards.missionsState['total_missions'] }}
                         </div>
                     </router-link>
                 </NLColumn>
@@ -36,7 +40,8 @@
                             En cours
                         </div>
                         <div class="text-extra-large text-bold text-white">
-                            {{ cards.missionsState['active'] || 0 }}
+                            {{ cards.missionsState['active'] || 0 }} /
+                            {{ cards.missionsState['total_missions'] }}
                         </div>
                     </router-link>
                 </NLColumn>
@@ -48,7 +53,8 @@
                             Réalisées et validées
                         </div>
                         <div class="text-extra-large text-white text-bold">
-                            {{ cards.missionsState['done'] || 0 }}
+                            {{ cards.missionsState['done'] || 0 }} /
+                            {{ cards.missionsState['total_missions'] }}
                         </div>
                     </router-link>
                 </NLColumn>

@@ -51,32 +51,31 @@ if (!function_exists('getMissions')) {
                 END as progress_rate'
             ),
             'm.current_state',
-            DB::raw(
-                '(CASE
-                    WHEN DATEDIFF(day, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE())) > (DATEDIFF(wk, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE())) * 2) + 15 THEN 1
-                    ELSE 0
-                END) as is_late_ci'
-            ),
+            // DB::raw(
+            //     '(CASE
+            //         WHEN ci_validation_at > programmed_end THEN 1
+            //         ELSE 0
+            //     END) as is_late_ci'
+            // ),
 
-            DB::raw(
-                '(CASE
-                    WHEN DATEDIFF(day, CAST(programmed_start AS DATE), COALESCE(CAST(cdc_validation_at AS DATE), GETDATE())) > (DATEDIFF(wk, CAST(programmed_start AS DATE), COALESCE(CAST(cdc_validation_at AS DATE), GETDATE())) * 2) + 15 THEN 1
-                    ELSE 0
-                END) as is_late_cdc'
-            ),
+            // DB::raw(
+            //     '(CASE
+            //         WHEN COALESCE(ci_validation_at, CURRENT_DATE()) > programmed_end OR COALESCE(cdc_validation_at, CURRENT_DATE()) > programmed_end THEN 1
+            //         ELSE 0
+            //     END) as is_late_cdc'
+            // ),
+            // DB::raw(
+            //     '(CASE
+            //         WHEN COALESCE(ci_validation_at, CURRENT_DATE()) > programmed_end OR COALESCE(cdc_validation_at, CURRENT_DATE()) > programmed_end THEN 1
+            //         ELSE 0
+            //     END) as is_late'
+            // ),
 
             DB::raw('DATEDIFF(day, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE())) as ci_time_left'),
 
             DB::raw('DATEDIFF(day, COALESCE(CAST(ci_validation_at AS DATE), GETDATE()), COALESCE(CAST(cdc_validation_at AS DATE), GETDATE())) as cdc_time_left'),
 
             DB::raw('DATEDIFF(day, COALESCE(CAST(dcp_validation_at AS DATE), GETDATE()), COALESCE(CAST(da_validation_at AS DATE), GETDATE())) as da_time_left'),
-            DB::raw(
-                '(CASE
-                    WHEN DATEDIFF(day, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE())) > (DATEDIFF(wk, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE())) * 2) + 15 THEN 1
-                    WHEN DATEDIFF(day, CAST(programmed_start AS DATE), COALESCE(CAST(cdc_validation_at AS DATE), GETDATE())) > (DATEDIFF(wk, CAST(programmed_start AS DATE), COALESCE(CAST(cdc_validation_at AS DATE), GETDATE())) * 2) + 15  THEN 1
-                    ELSE 0
-                END) as is_late'
-            ),
             DB::raw('DATEDIFF(day, m.ci_validation_at, m.cdc_validation_at) as time_left_ci_cdc'),
             DB::raw('DATEDIFF(day, m.cdc_validation_at, m.cdcr_validation_at) as time_left_cdc_cdcr'),
             DB::raw('DATEDIFF(day, m.cdcr_validation_at, m.dcp_validation_at) as time_left_cdcr_dcp'),
@@ -96,6 +95,25 @@ if (!function_exists('getMissions')) {
             ->leftJoin('users as cder', 'cder.id', 'm.assigned_to_cder_id')
             ->where('m.level', $level)
             ->whereNull('m.deleted_at');
+        if (hasRole('ci')) {
+            $missions = $missions->addSelect([
+                DB::raw(
+                    '(CASE
+                        WHEN CAST(ISNULL(ci_validation_at, GETDATE()) AS DATE) > CAST(programmed_end AS DATE) THEN 1
+                        ELSE 0
+                    END) as is_late'
+                ),
+            ]);
+        } else {
+            $missions = $missions->addSelect([
+                DB::raw(
+                    '(CASE
+                        WHEN CAST(ISNULL(ci_validation_at, GETDATE()) AS DATE) > CAST(programmed_end AS DATE) OR CAST(ISNULL(cdc_validation_at, GETDATE()) AS DATE) > CAST(programmed_end AS DATE) THEN 1
+                        ELSE 0
+                    END) as is_late'
+                ),
+            ]);
+        }
         $user = auth()->user();
 
         if ($level == 2) {

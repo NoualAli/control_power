@@ -628,39 +628,22 @@ class MissionController extends Controller
             }
         }
         if (isset($filter['is_late'])) {
-            // $value = boolval(intval($filter['is_late']));
             $value = $filter['is_late'] == 'Oui';
             $column = DB::raw(
                 '(CASE
-                    WHEN DATEDIFF(day, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE())) > (DATEDIFF(wk, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE())) * 2) + 15 THEN 1
-                    WHEN DATEDIFF(day, CAST(programmed_start AS DATE), COALESCE(CAST(cdc_validation_at AS DATE), GETDATE())) > (DATEDIFF(wk, CAST(programmed_start AS DATE), COALESCE(CAST(cdc_validation_at AS DATE), GETDATE())) * 2) + 15  THEN 1
+                    WHEN CAST(ISNULL(cdc_validation_at, GETDATE()) AS DATE) > CAST(programmed_end AS DATE) THEN 1
                     ELSE 0
                 END)'
             );
             if (hasRole('ci')) {
                 $column = DB::raw(
                     '(CASE
-                        WHEN DATEDIFF(day, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE())) > (DATEDIFF(wk, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE())) * 2) + 15 THEN 1
-                        ELSE 0
-                    END)'
-                );
-            } elseif (hasRole('cdc')) {
-                $column = DB::raw(
-                    '(CASE
-                        WHEN DATEDIFF(day, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE())) > (DATEDIFF(wk, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE())) * 2) + 15 THEN 1
-                        WHEN DATEDIFF(day, CAST(programmed_start AS DATE), COALESCE(CAST(cdc_validation_at AS DATE), GETDATE())) > (DATEDIFF(wk, CAST(programmed_start AS DATE), COALESCE(CAST(cdc_validation_at AS DATE), GETDATE())) * 2) + 15  THEN 1
-                        ELSE 0
-                    END)'
-                );
-            } elseif (hasRole('da')) {
-                $column = DB::raw(
-                    '(CASE
-                        WHEN DATEDIFF(day, COALESCE(CAST(dcp_validation_at AS DATE), GETDATE()), COALESCE(CAST(da_validation_at AS DATE), GETDATE())) > (DATEDIFF(wk, COALESCE(CAST(dcp_validation_at AS DATE), GETDATE()), COALESCE(CAST(da_validation_at AS DATE), GETDATE())) * 2) + 10 THEN 1
+                        WHEN CAST(ISNULL(ci_validation_at, GETDATE()) AS DATE) > CAST(programmed_end AS DATE) THEN 1
                         ELSE 0
                     END)'
                 );
             }
-            $missions = $missions->where($column, $value);
+            $missions = $missions->having($column, $value);
         }
         return $missions;
     }

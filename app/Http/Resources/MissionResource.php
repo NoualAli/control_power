@@ -16,14 +16,6 @@ class MissionResource extends JsonResource
     public function toArray($request)
     {
         isAbleOrAbort('view_mission');
-        if (hasRole('ci')) {
-            $isLate = $this->is_late_ci;
-        } elseif (hasRole('cdc')) {
-            $isLate = $this->is_late_ci || $this->is_late_cdc;
-        } else {
-            $isLate = $this->is_late_ci || $this->is_late_cdc;
-        }
-
         $data = [
             'id' => $this->id,
             'campaign' => $this->campaign,
@@ -36,7 +28,7 @@ class MissionResource extends JsonResource
 
             'is_validated_by_dcp' => $this->is_validated_by_dcp,
             'is_validated_by_cdc' => $this->is_validated_by_cdc,
-            'is_late' => (bool) $isLate,
+            'is_late' => boolval($this->is_late),
             'avg_score' => $this->avg_score,
             'current_state' => (int) $this->current_state,
             'remaining_days_before_start' => $this->remaining_days_before_start,

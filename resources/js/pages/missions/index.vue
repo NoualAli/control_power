@@ -124,6 +124,7 @@ export default {
                             let title = ''
                             let state = ''
                             let is_late = Boolean(item.is_late) ? 'is-late' : ''
+                            console.log(item.is_late);
                             if (hasRole([ 'cdrcp', 'dcp', 'cdcr', 'cc', 'root', 'admin' ])) {
                                 switch (Number(item.current_state)) {
                                     case 1:
@@ -337,6 +338,22 @@ export default {
                     value: null,
                     // hide: hasRole([ 'da', 'cdc', 'ci' ])
                 },
+                is_late: {
+                    label: 'Retard',
+                    cols: 3,
+                    multiple: false,
+                    data: [
+                        {
+                            id: 'Non',
+                            label: 'Non',
+                        },
+                        {
+                            id: 'Oui',
+                            label: 'Oui',
+                        }
+                    ],
+                    value: null,
+                },
                 progress_status: {
                     label: 'Taux de progression',
                     cols: 3,
@@ -395,22 +412,6 @@ export default {
                     ],
                     value: null,
                     hide: hasRole([ 'cdc', 'ci', 'da' ]),
-                },
-                is_late: {
-                    label: 'Retard',
-                    cols: 3,
-                    multiple: false,
-                    data: [
-                        {
-                            id: 'Non',
-                            label: 'Non',
-                        },
-                        {
-                            id: 'Oui',
-                            label: 'Oui',
-                        }
-                    ],
-                    value: null,
                 },
             },
         }

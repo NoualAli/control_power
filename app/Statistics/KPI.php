@@ -83,14 +83,10 @@ class KPI extends StatisticsData
          */
         $campaign = $this->getCurrentCampaign();
         $data = DB::table('missions as m');
-        $afterTheDeadLine = "SUM(
-            CASE
-                WHEN m.ci_validation_at IS NOT NULL
-                    AND COALESCE(CAST(m.ci_validation_at AS DATE), GETDATE()) > CAST(m.programmed_end AS DATE)
-                THEN 1
-                ELSE 0
-            END
-        )";
+        $afterTheDeadLine = "SUM'(CASE
+                                    WHEN CAST(ISNULL(ci_validation_at, GETDATE()) AS DATE) > CAST(programmed_end AS DATE) THEN 1
+                                    ELSE 0
+                            END)";
         $data = $data->select([
             DB::raw("CONCAT(u.last_name, ' ', u.first_name) as controller_full_name"),
             'u.gender',
@@ -141,7 +137,6 @@ class KPI extends StatisticsData
 
         $data = $data->leftJoin('users as u', function ($join) {
             $join->on('u.id', '=', 'm.assigned_to_ci_id');
-            // $join->orOn('u.id', '=', 'mhc.user_id');
         })
             ->leftJoin('agencies as a', 'a.id', 'm.agency_id')
             ->leftJoin('categories as c', 'c.id', 'a.category_id')

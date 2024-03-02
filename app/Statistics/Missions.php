@@ -16,56 +16,36 @@ class Missions extends StatisticsData
         $missions = $this->missions->select('m.id');
         $today = today()->format('Y-m-d');
         $missions = $missions->distinct('m.reference')->select(
+            DB::raw('COUNT(*) total_missions'),
             DB::raw('SUM(CASE WHEN m.current_state = 1 THEN 1 ELSE 0 END) as todo'),
             DB::raw('SUM(CASE WHEN m.current_state = 2 OR m.current_state = 3 THEN 1 ELSE 0 END) as active'),
             DB::raw('SUM(CASE WHEN m.current_state = 4 OR m.current_state = 5 OR m.current_state = 6 OR m.current_state = 7 OR m.current_state = 8 THEN 1 ELSE 0 END) as done'),
         );
 
-        // dd($missions->first());
         if (hasRole('ci')) {
             $missions = $missions->addSelect(DB::raw(
-                'SUM(CASE
-                    WHEN DATEDIFF(day, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE())) > (DATEDIFF(wk, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE())) * 2) + 15 THEN 1
+                '(CASE
+                    WHEN CAST(ISNULL(ci_validation_at, GETDATE()) AS DATE) > CAST(programmed_end AS DATE) THEN 1
                     ELSE 0
                 END) as delay'
             ));
-        } elseif (hasRole('cdc')) {
-            $missions = $missions->addSelect(
-                DB::raw(
-                    'SUM(CASE
-                        WHEN DATEDIFF(day, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE())) > (DATEDIFF(wk, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE())) * 2) + 15 THEN 1
-                        WHEN DATEDIFF(day, CAST(programmed_start AS DATE), COALESCE(CAST(cdc_validation_at AS DATE), GETDATE())) > (DATEDIFF(wk, CAST(programmed_start AS DATE), COALESCE(CAST(cdc_validation_at AS DATE), GETDATE())) * 2) + 15 THEN 1
-                        ELSE 0
-                    END) as delay'
-                )
-            );
         } else {
-            // $missions = $missions->addSelect(DB::raw(
-            //     'SUM(CASE
-            //         WHEN DATEDIFF(day, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE())) > (DATEDIFF(wk, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE()))  * 2) + 15 THEN 1
-            //         WHEN DATEDIFF(day, CAST(programmed_start AS DATE), COALESCE(CAST(cdc_validation_at AS DATE), GETDATE())) > (DATEDIFF(wk, CAST(programmed_start AS DATE), COALESCE(CAST(cdc_validation_at AS DATE), GETDATE()))  * 2) + 15 THEN 1
-            //         WHEN DATEDIFF(day, COALESCE(CAST(dcp_validation_at AS DATE), GETDATE()), COALESCE(CAST(da_validation_at AS DATE), GETDATE())) > (DATEDIFF(wk, COALESCE(CAST(dcp_validation_at AS DATE), GETDATE()), COALESCE(CAST(da_validation_at AS DATE), GETDATE()))  * 2) + 10 THEN 1
-            //         ELSE 0
-            //     END) as delay'
-            // ));
             $missions = $missions->addSelect(DB::raw(
                 'SUM(CASE
-                    WHEN DATEDIFF(day, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE())) > (DATEDIFF(wk, CAST(programmed_start AS DATE), COALESCE(CAST(ci_validation_at AS DATE), GETDATE())) * 2) + 15 THEN 1
-                    WHEN DATEDIFF(day, CAST(programmed_start AS DATE), COALESCE(CAST(cdc_validation_at AS DATE), GETDATE())) > (DATEDIFF(wk, CAST(programmed_start AS DATE), COALESCE(CAST(cdc_validation_at AS DATE), GETDATE())) * 2) + 15  THEN 1
+                    WHEN CAST(ISNULL(ci_validation_at, GETDATE()) AS DATE) > CAST(programmed_end AS DATE) OR CAST(ISNULL(cdc_validation_at, GETDATE()) AS DATE) > CAST(programmed_end AS DATE) THEN 1
                     ELSE 0
                 END) as delay'
             ));
         }
-        // dd($missions->first());
-        // $missions = $missions->groupBy('m.reference');
-        // dd($missions->get()->first(), $missions->toSql());
-        $missions = $missions->get()->first();
 
+        $missions = $missions->get()->first();
         $todo = $missions?->todo ?: 0;
         $done = $missions?->done ?: 0;
         $delay = $missions?->delay ?: 0;
         $active = $missions?->active ?: 0;
-        return compact('delay', 'active', 'todo', 'done');
+        $total_missions = $missions->total_missions ?: 0;
+
+        return compact('delay', 'active', 'todo', 'done', 'total_missions');
     }
 
     /**
