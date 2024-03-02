@@ -38,6 +38,7 @@ class AgencyController extends Controller
         $fetchAll = request()->has('fetchAll');
 
         $export = request('export', []);
+        $export['search_columns'] = ['a.name', 'a.code'];
         $shouldExport = count($export);
 
         if ($fetchFilters) {
@@ -59,7 +60,7 @@ class AgencyController extends Controller
         }
 
         if ($search) {
-            $agencies = $agencies->search(['a.name', 'a.code'], $search);
+            $agencies = $agencies->search($config['search_columns'], $search);
         }
 
         $agencies = $fetchAll ? formatForSelect($agencies->get()->toArray(), 'full_name') : AgencyResource::collection($agencies->paginate($perPage)->onEachSide(1));

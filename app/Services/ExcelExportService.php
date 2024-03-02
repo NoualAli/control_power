@@ -38,6 +38,7 @@ class ExcelExportService
             $keep_search = boolVal(intVal($keep_search));
             $keep_current_page = boolVal(intVal($keep_current_page));
             $keep_current_pagination = boolVal(intVal($keep_current_pagination));
+            $search_columns = isset($search_columns) ? $search_columns : [];
 
             if ($keep_filters) {
                 $filters = request('filter');
@@ -56,7 +57,7 @@ class ExcelExportService
             if ($keep_search) {
                 $search = request('search');
                 if ($search) {
-                    $model = $model->search($search);
+                    $model = $model->search($search_columns, $search);
                 }
             }
 
@@ -67,11 +68,6 @@ class ExcelExportService
                 Paginator::currentPageResolver(function () use ($page) {
                     return (int) $page;
                 });
-                // if ($keep_current_page) {
-                //     $page = request('page', 1);
-                // } else {
-                //     $model = $model->paginate($perPage);
-                // }
             } else {
                 $model = $model->get();
             }
