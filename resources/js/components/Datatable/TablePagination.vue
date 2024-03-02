@@ -1,14 +1,13 @@
 <template>
-    <NLGrid extraClass="pagination my-6" v-if="total > 10">
+    <NLGrid extraClass="pagination my-6">
         <NLColumn lg="2" extraClass="d-flex align-center justify-center">
             <NLGrid gap="2">
-                <NLColumn lg="4">
-                    <NLSelect name="per_page" :options="perPageChoices" v-model="perPage" class="disable-clear-value"
-                        v-if="total > 10" />
+                <NLColumn lg="4" v-if="total > 10">
+                    <NLSelect name="per_page" :options="perPageChoices" v-model="perPage" class="disable-clear-value" />
                 </NLColumn>
-                <NLColumn lg="8" extraClass="d-flex align-center justify-center gap-1" v-if="total && total > 10">
+                <NLColumn lg="8" extraClass="d-flex align-center justify-center gap-1">
                     <span>
-                        {{ total }}
+                        Total {{ total }}
                     </span>
                     <span>
                         de {{ from }} à {{ to }}
