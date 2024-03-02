@@ -46,7 +46,8 @@ export default {
                 },
                 {
                     label: 'Categorie',
-                    field: 'category'
+                    field: 'category',
+                    sortable: true
                 },
                 {
                     label: 'Dre',
