@@ -24,7 +24,7 @@
                         class="text-white text-bold w-100 d-flex align-center gap-4">
                         <i class="las la-hourglass-start text-white text-extra-large"></i>
                         <div class="text-bold text-white">
-                            À réalisées
+                            À réaliser
                         </div>
                         <div class="text-extra-large text-white text-bold">
                             {{ cards.missionsState['todo'] || 0 }} /
