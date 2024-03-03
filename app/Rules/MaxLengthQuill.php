@@ -27,7 +27,8 @@ class MaxLengthQuill implements Rule
      */
     public function passes($attribute, $value)
     {
-        return strlen(strip_tags($value)) <= $this->max;
+        $value = trim(str_replace("&nbsp;", " ", strip_tags($value)));
+        return mb_strlen($value) <= $this->max;
     }
 
     /**
