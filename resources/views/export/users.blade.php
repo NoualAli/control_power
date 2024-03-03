@@ -21,8 +21,10 @@
                 <th>DRE</th>
                 <th>Rôle</th>
                 <th>Actif</th>
-                <th>Date de création</th>
-                <th>Dernière connexion</th>
+                @if (hasRole(['root', 'admin']))
+                    <th>Date de création</th>
+                    <th>Dernière connexion</th>
+                @endif
             </tr>
         </thead>
         <tbody>
@@ -37,9 +39,12 @@
                     <td>{{ $user->dres_str }}</td>
                     <td>{{ strtoupper($user->code) . ' - ' . $user->role }}</td>
                     <td>{{ boolval($user->is_active) ? 'Oui' : 'Non' }}</td>
-                    <td>{{ $user->created_at }}</td>
-                    <td>{{ $user->last_activity ? \Carbon\Carbon::parse($user->last_activity)->format('d-m-Y H:i:s') : '-' }}
-                    </td>
+                    @if (hasRole(['root', 'admin']))
+                        <td>{{ $user->created_at }}</td>
+                        <td>
+                            {{ $user->last_activity ? \Carbon\Carbon::parse($user->last_activity)->format('d-m-Y H:i:s') : '-' }}
+                        </td>
+                    @endif
                 </tr>
             @endforeach
         </tbody>
