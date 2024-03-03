@@ -83,10 +83,7 @@ class KPI extends StatisticsData
          */
         $campaign = $this->getCurrentCampaign();
         $data = DB::table('missions as m');
-        $afterTheDeadLine = "SUM'(CASE
-                                    WHEN CAST(ISNULL(ci_validation_at, GETDATE()) AS DATE) > CAST(programmed_end AS DATE) THEN 1
-                                    ELSE 0
-                            END)";
+        $afterTheDeadLine = "SUM(CASE WHEN CAST(ISNULL(ci_validation_at, GETDATE()) AS DATE) > CAST(programmed_end AS DATE) THEN 1 ELSE 0 END)";
         $data = $data->select([
             DB::raw("CONCAT(u.last_name, ' ', u.first_name) as controller_full_name"),
             'u.gender',
@@ -163,7 +160,7 @@ class KPI extends StatisticsData
 
         $data = $data->get();
         $data = $data->map(function ($item) {
-            $item->time_lag = $item->missions_after_the_deadline > 0 ? ($item->missions_after_the_deadline / $item->total_missions_validated) * 100 : 0;
+            $item->time_lag = $item->missions_after_the_deadline > 0 &&  $item->total_missions_validated > 0 ? ($item->missions_after_the_deadline / $item->total_missions_validated) * 100 : 0;
             return $item;
         });
         return $data;
