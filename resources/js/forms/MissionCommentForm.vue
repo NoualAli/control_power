@@ -9,7 +9,7 @@
             <!-- Edit view -->
             <NLForm :form="form" :action="save" v-if="!isReadonly && !isLoading">
                 <NLColumn>
-                    <NLWyswyg :length="3000" v-model="form.content" :name="fields.content.name" :form="form"
+                    <NLWyswyg :length="3000" v-model="form.content" name="content" :form="form"
                         :label="fields.content.label" :placeholder="fields.content.placeholder" labelRequired />
                 </NLColumn>
                 <NLColumn>
