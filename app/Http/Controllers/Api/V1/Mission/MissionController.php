@@ -72,11 +72,11 @@ class MissionController extends Controller
             }
 
             if ($search) {
-                $columns = ['m.reference', 'dci.first_name', 'dci.last_name'];
-                if (hasRole('dcp')) {
-                    $columns = ['m.reference', 'dci.first_name', 'dci.last_name', 'dcc.first_name', 'dcc.last_name'];
+                $columns = ['m.reference', 'dci.first_name', 'dci.last_name', 'a.code', 'a.name'];
+                if (hasRole(['dcp', 'cdcr', 'root', 'admin'])) {
+                    $columns = ['m.reference', 'dci.first_name', 'dci.last_name', 'dcc.first_name', 'dcc.last_name', 'a.code', 'a.name'];
                 } elseif (hasRole('der')) {
-                    $columns = ['m.reference', 'dci.first_name', 'dci.last_name', 'cder.first_name', 'cder.last_name'];
+                    $columns = ['m.reference', 'dci.first_name', 'dci.last_name', 'cder.first_name', 'cder.last_name', 'a.code', 'a.name'];
                 }
                 $missions = $missions->search($columns, $search);
             }
