@@ -5,7 +5,7 @@
                 <router-link :to="{ name: 'bugs-create' }" class="btn btn-info">
                     Signaler un bug
                 </router-link>
-                <button class="btn btn-office-excel has-icon" @click="openExcelExport">
+                <button class="btn btn-office-excel has-icon" @click="openExcelExport" v-if="is(['admin', 'root'])">
                     <NLIcon name="table" />
                     Exporter
                 </button>
