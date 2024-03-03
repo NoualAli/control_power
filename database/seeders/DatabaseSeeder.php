@@ -14,11 +14,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // $this->call(PermissionsTableSeeder::class);
-        // $this->call(UsersTableSeeder::class);
+        $this->call(PermissionsTableSeeder::class);
+        $this->call(UsersTableSeeder::class);
         $this->call(UserHasNotificationsSeeder::class);
-        // $this->call(MissionsTableSeeder::class);
-        // $this->call(MediaTableSeeder::class);
-        // Schema::dropIfExists('websockets_statistics_entries');
+        $this->call(MissionsTableSeeder::class);
+        $this->call(MediaTableSeeder::class);
+        Schema::dropIfExists('websockets_statistics_entries');
     }
 }
