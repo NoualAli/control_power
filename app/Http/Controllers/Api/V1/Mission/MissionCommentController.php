@@ -46,7 +46,8 @@ class MissionCommentController extends Controller
         try {
             $result = DB::transaction(function () use ($data, $mission) {
                 $hasId = isset($data['id']) && !empty($data['id']);
-                $comment = $hasId ? $mission->comment : null;
+                // $comment = $hasId ? $mission->comment : null;
+
                 $type = $data['type'];
                 $validated = boolval($data['validated']);
                 $content = $data['content'];
@@ -54,14 +55,24 @@ class MissionCommentController extends Controller
                 $message = $attributes['message'];
                 $realEnd = $mission->real_end;
                 $users = [];
-                if ($comment && !$validated) {
-                    $comment->update([
-                        'content' => $content,
-                        'creator_full_name' => getUserFullNameWithRole(),
-                    ]);
+                if ($hasId && !$validated) {
+                    // dd($mission->cdcReport, $mission->ciReport);
+                    $comment = null;
+                    if (hasRole('cdc')) {
+                        $comment = $mission->cdc_report;
+                    } elseif (hasRole('ci')) {
+                        $comment = $mission->ci_report;
+                    }
+
+                    if ($comment) {
+                        $comment->update([
+                            'content' => $data['content'],
+                            'creator_full_name' => getUserFullNameWithRole(),
+                        ]);
+                    }
                 } else {
                     $comment = $mission->comments()->create([
-                        'content' => $content,
+                        'content' => $data['content'],
                         'type' => $type,
                         'creator_full_name' => getUserFullNameWithRole(),
                         'created_by_id' => auth()->user()->id,
