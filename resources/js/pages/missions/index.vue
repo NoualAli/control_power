@@ -40,19 +40,19 @@ export default {
                     field: 'campaign'
                 },
                 {
-                    label: 'Référence',
-                    field: 'reference',
-                    sortable: true,
-                },
-                {
                     label: 'Dre',
                     field: 'dre',
                     hide: hasRole([ 'cdc', 'ci' ])
                 },
                 // {
-                //     label: 'Agence',
-                //     field: 'agency'
+                //     label: 'Référence',
+                //     field: 'reference',
+                //     sortable: true,
                 // },
+                {
+                    label: 'Agence',
+                    field: 'agency'
+                },
                 {
                     label: 'Date début',
                     field: 'start_date',

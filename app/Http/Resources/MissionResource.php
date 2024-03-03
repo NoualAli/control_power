@@ -19,8 +19,9 @@ class MissionResource extends JsonResource
         $data = [
             'id' => $this->id,
             'campaign' => $this->campaign,
-            'reference' => $this->reference,
+            // 'reference' => $this->reference,
             'dre' => $this->dre,
+            'agency' => $this->agency,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
             'progress_status' => $this->total_controlled_md ? number_format($this->total_controlled_md * 100 / $this->total_md) : 0,
@@ -34,7 +35,7 @@ class MissionResource extends JsonResource
             'remaining_days_before_start' => $this->remaining_days_before_start,
         ];
 
-        if (hasRole(['cdcr', 'dcp', 'cc'])) {
+        if (hasRole(['cdcr', 'dcp', 'cc', 'root', 'admin'])) {
             $data['dcp_controller_full_name'] = trim($this->dcp_controller_full_name) ? normalizeFullName($this->dcp_controller_full_name) : '-';
         } elseif (hasRole(['der'])) {
             $data['der_controller_full_name'] = trim($this->der_controller_full_name) ? normalizeFullName($this->der_controller_full_name) : '-';
