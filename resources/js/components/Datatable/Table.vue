@@ -3,7 +3,7 @@
     <NLFlex extraClass="my-6">
         <!-- <NLHeading type="2">{{ title }}</NLHeading> -->
         <NLFlex alignItems="center" gap="2">
-            <NLButton class="btn-filter" :class="{ 'btn-danger': filterIsOpen }" v-if="hasFilters"
+            <NLButton class="btn-filter" label="Filtres" :class="{ 'btn-danger': filterIsOpen }" v-if="hasFilters"
                 @click.stop="(e) => this.handleFilterState(e)">
                 <NLIcon name="filter_list" v-if="!filterIsOpen" />
                 <NLIcon name="filter_list_off" v-if="filterIsOpen" />
