@@ -193,7 +193,7 @@ if (!function_exists('translateMissionState')) {
     function translateMissionState(int $state): string
     {
         $stateStr = 'Inconnu';
-        if (hasRole(['cdrcp', 'dcp', 'cdcr', 'cc'])) {
+        if (hasRole(['cdrcp', 'dcp', 'cdcr', 'cc', 'admin', 'root'])) {
             switch ($state) {
                 case 1:
                     $stateStr = 'À réaliser';
