@@ -2,7 +2,13 @@
     <ContentBody>
         <NLDatatable :columns="columns" :actions="actions" :filters="filters" @show="show" title="Plans de redressement"
             urlPrefix="anomalies" @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)"
-            :refresh="refresh" />
+            :refresh="refresh">
+            <template #table-actions>
+                <NLButton class="has-icon" @click="refresh += 1">
+                    <NLIcon name="sync" />
+                </NLButton>
+            </template>
+        </NLDatatable>
 
         <!-- View control point informations -->
         <MissionDetailModal :rowSelected="rowSelected" :show="modals.show" @showForm="showForm" @success="success"
@@ -15,6 +21,7 @@
         <MissionRegularizationForm :detail="rowSelected" :show="modals.regularize" @success="success" @close="close" />
     </ContentBody>
 </template>
+
 <script>
 import { hasRole } from '../../plugins/user'
 import Alert from '../../components/Alert'

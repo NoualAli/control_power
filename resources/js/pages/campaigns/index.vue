@@ -10,11 +10,16 @@
                     <NLIcon name="check" />
                 </NLButton>
             </template>
+
             <template #table-actions>
-                <router-link v-if="can('create_control_campaign')" class="btn has-icon" :to="{ name: 'campaigns-create' }">
+                <router-link v-if="can('create_control_campaign')" class="btn has-icon"
+                    :to="{ name: 'campaigns-create' }">
                     <NLIcon name="add" />
                     Ajouter
                 </router-link>
+                <NLButton class="has-icon" @click="refresh += 1">
+                    <NLIcon name="sync" />
+                </NLButton>
             </template>
         </NLDatatable>
         <NLFlex lgJustifyContent="end" lgAlignItems="center" mdJustifyContent="end" mdAlignItems="center"

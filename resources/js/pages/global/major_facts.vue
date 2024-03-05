@@ -1,8 +1,14 @@
-
 <template>
     <ContentBody>
-        <NLDatatable :columns="columns" :actions="actions" :filters="filters" title="Faits majeurs" urlPrefix="major-facts"
-            @show="show" :refresh="refresh" @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
+        <NLDatatable :columns="columns" :actions="actions" :filters="filters" title="Faits majeurs"
+            urlPrefix="major-facts" @show="show" :refresh="refresh"
+            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
+            <template #table-actions>
+                <NLButton class="has-icon" @click="refresh += 1">
+                    <NLIcon name="sync" />
+                </NLButton>
+            </template>
+        </NLDatatable>
 
         <!-- View control point informations -->
         <MissionDetailModal :rowSelected="rowSelected" :show="modals.show" @success="success" @showForm="showForm"
@@ -15,6 +21,7 @@
         <MissionRegularizationForm :data="rowSelected" :show="modals.regularize" @success="success" @close="close" />
     </ContentBody>
 </template>
+
 <script>
 import { hasRole } from '../../plugins/user'
 import Alert from '../../components/Alert'

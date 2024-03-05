@@ -1,17 +1,21 @@
 <template>
     <ContentBody v-if="can('view_mission')">
-        <NLDatatable :columns="columns" :actions="actions" :filters="filters" title="Suivi des réalisations des missions"
-            urlPrefix="missions" :refresh="refresh" @dataLoaded="handleDataLoaded">
+        <NLDatatable :columns="columns" :actions="actions" :filters="filters"
+            title="Suivi des réalisations des missions" urlPrefix="missions" :refresh="refresh"
+            @dataLoaded="handleDataLoaded">
             <template #table-actions>
                 <router-link v-if="can('create_mission') && campaignId"
                     :to="{ name: 'missions-create', params: { campaignId } }" class="btn">
                     <NLIcon name="add" />
                     Ajouter
                 </router-link>
-                <button class="btn btn-office-excel has-icon" v-if="!is('da')" @click="this.excelExportIsOpen = true">
+                <NLButton label="Exporter" class="btn-office-excel has-icon" v-if="!is('da')"
+                    @click="this.excelExportIsOpen = true">
                     <NLIcon name="table" />
-                    Exporter
-                </button>
+                </NLButton>
+                <NLButton class="has-icon" @click="refresh += 1">
+                    <NLIcon name="sync" />
+                </NLButton>
             </template>
         </NLDatatable>
         <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen" :route="this.currentUrl + '&export'"

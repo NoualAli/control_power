@@ -3,6 +3,7 @@
         <template #title>
             Mission {{ mission?.current?.reference }}
         </template>
+
         <template class="d-flex justify-between align-center gap-3 mb-9" v-if="!pageLoadingState" #actions>
             <NLFlex lgJustifyContent="end" extraClass="w-100">
                 <router-link v-if="can('view_control_campaign')"
@@ -15,8 +16,9 @@
                     <NLIcon name="edit" />
                     Modifier
                 </router-link>
-                <NLButton v-if="mission?.current?.remaining_days_before_start > 0 && can('edit_mission')" label="Supprimer"
-                    :loading="isLoading.destroy" @click.stop="destroy" class="btn btn-danger has-icon">
+                <NLButton v-if="mission?.current?.remaining_days_before_start > 0 && can('edit_mission')"
+                    label="Supprimer" :loading="isLoading.destroy" @click.stop="destroy"
+                    class="btn btn-danger has-icon">
                     <NLIcon name="delete" />
                 </NLButton>
             </NLFlex>
@@ -29,7 +31,7 @@
                 <p>
                     Nous vous informons que la mission débutera le <b>{{ mission?.current?.start }}</b> dans exactement
                     <b>{{
-                        mission?.current?.remaining_days_before_start_str }}</b>
+        mission?.current?.remaining_days_before_start_str }}</b>
                 </p>
             </Alert>
             <NLGrid gap="6">
@@ -219,8 +221,8 @@
                                 Validé par:
                             </span>
                             {{ mission?.current?.cdc_validator_full_name ?
-                                mission?.current?.cdc_validator_full_name.replace(' (CDC)', '')
-                                : '-' }}
+        mission?.current?.cdc_validator_full_name.replace(' (CDC)', '')
+        : '-' }}
                         </NLColumn>
                         <NLColumn lg="3">
                             <span class="text-bold">
@@ -256,8 +258,8 @@
                                 Validé par:
                             </span>
                             {{ mission?.current?.cdcr_validator_full_name ?
-                                mission?.current?.cdcr_validator_full_name.replace(' (CDCR)', '')
-                                : '-' }}
+        mission?.current?.cdcr_validator_full_name.replace(' (CDCR)', '')
+        : '-' }}
                         </NLColumn>
                         <NLColumn lg="3">
                             <span class="text-bold">
@@ -270,7 +272,7 @@
                                 Validé par:
                             </span>
                             {{ mission?.current?.dcp_validator_full_name ?
-                                mission?.current?.dcp_validator_full_name.replace(' (DCP)', '') : '-' }}
+        mission?.current?.dcp_validator_full_name.replace(' (DCP)', '') : '-' }}
                         </NLColumn>
                         <NLColumn lg="3">
                             <span class="text-bold">
@@ -306,7 +308,8 @@
         <NLFlex lgJustifyContent="start" gap="2">
             <!-- Actions -->
             <NLFlex lgJustifyContent="start" gap="2">
-                <NLButton class="has-icon" type="office-excel" label="Exporter" @click.stop="this.excelExportIsOpen = true"
+                <NLButton class="has-icon" type="office-excel" label="Exporter"
+                    @click.stop="this.excelExportIsOpen = true"
                     v-if="mission?.current?.progress_status > 0 && is('ci')">
                     <NLIcon name="table" />
                 </NLButton>
@@ -361,7 +364,8 @@
             <NLFlex lgJustifyContent="start" gap="2" v-if="is('cdc')">
                 <NLButton
                     v-if="mission?.current.progress_status == 100 && !mission?.current.cdc_report_exists && mission?.current?.is_validated_by_ci"
-                    class="has-icon" type="info" label="Ajouter votre conclusion" @click="showCommentForm('cdc_report')">
+                    class="has-icon" type="info" label="Ajouter votre conclusion"
+                    @click="showCommentForm('cdc_report')">
                     <NLIcon name="add_notes" />
                 </NLButton>
                 <NLButton
@@ -370,8 +374,8 @@
                     loadingLabel="Validation en cours" :loading="isLoading.cdcValidation">
                     <NLIcon name="check_circle" />
                 </NLButton>
-                <NLButton v-if="mission?.current.cdc_report_exists" type="info" class="has-icon" label="Votre conclusion"
-                    @click="showCommentForm('cdc_report', true)">
+                <NLButton v-if="mission?.current.cdc_report_exists" type="info" class="has-icon"
+                    label="Votre conclusion" @click="showCommentForm('cdc_report', true)">
                     <NLIcon name="description" />
                 </NLButton>
                 <NLButton v-if="mission?.current.is_validated_by_ci" label="Conclusion du chef de mission" type="info"
@@ -383,7 +387,8 @@
             <!-- CDCR ACTIONS -->
             <NLFlex lgJustifyContent="start" gap="2" v-if="is('cdcr')">
                 <NLButton v-if="Number(this.mission?.current?.current_state) == 5" class="has-icon" type="success"
-                    label="Valider la mission" :loading="isLoading.cdcrValidation" @click.prevent="validateMission('cdcr')">
+                    label="Valider la mission" :loading="isLoading.cdcrValidation"
+                    @click.prevent="validateMission('cdcr')">
                     <NLIcon name="check" />
                 </NLButton>
                 <NLButton
@@ -430,13 +435,15 @@
             :show="modals.dispatch" @success="close({ reload: true })" @close="close({ type: 'dispatch' })" />
 
         <NLDatatable v-if="mission?.current?.id" :columns="columns" :details="details" title="Liste des processus"
-            :urlPrefix="'missions/' + mission?.current?.id + '/processes'" detailsUrlPrefix="processes" :refresh="refresh"
-            @dataLoaded="handleDataLoaded">
+            :urlPrefix="'missions/' + mission?.current?.id + '/processes'" detailsUrlPrefix="processes"
+            :refresh="refresh" @dataLoaded="handleDataLoaded">
+
             <template #actions-after="{ item }">
                 <button
                     v-if="can('control_agency,view_mission_detail') && !item.is_disabled && mission?.current?.remaining_days_before_start <= 0"
                     class="btn btn-info has-icon" @click.stop="showProcess(item)">
-                    <NLIcon name="list" v-if="item.progress_status_num < 100 && !mission?.current.opinion && !is('cc')" />
+                    <NLIcon name="list"
+                        v-if="item.progress_status_num < 100 && !mission?.current.opinion && !is('cc')" />
                     <NLIcon name="visibility"
                         v-else-if="item.progress_status_num < 100 && !mission?.current.opinion && is('cc') && user().id == item?.assigned_to_cc_id" />
                     <NLIcon name="checklist_rtl" v-else />
@@ -454,6 +461,12 @@
                     <NLIcon name="lock_open" />
                 </NLButton>
             </template>
+
+            <template #table-actions>
+                <NLButton class="has-icon" @click="refresh += 1">
+                    <NLIcon name="sync" />
+                </NLButton>
+            </template>
         </NLDatatable>
 
         <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen"
@@ -461,8 +474,8 @@
             @close="this.excelExportIsOpen = false" @success="this.excelExportIsOpen = false" :hideOptions="true" />
 
         <!-- Mission comment -->
-        <MissionCommentForm v-if="mission" :type="commentType" :missionId="mission?.current?.id" :readonly="commentReadonly"
-            :show="modals.comment" @success="success" @close="close" />
+        <MissionCommentForm v-if="mission" :type="commentType" :missionId="mission?.current?.id"
+            :readonly="commentReadonly" :show="modals.comment" @success="success" @close="close" />
 
     </ContentBody>
 </template>
