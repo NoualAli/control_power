@@ -214,7 +214,7 @@ if (!function_exists('translateMissionState')) {
                     $stateStr = 'En attente de validation DCP';
                     break;
                 case 7:
-                    $stateStr = 'Réalisée, validée et régularisée';
+                    $stateStr = 'Réalisée et validée';
                     break;
                 default:
                     $stateStr = 'À réaliser';
@@ -241,7 +241,7 @@ if (!function_exists('translateMissionState')) {
                     $stateStr = 'En cours de traitement DCP';
                     break;
                 case 7:
-                    $stateStr = 'Réalisée, validée et régularisée';
+                    $stateStr = 'Réalisée et validée';
                     break;
                 default:
                     $stateStr = 'À réaliser';
