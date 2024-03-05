@@ -65,7 +65,7 @@ class Created extends Notification
      */
     private function getTitle($notifiable): string
     {
-        return  hasRole('cdcr', $notifiable) && $this->campaign?->validated_at ? 'VALIDATION DE LA CAMPAGNE DE CONTRÔLE ' . $this->campaign->reference . ' - ' . env('APP_NAME') : 'PLANIFICATION D\'UNE NOUVELLE CAMPAGNE DE CONTRÔLE ' . $this->campaign->reference . ' - ' . env('APP_NAME');
+        return  hasRole('cdcr', $notifiable) && $this->campaign?->validated_at ? 'VALIDATION CAMPAGNE DE CONTRÔLE ' . $this->campaign->reference . ' - ' . env('APP_NAME') : 'NOUVELLE CAMPAGNE DE CONTRÔLE ' . $this->campaign->reference . ' - ' . env('APP_NAME');
     }
 
     /**
