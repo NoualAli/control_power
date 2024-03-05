@@ -19,7 +19,7 @@ class Missions extends StatisticsData
             DB::raw('COUNT(*) total_missions'),
             DB::raw('SUM(CASE WHEN m.current_state = 1 THEN 1 ELSE 0 END) as todo'),
             DB::raw('SUM(CASE WHEN m.current_state = 2 OR m.current_state = 3 THEN 1 ELSE 0 END) as active'),
-            DB::raw('SUM(CASE WHEN m.current_state = 4 OR m.current_state = 5 OR m.current_state = 6 OR m.current_state = 7 OR m.current_state = 8 THEN 1 ELSE 0 END) as done'),
+            DB::raw('SUM(CASE WHEN m.current_state = 4 OR m.current_state = 5 OR m.current_state = 6 OR m.current_state = 7 THEN 1 ELSE 0 END) as done'),
         );
 
         if (hasRole('ci')) {

@@ -184,73 +184,71 @@ if (!function_exists('getMissions')) {
 }
 
 if (!function_exists('translateMissionState')) {
-    function translateMissionState(int $state)
+
+    /**
+     * @param int $state
+     *
+     * @return string
+     */
+    function translateMissionState(int $state): string
     {
+        $stateStr = 'Inconnu';
         if (hasRole(['cdrcp', 'dcp', 'cdcr', 'cc'])) {
-            $state = 'Inconnu';
             switch ($state) {
                 case 1:
-                    $state = 'À réaliser';
+                    $stateStr = 'À réaliser';
                     break;
                 case 2:
-                    $state = 'En cours';
+                    $stateStr = 'En cours';
                     break;
                 case 3:
-                    $state = 'En attente de validation CDC';
+                    $stateStr = 'En attente de validation CDC';
                     break;
                 case 4:
-                    $state = 'En attente de validation CC';
+                    $stateStr = 'En attente de validation CC';
                     break;
                 case 5:
-                    $state = 'En attente de validation CDCR';
+                    $stateStr = 'En attente de validation CDCR';
                     break;
                 case 6:
-                    $state = 'En attente de validation DCP';
+                    $stateStr = 'En attente de validation DCP';
                     break;
                 case 7:
-                    $state = 'En attente de validation DA';
-                    break;
-                case 8:
-                    $state = 'Réalisée, validée et régularisée';
+                    $stateStr = 'Réalisée, validée et régularisée';
                     break;
                 default:
-                    $state = 'À réaliser';
+                    $stateStr = 'À réaliser';
                     break;
             }
-            return $state;
         } else {
-            $state = 'Inconnu';
             switch ($state) {
                 case 1:
-                    $state = 'À réaliser';
+                    $stateStr = 'À réaliser';
                     break;
                 case 2:
-                    $state = 'En cours';
+                    $stateStr = 'En cours';
                     break;
                 case 3:
-                    $state = 'En attente de validation CDC';
+                    $stateStr = 'En attente de validation CDC';
                     break;
                 case 4:
-                    $state = 'En cours de traitement DCP';
+                    $stateStr = 'En cours de traitement DCP';
                     break;
                 case 5:
-                    $state = 'En cours de traitement DCP';
+                    $stateStr = 'En cours de traitement DCP';
                     break;
                 case 6:
-                    $state = 'En cours de traitement DCP';
+                    $stateStr = 'En cours de traitement DCP';
                     break;
                 case 7:
-                    $state = 'En attente de validation DA';
-                    break;
-                case 8:
-                    $state = 'Réalisée, validée et régularisée';
+                    $stateStr = 'Réalisée, validée et régularisée';
                     break;
                 default:
-                    $state = 'À réaliser';
+                    $stateStr = 'À réaliser';
                     break;
             }
-            return $state;
         }
+        return $stateStr;
     }
 }
 

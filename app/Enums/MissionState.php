@@ -13,7 +13,6 @@ use Rexlabs\Enum\Enum;
  * @method static self PENDING_CC_VALIDATION()
  * @method static self PENDING_CDCR_VALIDATION()
  * @method static self PENDING_DCP_VALIDATION()
- * @method static self PENDING_DA_VALIDATION()
  * @method static self DONE()
  */
 class MissionState extends Enum
@@ -24,8 +23,7 @@ class MissionState extends Enum
     const PENDING_CC_VALIDATION = 4;
     const PENDING_CDCR_VALIDATION = 5;
     const PENDING_DCP_VALIDATION = 6;
-    const PENDING_DA_VALIDATION = 7;
-    const DONE = 8;
+    const DONE = 7;
 
     const TODO_STR = 'À réaliser';
     const ACTIVE_STR = 'En cours';
@@ -33,6 +31,5 @@ class MissionState extends Enum
     const PENDING_CC_VALIDATION_STR = 'En attente de validation CC';
     const PENDING_CDCR_VALIDATION_STR = 'En attente de validation CDCR';
     const PENDING_DCP_VALIDATION_STR = 'En attente de validation DCP';
-    const PENDING_DA_VALIDATION_STR = 'En attente de validation DA';
     const DONE_STR = 'Réalisée et validée';
 }

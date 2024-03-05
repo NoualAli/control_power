@@ -155,10 +155,6 @@ export default {
                                         state = MissionState.PENDING_DCP_VALIDATION_CLASS
                                         break;
                                     case 7:
-                                        title = MissionState.PENDING_DA_VALIDATION_STR
-                                        state = MissionState.PENDING_DA_VALIDATION_CLASS
-                                        break;
-                                    case 8:
                                         title = MissionState.DONE_STR
                                         state = MissionState.DONE_CLASS
                                         break;
@@ -194,10 +190,6 @@ export default {
                                         state = MissionState.PENDING_DCP_VALIDATION_CLASS
                                         break;
                                     case 7:
-                                        title = MissionState.PENDING_DA_VALIDATION_STR
-                                        state = MissionState.PENDING_DA_VALIDATION_CLASS
-                                        break;
-                                    case 8:
                                         title = MissionState.DONE_STR
                                         state = MissionState.DONE_CLASS
                                         break;

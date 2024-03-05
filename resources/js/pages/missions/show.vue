@@ -646,7 +646,6 @@ export default {
             const PENDING_CC_VALIDATION_STR = 'En attente de validation CC';
             const PENDING_CDCR_VALIDATION_STR = 'En attente de validation CDCR';
             const PENDING_DCP_VALIDATION_STR = 'En attente de validation DCP';
-            const PENDING_DA_VALIDATION_STR = 'En attente de validation DA';
             const DONE_STR = 'Réalisée, validée';
             let status = ''
             let is_late = this.mission?.current?.is_late ? ' / En retard' : ''
@@ -671,9 +670,6 @@ export default {
                         status = PENDING_DCP_VALIDATION_STR
                         break;
                     case 7:
-                        status = PENDING_DA_VALIDATION_STR
-                        break;
-                    case 8:
                         status = DONE_STR
                         break;
                     default:
@@ -701,9 +697,6 @@ export default {
                         status = 'En cours de traitement DCP'
                         break;
                     case 7:
-                        status = PENDING_DA_VALIDATION_STR
-                        break;
-                    case 8:
                         status = DONE_STR
                         break;
                     default:
