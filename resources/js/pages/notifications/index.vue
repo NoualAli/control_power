@@ -3,6 +3,7 @@
         <template #title>
             Centre des notifications
         </template>
+
         <template #right-actions>
             <router-link :to="{ name: 'notifications-settings' }" class="btn btn-info has-icon">
                 <i class="las la-cog icon"></i>
@@ -13,6 +14,7 @@
     <ContentBody>
         <NLDatatable :columns="columns" urlPrefix="notifications"
             @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
+
             <template #actions-after="{ item }">
                 <button class="btn btn-success has-icon" @click.stop="show(item)" v-if="!!item.url">
                     <i class="las la-eye icon"></i>
@@ -55,6 +57,11 @@ export default {
                     label: 'Contenu',
                     field: 'short_content',
                     isHtml: true,
+                    methods: {
+                        showTitle(item) {
+                            return item.content
+                        }
+                    },
                     extraClass: {
                         td: (item) => {
                             return !item.read_at ? 'bg-primary-extra-light' : '';

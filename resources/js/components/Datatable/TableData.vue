@@ -1,5 +1,5 @@
 <template>
-    <td :class="tdClass" v-if="!hide" :data-th="label" :colspan="colspan" :align="align" :title="getField()"
+    <td :class="tdClass" v-if="!hide" :data-th="label" :colspan="colspan" :align="align" :title="getTitle()"
         :style="{ 'max-width': length }">
         <slot :class="childClass"></slot>
 
@@ -101,6 +101,17 @@ export default {
             }
             return '-'
         },
+        showTitle() {
+            if (this.column !== undefined && this.item !== undefined) {
+                if (Object.hasOwnProperty.call(this.column, 'methods')) {
+                    if (Object.hasOwnProperty.call(this.methods, 'showTitle')) {
+                        return this.methods[ 'showTitle' ](this.item);
+                    }
+                }
+                return this.truncate(this.getField())
+            }
+            return '-'
+        },
         /**
         * Apply specific class to children
         *
@@ -119,9 +130,6 @@ export default {
     methods: {
         /**
         * Get field value
-        *
-        * @param {Object} data
-        * @param {String} field
         */
         getField() {
             let field = ''
@@ -138,6 +146,15 @@ export default {
                 }
             }
             return field
+        },
+        /**
+         *
+         */
+        getTitle() {
+            if (!this.showTitle) {
+                return this.getField()
+            }
+            return this.showTitle
         },
         /**
          * Truncate string for max length
