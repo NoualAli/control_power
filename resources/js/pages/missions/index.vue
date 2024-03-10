@@ -46,7 +46,7 @@ export default {
                 {
                     label: 'Dre',
                     field: 'dre',
-                    hide: hasRole([ 'cdc', 'ci' ])
+                    hide: hasRole([ 'cdc', 'ci', 'dre' ])
                 },
                 // {
                 //     label: 'Référence',
@@ -258,7 +258,7 @@ export default {
                     multiple: true,
                     data: null,
                     value: null,
-                    hide: hasRole([ 'cdc', 'ci', 'da' ])
+                    hide: hasRole([ 'cdc', 'ci', 'da', 'dre' ])
                 },
                 agency: {
                     label: 'Agence',

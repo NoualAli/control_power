@@ -528,7 +528,7 @@ class MissionController extends Controller
         if (isset(request()->filter['campaign'])) {
 
             $filterDre = isset(request()->filter['dre']) ? request()->filter['dre'] : '';
-            if (hasRole(['cdc', 'ci', 'da'])) {
+            if (hasRole(['cdc', 'ci', 'da', 'dre'])) {
                 $filterDre = auth()->user()->dres->pluck('id')->join(',');
             }
             $campaigns = explode(',', request()->filter['campaign']);
