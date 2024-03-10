@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\DB\Repositories\ControlCampaignRepository;
 use App\Enums\EventLogTypes;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ControlCampaign\StoreRequest;
@@ -37,22 +38,11 @@ class ControlCampaignController extends Controller
         $fetchFilters = request()->has('fetchFilters');
         $perPage = request('perPage', 10);
         $fetchAll = request()->has('fetchAll');
-
-        $campaigns = getControlCampaigns();
-
-        if (!hasRole(['dcp', 'cdcr'])) {
-            $campaigns = hasRole(['ci', 'cc']) ? $campaigns : $campaigns->whereNotNull('validated_at');
-        }
-        // dd($campaigns->get()->last());
-        if ($sort) {
-            $campaigns = $campaigns->sortByMultiple($sort);
-        } else {
-            $campaigns = $campaigns->orderBy('c.created_at', 'DESC');
-        }
-
-        if ($search) {
-            $campaigns = $campaigns->search(['c.reference', 'c.creator_full_name', 'c.validator_full_name'], $search);
-        }
+        $searchColumns = ['c.reference', 'c.creator_full_name', 'c.validator_full_name'];
+        $campaigns = (new ControlCampaignRepository())->prepare([
+            'sort' => ['sort' => $sort, 'default' => ['c.created_at' => 'DESC']],
+            'search' => ['columns' => $searchColumns, 'value' => $search],
+        ])->multiple();
 
         if ($filter) {
             $campaigns = $this->filter($campaigns, $filter);
