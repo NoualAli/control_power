@@ -213,7 +213,7 @@ export default {
                     hide: hasRole([ 'cc', 'cder' ]),
                     methods: {
                         showField(item) {
-                            return item.progress_status + '%'
+                            return item.progress_rate + '%'
                         }
                     }
                 }
@@ -224,9 +224,9 @@ export default {
                         if (hasRole([ 'cdc', 'ci' ])) {
                             return this.can('view_mission')
                         } else if (hasRole([ 'cdcr', 'cc', 'dcp' ])) {
-                            return this.can('view_mission') && item.progress_status == 100 && Number(item?.is_validated_by_cdc) == 1
+                            return this.can('view_mission') && item?.is_validated_by_cdc
                         } else {
-                            return this.can('view_mission') && item.progress_status == 100 && Number(item?.is_validated_by_dcp) == 1
+                            return this.can('view_mission') && item?.is_validated_by_dcp
                         }
                     },
                     apply: this.show
