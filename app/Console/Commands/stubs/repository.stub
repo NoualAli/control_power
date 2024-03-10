@@ -1,0 +1,63 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Support\Facades\DB;
+
+class {{ class }} extends BaseRepository
+{
+
+    /**
+     * Prepare request
+     *
+     * @return App\DB\Repositories\{{ class }}
+     */
+    public function prepare(): {{ class }}
+    {
+        $this->setColumns();
+        $this->setRelationships();
+        $this->setFilters();
+        $this->setGroups();
+        return $this;
+    }
+
+    /**
+     * Set different relationships used by query
+     *
+     * @return void
+     */
+    protected function setRelationships(): void
+    {
+        // $this->query->leftJoin('', '', '');
+    }
+
+    /**
+     * Set different columns to fetch
+     *
+     * @return void
+     */
+    protected function setColumns(): void
+    {
+        $this->query = $this->query->select([]);
+    }
+
+    /**
+     * Set different where clause to filter data
+     *
+     * @return void
+     */
+    protected function setFilters(): void
+    {
+        // $this->query->where('', '');
+    }
+
+    /**
+     * Set different columns to group by
+     *
+     * @return void
+     */
+    protected function setGroups(): void
+    {
+        // $this->query = $this->query->groupBy();
+    }
+}

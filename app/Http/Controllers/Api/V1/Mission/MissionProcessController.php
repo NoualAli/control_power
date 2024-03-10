@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Mission;
 
+use App\DB\Repositories\MissionProcessesRepository;
 use App\Enums\EventLogTypes;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MissionProcessesResource;
@@ -23,7 +24,7 @@ class MissionProcessController extends Controller
     public function index(Mission $mission)
     {
         $mission->unsetRelations();
-        $processes = getMissionProcesses($mission);
+        $processes = (new MissionProcessesRepository($mission))->prepare()->multiple();
 
         $search = request('search', false);
         $sort = request('sort', false);
@@ -59,8 +60,8 @@ class MissionProcessController extends Controller
     public function show(Mission $mission, Process $process)
     {
         isAbleOrAbort(['view_mission', 'control_agency']);
-        $checkProcess = getMissionProcesses($mission->id, $process->id);
-        if (boolval(intval($checkProcess->is_disabled))) {
+        $checkProcess = (new MissionProcessesRepository($mission))->prepare()->single($process->id, 'p.id')->is_disabled;
+        if (boolval(intval($checkProcess))) {
             abort(423, "Le processus $process->name est vérouillez");
         }
         $currentUser = auth()->user();

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\DB\Repositories\MissionProcessesRepository;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Mission;
 use App\Models\User;
@@ -204,7 +205,7 @@ class GenerateMissionReportPdf implements ShouldQueue
     private function loadProcesses(Mission $mission, bool $paginated = false, bool $formated = false, bool $onlyWhereAnomaly = false)
     {
         $mission->unsetRelations();
-        $processes = getMissionProcesses($mission)->whereIn('md.score', [2, 3, 4])->orderBy('f.id')->orderBy('p.id')->get();
+        $processes = (new MissionProcessesRepository($mission))->prepare()->whereIn('md.score', [2, 3, 4])->orderBy('f.id')->orderBy('p.id')->get();
 
         if ($formated) {
             $processes = formatForSelect($processes->toArray());

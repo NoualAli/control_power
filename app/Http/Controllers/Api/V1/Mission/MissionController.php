@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Mission;
 
+use App\DB\Repositories\MissionRepository;
 use App\Enums\EventLogTypes;
 use App\Enums\MissionState;
 use App\Exports\MissionsExport;
@@ -38,8 +39,6 @@ class MissionController extends Controller
      */
     public function index()
     {
-        isAbleOrAbort(['view_mission']);
-
         $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
@@ -49,8 +48,7 @@ class MissionController extends Controller
         $fetchAll = request('fetchAll', false);
 
         try {
-
-            $missions = getMissions();
+            $missions = (new MissionRepository)->prepare()->multiple();
             $export = request('export', []);
             $shouldExport = count($export) || request()->has('export');
 
@@ -68,7 +66,7 @@ class MissionController extends Controller
             if ($sort) {
                 $missions = $missions->sortByMultiple($sort);
             } else {
-                $missions = $missions->orderBy('m.programmed_start', 'DESC')->orderBy('m.current_state', 'DESC');
+                $missions = $missions->orderBy('m.current_state', 'ASC')->orderBy('m.programmed_start', 'DESC');
             }
 
             if ($search) {
@@ -268,7 +266,7 @@ class MissionController extends Controller
      */
     public function destroy(Mission $mission)
     {
-        // isAbleOrAbort('delete_mission');
+        isAbleOrAbort('delete_mission');
         abort_if($mission->remaining_days_before_start < 0, FORBIDDEN, "Vous n'êtes pas autoriser à supprimer la mission " . $mission->reference);
 
         try {

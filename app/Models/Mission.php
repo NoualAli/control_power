@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\DB\Repositories\MissionProcessesRepository;
 use App\Traits\HasDates;
 use App\Traits\HasMedia;
 use App\Traits\HasScopes;
@@ -585,7 +586,7 @@ class Mission extends BaseModel
     public function notDispatchedProcesses(?string $concerned = null)
     {
         $notDispatchedProcesses = $this->details()->notDispatched($concerned)->without(['family', 'domain', 'controlPoint', 'media'])->with(['process' => fn ($process) => $process->pluck('processes.id', 'processes.name')->toArray()])->get()->pluck('process');
-        $notDispatchedProcesses = getMissionProcesses($this)->get()->filter(function ($item) use ($notDispatchedProcesses) {
+        $notDispatchedProcesses = (new MissionProcessesRepository($this))->prepare()->get()->filter(function ($item) use ($notDispatchedProcesses) {
             $notDispatchedProcesses = array_unique($notDispatchedProcesses->pluck('id')->toArray());
             return in_array($item->process_id, $notDispatchedProcesses);
         })->pluck('process_id')->map(fn ($process) => intval($process))->toArray();

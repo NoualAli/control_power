@@ -16,6 +16,7 @@ class MissionResource extends JsonResource
     public function toArray($request)
     {
         isAbleOrAbort('view_mission');
+        // dd(formatNumber($this->progress_rate));
         $data = [
             'id' => $this->id,
             'campaign' => $this->campaign,
@@ -24,11 +25,11 @@ class MissionResource extends JsonResource
             'agency' => $this->agency,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
-            'progress_status' => $this->total_controlled_md ? number_format($this->total_controlled_md * 100 / $this->total_md) : 0,
+            'progress_rate' => formatNumber($this->progress_rate),
             'dre_controller_full_name' => normalizeFullName($this->dre_controller_full_name),
 
-            'is_validated_by_dcp' => $this->is_validated_by_dcp,
-            'is_validated_by_cdc' => $this->is_validated_by_cdc,
+            'is_validated_by_dcp' => boolval($this->is_validated_by_dcp),
+            'is_validated_by_cdc' => boolval($this->is_validated_by_cdc),
             'is_late' => boolval($this->is_late),
             'avg_score' => $this->avg_score,
             'current_state' => (int) $this->current_state,
