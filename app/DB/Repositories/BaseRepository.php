@@ -82,6 +82,27 @@ abstract class BaseRepository
         return $this->query->latest($latestAttribute);
     }
 
+    public function sort($sort)
+    {
+        extract($sort);
+
+        if ($sort) {
+            $this->query->sortByMultiple($sort);
+        } else {
+            if (isset($default)) {
+                foreach ($default as $key => $value) {
+                    $this->query = $this->query->orderBy($key, $value);
+                }
+            }
+        }
+    }
+
+    public function search($search)
+    {
+        extract($search);
+        $this->query->search($columns, $value);
+    }
+
     public function all(): Collection
     {
         return $this->query->get();
