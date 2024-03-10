@@ -596,14 +596,19 @@ if (!function_exists('getUserFullNameWithRole')) {
      */
     function getUserFullNameWithRole(User|string|int $user = null, bool $withMartial = true, bool $abbreviated = false)
     {
+        if ($user instanceof stdClass) {
+            $user = $user->id;
+        }
+
         if (is_integer($user) || is_string($user)) {
             $user = User::findOrFail($user);
         }
+
         $user = $user ?: auth()->user();
         if ($abbreviated) {
             return $withMartial ? $user->martial_status . ' ' . $user->abbreviated_name : $user->abbreviated_name;
         }
-        $fullName = $withMartial ? $user->full_name_with_martial : $user->full_name;
+        $fullName = $withMartial ? $user?->full_name_with_martial : $user->full_name;
         return $fullName . ' (' . strtoupper($user->role->code) . ')';
     }
 }
@@ -619,7 +624,7 @@ if (!function_exists('normalizeFullName')) {
     function normalizeFullName(?string $fullName)
     {
         if ($fullName) {
-            $fullName = str_replace([' (CDC)', ' (CDCR', ' (CC)', ' (DCP)', ' (DA)', ' (CI)'], '', $fullName);
+            $fullName = str_replace([' (CDC)', ' (CDCR)', ' (CC)', ' (DCP)', ' (DA)', ' (CI)'], '', $fullName);
             $fullNameParts = explode(' ', $fullName);
             $fullNameParts = array_map(function ($part) {
                 return ucfirst(strtolower($part));
@@ -652,5 +657,34 @@ if (!function_exists('daysRemainingStr')) {
         }
         $daysRemaining = $from > 1 ? abs($from) . ' jours' : abs($from) . ' jour';
         return $from ? $daysRemaining : '-';
+    }
+}
+
+if (!function_exists('formatNumber')) {
+
+    /**
+     * Format number
+     *
+     * @param string|int|float|null $number
+     *
+     * @return int|float
+     */
+    function formatNumber(string|int|float|null $number)
+    {
+        // Check if the number contains a "."
+        if (strpos($number, '.') !== false) {
+            // Convert to float
+            $floatNumber = (float) $number;
+            // Check if the decimal part is equal to 0
+            if (intval($floatNumber) == $floatNumber) {
+                // Convert to integer
+                return (int) $floatNumber;
+            } else {
+                return $floatNumber;
+            }
+        } else {
+            // Convert to integer
+            return (int) $number;
+        }
     }
 }
