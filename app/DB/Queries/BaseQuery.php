@@ -1,16 +1,14 @@
 <?php
 
-namespace App\DB\Repositories;
+namespace App\DB\Queries;
 
-use Exception;
 use Illuminate\Contracts\Database\Query\Builder;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use stdClass;
 
-abstract class BaseRepository
+abstract class BaseQuery
 {
     /**
      * @var \Illuminate\Database\Query\Builder
@@ -53,12 +51,12 @@ abstract class BaseRepository
     protected $active_user;
 
     /**
-     * BaseRepository constructor.
+     * BaseQuery constructor.
      */
     public function __construct(?string $table = null, ?string $alias = null)
     {
         if (!$table) {
-            $table = Str::snake(Str::pluralStudly(str_replace('Repository', '', class_basename($this))));
+            $table = Str::snake(Str::pluralStudly(str_replace('Query', '', class_basename($this))));
         }
         $this->alias = $alias ?: implode('', array_map(fn ($item) => $item[0], explode(' ', $table)));
         $table = !empty($this->alias) ? $table . ' AS ' . $this->alias : $table;
@@ -106,27 +104,5 @@ abstract class BaseRepository
     public function all(): Collection
     {
         return $this->query->get();
-    }
-
-    public function create(array $attributes, $id = 'id'): stdClass
-    {
-        $this->query->insert($attributes);
-        if (isset($attributes[$id])) {
-            $this->query = $this->query->where($id, $attributes[$id]);
-        } else {
-            foreach ($attributes as $key => $value) {
-                $this->query = $this->query->where($key, $value);
-            }
-        }
-        return $this->query->get()->first();
-    }
-
-    public function delete(int $id, ?string $key = null)
-    {
-        $key = $key ?: $this->idKey;
-        if (!$key) {
-            throw new Exception("Aucune clé d'identifiant n'a été mentionée");
-        }
-        return $this->query->where($key, $id)->delete();
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\DB\Repositories\ControlCampaignRepository;
+use App\DB\Queries\ControlCampaignQuery;
 use App\Enums\EventLogTypes;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ControlCampaign\StoreRequest;
@@ -39,7 +39,7 @@ class ControlCampaignController extends Controller
         $perPage = request('perPage', 10);
         $fetchAll = request()->has('fetchAll');
         $searchColumns = ['c.reference', 'c.creator_full_name', 'c.validator_full_name'];
-        $campaigns = (new ControlCampaignRepository())->prepare([
+        $campaigns = (new ControlCampaignQuery())->prepare([
             'sort' => ['sort' => $sort, 'default' => ['c.created_at' => 'DESC']],
             'search' => ['columns' => $searchColumns, 'value' => $search],
         ])->multiple();

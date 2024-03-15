@@ -1,12 +1,12 @@
 <?php
 
-namespace App\DB\Repositories;
+namespace App\DB\Queries;
 
 use App\Models\Mission;
 use App\Models\Process;
 use Illuminate\Support\Facades\DB;
 
-class MissionProcessesRepository extends BaseRepository
+class MissionProcessesQuery extends BaseQuery
 {
     protected $mission;
     protected $process;
@@ -31,9 +31,9 @@ class MissionProcessesRepository extends BaseRepository
     /**
      * Prepare request
      *
-     * @return App\DB\Repositories\MissionProcessesRepository|App\Models\Process
+     * @return App\DB\Queries\MissionProcessesQuery|App\Models\Process
      */
-    public function prepare(): MissionProcessesRepository
+    public function prepare(): MissionProcessesQuery
     {
         $this->setColumns();
         $this->setRelationships();

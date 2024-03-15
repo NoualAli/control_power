@@ -1,18 +1,20 @@
 <?php
 
-namespace App\DB\Repositories;
+namespace App\DB\Queries;
 
 use Illuminate\Support\Facades\DB;
 
-class ControlCampaignRepository extends BaseRepository
+class ControlCampaignQuery extends BaseQuery
 {
 
     /**
      * Prepare request
      *
-     * @return App\DB\Repositories\ControlCampaignRepository
+     * @param array $config
+     *
+     * @return App\DB\Queries\ControlCampaignQuery
      */
-    public function prepare($config): ControlCampaignRepository
+    public function prepare(array $config = []): ControlCampaignQuery
     {
         extract($config);
 
@@ -20,12 +22,14 @@ class ControlCampaignRepository extends BaseRepository
         $this->setRelationships();
         $this->setFilters();
         $this->setGroups();
+
         if (isset($sort)) {
             $this->sort($sort);
         }
         if (isset($search)) {
             $this->search($search);
         }
+
         return $this;
     }
 
@@ -113,10 +117,6 @@ class ControlCampaignRepository extends BaseRepository
 
         if (hasRole('cder')) {
             $this->query->where('m.assigned_to_cder_id', $this->active_user->id);
-        }
-
-        if (hasRole(['dcp', 'cdcr']) && !hasRole(['ci', 'cc'])) {
-            $this->query->whereNotNull('validated_at');
         }
     }
 

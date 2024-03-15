@@ -4,20 +4,33 @@ namespace {{ namespace }};
 
 use Illuminate\Support\Facades\DB;
 
-class {{ class }} extends BaseRepository
+class {{ class }} extends BaseQuery
 {
 
     /**
      * Prepare request
      *
-     * @return App\DB\Repositories\{{ class }}
+     * @param array $config
+     *
+     * @return App\DB\Queries\{{ class }}
      */
-    public function prepare(): {{ class }}
+    public function prepare(array $config = []): {{ class }}
     {
+        extract($config);
+
         $this->setColumns();
         $this->setRelationships();
         $this->setFilters();
         $this->setGroups();
+
+        if (isset($sort)) {
+            $this->sort($sort);
+        }
+
+        if (isset($search)) {
+            $this->search($search);
+        }
+
         return $this;
     }
 

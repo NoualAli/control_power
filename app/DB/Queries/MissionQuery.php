@@ -1,23 +1,31 @@
 <?php
 
-namespace App\DB\Repositories;
+namespace App\DB\Queries;
 
 use Illuminate\Support\Facades\DB;
 
-class MissionRepository extends BaseRepository
+class MissionQuery extends BaseQuery
 {
     /**
      * Prepare request
      *
-     * @return App\DB\Repositories\MissionRepository
+     * @return App\DB\Repositories\MissionQuery
      */
-    public function prepare(): MissionRepository
+    public function prepare(array $config = []): MissionQuery
     {
-        isAbleOrAbort(['view_mission']);
+        extract($config);
+
         $this->setColumns();
         $this->setRelationships();
         $this->setFilters();
         $this->setGroups();
+
+        if (isset($sort)) {
+            $this->sort($sort);
+        }
+        if (isset($search)) {
+            $this->search($search);
+        }
         return $this;
     }
 

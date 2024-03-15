@@ -6,7 +6,7 @@ use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Illuminate\Console\Concerns\CreatesMatchingTest;
 
-class RepositoryMakeCommand extends GeneratorCommand
+class QueryMakeCommand extends GeneratorCommand
 {
 
     /**
@@ -14,7 +14,7 @@ class RepositoryMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $signature = 'make:repository
+    protected $signature = 'make:query
                             {name : The class name}';
 
     /**
@@ -22,12 +22,12 @@ class RepositoryMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $description = 'Create a new repository class';
+    protected $description = 'Create a new query class';
 
     /**
      * Class type that is being created.
      */
-    protected $type = 'Repository';
+    protected $type = 'Query';
 
     /**
      * Execute the console command.
@@ -46,7 +46,7 @@ class RepositoryMakeCommand extends GeneratorCommand
 
             return false;
         }
-        $name = $this->formatRepositoryName($this->qualifyClass($this->getNameInput()));
+        $name = $this->formatQueryName($this->qualifyClass($this->getNameInput()));
 
 
         $path = $this->getPath($name);
@@ -82,7 +82,7 @@ class RepositoryMakeCommand extends GeneratorCommand
     }
 
     /**
-     * Replace the class name in the stub with the formatted repository name.
+     * Replace the class name in the stub with the formatted query name.
      *
      * @param  string  $stub
      * @param  string  $name
@@ -90,28 +90,28 @@ class RepositoryMakeCommand extends GeneratorCommand
      */
     protected function replaceClass($stub, $name)
     {
-        // Format the repository name if needed
-        $formattedName = $this->formatRepositoryName($name);
+        // Format the query name if needed
+        $formattedName = $this->formatQueryName($name);
         // Call the parent method to replace the class name in the stub
         $stub = parent::replaceClass($stub, $formattedName);
 
-        // Replace '{{ class }}' in the stub with the formatted repository name
+        // Replace '{{ class }}' in the stub with the formatted query name
         $stub = str_replace('{{ class }}', $formattedName, $stub);
 
         return $stub;
     }
 
     /**
-     * Format the provided repository name to ensure it ends with 'Repository'.
+     * Format the provided query name to ensure it ends with 'Query'.
      *
      * @param  string  $name
      * @return string
      */
-    protected function formatRepositoryName($name)
+    protected function formatQueryName($name)
     {
-        // Check if the name ends with 'Repository' and add it if not
-        if (!str_ends_with(strtolower($name), 'repository')) {
-            $name .= 'Repository';
+        // Check if the name ends with 'Query' and add it if not
+        if (!str_ends_with(strtolower($name), 'query')) {
+            $name .= 'Query';
         }
         // dd($name);
         return $name;
@@ -123,7 +123,7 @@ class RepositoryMakeCommand extends GeneratorCommand
     protected function getStub()
     {
         $basepath = app_path() . '/Console/Commands/stubs';
-        return  $basepath . '/repository.stub';
+        return  $basepath . '/query.stub';
     }
 
 
@@ -144,7 +144,7 @@ class RepositoryMakeCommand extends GeneratorCommand
     protected function getArguments()
     {
         return [
-            ['name', InputArgument::REQUIRED, 'The name of the repository.'],
+            ['name', InputArgument::REQUIRED, 'The name of the query.'],
         ];
     }
 }

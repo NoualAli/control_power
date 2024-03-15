@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1\Mission;
 
-use App\DB\Repositories\MissionRepository;
+use App\DB\Queries\ControlCampaignQuery;
+use App\DB\Queries\MissionQuery;
 use App\Enums\EventLogTypes;
 use App\Enums\MissionState;
 use App\Exports\MissionsExport;
@@ -39,6 +40,8 @@ class MissionController extends Controller
      */
     public function index()
     {
+        isAbleOrAbort(['view_mission']);
+
         $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
@@ -47,8 +50,20 @@ class MissionController extends Controller
         $perPage = request('perPage', 10);
         $fetchAll = request('fetchAll', false);
 
+
+        $searchColumns  = ['m.reference', 'dci.first_name', 'dci.last_name', 'a.code', 'a.name'];
+        if (hasRole(['dcp', 'cdcr', 'root', 'admin'])) {
+            $searchColumns  = ['m.reference', 'dci.first_name', 'dci.last_name', 'dcc.first_name', 'dcc.last_name', 'a.code', 'a.name'];
+        } elseif (hasRole('der')) {
+            $searchColumns  = ['m.reference', 'dci.first_name', 'dci.last_name', 'cder.first_name', 'cder.last_name', 'a.code', 'a.name'];
+        }
+
         try {
-            $missions = (new MissionRepository)->prepare()->multiple();
+            $missions = (new MissionQuery)->prepare([
+                'sort' => ['sort' => $sort, 'default' => ['m.current_state' => 'ASC', 'm.programmed_start' => 'DESC']],
+                'search' => ['columns' => $searchColumns, 'value' => $search],
+            ])->multiple();
+
             $export = request('export', []);
             $shouldExport = count($export) || request()->has('export');
 
@@ -61,22 +76,6 @@ class MissionController extends Controller
 
             if ($fetchFilters) {
                 return $this->filters($missions);
-            }
-
-            if ($sort) {
-                $missions = $missions->sortByMultiple($sort);
-            } else {
-                $missions = $missions->orderBy('m.current_state', 'ASC')->orderBy('m.programmed_start', 'DESC');
-            }
-
-            if ($search) {
-                $columns = ['m.reference', 'dci.first_name', 'dci.last_name', 'a.code', 'a.name'];
-                if (hasRole(['dcp', 'cdcr', 'root', 'admin'])) {
-                    $columns = ['m.reference', 'dci.first_name', 'dci.last_name', 'dcc.first_name', 'dcc.last_name', 'a.code', 'a.name'];
-                } elseif (hasRole('der')) {
-                    $columns = ['m.reference', 'dci.first_name', 'dci.last_name', 'cder.first_name', 'cder.last_name', 'a.code', 'a.name'];
-                }
-                $missions = $missions->search($columns, $search);
             }
 
             if ($filter) {
@@ -122,7 +121,7 @@ class MissionController extends Controller
             || (hasRole(['cdcr', 'dcp']) && $mission->is_validated_by_cdc)
             || (hasRole(['dg', 'cdrcp', 'ig', 'der', 'sg', 'deac', 'dga']) && $mission->is_validated_by_dcp)
             || (hasRole(['dre', 'da']) && in_array($mission->agency->id, $agencies) && $mission->is_validated_by_dcp)
-            || hasRole('root');
+            || hasRole(['root', 'admin']);
 
         abort_if(!$condition, FORBIDDEN, __('unauthorized'));
         if (!isAbleTo('view_opinion')) {
@@ -513,11 +512,10 @@ class MissionController extends Controller
      */
     public function filters(Builder $missions): array
     {
-        $missions = $missions->get();
         $dre = [];
         $agency = [];
         // $controllers = [];
-        $campaign = getControlCampaigns()
+        $campaign = (new ControlCampaignQuery())->prepare()->multiple()
             ->whereNotNull('m.reference')
             ->get()
             ->unique()
