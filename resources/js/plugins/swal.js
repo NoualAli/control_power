@@ -50,7 +50,6 @@ export function routeLeaveConfirm({ icon = 'question', title = '', message = 'Vo
 }
 
 /**
- * @param string icon
  * @param string title
  * @param string message
  *
@@ -61,7 +60,6 @@ export function alert_success(message = '', title = 'Succès') {
 }
 
 /**
- * @param string icon
  * @param string title
  * @param string message
  *
@@ -72,8 +70,6 @@ export function alert_error(message = 'Une erreur est survenue', title = 'Erreur
 }
 
 /**
- * @param string icon
- * @param string title
  * @param string message
  *
  * @return {any}
@@ -83,8 +79,6 @@ export function confirm_destroy(message = 'Êtes-vous sûr de vouloir supprimer 
 }
 
 /**
- * @param string icon
- * @param string title
  * @param string message
  *
  * @return {any}
@@ -130,7 +124,6 @@ export function toast({ icon = 'question', title = '', message = '', target = ''
 }
 
 /**
- * @param string icon
  * @param string title
  * @param string message
  *
@@ -141,7 +134,6 @@ export function toast_success(message = '', title = 'Succès', target = '') {
 }
 
 /**
- * @param string icon
  * @param string title
  * @param string message
  *
@@ -238,7 +230,7 @@ function handleNetworkError(error) {
     } else if (error.code == 'ERR_INTERNET_DISCONNECTED') {
         alert_error(error.message, 'Réseau indisponible');
     } else if (error.code == 'ERR_NETWORK') {
-        this.alert_error('Réseau indisponible. Si vous ne pouvez pas résoudre le problème, veuillez contacter votre administrateur réseau.', error.message);
+        alert_error('Réseau indisponible. Si vous ne pouvez pas résoudre le problème, veuillez contacter votre administrateur réseau.', error.message);
     } else if (error.response) {
         if (error?.response?.status !== 422) {
             alert_error('Le serveur a répondu avec un code de statut non réussi : ' + error.response.status);
