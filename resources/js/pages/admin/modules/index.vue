@@ -22,16 +22,17 @@
                         <NLButton :loading="form.busy" label="Enregistrer" />
                     </NLFlex>
                 </NLColumn>
-                <NLColumn v-for="(module, index) in  modules " v-if="modules && form?.role" :key="module?.id" md="6" lg="4"
-                    extraClass="box">
-                    <h2 @click="selectModule(module)" class="is-clickable">{{ module.name }}</h2>
-                    <NLGrid extraClass="mt-5">
-                        <NLColumn v-for="permission in module.permissions"
-                            :class="[{ 'is-selected': this.form.permissions.includes(permission.id) }, 'select-box']"
-                            @click="select(permission.id)">
-                            {{ permission.name }}
-                        </NLColumn>
-                    </NLGrid>
+                <NLColumn v-for="(module, index) in  modules " v-if="modules && form?.role" :key="module?.id">
+                    <div class="box">
+                        <h2 @click="selectModule(module)" class="is-clickable">{{ module.name }}</h2>
+                        <NLGrid extraClass="mt-5">
+                            <NLColumn v-for="permission in module.permissions" lg="4" md="12"
+                                :class="[{ 'is-selected': this.form.permissions.includes(permission.id) }, 'select-box']"
+                                @click="select(permission.id)">
+                                {{ permission.name }}
+                            </NLColumn>
+                        </NLGrid>
+                    </div>
                 </NLColumn>
                 <NLColumn v-if="form?.role">
                     <!-- Submit Button -->

@@ -17,15 +17,25 @@ class PermissionsTableSeeder extends Seeder
     public function run()
     {
         DB::transaction(function () {
+            // Fetch newly created module id
+            $structuresManagementModule = DB::table('modules')->select('id')->where('code', 'structures_management')->first()->id;
+            // Update module id of existing permissions
+            DB::table('permissions')
+                ->whereIn('code', ['view_dre', 'create_dre', 'edit_dre', 'delete_dre', 'view_agency', 'create_agency', 'edit_agency', 'delete_agency', 'view_category', 'create_category', 'edit_category', 'delete_category'])
+                ->update(['module_id' => $structuresManagementModule]);
+
+            // Insert new permissions for regional inspection management
             DB::table('permissions')->insert([
-                ['name' => 'Gérer les textes réglementaire', 'code' => 'manage_regulations', 'module_id' => 5],
-                ['name' => 'Commenter une régularisation', 'code' => 'comment_regularization', 'module_id' => 6]
+                ['name' => 'Voir les inspections régionales', 'code' => 'view_regional_inspection', 'module_id' => $structuresManagementModule],
+                ['name' => 'Créer les inspections régionales', 'code' => 'create_regional_inspection', 'module_id' => $structuresManagementModule],
+                ['name' => 'Modifier les inspections régionales', 'code' => 'edit_regional_inspection', 'module_id' => $structuresManagementModule],
+                ['name' => 'Supprimer les inspections régionales', 'code' => 'delete_regional_inspection', 'module_id' => $structuresManagementModule],
             ]);
 
-            $roles = DB::table('roles')->whereIn('code', ['der', 'cder', 'cdc'])->get();
-
+            // Update root and admin roles to add new permissions
+            $roles = DB::table('roles')->whereIn('code', ['root', 'admin'])->get();
             foreach ($roles as $role) {
-                $permissions = DB::table('permissions')->select('id')->whereIn('code', ['comment_regularization', 'reject_regularization'])->get();
+                $permissions = DB::table('permissions')->select('id')->whereLike('code', '%regional_inspection%')->get();
                 foreach ($permissions as $permission) {
                     DB::table('role_has_permissions')->insert([
                         'role_id' => $role->id,
