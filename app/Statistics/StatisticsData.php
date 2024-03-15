@@ -33,13 +33,14 @@ class StatisticsData
         $today = today();
         $campaign =  $campaign->where(function ($query) use ($today) {
             $query->whereDate('start_date', '<=', $today)
-                ->whereDate('end_date', '>=', $today)
-                ->orWhere(function ($query) use ($today) {
-                    // Handle cases where start_date is in the future but end_date is today
-                    $query->whereDate('start_date', '>=', $today)
-                        ->whereDate('end_date', '=', $today);
-                });
-        })->whereNull('cc.deleted_at')->orderBy('cc.start_date', 'ASC');
+                ->orWhereDate('end_date', '<=', $today);
+            // ->orWhere(function ($query) use ($today) {
+            //     // Handle cases where start_date is in the future but end_date is today
+            //     $query->whereDate('start_date', '>=', $today)
+            //         ->whereDate('end_date', '=', $today);
+            // });
+        })->whereNull('cc.deleted_at')->orderBy('cc.end_date', 'DESC');
+        // dd($campaign->get()->first());
         if (!$campaign->count()) {
             $campaign = DB::table('control_campaigns as cc')->where('cc.is_for_testing', false)->whereNotNull('cc.validated_at')->whereNull('cc.deleted_at')->orderBy('cc.start_date', 'DESC');
         }
