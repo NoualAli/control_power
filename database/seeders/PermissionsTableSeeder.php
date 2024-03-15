@@ -17,12 +17,8 @@ class PermissionsTableSeeder extends Seeder
     public function run()
     {
         DB::transaction(function () {
-            // Fetch newly created module id
+            // Fetch newly updated module id
             $structuresManagementModule = DB::table('modules')->select('id')->where('code', 'structures_management')->first()->id;
-            // Update module id of existing permissions
-            DB::table('permissions')
-                ->whereIn('code', ['view_dre', 'create_dre', 'edit_dre', 'delete_dre', 'view_agency', 'create_agency', 'edit_agency', 'delete_agency', 'view_category', 'create_category', 'edit_category', 'delete_category'])
-                ->update(['module_id' => $structuresManagementModule]);
 
             // Insert new permissions for regional inspection management
             DB::table('permissions')->insert([
