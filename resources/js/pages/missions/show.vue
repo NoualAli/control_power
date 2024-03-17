@@ -320,9 +320,8 @@
                 </a>
 
                 <!-- View report -->
-                <NLButton
-                    v-if="mission?.current.is_validated_by_cdc && is(['dg', 'dga', 'sg', 'ig', 'deac', 'der', 'cder', 'dre', 'dcp', 'cdcr', 'cc'])"
-                    class="has-icon" label="Conclusion de la mission" @click="showCommentForm('cdc_report', true)">
+                <NLButton v-if="mission?.current.is_validated_by_cdc && can('view_dre_report')" class="has-icon"
+                    label="Conclusion de la mission" @click="showCommentForm('cdc_report', true)">
                     <NLIcon name="description" />
                 </NLButton>
 
