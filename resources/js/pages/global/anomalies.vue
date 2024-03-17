@@ -304,7 +304,7 @@ export default {
          * Affiche le modal pour régulariser le point de contrôle
          *
          */
-        regularize(row) {
+        regularization(row) {
             this.rowSelected = row
             this.modals.regularize = true
             this.modals.show = false
