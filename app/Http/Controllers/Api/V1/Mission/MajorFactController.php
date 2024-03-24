@@ -249,10 +249,10 @@ class MajorFactController extends Controller
                     'major_fact_is_dispatched_by_id' => $user->id,
                     'major_fact_is_dispatched_by_full_name' => $userFullName,
                 ]);
-                $roles = ['cdrcp', 'ig', 'dg', 'dga', 'der', 'deac', 'sg'];
+                $roles = ['cdrcp', 'ig', 'iga', 'dg', 'dga', 'der', 'deac', 'sg'];
                 $users = User::whereRoles($roles)->isActive()->get();
                 // $users = User::whereRoles(['dre', 'da'])->whereRelation('agencies', 'agencies.id', $detail->mission->agency_id)->get()->merge($users);
-                $users = User::whereRoles(['dre'])->whereRelation('agencies', 'agencies.id', $detail->mission->agency_id)->get()->merge($users);
+                $users = User::whereRoles(['dre', 'ir'])->whereRelation('agencies', 'agencies.id', $detail->mission->agency_id)->isActive()->get()->merge($users);
             }
 
             if ($users->count() && $result) {

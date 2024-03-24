@@ -32,7 +32,7 @@ class UpdateUserInfoRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:50'],
             'last_name' => ['required', 'string', 'max:50'],
             'phone' => ['nullable', new IsAlgerianPhoneNumber],
-            'role' => ['required', 'exists:roles,id', new UniqueUserRole(request('agencies'), $id)],
+            'role' => ['required', 'exists:roles,id', new UniqueUserRole(request('structures'), $id)],
             'is_active' => ['required', 'boolean'],
             'gender' => ['required', 'integer', 'in:1,2'],
             'registration_number' => ['nullable', 'numeric', 'unique:users,registration_number,' . $id . ',id', 'max_digits:5'],
@@ -41,15 +41,19 @@ class UpdateUserInfoRequest extends FormRequest
         $role = request()->role;
 
         if (in_array($role, [13, 5])) {
-            $rules['agencies'] = ['required', 'string'];
+            $rules['structures'] = ['required', 'string'];
         }
 
         if ($role == 6) {
-            $rules['agencies'] = ['required', 'array'];
+            $rules['structures'] = ['required', 'array'];
         }
 
         if ($role == 11) {
-            $rules['agencies'] = ['required', 'exists:agencies,id'];
+            $rules['structures'] = ['required', 'exists:agencies,id'];
+        }
+
+        if ($role == 19) {
+            $rules['structures'] = ['required', 'exists:regional_inspections,id'];
         }
         return $rules;
     }

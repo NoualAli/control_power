@@ -3,8 +3,8 @@
 namespace App\Exports;
 
 use App\Enums\EventLogTypes;
-use App\Models\Agency;
-use App\Models\Dre;
+use App\Models\Structures\Agency;
+use App\Models\Structures\Dre;
 use App\Models\EventLog;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
@@ -15,7 +15,7 @@ class DreAgenciesExport extends BaseExport implements FromView, WithProperties, 
 {
 
     /**
-     * @var App\Models\Dre
+     * @var App\Models\Structures\Dre
      */
     private $data;
 
@@ -42,11 +42,11 @@ class DreAgenciesExport extends BaseExport implements FromView, WithProperties, 
         return [
             'creator'        => env('APP_NAME'),
             'lastModifiedBy' => env('APP_NAME'),
-            'title'          => 'Liste des rôles utilisateur',
-            'description'    => 'Liste des rôles utilisateur ControlPower',
-            'subject'        => 'Liste des rôles utilisateur',
-            'keywords'       => 'roles,export,spreadsheet,excel',
-            'category'       => 'Roles',
+            'title'          => 'Liste des agences de la DRE ' . $this->data->full_name,
+            'description'    => 'Liste des agences de la DRE ' . $this->data->full_name . ' ControlPower',
+            'subject'        => 'Liste des agences de la DRE ' . $this->data->full_name,
+            'keywords'       => 'agences,dre,export,spreadsheet,excel',
+            'category'       => 'Liste des agences',
             'manager'        => 'Noual Ali - noualdev@gmail.com',
             'company'        => 'Banque Nationale d\'Algérie (BNA)',
         ];

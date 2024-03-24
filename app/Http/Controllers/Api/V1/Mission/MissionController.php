@@ -12,7 +12,7 @@ use App\Http\Requests\Mission\StoreRequest;
 use App\Http\Requests\Mission\UpdateRequest;
 use App\Http\Resources\MissionResource;
 use App\Jobs\GenerateMissionReportPdf;
-use App\Models\Agency;
+use App\Models\Structures\Agency;
 use App\Models\ControlCampaign;
 use App\Models\EventLog;
 use App\Models\Mission;
@@ -119,7 +119,7 @@ class MissionController extends Controller
             || ($mission->assigned_to_cder_id == $currentUser->id && hasRole('cder'))
             || in_array(auth()->user()->id, $dreAssistants)
             || (hasRole(['cdcr', 'dcp']) && $mission->is_validated_by_cdc)
-            || (hasRole(['dg', 'cdrcp', 'ig', 'der', 'sg', 'deac', 'dga']) && $mission->is_validated_by_dcp)
+            || (hasRole(['dg', 'cdrcp', 'ig', 'iga', 'der', 'sg', 'deac', 'dga']) && $mission->is_validated_by_dcp)
             || (hasRole(['dre', 'da']) && in_array($mission->agency->id, $agencies) && $mission->is_validated_by_dcp)
             || hasRole(['root', 'admin']);
 
@@ -404,22 +404,22 @@ class MissionController extends Controller
                 $persistedValidationColumn = 'dcp_validator_full_name';
                 $isAbleOrAbort = hasRole('dcp');
                 $missionState = MissionState::DONE;
-                $notify = User::whereRoles(['cdc', 'dre', 'da'])->isActive()->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge(User::whereRoles(['cdrcp', 'dg', 'dga', 'sg', 'ig', 'deac', 'der'])->isActive()->get());
+                $notify = User::whereRoles(['cdc', 'dre', 'da', 'ir'])->isActive()->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge(User::whereRoles(['cdrcp', 'dg', 'dga', 'sg', 'ig', 'iga', 'deac', 'der'])->isActive()->get());
                 $notify = $notify->merge([$mission->dreController]);
                 break;
-            case 'da':
-                $validationAtColumn = 'da_validation_at';
-                $validationByColumn = 'da_validation_by_id';
-                $persistedValidationColumn = 'da_validator_full_name';
-                $isAbleOrAbort = hasRole('da') && auth()->user()->hasAgencies($mission->agency_id) && isAbleTo('regularize_mission_detail');
-                $notify = User::whereRoles(['cdcr', 'cdrcp', 'dcp'])->isActive();
-                $notify = User::whereRoles(['dre', 'cdc', 'ci'])->isActive()->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($notify->get());
-                $notify = $notify->merge([$mission->dreController]);
-                if ($mission->dcp_controller) {
-                    $notify = $notify->merge([$mission->dcp_controller]);
-                }
-                $missionState = MissionState::DONE;
-                break;
+                // case 'da':
+                //     $validationAtColumn = 'da_validation_at';
+                //     $validationByColumn = 'da_validation_by_id';
+                //     $persistedValidationColumn = 'da_validator_full_name';
+                //     $isAbleOrAbort = hasRole('da') && auth()->user()->hasAgencies($mission->agency_id) && isAbleTo('regularize_mission_detail');
+                //     $notify = User::whereRoles(['cdcr', 'cdrcp', 'dcp'])->isActive();
+                //     $notify = User::whereRoles(['dre', 'cdc', 'ci'])->isActive()->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($notify->get());
+                //     $notify = $notify->merge([$mission->dreController]);
+                //     if ($mission->dcp_controller) {
+                //         $notify = $notify->merge([$mission->dcp_controller]);
+                //     }
+                //     $missionState = MissionState::DONE;
+                //     break;
             default:
                 $validationAtColumn = 'ci_validation_at';
                 $validationByColumn = 'ci_validation_by_id';
@@ -524,7 +524,6 @@ class MissionController extends Controller
         $campaign = formatForSelect($campaign, 'reference');
         $mission = [];
         if (isset(request()->filter['campaign'])) {
-
             $filterDre = isset(request()->filter['dre']) ? request()->filter['dre'] : '';
             if (hasRole(['cdc', 'ci', 'da', 'dre'])) {
                 $filterDre = auth()->user()->dres->pluck('id')->join(',');

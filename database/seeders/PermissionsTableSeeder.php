@@ -39,6 +39,20 @@ class PermissionsTableSeeder extends Seeder
                     ]);
                 }
             }
+
+            // Fetch newly created roles
+            $irs = DB::table('roles')->select('id')->whereIn('code', ['ir', 'iga'])->pluck('id')->toArray();
+
+            // Fetch ig permissions
+            $ig = DB::table('roles')->select('id')->where('code', 'ig')->first()->id;
+            $igPermissions = DB::table('role_has_permissions')->select('permission_id')->where('role_id', $ig)->pluck('permission_id')->toArray();
+
+            // Set same permissions to ir and iga as ig
+            foreach ($irs as $ir) {
+                foreach ($igPermissions as $permission) {
+                    DB::table('role_has_permissions')->insert(['role_id' => $ir, 'permission_id' => $permission]);
+                }
+            }
         });
     }
 }

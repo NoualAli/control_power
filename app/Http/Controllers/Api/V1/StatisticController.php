@@ -20,7 +20,7 @@ class StatisticController extends Controller
         $missionsPercentage = hasRole(['ci', 'da']) ? [] : $statistics->percentage();
         $missionsState = hasRole('da') ? [] : $statistics->state();
         $currentCampaign = $statistics->current_campaign;
-        if (hasRole(['dg', 'dga', 'sg', 'ig', 'deac', 'cdrcp', 'dcp', 'cdcr', 'cc', 'root', 'admin'])) {
+        if (hasRole(['dg', 'dga', 'sg', 'ig', 'iga', 'deac', 'cdrcp', 'dcp', 'cdcr', 'cc', 'root', 'admin'])) {
             $dresClassificationByAchievementRate = $statistics->achievementRate();
         }
         return compact(

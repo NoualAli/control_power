@@ -73,7 +73,7 @@ export default {
                     field: 'total_missions',
                     align: 'center',
                     sortable: true,
-                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da', 'cder' ]),
+                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da', 'cder', 'ir' ]),
                     methods: {
                         showField(item) {
                             return item?.validated_by_id ? item?.total_missions : '-'
@@ -85,7 +85,7 @@ export default {
                     field: 'total_missions_validated',
                     align: 'center',
                     sortable: true,
-                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da', 'cder' ]),
+                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da', 'cder', 'ir' ]),
                     methods: {
                         showField(item) {
                             return item?.validated_by_id ? item?.total_missions_validated : '-'
@@ -97,21 +97,21 @@ export default {
                     field: 'total_missions_dre',
                     align: 'center',
                     sortable: true,
-                    hide: !hasRole([ 'cdc', 'dre' ])
+                    hide: !hasRole([ 'cdc', 'dre', 'ir' ])
                 },
                 {
                     label: 'Missions réalisées',
                     field: 'total_missions_validated_dre',
                     align: 'center',
                     sortable: true,
-                    hide: !hasRole([ 'cdc', 'dre' ])
+                    hide: !hasRole([ 'cdc', 'dre', 'ir' ])
                 },
                 {
                     label: '* couverture %',
                     field: 'realisation_rate_dre',
                     align: 'center',
                     sortable: true,
-                    hide: !hasRole([ 'cdc', 'dre' ]),
+                    hide: !hasRole([ 'cdc', 'dre', 'ir' ]),
                     methods: {
                         showField(item) {
                             return parseFloat(item?.realisation_rate_dre).toFixed(2) + '%'
@@ -123,7 +123,7 @@ export default {
                     field: 'realisation_rate',
                     align: 'center',
                     sortable: true,
-                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da', 'cder' ]),
+                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da', 'cder', 'ir' ]),
                     methods: {
                         showField(item) {
                             if (item?.validated_by_id) {

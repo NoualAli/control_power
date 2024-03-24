@@ -3,7 +3,7 @@
 namespace App\Exports;
 
 use App\Enums\EventLogTypes;
-use App\Models\Agency;
+use App\Models\Structures\Agency;
 use App\Models\EventLog;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;

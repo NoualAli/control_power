@@ -18,7 +18,7 @@
                 <th>Nom complet</th>
                 <th>Adresse e-mail</th>
                 <th>N° de téléphone</th>
-                <th>DRE</th>
+                <th>Structures</th>
                 <th>Rôle</th>
                 <th>Actif</th>
                 @if (hasRole(['root', 'admin']))
@@ -36,13 +36,13 @@
                     <td>{{ $user->full_name }}</td>
                     <td>{{ $user->email }}</td>
                     <td>{{ $user->phone ?: '-' }}</td>
-                    <td>{{ $user->dres_str }}</td>
-                    <td>{{ strtoupper($user->code) . ' - ' . $user->role }}</td>
+                    <td>{{ $user->structures_str }}</td>
+                    <td>{{ strtoupper($user->role->code) . ' - ' . $user->role->name }}</td>
                     <td>{{ boolval($user->is_active) ? 'Oui' : 'Non' }}</td>
                     @if (hasRole(['root', 'admin']))
                         <td>{{ $user->created_at }}</td>
                         <td>
-                            {{ $user->last_activity ? \Carbon\Carbon::parse($user->last_activity)->format('d-m-Y H:i:s') : '-' }}
+                            {{ $user->last_login ? \Carbon\Carbon::parse($user->last_login->getAttributes()['last_activity'])->format('d-m-Y H:i:s') : '-' }}
                         </td>
                     @endif
                 </tr>

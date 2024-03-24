@@ -83,7 +83,7 @@ class ControlCampaignQuery extends BaseQuery
             ]);
         }
 
-        if (hasRole(['dre', 'cdc', 'ci'])) {
+        if (hasRole(['dre', 'cdc', 'ci', 'ir'])) {
             $agencies = $agencies->pluck('id')->toArray();
             $this->query = $this->query->addSelect([
                 'total_missions_dre' => DB::raw('(SELECT COUNT(m.id) AS total_missions_dre FROM missions as m WHERE m.agency_id IN (' . implode(',', $agencies) . ') AND m.control_campaign_id = c.id) AS total_missions_dre'),

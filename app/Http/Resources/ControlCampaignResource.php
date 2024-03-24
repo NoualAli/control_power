@@ -33,11 +33,11 @@ class ControlCampaignResource extends JsonResource
             'is_for_testing' => $this->is_for_testing_str,
         ];
 
-        if (hasRole(['dcp', 'cdcr', 'cc', 'dg', 'dga', 'der', 'cder', 'drcp', 'ig', 'sg', 'deac', 'admin', 'root'])) {
+        if (hasRole(['dcp', 'cdcr', 'cc', 'dg', 'dga', 'der', 'cder', 'drcp', 'ig', 'iga', 'sg', 'deac', 'admin', 'root'])) {
             $data['total_missions'] = $this->total_missions;
             $data['total_missions_validated'] = $this->total_missions_validated;
             $data['realisation_rate'] = $this->realisation_rate;
-        } elseif (hasRole(['cdc', 'dre', 'ci'])) {
+        } elseif (hasRole(['cdc', 'dre', 'ci', 'ir'])) {
             $data['total_missions_dre'] = $this->total_missions_dre;
             $data['total_missions_validated_dre'] = $this->total_missions_validated_dre;
             $data['realisation_rate_dre'] = $this->realisation_rate_dre;

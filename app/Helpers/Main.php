@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Resources\UserResource;
 use App\Models\Domain;
-use App\Models\Dre;
+use App\Models\Structures\Dre;
 use App\Models\Family;
+use App\Models\Structures\RegionalInspection;
 use App\Models\User;
 use App\Rules\IsAlgerianPhoneNumber;
 use Carbon\Carbon;
@@ -56,10 +58,10 @@ if (!function_exists('hasRole')) {
      *
      * @return bool
      */
-    function hasRole(string|array $roles, ?User $user = null): bool
+    function hasRole(string|array $roles, User|string $user = null): bool
     {
         $user = $user ? $user : auth()->user();
-        $role = $user?->role?->code;
+        $role = is_string($user) ? $user : $user?->role?->code;
         if ($role) {
             if (is_array($roles)) {
                 return in_array($role, $roles);
@@ -351,6 +353,9 @@ if (!function_exists('loadAgencies')) {
                 $ids = [];
                 if ($item[0] == 'd') {
                     $ids = array_merge(Dre::findOrFail($item[1])->agencies->pluck('id')->toArray(), $ids);
+                }
+                if ($item[0] == 'ri') {
+                    $ids = array_merge(RegionalInspection::findOrFail($item[1])->agencies->pluck('id')->toArray(), $ids);
                 } else {
                     $ids = array_merge($ids, [intval($item[0])]);
                 }
@@ -363,6 +368,10 @@ if (!function_exists('loadAgencies')) {
             $ids = [];
             $data = explode('-', $data);
             $data = array_merge(Dre::findOrFail($data[1])->agencies->pluck('id')->toArray(), $ids);
+        } elseif (is_string($data) && str_starts_with($data, 'ri-')) {
+            $ids = [];
+            $data = explode('-', $data);
+            $data = array_merge(RegionalInspection::findOrFail($data[1])->agencies->pluck('id')->toArray(), $ids);
         }
         $data = Validator::make($data, [
             '*' => 'exists:agencies,id'

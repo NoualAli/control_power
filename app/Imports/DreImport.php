@@ -2,7 +2,7 @@
 
 namespace App\Imports;
 
-use App\Models\Dre;
+use App\Models\Structures\Dre;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;

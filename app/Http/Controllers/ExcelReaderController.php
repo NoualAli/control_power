@@ -7,7 +7,7 @@ use App\Imports\ControlPointsImport;
 use App\Imports\DreImport;
 use App\Imports\ReferencesImport;
 use App\Imports\UsersImport;
-use App\Models\Dre;
+use App\Models\Structures\Dre;
 use App\Models\User;
 use App\Notifications\UserCreatedNotification;
 use Illuminate\Support\Facades\DB;

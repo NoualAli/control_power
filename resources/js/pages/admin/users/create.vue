@@ -17,14 +17,14 @@
 
                 <!-- Registration number -->
                 <NLColumn lg="6" md="6">
-                    <NLInput v-model="form.registration_number" :form="form" name="registration_number" label="Matricule"
-                        type="number" :length="5" />
+                    <NLInput v-model="form.registration_number" :form="form" name="registration_number"
+                        label="Matricule" type="number" :length="5" />
                 </NLColumn>
 
                 <!-- Username -->
                 <NLColumn lg="6" md="6">
-                    <NLInput v-model="form.username" :form="form" name="username" label="Nom d'utilisateur" label-required
-                        :length="30" />
+                    <NLInput v-model="form.username" :form="form" name="username" label="Nom d'utilisateur"
+                        label-required :length="30" />
                 </NLColumn>
 
                 <!-- Email -->
@@ -45,11 +45,12 @@
                 </NLColumn>
 
 
-                <!-- Dres / Agencies -->
-                <NLColumn lg="6" md="6" v-if="[11, 13, 6, 5].includes(form.role)">
-                    <NLSelect v-model="form.agencies" :form="form" name="agencies" label="DRE / Agences" :options="dresList"
-                        placeholder="Choisissez une DRE / Agence" :multiple="dreOptions.selectMultiple"
-                        :disableBranchNodes="dreOptions.disableBranchNodes" />
+                <!-- Structures -->
+                <NLColumn lg="6" md="6" v-if="[11, 13, 6, 5, 19].includes(form.role)">
+                    <NLSelect v-model="form.structures" :form="form" name="structures" label="Structures"
+                        :options="structuresList" placeholder="Choisissez une structure"
+                        :multiple="structuresOptions.selectMultiple"
+                        :disableBranchNodes="structuresOptions.disableBranchNodes" />
                 </NLColumn>
 
                 <!-- Gender -->
@@ -68,8 +69,8 @@
                         </NLColumn>
                         <!-- Password Confirmation -->
                         <NLColumn lg="4" md="4">
-                            <NLInput v-model="form.password_confirmation" :form="form" label="Confirmation du mot de passe"
-                                name="password_confirmation" type="password" />
+                            <NLInput v-model="form.password_confirmation" :form="form"
+                                label="Confirmation du mot de passe" name="password_confirmation" type="password" />
                         </NLColumn>
                     </NLGrid>
                 </NLColumn>
@@ -111,14 +112,14 @@ export default {
                 password: null,
                 password_confirmation: null,
                 role: null,
-                agencies: [],
+                structures: [],
                 is_active: false,
                 gender: 1,
                 registration_number: null,
                 is_for_testing: false,
                 phone: null,
             }),
-            dresList: [],
+            structuresList: [],
             rolesList: [],
             gendersList: [
                 {
@@ -130,7 +131,7 @@ export default {
                     id: 2
                 }
             ],
-            dreOptions: {
+            structuresOptions: {
                 selectMultiple: false,
                 disableBranchNodes: false,
             },
@@ -148,43 +149,50 @@ export default {
             // 6 -> ci -> accès à toutes les agences -> Selection agence uniquement
             // 13 -> dre -> accès à toutes les agences -> Selection DRE uniquement
             // 5 -> cdc -> accès à toutes les agences -> Selection DRE uniquement
-            this.form.agencies = null
-            this.dreOptions = {
+            // 19 -> ir -> accès aux inspections -> Selection inspection uniquement
+            this.form.structures = null
+            this.structuresOptions = {
                 selectMultiple: false,
                 disableBranchNodes: false,
             }
             if (newValue !== oldValue) {
                 if ([ 13, 5 ].includes(newValue)) {
-                    this.dresList.forEach(dre => delete dre.children)
+                    this.structuresList.forEach(dre => delete dre.children)
                 }
 
                 if (newValue == 6) {
                     this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
-                        this.dresList = this.dres.all
+                        this.structuresList = this.dres.all
                     })
-                    this.form.agencies = []
-                    this.dreOptions.selectMultiple = true
+                    this.form.structures = []
+                    this.structuresOptions.selectMultiple = true
                 }
 
                 if (newValue == 11) {
                     this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
-                        this.dresList = this.dres.all
+                        this.structuresList = this.dres.all
                     })
-                    this.dreOptions.disableBranchNodes = true
+                    this.structuresOptions.disableBranchNodes = true
+                }
+                if (newValue == 19) {
+                    this.$store.dispatch('regionalInspections/fetchAll').then(() => {
+                        this.structuresList = this.regionalInspections.all
+                    })
                 }
             }
         }
     },
     computed: mapGetters({
         roles: 'roles/all',
-        dres: 'dre/all'
+        dres: 'dre/all',
+        regionalInspections: 'regionalInspections/all'
     }),
     created() {
         this.$store.dispatch('settings/updatePageLoading', true)
         this.$store.dispatch('roles/fetchAll').then(() => {
             this.rolesList = this.roles.all
             this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
-                this.dresList = this.dres.all
+                this.structuresList = this.dres.all
                 this.$store.dispatch('settings/updatePageLoading', false)
             })
         })

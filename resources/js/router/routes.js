@@ -23,7 +23,7 @@ export default [
         component: page('admin_dashboard.vue'),
         meta: {
             breadcrumb: {
-                label: 'Tableau de board'
+                label: 'Tableau de bord'
             }
         }
     },
@@ -163,12 +163,48 @@ export default [
         }
     },
     /**
+     * Regional inspections
+     */
+    {
+        path: '/admin/structures/regional-inspection',
+        name: 'regional-inspection-index',
+        component: page('admin/structures/regional-inspections/index.vue'),
+        meta: {
+            breadcrumb: {
+
+                label: 'Inspections régionales'
+            }
+        }
+    },
+    {
+        path: '/admin/structures/regional-inspection/create',
+        name: 'regional-inspection-create',
+        component: page('admin/structures/regional-inspections/create.vue'),
+        meta: {
+            breadcrumb: {
+                label: 'Nouvelle inspection régionale',
+                parent: 'regional-inspection-index'
+            }
+        }
+    },
+    {
+        path: '/admin/structures/regional-inspection/edit/:regionalInspection',
+        name: 'regional-inspection-edit',
+        component: page('admin/structures/regional-inspections/edit.vue'),
+        meta: {
+            breadcrumb: {
+                label: 'Edition inspection régionale',
+                parent: 'regional-inspection-index'
+            }
+        }
+    },
+    /**
      * Dre
      */
     {
-        path: '/admin/dre',
+        path: '/admin/structures/dre',
         name: 'dre-index',
-        component: page('admin/dre/index.vue'),
+        component: page('admin/structures/dre/index.vue'),
         meta: {
             breadcrumb: {
 
@@ -177,9 +213,9 @@ export default [
         }
     },
     {
-        path: '/admin/dre/create',
+        path: '/admin/structures/dre/create',
         name: 'dre-create',
-        component: page('admin/dre/create.vue'),
+        component: page('admin/structures/dre/create.vue'),
         meta: {
             breadcrumb: {
                 label: 'Nouvelle DRE',
@@ -188,9 +224,9 @@ export default [
         }
     },
     {
-        path: '/admin/dre/edit/:dre',
+        path: '/admin/structures/dre/edit/:dre',
         name: 'dre-edit',
-        component: page('admin/dre/edit.vue'),
+        component: page('admin/structures/dre/edit.vue'),
         meta: {
             breadcrumb: {
                 label: 'Edition DRE',
@@ -202,9 +238,9 @@ export default [
      * Agencies
      */
     {
-        path: '/admin/agencies',
+        path: '/admin/structures/agencies',
         name: 'agencies-index',
-        component: page('admin/agencies/index.vue'),
+        component: page('admin/structures/agencies/index.vue'),
         meta: {
             breadcrumb: {
                 label: 'Agences'
@@ -212,9 +248,9 @@ export default [
         }
     },
     {
-        path: '/admin/agencies/create',
+        path: '/admin/structures/agencies/create',
         name: 'agencies-create',
-        component: page('admin/agencies/create.vue'),
+        component: page('admin/structures/agencies/create.vue'),
         meta: {
             breadcrumb: {
                 label: 'Nouvelle agence',
@@ -223,9 +259,9 @@ export default [
         }
     },
     {
-        path: '/admin/agencies/edit/:agency',
+        path: '/admin/structures/agencies/edit/:agency',
         name: 'agencies-edit',
-        component: page('admin/agencies/edit.vue'),
+        component: page('admin/structures/agencies/edit.vue'),
         meta: {
             breadcrumb: {
                 label: 'Edition agence',
@@ -237,19 +273,19 @@ export default [
      * Categories
      */
     {
-        path: '/admin/categories',
+        path: '/admin/structures/categories',
         name: 'categories-index',
-        component: page('admin/categories/index.vue'),
+        component: page('admin/structures/categories/index.vue'),
         meta: {
             breadcrumb: {
-                label: 'Catégorie'
+                label: 'Catégories'
             }
         }
     },
     {
-        path: '/admin/categories/create',
+        path: '/admin/structures/categories/create',
         name: 'categories-create',
-        component: page('admin/categories/create.vue'),
+        component: page('admin/structures/categories/create.vue'),
         meta: {
             breadcrumb: {
                 label: 'Nouvelle catégorie',
@@ -258,9 +294,9 @@ export default [
         }
     },
     {
-        path: '/admin/categories/edit/:category',
+        path: '/admin/structures/categories/edit/:category',
         name: 'categories-edit',
-        component: page('admin/categories/edit.vue'),
+        component: page('admin/structures/categories/edit.vue'),
         meta: {
             breadcrumb: {
                 label: 'Edition catégorie',

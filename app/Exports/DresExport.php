@@ -3,7 +3,7 @@
 namespace App\Exports;
 
 use App\Enums\EventLogTypes;
-use App\Models\Dre;
+use App\Models\Structures\Dre;
 use App\Models\EventLog;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;

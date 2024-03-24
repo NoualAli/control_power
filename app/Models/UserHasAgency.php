@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Structures\Agency;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 

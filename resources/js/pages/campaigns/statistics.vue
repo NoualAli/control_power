@@ -2,13 +2,13 @@
     <ContentBody v-if="can('view_control_campaign')">
         <NLFlex alignItems="center" lgJustifyContent="start" gap="2" extraClass="my-4" wrap>
             <button :disabled="currentSection == 'missionsStates'" class="btn"
-                :class="{ 'is-active': currentSection == 'missionsStates' }" @click="setCurrentSection('missionsStates')"
-                v-if="!is('da')">
+                :class="{ 'is-active': currentSection == 'missionsStates' }"
+                @click="setCurrentSection('missionsStates')" v-if="!is('da')">
                 <NLIcon name="checklist" />
                 Suivi de la réalisation des missions
             </button>
-            <button :disabled="currentSection == 'scores'" class="btn" :class="{ 'is-active': currentSection == 'scores' }"
-                @click="setCurrentSection('scores')">
+            <button :disabled="currentSection == 'scores'" class="btn"
+                :class="{ 'is-active': currentSection == 'scores' }" @click="setCurrentSection('scores')">
                 <NLIcon name="format_list_numbered" />
                 Statistiques des notations
             </button>
@@ -39,7 +39,8 @@
         <!-- Scores -->
         <Scores :onlyCurrentCampaign="false" :currentCampaign="currentCampaign"
             v-if="currentSection == 'scores' && can('view_control_campaign')" :userRole="userRole"
-            :circularChartOptions="circularChartOptions" @savePNG="savePNG" :horizontalBarOptions="horizontalBarOptions" />
+            :circularChartOptions="circularChartOptions" @savePNG="savePNG"
+            :horizontalBarOptions="horizontalBarOptions" />
 
         <!-- Anomalies -->
         <Anomalies :onlyCurrentCampaign="false" :currentCampaign="currentCampaign"
@@ -49,7 +50,8 @@
         <!-- Major facts -->
         <MajorFacts :onlyCurrentCampaign="false" :currentCampaign="currentCampaign"
             v-if="currentSection == 'majorFacts' && can('view_control_campaign')" :userRole="userRole"
-            :circularChartOptions="circularChartOptions" @savePNG="savePNG" :horizontalBarOptions="horizontalBarOptions" />
+            :circularChartOptions="circularChartOptions" @savePNG="savePNG"
+            :horizontalBarOptions="horizontalBarOptions" />
 
         <!-- KPI -->
         <KPI v-if="currentSection == 'KPI' && !is('da')" :userRole="userRole" @savePNG="savePNG" />
@@ -57,11 +59,11 @@
 </template>
 
 <script>
-import Anomalies from '../dashboard/second_level/Anomalies'
-import MajorFacts from '../dashboard/second_level/MajorFacts'
-import Scores from '../dashboard/second_level/Scores'
-import Missions from '../dashboard/second_level/Missions'
-import KPI from '../dashboard/second_level/KPI'
+import Anomalies from '../dashboard/agencies/Anomalies'
+import MajorFacts from '../dashboard/agencies/MajorFacts'
+import Scores from '../dashboard/agencies/Scores'
+import Missions from '../dashboard/agencies/Missions'
+import KPI from '../dashboard/agencies/KPI'
 import { user } from '../../plugins/user'
 export default {
     components: {

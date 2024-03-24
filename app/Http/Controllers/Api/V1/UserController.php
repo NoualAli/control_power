@@ -56,11 +56,8 @@ class UserController extends Controller
         $shouldExport = count($export);
 
         try {
-            $users = getUsers();
-            if ($shouldExport) {
-                return (new ExcelExportService($users, UsersExport::class, 'liste_des_utilisateurs.xlsx', $export))->download();
-            }
-
+            // $users = getUsers();
+            $users = User::with('roles');
 
             if ($fetchFilters) {
                 return $this->fetchFilters();
@@ -68,17 +65,23 @@ class UserController extends Controller
 
 
             if ($sort) {
+                if (array_key_exists('full_name', $sort)) {
+                    $users = $users->orderBy(DB::raw("CONCAT(first_name, ' ', last_name)"), $sort['full_name']);
+                    unset($sort['full_name']);
+                }
                 $users = $users->sortByMultiple($sort);
             }
 
             if ($search) {
-                $users = $users->search(['u.username', 'u.first_name', 'u.last_name', 'email', 'u.phone'], $search);
+                $users = $users->search($search);
             }
 
             if ($filter) {
                 $users = $this->filter($users, $filter);
             }
-
+            if ($shouldExport) {
+                return (new ExcelExportService($users, UsersExport::class, 'liste_des_utilisateurs.xlsx', $export))->download();
+            }
             if ($fetchAll) {
                 $users = formatForSelect($users->get()->toArray(), 'full_name');
             } elseif (request()->has('dre_id')) {
@@ -111,9 +114,12 @@ class UserController extends Controller
                 $role = $data['role'];
                 unset($data['role']);
                 $user = User::create($data);
-                if (isset($data['agencies'])) {
-                    $agencies = $data['agencies'];
-                    $agencies = loadAgencies($agencies);
+                if (isset($data['structures'])) {
+                    $structures = $data['structures'];
+                    if ($user->role->code == 'ir') {
+                        $structures = 'ri-' . $structures;
+                    }
+                    $agencies = loadAgencies($structures);
                     unset($data['agencies']);
                     $user->agencies()->sync($agencies);
                 }
@@ -122,18 +128,20 @@ class UserController extends Controller
 
                 if (in_array($user->role->code, ['ci', 'cc'])) {
                     $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['mission_assignation_removed', 'mission_assigned', 'mission_updated', 'mission_validated', 'mission_major_fact_rejected'])->get()->pluck('id');
+                } elseif ($user->code == 'cder') {
+                    $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['mission_assignation_removed', 'mission_assigned'])->get()->pluck('id');
                 } elseif ($user->role->code == 'cdc') {
                     $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['control_campaign_created', 'control_campaign_deleted', 'control_campaign_updated', 'mission_major_fact_detected', 'mission_validated', 'mission_pdf_repport_generated', 'mission_major_fact_rejected'])->get()->pluck('id');
                 } elseif ($user->role->code == 'da') {
                     $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['mission_major_fact_detected', 'mission_validated', 'mission_pdf_repport_generated'])->get()->pluck('id');
-                } elseif (in_array($user->role->code, ['dg', 'ig', 'dga', 'sg', 'der', 'deac', 'cdrcp', 'dre', 'dcp', 'cdcr'])) {
+                } elseif (in_array($user->role->code, ['dg', 'ig', 'iga', 'ir', 'dga', 'sg', 'der', 'deac', 'cdrcp', 'dre', 'dcp', 'cdcr'])) {
                     $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['control_campaign_created', 'control_campaign_deleted', 'control_campaign_updated', 'mission_major_fact_detected', 'mission_validated', 'mission_pdf_repport_generated'])->get()->pluck('id');
                 } else {
                     $notificationTypes = collect([]);
                 }
                 if ($notificationTypes->isNotEmpty()) {
                     foreach ($notificationTypes as $type) {
-                        if (in_array($user->code, ['dg', 'ig', 'dga', 'sg', 'der', 'deac', 'cdrcp', 'dcp', 'cdcr', 'dre'])) {
+                        if (in_array($user->code, ['dg', 'ig', 'iga', 'dga', 'sg', 'der', 'deac', 'cdrcp', 'dcp', 'cdcr', 'dre'])) {
                             $databaseIsEnabled = true;
                             $emailIsEnabled = false;
                         } else {
@@ -172,7 +180,7 @@ class UserController extends Controller
     {
         isAbleOrAbort('view_user');
         $user->unsetRelations();
-        return response()->json($user->load(['role', 'dres', 'agencies', 'last_login']));
+        return response()->json($user->load(['role', 'dres', 'agencies', 'regional_inspections', 'last_login']));
     }
 
     /**
@@ -195,11 +203,14 @@ class UserController extends Controller
                 $result = $user->update($data);
                 $user->roles()->attach([$role]);
 
-                if (isset($data['agencies'])) {
-                    $agencies = $data['agencies'];
-                    $agenciesId = loadAgencies($agencies);
-                    unset($data['agencies']);
-                    $user->agencies()->sync($agenciesId);
+                if (isset($data['structures'])) {
+                    $structures = $data['structures'];
+                    if ($user->role->code == 'ir') {
+                        $structures = 'ri-' . $structures;
+                    }
+                    $structuresId = loadAgencies($structures);
+                    unset($data['structures']);
+                    $user->agencies()->sync($structuresId);
                 }
                 return $result;
                 // Notification::send($user, new UserInfoUpdatedNotification($user, $updatedInformations));

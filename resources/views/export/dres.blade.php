@@ -22,7 +22,7 @@
                 <tr>
                     <td>{{ $dre->code }}</td>
                     <td>{{ $dre->name }}</td>
-                    <td>{{ $dre->agencies->count() }}</td>
+                    <td>{{ $dre->agencies_count }}</td>
                 </tr>
             @endforeach
         </tbody>

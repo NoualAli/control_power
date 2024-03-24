@@ -1,18 +1,16 @@
 <?php
 
-use App\Http\Controllers\API\EnvController;
+
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\Api\V1\StatisticController;
-use App\Http\Controllers\Api\V1\AgencyController;
 use App\Http\Controllers\Api\V1\Mission\AnomalyController;
 use App\Http\Controllers\Api\V1\BackupController;
 use App\Http\Controllers\Api\V1\BugController;
-use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\CommentController;
 use App\Http\Controllers\Api\V1\ControlCampaignController;
 use App\Http\Controllers\Api\V1\ControlPointController;
 use App\Http\Controllers\Api\V1\DomainController;
-use App\Http\Controllers\Api\V1\DreController;
 use App\Http\Controllers\Api\V1\FamilyController;
 use App\Http\Controllers\Api\V1\FieldController;
 use App\Http\Controllers\Api\V1\Mission\MajorFactController;
@@ -257,39 +255,10 @@ Route::group(['middleware' => 'auth:api', 'prefix' => 'v1'], function () {
         });
 
         /**
-         * Dre
+         * Structures management
          */
-        Route::prefix('dre')->controller(DreController::class)->group(function () {
-            Route::get('/', 'index');
-            Route::get('{dre}', 'show');
-            Route::post('/', 'store');
-            Route::put('{dre}', 'update');
-            Route::delete('{dre}', 'destroy');
-        });
 
-        /**
-         * Agencies
-         */
-        Route::prefix('agencies')->controller(AgencyController::class)->group(function () {
-            Route::get('/', 'index');
-            Route::get('{agency}', 'show');
-            Route::get('concerns/config', 'config');
-            Route::post('/', 'store');
-            Route::put('{agency}', 'update');
-            Route::delete('{agency}', 'destroy');
-        });
-
-        /**
-         * Agency categories
-         */
-        Route::prefix('categories')->controller(CategoryController::class)->group(function () {
-            Route::get('/', 'index');
-            Route::get('{category}', 'show');
-            Route::get('concerns/config', 'config');
-            Route::post('/', 'store');
-            Route::put('{category}', 'update');
-            Route::delete('{category}', 'destroy');
-        });
+        include_once __DIR__ . './structures.php';
 
         /**
          * Media

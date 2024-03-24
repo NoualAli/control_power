@@ -39,7 +39,7 @@ class RegionalInspectionsTableSeeder extends Seeder
             ];
             foreach ($irs as $ir => $dres) {
                 foreach ($dres as $dre) {
-                    DB::table('dres')->where('id', $dre)->update(['ir_id' => $ir + 1]);
+                    DB::table('dres')->where('id', $dre)->update(['regional_inspection_id' => $ir + 1]);
                 }
             }
         });

@@ -70,6 +70,8 @@ class StatisticsData
             $campaigns = $campaigns->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
         } elseif (hasRole('cder')) {
             $campaigns = $campaigns->where('m.assigned_to_cder_id', $user->id);
+        } elseif (hasRole('ir')) {
+            $campaigns = $campaigns->whereIn('m.agency_id', $user->agencies->pluck('id'));
         }
         $campaigns = $campaigns->whereNotNull('c.validated_at')->where('c.is_for_testing', false);
         if (request()->has('onlyCurrentCampaign') && !request()->has('campaign')) {
@@ -130,6 +132,8 @@ class StatisticsData
             $details = $details->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
         } elseif (hasRole('cder')) {
             $details = $details->where('m.assigned_to_cder_id', $user->id);
+        } elseif (hasRole('ir')) {
+            $details = $details->whereIn('m.agency_id', $user->agencies->pluck('id')->toArray())->whereNotNull('m.dcp_validation_by_id');
         }
         $details = $details->whereNull('m.deleted_at')->where('md.is_disabled', false)->where('m.is_for_testing', false);
         return $details;
@@ -174,13 +178,15 @@ class StatisticsData
             $details = $details->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
         } elseif (hasRole('dre')) {
             $details = $details->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
+        } elseif (hasRole('ir')) {
+            $details = $details->whereNotNull('md.major_fact_is_dispatched_at')->whereIn('m.agency_id', $user->agencies->pluck('id')->toArray());
         } elseif (hasRole('cder')) {
             $details = $details->where('m.assigned_to_cder_id', $user->id);
         }
 
         // if (hasRole(['dcp', 'cdcr', 'cc', 'cdrcp'])) {
         //     $details = $details->whereNotNull('md.major_fact_is_dispatched_to_dcp_at');
-        // } elseif (hasRole(['dg', 'ig', 'sg', 'der', 'deac', 'dga'])) {
+        // } elseif (hasRole(['dg', 'ig', 'iga', 'sg', 'der', 'deac', 'dga'])) {
         //     $details = $details->whereNotNull('md.major_fact_is_dispatched_at');
         // }
 
@@ -232,6 +238,8 @@ class StatisticsData
             $missions = $missions->whereIn('m.agency_id', $user->agencies->pluck('id'));
         } elseif (hasRole('cder')) {
             $missions = $missions->where('m.assigned_to_cder_id', $user->id);
+        } elseif (hasRole('ir')) {
+            $missions = $missions->whereIn('agency_id', $user->agencies->pluck('id'));
         }
         $missions = $missions->where('m.is_for_testing', false)->whereNull('m.deleted_at');
 

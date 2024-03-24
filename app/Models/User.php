@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Notifications\ResetPassword;
-use App\Traits\HasDres;
+use App\Traits\HasStructures;
 use App\Traits\HasRoles;
 use App\Traits\IsFilterable;
 use App\Traits\IsSortable;
@@ -20,7 +20,7 @@ class User extends Authenticatable implements JWTSubject
     use Notifiable,
         HasFactory,
         HasRoles,
-        HasDres,
+        HasStructures,
         IsSortable,
         IsSearchable,
         IsFilterable;
@@ -77,7 +77,7 @@ class User extends Authenticatable implements JWTSubject
         'gender' => 'integer',
     ];
 
-    public $searchable = ['last_name', 'first_name', 'username', 'email', 'phone'];
+    public $searchable = ['last_name', 'first_name', 'username', 'email', 'registration_number'];
 
     protected $appends = [
         'full_name',
@@ -90,7 +90,8 @@ class User extends Authenticatable implements JWTSubject
         'authorizations',
         'permissions_arr',
         'agencies_str',
-        'is_for_testing_str'
+        'is_for_testing_str',
+        'structures_str',
     ];
 
     /**

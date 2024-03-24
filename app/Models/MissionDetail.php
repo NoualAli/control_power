@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Structures\Agency;
+use App\Models\Structures\Dre;
 use App\Traits\HasMedia;
 use App\Traits\HasScopes;
 use App\Traits\HasUuid;

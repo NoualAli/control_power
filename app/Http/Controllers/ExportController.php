@@ -14,26 +14,30 @@ use App\Exports\LoginsExport;
 use App\Exports\ModulesExport;
 use App\Exports\ProcessControlPointsExport;
 use App\Exports\ProcessesExport;
+use App\Exports\RegionalInspectionDresExport;
+use App\Exports\RegionalInspectionsExport;
 use App\Exports\RolePermissionsExport;
 use App\Exports\RolesExport;
 use App\Exports\SynthesisExport;
 use App\Exports\SynthesisWithReportsExport;
 use App\Exports\UsersExport;
 use App\Http\Controllers\Controller;
-use App\Models\Agency;
+use App\Models\Structures\Agency;
 use App\Models\ControlPoint;
 use App\Models\Domain;
-use App\Models\Dre;
+use App\Models\Structures\Dre;
 use App\Models\Family;
 use App\Models\MissionDetail;
 use App\Models\Module;
 use App\Models\Process;
 use App\Models\Role;
+use App\Models\Structures\RegionalInspection;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use stdClass;
+use Illuminate\Support\Str;
 
 class ExportController extends Controller
 {
@@ -63,6 +67,8 @@ class ExportController extends Controller
                 return $this->synthesis($request);
             } elseif ($exportValue == 'synthesis_reports') {
                 return $this->synthesis($request, true);
+            } elseif ($exportValue == 'regional-inspections') {
+                return $this->regional_inspections($request);
             } else {
                 abort(400, 'L\'action ' . $exportValue . ' n\'est pas reconnue');
             }
@@ -183,7 +189,7 @@ class ExportController extends Controller
     {
         if ($request->has('id')) {
             $user = User::findOrFail($request->id);
-            return Excel::download(new LoginsExport($user), 'authentifications-' . \Str::slug($user->full_name) . '.xlsx');
+            return Excel::download(new LoginsExport($user), 'authentifications-' . Str::slug($user->full_name) . '.xlsx');
         } else {
             $users = User::with(['dres', 'role', 'last_login'])->get();
             return Excel::download(new UsersExport($users), 'liste_des_utilisateurs.xlsx');
@@ -207,11 +213,22 @@ class ExportController extends Controller
         return Excel::download(new ModulesExport($modules), 'liste_des_modules.xlsx');
     }
 
+    private function regional_inspections(Request $request)
+    {
+        if ($request->has('id')) {
+            $regional_inspection = RegionalInspection::findOrFail($request->id)->load('dres');
+            return Excel::download(new RegionalInspectionDresExport($regional_inspection), 'dre-' . Str::slug($regional_inspection->full_name) . '.xlsx');
+        } else {
+            $regional_inspections = Dre::withCount('dres')->get();
+            return Excel::download(new RegionalInspectionsExport($regional_inspections), 'liste_des_inspections_régionales.xlsx');
+        }
+    }
+
     private function dres(Request $request)
     {
         if ($request->has('id')) {
             $dre = Dre::findOrFail($request->id)->load('agencies');
-            return Excel::download(new DreAgenciesExport($dre), 'agences-' . \Str::slug($dre->full_name) . '.xlsx');
+            return Excel::download(new DreAgenciesExport($dre), 'agences-' . Str::slug($dre->full_name) . '.xlsx');
         } else {
             $dres = Dre::withCount('agencies')->get();
             return Excel::download(new DresExport($dres), 'liste_des_dre.xlsx');
@@ -228,7 +245,7 @@ class ExportController extends Controller
     {
         if ($request->has('id')) {
             $family = Family::findOrFail($request->id)->load(['domains' => fn ($query) => $query->withCount('processes')]);
-            return Excel::download(new FamilyDomainsExport($family), 'domaines-' . \Str::slug($family->name) . '.xlsx');
+            return Excel::download(new FamilyDomainsExport($family), 'domaines-' . Str::slug($family->name) . '.xlsx');
         } else {
             $families = Family::withCount('domains')->get();
             return Excel::download(new FamiliesExport($families), 'liste_des_familles.xlsx');
@@ -239,7 +256,7 @@ class ExportController extends Controller
     {
         if ($request->has('id')) {
             $domain = Domain::findOrFail($request->id)->load(['processes' => fn ($query) => $query->withCount('control_points')]);
-            return Excel::download(new DomainProcessesExport($domain), 'processus-' . \Str::slug($domain->name) . '.xlsx');
+            return Excel::download(new DomainProcessesExport($domain), 'processus-' . Str::slug($domain->name) . '.xlsx');
         } else {
             $domains = Domain::with('family')->withCount('processes')->get();
             return Excel::download(new DomainsExport($domains), 'liste_des_domaines.xlsx');
@@ -250,7 +267,7 @@ class ExportController extends Controller
     {
         if ($request->has('id')) {
             $process = Process::findOrFail($request->id)->load('control_points');
-            return Excel::download(new ProcessControlPointsExport($process), 'points_de_contrôle-' . \Str::slug($process->name) . '.xlsx');
+            return Excel::download(new ProcessControlPointsExport($process), 'points_de_contrôle-' . Str::slug($process->name) . '.xlsx');
         } else {
             $processes = Process::with(['domain', 'family'])->withCount('control_points')->get();
             return Excel::download(new ProcessesExport($processes), 'liste_des_processus.xlsx');

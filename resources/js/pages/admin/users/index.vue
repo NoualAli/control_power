@@ -14,6 +14,7 @@
                     <NLIcon name="backspace" />
                 </NLButton>
             </template>
+
             <template #table-actions>
                 <router-link v-if="can('create_user')" :to="{ name: 'users-create' }" class="btn has-icon">
                     <NLIcon name="add" />
@@ -69,13 +70,12 @@ export default {
                     field: 'phone',
                 },
                 {
-                    label: 'DRE',
-                    field: 'dres'
+                    label: 'Structures',
+                    field: 'structures'
                 },
                 {
                     label: 'Rôle',
                     field: 'role',
-                    sortable: true,
                 },
                 {
                     label: 'Etat',
@@ -128,7 +128,7 @@ export default {
                     show: (item) => {
                         let condition = !this.isCurrent(item) && this.can('edit_user') && item?.role_code !== 'root'
                         if (hasRole('cdcr')) {
-                            return condition && ![ 'admin', 'root', 'dg', 'ig', 'sg', 'dcp', 'cdrcp', 'der', 'cder', 'deac', 'dga' ].includes(item.role_code)
+                            return condition && ![ 'admin', 'root', 'dg', 'ig', 'iga', 'sg', 'dcp', 'cdrcp', 'der', 'cder', 'deac', 'dga' ].includes(item.role_code)
                         }
                         return condition
                     },

@@ -41,15 +41,19 @@ class StoreRequest extends FormRequest
         $role = request()->role;
 
         if (in_array($role, [13, 5])) {
-            $rules['agencies'] = ['required', 'string'];
+            $rules['structures'] = ['required', 'string'];
         }
 
         if ($role == 6) {
-            $rules['agencies'] = ['required', 'array'];
+            $rules['structures'] = ['required', 'array'];
         }
 
         if ($role == 11) {
-            $rules['agencies'] = ['required', 'exists:agencies,id'];
+            $rules['structures'] = ['required', 'exists:agencies,id'];
+        }
+
+        if ($role == 19) {
+            $rules['structures'] = ['required', 'exists:regional_inspections,id'];
         }
         return $rules;
     }

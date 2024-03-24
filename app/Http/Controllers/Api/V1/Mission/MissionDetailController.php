@@ -204,7 +204,8 @@ class MissionDetailController extends Controller
             } elseif (hasRole('cdcr')) {
                 $users = User::whereRoles(['dcp'])->isActive()->get();
             } elseif (hasRole('dcp')) {
-                $users = User::whereRoles(['dg', 'sg', 'ig', 'dga', 'der', 'deac'])->isActive()->get();
+                $users = User::whereRoles(['dg', 'sg', 'ig', 'iga', 'dga', 'der', 'deac', 'cdrcp'])->isActive()->get();
+                $users = User::whereRoles(['dre', 'ir'])->whereRelation('agencies', 'agencies.id', $detail->mission->agency_id)->isActive()->get()->merge($users);
             }
             foreach ($users as $user) {
                 if (!$user->notifications()->where('data->detail_id', $detail->id)->count()) {

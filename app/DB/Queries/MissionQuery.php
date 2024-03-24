@@ -85,10 +85,16 @@ class MissionQuery extends BaseQuery
             DB::raw("
                     (CASE
                         WHEN COUNT(CASE WHEN md.is_disabled = 0 THEN 1 END) = 0 THEN NULL
-                        ELSE CAST(SUM(CASE WHEN md.score IS NOT NULL AND md.is_disabled = 0 THEN 1 ELSE 0 END) * 100 / NULLIF(COUNT(CASE WHEN md.score IS NOT NULL AND md.is_disabled = 0 THEN md.id END), 0) AS VARCHAR(10))
+                        ELSE CAST(SUM(CASE WHEN md.score IS NOT NULL AND md.is_disabled = 0 THEN 1 ELSE 0 END) * 100 / NULLIF(COUNT(CASE WHEN md.is_disabled = 0 THEN md.id END), 0) AS VARCHAR(10))
                     END)
                 AS progress_rate
             "),
+            // DB::raw(
+            //     'CASE
+            //         WHEN COUNT(CASE WHEN md.is_disabled = 0 THEN 1 END) = 0 THEN NULL
+            //         ELSE SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) * 100 / NULLIF(COUNT(md.id), 0)
+            //     END as progress_rate'
+            // ),
             DB::raw('DATEDIFF(day, programmed_start, CAST(GETDATE() AS DATE)) as remaining_days_before_start'),
             DB::raw('DATEDIFF(day, programmed_end,CAST(GETDATE() AS DATE)) as remaining_days_before_end'),
             DB::raw("(CASE WHEN real_start IS NOT NULL THEN FORMAT(m.real_start, 'dd-MM-yyyy') ELSE FORMAT(m.programmed_start, 'dd-MM-yyyy') END) as start_date"),
@@ -166,6 +172,8 @@ class MissionQuery extends BaseQuery
             $this->query = $this->query->whereIn('m.agency_id', $this->active_user->agencies->pluck('id'));
         } elseif (hasRole('cder')) {
             $this->query = $this->query->where('m.assigned_to_cder_id', $this->active_user->id);
+        } elseif (hasRole('ir')) {
+            $this->query = $this->query->whereIn('agency_id', $this->active_user->agencies->pluck('id'));
         }
     }
 

@@ -34,9 +34,9 @@ class UserHasNotificationsSeeder extends Seeder
                         $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['control_campaign_created', 'control_campaign_deleted', 'control_campaign_updated', 'mission_major_fact_detected', 'mission_validated', 'mission_pdf_repport_generated', 'mission_major_fact_rejected'])->get()->pluck('id');
                     } elseif ($user->code == 'da') {
                         $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['mission_major_fact_detected', 'mission_validated', 'mission_pdf_repport_generated'])->get()->pluck('id');
-                    } elseif (in_array($user->code, ['dg', 'ig', 'dga', 'sg', 'der', 'deac', 'cdrcp', 'dre', 'dcp', 'cdcr'])) {
+                    } elseif (in_array($user->code, ['dg', 'ig', 'iga', 'dga', 'sg', 'der', 'deac', 'cdrcp', 'dre', 'dcp', 'cdcr'])) {
                         $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['control_campaign_created', 'control_campaign_deleted', 'control_campaign_updated', 'mission_major_fact_detected', 'mission_validated', 'mission_pdf_repport_generated'])->get()->pluck('id');
-                    } else if (in_array($user->code, ['cdrcp', 'dg', 'dga', 'sg', 'ig', 'deac', 'der'])) {
+                    } else if (in_array($user->code, ['cdrcp', 'dg', 'dga', 'sg', 'ig', 'iga', 'deac', 'der'])) {
                         $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['control_campaign_created', 'mission_pdf_repport_generated', 'mission_major_fact_detected'])->get()->pluck('id');
                     } else {
                         $notificationTypes = collect([]);
@@ -45,7 +45,7 @@ class UserHasNotificationsSeeder extends Seeder
                     if ($notificationTypes->isNotEmpty()) {
                         foreach ($notificationTypes as $type) {
                             $currentType = $type;
-                            if (in_array($user->code, ['dg', 'ig', 'dga', 'sg', 'der', 'deac', 'cdrcp', 'dcp', 'cdcr', 'dre'])) {
+                            if (in_array($user->code, ['dg', 'ig', 'iga', 'dga', 'sg', 'der', 'deac', 'cdrcp', 'dcp', 'cdcr', 'dre'])) {
                                 $databaseIsEnabled = true;
                                 $emailIsEnabled = false;
                             } else {

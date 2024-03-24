@@ -2,8 +2,8 @@
 
 namespace App\Imports;
 
-use App\Models\Agency;
-use App\Models\Dre;
+use App\Models\Structures\Agency;
+use App\Models\Structures\Dre;
 use App\Models\Role;
 use App\Models\User;
 use App\Notifications\UserCreatedNotification;

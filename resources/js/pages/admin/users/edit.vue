@@ -10,8 +10,8 @@
                         </NLColumn>
                         <!-- Firstname -->
                         <NLColumn lg="6" md="6">
-                            <NLInput v-model="form.first_name" :form="form" name="firstname" label="Prénom" labelRequired
-                                :length="50" />
+                            <NLInput v-model="form.first_name" :form="form" name="first_name" label="Prénom"
+                                labelRequired :length="50" />
                         </NLColumn>
 
                         <!-- Lastname -->
@@ -40,7 +40,8 @@
 
                         <!-- Phone -->
                         <NLColumn lg="6" md="6">
-                            <NLInput v-model="form.phone" :form="form" name="phone" label="N° de téléphone" type="phone" />
+                            <NLInput v-model="form.phone" :form="form" name="phone" label="N° de téléphone"
+                                type="phone" />
                         </NLColumn>
 
 
@@ -50,11 +51,12 @@
                                 placeholder="Choisissez un rôle" :options="rolesList" labelRequired />
                         </NLColumn>
 
-                        <!-- DRE / Agencies -->
-                        <NLColumn lg="6" md="6" v-if="this.showDres">
-                            <NLSelect v-model="form.agencies" :form="form" name="agencies" label="DRE / Agences"
-                                :options="dresList" placeholder="Choisissez une DRE" :multiple="dreOptions.selectMultiple"
-                                :disableBranchNodes="dreOptions.disableBranchNodes" />
+                        <!-- Structures -->
+                        <NLColumn lg="6" md="6" v-if="this.showStructures">
+                            <NLSelect v-model="form.structures" :form="form" name="structures" label="Structures"
+                                :options="structuresList" placeholder="Choisissez une structure"
+                                :multiple="structuresOptions.selectMultiple"
+                                :disableBranchNodes="structuresOptions.disableBranchNodes" />
                         </NLColumn>
 
                         <!-- Gender -->
@@ -66,8 +68,8 @@
 
                         <!-- Active -->
                         <NLColumn v-if="showIsActiveSwitch" lg="6">
-                            <NLSwitch v-model="form.is_active" name="is_active" :form="form" label="Le compte est activé ?"
-                                type="is-success" />
+                            <NLSwitch v-model="form.is_active" name="is_active" :form="form"
+                                label="Le compte est activé ?" type="is-success" />
                         </NLColumn>
                         <!-- Testing -->
                         <!-- <NLColumn lg="6">
@@ -132,7 +134,8 @@
                                                 v-model="notificationsForm[type.id].database_is_enabled" />
                                         </NLColumn>
                                         <NLColumn lg="2">
-                                            <NLSwitch label="Email" v-model="notificationsForm[type.id].email_is_enabled" />
+                                            <NLSwitch label="Email"
+                                                v-model="notificationsForm[type.id].email_is_enabled" />
                                         </NLColumn>
                                     </NLGrid>
                                 </NLColumn>
@@ -166,7 +169,7 @@ export default {
                 last_name: null,
                 phone: null,
                 role: null,
-                agencies: [],
+                structures: [],
                 is_active: true,
                 gender: true,
                 is_active: true,
@@ -178,8 +181,8 @@ export default {
                 password_confirmation: null
             }),
             notificationsForm: new Form({}),
-            dresList: [],
-            showDres: false,
+            structuresList: [],
+            showStructures: false,
             rolesList: [],
             notificationsSettingsList: [],
             gendersList: [
@@ -192,7 +195,7 @@ export default {
                     id: 2
                 }
             ],
-            dreOptions: {
+            structuresOptions: {
                 selectMultiple: false,
                 disableBranchNodes: false,
             },
@@ -203,6 +206,7 @@ export default {
         ...mapGetters({
             user: 'users/current',
             dres: 'dre/all',
+            regionalInspections: 'regionalInspections/all',
             roles: 'roles/all',
             notifications: 'notifications/settings',
         }),
@@ -215,7 +219,7 @@ export default {
          */
         "form.role"(newValue, oldValue) {
             if (newValue !== oldValue) {
-                this.initDreAndAgencies(newValue)
+                this.initStructures(newValue)
             }
         }
     },
@@ -228,7 +232,7 @@ export default {
             this.$store.dispatch('roles/fetchAll').then(() => {
                 this.rolesList = this.roles.all
                 this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
-                    this.dresList = this.dres.all
+                    this.structuresList = this.dres.all
                     this.$store.dispatch('users/fetch', this.$route.params.user).then(() => {
                         this.form.username = this.user.current.username
                         this.form.email = this.user.current.email
@@ -242,19 +246,24 @@ export default {
                         this.form.role = this.user.current.active_role_id
 
                         if ([ 13, 5 ].includes(Number(this.user.current.active_role_id))) {
-                            this.showDres = true
-                            this.form.agencies = 'd-' + this.user?.current?.dres[ 0 ]?.id
+                            this.showStructures = true
+                            this.form.structures = 'd-' + this.user?.current?.dres[ 0 ]?.id
                         }
                         if (Number(this.user.current.active_role_id) == 6) {
-                            this.showDres = true
-                            this.form.agencies = this.user?.current?.agencies.map(item => item.id)
+                            this.showStructures = true
+                            this.form.structures = this.user?.current?.agencies.map(item => item.id)
                         }
                         if (Number(this.user.current.active_role_id) == 11) {
-                            this.showDres = true
-                            this.form.agencies = this.user?.current?.agencies[ 0 ]?.id
+                            this.showStructures = true
+                            this.form.structures = this.user?.current?.agencies[ 0 ]?.id
                         }
 
-                        this.initDreAndAgencies(Number(this.user.current.active_role_id))
+                        if (Number(this.user.current.active_role_id) == 19) {
+                            this.showStructures = true
+                            this.form.structures = this.user?.current?.regional_inspections[ 0 ]?.id
+                        }
+
+                        this.initStructures(Number(this.user.current.active_role_id))
                         this.$store.dispatch('notifications/fetchSettings', this.user.current.id).then(() => {
                             this.notificationsSettingsList = this.notifications.settings
                             this.initNotifications()
@@ -320,35 +329,41 @@ export default {
                 })
             })
         },
-        initDreAndAgencies(value, oldValue) {
+        initStructures(value, oldValue) {
             // 11 -> da -> accès à une seule agence à la fois -> Selection agence uniquement
             // 6 -> ci -> accès à toutes les agences -> Selection agence uniquement
             // 13 -> dre -> accès à toutes les agences -> Selection DRE uniquement
             // 5 -> cdc -> accès à toutes les agences -> Selection DRE uniquement
-            // this.form.agencies = null
-            this.dreOptions = {
+            // this.form.structures = null
+            this.structuresOptions = {
                 selectMultiple: false,
                 disableBranchNodes: false,
             }
             if ([ 13, 5 ].includes(value)) {
-                this.showDres = true
-                this.dresList.forEach(dre => delete dre.children)
+                this.showStructures = true
+                this.structuresList.forEach(dre => delete dre.children)
             }
 
             if (value == 6) {
-                this.showDres = true
+                this.showStructures = true
                 this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
-                    this.dresList = this.dres.all
+                    this.structuresList = this.dres.all
                 })
-                this.dreOptions.selectMultiple = true
+                this.structuresOptions.selectMultiple = true
             }
 
             if (value == 11) {
-                this.showDres = true
+                this.showStructures = true
                 this.$store.dispatch('dre/fetchAll', { withAgencies: true }).then(() => {
-                    this.dresList = this.dres.all
+                    this.structuresList = this.dres.all
                 })
-                this.dreOptions.disableBranchNodes = true
+                this.structuresOptions.disableBranchNodes = true
+            }
+
+            if (value == 19) {
+                this.$store.dispatch('regionalInspections/fetchAll').then(() => {
+                    this.structuresList = this.regionalInspections.all
+                })
             }
         }
     }

@@ -21,7 +21,7 @@ instance.interceptors.response.use(response => response, error => {
     if (status === 401) {
         swal.alert_error('Vous avez dépassé le délai accordé à votre session, cette dernière a expiré, veuillez vous reconnecter de nouveau', '401 Session expirée')
         store.commit('auth/LOGOUT')
-        return this.$router.push({ name: 'login' })
+        window.location.href = 'login'
     }
     if (status === 422) {
         let totalErrors = Object.entries(error?.response?.data?.errors).length
@@ -37,7 +37,7 @@ instance.interceptors.response.use(response => response, error => {
         swal.alert_error(message, title)
             .then(() => {
                 store.commit('auth/LOGOUT')
-                return this.$router.push({ name: 'login' })
+                window.location.href = 'login'
             })
     }
 

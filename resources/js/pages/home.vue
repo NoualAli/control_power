@@ -7,8 +7,8 @@
                 <NLIcon name="checklist" />
                 Suivi de la réalisation des missions
             </button>
-            <button class="btn" :class="{ 'is-active': currentSection == 'scores' }" :disabled="currentSection == 'scores'"
-                @click="setCurrentSection('scores')">
+            <button class="btn" :class="{ 'is-active': currentSection == 'scores' }"
+                :disabled="currentSection == 'scores'" @click="setCurrentSection('scores')">
                 <NLIcon name="format_list_numbered" />
                 Statistiques des notations
             </button>
@@ -39,12 +39,13 @@
             @savePNG="savePNG" :horizontalBarOptions="horizontalBarOptions" />
 
         <!-- Anomalies -->
-        <Anomalies v-if="currentSection == 'anomalies'" :userRole="userRole" :circularChartOptions="circularChartOptions"
-            @savePNG="savePNG" />
+        <Anomalies v-if="currentSection == 'anomalies'" :userRole="userRole"
+            :circularChartOptions="circularChartOptions" @savePNG="savePNG" />
 
         <!-- Major facts -->
         <MajorFacts v-if="currentSection == 'majorFacts' && !is('da')" :userRole="userRole"
-            :circularChartOptions="circularChartOptions" @savePNG="savePNG" :horizontalBarOptions="horizontalBarOptions" />
+            :circularChartOptions="circularChartOptions" @savePNG="savePNG"
+            :horizontalBarOptions="horizontalBarOptions" />
 
         <!-- KPI -->
         <KPI v-if="currentSection == 'KPI' && !is('da')" :userRole="userRole" @savePNG="savePNG" />
@@ -52,11 +53,11 @@
 </template>
 
 <script>
-import Anomalies from './dashboard/second_level/Anomalies'
-import MajorFacts from './dashboard/second_level/MajorFacts'
-import Scores from './dashboard/second_level/Scores'
-import Missions from './dashboard/second_level/Missions'
-import KPI from './dashboard/second_level/KPI'
+import Anomalies from './dashboard/agencies/Anomalies'
+import MajorFacts from './dashboard/agencies/MajorFacts'
+import Scores from './dashboard/agencies/Scores'
+import Missions from './dashboard/agencies/Missions'
+import KPI from './dashboard/agencies/KPI'
 import { user, hasRole } from '../plugins/user'
 export default {
     components: {

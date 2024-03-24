@@ -5,76 +5,61 @@
             <div class="active-brand"></div>
         </div>
         <div class="sidebar-body">
-            <div class="sidebar-title" />
-            <NLSidebarItem label="Tableau de bord" route="home" iconName="dashboard">
-            </NLSidebarItem>
-
+            <div class="sidebar-title"></div>
+            <NLSidebarItem label="Tableau de bord" route="home" iconName="dashboard" />
             <NLSidebarItem label="Répartition des missions" route="missions-create" iconName="calendar_add_on"
                 v-if="can('create_mission')" />
             <NLSidebarItem label="Nouvelle campagne" route="campaigns-create" iconName="calendar_add_on"
-                v-if="can('create_control_campaign')">
-            </NLSidebarItem>
+                v-if="can('create_control_campaign')" />
             <NLSidebarItem label="Planning annuel" route="campaigns" iconName="calendar_month"
-                v-if="can('view_control_campaign')">
-            </NLSidebarItem>
-            <NLSidebarItem label="Suivi des missions" route="missions" iconName="visibility" v-if="can('view_mission')">
-            </NLSidebarItem>
+                v-if="can('view_control_campaign')" />
+            <NLSidebarItem label="Suivi des missions" route="missions" iconName="visibility"
+                v-if="can('view_mission')" />
             <NLSidebarItem label="Plans de redressement" route="anomalies" iconPrefix="lab" iconName="breaking_news"
-                v-if="can('view_mission_detail')">
-            </NLSidebarItem>
+                v-if="can('view_mission_detail')" />
             <NLSidebarItem label="Faits majeurs" route="major-facts" iconName="brightness_alert"
-                v-if="can('view_major_fact')">
-            </NLSidebarItem>
-            <NLSidebarItem label="Références" route="references-pcf" iconName="quick_reference_all">
-            </NLSidebarItem>
+                v-if="can('view_major_fact')" />
+            <NLSidebarItem label="Références" route="references-pcf" iconName="quick_reference_all" />
 
             <NLSidebarSubmenu iconName="manage_accounts" label="Gestion utilisateurs"
                 v-if="(can('view_user') || can('view_role') || can('view_module')) && is(['root', 'admin'])">
-                <NLSidebarItem label="Utilisateurs" route="users-index" iconName="group" v-if="can('view_user')">
-                </NLSidebarItem>
-                <NLSidebarItem label="Roles" route="roles-index" iconName="shield_person" v-if="can('view_role')">
-                </NLSidebarItem>
-                <NLSidebarItem label="Modules" route="modules-index" iconName="shield_lock" v-if="can('view_module')">
-                </NLSidebarItem>
+                <NLSidebarItem label="Utilisateurs" route="users-index" iconName="group" v-if="can('view_user')" />
+                <NLSidebarItem label="Roles" route="roles-index" iconName="shield_person" v-if="can('view_role')" />
+                <NLSidebarItem label="Modules" route="modules-index" iconName="shield_lock" v-if="can('view_module')" />
             </NLSidebarSubmenu>
 
             <NLSidebarItem label="Utilisateurs" route="users-index" iconName="group"
                 v-if="can('view_user') && !is(['root', 'admin'])">
             </NLSidebarItem>
 
-            <NLSidebarSubmenu iconName="location_city" label="Localisations"
-                v-if="can('view_dre') || can('view_agency') || can('view_category')">
-                <NLSidebarItem label="DRE" route="dre-index" iconName="domain" v-if="can('view_dre')">
-                </NLSidebarItem>
-                <NLSidebarItem label="Agences" route="agencies-index" iconName="account_balance" v-if="can('view_agency')">
-                </NLSidebarItem>
-                <NLSidebarItem label="Catégories" route="categories-index" iconName="tag" v-if="can('view_category')">
-                </NLSidebarItem>
+            <NLSidebarSubmenu iconName="apartment" label="Structures"
+                v-if="can('view_dre') || can('view_agency') || can('view_category') || can('view_regional_inspection')">
+                <NLSidebarItem label="Inspections régionales" route="regional-inspection-index" iconName="location_city"
+                    v-if="can('view_regional_inspection')" />
+                <NLSidebarItem label="DRE" route="dre-index" iconName="domain" v-if="can('view_dre')" />
+                <NLSidebarItem label="Agences" route="agencies-index" iconName="account_balance"
+                    v-if="can('view_agency')" />
+                <NLSidebarItem label="Catégories d'agences" route="categories-index" iconName="tag"
+                    v-if="can('view_category')" />
             </NLSidebarSubmenu>
 
             <NLSidebarSubmenu iconName="tune" label="Gestion PCF"
                 v-if="can('view_family') || can('view_domain') || can('view_process') || can('view_control_point') || can('view_field')">
-                <NLSidebarItem label="Familles" route="families-index" iconName="tenancy" v-if="can('view_family')">
-                </NLSidebarItem>
-                <NLSidebarItem label="Domaines" route="domains-index" iconName="network_node" v-if="can('view_domain')">
-                </NLSidebarItem>
-                <NLSidebarItem label="Processus" route="processes-index" iconName="account_tree" v-if="can('view_process')">
-                </NLSidebarItem>
+                <NLSidebarItem label="Familles" route="families-index" iconName="tenancy" v-if="can('view_family')" />
+                <NLSidebarItem label="Domaines" route="domains-index" iconName="network_node"
+                    v-if="can('view_domain')" />
+                <NLSidebarItem label="Processus" route="processes-index" iconName="account_tree"
+                    v-if="can('view_process')" />
                 <NLSidebarItem label="Points de contrôle" route="control-points-index" iconName="list"
-                    v-if="can('view_control_point')">
-                </NLSidebarItem>
-                <NLSidebarItem label="Champs" route="fields-index" iconName="dataset" v-if="can('view_field')">
-                </NLSidebarItem>
+                    v-if="can('view_control_point')" />
+                <NLSidebarItem label="Champs" route="fields-index" iconName="dataset" v-if="can('view_field')" />
                 <NLSidebarItem label="Textes réglementaires" route="pcf-management" iconName="quick_reference_all"
-                    v-if="can('view_field')">
-                </NLSidebarItem>
+                    v-if="can('view_field')" />
             </NLSidebarSubmenu>
 
             <NLSidebarSubmenu iconName="dns" label="Gestion serveur" v-if="is('root')">
-                <NLSidebarItem label="Backup DB" route="admin-backup-db" v-if="is('root')" iconName="database">
-                </NLSidebarItem>
-                <NLSidebarItem label="Fichiers" route="admin-server-files" v-if="is('root')" iconName="storage">
-                </NLSidebarItem>
+                <NLSidebarItem label="Backup DB" route="admin-backup-db" v-if="is('root')" iconName="database" />
+                <NLSidebarItem label="Fichiers" route="admin-server-files" v-if="is('root')" iconName="storage" />
                 <a class="sidebar-item" href="/log-viewer" target="_blank" v-if="is('root')">
                     <NLIcon name="description" />
                     <span class="sidebar-icon_text">
@@ -84,7 +69,7 @@
                 <a class="sidebar-item" href="/env-editor" target="_blank" v-if="is('root')">
                     <NLIcon name="settings_applications" />
                     <span class="sidebar-icon_text">
-                        .env
+                        Variables d'environnement
                     </span>
                 </a>
             </NLSidebarSubmenu>

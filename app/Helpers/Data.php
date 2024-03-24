@@ -133,6 +133,8 @@ if (!function_exists('getMissions')) {
                 $missions = $missions->whereIn('m.agency_id', $user->agencies->pluck('id'));
             } elseif (hasRole('cder')) {
                 $missions = $missions->where('m.assigned_to_cder_id', $user->id);
+            } elseif (hasRole('ir')) {
+                $missions = $missions->whereIn('agency_id', $user->agencies->pluck('id'));
             }
         }
         $missions = $missions->groupBy(
@@ -341,7 +343,7 @@ if (!function_exists('getMissionDetails')) {
             $details = $details->where('m.created_by_id', $user->id)->where('dre_id', getDre(auth()->user())->first()->id);
         } elseif (hasRole('cc')) {
             $details = $details->where(fn ($query) => $query->where('m.assigned_to_cc_id', $user->id)->orWhere('md.assigned_to_cc_id', $user->id)->orWhere('md.controlled_by_ci_id', $user->id));
-        } elseif (hasRole('da')) {
+        } elseif (hasRole(['da', 'ir'])) {
             $details = $details->whereIn('m.agency_id', $user->agencies->pluck('id')->toArray())->whereNotNull('m.dcp_validation_by_id');
         } elseif (hasRole('dre')) {
             $details = $details->whereIn('m.agency_id', $user->agencies->pluck('id'))->whereNotNull('m.dcp_validation_by_id');
@@ -500,6 +502,8 @@ if (!function_exists('getMissionAnomalies')) {
             $details = $details->whereNotNull('m.cdcr_validation_by_id');
         } elseif (hasRole('cder')) {
             $details = $details->whereNotNull('m.cdcr_validation_by_id')->where('m.assigned_to_cder_id', $user->id);
+        } elseif (hasRole('ir')) {
+            $details = $details->whereNotNull('m.dcp_validation_by_id')->whereIn('m.agency_id', $user->agencies->pluck('id')->toArray());
         } else {
             $details = $details->whereNotNull('m.dcp_validation_by_id');
         }
@@ -619,6 +623,8 @@ if (!function_exists('getMajorFacts')) {
             $details = $details->whereNotNull('md.major_fact_is_detected_at');
         } elseif (hasRole('cder')) {
             $details = $details->whereNotNull('md.major_fact_is_dispatched_at')->where('m.assigned_to_cder_id', $user->id);
+        } elseif (hasRole('ir')) {
+            $details = $details->whereNotNull('md.major_fact_is_dispatched_at')->whereIn('m.agency_id', $user->agencies->pluck('id')->toArray());
         } else {
             $details = $details->whereNotNull('md.major_fact_is_dispatched_at');
         }
@@ -802,7 +808,7 @@ if (!function_exists('getDre')) {
         $user = $user ?: auth()->user();
         $dre = DB::table('dres as d')->select('d.id', 'd.code', 'd.name', DB::raw("CONCAT(d.code,' - ', d.name) as full_name"));
 
-        if (hasRole(['ci', 'cdc', 'dre', 'da'])) {
+        if (hasRole(['ci', 'cdc', 'dre', 'da', 'ir'])) {
             $dre = $dre->leftJoin('agencies as ag', 'd.id', 'ag.dre_id')->leftJoin('user_has_agencies as uha', 'uha.agency_id', 'ag.id')->where('uha.user_id', $user->id);
         }
         $dre = $dre->groupBy('d.id', 'd.code', 'd.name');
@@ -820,7 +826,7 @@ if (!function_exists('getAgencies')) {
         $user = $user ?: auth()->user();
         $agencies = DB::table('agencies as a')->select('a.id', 'a.code', 'a.name', DB::raw("CONCAT(a.code,' - ', a.name) as full_name"), 'a.dre_id as dre');
 
-        if (hasRole(['ci', 'cdc', 'dre', 'da'])) {
+        if (hasRole(['ci', 'cdc', 'dre', 'da', 'ir'])) {
             $agencies = $agencies->leftJoin('user_has_agencies as uha', 'uha.agency_id', 'a.id')->where('uha.user_id', $user->id);
         }
         $agencies = $agencies->groupBy('a.id', 'a.code', 'a.name', 'a.dre_id');
@@ -1015,6 +1021,7 @@ if (!function_exists('getUsers')) {
             "),
             DB::raw("MAX(l.created_at) AS last_activity")
         ];
+
         $users = DB::table('users as u')
             ->select($columns)
             ->leftJoin('roles as r', 'u.active_role_id', '=', 'r.id')

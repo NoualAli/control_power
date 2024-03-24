@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\DB\Queries\MissionProcessesQuery;
+use App\Models\Structures\Agency;
+use App\Models\Structures\Dre;
 use App\Traits\HasDates;
 use App\Traits\HasMedia;
 use App\Traits\HasScopes;
@@ -16,7 +18,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Znck\Eloquent\Traits\BelongsToThrough;
