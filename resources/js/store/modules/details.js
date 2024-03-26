@@ -1,4 +1,4 @@
-import api from "../../plugins/api"
+import alapi from "../../plugins/agencyLevelApi"
 
 export const state = {
     all: null,
@@ -41,7 +41,7 @@ export const mutations = {
 export const actions = {
     async fetch({ commit }, detailId) {
         try {
-            const { data } = await api.get('missions/details/' + detailId)
+            const { data } = await alapi.get('missions/details/' + detailId)
             commit('FETCH', { detail: data })
         } catch (error) {
             console.error(error);
@@ -49,7 +49,7 @@ export const actions = {
     },
     async fetchRegularizations({ commit }, detailId) {
         try {
-            const { data } = await api.get('regularize/' + detailId + '/history')
+            const { data } = await alapi.get('regularize/' + detailId + '/history')
             commit('FETCH_REGULARIZATIONS', { regularizations: data })
         } catch (error) {
             console.error(error);
@@ -61,7 +61,7 @@ export const actions = {
             if (detailId) {
                 url += '&detail_id=' + detailId
             }
-            const { data } = await api.get(url)
+            const { data } = await alapi.get(url)
             commit('FETCH_CONFIG', { config: data })
         } catch (error) {
             console.error(error);
@@ -70,7 +70,7 @@ export const actions = {
     async fetchFilters({ commit }) {
         try {
             let url = 'details/concerns/filters'
-            const { data } = await api.get(url)
+            const { data } = await alapi.get(url)
             commit('FETCH_FILTERS', { filters: data })
         } catch (error) {
             console.error(error);
@@ -78,7 +78,7 @@ export const actions = {
     },
     async fetchGlobal({ commit }) {
         try {
-            const { data } = await api.get('anomalies')
+            const { data } = await alapi.get('anomalies')
             commit('FETCH_GLOBAL', { global: data })
         } catch (error) {
             console.error(error);
@@ -86,7 +86,7 @@ export const actions = {
     },
     async fetchMajorFacts({ commit }) {
         try {
-            const { data } = await api.get('major-facts')
+            const { data } = await alapi.get('major-facts')
             commit('FETCH_MAJOR_FACTS', { majorFacts: data })
         } catch (error) {
             console.error(error);

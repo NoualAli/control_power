@@ -11,7 +11,7 @@ const instance = axios.create({
         Accept: 'application/json'
 
     },
-    baseURL: '/api/v1',
+    baseURL: '/api',
 })
 
 instance.interceptors.response.use(response => response, error => {

@@ -5,6 +5,9 @@ import store from '~/store'
 import router from '~/router'
 import { helpersMixin, user } from './plugins/helpers'
 import api from './plugins/api'
+import alapi from './plugins/agencyLevelApi'
+import dlapi from './plugins/dreLevelApi'
+
 import * as swal from './plugins/swal'
 import '~/plugins'
 // import { LoadingPlugin } from 'vue-loading-overlay'
@@ -21,6 +24,8 @@ import "simplebar/dist/simplebar.min.css";
 
 window.Swal = Swal
 window.api = api
+window.alapi = alapi
+window.dlapi = dlapi
 window.user = user
 const app = createApp(App)
 app.use(store)
@@ -34,6 +39,8 @@ app.use(pluginVueMeta) // gotta update meta and use it differently
 app.use(Vue3Breadcrumbs, { includeComponent: true })
 
 app.config.globalProperties.$api = api
+app.config.globalProperties.$dlapi = dlapi
+app.config.globalProperties.$alapi = alapi
 app.config.globalProperties.$swal = swal
 // console.log(api)
 app.mixin(aclMixin)

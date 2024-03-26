@@ -19,6 +19,7 @@
                 </div>
             </div>
         </template>
+
         <template #default>
             <NLGrid gap="6">
                 <!-- Major fact -->
@@ -168,8 +169,8 @@
                     </NLGrid>
                 </NLColumn>
 
-                <!-- Recovery plan -->
-                <NLColumn v-if="row.comment">
+                <!-- Comment -->
+                <NLColumn v-if="row.comment && hasRole(['cdcr', 'cc', 'dcp'])">
                     <NLGrid gap="6" class="box ">
                         <NLColumn>
                             <h2>Commentaire</h2>
@@ -195,14 +196,15 @@
                 <!-- Regularization -->
                 <NLColumn class="box" v-if="row.show_regularizations && row?.mission?.is_validated_by_dcp">
                     <h2>Historique des actions de régularisation</h2>
-                    <regularization @success="initData" :regularization="regularization" v-if="row?.regularizations?.length"
-                        v-for="regularization in row?.regularizations" />
+                    <regularization @success="initData" :regularization="regularization"
+                        v-if="row?.regularizations?.length" v-for="regularization in row?.regularizations" />
                     <div class="text-center text-bold my-6" v-else>
                         Aucune entrée
                     </div>
                 </NLColumn>
             </NLGrid>
         </template>
+
         <template #footer>
             <!-- CI -->
             <button
@@ -239,24 +241,24 @@
 
             <!-- CC -->
             <button v-if="currentMode == 3
-                && !row.major_fact
-                && row?.mission?.assigned_to_cc_id == user().id
-                && !row?.mission?.is_validated_by_cc
-                && [2, 3, 4].includes(Number(row?.score))
-                && is('cc')" class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
+        && !row.major_fact
+        && row?.mission?.assigned_to_cc_id == user().id
+        && !row?.mission?.is_validated_by_cc
+        && [2, 3, 4].includes(Number(row?.score))
+        && is('cc')" class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <NLIcon name="edit" />
                 Traiter
             </button>
 
             <!-- CDCR -->
             <button v-if="(currentMode == 4
-                && !(row?.major_fact_is_detected_by_id == user().id)
-                && !row?.major_fact_is_dispatched_at
-                && (row?.mission?.assigned_to_cc_id ? row?.mission?.is_validated_by_cc && !row?.mission?.is_validated_by_cdcr : !row?.mission?.is_validated_by_cdcr)
-                && row?.mission?.is_validated_by_cdc
-                && [2, 3, 4].includes(Number(row?.score)))
-                || (row?.major_fact && !row?.major_fact_is_dispatched_at && !(row?.major_fact_is_detected_by_id == user().id) && [2, 3, 4].includes(Number(row?.score)))
-                && is('cdcr')" class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
+        && !(row?.major_fact_is_detected_by_id == user().id)
+        && !row?.major_fact_is_dispatched_at
+        && (row?.mission?.assigned_to_cc_id ? row?.mission?.is_validated_by_cc && !row?.mission?.is_validated_by_cdcr : !row?.mission?.is_validated_by_cdcr)
+        && row?.mission?.is_validated_by_cdc
+        && [2, 3, 4].includes(Number(row?.score)))
+        || (row?.major_fact && !row?.major_fact_is_dispatched_at && !(row?.major_fact_is_detected_by_id == user().id) && [2, 3, 4].includes(Number(row?.score)))
+        && is('cdcr')" class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <NLIcon name="edit" />
                 Traiter
             </button>
@@ -269,15 +271,15 @@
 
             <!-- DCP -->
             <button v-if="(currentMode == 5
-                && !(row?.major_fact_is_detected_by_id == user().id)
-                && !row?.mission?.is_validated_by_dcp
-                && !row.major_fact_is_rejected_at_dcp
-                && row?.mission?.is_validated_by_cdc
-                && !row?.major_fact_is_dispatched_at
-                && !row.regularization
-                && [2, 3, 4].includes(Number(row?.score))
-                || (row?.major_fact && !row?.major_fact_is_dispatched_at && !(row?.major_fact_is_detected_by_id == user().id) && [2, 3, 4].includes(Number(row?.score))))
-                && is('dcp')" class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
+        && !(row?.major_fact_is_detected_by_id == user().id)
+        && !row?.mission?.is_validated_by_dcp
+        && !row.major_fact_is_rejected_at_dcp
+        && row?.mission?.is_validated_by_cdc
+        && !row?.major_fact_is_dispatched_at
+        && !row.regularization
+        && [2, 3, 4].includes(Number(row?.score))
+        || (row?.major_fact && !row?.major_fact_is_dispatched_at && !(row?.major_fact_is_detected_by_id == user().id) && [2, 3, 4].includes(Number(row?.score))))
+        && is('dcp')" class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <NLIcon name="edit" />
                 Traiter
             </button>
@@ -402,7 +404,7 @@ export default {
         notify() {
             this.$swal.confirm({ title: 'Notification fait majeur', message: 'Voulez-vous notifier les autorités concernées?' }).then(action => {
                 if (action.isConfirmed) {
-                    this.$api.post('major-facts/' + this.rowSelected.id).then(response => {
+                    this.$alapi.post('major-facts/' + this.rowSelected.id).then(response => {
                         this.$swal.toast_success(response.data.message)
                         this.$emit('success')
                         this.close(true)
@@ -418,7 +420,7 @@ export default {
         reject() {
             this.$swal.confirm({ title: 'Rejet fait majeur', message: 'Voulez-vous rejeter ce fait majeur?' }).then(action => {
                 if (action.isConfirmed) {
-                    this.$api.put('major-facts/' + this.rowSelected.id).then(response => {
+                    this.$alapi.put('major-facts/' + this.rowSelected.id).then(response => {
                         this.$swal.toast_success(response.data.message)
                         this.$emit('success')
                         this.close(true)

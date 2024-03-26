@@ -3,38 +3,28 @@
 
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\Api\V1\StatisticController;
-use App\Http\Controllers\Api\V1\Mission\AnomalyController;
-use App\Http\Controllers\Api\V1\BackupController;
-use App\Http\Controllers\Api\V1\BugController;
-use App\Http\Controllers\Api\V1\CommentController;
-use App\Http\Controllers\Api\V1\ControlCampaignController;
-use App\Http\Controllers\Api\V1\ControlPointController;
-use App\Http\Controllers\Api\V1\DomainController;
-use App\Http\Controllers\Api\V1\FamilyController;
-use App\Http\Controllers\Api\V1\FieldController;
-use App\Http\Controllers\Api\V1\Mission\MajorFactController;
-use App\Http\Controllers\Api\V1\MediaController;
-use App\Http\Controllers\Api\V1\Mission\MissionAssignationController;
-use App\Http\Controllers\Api\V1\Mission\MissionController;
-use App\Http\Controllers\Api\V1\Mission\MissionDetailController;
-use App\Http\Controllers\Api\V1\Mission\MissionCommentController;
-use App\Http\Controllers\Api\V1\NotificationController;
-use App\Http\Controllers\Api\V1\ProcessController;
-use App\Http\Controllers\Api\V1\RoleController;
-use App\Http\Controllers\Api\V1\UserController;
-use App\Http\Controllers\Api\V1\Settings\PasswordController;
-use App\Http\Controllers\Api\V1\ReferenceController;
-use App\Http\Controllers\Api\V1\Mission\MissionDetailRegularizationController;
-use App\Http\Controllers\Api\V1\Mission\MissionProcessController;
-use App\Http\Controllers\Api\V1\ModuleController;
-use App\Http\Controllers\Api\V1\NotificationSettingController;
-use App\Http\Controllers\Api\V1\Settings\SettingController;
-use App\Http\Controllers\Api\V1\Statistics\KPIController;
-use App\Http\Controllers\Api\V1\Auth\LoginController;
-use App\Http\Controllers\API\V1\PCFController;
+use App\Http\Controllers\Api\BackupController;
+use App\Http\Controllers\Api\BugController;
+use App\Http\Controllers\Api\CommentController;
 
-Route::group(['middleware' => 'auth:api', 'prefix' => 'v1'], function () {
+use App\Http\Controllers\Api\ControlPointController;
+use App\Http\Controllers\Api\DomainController;
+use App\Http\Controllers\Api\FamilyController;
+use App\Http\Controllers\Api\FieldController;
+use App\Http\Controllers\Api\MediaController;
+use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\ProcessController;
+use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\Settings\PasswordController;
+use App\Http\Controllers\Api\ReferenceController;
+use App\Http\Controllers\Api\ModuleController;
+use App\Http\Controllers\Api\NotificationSettingController;
+use App\Http\Controllers\Api\Settings\SettingController;
+use App\Http\Controllers\Api\Auth\LoginController;
+use App\Http\Controllers\Api\PCFController;
+
+Route::group(['middleware' => 'auth:api'], function () {
     /**
      * Logout user
      */
@@ -159,106 +149,16 @@ Route::group(['middleware' => 'auth:api', 'prefix' => 'v1'], function () {
         });
 
         /**
-         * Control campaigns
-         */
-        Route::prefix('campaigns')->controller(ControlCampaignController::class)->group(function () {
-            Route::get('/', 'index');
-            Route::post('/', 'store');
-            Route::post('/{campaign}/reports', 'generateReports');
-            Route::get('/campaign', 'campaign');
-            Route::get('/next-reference', 'getNextReference');
-            Route::get('/{campaign}', 'show');
-            Route::get('/processes/{campaign}', 'processes');
-            Route::put('/{campaign}', 'update');
-            Route::put('/{campaign}/validate', 'validateCampaign');
-            Route::delete('{campaign}', 'destroy');
-            Route::delete('{campaign}/process/{process}', 'destroyProcess');
-        });
-
-        /**
-         * Missions
-         */
-        Route::prefix('missions')->controller(MissionController::class)->group(function () {
-            Route::post('/', 'store');
-            Route::put('{mission}', 'update');
-            Route::get('/', 'index');
-            Route::get('/{mission}', 'show');
-            Route::get('/{mission}/report', 'handleReport');
-            // Route::put('{mission}/assign', 'assignToCC');
-            Route::get('/concerns/test-config', 'testConfig');
-            Route::get('/concerns/config', 'config');
-            Route::delete('{mission}', 'destroy');
-            Route::put('{mission}/validate/{type}', 'validateMission');
-            Route::get('{mission}/processes', [MissionProcessController::class, 'index']);
-
-            /**
-             * Processes
-             */
-            Route::prefix('{mission}/processes')->controller(MissionProcessController::class)->group(function () {
-                Route::get('{process}', 'show');
-                Route::put('{process}/lock', 'lock');
-                Route::put('{process}/unlock', 'unlock');
-            });
-
-            /**
-             * Details
-             */
-            Route::prefix('details')->controller(MissionDetailController::class)->group(function () {
-                Route::get('{mission}/export', 'export');
-                Route::get('{detail}', 'show');
-                Route::post('{mission}', 'control');
-            });
-
-            /**
-             * Mission assignation
-             */
-
-            Route::get('{mission}/assigned-processes/{user}', [MissionAssignationController::class, 'getAssignedProcesses']);
-            Route::get('{mission}/loadAssignationData/{type}', [MissionAssignationController::class, 'loadAssignationData']);
-            Route::get('{mission}/not-dispatched-processes/{type}', [MissionAssignationController::class, 'getNotDispatchedProcesses']);
-            Route::post('{mission}/assign/{type}', [MissionAssignationController::class, 'assign']);
-            Route::delete('{mission}/assign/{process}/{user}/{type}', [MissionAssignationController::class, 'destroy']);
-        });
-
-        /**
-         * Mission Comments
-         */
-        Route::prefix('missions/{mission}/comments')->controller(MissionCommentController::class)->group(function () {
-            Route::post('/', 'store');
-        });
-
-        /**
-         * Anomalies
-         */
-        Route::prefix('anomalies')->controller(AnomalyController::class)->group(function () {
-            Route::get('/{mission?}', 'index');
-        });
-
-        /**
-         * Major facts
-         */
-        Route::prefix('major-facts')->controller(MajorFactController::class)->group(function () {
-            Route::get('/', 'index');
-            Route::put('{detail}', 'reject');
-            Route::post('{detail}', 'notify');
-        });
-
-        /**
-         * Regularizations
-         */
-        Route::prefix('regularize')->controller(MissionDetailRegularizationController::class)->group(function () {
-            Route::post('{detail}', 'store');
-            Route::put('{regularization}/reject', 'reject');
-            Route::put('{regularization}/accept', 'accept');
-            Route::post('{regularization}/comment', 'comment');
-            Route::get('{detail}/history', 'show');
-        });
-
-        /**
          * Structures management
          */
 
         include_once __DIR__ . './structures.php';
+
+        /**
+         * Agency level
+         */
+
+        include_once __DIR__ . './agency_level.php';
 
         /**
          * Media
@@ -269,20 +169,6 @@ Route::group(['middleware' => 'auth:api', 'prefix' => 'v1'], function () {
             Route::post('/', 'store');
             Route::delete('{media}', 'destroy');
             Route::delete('{media}/multiple', 'destroyMultiple');
-        });
-
-        /**
-         * Statistics
-         */
-        Route::prefix('statistics')->controller(StatisticController::class)->group(function () {
-            Route::get('anomalies', 'anomalies');
-            Route::get('major-facts', 'majorFacts');
-            Route::get('scores', 'scores');
-            Route::get('missions-states', 'missionsStates');
-            Route::prefix('kpi')->controller(KPIController::class)->group(function () {
-                Route::get('v1', 'v1');
-                Route::get('export/excel/{type}', 'exportToExcel');
-            });
         });
 
         /**

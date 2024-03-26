@@ -141,7 +141,7 @@ export default {
                 this.$swal.confirm({ message: 'Êtes-vous sûr de vouloir enregistrer ces informations ?' }).then(action => {
                     if (action.isConfirmed) {
                         this.formIsLoading = true
-                        this.form.put('campaigns/' + this.$route.params.campaignId).then(response => {
+                        this.form.put('agency_level/campaigns/' + this.$route.params.campaignId).then(response => {
                             if (response.data.status) {
                                 this.$swal.toast_success(response.data.message)
                                 this.$router.push({ name: 'campaign', params: { campaignId: this.$route.params.campaignId } })
@@ -186,7 +186,7 @@ export default {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
 
-            this.$store.dispatch('campaigns/fetch', { campaignId: this.$route.params.campaignId, edit: true }).then(() => {
+            this.$store.dispatch('agency_level/campaigns/fetch', { campaignId: this.$route.params.campaignId, edit: true }).then(() => {
                 if (this.campaign?.current?.validated_by_id) {
                     this.$router.push({ name: 'campaigns' })
                 }

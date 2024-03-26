@@ -4,13 +4,15 @@
         :isSearchable="isSearchable">
         <template #filter>
             <!-- Table filters -->
-            <NLFilter :filters="filters" :isOpen="filterIsOpen" :customUrl="filtersCustomUrl" :urlPrefix="filtersUrlPrefix"
-                :parentUrlPrefix="urlPrefix" @filtered="(e) => this.loadData({ filters: e })"
-                @unloaded="() => this.loadData({ page: 1 })" />
+            <NLFilter :filters="filters" :isOpen="filterIsOpen" :customUrl="filtersCustomUrl"
+                :urlPrefix="filtersUrlPrefix" :parentUrlPrefix="urlPrefix"
+                @filtered="(e) => this.loadData({ filters: e })" @unloaded="() => this.loadData({ page: 1 })" />
         </template>
+
         <template #table-actions>
             <slot name="table-actions"></slot>
         </template>
+
         <template #head>
             <!-- Table head -->
             <TableRow>
@@ -22,7 +24,8 @@
                     @sorted="(e) => this.loadData({ sorting: e })" />
 
                 <!-- Table header actions label -->
-                <TableHeader :key="'th-' + columns.length" :column="actionsColumn" v-if="hasActions" class="cell-actions" />
+                <TableHeader :key="'th-' + columns.length" :column="actionsColumn" v-if="hasActions"
+                    class="cell-actions" />
             </TableRow>
         </template>
 
@@ -51,8 +54,8 @@
                     <!-- Table data actions -->
                     <TableData :key="'tr-' + row + '-td-' + columns.length" :column="actionsColumn" :item="value">
                         <slot name="actions-before" :item="value" :callback="handleCustomAction"></slot>
-                        <TableAction v-for="(action, name) in actions" :name="name" :action="action" :column="actionsColumn"
-                            :item="value" @action="handleAction" />
+                        <TableAction v-for="(action, name) in actions" :name="name" :action="action"
+                            :column="actionsColumn" :item="value" @action="handleAction" />
                         <slot name="actions-after" :item="value" :callback="handleCustomAction"></slot>
                     </TableData>
                 </TableRow>
@@ -232,7 +235,7 @@ export default {
          * Generate url after each call
          */
         getUrl() {
-            this.url = this.customUrl ? this.customUrl + this.urlPrefix : window.Laravel.baseUrl + '/api/v1/' + this.urlPrefix
+            this.url = this.customUrl ? this.customUrl + this.urlPrefix : window.Laravel.baseUrl + '/api/' + this.urlPrefix
             this.url += this.formatQueryString()
         },
 

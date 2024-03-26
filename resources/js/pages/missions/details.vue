@@ -19,6 +19,7 @@
                             </span>
                         </NLTooltip>
                         <NLTooltip type="bottom">
+
                             <template #content>
                                 <b>Domaine</b>
                                 <p class="mt-2">{{ process?.domain?.name }}</p>
@@ -28,6 +29,7 @@
                             </span>
                         </NLTooltip>
                         <NLTooltip title="Processus" type="bottom">
+
                             <template #content>
                                 <b>Processus</b>
                                 <p class="mt-2">{{ process?.name }}</p>
@@ -102,7 +104,8 @@
                                 <NLColumn lg="2" v-if="Number(detail?.score) !== 5">
                                     <b>Plan de redressement:</b>
                                 </NLColumn>
-                                <NLColumn lg="10" v-if="Number(detail?.score) !== 5" v-html="detail?.recovery_plan || '-'">
+                                <NLColumn lg="10" v-if="Number(detail?.score) !== 5"
+                                    v-html="detail?.recovery_plan || '-'">
                                 </NLColumn>
 
                                 <!-- Regularization -->
@@ -125,7 +128,8 @@
                                 </NLColumn>
 
                                 <!-- Actions -->
-                                <NLColumn extraClass="d-flex justify-end align-center" v-if="Number(detail?.score) !== 5">
+                                <NLColumn extraClass="d-flex justify-end align-center"
+                                    v-if="Number(detail?.score) !== 5">
                                     <NLFlex gap="2">
                                         <button class="btn btn-info has-icon" @click="show(detail)">
                                             <NLIcon name="visibility" />
@@ -156,23 +160,23 @@
 
                                         <!-- CDCR -->
                                         <button v-if="mode == 4 &&
-                                            !(detail?.major_fact_is_detected_by_id == user().id)
-                                            && !detail?.major_fact_is_dispatched_at
-                                            && (mission?.assigned_to_cc_id ? mission?.is_validated_by_cc && !mission?.is_validated_by_cdcr : !mission?.is_validated_by_cdcr)
-                                            && [2, 3, 4].includes(Number(detail?.score))
-                                            && is('cdcr')" class="btn btn-warning has-icon" @click="edit(detail)">
+        !(detail?.major_fact_is_detected_by_id == user().id)
+        && !detail?.major_fact_is_dispatched_at
+        && (mission?.assigned_to_cc_id ? mission?.is_validated_by_cc && !mission?.is_validated_by_cdcr : !mission?.is_validated_by_cdcr)
+        && [2, 3, 4].includes(Number(detail?.score))
+        && is('cdcr')" class="btn btn-warning has-icon" @click="edit(detail)">
                                             <NLIcon name="edit" />
                                             Traiter
                                         </button>
 
                                         <!-- CC -->
                                         <button v-if="mode == 3
-                                            && !detail.major_fact
-                                            && !detail?.major_fact_is_dispatched_at
-                                            && mission.assigned_to_cc_id == user().id
-                                            && !mission?.is_validated_by_cc
-                                            && [2, 3, 4].includes(Number(detail?.score))
-                                            && is('cc')" class="btn btn-warning has-icon" @click="edit(detail)">
+        && !detail.major_fact
+        && !detail?.major_fact_is_dispatched_at
+        && mission.assigned_to_cc_id == user().id
+        && !mission?.is_validated_by_cc
+        && [2, 3, 4].includes(Number(detail?.score))
+        && is('cc')" class="btn btn-warning has-icon" @click="edit(detail)">
                                             <NLIcon name="edit" />
                                             Traiter
                                         </button>
@@ -180,12 +184,12 @@
                                         <!-- DCP -->
                                         <button
                                             v-if="(mode == 5
-                                                && !(detail?.major_fact_is_detected_by_id == user().id)
-                                                && !mission?.is_validated_by_dcp
-                                                && mission.is_validated_by_cdc
-                                                && !detail?.major_fact_is_dispatched_at
-                                                && [2, 3, 4].includes(Number(detail?.score))
-                                                || (detail?.major_fact && !detail?.major_fact_is_dispatched_at && !(detail?.major_fact_is_detected_by_id == user().id) && [3, 4].includes(Number(detail?.score)))) && is('dcp')"
+        && !(detail?.major_fact_is_detected_by_id == user().id)
+        && !mission?.is_validated_by_dcp
+        && mission.is_validated_by_cdc
+        && !detail?.major_fact_is_dispatched_at
+        && [2, 3, 4].includes(Number(detail?.score))
+        || (detail?.major_fact && !detail?.major_fact_is_dispatched_at && !(detail?.major_fact_is_detected_by_id == user().id) && [3, 4].includes(Number(detail?.score)))) && is('dcp')"
                                             class="btn btn-warning has-icon" @click="edit(detail)">
                                             <NLIcon name="edit" />
                                             Traiter
@@ -319,7 +323,7 @@ export default {
         notify(row) {
             this.$swal.confirm({ title: 'Notification fait majeur', message: 'Voulez-vous notifier les autorités concernées ?' }).then(action => {
                 if (action.isConfirmed) {
-                    this.$api.post('major-facts/' + row.id).then(response => {
+                    this.$alapi.post('major-facts/' + row.id).then(response => {
                         this.$swal.toast_success(response.data.message)
                         this.initData()
                     }).catch(error => {

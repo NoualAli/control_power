@@ -143,7 +143,7 @@ export default {
     },
     computed: {
         ...mapGetters({
-            missionsStates: 'statistics/missionsStates'
+            missionsStates: 'agencyLevelStatistics/missionsStates'
         }),
     },
     props: {
@@ -175,7 +175,7 @@ export default {
     },
     methods: {
         initData() {
-            this.$store.dispatch('statistics/fetchMissionsStates', { onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign }).then(() => {
+            this.$store.dispatch('agencyLevelStatistics/fetchMissionsStates', { onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign }).then(() => {
                 this.charts.missionsPercentage = this.missionsStates.data.missionsPercentage
                 this.cards.missionsState = this.missionsStates.data.missionsState
                 this.tables.dresClassificationByAchievementRate = this.missionsStates.data.dresClassificationByAchievementRate

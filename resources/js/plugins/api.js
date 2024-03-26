@@ -11,7 +11,7 @@ const api = axios.create({
         Accept: 'application/json'
 
     },
-    baseURL: '/api/v1',
+    baseURL: '/api',
     transformRequest: formData => formData
 })
 

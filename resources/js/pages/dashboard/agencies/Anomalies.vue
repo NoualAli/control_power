@@ -36,7 +36,8 @@
             </div>
             <NLContainer extraClass="d-flex full-center" isFluid>
                 <NLFlex isFullCentered extraClass="w-100 h-100" v-if="charts.dres.datasets[0].data.length">
-                    <Bar id="dresAnomalies" :data="charts.dres" :options="chartOptions" data-title="anomalies_par_dre" />
+                    <Bar id="dresAnomalies" :data="charts.dres" :options="chartOptions"
+                        data-title="anomalies_par_dre" />
                 </NLFlex>
                 <div class="my-10 text-center text-bold" v-else>
                     Pas assez de données
@@ -166,7 +167,7 @@ export default {
     },
     computed: {
         ...mapGetters({
-            anomalies: 'statistics/anomalies',
+            anomalies: 'agencyLevelStatistics/anomalies',
         }),
     },
     props: {
@@ -197,7 +198,7 @@ export default {
     methods: {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
-            this.$store.dispatch('statistics/fetchAnomalies', { onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign }).then(() => {
+            this.$store.dispatch('agencyLevelStatistics/fetchAnomalies', { onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign }).then(() => {
                 this.tables.domains = this.anomalies.data.domainsAnomalies
                 this.tables.missions = this.anomalies.data.missionsAnomalies
                 this.tables.campaigns = this.anomalies.data.campaignsAnomalies

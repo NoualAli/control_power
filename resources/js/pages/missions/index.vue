@@ -1,7 +1,7 @@
 <template>
     <ContentBody v-if="can('view_mission')">
         <NLDatatable :columns="columns" :actions="actions" :filters="filters"
-            title="Suivi des réalisations des missions" urlPrefix="missions" :refresh="refresh"
+            title="Suivi des réalisations des missions" urlPrefix="agency_level/missions" :refresh="refresh"
             @dataLoaded="handleDataLoaded">
             <template #table-actions>
                 <router-link v-if="can('create_mission') && campaignId"
@@ -465,7 +465,7 @@ export default {
             return this.$swal.confirm({ message: "Êtes-vous sûr de vouloir supprimer la mission <b>" + e.item.reference + "</b>" }).then((action) => {
                 if (action.isConfirmed) {
                     this.refresh += 1
-                    return this.$api.delete('missions/' + e.item.id)
+                    return this.$alapi.delete('missions/' + e.item.id)
                 }
             })
         }

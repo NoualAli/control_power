@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\Api\V1\Structures\AgencyController;
-use App\Http\Controllers\Api\V1\Structures\AgencyCategoriesController;
-use App\Http\Controllers\Api\V1\Structures\DreController;
-use App\Http\Controllers\Api\V1\Structures\RegionalInspectionController;
+use App\Http\Controllers\Api\Structures\AgencyController;
+use App\Http\Controllers\Api\Structures\AgencyCategoriesController;
+use App\Http\Controllers\Api\Structures\DreController;
+use App\Http\Controllers\Api\Structures\RegionalInspectionController;
 use Illuminate\Support\Facades\Route;
 
 /**

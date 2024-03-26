@@ -416,7 +416,7 @@ export default {
             this.$swal.confirm({ message: "Êtes-vous sûr de vouloir enregistrer ces informations ?", confirmButtonText: 'Oui' }).then(action => {
                 if (action.isConfirmed) {
                     this.formIsLoading = true
-                    this.form.post('missions/details/' + this.data.mission_id).then(response => {
+                    this.form.post('agency_level/missions/details/' + this.data.mission_id).then(response => {
                         if (response.data.status) {
                             this.$swal.toast_success(response.data.message)
                             this.$emit('success', response)

@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import api from '../plugins/api'
+import api from '../plugins/agencyLevelApi'
 import NLForm from '../components/NLForm'
 import { Form } from 'vform'
 import NLComponentLoader from '../components/NLComponentLoader'
@@ -182,7 +182,7 @@ export default {
          */
         save() {
             this.formIsLoading = true
-            this.form.post('missions/' + this.mission?.id + '/assign/' + this.type).then(response => {
+            this.form.post('agency_level/missions/' + this.mission?.id + '/assign/' + this.type).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.$emit('success')

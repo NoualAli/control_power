@@ -24,7 +24,8 @@
                     placeholder="Ajouter une description" label-required :length="3000" />
             </NLColumn>
             <NLColumn v-if="showValidation" lg="6">
-                <NLSwitch v-model="form.is_validated" name="is_validated" :form="form" label="Validé" type="is-success" />
+                <NLSwitch v-model="form.is_validated" name="is_validated" :form="form" label="Validé"
+                    type="is-success" />
             </NLColumn>
             <!-- <NLColumn lg="6">
                 <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form" label="Campagne de contrôle TEST"
@@ -150,7 +151,7 @@ export default {
          */
         create() {
             this.formIsLoading = true
-            this.form.post('campaigns').then(response => {
+            this.form.post('agency_level/campaigns').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.form.reset()

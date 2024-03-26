@@ -165,7 +165,7 @@ export default {
     },
     computed: {
         ...mapGetters({
-            majorFacts: 'statistics/majorFacts',
+            majorFacts: 'agencyLevelStatistics/majorFacts',
         }),
     },
     props: {
@@ -196,7 +196,7 @@ export default {
     methods: {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
-            this.$store.dispatch('statistics/fetchMajorFacts', { onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign }).then(() => {
+            this.$store.dispatch('agencyLevelStatistics/fetchMajorFacts', { onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign }).then(() => {
                 this.tables.domains = this.majorFacts.data.domainsMajorFacts
                 this.tables.missions = this.majorFacts.data.missionsMajorFacts
                 this.tables.campaigns = this.majorFacts.data.campaignsMajorFacts

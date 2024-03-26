@@ -1,7 +1,7 @@
 <template>
     <ContentBody v-if="can('view_control_campaign')">
         <NLDatatable :refresh="refresh" :columns="columns" :actions="actions" :filters="filters"
-            title="Suivi du planning annuel" urlPrefix="campaigns"
+            title="Suivi du planning annuel" urlPrefix="agency_level/campaigns"
             @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
             <template #actions-before="{ item, callback }">
                 <NLButton :loading="currentValidationBtnIsLoading == item.id" loadingLabel=""

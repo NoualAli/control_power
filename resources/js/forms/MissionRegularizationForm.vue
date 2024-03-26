@@ -5,6 +5,7 @@
                 {{ detail?.control_point.name }}
             </small>
         </template>
+
         <template #default>
             <NLForm :form="form" :action="save" v-if="!isLoading">
                 <NLColumn lg="6">
@@ -12,8 +13,8 @@
                         label="Levée ?" />
                 </NLColumn>
                 <NLColumn lg="6">
-                    <NLSwitch v-model="form.is_sanitation_in_progress" type="is-success" name="is_sanitation_in_progress"
-                        :form="form" label="En cours d'assainissement ?" />
+                    <NLSwitch v-model="form.is_sanitation_in_progress" type="is-success"
+                        name="is_sanitation_in_progress" :form="form" label="En cours d'assainissement ?" />
                 </NLColumn>
                 <NLColumn>
                     <NLWyswyg v-model="form.action_to_be_taken" name="action_to_be_taken" label="Actions engagées"
@@ -28,6 +29,7 @@
             <!-- Loader -->
             <NLComponentLoader :isLoading="isLoading" v-if="isLoading" />
         </template>
+
         <template #footer>
             <!-- Submit Button -->
             <div class="col-12 d-flex justify-end align-center">
@@ -109,7 +111,7 @@ export default {
          */
         save() {
             this.formIsLoading = true
-            this.form.post('regularize/' + this.detail?.id).then(response => {
+            this.form.post('agency_level/regularize/' + this.detail?.id).then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.$emit('success', response)

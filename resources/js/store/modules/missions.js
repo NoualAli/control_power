@@ -1,4 +1,4 @@
-import api from '../../plugins/api'
+import alapi from '../../plugins/agencyLevelApi'
 
 export const state = {
     all: null,
@@ -37,19 +37,19 @@ export const mutations = {
 export const actions = {
 
     async fetchAll({ commit }) {
-        const { data } = await api.get('missions?fetchAll')
+        const { data } = await alapi.get('missions?fetchAll')
         commit('FETCH_ALL', { all: data })
     },
     async fetchPaginated({ commit }, campaignId = null) {
         const url = campaignId ? 'missions?campaign_id=' + campaignId : 'missions'
-        const { data } = await api.get(url)
+        const { data } = await alapi.get(url)
         commit('FETCH_PAGINATED', { paginated: data })
     },
     async fetch({ commit }, { missionId, onlyProcesses = false, edit = false }) {
         try {
             let url = onlyProcesses ? 'missions/' + missionId + '?onlyProcesses' : 'missions/' + missionId
             url += edit ? '?edit' : ''
-            const { data } = await api.get(url)
+            const { data } = await alapi.get(url)
             if (onlyProcesses) {
                 commit('FETCH_PROCESSES', { processes: data })
             } else {
@@ -70,7 +70,7 @@ export const actions = {
                 url += '?mission_id=' + params.missionId + '&campaign_id=' + params.campaignId
             }
 
-            const { data } = await api.get(url)
+            const { data } = await alapi.get(url)
             commit('FETCH_CONFIG', { config: data })
         } catch (error) {
 
@@ -79,7 +79,7 @@ export const actions = {
     async fetchDetails({ commit }, { missionId, processId }) {
         const url = 'missions/' + missionId + '/processes/' + processId
         try {
-            const { data } = await api.get(url)
+            const { data } = await alapi.get(url)
             commit('FETCH_DETAILS', { detailsConfig: data })
         } catch (error) {
             console.error(error);

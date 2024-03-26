@@ -1,8 +1,8 @@
 <template>
     <ContentBody>
         <NLDatatable :columns="columns" :actions="actions" :filters="filters" @show="show" title="Plans de redressement"
-            urlPrefix="anomalies" @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)"
-            :refresh="refresh">
+            urlPrefix="agency_level/anomalies"
+            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" :refresh="refresh">
             <template #table-actions>
                 <NLButton class="has-icon" @click="refresh += 1">
                     <NLIcon name="sync" />

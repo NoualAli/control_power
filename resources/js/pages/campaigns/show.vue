@@ -3,6 +3,7 @@
         <!-- <template #title>
             Informations de la campagne de contrôle
         </template> -->
+
         <template #left-actions>
             <NLColumn>
                 <!-- Control campaign actions -->
@@ -24,8 +25,9 @@
                         v-if="is(['cdrcp', 'dcp', 'cdcr',])">
                         <NLIcon name="folder_zip" />
                     </NLButton>
-                    <NLButton v-if="totalMissions && is(['dcp', 'cdcr'])" class="has-icon" @click.prevent="generateReports"
-                        label="Regénérer les rapports manquants" :loading="reGenerateReportsIsLoading">
+                    <NLButton v-if="totalMissions && is(['dcp', 'cdcr'])" class="has-icon"
+                        @click.prevent="generateReports" label="Regénérer les rapports manquants"
+                        :loading="reGenerateReportsIsLoading">
                         <NLIcon name="picture_as_pdf" />
                     </NLButton>
                     <NLButton v-if="totalMissions && is(['dcp', 'cdcr'])" class="has-icon"
@@ -38,14 +40,16 @@
                         <NLIcon name="table" />
                         Récapitulatif des notations
                     </a>
-                    <a :href="'/excel-export?export=synthesis_reports&campaign=' + campaign?.current?.id" target="_blank"
-                        class="btn has-icon" v-if="is(['cdcr', 'dcp', 'cdrcp']) && totalMissions == totalValidatedMissions">
+                    <a :href="'/excel-export?export=synthesis_reports&campaign=' + campaign?.current?.id"
+                        target="_blank" class="btn has-icon"
+                        v-if="is(['cdcr', 'dcp', 'cdrcp']) && totalMissions == totalValidatedMissions">
                         <NLIcon name="table" />
                         Récapitulatif des constats
                     </a>
                 </NLFlex>
             </NLColumn>
         </template>
+
         <template #right-actions>
             <router-link v-if="can('view_mission') && Boolean(Number(campaign?.current?.is_validated))"
                 :to="{ name: 'campaign-missions', params: { campaignId: campaign?.current?.id } }" class="btn has-icon">
@@ -54,7 +58,8 @@
                 Missions
             </router-link>
             <router-link v-if="can('view_mission') && Boolean(Number(campaign?.current?.is_validated))"
-                :to="{ name: 'campaign-statistics', params: { campaignId: campaign?.current?.id } }" class="btn has-icon">
+                :to="{ name: 'campaign-statistics', params: { campaignId: campaign?.current?.id } }"
+                class="btn has-icon">
                 <NLIcon name="pie_chart" />
                 <!-- <i class="las la-chart-bar icon"></i> -->
                 Statistiques
@@ -205,8 +210,10 @@
             <NLColumn>
                 <!-- Processes List -->
                 <NLDatatable :refresh="refresh" v-if="campaign?.current?.id" :columns="columns" :details="details"
-                    :urlPrefix="'campaigns/processes/' + campaign?.current?.id" detailsUrlPrefix="processes"
+                    :urlPrefix="'agency_level/campaigns/processes/' + campaign?.current?.id"
+                    detailsUrlPrefix="processes"
                     @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
+
                     <template #actions-before="{ item, callback }"
                         v-if="can('edit_control_campaign') && !campaign?.current?.validated_by_id && (user().id == campaign?.current?.created_by_id || is('dcp'))">
                         <button class="btn btn-danger has-icon" @click.stop="callback(detachProcess, item)">
@@ -221,7 +228,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import api from '../../plugins/api'
+import alapi from '../../plugins/agencyLevelApi'
 import { hasRole } from '../../plugins/user'
 import NLReadMore from '../../components/NLReadMore'
 import { Form } from 'vform'
@@ -355,13 +362,13 @@ export default {
             let confirmTitle = forceAll ? 'Êtes-vous sûr de vouloir regénérer tous les rapports <b>existants / manquant</b> de la campagne de contrôle <b>' + this.campaign?.current?.reference + '</b>' : 'Êtes-vous sûr de vouloir générer tous les rapports manquants de la campagne de contrôle <b>' + this.campaign?.current?.reference + '</b>'
             this.$swal.confirm_update(confirmTitle).then(action => {
                 if (action.isConfirmed) {
-                    let url = 'campaigns/' + this.campaign?.current?.id + '/reports?action=generate&all=0';
+                    let url = 'agency_level/campaigns/' + this.campaign?.current?.id + '/reports?action=generate&all=0';
                     let successMessage = 'La génération des rapports des missions de la campagne de contrôle ' + this.campaign?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.'
                     let errorMessage = 'On s\'excuse il y\'a eu un problème avec la fonction de génération des rapports concernant la campagne de contrôle ' + this.campaign?.current?.reference + ', veuilez réessayer plus tard, si le proboème perssiste veuillez contacter votre développeur.'
                     let title = 'Génération des rapports PDF'
                     if (forceAll) {
                         this.reGenerateReportsIsLoading = true
-                        url = 'campaigns/' + this.campaign?.current?.id + '/reports?action=generate&all=1';
+                        url = 'agency_level/campaigns/' + this.campaign?.current?.id + '/reports?action=generate&all=1';
                         successMessage = 'La re-génération des rapports des missions de la campagne de contrôle ' + this.campaign?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.'
                         errorMessage = 'On s\'excuse il y\'a eu un problème avec la fonction de re-génération des rapports concernant la campagne de contrôle ' + this.campaign?.current?.reference + ', veuilez réessayer plus tard, si le proboème perssiste veuillez contacter votre développeur.'
                         title = 'Re-génération des rapports PDF'
@@ -423,7 +430,7 @@ export default {
             this.$swal.confirm({ title: 'Validation', message: 'Validation de la campagne de contrôle ' + item.reference, icon: 'success' }).then(response => {
                 if (response.isConfirmed) {
                     this.validationInProgress = true
-                    api.put('campaigns/' + item.id + '/validate').then(response => {
+                    alapi.put('campaigns/' + item.id + '/validate').then(response => {
                         if (response.data.status) {
                             this.initData()
                             this.$store.dispatch('settings/updatePageLoading', false)
@@ -447,7 +454,7 @@ export default {
             this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
                     this.destroyInProgress = true
-                    api.delete('campaigns/' + this.campaign?.current?.id).then(response => {
+                    alapi.delete('campaigns/' + this.campaign?.current?.id).then(response => {
                         if (response.data.status) {
                             this.$swal.toast_success(response.data.message)
                             this.$router.push({ name: 'campaigns' })
@@ -471,7 +478,7 @@ export default {
         detachProcess(item) {
             return this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
-                    return api.delete('campaigns/' + this.campaign?.current?.id + '/process/' + item.id).then((response) => {
+                    return alapi.delete('campaigns/' + this.campaign?.current?.id + '/process/' + item.id).then((response) => {
                         if (response?.data?.status) {
                             this.refresh += 1
                         }

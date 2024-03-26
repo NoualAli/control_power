@@ -12,6 +12,7 @@
                     </span>
                 </NLTooltip>
                 <NLTooltip type="bottom">
+
                     <template #content>
                         <b>Domaine</b>
                         <p class="mt-2">{{ currentProcess?.domain?.name }}</p>
@@ -21,6 +22,7 @@
                     </span>
                 </NLTooltip>
                 <NLTooltip title="Processus" type="bottom">
+
                     <template #content>
                         <b>Processus</b>
                         <p class="mt-2">{{ currentProcess?.name }}</p>
@@ -31,6 +33,7 @@
                 </NLTooltip>
             </div>
         </template>
+
         <template #default>
             <div class="content">
                 <h2>

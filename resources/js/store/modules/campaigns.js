@@ -1,4 +1,4 @@
-import api from '../../plugins/api'
+import alapi from '../../plugins/agencyLevelApi'
 
 export const state = {
     all: null,
@@ -43,11 +43,11 @@ export const mutations = {
 
 export const actions = {
     async fetchAll({ commit }) {
-        const { data } = await api.get('campaigns?fetchAll')
+        const { data } = await alapi.get('campaigns?fetchAll')
         commit('FETCH_ALL', { all: data })
     },
     async fetchPaginated({ commit }) {
-        const { data } = await api.get('campaigns')
+        const { data } = await alapi.get('campaigns')
         commit('FETCH_PAGINATED', { paginated: data })
     },
     async fetchCurrent({ commit }, { latestCampaign = false, currentCampaign = true }) {
@@ -57,14 +57,14 @@ export const actions = {
         } else if (currentCampaign) {
             url = 'campaigns/campaign?current'
         }
-        const { data } = await api.get(url)
+        const { data } = await alapi.get(url)
         commit('FETCH_CURRENT', { current: data })
         return Promise.resolve(data)
     },
     async fetch({ commit }, { campaignId, edit = false }) {
         try {
             const url = edit ? 'campaigns/' + campaignId + '?edit' : 'campaigns/' + campaignId
-            const { data } = await api.get(url)
+            const { data } = await alapi.get(url)
             commit('FETCH', { current: data })
             return Promise.resolve(data)
         } catch (error) {
@@ -73,26 +73,26 @@ export const actions = {
     },
     async fetchProcesses({ commit }, id) {
         try {
-            const { data } = await api.get('campaigns/processes/' + id)
+            const { data } = await alapi.get('campaigns/processes/' + id)
             commit('FETCH_PROCESSES', { processes: data })
         } catch (error) {
 
         }
     },
     async fetchPlannings({ commit }, campaignId) {
-        const { data } = await api.get('campaigns/' + campaignId + '/plannings')
+        const { data } = await alapi.get('campaigns/' + campaignId + '/plannings')
         commit('FETCH_PLANNINGS', { plannings: data })
     },
     async fetchAllPlannings({ commit }, campaignId) {
-        const { data } = await api.get('campaigns/' + campaignId + '/plannings?fetchAll')
+        const { data } = await alapi.get('campaigns/' + campaignId + '/plannings?fetchAll')
         commit('FETCH_PLANNINGS', { plannings: data })
     },
     async fetchSamples({ commit }, { campaignId, agencyId }) {
-        const { data } = await api.get('campaigns/' + campaignId + '/agency/' + agencyId)
+        const { data } = await alapi.get('campaigns/' + campaignId + '/agency/' + agencyId)
         commit('FETCH_SAMPLES', { samples: data })
     },
     async fetchSampleDetails({ commit }, { sampleId }) {
-        const { data } = await api.get('campaigns/sample/' + sampleId + '/details')
+        const { data } = await alapi.get('campaigns/sample/' + sampleId + '/details')
         commit('FETCh_SAMPLE_DETAILS', { details: data })
     },
     async fetchNextReference({ commit }, { isValidated = false, isForTesting = false }) {
@@ -106,7 +106,7 @@ export const actions = {
                 url += '?is_validated'
             }
 
-            const { data } = await api.get(url)
+            const { data } = await alapi.get(url)
             commit('FETCH_NEXT_REFERENCE', { nextReference: data })
         } catch (error) {
             console.error(error)
@@ -129,7 +129,7 @@ export const actions = {
             }
         }
         url += queryString
-        const { data } = await api.get(url)
+        const { data } = await alapi.get(url)
         commit('FETCH_PAGINATED', { paginated: data })
     }
 }

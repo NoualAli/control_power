@@ -80,9 +80,11 @@
             </NLForm>
             <!-- Control campaign informations -->
             <NLModal v-show="form.control_campaign_id" :show="cdcModalIsOpen" @close="cdcModalIsOpen = false">
+
                 <template #title>
                     {{ currentCampaign?.reference }}
                 </template>
+
                 <template #default>
                     <div class="list grid gap-12">
                         <div class="col-12 col-lg-6 list-item">
@@ -91,7 +93,7 @@
                             </span>
                             <span class="list-item-content">
                                 {{ currentCampaign?.start_date + ' / ' +
-                                    currentCampaign?.remaining_days_before_start_str }}
+        currentCampaign?.remaining_days_before_start_str }}
                             </span>
                         </div>
                         <div class="col-12 col-lg-6 list-item">
@@ -100,7 +102,7 @@
                             </span>
                             <span class="list-item-content">
                                 {{ currentCampaign?.end_date + ' / ' +
-                                    currentCampaign?.remaining_days_before_end_str }}
+        currentCampaign?.remaining_days_before_end_str }}
                             </span>
                         </div>
                         <div class="col-12 list-item">
@@ -276,7 +278,7 @@ export default {
             }
 
             if (this.form.control_campaign_id) {
-                this.$api.get('missions/concerns/config?campaign_id=' + this.form.control_campaign_id).then(response => {
+                this.$alapi.get('missions/concerns/config?campaign_id=' + this.form.control_campaign_id).then(response => {
                     this.currentCampaign = response.data.currentCampaign
                     this.currentCampaignReference = this.currentCampaign?.reference
                     this.agenciesList = response.data.agencies
@@ -377,7 +379,7 @@ export default {
         fetchHeadsOfMission() {
             if (this.form.control_campaign_id && this.form.programmed_start && this.form.programmed_end) {
                 this.disabled.head_of_mission_id = false
-                this.$api.get('missions/concerns/config?campaign_id=' + this.form.control_campaign_id + '&programmed_start=' + this.form.programmed_start + '&programmed_end=' + this.form.programmed_end).then(response => {
+                this.$alapi.get('missions/concerns/config?campaign_id=' + this.form.control_campaign_id + '&programmed_start=' + this.form.programmed_start + '&programmed_end=' + this.form.programmed_end).then(response => {
                     this.headsOfMissionList = response.data.headsOfMission
                 })
             }
@@ -388,7 +390,7 @@ export default {
         fetchControllers() {
             if (this.form.control_campaign_id && this.form.programmed_start && this.form.programmed_end && this.form.head_of_mission_id) {
                 this.disabled.assistants = false
-                this.$api.get('missions/concerns/config?campaign_id=' + this.form.control_campaign_id + '&head_of_mission_id=' + this.form.head_of_mission_id + '&programmed_start=' + this.form.programmed_start + '&programmed_end=' + this.form.programmed_end).then(response => {
+                this.$alapi.get('missions/concerns/config?campaign_id=' + this.form.control_campaign_id + '&head_of_mission_id=' + this.form.head_of_mission_id + '&programmed_start=' + this.form.programmed_start + '&programmed_end=' + this.form.programmed_end).then(response => {
                     this.headsOfMissionList = response.data.headsOfMission
                     this.controllersList = response.data.controllers
                 })

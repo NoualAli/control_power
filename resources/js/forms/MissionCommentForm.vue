@@ -5,6 +5,7 @@
                 {{ title }}
             </small>
         </template>
+
         <template #default>
             <!-- Edit view -->
             <NLForm :form="form" :action="save" v-if="!isReadonly && !isLoading">
@@ -15,10 +16,10 @@
                 <NLColumn>
                     <!-- CDC -->
                     <NLFile v-if="form.currentMode == 2" @uploaded="handleMedia" @deleted="handleMedia"
-                        @loaded="handleMedia" v-model="form.closing_report" :name="'closing_report'" label="PV de clôture"
-                        attachable-type="App\Models\Mission" :attachable-id="mission.id" :form="form"
-                        accepted="jpg,jpeg,png" :canDelete="canDeleteMedia()" :readonly="![1, 2].includes(form.currentMode)"
-                        multiple labelRequired
+                        @loaded="handleMedia" v-model="form.closing_report" :name="'closing_report'"
+                        label="PV de clôture" attachable-type="App\Models\Mission" :attachable-id="mission.id"
+                        :form="form" accepted="jpg,jpeg,png" :canDelete="canDeleteMedia()"
+                        :readonly="![1, 2].includes(form.currentMode)" multiple labelRequired
                         :helpText="'- Uniquement les fichiers de type jpg,jpeg,png sont accéptés\n- Chaque fichier ne doit pas dépassé 2Mo soit 2048Ko'"
                         :folder="fields.file.folderName" />
                     <!-- CI -->
@@ -26,7 +27,8 @@
                         @loaded="handleMedia" v-model="form.mission_order" name="mission_order" label="Ordre de mission"
                         attachable-type="App\Models\Mission" :attachable-id="mission.id" :form="form"
                         accepted="jpg,jpeg,png" placeholder="Téléverser votre ordre de mission"
-                        :canDelete="canDeleteMedia()" :readonly="![1, 2].includes(form.currentMode)" multiple labelRequired
+                        :canDelete="canDeleteMedia()" :readonly="![1, 2].includes(form.currentMode)" multiple
+                        labelRequired
                         :helpText="'- Uniquement les fichiers de type jpg,jpeg,png sont accéptés\n- Chaque fichier ne doit pas dépassé 2Mo soit 2048Ko'"
                         :folder="fields.file.folderName" />
                 </NLColumn>
@@ -39,8 +41,8 @@
             <!-- Readonly view -->
             <NLGrid v-if="isReadonly && !isLoading">
                 <NLColumn>
-                    <NLContainer class="content box text-normal" v-if="isReadonly && !isLoading" isFluid v-html="content()"
-                        :key="forceReload">
+                    <NLContainer class="content box text-normal" v-if="isReadonly && !isLoading" isFluid
+                        v-html="content()" :key="forceReload">
                     </NLContainer>
                 </NLColumn>
                 <NLColumn>
@@ -52,6 +54,7 @@
             <!-- Loader -->
             <NLComponentLoader :isLoading="isLoading" />
         </template>
+
         <template #footer>
             <NLFlex v-if="isValidated()">
                 <span>
@@ -82,7 +85,7 @@
 <script>
 import NLForm from '../components/NLForm';
 import { Form } from 'vform';
-import api from '../plugins/api';
+import alapi from '../plugins/agencyLevelApi';
 import NLComponentLoader from '../components/NLComponentLoader'
 import { hasRole } from '../plugins/user';
 import { slugify } from '../plugins/helpers';
@@ -209,7 +212,7 @@ export default {
             this.isLoading = !this.isLoading
             this.isReadonly = true
             this.editMode = false
-            api.get('missions/' + this.missionId).then((response) => {
+            alapi.get('missions/' + this.missionId).then((response) => {
                 this.mission = response.data
 
                 if (hasRole([ 'ci' ])) {
@@ -220,7 +223,7 @@ export default {
                     this.form.currentMode = 3
                 }
                 if (this.commentExists()) {
-                    api.get('comments/' + this.mission[ this.type ]?.id).then((response) => {
+                    alapi.get('comments/' + this.mission[ this.type ]?.id).then((response) => {
                         this.comment = response.data
                         if (forceReload) {
                             this.forceReload += 1
@@ -324,7 +327,7 @@ export default {
         save() {
             // console.log('test');
             // this.isLoading = true
-            this.form.post('missions/' + this.mission?.id + '/comments').then(response => {
+            this.form.post('agency_level/missions/' + this.mission?.id + '/comments').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
                     this.switchReadonlyMode()

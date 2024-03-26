@@ -1,7 +1,7 @@
 <template>
     <ContentBody>
         <NLDatatable :columns="columns" :actions="actions" :filters="filters" title="Faits majeurs"
-            urlPrefix="major-facts" @show="show" :refresh="refresh"
+            urlPrefix="agency_level/major-facts" @show="show" :refresh="refresh"
             @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
             <template #table-actions>
                 <NLButton class="has-icon" @click="refresh += 1">

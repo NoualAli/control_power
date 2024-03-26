@@ -4,19 +4,18 @@
             Mission {{ mission?.current?.reference }}
         </template>
 
-        <template class="d-flex justify-between align-center gap-3 mb-9" v-if="!pageLoadingState" #actions>
+        <template v-if="!pageLoadingState" #right-actions>
             <NLFlex lgJustifyContent="end" extraClass="w-100">
                 <router-link v-if="can('view_control_campaign')"
                     :to="{ name: 'campaign', params: { campaignId: mission?.current.campaign.id } }" class="btn">
                     {{ mission?.current?.campaign?.reference }}
                 </router-link>
-                <router-link v-if="mission?.current?.remaining_days_before_start > 0 && can('edit_mission')"
-                    class="btn btn-warning has-icon"
+                <router-link v-if="mission?.current?.remaining_days_before_start > 0" class="btn btn-warning has-icon"
                     :to="{ name: 'missions-edit', params: { missionId: mission?.current.id } }">
                     <NLIcon name="edit" />
                     Modifier
                 </router-link>
-                <NLButton v-if="mission?.current?.remaining_days_before_start > 0 && can('edit_mission')"
+                <NLButton v-if="mission?.current?.remaining_days_before_start > 0 && can('delete_mission')"
                     label="Supprimer" :loading="isLoading.destroy" @click.stop="destroy"
                     class="btn btn-danger has-icon">
                     <NLIcon name="delete" />
@@ -347,7 +346,7 @@
                     <NLIcon name="check_circle" />
                 </NLButton>
                 <NLButton v-if="mission?.current?.ci_report_exists"
-                    :label="mission?.current?.assigned_to_ci_id !== user().id ? 'Conclusion du chef de mission' : 'Votre conclusion de la mission'"
+                    :label="mission?.current?.assigned_to_ci_id !== user().id ? 'Conclusion du chef de mission' : 'Votre conclusion'"
                     type="info" class="has-icon" @click="showCommentForm('ci_report', true)">
                     <NLIcon name="description" />
                 </NLButton>
@@ -372,10 +371,6 @@
                     label="Valider la mission" type="success" class="has-icon" @click.prevent="validateMission('cdc')"
                     loadingLabel="Validation en cours" :loading="isLoading.cdcValidation">
                     <NLIcon name="check_circle" />
-                </NLButton>
-                <NLButton v-if="mission?.current.cdc_report_exists" type="info" class="has-icon"
-                    label="Votre conclusion" @click="showCommentForm('cdc_report', true)">
-                    <NLIcon name="description" />
                 </NLButton>
                 <NLButton v-if="mission?.current.is_validated_by_ci" label="Conclusion du chef de mission" type="info"
                     class="has-icon" @click="showCommentForm('ci_report', true)">
@@ -434,7 +429,7 @@
             :show="modals.dispatch" @success="close({ reload: true })" @close="close({ type: 'dispatch' })" />
 
         <NLDatatable v-if="mission?.current?.id" :columns="columns" :details="details" title="Liste des processus"
-            :urlPrefix="'missions/' + mission?.current?.id + '/processes'" detailsUrlPrefix="processes"
+            :urlPrefix="'agency_level/missions/' + mission?.current?.id + '/processes'" detailsUrlPrefix="processes"
             :refresh="refresh" @dataLoaded="handleDataLoaded">
 
             <template #actions-after="{ item }">
@@ -469,7 +464,7 @@
         </NLDatatable>
 
         <ExcelExportModal v-if="excelExportIsOpen" :show="excelExportIsOpen"
-            :route="'/api/v1/missions/details/' + mission?.current?.id + '/export?export'"
+            :route="'/api/agency_level/missions/details/' + mission?.current?.id + '/export?export'"
             @close="this.excelExportIsOpen = false" @success="this.excelExportIsOpen = false" :hideOptions="true" />
 
         <!-- Mission comment -->
@@ -484,7 +479,7 @@ import MissionCommentForm from '../../forms/MissionCommentForm'
 import MissionAssignationDetailsForm from '../../forms/MissionAssignationDetailsForm'
 import { mapGetters } from 'vuex'
 import { Form } from 'vform'
-import api from '../../plugins/api'
+import alapi from '../../plugins/agencyLevelApi'
 import { hasRole, user } from '../../plugins/user'
 import ExcelExportModal from '../../Modals/ExcelExportModal';
 import NLReadMore from '../../components/NLReadMore'
@@ -725,7 +720,7 @@ export default {
             this.$swal.confirm_update("Êtes-vous sûr de vouloir verrouiller le processus <b>" + item.process + "</b> ?").then(action => {
                 if (action.isConfirmed) {
                     this.lockProcessIsLoading = item.id
-                    this.$api.put('missions/' + this.mission?.current?.id + '/processes/' + item.id + '/lock').then((response) => {
+                    this.$alapi.put('missions/' + this.mission?.current?.id + '/processes/' + item.id + '/lock').then((response) => {
                         this.lockProcessIsLoading = null
                         if (response?.data?.status) {
                             this.$swal.toast_success(response?.data?.message)
@@ -745,7 +740,7 @@ export default {
             this.$swal.confirm_update("Êtes-vous sûr de vouloir déverrouiller le processus <b>" + item.process + "</b> ?").then(action => {
                 if (action.isConfirmed) {
                     this.unlockProcessIsLoading = item.id
-                    this.$api.put('missions/' + this.mission?.current?.id + '/processes/' + item.id + '/unlock').then((response) => {
+                    this.$alapi.put('missions/' + this.mission?.current?.id + '/processes/' + item.id + '/unlock').then((response) => {
                         this.unlockProcessIsLoading = null
                         if (response?.data?.status) {
                             this.$swal.toast_success(response?.data?.message)
@@ -765,7 +760,7 @@ export default {
          */
         generateReport() {
             this.generateReportIsLoading = true
-            this.$api.get('missions/' + this.mission?.current?.id + '/report?action=regenerate').then((response) => {
+            this.$alapi.get('missions/' + this.mission?.current?.id + '/report?action=regenerate').then((response) => {
                 this.generateReportIsLoading = false
                 if (response.data.status) {
                     this.$swal.alert_success('La génération du rapport de la mission ' + this.mission?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.', 'Génération du rapport PDF')
@@ -852,7 +847,7 @@ export default {
             }).then((action) => {
                 if (action.isConfirmed) {
                     this.handleValidationButtonsLoading(type, true)
-                    api.put('/missions/' + this.mission?.current.id + '/validate/' + type).then(response => {
+                    alapi.put('/missions/' + this.mission?.current.id + '/validate/' + type).then(response => {
                         this.handleValidationButtonsLoading(type, false)
                         if (response.data.status) {
                             this.$swal.toast_success(response.data.message)
@@ -914,7 +909,7 @@ export default {
             this.$swal.confirm({ message: "Êtes-vous sûr de vouloir supprimer la mission <b>" + this.mission?.current?.reference + "</b>" }).then((action) => {
                 if (action.isConfirmed) {
                     this.isLoading.destroy = true
-                    api.delete('missions/' + this.mission?.current.id).then(response => {
+                    alapi.delete('missions/' + this.mission?.current.id).then(response => {
                         if (response.data.status) {
                             this.$router.push({ name: 'missions' })
                             this.$swal.toast_success(response.data.message)

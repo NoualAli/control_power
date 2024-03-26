@@ -6,8 +6,8 @@
             <NLIcon name="stars" />
             Taux d’accomplissement
         </button>
-        <button class="btn" :class="{ 'is-active': currentSection == 'timeLag' }" :disabled="currentSection == 'timeLag'"
-            @click="setCurrentSection('timeLag')">
+        <button class="btn" :class="{ 'is-active': currentSection == 'timeLag' }"
+            :disabled="currentSection == 'timeLag'" @click="setCurrentSection('timeLag')">
             <NLIcon name="star_half" />
             Taux d'accomplissement (retard)
         </button>
@@ -204,7 +204,7 @@
                             <td class="text-center">{{ row['total_missions_assigned'] }}</td>
                             <td class="text-center">
                                 {{ row['total_missions_not_validated_ag_ap'] }} / {{
-                                    row['total_missions_assigned_ag_ap'] }}
+                row['total_missions_assigned_ag_ap'] }}
                             </td>
                             <td class="text-center">
                                 {{ row['total_missions_not_validated_ag_a'] }} / {{ row['total_missions_assigned_ag_a']
@@ -255,7 +255,7 @@ export default {
     },
     computed: {
         ...mapGetters({
-            kpi: 'statistics/KPI',
+            kpi: 'agencyLevelStatistics/KPI',
         }),
     },
     props: {
@@ -282,7 +282,7 @@ export default {
     methods: {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
-            this.$store.dispatch('statistics/fetchKPI', { onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign }).then(() => {
+            this.$store.dispatch('agencyLevelStatistics/fetchKPI', { onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign }).then(() => {
                 this.tables.accomplishRate = this.kpi.data.accomplishRate
                 this.tables.timeLag = this.kpi.data.timeLag
                 this.tables.missionsFall = this.kpi.data.missionsFall
@@ -293,7 +293,7 @@ export default {
             this.$emit('savePNG', element)
         },
         exportExcel(type) {
-            window.open('api/v1/statistics/kpi/export/excel/' + type)
+            window.open('api/statistics/kpi/export/excel/' + type)
         },
         setCurrentSection(section) {
             this.currentSection = section

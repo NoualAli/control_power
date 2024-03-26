@@ -113,7 +113,7 @@ export default {
         },
         getUrl() {
             let urlPrefix = this.urlPrefix || this.parentUrlPrefix
-            this.url = this.customUrl ? this.customUrl + urlPrefix : window.Laravel.baseUrl + '/api/v1/' + urlPrefix
+            this.url = this.customUrl ? this.customUrl + urlPrefix : window.Laravel.baseUrl + '/api/' + urlPrefix
             this.url += '?fetchFilters=true'
             this.url += this.activeFilterParams
         },

@@ -39,6 +39,7 @@ class MissionProcessesQuery extends BaseQuery
         $this->setRelationships();
         $this->setFilters();
         $this->setGroups();
+        $this->query->orderBy('is_disabled', 'asc');
         return $this;
     }
 

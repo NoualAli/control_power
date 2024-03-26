@@ -148,13 +148,13 @@ export default {
         handleForm(name, regularization) {
             if (name == 'rejection') {
                 this.forms.rejection.is_open = !this.forms.rejection.is_open
-                this.forms.rejection.regularization_id = this.forms.rejection.is_open ? regularization.id : null
+                this.forms.rejection.regularization_id = this.forms.rejection.is_open ? regularization?.id : null
                 if (!this.forms.rejection.is_open) {
                     this.forms.rejection.reset()
                 }
             } else if (name == 'comment') {
                 this.forms.comment.is_open = !this.forms.comment.is_open
-                this.forms.comment.regularization_id = this.forms.comment.is_open ? regularization.id : null
+                this.forms.comment.regularization_id = this.forms.comment.is_open ? regularization?.id : null
                 if (!this.forms.comment.is_open) {
                     this.forms.comment.reset()
                 }
@@ -165,7 +165,7 @@ export default {
         handleRejection() {
             this.$swal.confirm_update("Êtes-vous sûr de vouloir rejeter cette régularisation?").then((action) => {
                 if (action.isConfirmed) {
-                    this.forms.rejection.put("regularize/" + this.forms.rejection.regularization_id + '/reject')
+                    this.forms.rejection.put("agency_level/regularize/" + this.forms.rejection.regularization_id + '/reject')
                         .then(response => {
                             if (response.status) {
                                 this.$emit('success', response)
@@ -179,7 +179,7 @@ export default {
             })
         },
         handleComment() {
-            this.forms.comment.post('regularize/' + this.forms.comment.regularization_id + '/comment').then(response => {
+            this.forms.comment.post('agency_level/regularize/' + this.forms.comment.regularization_id + '/comment').then(response => {
                 if (response?.data?.status) {
                     this.$swal.toast_success(response?.data?.message)
                     this.forms.comment.reset()
