@@ -7,6 +7,7 @@
                         <NLIcon name="table" />
                     </a>
                 </template> -->
+
             <template #table-actions>
                 <router-link v-if="can('create_family')" :to="{ name: 'families-create' }" class="btn has-icon">
                     <NLIcon name="add" />
@@ -47,8 +48,39 @@ export default {
                     sortable: true
                 },
                 {
+                    label: 'Utilisable pour agence',
+                    field: 'usable_for_agency',
+                    align: 'center',
+                    isHtml: true,
+                    methods: {
+                        showField(item) {
+                            let icon = item.usable_for_agency == 1 ? 'check-circle' : 'times-circle'
+                            let color = item.usable_for_agency == 1 ? 'text-success' : 'text-danger'
+                            let title = item.usable_for_agency == 1 ? 'Oui' : 'Non'
+
+                            return `<i class="las la-${icon} ${color} icon" title="${title}"></i>`
+                        }
+                    }
+                },
+                {
+                    label: 'Utilisable pour DRE',
+                    field: 'usable_for_dre',
+                    align: 'center',
+                    isHtml: true,
+                    methods: {
+                        showField(item) {
+                            let icon = item.usable_for_dre == 1 ? 'check-circle' : 'times-circle'
+                            let color = item.usable_for_dre == 1 ? 'text-success' : 'text-danger'
+                            let title = item.usable_for_dre == 1 ? 'Oui' : 'Non'
+
+                            return `<i class="las la-${icon} ${color} icon" title="${title}"></i>`
+                        }
+                    }
+                },
+                {
                     label: 'Nombre de domaines',
-                    field: 'domains_count'
+                    field: 'domains_count',
+                    align: 'center',
                 }
             ],
             actions: {

@@ -16,6 +16,8 @@ class Family extends BaseModel
 
     protected $fillable = [
         'name',
+        'usable_for_agency',
+        'usable_for_dre',
     ];
 
     public $timestamps = false;
@@ -23,6 +25,11 @@ class Family extends BaseModel
     // public $withCount = ['domains'];
 
     protected $searchable = ['name'];
+
+    protected $casts = [
+        'usable_for_agency' => 'boolean',
+        'usable_for_dre' => 'boolean',
+    ];
 
     /**
      * Getters

@@ -24,7 +24,9 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'unique:families', 'max:255']
+            'name' => ['required', 'unique:families', 'max:255'],
+            'usable_for_agency' => ['required', 'boolean'],
+            'usable_for_dre' => ['required', 'boolean'],
         ];
     }
 }

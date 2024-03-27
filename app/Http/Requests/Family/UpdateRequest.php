@@ -26,7 +26,9 @@ class UpdateRequest extends FormRequest
         $id = request()->family->id;
 
         return [
-            'name' => ['required', 'unique:families,name,' . $id . ',id', 'max:255']
+            'name' => ['required', 'unique:families,name,' . $id . ',id', 'max:255'],
+            'usable_for_agency' => ['required', 'boolean'],
+            'usable_for_dre' => ['required', 'boolean'],
         ];
     }
 }
