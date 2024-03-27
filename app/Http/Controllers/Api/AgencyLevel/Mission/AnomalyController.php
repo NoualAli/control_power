@@ -86,6 +86,7 @@ class AnomalyController extends Controller
         // $campaign = formatForSelect(getControlCampaigns()->get()->map(fn ($item) => ['id' => $item->id, 'reference' => $item->reference])->toArray(), 'reference');
         $campaign = getControlCampaigns()
             ->whereNotNull('m.reference')
+            ->orderBy('c.reference', 'DESC')
             ->get()
             ->unique()
             ->map(fn ($item) => ['id' => $item->id, 'reference' => $item->reference])

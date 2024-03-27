@@ -516,6 +516,7 @@ class MissionController extends Controller
         // $controllers = [];
         $campaign = (new ControlCampaignQuery())->prepare()->multiple()
             ->whereNotNull('m.reference')
+            ->orderBy('c.reference', 'DESC')
             ->get()
             ->unique()
             ->map(fn ($item) => ['id' => $item->id, 'reference' => $item->reference])

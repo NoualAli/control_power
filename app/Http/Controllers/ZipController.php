@@ -47,7 +47,7 @@ class ZipController extends Controller
 
     function generateControlCampaignZip(string $type, string $id)
     {
-        $campaign = getControlCampaigns(null, $id);
+        $campaign = getControlCampaigns(1, $id);
         $missions = getMissions()->select('m.id')->where('cc.id', $id)->get()->pluck('id');
         $media = collect([]);
         foreach ($missions as $mission) {

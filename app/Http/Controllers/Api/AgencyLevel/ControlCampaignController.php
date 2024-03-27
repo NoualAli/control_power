@@ -66,9 +66,9 @@ class ControlCampaignController extends Controller
         $current = request()->has('current');
 
         if ($latest) {
-            $campaign = DB::table('control_campaigns as cc')->where('cc.is_for_testing', false)->whereNull('cc.deleted_at')->orderBy('cc.start_date', 'ASC');
+            $campaign = DB::table('control_campaigns as cc')->where('cc.is_for_testing', false)->whereNull('cc.deleted_at')->where('cc.type', 1)->orderBy('cc.start_date', 'ASC');
         } elseif ($current) {
-            $campaign = DB::table('control_campaigns as cc')->where('cc.is_for_testing', false)->whereNull('cc.deleted_at');
+            $campaign = DB::table('control_campaigns as cc')->where('cc.is_for_testing', false)->whereNull('cc.deleted_at')->where('cc.type', 1);
             $today = today();
             $campaign =  $campaign->where(function ($query) use ($today) {
                 $query->whereDate('start_date', '<=', $today)
@@ -80,7 +80,7 @@ class ControlCampaignController extends Controller
                     });
             })->orderBy('cc.start_date', 'ASC');
             if (!$campaign->count()) {
-                $campaign = $campaign = DB::table('control_campaigns as cc')->where('cc.is_for_testing', false)->whereNull('cc.deleted_at')->whereNotNull('validated_at')->whereDate('end_date', '<=', $today)->orderBy('cc.start_date', 'ASC');
+                $campaign = $campaign = DB::table('control_campaigns as cc')->where('cc.is_for_testing', false)->whereNull('cc.deleted_at')->where('cc.type', 1)->whereNotNull('validated_at')->whereDate('end_date', '<=', $today)->orderBy('cc.start_date', 'ASC');
             }
         }
         $campaign = $campaign->get()->last();
@@ -143,6 +143,7 @@ class ControlCampaignController extends Controller
             $data['updated_at'] = now()->format('Y-m-d H:i:s');
             $data['reference'] = generateCDCRef($isValidated, $data['start_date'], $isForTesting);
             $data['id'] = \Illuminate\Support\Str::uuid();
+            $data['type'] = 1;
             unset($data['pcf'], $data['is_validated']);
 
             $result = DB::transaction(function () use ($data, $processes, $isValidated, $isForTesting) {
@@ -302,7 +303,7 @@ class ControlCampaignController extends Controller
      */
     public function destroy(string $campaign)
     {
-        $campaign = getControlCampaigns(null, $campaign);
+        $campaign = getControlCampaigns(1, $campaign);
         $canDelete = !boolVal(intVal($campaign->is_validated));
         if (!hasRole('dcp')) {
             $canDelete = !$campaign->is_validated && $campaign->created_by_id == auth()->user()->id;

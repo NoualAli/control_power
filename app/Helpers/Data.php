@@ -677,11 +677,12 @@ if (!function_exists('getControlCampaigns')) {
     /**
      * Fetch Control Campaigns
      *
-     * @param App\Models\User|null
+     * @param int $type 1|2
+     * @param string|null $campaignId
      *
      * @return Builder
      */
-    function getControlCampaigns(?User $user = null, ?string $campaignId = null)
+    function getControlCampaigns(int $type = 1, ?string $campaignId = null)
     {
         $columns = [
             'c.reference',
@@ -707,7 +708,7 @@ if (!function_exists('getControlCampaigns')) {
 
         $campaigns = $campaigns->leftJoin('missions as m', 'm.control_campaign_id', 'c.id');
 
-        $user = $user ?: auth()->user();
+        $user = auth()->user();
 
         $campaigns = $campaigns->whereNull('c.deleted_at');
 
@@ -730,6 +731,8 @@ if (!function_exists('getControlCampaigns')) {
         if (hasRole('cder')) {
             $campaigns = $campaigns->where('m.assigned_to_cder_id', $user->id);
         }
+
+        $campaigns = $campaigns->where('type', $type);
 
         if (!hasRole(['dre', 'cdc', 'ci', 'da'])) {
             $agencies = getAgencies()->get()->count();
