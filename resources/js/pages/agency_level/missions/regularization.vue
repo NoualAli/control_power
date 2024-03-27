@@ -120,7 +120,7 @@
 
 <script>
 import Form from 'vform';
-import { user } from '../../plugins/user';
+import { user } from '~/plugins/user';
 export default {
     name: 'regularization',
     props: {

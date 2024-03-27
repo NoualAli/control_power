@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { hasRole } from '../../plugins/user'
+import { hasRole } from '~/plugins/user'
 export default {
     layout: 'MainLayout',
     middleware: [ 'auth' ],

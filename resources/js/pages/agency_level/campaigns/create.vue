@@ -42,13 +42,11 @@
 </template>
 
 <script>
-import NLColumn from '../../components/Grid/NLColumn'
 import { mapGetters } from 'vuex'
 import { Form } from 'vform'
 import { hasRole } from '~/plugins/user'
 import moment from 'moment';
 export default {
-    components: { NLColumn },
     layout: 'MainLayout',
     middleware: [ 'auth' ],
     data() {

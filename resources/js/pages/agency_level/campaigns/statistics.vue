@@ -59,12 +59,12 @@
 </template>
 
 <script>
-import Anomalies from '../dashboard/agencies/Anomalies'
-import MajorFacts from '../dashboard/agencies/MajorFacts'
-import Scores from '../dashboard/agencies/Scores'
-import Missions from '../dashboard/agencies/Missions'
-import KPI from '../dashboard/agencies/KPI'
-import { user } from '../../plugins/user'
+import Anomalies from '~/pages/dashboard/agencies/Anomalies'
+import MajorFacts from '~/pages/dashboard/agencies/MajorFacts'
+import Scores from '~/pages/dashboard/agencies/Scores'
+import Missions from '~/pages/dashboard/agencies/Missions'
+import KPI from '~/pages/dashboard/agencies/KPI'
+import { user } from '~/plugins/user'
 export default {
     components: {
         Anomalies,

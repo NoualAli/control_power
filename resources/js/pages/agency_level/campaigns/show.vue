@@ -228,9 +228,9 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import alapi from '../../plugins/agencyLevelApi'
-import { hasRole } from '../../plugins/user'
-import NLReadMore from '../../components/NLReadMore'
+import alapi from '~/plugins/agencyLevelApi'
+import { hasRole } from '~/plugins/user'
+import NLReadMore from '~/components/NLReadMore'
 import { Form } from 'vform'
 export default {
     layout: 'MainLayout',

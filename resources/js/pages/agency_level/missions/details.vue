@@ -233,13 +233,13 @@
 </template>
 
 <script>
-import MissionDetailForm from '../../forms/MissionDetailForm'
-import MissionDetailModal from '../../Modals/MissionDetailModal'
-import MissionRegularizationForm from '../../forms/MissionRegularizationForm'
-import ProcessInformationsModal from '../../Modals/ProcessInformationsModal'
-import NLComponentLoader from '../../components/NLComponentLoader'
+import MissionDetailForm from '~/forms/MissionDetailForm'
+import MissionDetailModal from '~/Modals/MissionDetailModal'
+import MissionRegularizationForm from '~/forms/MissionRegularizationForm'
+import ProcessInformationsModal from '~/Modals/ProcessInformationsModal'
+import NLComponentLoader from '~/components/NLComponentLoader'
 import { mapGetters } from 'vuex'
-import { hasRole, user } from '../../plugins/user'
+import { hasRole, user } from '~/plugins/user'
 export default {
     components: {
         MissionDetailForm,

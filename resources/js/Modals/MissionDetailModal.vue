@@ -309,8 +309,8 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { hasRole, user } from '../plugins/user';
-import regularization from '../pages/missions/regularization.vue'
+import { hasRole, user } from '~/plugins/user';
+import regularization from '~/pages/agency_level/missions/regularization.vue'
 export default {
     name: 'MissionDetailModal',
     components: {

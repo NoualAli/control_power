@@ -475,14 +475,14 @@
 </template>
 
 <script>
-import MissionCommentForm from '../../forms/MissionCommentForm'
-import MissionAssignationDetailsForm from '../../forms/MissionAssignationDetailsForm'
+import MissionCommentForm from '~/forms/MissionCommentForm'
+import MissionAssignationDetailsForm from '~/forms/MissionAssignationDetailsForm'
 import { mapGetters } from 'vuex'
 import { Form } from 'vform'
-import alapi from '../../plugins/agencyLevelApi'
-import { hasRole, user } from '../../plugins/user'
-import ExcelExportModal from '../../Modals/ExcelExportModal';
-import NLReadMore from '../../components/NLReadMore'
+import alapi from '~/plugins/agencyLevelApi'
+import { hasRole, user } from '~/plugins/user'
+import ExcelExportModal from '~/Modals/ExcelExportModal';
+import NLReadMore from '~/components/NLReadMore'
 export default {
     components: {
         NLReadMore,

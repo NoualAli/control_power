@@ -23,11 +23,11 @@
 </template>
 
 <script>
-import { hasRole } from '../../plugins/user'
-import Alert from '../../components/Alert'
-import MissionDetailModal from '../../Modals/MissionDetailModal'
-import MissionDetailForm from '../../forms/MissionDetailForm'
-import MissionRegularizationForm from '../../forms/MissionRegularizationForm'
+import { hasRole } from '~/plugins/user'
+import Alert from '~/components/Alert'
+import MissionDetailModal from '~/Modals/MissionDetailModal'
+import MissionDetailForm from '~/forms/MissionDetailForm'
+import MissionRegularizationForm from '~/forms/MissionRegularizationForm'
 export default {
     components: { Alert, MissionDetailForm, MissionDetailModal, MissionRegularizationForm },
     layout: 'MainLayout',

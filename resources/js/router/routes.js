@@ -486,9 +486,9 @@ export default [
      * Control campaigns
      */
     {
-        path: '/campaigns',
+        path: '/agency-level/campaigns',
         name: 'campaigns',
-        component: page('campaigns/index.vue'),
+        component: page('agency_level/campaigns/index.vue'),
         meta: {
             breadcrumb: {
                 label: 'Planning annuel'
@@ -496,9 +496,9 @@ export default [
         }
     },
     {
-        path: '/campaigns/create',
+        path: '/agency-level/campaigns/create',
         name: 'campaigns-create',
-        component: page('campaigns/create.vue'),
+        component: page('agency_level/campaigns/create.vue'),
         meta: {
             breadcrumb: {
                 label: 'Nouvelle Campgne',
@@ -507,9 +507,9 @@ export default [
         }
     },
     {
-        path: '/campaigns/:campaignId',
+        path: '/agency-level/campaigns/:campaignId',
         name: 'campaign',
-        component: page('campaigns/show.vue'),
+        component: page('agency_level/campaigns/show.vue'),
         meta: {
             breadcrumb: {
                 label: 'Détails campagne',
@@ -518,9 +518,9 @@ export default [
         }
     },
     {
-        path: '/campaigns/edit/:campaignId',
+        path: '/agency-level/campaigns/edit/:campaignId',
         name: 'campaigns-edit',
-        component: page('campaigns/edit.vue'),
+        component: page('agency_level/campaigns/edit.vue'),
         meta: {
             breadcrumb: {
                 label: 'Edition campagne',
@@ -529,9 +529,9 @@ export default [
         }
     },
     {
-        path: '/campaigns/:campaignId/missions',
+        path: '/agency-level/campaigns/:campaignId/missions',
         name: 'campaign-missions',
-        component: page('missions/index.vue'),
+        component: page('agency_level/missions/index.vue'),
         meta: {
             breadcrumb: {
                 parent: 'campaign',
@@ -540,9 +540,9 @@ export default [
         }
     },
     {
-        path: '/campaigns/:campaignId/statistics',
+        path: '/agency-level/campaigns/:campaignId/statistics',
         name: 'campaign-statistics',
-        component: page('campaigns/statistics.vue'),
+        component: page('agency_level/campaigns/statistics.vue'),
         meta: {
             breadcrumb: {
                 label: 'Statistiques'
@@ -553,9 +553,9 @@ export default [
      * Missions
      */
     {
-        path: '/missions/',
+        path: '/agency-level/missions/',
         name: 'missions',
-        component: page('missions/index.vue'),
+        component: page('agency_level/missions/index.vue'),
         meta: {
             breadcrumb: {
                 label: 'Suivi des missions'
@@ -563,9 +563,9 @@ export default [
         }
     },
     {
-        path: '/missions/create/:campaignId?',
+        path: '/agency-level/missions/create/:campaignId?',
         name: 'missions-create',
-        component: page('missions/create.vue'),
+        component: page('agency_level/missions/create.vue'),
         meta: {
             breadcrumb: {
                 parent: 'missions',
@@ -574,9 +574,9 @@ export default [
         }
     },
     {
-        path: '/missions/:missionId',
+        path: '/agency-level/missions/:missionId',
         name: 'mission',
-        component: page('missions/show.vue'),
+        component: page('agency_level/missions/show.vue'),
         meta: {
             breadcrumb: {
                 parent: 'missions',
@@ -585,9 +585,9 @@ export default [
         }
     },
     {
-        path: '/missions/edit/:missionId',
+        path: '/agency-level/missions/edit/:missionId',
         name: 'missions-edit',
-        component: page('missions/edit.vue'),
+        component: page('agency_level/missions/edit.vue'),
         meta: {
             breadcrumb: {
                 parent: 'missions',
@@ -596,9 +596,9 @@ export default [
         }
     },
     {
-        path: '/missions/:missionId/details/:processId?',
+        path: '/agency-level/missions/:missionId/details/:processId?',
         name: 'mission-details',
-        component: page('missions/details.vue'),
+        component: page('agency_level/missions/details.vue'),
         meta: {
             breadcrumb: {
                 parent: 'mission',
@@ -611,9 +611,9 @@ export default [
      * Global
      */
     {
-        path: '/anomalies',
+        path: '/agency-level/anomalies',
         name: 'anomalies',
-        component: page('global/anomalies.vue'),
+        component: page('agency_level/global/anomalies.vue'),
         meta: {
             breadcrumb: {
                 label: 'Plans de redressement',
@@ -622,9 +622,9 @@ export default [
         }
     },
     {
-        path: '/major-facts',
+        path: '/agency-level/major-facts',
         name: 'major-facts',
-        component: page('global/major_facts.vue'),
+        component: page('agency_level/global/major_facts.vue'),
         meta: {
             breadcrumb: {
                 label: 'Faits majeurs',
