@@ -4,7 +4,8 @@
         <Treeselect :id="getId" v-bind="$attrs" ref="treeselect" v-model="selected" :key="forcedKey"
             :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" :value="modelValue" :name="name"
             :multiple="multiple" :options="options" :placeholder="placeholder" :loading-text="loadingText"
-            :no-options-text="noOptionsText" search-nested :disable-branch-nodes="disableBranchNodes" :showCount="true" />
+            :no-options-text="noOptionsText" @deselect="deselect" search-nested
+            :disable-branch-nodes="disableBranchNodes" :showCount="true" />
     </InputContainer>
 </template>
 
@@ -46,14 +47,23 @@ export default {
             }
         }
     },
+    methods: {
+        deselect(e) {
+            const index = this.selected.findIndex(item => item == e.id);
+            if (index !== -1) {
+                this.selected.splice(index, 1);
+                this.forcedKey += 1
+            }
+        }
+    },
     watch: {
         selected: {
             immediate: true,
             deep: true,
             handler(newValue, oldValue) {
-                this.$emit('update:modelValue', newValue)
-                // if (newValue !== oldValue) {
-                // }
+                if (newValue != oldValue) {
+                    this.$emit('update:modelValue', newValue)
+                }
             }
         },
         modelValue: {
@@ -65,7 +75,6 @@ export default {
                     this.$refs?.treeselect?.clearAllText()
                     this.forcedKey = 0
                 }
-
                 if (newValue !== oldValue && newValue !== null && newValue !== undefined) {
                     if (typeof newValue == 'object' && Object.entries(newValue)?.length) {
                         this.selected = newValue
