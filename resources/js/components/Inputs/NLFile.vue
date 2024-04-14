@@ -14,8 +14,8 @@
         <input v-if="!readonly" :id="getId" type="file" :name="name" :multiple="multiple" :accept="accept"
             class="file-input" @input="onChange($event)">
         <div :class="[{ 'is-danger': form?.errors.has(name), 'is-readonly': readonly, 'is-flat': isFlat, 'is-dragging': isDragging }, 'file-input-area']"
-            :draggable="true" @dragover="dragover" @dragleave="dragleave" @drop="drop" @click.stop="openFileBrowser($event)"
-            v-if="!readonly">
+            :draggable="true" @dragover="dragover" @dragleave="dragleave" @drop="drop"
+            @click.stop="openFileBrowser($event)" v-if="!readonly">
             <div v-if="!inProgress && !readonly" class="file-uploader">
                 <NLFlex gap="1" lgJustifyContent="center" lgAlignItems="center" class="text-medium">
                     {{ placeholder }}
@@ -34,11 +34,11 @@
             <!-- {{ progress }} {{ progress ? '%' : '' }} -->
         </p>
     </InputContainer>
-    <div class="files-list text-medium mt-4" :class="[{ 'is-readonly': readonly }]" @click.stop="(e) => e.stopPropagation()"
-        v-if="filesList.length">
+    <div class="files-list text-medium mt-4" :class="[{ 'is-readonly': readonly }]"
+        @click.stop="(e) => e.stopPropagation()" v-if="filesList.length">
         <div v-for="(file, index) in filesList" :key="name + '-' + index" class="list-file-item my-1" :class="[{
-            'is-deleting': isDeleting == index, 'file-progress-overlay': !file.isUploaded
-        }]" :data-progress="this.getProgress(index)">
+        'is-deleting': isDeleting == index, 'file-progress-overlay': !file.isUploaded
+    }]" :data-progress="this.getProgress(index)">
             <NLTooltip type="top">
                 <template #content>
                     <p class="mb-2"><b>Nom:</b> {{ file.name }}</p>
@@ -91,7 +91,8 @@ export default {
         canDelete: { type: Boolean, default: true },
         readonly: { type: Boolean, default: false },
         isFlat: { type: Boolean, default: false },
-        folder: { type: String, default: '' }
+        folder: { type: String, default: '' },
+        category: { type: String, default: 'divers' }
     },
     emits: [ 'change:modelValue', 'deleted', 'loaded', 'uploaded' ],
     data() {
@@ -343,6 +344,7 @@ export default {
                 }
             }
             data.append('folder', folder)
+            data.append('category', this.category)
             // Show files while uploading
             let formattedFile = {
                 id: null,
@@ -353,7 +355,8 @@ export default {
                 link: null,
                 icon: 'las la-file',
                 isOwner: false,
-                isUploaded: false
+                isUploaded: false,
+                category: this.category
             }
             this.filesList.push(formattedFile)
             let index = this.filesList.indexOf(formattedFile)
