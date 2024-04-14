@@ -8,9 +8,10 @@
                         Il y a {{ formErrorsCount }}
                         {{ formErrorsCount > 1 ? 'problèmes avec vos entrées' : 'problème avec une entrée' }}.
                     </p>
-                    <p v-else>Erreur serveur</p>
+                    <p v-else>Erreur</p>
                 </template>
-                <ul v-for="error in form?.errors?.errors" v-if="!Object.hasOwnProperty.call(form.errors.errors, 'error')">
+                <ul v-for="error in form?.errors?.errors"
+                    v-if="!Object.hasOwnProperty.call(form.errors.errors, 'error')">
                     <li v-for="item in error" v-if="Array.isArray(error)">{{ item }}</li>
                 </ul>
                 <p v-else>{{ serverError }}</p>
@@ -40,8 +41,6 @@ export default {
             }
             return error
         },
-    },
-    methods: {
     }
 }
 </script>
