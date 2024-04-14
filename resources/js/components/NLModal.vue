@@ -3,11 +3,11 @@
         <div class="modal" v-if="show" :class="{ 'active': isOpen, 'reduced': isReduced, 'expanded': isExpanded }">
             <div class="modal-overlay" @click.stop="close"></div>
             <div class="modal-card  border-1 border-primary">
-                <header class="modal-header">
+                <header class="modal-header" v-if="!isLoading">
                     <NLGrid extraClass="w-100">
                         <NLColumn lg="11" sm="11" md="11">
                             <h3>
-                                <slot name="title" v-if="!isLoading"></slot>
+                                <slot name="title"></slot>
                             </h3>
                         </NLColumn>
                         <NLColumn lg="1" sm="1" md="1" extraClass="d-flex align-center justify-end">
@@ -31,8 +31,8 @@
                         </div>
                     </div>
                 </main>
-                <footer class="modal-footer" v-if="showFooter">
-                    <NLColumn extraClass="d-flex justify-end align-center gap-2" v-if="!isLoading">
+                <footer class="modal-footer" v-if="showFooter && !isLoading">
+                    <NLColumn extraClass="d-flex justify-end align-center gap-2">
                         <slot name="footer"></slot>
                     </NLColumn>
                 </footer>
