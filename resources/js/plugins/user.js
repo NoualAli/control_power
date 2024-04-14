@@ -24,6 +24,10 @@ export function getAgencies() {
     return JSON.parse(ls_get('agencies')) || []
 }
 
+export function userDre() {
+    return user().dres.map(dre => dre.id)
+}
+
 export function isAbleTo($abilities = String | Array) {
     const can = []
     const userPermissions = getPermissions()
