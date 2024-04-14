@@ -1,5 +1,5 @@
 <template>
-    <div class="grid" :class="[gapPrefixed, extraClass]">
+    <div class="grid" :id="id" :class="[gapPrefixed, extraClass]">
         <slot></slot>
     </div>
 </template>
@@ -9,6 +9,11 @@
 export default {
     name: 'NLGrid',
     props: {
+        id: {
+            type: String,
+            required: false,
+            default: null,
+        },
         extraClass: {
             type: String,
             required: false,
