@@ -51,10 +51,6 @@
         background-color: nth($value, 2)
     .border-#{nth($value, 1)}
         border-color: nth($value, 2)
-    // .box
-    //     &.is-#{nth($value, 1)}
-    //         background-color: nth($value, 2)
-    //         color: darkOrWhiteFont(nth($value, 2))
 @for $i from 1 through 12
     .border-#{$i}
         border-width: $i * .15rem
@@ -198,3 +194,6 @@
     &.is-full
         &::after
             width: 100%
+
+.is-relative
+    position: relative
