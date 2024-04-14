@@ -5,7 +5,7 @@
             :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" :value="modelValue" :name="name"
             :multiple="multiple" :options="options" :placeholder="placeholder" :loading-text="loadingText"
             :no-options-text="noOptionsText" @deselect="deselect" search-nested
-            :disable-branch-nodes="disableBranchNodes" :showCount="true" />
+            :disable-branch-nodes="disableBranchNodes" :showCount="true" :disabled="disabled" />
     </InputContainer>
 </template>
 
@@ -21,6 +21,7 @@ export default {
         id: { type: String },
         label: { type: String, default: '' },
         labelRequired: { type: Boolean, default: false },
+        disabled: { type: Boolean, default: false },
         placeholder: { type: String, default: 'Choisissez une option' },
         loadingText: { type: String, default: 'Chargement en cours...' },
         noOptionsText: { type: String, default: 'Aucune option disponible' },
