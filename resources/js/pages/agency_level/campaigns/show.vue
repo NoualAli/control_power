@@ -7,7 +7,7 @@
         <template #left-actions>
             <NLColumn>
                 <!-- Control campaign actions -->
-                <NLFlex lgJustifyContent="start" gap="2" v-if="is('root')">
+                <NLFlex lgJustifyContent="start" gap="2" v-if="is('root') && campaign?.current?.is_validated">
                     <NLButton v-if="totalMissions" class="has-icon" @click.prevent="generateReports(true)"
                         label="Regénérer tous les rapports" :loading="reGenerateReportsIsLoading">
                         <!-- <i class="las la-file-pdf icon" /> -->
@@ -19,30 +19,44 @@
                     </NLButton>
                 </NLFlex>
                 <NLFlex lgJustifyContent="start" gap="2"
-                    v-if="totalMissions == totalValidatedMissions && totalMissions > 0 && totalValidatedMissions > 0 && is(['cdrcp', 'dcp', 'cdcr', 'cdc'])">
+                    v-if="Number(totalMissions) && Number(totalMissions) == Number(campaign?.current?.total_missions_validated_dre) && is(['dcp', 'cdcr', 'cdrcp', 'dg', 'dga', 'ig', 'sg', 'cdc'])">
                     <!-- Download files -->
                     <NLButton label="Pièces jointes" class="has-icon" @click="downloadZip()"
-                        v-if="is(['cdrcp', 'dcp', 'cdcr',])">
+                        v-if="is(['cdrcp', 'dcp', 'cdcr']) && Number(totalMissions) == Number(totalValidatedMissions)">
                         <NLIcon name="folder_zip" />
                     </NLButton>
-                    <NLButton v-if="totalMissions && is(['dcp', 'cdcr'])" class="has-icon"
-                        @click.prevent="generateReports" label="Regénérer les rapports manquants"
+                    <NLButton v-if="Number(totalMissions) == Number(totalValidatedMissions) && is(['dcp', 'cdcr'])"
+                        class="has-icon" @click.prevent="generateReports" label="Regénérer les rapports manquants"
                         :loading="reGenerateReportsIsLoading">
                         <NLIcon name="picture_as_pdf" />
                     </NLButton>
-                    <NLButton v-if="totalMissions && is(['dcp', 'cdcr'])" class="has-icon"
-                        @click.prevent="handleUploadSynthesisBox" label="Téléversement synthèse">
+                    <NLButton
+                        v-if="Number(totalMissions) == Number(totalValidatedMissions) && (is(['dcp', 'cdcr']) || (is(['cdrcp', 'dg', 'dga', 'ig', 'sg']) && campaign?.current?.synthesis?.length))"
+                        class="has-icon" @click.prevent="handleUploadSynthesisBox"
+                        :label="campaign?.current?.synthesis.length || is(['cdrcp', 'dg', 'dga', 'ig', 'sg']) ? 'Synthèse' : 'Téléversement synthèse'">
                         <NLIcon name="cloud_upload" />
                     </NLButton>
-                    <a :href="'/excel-export?export=synthesis&campaign=' + campaign?.current?.id" target="_blank"
-                        class="btn has-icon"
-                        v-if="is(['cdcr', 'dcp', 'cdc', 'cdrcp']) && totalMissions == totalValidatedMissions">
+                    <NLButton
+                        v-if="is(['cdcr', 'dcp', 'cdrcp']) && Number(totalMissions) == Number(campaign?.current?.total_missions_validated_dre) && !campaign?.current?.summary_scores?.path"
+                        class="has-icon" @click.prevent="exportSummary()" :loading="summaryScoresIsLoading"
+                        label="Récapitulatif des notations">
+                        <NLIcon name="table" />
+                    </NLButton>
+                    <a :href="'\\' + campaign?.current?.summary_scores?.path" target="_blank"
+                        :download="campaign?.current?.summary_scores?.hash_name" class="btn has-icon"
+                        v-else-if="campaign?.current?.summary_scores?.path && is(['dcp', 'cdcr', 'cdrcp'])">
                         <NLIcon name="table" />
                         Récapitulatif des notations
                     </a>
-                    <a :href="'/excel-export?export=synthesis_reports&campaign=' + campaign?.current?.id"
-                        target="_blank" class="btn has-icon"
-                        v-if="is(['cdcr', 'dcp', 'cdrcp']) && totalMissions == totalValidatedMissions">
+                    <NLButton
+                        v-if="is(['cdcr', 'dcp', 'cdrcp']) && Number(totalMissions) == Number(totalValidatedMissions) && !campaign?.current?.summary_reports?.path"
+                        class="has-icon" @click.prevent="exportSummary(true)" :loading="summaryReportsIsLoading"
+                        label="Récapitulatif des constats">
+                        <NLIcon name="table" />
+                    </NLButton>
+                    <a :href="'\\' + campaign?.current?.summary_reports?.path" target="_blank"
+                        :download="campaign?.current?.summary_reports?.hash_name" class="btn has-icon"
+                        v-else-if="campaign?.current?.summary_reports?.path && is(['dcp', 'cdcr', 'cdrcp'])">
                         <NLIcon name="table" />
                         Récapitulatif des constats
                     </a>
@@ -79,6 +93,9 @@
                 class="btn btn-info has-icon" @click.stop="validate(campaign?.current)" :loading="validationInProgress"
                 label="Valider">
                 <NLIcon name="check" />
+            </NLButton>
+            <NLButton @click.stop="() => initData()" class="btn has-icon">
+                <NLIcon name="sync" />
             </NLButton>
         </template>
     </ContentHeader>
@@ -173,16 +190,7 @@
                                     Validée par:
                                 </span>
                                 <span>
-                                    {{ campaign?.current?.validator_full_name }}
-                                </span>
-                            </NLColumn>
-                            <NLColumn lg="4"
-                                v-if="is(['admin', 'root', 'dcp', 'cdcr']) && campaign?.current?.is_for_testing">
-                                <span class="text-bold">
-                                    Test:
-                                </span>
-                                <span>
-                                    {{ campaign?.current?.is_for_testing_str }}
+                                    {{ campaign?.current?.validator_full_name || '-' }}
                                 </span>
                             </NLColumn>
                         </NLGrid>
@@ -197,13 +205,14 @@
                 </NLGrid>
             </NLColumn>
 
-            <NLColumn v-if="is(['dcp', 'cdcr']) && showUploadSynthesisBox">
+            <NLColumn v-if="is(['dcp', 'cdcr', 'cdrcp', 'dg', 'dga', 'ig', 'sg']) && showUploadSynthesisBox">
                 <NLGrid extraClass="box">
                     <NLColumn>
                         <NLFile @uploaded="handleMedia" @deleted="handleMedia" @loaded="handleMedia"
                             v-model="form.synthesis" :name="'media'" label="Synthèse"
                             attachable-type="App\Models\ControlCampaign" folder="Synthèses"
-                            :attachable-id="campaign?.current?.id" :form="form" multiple />
+                            :attachable-id="campaign?.current?.id" :form="form" multiple
+                            :readonly="is(['cdrcp', 'dg', 'dga', 'ig', 'sg'])" />
                     </NLColumn>
                 </NLGrid>
             </NLColumn>
@@ -211,7 +220,7 @@
                 <!-- Processes List -->
                 <NLDatatable :refresh="refresh" v-if="campaign?.current?.id" :columns="columns" :details="details"
                     :urlPrefix="'agency_level/campaigns/processes/' + campaign?.current?.id"
-                    detailsUrlPrefix="processes"
+                    :detailsUrlPrefix="'agency_level/campaigns/processes/' + campaign?.current?.id"
                     @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
 
                     <template #actions-before="{ item, callback }"
@@ -219,6 +228,12 @@
                         <button class="btn btn-danger has-icon" @click.stop="callback(detachProcess, item)">
                             <i class="las la-unlink icon" />
                         </button>
+                    </template>
+
+                    <template #table-actions>
+                        <NLButton @click.stop="refresh += 1" class="btn has-icon">
+                            <NLIcon name="sync" />
+                        </NLButton>
                     </template>
                 </NLDatatable>
             </NLColumn>
@@ -228,9 +243,9 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import alapi from '~/plugins/agencyLevelApi'
 import { hasRole } from '~/plugins/user'
 import NLReadMore from '~/components/NLReadMore'
+import axios from 'axios'
 import { Form } from 'vform'
 export default {
     layout: 'MainLayout',
@@ -241,24 +256,26 @@ export default {
             destroyInProgress: false,
             generateMissingReportsIsLoading: false,
             reGenerateReportsIsLoading: false,
+            summaryScoresIsLoading: false,
+            summaryReportsIsLoading: false,
             refresh: 0,
             validationInProgress: false,
             columns: [
                 {
                     label: 'Famille',
-                    field: 'family'
+                    field: 'family_name'
                 },
                 {
                     label: 'Domaine',
-                    field: 'domain'
+                    field: 'domain_name'
                 },
                 {
                     label: 'Processus',
-                    field: 'process'
+                    field: 'name'
                 },
                 {
                     label: 'Total points de contrôle',
-                    field: 'control_points_count'
+                    field: 'activated_control_points_count'
                 }
             ],
             details: [
@@ -316,16 +333,16 @@ export default {
         },
 
         totalMissions() {
-            return hasRole([ 'dre', 'cdc', 'ci' ]) ? this.campaign?.current?.total_missions_dre : this.campaign?.current?.total_missions
+            return hasRole([ 'dre', 'cdc', 'ci', 'ir' ]) ? this.campaign?.current?.total_missions_dre : this.campaign?.current?.total_missions
         },
 
         totalValidatedMissions() {
-            return hasRole([ 'dre', 'cdc', 'ci' ]) ? this.campaign?.current?.total_missions_validated_dre : this.campaign?.current?.total_missions_validated
+            return hasRole([ 'dre', 'cdc', 'ci', 'ir' ]) ? this.campaign?.current?.total_missions_validated_dre : this.campaign?.current?.total_missions_validated
         },
 
         realisationRate() {
             let rate = 0.00
-            if (hasRole([ 'dre', 'cdc', 'ci' ])) {
+            if (hasRole([ 'dre', 'cdc', 'ci', 'ir' ])) {
                 rate = this.campaign?.current?.realisation_rate_dre
             } else {
                 rate = this.campaign?.current?.realisation_rate
@@ -355,6 +372,39 @@ export default {
         handleUploadSynthesisBox() {
             this.showUploadSynthesisBox = !this.showUploadSynthesisBox
         },
+        exportSummary(withReports) {
+            let url = '/excel-export?'
+            if (withReports) {
+                this.summaryReportsIsLoading = true
+                url += 'export=synthesis_reports'
+            } else {
+                this.summaryScoresIsLoading = true
+                url += 'export=synthesis'
+            }
+
+            url += '&campaign=' + this.campaign?.current?.id
+
+            axios.get(url).then(response => {
+                let title = withReports ? "Génération du récapitulatif des constats" : "Génération du récapitulatif des notations"
+                if (response.data.status) {
+                    this.$swal.alert_success(response.data.message, title)
+                } else {
+                    this.$swal.alert_error(response.data.message, title)
+                }
+                if (withReports) {
+                    this.summaryReportsIsLoading = false
+                } else {
+                    this.summaryScoresIsLoading = false
+                }
+            }).catch(error => {
+                if (withReports) {
+                    this.summaryReportsIsLoading = false
+                } else {
+                    this.summaryScoresIsLoading = false
+                }
+                this.$swal.catchError(error)
+            })
+        },
         /**
          * Export or Preview report
          */
@@ -375,7 +425,7 @@ export default {
                     } else {
                         this.generateMissingReportsIsLoading = true
                     }
-                    this.$api.post(url).then((response) => {
+                    this.$alapi.post(url).then((response) => {
                         if (forceAll) {
                             this.reGenerateReportsIsLoading = false
                         } else {
@@ -416,7 +466,11 @@ export default {
                 if (this.$breadcrumbs.value[ length - 1 ].label === 'Détails campagne') {
                     this.$breadcrumbs.value[ length - 1 ].label = 'Détails campagne ' + this.campaign.current?.reference
                 }
-            }).catch(error => this.$swal.catchError(error))
+                this.$store.dispatch('settings/updatePageLoading', false)
+            }).catch(error => {
+                this.$swal.catchError(error)
+                this.$store.dispatch('settings/updatePageLoading', false)
+            })
         },
         loadControlPoints(process) {
             this.$store.dispatch('processes/fetch', { id: process.id, onlyControlPoints: true }).then(() => { this.control_points = this.process.controlPoints })
@@ -430,7 +484,7 @@ export default {
             this.$swal.confirm({ title: 'Validation', message: 'Validation de la campagne de contrôle ' + item.reference, icon: 'success' }).then(response => {
                 if (response.isConfirmed) {
                     this.validationInProgress = true
-                    alapi.put('campaigns/' + item.id + '/validate').then(response => {
+                    this.$alapi.put('campaigns/' + item.id + '/validate').then(response => {
                         if (response.data.status) {
                             this.initData()
                             this.$store.dispatch('settings/updatePageLoading', false)
@@ -454,7 +508,7 @@ export default {
             this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
                     this.destroyInProgress = true
-                    alapi.delete('campaigns/' + this.campaign?.current?.id).then(response => {
+                    this.$alapi.delete('campaigns/' + this.campaign?.current?.id).then(response => {
                         if (response.data.status) {
                             this.$swal.toast_success(response.data.message)
                             this.$router.push({ name: 'campaigns' })
@@ -478,7 +532,7 @@ export default {
         detachProcess(item) {
             return this.$swal.confirm_destroy().then((action) => {
                 if (action.isConfirmed) {
-                    return alapi.delete('campaigns/' + this.campaign?.current?.id + '/process/' + item.id).then((response) => {
+                    return this.$alapi.delete('campaigns/' + this.campaign?.current?.id + '/process/' + item.id).then((response) => {
                         if (response?.data?.status) {
                             this.refresh += 1
                         }

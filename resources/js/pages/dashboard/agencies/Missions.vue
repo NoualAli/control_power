@@ -3,11 +3,9 @@
     <NLGrid gap="4">
         <NLColumn v-if="!is('da') && !isLoading">
             <NLGrid gap="4">
-                <NLColumn>
-                    <h2>Suivi de la réalisation des missions</h2>
-                </NLColumn>
                 <NLColumn lg="3" extraClass="box is-danger">
-                    <router-link :to="'missions?filter[is_late]=Oui&filter[campaign]=' + campaign?.id"
+                    <router-link
+                        :to="'agency-level/missions?filter[is_late]=Oui&filter[campaign]=' + (campaign?.id || campaign)"
                         class="text-white text-bold w-100 d-flex align-center gap-4">
                         <i class="las la-clock text-white text-extra-large"></i>
                         <div class="text-bold text-white">
@@ -20,7 +18,8 @@
                     </router-link>
                 </NLColumn>
                 <NLColumn lg="3" extraClass="box is-info d-flex align-center gap-4">
-                    <router-link :to="'missions?filter[current_state]=1&filter[campaign]=' + campaign?.id"
+                    <router-link
+                        :to="'agency-level/missions?filter[current_state]=1&filter[campaign]=' + (campaign?.id || campaign)"
                         class="text-white text-bold w-100 d-flex align-center gap-4">
                         <i class="las la-hourglass-start text-white text-extra-large"></i>
                         <div class="text-bold text-white">
@@ -33,7 +32,8 @@
                     </router-link>
                 </NLColumn>
                 <NLColumn lg="3" extraClass="box is-warning d-flex align-center gap-4">
-                    <router-link :to="'missions?filter[current_state]=2,3&filter[campaign]=' + campaign?.id"
+                    <router-link
+                        :to="'agency-level/missions?filter[current_state]=2,3&filter[campaign]=' + (campaign?.id || campaign)"
                         class="text-white text-bold w-100 d-flex align-center gap-4">
                         <i class="las la-spinner la-spin text-white text-extra-large"></i>
                         <div class="text-bold text-white">
@@ -46,7 +46,8 @@
                     </router-link>
                 </NLColumn>
                 <NLColumn lg="3" extraClass="box is-success d-flex align-center gap-4">
-                    <router-link :to="'missions?filter[current_state]=4,5,6,7,8&filter[campaign]=' + campaign?.id"
+                    <router-link
+                        :to="'agency-level/missions?filter[current_state]=4,5,6,7,8&filter[campaign]=' + (campaign?.id || campaign)"
                         class="text-white text-bold w-100 d-flex align-center gap-4">
                         <i class="las la-check-circle text-white text-extra-large"></i>
                         <div class="text-bold text-white">
@@ -103,12 +104,18 @@
                                 Missions réalisées
                             </th>
                             <th>
+                                Nombre d'anomalies
+                            </th>
+                            <th>
                                 Taux de réalisation
+                            </th>
+                            <th>
+                                Actions
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="( row, index ) in  tables.dresClassificationByAchievementRate " :key="index">
+                        <tr v-for="( row, index ) in  tables.dresClassificationByAchievementRate" :key="index">
                             <td class="text-center">{{ index + 1 }}</td>
                             <td>{{ row['dre'] }}</td>
                             <td class="text-center">
@@ -118,10 +125,29 @@
                                 {{ row['totalAchieved'] }}
                             </td>
                             <td class="text-center">
+                                {{ row['anomalies_count'] }}
+                            </td>
+                            <td class="text-center">
                                 {{ row['rate'] }}%
+                            </td>
+                            <td class="cell-actions">
+                                <button class="btn btn-success" @click="showDreData(row['dre'])">
+                                    <NLIcon name="visibility" />
+                                </button>
                             </td>
                         </tr>
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="text-center text-bold">Total</td>
+                            <td class="text-bold">{{ tables.dresClassificationByAchievementRate?.length }}</td>
+                            <td class="text-center text-bold">{{ totalProgrammed }}</td>
+                            <td class="text-center text-bold">{{ totalAchieved }}</td>
+                            <td class="text-center text-bold">{{ totalAnomalies }}</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
             <div class="my-10 text-center text-bold" v-else>
@@ -129,17 +155,22 @@
             </div>
         </NLColumn>
     </NLGrid>
+    <DreStatisticsModal :dre="currentDre" :campaign="this.campaign" :show="!!this.currentDre && !!this.campaign"
+        @close="close" />
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import { Bar, Pie, Doughnut } from 'vue-chartjs'
+import DreStatisticsModal from '~/Modals/DreStatisticsModal.vue'
 export default {
     name: "Missions",
+    emits: [ 'savePNG' ],
     components: {
         Bar,
         Doughnut,
-        Pie
+        Pie,
+        DreStatisticsModal
     },
     computed: {
         ...mapGetters({
@@ -157,6 +188,7 @@ export default {
     data() {
         return {
             campaign: null,
+            currentDre: null,
             charts: {
                 missionsPercentage: null,
             },
@@ -167,6 +199,9 @@ export default {
                 missionsState: null
             },
             isLoading: true,
+            totalProgrammed: 0,
+            totalAchieved: 0,
+            totalAnomalies: 0,
         }
     },
     created() {
@@ -175,21 +210,33 @@ export default {
     },
     methods: {
         initData() {
-            this.$store.dispatch('agencyLevelStatistics/fetchMissionsStates', { onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign }).then(() => {
+            this.$store.dispatch('agencyLevelStatistics/fetchMissionsStates', { onlyCurrentCampaign: false, currentCampaign: this?.currentCampaign }).then(() => {
                 this.charts.missionsPercentage = this.missionsStates.data.missionsPercentage
                 this.cards.missionsState = this.missionsStates.data.missionsState
                 this.tables.dresClassificationByAchievementRate = this.missionsStates.data.dresClassificationByAchievementRate
                 if (this.currentCampaign) {
                     this.campaign = this.currentCampaign
                 } else {
-                    this.campaign = this.missionsStates.data.currentCampaign
+                    this.campaign = this.missionsStates?.data?.currentCampaign
                 }
+                this.totalProgrammed = this.missionsStates?.data?.totalProgrammed
+                this.totalAchieved = this.missionsStates?.data?.totalAchieved
+                this.totalAnomalies = this.missionsStates?.data?.totalAnomalies
                 this.isLoading = false
                 this.$store.dispatch('settings/updatePageLoading', false)
+            }).catch(error => {
+                this.$swal.catchError(error)
+                this.$router.push({ name: 'campaigns' })
             })
         },
         savePNG(element) {
             this.$emit('savePNG', element)
+        },
+        showDreData(dre) {
+            this.currentDre = dre
+        },
+        close() {
+            this.currentDre = null
         }
     }
 }

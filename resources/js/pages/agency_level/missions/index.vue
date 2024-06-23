@@ -46,7 +46,7 @@ export default {
                 {
                     label: 'Dre',
                     field: 'dre',
-                    hide: hasRole([ 'cdc', 'ci', 'dre' ])
+                    hide: hasRole([ 'cdc', 'ci', 'dre', 'da' ])
                 },
                 // {
                 //     label: 'Référence',
@@ -55,7 +55,8 @@ export default {
                 // },
                 {
                     label: 'Agence',
-                    field: 'agency'
+                    field: 'agency',
+                    hide: hasRole('da')
                 },
                 {
                     label: 'Date début',
@@ -77,7 +78,7 @@ export default {
                 {
                     label: 'Chef de secteur',
                     field: 'dcp_controller_full_name',
-                    hide: !hasRole([ 'cdcr', 'cc', 'dcp', 'root', 'admin' ]),
+                    hide: !hasRole([ 'cdcr', 'dcp', 'root', 'admin' ]),
                     // align: 'center',
                     sortable: true,
                 },
@@ -91,7 +92,7 @@ export default {
                 {
                     label: 'Moyenne',
                     field: 'avg_score',
-                    hide: hasRole([ 'cdc', 'ci', 'da' ]),
+                    hide: hasRole([ 'ci', 'cdc', 'da', 'dre', 'ir', 'cder', 'der' ]),
                     isHtml: true,
                     align: 'center',
                     sortable: true,
@@ -158,6 +159,10 @@ export default {
                                         title = MissionState.DONE_STR
                                         state = MissionState.DONE_CLASS
                                         break;
+                                    case 8:
+                                        title = MissionState.CLASSIFY_STR
+                                        state = MissionState.CLASSIFY_CLASS
+                                        break;
                                     default:
                                         title = MissionState.TODO_STR
                                         state = MissionState.TODO_CLASS
@@ -193,6 +198,10 @@ export default {
                                         title = MissionState.DONE_STR
                                         state = MissionState.DONE_CLASS
                                         break;
+                                    case 8:
+                                        title = MissionState.CLASSIFY_STR
+                                        state = MissionState.CLASSIFY_CLASS
+                                        break;
                                     default:
                                         title = MissionState.TODO_STR
                                         state = MissionState.TODO_CLASS
@@ -223,7 +232,7 @@ export default {
                     show: (item) => {
                         if (hasRole([ 'cdc', 'ci' ])) {
                             return this.can('view_mission')
-                        } else if (hasRole([ 'cdcr', 'cc', 'dcp' ])) {
+                        } else if (hasRole([ 'cdcr', 'cc', 'dcp', 'root', 'admin' ])) {
                             return this.can('view_mission') && item?.is_validated_by_cdc
                         } else {
                             return this.can('view_mission') && item?.is_validated_by_dcp
@@ -233,13 +242,13 @@ export default {
                 },
                 edit: {
                     show: (item) => {
-                        return this.can('edit_mission') && item.remaining_days_before_start < 0
+                        return this.can('edit_mission') && item.current_state == 1
                     },
                     apply: this.edit
                 },
                 delete: {
                     show: (item) => {
-                        return this.can('delete_mission') && item.remaining_days_before_start < 0
+                        return this.can('delete_mission') && item.current_state == 1
                     },
                     apply: this.destroy
                 }
@@ -268,11 +277,18 @@ export default {
                     value: null,
                     hide: hasRole([ 'da' ])
                 },
+                controllers: {
+                    label: 'Chef de secteur',
+                    cols: 3,
+                    multiple: true,
+                    data: null,
+                    value: null,
+                    hide: !hasRole([ 'dcp', 'cdcr', 'der', 'cdc', 'dre' ])
+                },
                 current_state: {
                     label: 'État',
                     cols: 3,
                     multiple: true,
-                    // hide: !hasRole([ 'dcp', 'cdrcp', 'cdcr', 'cc', 'ci', 'cdc', 'root', 'admin' ]),
                     data: function () {
                         if (!hasRole([ 'cdrcp', 'dcp', 'cdcr', 'cc', 'root', 'admin' ])) {
                             return [
@@ -295,6 +311,10 @@ export default {
                                 {
                                     id: MissionState.DONE,
                                     label: MissionState.DONE_STR
+                                },
+                                {
+                                    id: MissionState.CLASSIFY,
+                                    label: MissionState.CLASSIFY_STR
                                 }
                             ]
                         } else {
@@ -326,6 +346,10 @@ export default {
                                 {
                                     id: MissionState.DONE,
                                     label: MissionState.DONE_STR
+                                },
+                                {
+                                    id: MissionState.CLASSIFY,
+                                    label: MissionState.CLASSIFY_STR
                                 }
                             ]
                         }
@@ -337,6 +361,7 @@ export default {
                     label: 'Retard',
                     cols: 3,
                     multiple: false,
+                    hide: hasRole('da'),
                     data: [
                         {
                             id: 'Non',
@@ -423,24 +448,26 @@ export default {
             this.$store.dispatch('settings/updatePageLoading', false)
         },
         initData() {
+            if (hasRole([ 'dre', 'cdc' ])) {
+                this.filters.controllers.label = 'Chef de mission'
+            } else if (hasRole([ 'der' ])) {
+                this.filters.controllers.label = 'Contrôleur DER'
+            }
             this.$store.dispatch('settings/updatePageLoading', true)
             const length = this.$breadcrumbs.value.length
             if (this.$route.query[ 'filter[is_late]' ]?.length) {
                 this.filters.is_late.value = this.$route.query[ 'filter[is_late]' ]
             }
             if (this.$route.query[ 'filter[current_state]' ]?.length) {
-                this.filters.current_state.value = this.$route.query[ 'filter[current_state]' ]
+                this.filters.current_state.value = this.$route.query[ 'filter[current_state]' ].split(',')
             }
-            // if (this.$route.query[ 'filter[campaign]' ]?.length) {
-            //     this.filters.campaign.value = this.$route.query[ 'filter[campaign]' ]
-            // }
 
             if (this.$route.params.campaignId || this.$route.query[ 'filter[campaign]' ]?.length) {
                 let campaignId = null
                 if (this.$route.query[ 'filter[campaign]' ]?.length && !this.$route.params.campaignId) {
-                    campaignId = this.$route.query[ 'filter[campaign]' ]
+                    campaignId = this.$route.query[ 'filter[campaign]' ].split(',')
                 } else {
-                    campaignId = this.$route.params.campaignId
+                    campaignId = this.$route.params.campaignId.split(',')
                 }
                 this.filters.campaign.value = campaignId
                 this.$store.dispatch('campaigns/fetch', { campaignId }).then((data) => {
@@ -462,7 +489,7 @@ export default {
             window.open(this.$router.resolve({ name: 'missions-edit', params: { missionId: e.item.id } }).href, '_blank');
         },
         destroy(e) {
-            return this.$swal.confirm({ message: "Êtes-vous sûr de vouloir supprimer la mission <b>" + e.item.reference + "</b>" }).then((action) => {
+            return this.$swal.confirm_destroy("Êtes-vous sûr de vouloir supprimer la mission <b>" + e.item.reference + "</b>").then((action) => {
                 if (action.isConfirmed) {
                     this.refresh += 1
                     return this.$alapi.delete('missions/' + e.item.id)

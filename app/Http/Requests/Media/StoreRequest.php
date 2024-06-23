@@ -33,11 +33,11 @@ class StoreRequest extends FormRequest
             return [
                 'attachable' => ['nullable', 'array'],
                 $key => ['required', 'array'],
-                $key . '.*' => ['required', 'file', 'max:3000', 'mimes:' . $accepted, 'mimetypes:' . $mimes]
+                $key . '.*' => ['required', 'file', 'max:30720', 'mimes:' . $accepted, 'mimetypes:' . $mimes]
             ];
         } else {
             return [
-                $key => ['required', 'file', 'max:3000', 'mimes:' . $accepted, 'mimetypes:' . $mimes]
+                $key => ['required', 'file', 'max:30720', 'mimes:' . $accepted, 'mimetypes:' . $mimes]
             ];
         }
     }

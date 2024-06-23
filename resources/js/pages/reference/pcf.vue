@@ -3,19 +3,19 @@
         <NLDatatable :columns="columns" :details="details" :filters="filters" :actions="actions" title="Références PCF"
             urlPrefix="references/pcf" @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" />
 
-        <ProcessInformationsModal :process="currentProcess" :show="!!currentProcess" @close="close" />
+        <ProcessModal :rowSelected="currentProcess" :show="!!currentProcess" @close="close" />
     </ContentBody>
 </template>
 <script>
-import ProcessInformationsModal from '../../Modals/ProcessInformationsModal'
-import NLColumn from '../../components/Grid/NLColumn'
-import NLGrid from '../../components/Grid/NLGrid'
-import NLListItem from '../../components/List/NLListItem'
-import NLList from '../../components/List/NLList'
-import NLModal from '../../components/NLModal'
+import ProcessModal from '~/Modals/ProcessModal.vue'
+import NLColumn from '~/components/Grid/NLColumn'
+import NLGrid from '~/components/Grid/NLGrid'
+import NLListItem from '~/components/List/NLListItem'
+import NLList from '~/components/List/NLList'
+import NLModal from '~/components/NLModal'
 export default {
     components: {
-        ProcessInformationsModal,
+        ProcessModal,
         NLColumn,
         NLGrid,
         NLListItem,

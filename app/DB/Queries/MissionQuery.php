@@ -154,8 +154,6 @@ class MissionQuery extends BaseQuery
      */
     protected function setFilters(): void
     {
-        $this->query->whereNull('m.deleted_at');
-
         if (hasRole('ci')) {
             $this->query = $this->query->leftJoin('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')->where(fn ($query) => $query->where('m.assigned_to_ci_id', $this->active_user->id)->orWhere('mhc.user_id', $this->active_user->id));
         } elseif (hasRole('cdc')) {

@@ -32,11 +32,11 @@ class StoreRequest extends FormRequest
             'last_name' => ['required', 'string', 'max:50'],
             'phone' => ['nullable', new IsAlgerianPhoneNumber],
             'password' => ['nullable', 'string', 'min:6', 'confirmed'],
-            'role' => ['required', 'exists:roles,id', new UniqueUserRole(request('agencies'))],
+            'role' => ['required', 'exists:roles,id', new UniqueUserRole(request('structures'))],
             'is_active' => ['required', 'boolean'],
-            'gender' => ['required', 'integer', 'in:1,2'],
+            'gender' => ['required', 'in:1,2'],
             'registration_number' => ['nullable', 'unique:users', 'numeric', 'max_digits:5'],
-            'is_for_testing' => ['required', 'boolean'],
+            // 'is_for_testing' => ['required', 'boolean'],
         ];
         $role = request()->role;
 

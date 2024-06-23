@@ -5,6 +5,7 @@ export const PENDING_CC_VALIDATION_STR = 'En attente de validation CC';
 export const PENDING_CDCR_VALIDATION_STR = 'En attente de validation CDCR';
 export const PENDING_DCP_VALIDATION_STR = 'En attente de validation DCP';
 export const DONE_STR = 'Réalisée et validée';
+export const CLASSIFY_STR = 'Classée';
 
 export const TODO_CLASS = 'todo';
 export const ACTIVE_CLASS = 'active';
@@ -13,6 +14,7 @@ export const PENDING_CC_VALIDATION_CLASS = 'pending-validation-cc';
 export const PENDING_CDCR_VALIDATION_CLASS = 'pending-validation-cdcr';
 export const PENDING_DCP_VALIDATION_CLASS = 'pending-validation-dcp';
 export const DONE_CLASS = 'done';
+export const CLASSIFY_CLASS = 'classify';
 
 
 export const TODO = 1;
@@ -22,3 +24,4 @@ export const PENDING_CC_VALIDATION = 4;
 export const PENDING_CDCR_VALIDATION = 5;
 export const PENDING_DCP_VALIDATION = 6;
 export const DONE = 7;
+export const CLASSIFY = 8;

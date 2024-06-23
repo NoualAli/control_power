@@ -1,10 +1,16 @@
 <template>
-    <InputContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired" :length="length"
-        :current-length="currentLength" :help-text="helpText">
+    <InputContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired"
+        :length="length" :current-length="currentLength" :help-text="helpText" v-if="!readonly">
         <textarea :id="getId" :class="{ 'is-danger': form?.errors.has(name) }" class="input" :name="name"
-            :autofocus="autofocus" :placeholder="placeholder || label" :value="modelValue" :readonly="readonly"
-            :disabled="disabled" :maxlength="length" v-bind="$attrs" @input="onInput($event)" />
+            :autofocus="autofocus" :placeholder="placeholder || label" :value="modelValue" :maxlength="length"
+            v-bind="$attrs" @input="onInput($event)" />
     </InputContainer>
+    <div class="input-base-container" v-else>
+        <label class="label">{{ label }}</label>
+        <div class="input-container">
+            <div class="input is-disabled">{{ modelValue || '-' }}</div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -23,7 +29,6 @@ export default {
         placeholder: { type: String, default: '' },
         modelValue: { type: String, default: '' },
         readonly: { type: Boolean, default: false },
-        disabled: { type: Boolean, default: false },
         length: { type: [ Number, String ], default: null },
         helpText: { type: String, default: null }
     },

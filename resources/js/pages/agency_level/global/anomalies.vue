@@ -1,8 +1,7 @@
 <template>
     <ContentBody>
         <NLDatatable :columns="columns" :actions="actions" :filters="filters" @show="show" title="Plans de redressement"
-            urlPrefix="agency_level/anomalies"
-            @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)" :refresh="refresh">
+            :urlPrefix="urlPrefix" @dataLoaded="initData()" :refresh="refresh" v-if="urlPrefix">
             <template #table-actions>
                 <NLButton class="has-icon" @click="refresh += 1">
                     <NLIcon name="sync" />
@@ -36,7 +35,20 @@ export default {
         return {
             rowSelected: null,
             refresh: 0,
+            campaign_id: null,
+            mission_id: null,
+            urlPrefix: null,
             columns: [
+                {
+                    label: 'Campagne',
+                    field: 'campaign',
+                    sortable: true
+                },
+                {
+                    label: 'Mission',
+                    field: 'mission',
+                    sortable: true
+                },
                 {
                     label: 'Référence',
                     field: 'reference',
@@ -108,11 +120,6 @@ export default {
                         }
                     }
                 },
-                // {
-                //     label: 'Contrôlé',
-                //     field: 'is_controlled',
-                //     hide: !hasRole([ 'cdc', 'ci', 'cdcr', 'cc', 'dcp' ])
-                // },
                 {
                     label: 'Etat',
                     field: 'state',
@@ -132,7 +139,7 @@ export default {
                     cols: 3,
                     multiple: true,
                     data: null,
-                    value: null
+                    value: null,
                 },
                 dre: {
                     label: 'DRE',
@@ -180,60 +187,14 @@ export default {
                     label: 'Etat',
                     multiple: false,
                     value: null,
-                    data: [
-                        {
-                            id: 'Non levée',
-                            label: 'Non levée'
-                        },
-                        {
-                            id: 'En cours d\'assainissement',
-                            label: 'En cours d\'assainissement'
-                        },
-                        {
-                            id: 'Levée',
-                            label: 'Levée'
-                        },
-                        {
-                            id: 'Rejetée',
-                            label: 'Rejetée'
-                        }
-                    ]
+                    data: null
                 },
                 score: {
                     label: 'Notation',
                     multiple: true,
-                    data: [
-                        {
-                            id: 2,
-                            label: 2
-                        },
-                        {
-                            id: 3,
-                            label: 3
-                        },
-                        {
-                            id: 4,
-                            label: 4
-                        }
-                    ],
+                    data: null,
                     value: null,
                     hide: hasRole([ 'ci', 'cdc', 'da' ]),
-                },
-                is_controlled: {
-                    label: 'Contrôlé',
-                    multiple: false,
-                    value: null,
-                    hide: !hasRole([ 'dcp', 'cdcr', 'cc', 'ci', 'cdc' ]),
-                    data: [
-                        {
-                            id: 'Non',
-                            label: 'Non contrôlé'
-                        },
-                        {
-                            id: 'Oui',
-                            label: 'Contrôlé'
-                        }
-                    ]
                 },
                 with_metadata: {
                     label: 'Avec échantillonage',
@@ -260,13 +221,26 @@ export default {
     },
     created() {
         this.$store.dispatch('settings/updatePageLoading', true)
-        if (this.$route?.query?.id) {
-            this.filters.id.value = this.$route?.query?.id
-        } else if (this.$route.query[ 'filter[id]' ]) {
-            this.filters.id.value = this.$route?.query[ 'filter[id]' ]
+        if (this.$route?.query?.id) this.filters.id.value = this.$route?.query?.id
+        if (this.$route?.query?.campaign) this.campaign_id = this.$route?.query?.campaign
+        if (this.$route?.query?.mission) this.mission_id = this.$route?.query?.mission
+        this.urlPrefix = `agency_level/anomalies`
+        if (this.campaign_id && this.mission_id) {
+            this.columns.find(column => column.label == 'Mission').hide = true
+            this.columns.find(column => column.label == 'Campagne').hide = true
+
+            this.filters.campaign.hide = true
+            this.filters.mission.hide = true
+            this.filters.dre.hide = true
+            this.filters.agency.hide = true
+
+            this.urlPrefix = `agency_level/anomalies/${this.campaign_id}/${this.mission_id}`
         }
     },
     methods: {
+        initData() {
+            this.$store.dispatch('settings/updatePageLoading', false)
+        },
         /**
          * Handle success result
          *
@@ -279,6 +253,7 @@ export default {
             this.modals.regularize = false
             this.show(row)
         },
+
         /**
         * Affiche le modal des informations du point de contrôle
         * @param {Object} item
@@ -289,11 +264,12 @@ export default {
             this.modals.edit = false
             this.modals.regularize = false
         },
+
         /**
          * Affiche le modal pour modifer informations du point de contrôle
          *
          */
-        processing(row) {
+        edit(row) {
             this.rowSelected = row
             this.modals.edit = true
             this.modals.show = false
@@ -310,6 +286,7 @@ export default {
             this.modals.show = false
             this.modals.edit = false
         },
+
         /**
          * Handle close event
          */
@@ -321,6 +298,7 @@ export default {
             }
             this.rowSelected = null
         },
+
         /**
          * @param {Object} Object
          * @param {Object} Object.row

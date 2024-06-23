@@ -33,7 +33,6 @@ class CheckCampaginDateBeforeValidation implements Rule
         if ($value && $this->startDate) {
             $this->notValidatedCampaigns = DB::table('control_campaigns as cc')
                 ->whereDate('end_date', '<', $this->startDate)
-                ->whereNull('deleted_at')
                 ->whereNull('validated_at');
 
             $this->notValidatedCampaigns = $this->notValidatedCampaigns->orderBy('start_date')

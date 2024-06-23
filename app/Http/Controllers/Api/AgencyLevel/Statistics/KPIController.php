@@ -6,7 +6,7 @@ use App\Exports\KPI\AccomplishRateExport;
 use App\Exports\KPI\MissionsFallExport;
 use App\Exports\KPI\TimeLagExport;
 use App\Http\Controllers\Controller;
-use App\Statistics\KPI;
+use App\Statistics\AgencyLevel\KPI;
 use Maatwebsite\Excel\Facades\Excel;
 
 class KPIController extends Controller

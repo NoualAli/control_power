@@ -1,11 +1,12 @@
 <template>
-    <InputContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired" :length="length"
-        :current-length="currentLength" :help-text="helpText" v-if="!readonly">
+    <InputContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired"
+        :length="length" :current-length="currentLength" :help-text="helpText" v-if="!readonly">
         <div class="input-container" :class="{ 'is-password-input': type == 'password' }">
             <input :id="getId" :maxlength="length"
-                :class="[{ 'is-danger': form?.errors.has(name) }, 'input', { 'is-for-auth': isForAuth }]" :type="finalType"
-                :name="name" :autocomplete="autocomplete" :autofocus="autofocus" :placeholder="placeholder || label"
-                :value="modelValue" :readonly="readonly" v-bind="$attrs" @input="onInput" @keypresse="isNumber" step="01">
+                :class="[{ 'is-danger': form?.errors.has(name) }, 'input', { 'is-for-auth': isForAuth }]"
+                :type="finalType" :name="name" :autocomplete="autocomplete" :autofocus="autofocus"
+                :placeholder="placeholder || label" :value="modelValue" :readonly="readonly" v-bind="$attrs"
+                @input="onInput" @keypresse="isNumber" step="0.01">
 
             <div v-if="type == 'password'" class="show-password-btn has-icon"
                 :class="{ 'is-danger': form?.errors.has(name) }" @click="toggleType">
@@ -16,7 +17,9 @@
     </InputContainer>
     <div class="input-base-container" v-else>
         <label class="label">{{ label }}</label>
-        <div class="content text-normal bg-parimary my-2">{{ modelValue }}</div>
+        <div class="input-container">
+            <div class="input is-disabled">{{ modelValue || '-' }}</div>
+        </div>
     </div>
 </template>
 

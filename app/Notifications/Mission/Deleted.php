@@ -4,7 +4,6 @@ namespace App\Notifications\Mission;
 
 use App\Models\Mission;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -36,7 +35,7 @@ class Deleted extends Notification
      */
     private function getContent(): string
     {
-        $content = "La mission " . $this->mission->reference . " pour l'agence " . $this->mission->agency->full_name . " vient d'être annulée.";
+        $content = "La mission " . $this->mission->reference . " pour l'agence " . $this->mission->agency->full_name . " vient d'être annulée par " . getUserFullNameWithRole() . ".";
         return $content;
     }
 
@@ -47,7 +46,7 @@ class Deleted extends Notification
      */
     private function getShortContent(): string
     {
-        $content = "<p>La mission <b>" . $this->mission->reference . "</b> pour l'agence <b>" . $this->mission->agency->full_name . "</b> vient d'être annulée.</p>";
+        $content = "<p>La mission <b>" . $this->mission->reference . "</b> pour l'agence <b>" . $this->mission->agency->full_name . "</b> vient d'être annulée" . getUserFullNameWithRole() . ".</p>";
         return $content;
     }
 

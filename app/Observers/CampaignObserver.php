@@ -53,12 +53,6 @@ class CampaignObserver
      */
     public function restored(ControlCampaign $controlCampaign)
     {
-        foreach ($controlCampaign->missions as $mission) {
-            $mission->update(['deleted_at' => null]);
-            foreach ($mission->details as $detail) {
-                $detail->update(['deleted_at' => null]);
-            }
-        }
     }
 
     /**

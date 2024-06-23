@@ -40,6 +40,7 @@ define('FORBIDDEN', 403);
 define('NOT_FOUND', 404);
 define('METHOD_NOT_ALLOWED', 405);
 define('REQUEST_TIMEOUT', 408);
+define('LOCKED', 423);
 define('TOO_MANY_REQUESTS', 429);
 define('SERVER_ERROR', 500);
 define('SERVER_SUCCESS', 200);

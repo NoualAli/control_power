@@ -9,7 +9,7 @@ use App\Http\Requests\Mission\Detail\Regularization\StoreRequest;
 use App\Http\Resources\MissionDetailRegularizationResource;
 use App\Models\MissionDetail;
 use App\Models\MissionDetailRegularization;
-use App\Notifications\MissionDetailRegularizationRejected;
+use App\Notifications\Mission\Detail\Regularization\Rejected;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
@@ -39,9 +39,12 @@ class MissionDetailRegularizationController extends Controller
                 if (count($media)) {
                     $media = getMedia($media)->get();
                     foreach ($media as $item) {
-                        $updatedItem = DB::table('has_media')->where('media_id', $item->id)->update([
-                            'attachable_id' => $regularization->id
+                        $updatedItem = DB::table('has_media')->insert([
+                            'attachable_id' => $regularization->id,
+                            'attachable_type' => MissionDetailRegularization::class,
+                            'media_id' => $item->id,
                         ]);
+                        // $test = DB::table('has_media')->where('attachable_id', $regularization->id)->where('attachable_type', MissionDetailRegularization::class)->get();
                     }
                 }
                 $detail->update(['reg_is_sanitation_in_progress' => $regularization->is_sanitation_in_progress, 'reg_is_rejected' => false, 'reg_is_regularized' => $regularization->is_regularized]);
@@ -94,7 +97,7 @@ class MissionDetailRegularizationController extends Controller
             });
             if ($result) {
                 $user = $regularization->regularizator;
-                Notification::send($user, new MissionDetailRegularizationRejected($regularization));
+                Notification::send($user, new Rejected($regularization));
             }
             return actionResponse($result, "Régularisation rejetée avec succès !");
         } catch (\Throwable $th) {

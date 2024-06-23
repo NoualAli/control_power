@@ -29,6 +29,9 @@
     <meta name="msapplication-TileColor" content="#fcfcfc">
     <meta name="msapplication-config" content="{{ asset('app/images/favicons/browserconfig.xml') }}">
     <meta name="theme-color" content="#ffffff">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
 @else
     <link rel="apple-touch-icon" sizes="180x180" href="{{ storage_path('app/images/favicons/apple-touch-icon.png') }}">
     <link rel="icon" type="image/png" sizes="32x32"

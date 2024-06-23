@@ -12,18 +12,21 @@ use Rexlabs\Enum\Enum;
  */
 class EventLogTypes extends Enum
 {
+    const ATTACH = 'attach';
+    const CONTROL = 'control';
     const CREATE = 'create';
-    const CREATE_VALIDATE = 'create and validate';
-    const UPDATE = 'update';
+    const DETACH = 'detach';
+    const CREATE_VALIDATE = 'create_and_validate';
     const DELETE = 'delete';
+    const UPDATE_PASSWORD = 'update_password';
+    const UPDATE = 'update';
+    const DISPATCH = 'dispatch';
+    const EXPORT = 'export';
     const LOGIN = 'login';
     const LOGOUT = 'logout';
     const LOCK = 'lock';
+    const RESET = 'reset';
     const UNLOCK = 'unlock';
     const VALIDATE = 'validate';
-    const ATTACH = 'attach';
-    const DETACH = 'detach';
-    const CONTROL = 'control';
-    const EXPORT = 'export';
-    const DISPATCH = 'dispatch';
+    const regularize = 'regularize';
 }

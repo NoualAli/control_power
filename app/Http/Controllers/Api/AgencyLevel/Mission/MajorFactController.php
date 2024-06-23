@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Api\AgencyLevel\Mission;
 
+use App\DB\Queries\ControlCampaignQuery;
+use App\DB\Queries\MajorFactQuery;
+use App\DB\Queries\MissionQuery;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MajorFactResource;
 use App\Models\MissionDetail;
@@ -31,8 +34,7 @@ class MajorFactController extends Controller
         $campaign = request('campaign_id', null);
 
         try {
-
-            $details = getMajorFacts();
+            $details = (new MajorFactQuery('mission_details', 'md'))->prepare()->multiple();
             if ($fetchFilters) {
                 return $this->filters($details);
             }
@@ -78,56 +80,24 @@ class MajorFactController extends Controller
         $details = $details->get();
 
         $families = (clone $details)->groupBy('family')->keys();
-        $family = getFamilies()->whereIn('name', $families)->get()->map(fn ($item) => ['id' => $item->id, 'label' => $item->name])->toArray();
+        $family = getFamilies()->whereIn('f.name', $families)->get()->map(fn ($item) => ['id' => $item->id, 'label' => $item->name])->toArray();
         $domain = [];
         $process = [];
-        $dre = [];
+        $campaign = (new ControlCampaignQuery())->query->whereNotNull('validated_at')->orderBy('reference', 'DESC')->get();
+        $mission = (new MissionQuery())->query->get();
+
+        $campaign = formatForSelect($campaign->toArray(), 'reference');
+        $mission = formatForSelect($mission->toArray(), 'reference');
+
+        $dres = [];
+        if (isset(request('filter')['dre']) && !empty(request('filter')['dre'])) {
+            $dres = explode(',', request('filter')['dre']);
+        }
+        $dre = getDre()->leftJoin('agencies AS a', 'a.dre_id', 'd.id');
         $agency = [];
-        $campaign = getControlCampaigns()
-            ->whereNotNull('m.reference')
-            ->orderBy('c.reference', 'DESC')
-            ->get()
-            ->unique()
-            ->map(fn ($item) => ['id' => $item->id, 'reference' => $item->reference])
-            ->toArray();
-        $campaign = formatForSelect($campaign, 'reference');
-        $mission = [];
-        if (isset(request()->filter['campaign'])) {
 
-            $campaigns = explode(',', request()->filter['campaign']);
-
-            $dre = getDre()
-                ->join('agencies as a', 'd.id', 'a.dre_id')
-                ->join('missions as m', 'm.agency_id', 'a.id')
-                ->join('mission_details as md', 'md.mission_id', 'm.id')
-                ->where('major_fact', true)
-                ->whereIn('m.control_campaign_id', $campaigns)
-                ->get()
-                ->map(fn ($item) => ['id' => $item->id, 'full_name' => $item->full_name])->toArray();
-            $dre = formatForSelect($dre, 'full_name');
-
-            if (isset(request()->filter['dre'])) {
-                $dres = explode(',', request()->filter['dre']);
-                $agency = getAgencies()
-                    ->join('missions as m', 'm.agency_id', 'a.id')
-                    ->join('mission_details as md', 'md.mission_id', 'm.id')
-                    ->where('major_fact', true)
-                    ->whereIn('dre_id', $dres)
-                    ->get()
-                    ->map(fn ($item) => ['id' => $item->id, 'full_name' => $item->full_name])->toArray();
-                $agency = formatForSelect($agency, 'full_name');
-
-                if (isset(request()->filter['agency'])) {
-                    $agencies = explode(',', request()->filter['agency']);
-                    $mission = getMissions()
-                        ->whereIn('control_campaign_id', $campaigns)
-                        ->whereIn('agency_id', $agencies)
-                        ->where('md.major_fact', true)
-                        ->get()
-                        ->map(fn ($item) => ['id' => $item->id, 'reference' => $item->reference])->toArray();
-                    $mission = formatForSelect($mission, 'reference');
-                }
-            }
+        if (!empty($dres)) {
+            $agency = getAgencies()->leftJoin('dres AS d', 'd.id', 'a.dre_id')->whereIn('d.id', $dres);
         }
 
         if (isset(request()->filter['family'])) {
@@ -149,7 +119,26 @@ class MajorFactController extends Controller
             }
         }
 
-        return compact('mission', 'campaign', 'dre', 'agency', 'family', 'domain', 'process');
+        $state = collect([]);
+        if ($details->contains('reg_is_regularized', '1')) {
+            $state->push(['id' => 'Levée', 'label' => 'Levée']);
+        }
+        if ($details->contains('reg_is_rejected', '1')) {
+            $state->push(['id' => 'Rejetée', 'label' => 'Rejetée']);
+        }
+        if ($details->contains('reg_is_sanitation_in_progress', '1')) {
+            $state->push(['id' => 'En cours d\'assainissement', 'label' => 'En cours d\'assainissement']);
+        }
+        if ($details->contains(fn ($item) => (int) $item->total_regularizations == 0)) {
+            $state->push(['id' => 'En attente de traitement', 'label' => 'En attente de traitement']);
+        }
+
+
+        $dre = formatForSelect($dre->get()->toArray(), 'full_name');
+        if (!empty($dres)) {
+            $agency = formatForSelect($agency->get()->toArray(), 'full_name');
+        }
+        return compact('mission', 'campaign', 'dre', 'agency', 'family', 'domain', 'process', 'state');
     }
 
     /**
@@ -184,7 +173,7 @@ class MajorFactController extends Controller
 
         if (isset($filter['dre'])) {
             $values = explode(',', $filter['dre']);
-            $details = $details->whereIn('dre_id', $values);
+            $details = $details->whereIn('a.dre_id', $values);
         }
 
         if (isset($filter['agency'])) {
@@ -220,7 +209,7 @@ class MajorFactController extends Controller
                 $details = $details->where('reg_is_regularized', true);
             } elseif ($value == 'Rejetée') {
                 $details = $details->where('reg_is_rejected', true);
-            } elseif ($value == 'Non levée') {
+            } elseif ($value == 'En attente de traitement') {
                 $details = $details->where('reg_is_sanitation_in_progress', false)->where('reg_is_regularized', false)->where('reg_is_rejected', false);
             } elseif ($value == 'En cours d\'assainissement') {
                 $details = $details->where('reg_is_sanitation_in_progress', true);

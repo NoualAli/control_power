@@ -17,7 +17,8 @@ class RolesTableSeeder extends Seeder
     {
         DB::table('roles')->insert([
             ['code' => 'iga', 'name' => 'Inspecteur général adjoint'],
-            ['code' => 'ir', 'name' => 'Inspecteur régional']
+            ['code' => 'ir', 'name' => 'Inspecteur régional'],
+            ['code' => 'cd', 'name' => 'Chef département']
         ]);
     }
 }

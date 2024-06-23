@@ -11,7 +11,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Mission\StoreRequest;
 use App\Http\Requests\Mission\UpdateRequest;
 use App\Http\Resources\MissionResource;
-use App\Jobs\GenerateMissionReportPdf;
 use App\Models\Structures\Agency;
 use App\Models\ControlCampaign;
 use App\Models\EventLog;
@@ -21,17 +20,20 @@ use App\Notifications\Mission\Assigned;
 use App\Notifications\Mission\Updated;
 use App\Notifications\Mission\Validated;
 use App\Services\ExcelExportService;
-use App\Traits\MissionConfig;
+use App\Traits\MissionTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\App;
 use App\Notifications\Mission\Deleted;
+use Barryvdh\DomPDF\PDF;
+use Illuminate\Support\Facades\Storage;
+use setasign\Fpdi\Fpdi;
 
 class MissionController extends Controller
 {
-    use MissionConfig;
+    use MissionTrait;
     /**
      * Display a listing of the resource.
      *
@@ -40,7 +42,6 @@ class MissionController extends Controller
     public function index()
     {
         isAbleOrAbort(['view_mission']);
-
         $filter = request('filter', null);
         $search = request('search', null);
         $sort = request('sort', null);
@@ -105,30 +106,10 @@ class MissionController extends Controller
      */
     public function show(Mission $mission)
     {
-        isAbleOrAbort('view_mission');
-        $currentUser = auth()->user();
-        $dreController = $mission->dreController->id;
-        $dreAssistants = $mission->assistants->pluck('id')->toArray();
-        $dcpController = $mission->assigned_to_cc_id;
-        $agencies = $currentUser->agencies->pluck('id')->toArray();
+        canAccessMission($mission);
 
-        $condition = $currentUser->id == $dreController
-            || $currentUser->id == $dcpController
-            || $mission->created_by_id == $currentUser->id
-            || ($mission->assigned_to_cder_id == $currentUser->id && hasRole('cder'))
-            || in_array(auth()->user()->id, $dreAssistants)
-            || (hasRole(['cdcr', 'dcp']) && $mission->is_validated_by_cdc)
-            || (hasRole(['dg', 'cdrcp', 'ig', 'iga', 'der', 'sg', 'deac', 'dga']) && $mission->is_validated_by_dcp)
-            || (hasRole(['dre', 'da']) && in_array($mission->agency->id, $agencies) && $mission->is_validated_by_dcp)
-            || hasRole(['root', 'admin']);
-
-        abort_if(!$condition, FORBIDDEN, __('unauthorized'));
         if (!isAbleTo('view_opinion')) {
             $mission->makeHidden('opinion');
-        }
-        if (request()->has('edit')) {
-            $condition = $mission->remaining_days_before_start > 5;
-            abort_if(!$condition, FORBIDDEN, __('unauthorized'));
         }
 
         if (!hasRole(['cdc', 'ci'])) {
@@ -172,6 +153,7 @@ class MissionController extends Controller
         $data['created_by_id'] = auth()->user()->id;
         $data['creator_full_name'] = getUserFullNameWithRole();
         try {
+            // return actionResponse(true, 'La mission  a été répartie avec succès');
             $campaign = ControlCampaign::findOrFail($data['control_campaign_id']);
             $campaign->load('processes');
             $agency = $data['agency_id'];
@@ -194,8 +176,8 @@ class MissionController extends Controller
                 EventLog::store(['type' => EventLogTypes::CREATE, 'attachable_type' => Mission::class, 'attachable_id' => $mission->id]);
 
                 $controlPoints = $this->loadControlPoints($campaign, $agency, $data['head_of_mission_id'], $mission);
-                $details = $mission->details()->createMany($controlPoints);
-                $assistants = $mission->assistants()->attach($data['assistants']);
+                $details = is_array($controlPoints) && !empty($controlPoints) ? $mission->details()->createMany($controlPoints) : null;
+                $assistants = is_array($data['assistants']) && !empty($data['assistants']) ? $mission->assistants()->attach($data['assistants']) : null;
                 return $mission;
             });
             if (!$mission->is_for_testing && $mission->wasRecentlyCreated) {
@@ -265,30 +247,23 @@ class MissionController extends Controller
     public function destroy(Mission $mission)
     {
         isAbleOrAbort('delete_mission');
-        abort_if($mission->remaining_days_before_start < 0, FORBIDDEN, "Vous n'êtes pas autoriser à supprimer la mission " . $mission->reference);
+        abort_if((int) $mission->current_state !== MissionState::TODO, FORBIDDEN, "Vous n'êtes pas autoriser à supprimer la mission " . $mission->reference);
 
         try {
             $deletedMission = clone $mission;
             $succesMessage = "La mission <b>$deletedMission->reference</b> a bien été supprimer.";
             $action = DB::transaction(function () use ($mission) {
-                $totalDeletedMissionsWithSameReference = DB::table('missions as m')->whereLike('reference', "%$mission->reference%")->whereNotNull('deleted_at')->get()->count();
-                $mission->update([
-                    'reference' => $mission->reference . '-' . ($totalDeletedMissionsWithSameReference + 1)
-                ]);
                 $errorMessage = DELETE_SUCCESS;
-                if ($mission->remaining_days_before_start > 0) {
-                    $result = $mission->delete();
-                    $code = 200;
-                } else {
-                    $errorMessage = "Vous n'êtes pas autoriser à supprimer la mission " . $mission->reference;
-                    $code = FORBIDDEN;
-                    $result = false;
-                }
+                DB::table('mission_has_controllers')->where('mission_id', $mission->id)->delete();
+                DB::table('mission_details')->where('mission_id', $mission->id)->delete();
+                $result = $mission->delete();
+                $code = 200;
                 return compact('result', 'errorMessage', 'code');
             });
             EventLog::store(['type' => EventLogTypes::DELETE, 'attachable_type' => Mission::class, 'attachable_id' => $mission->id, 'payload' => ['success' => $action['result'], 'content' => $action['errorMessage']]]);
             if ($action['result']) {
                 $users = $deletedMission->assistants->merge([$deletedMission->dreController]);
+                $users = User::whereRoles(['cdcr', 'dcp'])->get()->merge($users);
                 foreach ($users as $user) {
                     Notification::send($user, new Deleted($deletedMission));
                 }
@@ -334,7 +309,7 @@ class MissionController extends Controller
                     'current_state' => $attributes['missionState'],
                     'real_end' => hasRole('cdc') ? now() : $mission->real_end,
                 ]);
-                if (!hasRole('dcp')) {
+                if (!hasRole(['dcp', 'der'])) {
                     if ($attributes['notify'] instanceof Collection) {
                         foreach ($attributes['notify'] as $user) {
                             Notification::send($user, new Validated($mission, $type));
@@ -342,9 +317,8 @@ class MissionController extends Controller
                     } else {
                         Notification::send($attributes['notify'], new Validated($mission, $type));
                     }
-                }
-                if (hasRole('dcp')) {
-                    $this->generateReport($mission);
+                } else {
+                    $this->generateReport($mission, true, $type);
                 }
                 return $result;
             });
@@ -355,82 +329,6 @@ class MissionController extends Controller
             return throwedError($th);
         }
     }
-    /**
-     * Prepare database attribute and ACLs for validation
-     *
-     * @param App\Models\Mission $mission
-     * @param string $type
-     * @return Collection
-     **/
-    public function validationAttributes(Mission $mission, string $type)
-    {
-        switch ($type) {
-            case 'ci':
-                $validationAtColumn = 'ci_validation_at';
-                $validationByColumn = 'ci_validation_by_id';
-                $persistedValidationColumn = '';
-                $isAbleOrAbort = hasRole('ci') && $mission->dreController->id == auth()->user()->id;
-                $notify = $mission->creator;
-                $missionState = MissionState::PENDING_CDC_VALIDATION;
-                break;
-            case 'cdc':
-                $validationAtColumn = 'cdc_validation_at';
-                $validationByColumn = 'cdc_validation_by_id';
-                $persistedValidationColumn = 'cdc_validator_full_name';
-                $isAbleOrAbort = hasRole('cdc') && $mission->created_by_id == auth()->user()->id;
-                $notify = User::whereRoles(['cdcr'])->get();
-                $missionState = MissionState::PENDING_CDCR_VALIDATION;
-                break;
-            case 'cdcr':
-                $validationAtColumn = 'cdcr_validation_at';
-                $validationByColumn = 'cdcr_validation_by_id';
-                $persistedValidationColumn = 'cdcr_validator_full_name';
-                $isAbleOrAbort = hasRole('cdcr');
-                $notify = User::whereRoles(['dcp'])->get();
-                $missionState = MissionState::PENDING_DCP_VALIDATION;
-                break;
-            case 'cc':
-                $validationAtColumn = 'cc_validation_at';
-                $validationByColumn = 'cc_validation_by_id';
-                $persistedValidationColumn = '';
-                $isAbleOrAbort = hasRole('cc') && $mission->assigned_to_cc_id == auth()->user()->id;
-                $notify = User::whereRoles(['cdcr'])->get();
-                $missionState = MissionState::PENDING_CDCR_VALIDATION;
-                break;
-            case 'dcp':
-                $validationAtColumn = 'dcp_validation_at';
-                $validationByColumn = 'dcp_validation_by_id';
-                $persistedValidationColumn = 'dcp_validator_full_name';
-                $isAbleOrAbort = hasRole('dcp');
-                $missionState = MissionState::DONE;
-                $notify = User::whereRoles(['cdc', 'dre', 'da', 'ir'])->isActive()->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge(User::whereRoles(['cdrcp', 'dg', 'dga', 'sg', 'ig', 'iga', 'deac', 'der'])->isActive()->get());
-                $notify = $notify->merge([$mission->dreController]);
-                break;
-                // case 'da':
-                //     $validationAtColumn = 'da_validation_at';
-                //     $validationByColumn = 'da_validation_by_id';
-                //     $persistedValidationColumn = 'da_validator_full_name';
-                //     $isAbleOrAbort = hasRole('da') && auth()->user()->hasAgencies($mission->agency_id) && isAbleTo('regularize_mission_detail');
-                //     $notify = User::whereRoles(['cdcr', 'cdrcp', 'dcp'])->isActive();
-                //     $notify = User::whereRoles(['dre', 'cdc', 'ci'])->isActive()->whereRelation('agencies', 'agencies.id', $mission->agency_id)->get()->merge($notify->get());
-                //     $notify = $notify->merge([$mission->dreController]);
-                //     if ($mission->dcp_controller) {
-                //         $notify = $notify->merge([$mission->dcp_controller]);
-                //     }
-                //     $missionState = MissionState::DONE;
-                //     break;
-            default:
-                $validationAtColumn = 'ci_validation_at';
-                $validationByColumn = 'ci_validation_by_id';
-                $persistedValidationColumn = '';
-                $isAbleOrAbort = hasRole('ci') && $mission->dreController->id == auth()->user()->id;
-                $notify = $mission->creator;
-                $missionState = MissionState::PENDING_CDC_VALIDATION;
-                break;
-        }
-
-        return compact('validationAtColumn', 'validationByColumn', 'isAbleOrAbort', 'notify', 'missionState', 'persistedValidationColumn');
-    }
 
     /**
      * Handle mission report action [Export, Generate]
@@ -439,10 +337,10 @@ class MissionController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response|\Illuminate\Foundation\Bus\PendingDispatch
      */
-    public function handleReport(Mission $mission)
+    public function handleReport(Mission $mission, string $action)
     {
-        if (request()->action == 'regenerate') {
-            $this->generateReport($mission, false);
+        if ($action == 'regenerate') {
+            $this->generateReport($mission, false, '');
             return response()->json([
                 'status' => true,
             ]);
@@ -452,58 +350,7 @@ class MissionController extends Controller
     }
 
     /**
-     * Generate mission report
-     *
-     * @param Mission $mission
-     *
-     * @return \Illuminate\Foundation\Bus\PendingDispatch
-     */
-    private function generateReport(Mission $mission, $notify = true)
-    {
-        return GenerateMissionReportPdf::dispatch($mission, $notify);
-    }
-
-    /**
-     * Load all usable control points for specific agency
-     *
-     * @param ControlCampaign $campaign
-     * @param Agency $agency
-     *
-     * @return array
-     */
-    private function loadControlPoints(ControlCampaign $campaign, Agency $agency, int|string $assigned_to, Mission $mission): array
-    {
-        $agency->load(['unusableProcesses', 'usableProcesses']);
-        $campaignProcesses = $campaign->processes;
-        $categoryProcesses = [];
-        if ($campaignProcesses->count()) {
-            $categoryProcesses = $agency->category->processes;
-            $exceptionalUsableAgencyProcesses = $agency->usableProcesses;
-            $exceptionalUnusableAgencyProcesses = $agency->unusableProcesses->pluck('id')->toArray();
-
-            $categoryProcesses = $categoryProcesses->merge($exceptionalUsableAgencyProcesses)->unique('id'); // Ajout des processus exceptionelles
-
-            $categoryProcesses = $categoryProcesses->filter(function ($process) use ($exceptionalUnusableAgencyProcesses) {
-                return !in_array($process->id, $exceptionalUnusableAgencyProcesses); // suppression des processus exceptionelles
-            });
-
-            $categoryProcesses = $categoryProcesses->pluck('id')->toArray();
-        }
-        $missionReference = str_replace('RAP', '', str_replace('/', '-', $mission->reference));
-        return $campaignProcesses->filter(function ($process) use ($categoryProcesses) {
-            return in_array($process->id, $categoryProcesses); // garder que les processus utilisés par la catégorie
-        })->pluck('control_points')->flatten()->pluck('id')->map(function ($controlPoint) use ($assigned_to, $missionReference) {
-            $controlPoint = DB::table('control_points as cp')->select(['cp.id as cp_id', 'p.id as p_id', 'd.id as d_id', 'f.id as f_id'])
-                ->leftJoin('processes as p', 'p.id', 'cp.process_id')
-                ->leftJoin('domains as d', 'd.id', 'p.domain_id')
-                ->leftJoin('families as f', 'f.id', 'd.family_id')->where('cp.id', $controlPoint)->first();
-            $reference = $missionReference . '-' . $controlPoint->f_id . '-' . $controlPoint->d_id . '-' . $controlPoint->p_id . '-' . $controlPoint->cp_id;
-            return ['control_point_id' => $controlPoint->cp_id, 'assigned_to_ci_id' => $assigned_to, 'reference' => $reference];
-        })->toArray();
-    }
-
-    /**
-     * Get details filters data
+     * Fetch missions filters data
      *
      * @param Builder $missions
      *
@@ -513,49 +360,78 @@ class MissionController extends Controller
     {
         $dre = [];
         $agency = [];
-        // $controllers = [];
+        $controllers = [];
+        $mission = [];
         $campaign = (new ControlCampaignQuery())->prepare()->multiple()
             ->whereNotNull('m.reference')
-            ->orderBy('c.reference', 'DESC')
+            ->orderBy('cc.reference', 'DESC')
             ->get()
             ->unique()
             ->map(fn ($item) => ['id' => $item->id, 'reference' => $item->reference])
             ->toArray();
         $campaign = formatForSelect($campaign, 'reference');
-        $mission = [];
-        if (isset(request()->filter['campaign'])) {
-            $filterDre = isset(request()->filter['dre']) ? request()->filter['dre'] : '';
-            if (hasRole(['cdc', 'ci', 'da', 'dre'])) {
-                $filterDre = auth()->user()->dres->pluck('id')->join(',');
-            }
-            $campaigns = explode(',', request()->filter['campaign']);
-            $dre = getDre()
-                ->join('agencies as a', 'd.id', 'a.dre_id')
-                ->join('missions as m', 'm.agency_id', 'a.id')
-                ->whereIn('m.control_campaign_id', $campaigns)
-                ->having(DB::raw('COUNT(m.id)'), '>', 0)
-                ->get()
-                ->map(fn ($item) => ['id' => $item->id, 'full_name' => $item->full_name])->toArray();
-            $dre = formatForSelect($dre, 'full_name');
-            if (!empty($filterDre)) {
-                $dres = explode(',', $filterDre);
-                $agency = getAgencies()->join('missions as m', 'm.agency_id', 'a.id');
-                if (hasRole('ci')) {
-                    $agency = $agency->where('m.assigned_to_ci_id', auth()->user()->id);
-                } elseif (hasRole('cdc')) {
-                    $agency = $agency;
-                } else {
-                    $agency = $agency->whereIn('dre_id', $dres);
-                }
 
-                $agency = $agency->having(DB::raw('COUNT(m.id)'), '>', 0)
-                    ->get()
-                    ->map(fn ($item) => ['id' => $item->id, 'full_name' => $item->full_name])->toArray();
-                $agency = formatForSelect($agency, 'full_name');
-            }
+        $campaigns = isset(request()->filter['campaign']) ? explode(',', request()->filter['campaign']) : [];
+        $agencies = isset(request()->filter['agency']) ? explode(',', request()->filter['agency']) : [];
+        $dres = isset(request()->filter['dre']) ? explode(',', request()->filter['dre']) : [];
+
+
+        $dre = getDre()
+            ->join('agencies as a', 'd.id', 'a.dre_id')
+            ->join('missions as m', 'm.agency_id', 'a.id')
+            ->having(DB::raw('COUNT(m.id)'), '>', 0);
+        if (count($campaigns)) {
+            $dre = $dre->whereIn('m.control_campaign_id', $campaigns);
+        }
+        $dre = $dre->get()
+            ->map(fn ($item) => ['id' => $item->id, 'full_name' => $item->full_name])->toArray();
+        $dre = formatForSelect($dre, 'full_name');
+
+        $userDres = hasRole(['cdc', 'ci', 'da', 'dre']) ? auth()->user()->dres->pluck('id')->join(',') : null;
+
+        $agency = getAgencies()->join('missions as m', 'm.agency_id', 'a.id');
+        if (hasRole('ci')) {
+            $agency = $agency->where('m.assigned_to_ci_id', auth()->user()->id);
+        } elseif (hasRole('cdc')) {
+            $agency = $agency;
+        } else {
+            $agency = $agency->whereIn('a.dre_id', $dres);
         }
 
-        return compact('campaign', 'dre', 'agency');
+        $agency = $agency->having(DB::raw('COUNT(m.id)'), '>', 0)->distinct()
+            ->get()
+            ->map(fn ($item) => ['id' => $item->id, 'full_name' => $item->full_name])->toArray();
+        $agency = formatForSelect($agency, 'full_name');
+
+        $controllersQuery = DB::table('users AS u')->select(DB::raw("CONCAT(UPPER(LEFT(LOWER(u.first_name), 1)), LOWER(RIGHT(u.first_name, LEN(u.first_name) - 1)), ' ', UPPER(u.last_name)) AS name"), 'u.id');
+        if (hasRole('der')) {
+            $controllers = $controllersQuery
+                ->join('missions AS m', 'u.id', 'm.assigned_to_cder_id');
+        } elseif (hasRole(['dre', 'cdc'])) {
+            $controllers = $controllersQuery
+                ->join('missions AS m', 'u.id', 'm.assigned_to_ci_id')
+                ->whereIn('m.agency_id', auth()->user()->agencies_arr);
+        } elseif (hasRole(['dcp', 'cdcr'])) {
+            $controllers = $controllersQuery
+                ->join('missions AS m', 'u.id', 'm.assigned_to_cc_id');
+        }
+        if ($controllers instanceof Builder) {
+            $controllers = $controllersQuery
+                ->join('control_campaigns AS cc', 'cc.id', 'm.control_campaign_id')
+                ->join('agencies AS a', 'a.id', 'm.agency_id')
+                ->groupBy('u.id', 'u.first_name', 'u.last_name');
+            if (count($campaigns)) {
+                $controllers = $controllers->whereIn('cc.id', $campaigns);
+            }
+
+            if (count($agencies)) {
+                $controllers = $controllers->whereIn('a.id', $agencies);
+            }
+
+            $controllers = formatForSelect($controllers->distinct()->get()->toArray());
+        }
+
+        return compact('campaign', 'dre', 'agency', 'controllers');
     }
 
     /**
@@ -581,6 +457,17 @@ class MissionController extends Controller
         if (isset($filter['agency'])) {
             $values = explode(',', $filter['agency']);
             $missions = $missions->whereIn('agency_id', $values);
+        }
+
+        if (isset($filter['controllers'])) {
+            $values = explode(',', $filter['controllers']);
+            if (hasRole(['dcp', 'cdcr'])) {
+                $missions = $missions->whereIn('m.assigned_to_cc_id', $values);
+            } elseif (hasRole(['dre', 'cdc'])) {
+                $missions = $missions->whereIn('m.assigned_to_ci_id', $values);
+            } elseif (hasRole('der')) {
+                $missions = $missions->whereIn('m.assigned_to_cder_id', $values);
+            }
         }
 
         if (isset($filter['current_state'])) {

@@ -42,7 +42,7 @@ class MissionDetailRegularization extends BaseModel
 
     public function getRegularizedAttribute()
     {
-        return $this->is_regularized ? 'Levée' : 'Non levée';
+        return $this->is_regularized ? 'Levée' : 'En attente de traitement';
     }
 
     public function getCreatedAtAttribute($created_at)

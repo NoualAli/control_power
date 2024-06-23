@@ -159,6 +159,7 @@ import { mapGetters } from 'vuex'
 import { Bar, Doughnut } from 'vue-chartjs'
 export default {
     name: "MajorFacts",
+    emits: [ 'savePNG' ],
     components: {
         Bar,
         Doughnut,
@@ -196,7 +197,7 @@ export default {
     methods: {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
-            this.$store.dispatch('agencyLevelStatistics/fetchMajorFacts', { onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign }).then(() => {
+            this.$store.dispatch('agencyLevelStatistics/fetchMajorFacts', { onlyCurrentCampaign: false, currentCampaign: this?.currentCampaign }).then(() => {
                 this.tables.domains = this.majorFacts.data.domainsMajorFacts
                 this.tables.missions = this.majorFacts.data.missionsMajorFacts
                 this.tables.campaigns = this.majorFacts.data.campaignsMajorFacts

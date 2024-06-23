@@ -107,8 +107,10 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::prefix('families')->controller(FamilyController::class)->group(function () {
             Route::get('/', 'index');
             Route::get('{family}', 'show');
+            Route::get('concerns/config/{family?}', 'config');
             Route::post('/', 'store');
             Route::put('{family}', 'update');
+            Route::patch('{family}', 'toggleState');
             Route::delete('{family}', 'destroy');
         });
 
@@ -116,24 +118,33 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::prefix('domains')->controller(DomainController::class)->group(function () {
             Route::get('/', 'index');
             Route::get('{domain}', 'show');
+            Route::get('concerns/config/{family?}', 'config');
+            Route::get('config/{domain?}', 'config');
             Route::post('/', 'store');
             Route::put('{domain}', 'update');
+            Route::patch('{domain}', 'toggleState');
             Route::delete('{domain}', 'destroy');
         });
 
         Route::prefix('processes')->controller(ProcessController::class)->group(function () {
             Route::get('/', 'index');
             Route::get('{process}', 'show');
+            // Route::get('config/{process?}', 'config');
+            Route::get('concerns/config/{domain?}', 'config');
             Route::post('/', 'store');
             Route::put('{process}', 'update');
+            Route::patch('{process}', 'toggleState');
             Route::delete('{process}', 'destroy');
         });
 
         Route::prefix('control-points')->controller(ControlPointController::class)->group(function () {
             Route::get('/', 'index');
             Route::get('{controlPoint}', 'show');
+            // Route::get('config/{controlPoint?}', 'config');
+            Route::get('concerns/config/{process?}', 'config');
             Route::post('/', 'store');
             Route::put('{controlPoint}', 'update');
+            Route::patch('{controlPoint}', 'toggleState');
             Route::delete('{controlPoint}', 'destroy');
         });
 
@@ -152,13 +163,13 @@ Route::group(['middleware' => 'auth:api'], function () {
          * Structures management
          */
 
-        include_once __DIR__ . './structures.php';
+        include_once __DIR__ . '/structures.php';
 
         /**
          * Agency level
          */
 
-        include_once __DIR__ . './agency_level.php';
+        include_once __DIR__ . '/agency_level.php';
 
         /**
          * Media

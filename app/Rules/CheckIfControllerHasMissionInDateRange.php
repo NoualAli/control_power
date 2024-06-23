@@ -11,15 +11,19 @@ class CheckIfControllerHasMissionInDateRange implements Rule
     private $totalMissions;
     private $controllerId;
     private $mission;
+    private $alias;
+    private $prefix;
 
     /**
      * Create a new rule instance.
      *
      * @return void
      */
-    public function __construct($mission = null)
+    public function __construct($mission = null, int $type = 1)
     {
         $this->mission = $mission;
+        $this->alias = $type == 2 ? 'dm' : 'm';
+        $this->prefix = $type == 2 ? 'dre_' : '';
     }
 
     /**
@@ -33,13 +37,14 @@ class CheckIfControllerHasMissionInDateRange implements Rule
     {
         $this->controllerId = $value;
         if ($value) {
-            $missions = DB::table('missions as m')->join('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')->whereNull('m.deleted_at');
+
+            $missions = DB::table($this->prefix . 'missions as ' . $this->alias)
+                ->leftJoin($this->prefix . 'mission_has_controllers as ' . $this->alias . 'hc', $this->alias . 'hc.' . $this->prefix . 'mission_id', $this->alias . '.id');
 
             if ($this->mission) {
-                $missions = $missions->where('m.id', '!=', $this->mission->id);
+                $missions = $missions->where($this->alias . '.id', '!=', $this->mission->id);
             }
-            // dd($missions->count(), $missions->get());
-            $missions = $missions->where(fn ($query) => $query->where('m.assigned_to_ci_id', $value)->orWhere('mhc.user_id', $value))->get()->filter(function ($item) {
+            $missions = $missions->where(fn ($query) => $query->where($this->alias . '.assigned_to_ci_id', $value)->orWhere($this->alias . 'hc.user_id', $value))->get()->filter(function ($item) {
                 $endDate = $item->programmed_end;
                 $startDate = Carbon::parse($item->programmed_start)->format('d-m-Y');
                 if ($item->real_end) {
@@ -64,7 +69,7 @@ class CheckIfControllerHasMissionInDateRange implements Rule
      */
     public function message()
     {
-        $mission = $this->totalMissions > 1 ? ' missions' : ' mission';
-        return normalizeFullName(getUserFullNameWithRole($this->controllerId)) . ' a déjà ' . $this->totalMissions . $mission . ' dans cette plage de date';
+        // $mission = $this->totalMissions > 1 ? ' missions' : ' mission';
+        return normalizeFullName(getUserFullNameWithRole($this->controllerId)) . ' a déjà une mission dans cette plage de date';
     }
 }

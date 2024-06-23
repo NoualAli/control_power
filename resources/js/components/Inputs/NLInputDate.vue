@@ -3,13 +3,16 @@
         :help-text="helpText" v-if="!readonly">
         <div class="input-container">
             <input :id="getId" :class="[{ 'is-danger': form?.errors.has(name) }, 'input']" :type="type" :name="name"
-                :autocomplete="autocomplete" :autofocus="autofocus" :placeholder="placeholder || label" :value="modelValue"
-                :readonly="readonly" v-bind="$attrs" @input="onInput" @keypresse="isNumber" :max="max" :min="min">
+                :autocomplete="autocomplete" :autofocus="autofocus" :placeholder="placeholder || label"
+                :value="modelValue" :readonly="readonly" v-bind="$attrs" @input="onInput" @keypresse="isNumber"
+                :max="max" :min="min">
         </div>
     </InputContainer>
     <div class="input-base-container" v-else>
         <label class="label">{{ label }}</label>
-        <div class="content text-normal bg-parimary my-2">{{ modelValue }}</div>
+        <div class="input-container">
+            <div class="input is-disabled">{{ modelValue || '-' }}</div>
+        </div>
     </div>
 </template>
 

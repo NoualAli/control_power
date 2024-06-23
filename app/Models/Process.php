@@ -19,10 +19,20 @@ class Process extends BaseModel
 
     protected $fillable = [
         'name',
-        'domain_id'
+        'domain_id',
+        'usable_for_agency',
+        'usable_for_dre',
+        'is_active',
+        'display_priority',
+        'creator_full_name',
     ];
 
-    public $timestamps = false;
+    protected $casts = [
+        'usable_for_agency' => 'boolean',
+        'usable_for_dre' => 'boolean',
+        'is_active' => 'boolean',
+        'display_priority' => 'integer',
+    ];
 
     // public $withCount = ['control_points'];
 
@@ -59,13 +69,13 @@ class Process extends BaseModel
     {
         return $this->hasManyThrough(MissionDetail::class, ControlPoint::class);
     }
-    public function campaign()
+    public function campaigns()
     {
-        return $this->hasManyThrough(ControlCampaign::class, ControlCampaignProcess::class);
+        return $this->hasManyThrough(ControlCampaign::class, ControlCampaignProcess::class, 'process_id', 'id', 'id', 'control_campaign_id');
     }
     public function notes()
     {
-        return $this->media()->whereIn('category', ['Circulaire', 'Lettre-circulaire', 'Note', 'Guide 1er niveau']);
+        return $this->media()->where('category', ['Note']);
     }
     public function circulaires()
     {

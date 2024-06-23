@@ -2,12 +2,12 @@
     <NLModal :show="show" @close="close" :isLoading="isLoading">
         <template #title>
             <div class="tags is-even">
-                <router-link class="tag is-success" :to="'/campaigns/' + row?.campaign.id" target="_blank">
+                <router-link class="tag is-success" :to="'/agency-level/campaigns/' + row?.campaign.id" target="_blank">
                     <small class="text-center w-100">
                         {{ row?.campaign?.reference }}
                     </small>
                 </router-link>
-                <router-link class="tag is-info" :to="'/missions/' + row?.mission.id" target="_blank">
+                <router-link class="tag is-info" :to="'/agency-level/missions/' + row?.mission.id" target="_blank">
                     <small class="text-center w-100">
                         {{ row?.mission?.reference }}
                     </small>
@@ -24,7 +24,7 @@
             <NLGrid gap="6">
                 <!-- Major fact -->
                 <NLColumn
-                    v-if="(row?.major_fact || (Boolean(row?.major_fact_is_rejected_at_dre) && Boolean(row?.major_fact_is_rejected_at_dcp))) && !is('da')">
+                    v-if="(row?.major_fact || (Boolean(row?.major_fact_is_rejected_at_dre) && Boolean(row?.major_fact_is_rejected_at_dcp))) && !is(['da', 'cc'])">
                     <NLGrid gap="6" extraClass="box">
                         <NLColumn>
                             <h2>Fait majeur</h2>
@@ -91,12 +91,13 @@
                             <NLFlex alignItems="center" gap="2" lgJustifyContent="start">
                                 <span class="label">Appréciation: </span>
                                 <span>{{ row?.appreciation }}</span>
-                                <span v-html="row?.score_tag" v-if="!is(['ci', 'cdc', 'da'])"></span>
+                                <span v-html="row?.score_tag"
+                                    v-if="!is(['ci', 'cdc', 'da', 'dre', 'ir', 'cder', 'der'])"></span>
                             </NLFlex>
                         </NLColumn>
                         <!-- Regularization -->
                         <NLColumn v-if="row?.mission?.is_validated_by_dcp">
-                            <b>Régularisation:</b>
+                            <b>Etat:</b>
                             <span v-if="row?.reg_is_regularized">
                                 Levée
                             </span>
@@ -107,7 +108,7 @@
                                 En cours d'assainissement
                             </span>
                             <span v-else>
-                                Non levée
+                                En attente de traitement
                             </span>
                         </NLColumn>
                     </NLGrid>
@@ -158,7 +159,7 @@
                 </NLColumn>
 
                 <!-- Recovery plan -->
-                <NLColumn>
+                <NLColumn v-if="row?.score > 1">
                     <NLGrid gap="6" class="box ">
                         <NLColumn>
                             <h2>Plan de redressement</h2>
@@ -170,7 +171,7 @@
                 </NLColumn>
 
                 <!-- Comment -->
-                <NLColumn v-if="row.comment && hasRole(['cdcr', 'cc', 'dcp'])">
+                <NLColumn v-if="row?.comment && is(['cdcr', 'cc', 'dcp'])">
                     <NLGrid gap="6" class="box ">
                         <NLColumn>
                             <h2>Commentaire</h2>
@@ -194,7 +195,8 @@
                 </NLColumn>
 
                 <!-- Regularization -->
-                <NLColumn class="box" v-if="row.show_regularizations && row?.mission?.is_validated_by_dcp">
+                <NLColumn class="box"
+                    v-if="row.show_regularizations && row?.mission?.is_validated_by_dcp && !row?.mission?.is_validated_by_der">
                     <h2>Historique des actions de régularisation</h2>
                     <regularization @success="initData" :regularization="regularization"
                         v-if="row?.regularizations?.length" v-for="regularization in row?.regularizations" />
@@ -224,7 +226,8 @@
                 v-if="(currentMode == 2 && !row?.mission?.is_validated_by_dcp && !row?.mission?.is_validated_by_cdcr && !row?.major_fact_is_dispatched_to_dcp_at && !row.regularization && [2, 3, 4].includes(Number(row?.score)) && row?.major_fact && is('cdc'))"
                 class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <NLIcon name="edit" />
-                Traiter
+                <span v-if="row.is_controlled_by_cdc">Modifier</span>
+                <span v-else>Traiter</span>
             </button>
             <button
                 v-if="currentMode == 2 && !row?.major_fact_is_dispatched_to_dcp_at && !row.major_fact_is_rejected_at_dre && row?.major_fact && is('cdc')"
@@ -247,7 +250,8 @@
         && [2, 3, 4].includes(Number(row?.score))
         && is('cc')" class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <NLIcon name="edit" />
-                Traiter
+                <span v-if="row.is_controlled_by_cc">Modifier</span>
+                <span v-else>Traiter</span>
             </button>
 
             <!-- CDCR -->
@@ -260,7 +264,8 @@
         || (row?.major_fact && !row?.major_fact_is_dispatched_at && !(row?.major_fact_is_detected_by_id == user().id) && [2, 3, 4].includes(Number(row?.score)))
         && is('cdcr')" class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <NLIcon name="edit" />
-                Traiter
+                <span v-if="row.is_controlled_by_cdcr">Modifier</span>
+                <span v-else>Traiter</span>
             </button>
             <button
                 v-if="currentMode == 4 && !row?.major_fact_is_dispatched_at && !row.major_fact_is_rejected_at_dcp && row.major_fact_is_detected_by_id !== user().id && row?.major_fact && is('cdcr')"
@@ -281,7 +286,8 @@
         || (row?.major_fact && !row?.major_fact_is_dispatched_at && !(row?.major_fact_is_detected_by_id == user().id) && [2, 3, 4].includes(Number(row?.score))))
         && is('dcp')" class="btn btn-warning has-icon" @click="showForm(row, 'processing')">
                 <NLIcon name="edit" />
-                Traiter
+                <span v-if="row.is_controlled_by_dcp">Modifier</span>
+                <span v-else>Traiter</span>
             </button>
             <button
                 v-if="currentMode == 5 && !row?.major_fact_is_dispatched_at && !row.major_fact_is_rejected_at_dcp && row?.major_fact && row?.major_fact_is_dispatched_to_dcp_at && is('dcp')"
@@ -298,7 +304,7 @@
 
             <!-- DA -->
             <button
-                v-if="currentMode == 6 && row?.mission?.is_validated_by_dcp && !row?.reg_is_regularized && Number(row?.score) !== 1 && is('da')"
+                v-if="currentMode == 6 && row?.mission?.is_validated_by_dcp && !row?.mission?.is_validated_by_der && !row?.reg_is_regularized && Number(row?.score) !== 1 && is('da')"
                 class="btn btn-warning has-icon" @click="showForm(row, 'regularization')">
                 <NLIcon name="check" />
                 Régulariser
@@ -398,6 +404,7 @@ export default {
                 }).catch(error => this.$swal.catchError(error))
             }
         },
+
         /**
          * Notify major fact
          */
@@ -405,15 +412,17 @@ export default {
             this.$swal.confirm({ title: 'Notification fait majeur', message: 'Voulez-vous notifier les autorités concernées?' }).then(action => {
                 if (action.isConfirmed) {
                     this.$alapi.post('major-facts/' + this.rowSelected.id).then(response => {
+                        this.initData()
                         this.$swal.toast_success(response.data.message)
                         this.$emit('success')
-                        this.close(true)
+                        // this.close(true)
                     }).catch(error => {
                         this.$swal.alert_error(error)
                     })
                 }
             })
         },
+
         /**
          * Reject major fact
          */
@@ -421,9 +430,10 @@ export default {
             this.$swal.confirm({ title: 'Rejet fait majeur', message: 'Voulez-vous rejeter ce fait majeur?' }).then(action => {
                 if (action.isConfirmed) {
                     this.$alapi.put('major-facts/' + this.rowSelected.id).then(response => {
+                        this.initData()
                         this.$swal.toast_success(response.data.message)
                         this.$emit('success')
-                        this.close(true)
+                        // this.close(true)
                     }).catch(error => {
                         this.$swal.alert_error(error)
                     })

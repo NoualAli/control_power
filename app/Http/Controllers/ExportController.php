@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DB\Queries\ControlCampaignQuery;
 use App\Exports\AgenciesExport;
 use App\Exports\ControlPointsExport;
 use App\Exports\DomainProcessesExport;
@@ -18,25 +19,23 @@ use App\Exports\RegionalInspectionDresExport;
 use App\Exports\RegionalInspectionsExport;
 use App\Exports\RolePermissionsExport;
 use App\Exports\RolesExport;
-use App\Exports\SynthesisExport;
-use App\Exports\SynthesisWithReportsExport;
 use App\Exports\UsersExport;
 use App\Http\Controllers\Controller;
+use App\Jobs\GenerateSummaryOfReports;
+use App\Models\ControlCampaign;
 use App\Models\Structures\Agency;
 use App\Models\ControlPoint;
 use App\Models\Domain;
 use App\Models\Structures\Dre;
 use App\Models\Family;
-use App\Models\MissionDetail;
 use App\Models\Module;
 use App\Models\Process;
 use App\Models\Role;
 use App\Models\Structures\RegionalInspection;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Bus;
 use Maatwebsite\Excel\Facades\Excel;
-use stdClass;
 use Illuminate\Support\Str;
 
 class ExportController extends Controller
@@ -79,110 +78,43 @@ class ExportController extends Controller
 
     private function synthesis(Request $request, bool $withReports = false)
     {
-        $controlCampaign = DB::table('control_campaigns')->select('id', 'reference')->where('id', $request->campaign)->first();
-        $agencies = DB::table('missions', 'm')->select([
-            'd.id as dre_id',
-            DB::raw("CONCAT(d.code, ' ', d.name) as dre"),
-            'a.id as agency_id',
-            DB::raw("CONCAT(a.code, ' ', a.name) as agency"),
-        ])
-            ->leftJoin('agencies as a', 'a.id', 'm.agency_id')
-            ->leftJoin('dres as d', 'd.id', 'a.dre_id')
-            ->where('m.control_campaign_id', $controlCampaign->id);
+        try {
+            $campaign = (new ControlCampaignQuery())->prepare()->query->having('cc.id', $request->campaign)->addSelect('cc.description')->groupBy('cc.description')->first();
 
-
-        $dresFromAgencies = (clone $agencies)->select([
-            'd.id as dre_id',
-            DB::raw("CONCAT(d.code, ' - ', d.name) as dre"),
-        ])->groupBy('d.id', 'd.name', 'd.code')
-            ->orderBy('d.code')
-            ->orderBy('d.name')
-            ->get();
-
-        $missionDetails = DB::table('control_campaigns', 'cc')->select([
-            'f.name as family',
-            'd.name as domain',
-            'p.name as process',
-            'cp.name as control_point',
-            'md.id',
-            'score',
-            'is_disabled',
-            'reg_is_regularized',
-            DB::raw("CONCAT(dres.code, ' ', dres.name) as dre"),
-            DB::raw("CONCAT(a.code, ' ', a.name) as agency"),
-            'a.id as agency_id'
-        ])
-            ->leftJoin('missions as m', 'm.control_campaign_id', 'cc.id')
-            ->leftJoin('mission_details as md', 'md.mission_id', 'm.id')
-            ->leftJoin('agencies as a', 'a.id', 'm.agency_id')
-            ->leftJoin('dres', 'dres.id', 'a.dre_id')
-            ->leftJoin('control_points as cp', 'cp.id', 'md.control_point_id')
-            ->leftJoin('processes as p', 'p.id', 'cp.process_id')
-            ->leftJoin('domains as d', 'd.id', 'p.domain_id')
-            ->leftJoin('families as f', 'f.id', 'd.family_id')
-            ->where('cc.id', $request->campaign)
-            ->whereIn('score', [1, 2, 3, 4])
-            ->where('is_disabled', false)
-            ->orderBy('f.id')
-            ->orderBy('d.id')
-            ->orderBy('p.id')
-            ->orderBy('cp.name');
-        if (hasRole('cdc')) {
-            $missionDetails = $missionDetails->whereIn('a.id', auth()->user()->agencies->pluck('id')->toArray());
-        }
-        $dres = collect([]);
-        foreach ($dresFromAgencies as $dre) {
-            $dreAgencies = (clone $agencies)->where('dre_id', $dre->dre_id)->get();
-            if ($dreAgencies->count()) {
-                $single_dre = new stdClass;
-                $single_dre->dre = $dre->dre;
-                $dreAgencies = $dreAgencies;
-                $single_dre->agencies = $dreAgencies;
-                $single_dre->total_agencies = $dreAgencies->count();
-                $single_dre->agencies = $dreAgencies;
-                foreach ($single_dre->agencies as $agency) {
-                    if ($withReports) {
-                        $missionDetails = $missionDetails->addSelect('recovery_plan');
-                    }
-
-                    $agency->data = (clone $missionDetails)->where('dres.id', $dre->dre_id)->where('a.id', $agency->agency_id)->get();
-
-                    if ($withReports) {
-                        $agency->data->map(function ($item) {
-                            $observation = DB::table('comments')->where('commentable_type', MissionDetail::class)->where('commentable_id', $item->id)->whereIn('type', ['ci_observation', 'cdc_observation'])
-                                ->orderBy('created_at', 'DESC')->first();
-                            $item->observation = $observation->content;
-                            return $item;
-                        });
-                    }
-                }
-                $dres->push($single_dre);
+            if ($campaign) {
+                $campaign->summary_scores = getMediaByForeign(ControlCampaign::class, $campaign?->id, 'control_campaign_summary_scores')->first();
+                $campaign->summary_reports = getMediaByForeign(ControlCampaign::class, $campaign?->id, 'control_campaign_summary_reports')->first();
             }
-        }
 
-        $controlPoints = DB::table('control_campaign_processes', 'ccp')
-            ->select([
-                'f.name as family',
-                'd.name as domain',
-                'p.name as process',
-                'cp.name as control_point',
-                'cp.id',
-            ])
-            ->leftJoin('processes as p', 'p.id', 'ccp.process_id')
-            ->leftJoin('control_points as cp', 'p.id', 'cp.process_id')
-            ->leftJoin('domains as d', 'd.id', 'p.domain_id')
-            ->leftJoin('families as f', 'f.id', 'd.family_id')
-            ->where('ccp.control_campaign_id', $request->campaign)
-            ->orderBy('f.id')
-            ->orderBy('d.id')
-            ->orderBy('p.id')
-            ->orderBy('cp.id')
-            ->get();
+            $generate = true;
 
-        if ($withReports) {
-            return Excel::download(new SynthesisWithReportsExport(compact('dres', 'controlPoints', 'controlCampaign')), 'synthèse-constast-' . $controlCampaign->reference . '.xlsx');
+            if ($withReports) {
+                $generate = is_null($campaign->summary_reports);
+            } else {
+                $generate = is_null($campaign->summary_scores);
+            }
+            $pendingJobs = 0;
+            $jobId = null;
+            if ($generate) {
+                $jobs = [];
+                $jobs[] = new GenerateSummaryOfReports(auth()->user(), $request->campaign, $withReports);
+                $batch = Bus::batch($jobs)->dispatch();
+                $pendingJobs = $batch->pendingJobs;
+                $jobId = $batch->id;
+                $message = "La génération du fichier excel à commencer un email vous sera envoyé une fois le fichier prêt.";
+            } else {
+                $message = "Veuillez recharger votre page s'il vous plaît.";
+            }
+
+            return response()->json([
+                'message' => $message,
+                'pending_jobs' => $pendingJobs,
+                'job_id' => $jobId,
+                'status' => $generate,
+            ]);
+        } catch (\Throwable $th) {
+            return throwedError($th);
         }
-        return Excel::download(new SynthesisExport(compact('dres', 'controlPoints', 'controlCampaign')), 'synthèse-' . $controlCampaign->reference . '.xlsx');
     }
 
     private function users(Request $request)
@@ -244,10 +176,10 @@ class ExportController extends Controller
     private function families(Request $request)
     {
         if ($request->has('id')) {
-            $family = Family::findOrFail($request->id)->load(['domains' => fn ($query) => $query->withCount('processes')]);
+            $family = getFamilies($request->id);
             return Excel::download(new FamilyDomainsExport($family), 'domaines-' . Str::slug($family->name) . '.xlsx');
         } else {
-            $families = Family::withCount('domains')->get();
+            $families = getFamilies()->get();
             return Excel::download(new FamiliesExport($families), 'liste_des_familles.xlsx');
         }
     }
@@ -255,10 +187,10 @@ class ExportController extends Controller
     private function domains(Request $request)
     {
         if ($request->has('id')) {
-            $domain = Domain::findOrFail($request->id)->load(['processes' => fn ($query) => $query->withCount('control_points')]);
+            $domain = getDomains(request('id'));
             return Excel::download(new DomainProcessesExport($domain), 'processus-' . Str::slug($domain->name) . '.xlsx');
         } else {
-            $domains = Domain::with('family')->withCount('processes')->get();
+            $domains = getDomains()->get();
             return Excel::download(new DomainsExport($domains), 'liste_des_domaines.xlsx');
         }
     }
@@ -266,10 +198,10 @@ class ExportController extends Controller
     private function processes(Request $request)
     {
         if ($request->has('id')) {
-            $process = Process::findOrFail($request->id)->load('control_points');
+            $process = getProcesses($request->id);
             return Excel::download(new ProcessControlPointsExport($process), 'points_de_contrôle-' . Str::slug($process->name) . '.xlsx');
         } else {
-            $processes = Process::with(['domain', 'family'])->withCount('control_points')->get();
+            $processes = getProcesses()->get();
             return Excel::download(new ProcessesExport($processes), 'liste_des_processus.xlsx');
         }
     }

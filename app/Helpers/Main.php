@@ -102,12 +102,30 @@ if (!function_exists('hasRoleOrAbort')) {
      * Check if user has specific role with throw exception
      *
      * @param string|array $roles
+     * @param string|null $message
      *
      * @return void
      */
-    function hasRoleOrAbort(string|array $roles): void
+    function hasRoleOrAbort(string|array $roles, ?string $message = null): void
     {
-        abort_if(!hasRole($roles), 401, __('Whoops! You are not authorized to access this resource'));
+        $message = $message ?: 'Désoler, vous n\'êtes pas autorisés à effectuer cette action';
+        abort_if(!hasRole($roles), 401, $message);
+    }
+}
+
+if (!function_exists('hasNotRoleOrAbort')) {
+    /**
+     * Check if user has not specific role with throw exception
+     *
+     * @param string|array $roles
+     * @param string|null $message
+     *
+     * @return void
+     */
+    function hasNotRoleOrAbort(string|array $roles, ?string $message = null): void
+    {
+        $message = $message ?: 'Désoler, vous n\'êtes pas autorisés à effectuer cette action';
+        abort_if(hasRole($roles), 401, $message);
     }
 }
 
@@ -245,26 +263,33 @@ if (!function_exists('getPCF')) {
      *
      * @return array
      */
-    function getPCF(?Family $families = null): array
+    function getPCF($families = null): array
     {
-        $families = $families ? $families : new Family;
-        $families = $families->orderBy('id', 'ASC')->with(['domains' => fn ($domain) => $domain->with(['processes' => fn ($process) => $process->without('control_points')])])->get()->toArray();
+        $families = $families ? $families : getFamilies();
+        $families = $families->where('f.is_active', true)->get();
+        $families = $families->map(function ($family) {
+            $family->domains = DB::table('domains')->where('is_active', true)->where('family_id', $family->id)->get()->map(function ($domain) {
+                $domain->processes = DB::table('processes')->where('is_active', true)->where('domain_id', $domain->id)->get()->toArray();
+                return $domain;
+            })->toArray();
+            return $family;
+        })->toArray();
         return array_map(function ($family) {
             return [
-                'id' => 'f-' . $family['id'] . '-' . $family['name'],
-                'label' => $family['name'],
+                'id' => 'f-' . $family->id . '-' . $family->name,
+                'label' => $family->name,
                 'children' => array_map(function ($domain) {
                     return [
-                        'id' => 'd-' . $domain['id'] . '-' . $domain['name'],
-                        'label' => $domain['name'],
+                        'id' => 'd-' . $domain->id . '-' . $domain->name,
+                        'label' => $domain->name,
                         'children' => array_map(function ($process) {
                             return [
-                                'id' => $process['id'],
-                                'label' => $process['name'],
+                                'id' => $process->id,
+                                'label' => $process->name,
                             ];
-                        }, $domain['processes'])
+                        }, $domain->processes)
                     ];
-                }, $family['domains'])
+                }, $family->domains)
             ];
         }, $families);
     }
@@ -284,10 +309,22 @@ if (!function_exists('pcfToProcesses')) {
             $pcf = Arr::flatten(array_map(function ($item) {
                 $item = explode('-', $item);
                 $ids = [];
-                if ($item[0] == 'd') {
-                    $ids = array_merge(Domain::findOrFail($item[1])->processes->pluck('id')->toArray(), $ids);
-                } elseif ($item[0] == 'f') {
-                    $ids = array_merge(Family::findOrFail($item[1])->processes->pluck('id')->toArray(), $ids);
+                if ($item[0] == 'f') {
+                    $processes = getControlPoints()->where('f.id', $item[1])
+                        ->where('f.is_active', true)
+                        ->where('d.is_active', true)
+                        ->where('p.is_active', true)
+                        ->where('cp.is_active', true)
+                        ->select('p.id')->get()->unique()->pluck('id')->toArray();
+                    $ids = array_merge($processes, $ids);
+                } elseif ($item[0] == 'd') {
+                    $processes = getControlPoints()->where('d.id', $item[1])
+                        ->where('f.is_active', true)
+                        ->where('d.is_active', true)
+                        ->where('p.is_active', true)
+                        ->where('cp.is_active', true)
+                        ->select('p.id')->get()->unique()->pluck('id')->toArray();
+                    $ids = array_merge($processes, $ids);
                 } else {
                     $ids = array_merge($ids, [intval($item[0])]);
                 }
@@ -312,11 +349,15 @@ if (!function_exists('generateCDCRef')) {
      *
      * @return string
      */
-    function generateCDCRef(bool $validated = false, ?string $date = null, bool $isForTesting = false)
+    function generateCDCRef(bool $validated = false, ?string $date = null, bool $isForTesting = false, int $type = 1)
     {
         $reference = '';
         $date = $date ? Carbon::parse($date)->format('Y') : today()->format('Y');
-        $cdc = DB::table('control_campaigns', 'cc')->whereYear('start_date', $date)->whereNull('deleted_at')->where('is_for_testing', $isForTesting);
+        if ($type == 1) {
+            $cdc = DB::table('control_campaigns', 'cc')->whereYear('start_date', $date);
+        } else {
+            $cdc = DB::table('dre_control_campaigns', 'dcc')->whereYear('start_date', $date);
+        }
         if ($validated) {
             $totalValidated = $cdc->whereNotNull('validated_at')->whereNotNull('validated_by_id')->count();
         } else {
@@ -373,6 +414,8 @@ if (!function_exists('loadAgencies')) {
             $data = explode('-', $data);
             $data = array_merge(RegionalInspection::findOrFail($data[1])->agencies->pluck('id')->toArray(), $ids);
         }
+        $data = array_filter($data, fn ($value) => $value);
+
         $data = Validator::make($data, [
             '*' => 'exists:agencies,id'
         ])->validated();
@@ -429,7 +472,7 @@ if (!function_exists('sanitizeString')) {
         $string = strip_tags($string);
         // $nbsp = html_entity_decode("&nbsp;");
         $string = str_replace('&nbsp;', " ", $string);
-        return $string;
+        return trim($string);
     }
 }
 
@@ -507,7 +550,11 @@ if (!function_exists('validateFields')) {
                 }
 
                 if ($maxLength) {
-                    $rules = array_merge($rules, ['max_digits:' . $maxLength]);
+                    if ($is_integer_or_float) {
+                        $rules = array_merge($rules, ['regex:/^(?!' . $maxLength . '(?:\.\d{0,2})?$)\d*(?:\.\d{0,2})?$/']);
+                    } else {
+                        $rules = array_merge($rules, ['max_digits:' . $maxLength]);
+                    }
                     $messages[$computedNameWithoutKey . '.max_digits'] = 'Le champ ' . __($label) . ' ne doit pas dépasser ' . $maxLength . ' chiffres.';
                 }
 
@@ -634,12 +681,6 @@ if (!function_exists('normalizeFullName')) {
     {
         if ($fullName) {
             $fullName = str_replace([' (CDC)', ' (CDCR)', ' (CC)', ' (DCP)', ' (DA)', ' (CI)'], '', $fullName);
-            $fullNameParts = explode(' ', $fullName);
-            $fullNameParts = array_map(function ($part) {
-                return ucfirst(strtolower($part));
-            }, $fullNameParts);
-
-            $fullName = implode(' ', $fullNameParts);
         }
 
         return $fullName;
@@ -695,5 +736,42 @@ if (!function_exists('formatNumber')) {
             // Convert to integer
             return (int) $number;
         }
+    }
+}
+
+if (!function_exists('isFamilyDeletable')) {
+    function isFamilyDeletable($family)
+    {
+        if ($family instanceof Family) {
+            $family->is_deletable = true;
+            foreach ($family->domains as $domain) {
+                foreach ($domain->processes as $process) {
+                    $process->control_campaigns_count = $process->campaigns->count();
+                    $process->control_points_count = $process->control_points->count();
+                    $family->control_campaign_count = $process->control_campaigns_count;
+                    $family->is_deletable = boolval($process->control_campaigns_count);
+                    $process->unsetRelation('campaigns');
+                }
+            }
+        }
+        return $family;
+    }
+}
+
+
+if (!function_exists('isDomainDeletable')) {
+    function isDomainDeletable($domain)
+    {
+        if ($domain instanceof Domain) {
+            $domain->is_deletable = true;
+            foreach ($domain->processes as $process) {
+                $process->control_campaigns_count = $process->campaigns->count();
+                $domain->control_campaign_count = $process->control_campaigns_count;
+                $process->control_points_count = $process->control_points->count();
+                $domain->is_deletable = boolval($process->control_campaigns_count);
+                $process->unsetRelation('campaigns');
+            }
+        }
+        return $domain;
     }
 }

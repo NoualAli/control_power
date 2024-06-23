@@ -161,6 +161,7 @@ import { mapGetters } from 'vuex'
 import { Bar, Doughnut } from 'vue-chartjs'
 export default {
     name: "Anomalies",
+    emits: [ 'savePNG' ],
     components: {
         Bar,
         Doughnut,
@@ -198,7 +199,7 @@ export default {
     methods: {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
-            this.$store.dispatch('agencyLevelStatistics/fetchAnomalies', { onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign }).then(() => {
+            this.$store.dispatch('agencyLevelStatistics/fetchAnomalies', { onlyCurrentCampaign: false, currentCampaign: this?.currentCampaign }).then(() => {
                 this.tables.domains = this.anomalies.data.domainsAnomalies
                 this.tables.missions = this.anomalies.data.missionsAnomalies
                 this.tables.campaigns = this.anomalies.data.campaignsAnomalies

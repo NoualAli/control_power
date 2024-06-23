@@ -55,7 +55,8 @@
             "app/Helpers/Main.php",
             "app/Helpers/Data.php",
             "app/Helpers/Media.php",
-            "app/Helpers/Response.php"
+            "app/Helpers/Response.php",
+            "app/Helpers/ACL.php"
         ]
     },
     "scripts": {

@@ -44,7 +44,7 @@ class AnomalyResource extends JsonResource
             } elseif ($isRegularized && !$isRejected) {
                 return 'Levée et validée';
             } elseif (!$isRegularized && !$isRejected) {
-                return 'Non levée';
+                return 'En attente de traitement';
             } elseif (!$isRegularized && $isRejected) {
                 return 'Rejetée';
             }

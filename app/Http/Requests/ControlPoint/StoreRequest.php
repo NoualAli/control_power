@@ -36,6 +36,10 @@ class StoreRequest extends FormRequest
             'scores.*' => ['required', 'array'],
             'scores.*.0.score' => ['required', 'distinct'],
             'scores.*.1.label' => ['required', 'distinct'],
+            'usable_for_agency' => ['required', 'boolean'],
+            'usable_for_dre' => ['required', 'boolean'],
+            'is_active' => ['required', 'boolean'],
+            'display_priority' => ['required', 'numeric'],
         ];
     }
 }

@@ -611,12 +611,23 @@ export default [
      * Global
      */
     {
+        path: '/agency-level/missions/states',
+        name: 'missions-states',
+        component: page('agency_level/global/missions_states.vue'),
+        meta: {
+            breadcrumb: {
+                label: 'Etat des missions',
+                parent: ''
+            }
+        }
+    },
+    {
         path: '/agency-level/anomalies',
         name: 'anomalies',
         component: page('agency_level/global/anomalies.vue'),
         meta: {
             breadcrumb: {
-                label: 'Plans de redressement',
+                label: 'Anomalies',
                 parent: ''
             }
         }

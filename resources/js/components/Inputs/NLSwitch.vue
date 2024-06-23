@@ -1,29 +1,31 @@
 <template>
     <NLCheckableContainer :id="getId" :name="name" :form="form" :label="label" :help-text="helpText">
         <input :id="getId" :key="refresh" v-model="selected" type="checkbox"
-            :class="[{ 'is-danger': form?.errors.has(name) }, 'switch-input']" :name="name" @change="updateValue">
-        <div class="switch" :class="type" :data-true-label="trueLabel" :data-false-label="falseLabel"
-            @click="updateValue" />
+            :class="[{ 'is-danger': form?.errors.has(name), 'readonly': readonly }, 'switch-input']" :name="name"
+            @change="updateValue">
+        <div class="switch" :class="[type, { 'readonly': readonly }]" @click="updateValue" />
     </NLCheckableContainer>
 </template>
 
 <script>
+import NLIcon from '../NLIcon'
 import NLCheckableContainer from './NLCheckableContainer'
 export default {
     name: 'NLSwitch',
-    components: { NLCheckableContainer },
+    components: {
+        NLIcon, NLCheckableContainer
+    },
     props: {
         form: { type: Object, required: false },
         name: { type: String },
         label: { type: String, required: true },
         modelValue: { type: Boolean, default: false },
         id: { type: [ String, null ], default: null },
-        trueLabel: { type: [ String, null ], default: 'Oui' },
-        falseLabel: { type: [ String, null ], default: 'Non' },
         helpText: { type: String, default: null },
-        type: { type: String, default: null }
+        type: { type: String, default: null },
+        readonly: { type: Boolean, default: false }
     },
-    emits: [ 'update:modelValue' ],
+    emits: [ 'update:modelValue', 'switched' ],
     data() {
         return {
             refresh: false,
@@ -54,7 +56,10 @@ export default {
     },
     methods: {
         updateValue() {
-            this.selected = !this.selected
+            if (!this.readonly) {
+                this.selected = !this.selected
+                this.$emit('switched', this.selected)
+            }
         }
     }
 }

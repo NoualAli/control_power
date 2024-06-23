@@ -1148,16 +1148,16 @@
                         <td>{{ $campaign->reference }}</td>
                     </tr>
                     <tr>
+                        <td>Référence du rapport</td>
+                        <td>{{ $mission->reference }}</td>
+                    </tr>
+                    <tr>
                         <td>Département contrôle</td>
                         <td>{{ $mission->dre->name }} - {{ $mission->dre->code }}</td>
                     </tr>
                     <tr>
-                        <td>Agence contrôler</td>
+                        <td>Agence contrôlée</td>
                         <td>{{ $mission->agency->name }} - {{ $mission->agency->code }}</td>
-                    </tr>
-                    <tr>
-                        <td>Référence du rapport</td>
-                        <td>{{ $mission->reference }}</td>
                     </tr>
                     <tr>
                         <td>Date début</td>
@@ -1225,13 +1225,6 @@
                         </h4>
                         @foreach ($processData as $controlPoint => $item)
                             @php
-                                // if (in_array($item->score, [2, 3, 4]) && !$item->major_fact) {
-                                //     $captionClass = 'is-anomaly';
-                                // } elseif ($item->major_fact) {
-                                //     $captionClass = 'is-danger';
-                                // } else {
-                                //     $captionClass = 'is-success';
-                                // }
                                 if (in_array($item->score, [2, 3, 4])) {
                                     $captionClass = 'is-anomaly';
                                 } else {
@@ -1248,18 +1241,6 @@
                                             <td>{{ $item->appreciation }}</td>
                                             <th class="margin-cell"></th>
                                         </tr>
-                                        {{-- @if ($item->major_fact)
-                                            <tr>
-                                                <th class="margin-cell"></th>
-                                                <th>Fait majeur</th>
-                                                <td
-                                                    class="text-danger has-major_fact">
-                                                    Déclencher par {{ $item->major_fact_is_detected_by_full_name }}
-                                                    le {{ $item->major_fact_is_detected_at }}
-                                                </td>
-                                                <th class="margin-cell"></th>
-                                            </tr>
-                                        @endif --}}
                                         <tr>
                                             <th class="margin-cell"></th>
                                             <th>Constat</th>
@@ -1282,6 +1263,7 @@
                                     $lines = $item?->parsed_metadata['lines'];
                                     $metadata = $item?->parsed_metadata['metadata'];
                                 @endphp
+
                                 @if ($lines)
                                     <table>
                                         <tr>
@@ -1318,6 +1300,39 @@
                                         @endforeach
                                     </table>
                                 @endif
+
+                                {{-- Regularizations --}}
+                                @if ($item?->regularizations?->count())
+                                    <table>
+                                        <tr>
+                                            <td colspan="4" class="text-center bg-gray">
+                                                <b>Régularisation(s)</b>
+                                            </td>
+                                        </tr>
+                                        @foreach ($item->regularizations as $regularization)
+                                            <tr>
+                                                <th class="margin-cell"></th>
+                                                <th>Etat</th>
+                                                @if ($regularization->is_regularized)
+                                                    <td>Levée</td>
+                                                @elseif($regularization->is_rejected)
+                                                    <td>Rejetée</td>
+                                                @elseif($regularization->is_sanitation_in_progress && !$regularization->is_rejected)
+                                                    <td>En cours d'assainissement</td>
+                                                @else
+                                                    <td>En attente de traitement</td>
+                                                @endif
+                                                <th class="margin-cell"></th>
+                                            </tr>
+                                            <tr>
+                                                <th class="margin-cell"></th>
+                                                <th>Action(s) engagée(s) &nbsp;</th>
+                                                <td>{!! $regularization->action_to_be_taken !!}</td>
+                                                <th class="margin-cell"></th>
+                                            </tr>
+                                        @endforeach
+                                    </table>
+                                @endif
                             </div>
                             {{-- Supporting documents --}}
 
@@ -1340,10 +1355,10 @@
             <div class="page-break-before-always"></div>
             <h2>Conclusion du chef de département</h2>
             {!! $mission->cdc_report->content !!}
-            @if ($mission->closingReport)
+            @if ($closingReport->count())
                 <div class="page-break-before-auto"></div>
                 <h2>PV de clôture</h2>
-                @foreach ($mission->closingReport as $report)
+                @foreach ($closingReport as $report)
                     <div class="img-container">
                         <img src="{{ public_path('storage/' . $report->path) }}" alt="{{ $report->original_name }}"
                             class="img">

@@ -55,7 +55,7 @@ class Created extends Notification
      */
     private function getUrl(): string
     {
-        return url('/campaigns/' . $this->campaign->id);
+        return url('/agency-level/campaigns/' . $this->campaign->id);
     }
 
     /**
@@ -122,6 +122,7 @@ class Created extends Notification
     {
         return [
             'id' => $this->campaign->id,
+            'url' => $this->getUrl(),
             'content' => $this->getContent($notifiable),
             'short_content' => $this->getHtmlContent($notifiable),
             'title' => $this->getTitle($notifiable),

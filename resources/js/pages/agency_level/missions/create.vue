@@ -28,7 +28,7 @@
                     <NLSelect v-model="form.agency_id" name="agency_id" label="Agence"
                         placeholder="Veuillez choisir une agence" :options="agenciesList" :form="form" label-required
                         loadingText="Chargement de la liste des agences en cours..."
-                        noOptionsText="Il n'y a aucune agence de disponible le moment" :disabled="disabled.agency_id" />
+                        noOptionsText="Il n'y a aucune agence de disponible le moment" :readonly="disabled.agency_id" />
                 </NLColumn>
 
                 <NLColumn lg="4"></NLColumn>
@@ -36,13 +36,13 @@
                 <!-- Start date -->
                 <NLColumn lg="4">
                     <NLInputDate v-model="form.programmed_start" :form="form" name="programmed_start" label="Date début"
-                        :min="minDateForStart" :max="maxDateForStart" label-required :disabled="disabled.start" />
+                        :min="minDateForStart" :max="maxDateForStart" label-required :readonly="disabled.start" />
                 </NLColumn>
 
                 <!-- End date -->
                 <NLColumn lg="4">
                     <NLInputDate v-model="form.programmed_end" :form="form" name="programmed_end" label="Date fin"
-                        :min="minDateForEnd" :max="maxDateForEnd" label-required :disabled="disabled.end" />
+                        :min="minDateForEnd" :max="maxDateForEnd" label-required :readonly="disabled.end" />
                 </NLColumn>
 
                 <NLColumn lg="4"></NLColumn>
@@ -53,7 +53,7 @@
                         placeholder="Veuillez choisir un chef de mission" :options="headsOfMissionList" :form="form"
                         label-required loadingText="Chargement de la liste des chefs de mission en cours..."
                         noOptionsText="Vous n'avez aucun chef de mission de disponible pour le moment"
-                        :disabled="disabled.head_of_mission_id" />
+                        :readonly="disabled.head_of_mission_id" />
                 </NLColumn>
 
                 <!-- Assistants -->
@@ -62,13 +62,13 @@
                         placeholder="Veuillez choisir un ou deux contrôleur pour la mission" :options="controllersList"
                         :form="form" loadingText="Chargement de la liste des contrôleurs en cours..."
                         noOptionsText="Vous n'avez aucun contrôleur de disponible pour le moment"
-                        :disabled="disabled.assistants" multiple />
+                        :readonly="disabled.assistants" multiple />
                 </NLColumn>
 
                 <!-- Note -->
                 <NLColumn>
                     <NLWyswyg v-model="form.note" :form="form" name="note" label="Note" :length="1000"
-                        placeholder="Ajouter une note" :disabled="disabled.note" />
+                        placeholder="Ajouter une note" :readonly="false" />
                 </NLColumn>
 
                 <NLColumn>
@@ -282,12 +282,15 @@ export default {
                     this.currentCampaign = response.data.currentCampaign
                     this.currentCampaignReference = this.currentCampaign?.reference
                     this.agenciesList = response.data.agencies
+                    if (this.agenciesList.length == 1) {
+                        this.form.agency_id = this.agenciesList[ 0 ].id
+                    }
                     this.setMinDateForStart(this.currentCampaign.start_date)
                     this.setMinDateForEnd(this.currentCampaign.start_date)
                     this.setMaxDateForStart(this.currentCampaign.end_date)
                     this.setMaxDateForEnd(this.currentCampaign.end_date)
-                    this.initBreadcrumb()
                     this.$store.dispatch('settings/updatePageLoading', false)
+                    this.initBreadcrumb()
                 })
             }
         },
@@ -310,13 +313,14 @@ export default {
          * Reset form after create success
          */
         resetForm() {
-            this.form.note = null
-            this.form.programmed_start = null
-            this.form.programmed_end = null
-            this.form.agency_id = null
-            this.form.head_of_mission_id = null
-            this.form.assistants = null
-            this.form.is_for_testing = false
+            let controlCampaign = this.form.control_campaign_id
+            this.form.reset()
+
+            this.form.control_campaign_id = controlCampaign
+
+            this.headsOfMissionList = []
+            this.controllersList = []
+            this.agenciesList = []
             this.disableFields()
         },
         /**
@@ -348,11 +352,11 @@ export default {
          */
         create() {
             this.formIsLoading = true
-            this.form.post('missions').then(response => {
+            this.form.post('agency_level/missions').then(response => {
                 if (response.data.status) {
                     this.$swal.toast_success(response.data.message)
-                    this.initData()
                     this.resetForm()
+                    this.initData()
                 } else {
                     this.$swal.alert_error(response.data.message)
                 }
@@ -369,6 +373,9 @@ export default {
         fetchCampaignsList() {
             this.$store.dispatch('missions/fetchConfig').then(() => {
                 this.campaignsList = this.config.config.campaigns
+                if (this.campaignsList.length == 1) {
+                    this.form.control_campaign_id = this.campaignsList[ 0 ].id
+                }
                 this.initBreadcrumb()
                 this.$store.dispatch('settings/updatePageLoading', false)
             })

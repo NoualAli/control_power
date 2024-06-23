@@ -65,6 +65,9 @@ class SynthesisExport implements FromView, WithStyles, WithProperties, ShouldAut
                 } elseif ($cellValue == 4) {
                     $style['fill']['startColor']['argb'] = 'FFFF4444';
                     $style['font']['color']['argb'] = 'FFFFFFFF';
+                } elseif ($cellValue == '-' || is_null($cellValue) || empty($cellValue)) {
+                    $style['fill']['startColor']['argb'] = 'D9D9D9';
+                    $style['font']['color']['argb'] = '363636';
                 }
 
                 $sheet->getStyle($col . $row)->applyFromArray($style);
@@ -102,11 +105,11 @@ class SynthesisExport implements FromView, WithStyles, WithProperties, ShouldAut
         return [
             'creator'        => env('APP_NAME'),
             'lastModifiedBy' => env('APP_NAME'),
-            'title'          => 'Synthèse ' . $this->data['controlCampaign']->reference,
-            'description'    => 'Synthèse de la campagne de contrôle ' . $this->data['controlCampaign']->reference,
-            'subject'        => 'Synthèse',
-            'keywords'       => 'Synthèse,export,spreadsheet,excel',
-            'category'       => 'Synthèse',
+            'title'          => 'Récapitulatif des notations ' . $this->data['controlCampaign']->reference,
+            'description'    => 'Récapitulatif des notations de la campagne de contrôle ' . $this->data['controlCampaign']->reference,
+            'subject'        => 'Récapitulatif des notations',
+            'keywords'       => 'Récapitulatif des notations,export,spreadsheet,excel',
+            'category'       => 'Récapitulatif des notations',
             'manager'        => 'Noual Ali - noualdev@gmail.com',
             'company'        => 'Banque Nationale d\'Algérie (BNA)',
         ];

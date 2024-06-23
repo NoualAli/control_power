@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers\Api\AgencyLevel\Mission;
 
+use App\DB\Queries\MissionDetailQuery;
 use App\DB\Queries\MissionProcessesQuery;
 use App\Enums\EventLogTypes;
+use App\Enums\MissionState;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Mission\Detail\StoreComment;
+use App\Http\Resources\MissionDetailResource;
 use App\Http\Resources\MissionProcessesResource;
 use App\Models\EventLog;
 use App\Models\Mission;
 use App\Models\Process;
-use Illuminate\Http\Request;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 class MissionProcessController extends Controller
@@ -25,13 +29,11 @@ class MissionProcessController extends Controller
     {
         $mission->unsetRelations();
         $processes = (new MissionProcessesQuery($mission))->prepare()->multiple();
-
         $search = request('search', false);
         $sort = request('sort', false);
-
         if ($sort) {
             foreach ($sort as $key => $value) {
-                $processes = $processes->orderBy($key, $value);
+                $processes = $this->sort($processes, $sort);
             }
         } else {
             $processes = $processes->orderBy('f.id')->orderBy('p.id');
@@ -49,6 +51,14 @@ class MissionProcessController extends Controller
         return MissionProcessesResource::collection(paginate($processes, '/api/missions/' . $mission->id . '/processes', $perPage));
     }
 
+    public function controlPoints(string $mission, int $process)
+    {
+        $process = getProcesses($process);
+        $controlPoints = getControlPoints()->where('p.id', $process->id)->where('cp.is_active', true)->select('cp.name')->get();
+        $process->control_points = $controlPoints;
+        return response()->json($process);
+    }
+
     /**
      * Fetch mission details that belongs to specified process
      *
@@ -59,56 +69,15 @@ class MissionProcessController extends Controller
      */
     public function show(Mission $mission, Process $process)
     {
-        isAbleOrAbort(['view_mission', 'control_agency']);
-        $checkProcess = (new MissionProcessesQuery($mission))->prepare()->single($process->id, 'p.id')->is_disabled;
-        if (boolval(intval($checkProcess))) {
-            abort(423, "Le processus $process->name est vérouillez");
-        }
-        $currentUser = auth()->user();
-        $dreController = $mission->dreController->id;
-        $dreAssistants = $mission->assistants->pluck('id')->toArray();
-        $dcpController = $mission->assigned_to_cc_id;
-        $agencies = $currentUser->agencies->pluck('id')->toArray();
-
-        $condition = ($currentUser->id == $dreController
-            || $currentUser->id == $dcpController
-            || $mission->created_by_id == $currentUser->id
-            || ($mission->assigned_to_cder_id == $currentUser->id && hasRole('cder'))
-            || in_array(auth()->user()->id, $dreAssistants)
-            || (hasRole(['cdcr', 'dcp']) && $mission->is_validated_by_cdc)
-            || (hasRole(['dg', 'cdrcp', 'ig', 'iga', 'der', 'sg', 'deac', 'dga']) && $mission->is_validated_by_dcp)
-            || (hasRole(['dre', 'da']) && in_array($mission->agency->id, $agencies) && $mission->is_validated_by_dcp)
-            || hasRole('root')
-        );
-        abort_if(!$condition, 401, __('unauthorized'));
-        $details = $mission->details()->with(['observations', 'controlPoint' => fn ($query) => $query->with('fields')])->orderBy('control_point_id');
+        canAccessMissionDetail($mission, $process);
+        $media = getMedia()->where('attachable_id', $process->id)->where('attachable_type', Process::class)->get();
+        $process->media = $media;
+        $details = (new MissionDetailQuery)->prepare()->query->where('m.id', $mission->id)->where('p.id', $process->id)->get();
+        $details = MissionDetailResource::collection($details);
+        // dd($details);
         $mission->unsetRelations();
-        $process->load(['family', 'domain', 'media']);
-        if (request()->has('onlyAnomaly')) {
-            $details = $details->whereAnomaly();
-        }
-        $details = $details->whereRelation('process', 'processes.id', $process->id);
-        $details = $details->get()->map(function ($detail) {
-            if (hasRole('da')) {
-                $detail->major_fact = false;
-                $detail->major_fact_is_dispatched_by_full_name = null;
-                $detail->major_fact_is_dispatched_to_dcp_by_full_name = null;
-                $detail->major_fact_is_detected_by_full_name = null;
-                $detail->major_fact_is_rejected_by_full_name = null;
-                $detail->major_fact_is_rejected_at_dre = null;
-                $detail->major_fact_is_rejected_at_dcp = null;
-                $detail->major_fact_is_detected_by_id = null;
-                $detail->major_fact_is_dispatched_to_dcp_by_id = null;
-                $detail->major_fact_is_dispatched_by_id = null;
-                $detail->major_fact_is_rejected_by_id = null;
-                $detail->major_fact_is_detected_at = null;
-                $detail->major_fact_is_rejected_at = null;
-                $detail->major_fact_is_dispatched_at = null;
-                $detail->major_fact_is_dispatched_to_dcp_at = null;
-            }
-            $detail->observation = $detail->observations()->first();
-            return $detail;
-        });
+        $additional_anomaly = DB::table('comments')->where('commentable_type', Process::class)->where('commentable_id', $process->id)
+            ->whereJsonContains('payload', ['related_commentable_type' => Mission::class, 'related_commentable_id' => $mission->id])->orderBy('created_at', 'DESC')->first();
 
         $mode = false;
         if (hasRole(['ci'])) {
@@ -124,7 +93,7 @@ class MissionProcessController extends Controller
         } else {
             $mode = 6; // Readonly mode
         }
-        return compact('mission', 'details', 'process', 'mode');
+        return compact('mission', 'details', 'process', 'additional_anomaly', 'mode');
     }
 
     /**
@@ -194,6 +163,105 @@ class MissionProcessController extends Controller
         } catch (\Throwable $th) {
             return throwedError($th);
         }
+    }
+
+    /**
+     * Store additional anomalies for specified mission and process
+     *
+     * @param StoreComment $request
+     * @param Mission $mission
+     * @param Process $process
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function storeAdditionalAnomaly(StoreComment $request, Mission $mission, Process $process)
+    {
+        try {
+            $result = DB::transaction(function ()  use ($request, $mission, $process) {
+                $data = $request->validated();
+                if (isset($data['content']) && !empty($data['content'])) {
+                    $message = "Anomalie(s) supplémentaire enregistrer avec succès";
+                    DB::table('comments')->updateOrInsert([
+                        'payload' => json_encode(['related_commentable_type' => Mission::class, 'related_commentable_id' => $mission->id]),
+                        'creator_full_name' => getUserFullNameWithRole(null, false),
+                        'created_by_id' => auth()->user()->id,
+                        'commentable_type' => Process::class,
+                        'commentable_id' => $process->id,
+                    ], [
+                        'id' => \Illuminate\Support\Str::uuid(),
+                        'content' => $data['content'],
+                        'type' => 'additional_anomalies',
+                        'creator_full_name' => getUserFullNameWithRole(null, false),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                        'created_by_id' => auth()->user()->id,
+                        'commentable_type' => Process::class,
+                        'commentable_id' => $process->id,
+                        'payload' => json_encode(['related_commentable_type' => Mission::class, 'related_commentable_id' => $mission->id])
+                    ]);
+                    // Mise à jour de la date réel du début de la mission
+                    if (!$mission->real_start && $mission->current_state == MissionState::TODO) {
+                        $mission->update(['real_start' => now(), 'current_state' => MissionState::ACTIVE]);
+                    }
+                } else {
+                    $commentsQuery = DB::table('comments')->where('commentable_type', Process::class)->where('commentable_id', $process->id)
+                        ->where('created_by_id', auth()->user()->id)
+                        ->whereJsonContains('payload', ['related_commentable_type' => Mission::class, 'related_commentable_id' => $mission->id])->orderBy('created_at', 'DESC');
+                    $commentsQuery->delete();
+                    $message = "Anomalie(s) supplémentaire effacer avec succès";
+                }
+                return compact('message');
+            });
+            return actionResponse(true, $result['message']);
+        } catch (\Throwable $th) {
+            return throwedError($th);
+        }
+    }
+
+    private function sort(Builder $processes, array $sort)
+    {
+        $processes = $processes->reorder();
+        foreach ($sort as $key => $value) {
+            if ($key == 'control_rate') {
+                if (hasRole('cdc')) {
+                    $processes = $processes->orderByRaw('(100 * SUM(CASE WHEN md.controlled_by_cdc_at IS NOT NULL THEN 1 ELSE 0 END)) / NULLIF(COUNT(cp.id) - SUM(CASE WHEN md.is_disabled = 1 THEN 1 ELSE 0 END), 0)' . $value);
+                } elseif (hasRole('cc')) {
+                    $processes = $processes->orderByRaw('(100 * SUM(CASE WHEN md.controlled_by_cc_at IS NOT NULL THEN 1 ELSE 0 END)) / NULLIF(COUNT(cp.id) - SUM(CASE WHEN md.is_disabled = 1 THEN 1 ELSE 0 END), 0)' . $value);
+                } elseif (hasRole('cdcr')) {
+                    $processes = $processes->orderByRaw('(100 * SUM(CASE WHEN md.controlled_by_cdcr_at IS NOT NULL THEN 1 ELSE 0 END)) / NULLIF(COUNT(cp.id) - SUM(CASE WHEN md.is_disabled = 1 THEN 1 ELSE 0 END), 0)' . $value);
+                } elseif (hasRole('dcp')) {
+                    $processes = $processes->orderByRaw('(100 * SUM(CASE WHEN md.controlled_by_dcp_at IS NOT NULL THEN 1 ELSE 0 END)) / NULLIF(COUNT(cp.id) - SUM(CASE WHEN md.is_disabled = 1 THEN 1 ELSE 0 END), 0)' . $value);
+                }
+            } elseif ($key == 'anomalies_rate') {
+                $processes = $processes->orderByRaw('(100 * COUNT(CASE WHEN score IN (2, 3, 4) THEN 1 ELSE NULL END)) / NULLIF(COUNT(CASE WHEN md.is_disabled = 0 THEN 1 ELSE NULL END), 0)' . $value);
+            } elseif ($key == 'control_points_count') {
+                $processes = $processes->orderByRaw('COUNT(cp.id) - SUM(CASE WHEN md.is_disabled = 1 THEN 1 ELSE 0 END) ' . $value);
+            } elseif ($key == 'total_anomalies') {
+                $processes = $processes->orderByRaw('COUNT(CASE WHEN score IN (2, 3, 4) THEN 1 ELSE NULL END)' . $value);
+            } elseif ($key == 'avg_score') {
+                $processes = $processes->orderByRaw('AVG(md.score)' . $value);
+            } else {
+                switch ($key) {
+                    case 'control_rate_cdc':
+                        $processes = $processes->orderByRaw('(100 * SUM(CASE WHEN md.controlled_by_cdc_at IS NOT NULL THEN 1 ELSE 0 END)) / NULLIF(COUNT(cp.id) - SUM(CASE WHEN md.is_disabled = 1 THEN 1 ELSE 0 END), 0)' . $value);
+                        break;
+                    case 'control_rate_cc':
+                        $processes = $processes->orderByRaw('(100 * SUM(CASE WHEN md.controlled_by_cc_at IS NOT NULL THEN 1 ELSE 0 END)) / NULLIF(COUNT(cp.id) - SUM(CASE WHEN md.is_disabled = 1 THEN 1 ELSE 0 END), 0)' . $value);
+                        break;
+                    case 'control_rate_cdcr':
+                        $processes = $processes->orderByRaw('(100 * SUM(CASE WHEN md.controlled_by_cdcr_at IS NOT NULL THEN 1 ELSE 0 END)) / NULLIF(COUNT(cp.id) - SUM(CASE WHEN md.is_disabled = 1 THEN 1 ELSE 0 END), 0)' . $value);
+                        break;
+                    case 'control_rate_dcp':
+                        $processes = $processes->orderByRaw('(100 * SUM(CASE WHEN md.controlled_by_dcp_at IS NOT NULL THEN 1 ELSE 0 END)) / NULLIF(COUNT(cp.id) - SUM(CASE WHEN md.is_disabled = 1 THEN 1 ELSE 0 END), 0)' . $value);
+                        break;
+                    default:
+                        $processes = $processes;
+                        break;
+                }
+            }
+        }
+
+        return $processes;
     }
 
     /**

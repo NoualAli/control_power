@@ -26,6 +26,10 @@ class StoreRequest extends FormRequest
         return [
             'name' => ['required', 'unique:domains', 'string', 'max:255'],
             'family_id' => ['required', 'exists:families,id'],
+            'usable_for_agency' => ['required', 'boolean'],
+            'usable_for_dre' => ['required', 'boolean'],
+            'is_active' => ['required', 'boolean'],
+            'display_priority' => ['required', 'numeric'],
         ];
     }
 }

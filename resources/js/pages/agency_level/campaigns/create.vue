@@ -11,7 +11,7 @@
             </NLColumn>
             <NLColumn lg="4" md="6">
                 <NLInputDate v-model="form.end_date" :form="form" name="end_date" label="Date de fin" type="date"
-                    label-required :disabled="endDateIsDisabled" :min="minDateForEnd" />
+                    label-required :readonly="endDateIsDisabled" :min="minDateForEnd" />
                 <!-- {{ minDateForEnd }} -->
             </NLColumn>
             <NLColumn>
@@ -24,8 +24,7 @@
                     placeholder="Ajouter une description" label-required :length="3000" />
             </NLColumn>
             <NLColumn v-if="showValidation" lg="6">
-                <NLSwitch v-model="form.is_validated" name="is_validated" :form="form" label="Validé"
-                    type="is-success" />
+                <NLSwitch v-model="form.is_validated" name="is_validated" :form="form" label="Validé" />
             </NLColumn>
             <!-- <NLColumn lg="6">
                 <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form" label="Campagne de contrôle TEST"

@@ -36,6 +36,7 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
         'web' => [
+            \App\Http\Middleware\PreventBrowserCaching::class,
             \App\Http\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
@@ -52,6 +53,10 @@ class Kernel extends HttpKernel
         'api' => [
             // 'throttle:350,1',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            // \App\Http\Middleware\PreventBrowserCaching::class,
+            // \App\Http\Middleware\AddXContentTypeOptionsHeader::class,
+            // \App\Http\Middleware\AddContentSecurityPolicyHeader::class,
+            // \App\Http\Middleware\RemoveXPoweredByHeader::class,
         ],
     ];
 

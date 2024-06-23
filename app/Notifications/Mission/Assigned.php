@@ -68,7 +68,7 @@ class Assigned extends Notification
      */
     private function getUrl(): string
     {
-        return url('/missions/' . $this->mission->id);
+        return url('/agency-level/missions/' . $this->mission->id);
     }
 
     /**

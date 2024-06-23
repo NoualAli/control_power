@@ -60,20 +60,20 @@ export default {
                     label: 'Créateur',
                     field: 'creator_full_name',
                     sortable: true,
-                    hide: !hasRole([ 'dcp', 'cdcr' ])
+                    hide: !hasRole([ 'dcp', 'cdcr', 'root', 'admin' ])
                 },
                 {
                     label: 'Validateur',
                     field: 'validator_full_name',
                     sortable: true,
-                    hide: !hasRole([ 'dcp', 'cdcr' ])
+                    hide: !hasRole([ 'dcp', 'cdcr', 'root', 'admin' ])
                 },
                 {
                     label: 'Missions planifiées',
                     field: 'total_missions',
                     align: 'center',
                     sortable: true,
-                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da', 'cder', 'ir' ]),
+                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da', 'cder', 'ir', 'cc' ]),
                     methods: {
                         showField(item) {
                             return item?.validated_by_id ? item?.total_missions : '-'
@@ -85,7 +85,7 @@ export default {
                     field: 'total_missions_validated',
                     align: 'center',
                     sortable: true,
-                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da', 'cder', 'ir' ]),
+                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da', 'cder', 'ir', 'cc' ]),
                     methods: {
                         showField(item) {
                             return item?.validated_by_id ? item?.total_missions_validated : '-'
@@ -123,7 +123,7 @@ export default {
                     field: 'realisation_rate',
                     align: 'center',
                     sortable: true,
-                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da', 'cder', 'ir' ]),
+                    hide: hasRole([ 'cdc', 'dre', 'ci', 'da', 'cder', 'ir', 'cc' ]),
                     methods: {
                         showField(item) {
                             if (item?.validated_by_id) {
@@ -261,7 +261,7 @@ export default {
             return this.$swal.confirm({ title: 'Validation', message: 'Validation de la campagne de contrôle ' + item.reference, icon: 'success' }).then(action => {
                 if (action.isConfirmed) {
                     this.currentValidationBtnIsLoading = item.id
-                    return this.$api.put('campaigns/' + item.id + '/validate').then((response) => {
+                    return this.$alapi.put('campaigns/' + item.id + '/validate').then((response) => {
                         this.refresh += 1
                         this.currentValidationBtnIsLoading = null
                         this.$swal.toast_success(response?.data?.message)
@@ -271,7 +271,6 @@ export default {
                     })
                 }
                 this.currentValidationBtnIsLoading = null
-                return response
             }).catch(error => {
                 this.currentValidationBtnIsLoading = null
                 this.$swal.catchError(error, false)
@@ -283,16 +282,20 @@ export default {
          * @param {Object} item
          */
         destroy(e) {
-            return this.$swal.confirm_destroy().then(response => {
-                if (response.isConfirmed) {
-                    return this.$api.delete('campaigns/' + e.item.id).then(() => {
+            return this.$swal.confirm_destroy().then(action => {
+                if (action.isConfirmed) {
+                    return this.$alapi.delete('campaigns/' + e.item.id).then(response => {
                         this.refresh += 1
-                        this.$swal.toast_success(response?.data?.message)
+                        if (response.data.status) {
+                            this.$swal.toast_success(response?.data?.message)
+                        } else {
+                            this.$swal.alert_error(response?.data?.message)
+                        }
                     }).catch(error => {
                         this.$swal.catchError(error)
                     })
                 }
-                return response
+                return action
             }).catch(error => {
                 this.$swal.catchError(error)
             })

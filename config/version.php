@@ -10,7 +10,7 @@ return [
     | application updated and must be incremented manually.
     |
     */
-    'code' => env('APP_VERSION', '1.7'),
+    'code' => env('APP_VERSION', '2.0'),
 
     /*
     |--------------------------------------------------------------------------

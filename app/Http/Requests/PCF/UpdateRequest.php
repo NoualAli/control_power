@@ -24,7 +24,7 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'category' => ['required', 'in:Note,Circulaire,Lettre-circulaire,Guide 1er niveau'],
+            'category' => ['required', 'in:Notes,Circulaires,Lettres-circulaire,Guides 1er niveau'],
             'number' => ['nullable', 'string', 'regex:/^\d+(\.?\d+)+?$/'],
             'date' => ['nullable'],
             'object' => ['nullable', 'string', 'max:255'],

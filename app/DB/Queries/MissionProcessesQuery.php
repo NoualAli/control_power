@@ -23,9 +23,6 @@ class MissionProcessesQuery extends BaseQuery
     {
         parent::__construct('processes', 'p');
         $this->mission = is_string($mission) ? Mission::findOrFail($mission) : $mission;
-        // if ($process) {
-        //     $this->process = is_integer($process) ? Process::findOrFail($process) : $process;
-        // }
     }
 
     /**
@@ -39,7 +36,10 @@ class MissionProcessesQuery extends BaseQuery
         $this->setRelationships();
         $this->setFilters();
         $this->setGroups();
-        $this->query->orderBy('is_disabled', 'asc');
+        $this->query
+            ->orderBy('f.display_priority', 'ASC')->orderBy('f.updated_at', 'DESC')
+            ->orderBy('d.display_priority', 'ASC')->orderBy('d.updated_at', 'DESC')
+            ->orderBy('p.display_priority', 'ASC')->orderBy('p.updated_at', 'DESC');
         return $this;
     }
 
@@ -64,7 +64,8 @@ class MissionProcessesQuery extends BaseQuery
      */
     protected function setColumns(): void
     {
-        $this->query = $this->query->select([
+        $this->query->select([
+            'm.id as mission_id',
             "p.id as process_id",
             "p.name as process",
             "d.name as domain",
@@ -72,16 +73,41 @@ class MissionProcessesQuery extends BaseQuery
             "f.id as family_id",
             "d.id as domain_id",
             DB::raw("CASE WHEN COUNT(CASE WHEN md.major_fact > 0 THEN 1 ELSE NULL END) > 0 THEN 'Oui' ELSE 'Non' END AS major_fact"),
+            DB::raw("COUNT(cp.id) - SUM(CASE WHEN md.is_disabled = 1 THEN 1 ELSE 0 END) as control_points_count"),
+            DB::raw('(SELECT COUNT(*) FROM control_points WHERE process_id = p.id AND is_active = 1) AS activated_control_points_count'),
             DB::raw("COUNT(CASE WHEN score IN (2, 3, 4) THEN 1 ELSE NULL END) AS total_anomalies"),
-            DB::raw("COUNT(cp.id) as control_points_count"),
             DB::raw("AVG(md.score) as avg_score"),
-            DB::raw("COUNT(md.id) AS total_mission_details"),
-            DB::raw("SUM(CASE WHEN md.score IS NOT NULL THEN 1 ELSE 0 END) AS scored_mission_details"),
-            DB::raw("(COUNT(CASE WHEN score IN (2, 3, 4) THEN 1 ELSE NULL END) * 100) / NULLIF(COUNT(md.id), 0) AS anomalies_rate"),
-            DB::raw("(COUNT(md.score) * 100) / NULLIF(COUNT(md.id), 0) AS progress_status"),
-            DB::raw("(CASE WHEN (CASE WHEN md.is_disabled = 1 THEN COUNT(md.id) ELSE 0 END) > 0 THEN 1 ELSE 0 END) as is_disabled"),
-            "md.assigned_to_cc_id",
+            DB::raw("(100 * COUNT(CASE WHEN score IN (2, 3, 4) THEN 1 ELSE NULL END)) / NULLIF(COUNT(CASE WHEN md.is_disabled = 0 THEN 1 ELSE NULL END), 0) AS anomalies_rate"),
+            DB::raw("(100 * COUNT(CASE WHEN score IS NOT NULL THEN 1 ELSE NULL END)) / NULLIF(COUNT(CASE WHEN md.is_disabled = 0 THEN md.id ELSE NULL END), 0) AS progress_rate"),
         ]);
+        if (hasRole('cdc')) {
+            $this->query->addSelect([
+                DB::raw('SUM(CASE WHEN md.controlled_by_cdc_at IS NOT NULL THEN 1 ELSE 0 END) AS total_controlled'),
+                DB::raw('(100 * SUM(CASE WHEN md.controlled_by_cdc_at IS NOT NULL THEN 1 ELSE 0 END)) / NULLIF(COUNT(cp.id) - SUM(CASE WHEN md.is_disabled = 1 THEN 1 ELSE 0 END), 0) AS control_rate'),
+            ]);
+        } elseif (hasRole('cc')) {
+            $this->query->addSelect([
+                DB::raw('SUM(CASE WHEN md.controlled_by_cc_at IS NOT NULL THEN 1 ELSE 0 END) AS total_controlled'),
+                DB::raw('(100 * SUM(CASE WHEN md.controlled_by_cc_at IS NOT NULL THEN 1 ELSE 0 END)) / NULLIF(COUNT(cp.id) - SUM(CASE WHEN md.is_disabled = 1 THEN 1 ELSE 0 END), 0) AS control_rate'),
+            ]);
+        } elseif (hasRole('cdcr')) {
+            $this->query->addSelect([
+                DB::raw('SUM(CASE WHEN md.controlled_by_cdcr_at IS NOT NULL THEN 1 ELSE 0 END) AS total_controlled'),
+                DB::raw('(100 * SUM(CASE WHEN md.controlled_by_cdcr_at IS NOT NULL THEN 1 ELSE 0 END)) / NULLIF(COUNT(cp.id) - SUM(CASE WHEN md.is_disabled = 1 THEN 1 ELSE 0 END), 0) AS control_rate'),
+            ]);
+        } elseif (hasRole('dcp')) {
+            $this->query->addSelect([
+                DB::raw('SUM(CASE WHEN md.controlled_by_dcp_at IS NOT NULL THEN 1 ELSE 0 END) AS total_controlled'),
+                DB::raw('(100 * SUM(CASE WHEN md.controlled_by_dcp_at IS NOT NULL THEN 1 ELSE 0 END)) / NULLIF(COUNT(cp.id) - SUM(CASE WHEN md.is_disabled = 1 THEN 1 ELSE 0 END), 0) AS control_rate')
+            ]);
+        } elseif (hasRole(['root', 'admin'])) {
+            $this->query->addSelect([
+                DB::raw('(100 * SUM(CASE WHEN md.controlled_by_cdc_at IS NOT NULL THEN 1 ELSE 0 END)) / NULLIF(COUNT(cp.id) - SUM(CASE WHEN md.is_disabled = 1 THEN 1 ELSE 0 END), 0) AS control_rate_cdc'),
+                DB::raw('(100 * SUM(CASE WHEN md.controlled_by_cc_at IS NOT NULL THEN 1 ELSE 0 END)) / NULLIF(COUNT(cp.id) - SUM(CASE WHEN md.is_disabled = 1 THEN 1 ELSE 0 END), 0) AS control_rate_cc'),
+                DB::raw('(100 * SUM(CASE WHEN md.controlled_by_cdcr_at IS NOT NULL THEN 1 ELSE 0 END)) / NULLIF(COUNT(cp.id) - SUM(CASE WHEN md.is_disabled = 1 THEN 1 ELSE 0 END), 0) AS control_rate_cdcr'),
+                DB::raw('(100 * SUM(CASE WHEN md.controlled_by_dcp_at IS NOT NULL THEN 1 ELSE 0 END)) / NULLIF(COUNT(cp.id) - SUM(CASE WHEN md.is_disabled = 1 THEN 1 ELSE 0 END), 0) AS control_rate_dcp')
+            ]);
+        }
     }
 
     /**
@@ -101,6 +127,6 @@ class MissionProcessesQuery extends BaseQuery
      */
     protected function setGroups(): void
     {
-        $this->query->groupBy('f.id', 'd.id', 'p.id', 'p.name', 'd.name', 'f.name', 'md.is_disabled', 'md.assigned_to_cc_id');
+        $this->query->groupBy('m.id', 'f.id', 'd.id', 'p.id', 'p.name', 'd.name',  'f.name', 'p.display_priority', 'p.updated_at', 'd.display_priority', 'd.updated_at', 'f.display_priority', 'f.updated_at');
     }
 }

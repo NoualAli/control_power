@@ -12,7 +12,6 @@ use App\Http\Resources\ProcessResource;
 use App\Jobs\GenerateMissionReportPdf;
 use App\Models\ControlCampaign;
 use App\Models\EventLog;
-use App\Models\Media;
 use App\Models\Mission;
 use App\Models\Process;
 use App\Models\User;
@@ -38,9 +37,9 @@ class ControlCampaignController extends Controller
         $fetchFilters = request()->has('fetchFilters');
         $perPage = request('perPage', 10);
         $fetchAll = request()->has('fetchAll');
-        $searchColumns = ['c.reference', 'c.creator_full_name', 'c.validator_full_name'];
+        $searchColumns = ['cc.reference', 'cc.creator_full_name', 'cc.validator_full_name'];
         $campaigns = (new ControlCampaignQuery())->prepare([
-            'sort' => ['sort' => $sort, 'default' => ['c.created_at' => 'DESC']],
+            'sort' => ['sort' => $sort, 'default' => ['cc.created_at' => 'DESC']],
             'search' => ['columns' => $searchColumns, 'value' => $search],
         ])->multiple();
 
@@ -66,9 +65,9 @@ class ControlCampaignController extends Controller
         $current = request()->has('current');
 
         if ($latest) {
-            $campaign = DB::table('control_campaigns as cc')->where('cc.is_for_testing', false)->whereNull('cc.deleted_at')->where('cc.type', 1)->orderBy('cc.start_date', 'ASC');
+            $campaign = DB::table('control_campaigns as cc')->orderBy('cc.start_date', 'ASC');
         } elseif ($current) {
-            $campaign = DB::table('control_campaigns as cc')->where('cc.is_for_testing', false)->whereNull('cc.deleted_at')->where('cc.type', 1);
+            $campaign = DB::table('control_campaigns as cc');
             $today = today();
             $campaign =  $campaign->where(function ($query) use ($today) {
                 $query->whereDate('start_date', '<=', $today)
@@ -80,7 +79,11 @@ class ControlCampaignController extends Controller
                     });
             })->orderBy('cc.start_date', 'ASC');
             if (!$campaign->count()) {
-                $campaign = $campaign = DB::table('control_campaigns as cc')->where('cc.is_for_testing', false)->whereNull('cc.deleted_at')->where('cc.type', 1)->whereNotNull('validated_at')->whereDate('end_date', '<=', $today)->orderBy('cc.start_date', 'ASC');
+                $campaign = $campaign = DB::table('control_campaigns as cc')
+                    ->where('cc.is_for_testing', false)
+                    ->whereNotNull('validated_at')
+                    ->whereDate('end_date', '<=', $today)
+                    ->orderBy('cc.start_date', 'ASC');
             }
         }
         $campaign = $campaign->get()->last();
@@ -93,22 +96,26 @@ class ControlCampaignController extends Controller
     public function show(string $campaign)
     {
         isAbleOrAbort(['view_control_campaign']);
-        $campaign = getControlCampaigns()->having('c.id', $campaign)->addSelect('c.description')->groupBy('c.description')->first();
+        $campaign = (new ControlCampaignQuery())->prepare()->query->having('cc.id', $campaign)->addSelect('cc.description')->groupBy('cc.description')->first();
         if ($campaign) {
-            $campaign->synthesis = getMediaByForeign(ControlCampaign::class, $campaign?->id, 'uploads/Synthèses')->get();
-        }
-        if ($campaign) {
-            abort_if(!($campaign->validated_by_id || hasRole(['dcp', 'cdcr'])), 403, __('unauthorized'));
+            abort_if(!($campaign?->validated_by_id || hasRole(['dcp', 'cdcr', 'admin', 'root'])), FORBIDDEN, __('unauthorized'));
+            if ($campaign) {
+                $campaign->synthesis = getMediaByForeign(ControlCampaign::class, $campaign?->id, 'uploads/Synthèses')->get();
+                $campaign->summary_scores = getMediaByForeign(ControlCampaign::class, $campaign?->id, 'control_campaign_summary_scores')->first();
+                $campaign->summary_reports = getMediaByForeign(ControlCampaign::class, $campaign?->id, 'control_campaign_summary_reports')->first();
 
-            if (request()->has('edit')) {
-                $condition = !boolval(intval($campaign->is_validated));
-                abort_if(!$condition, 403, __('unauthorized'));
+                if (request()->has('edit')) {
+                    $condition = !boolval(intval($campaign->is_validated));
+                    abort_if(!$condition, FORBIDDEN, __('unauthorized'));
 
-                $campaign->processes = getControlCampaignProcesses($campaign)->get();
+                    $campaign->processes = getControlCampaignProcesses($campaign)->get();
+                }
+                return response()->json($campaign);
+            } else {
+                return actionResponse(false, '', "La campaign que vous tantez d'afficher n'existe pas.", NOT_FOUND);
             }
-            return $campaign;
         } else {
-            return actionResponse(false, '', "La campaign que vous tantez d'afficher n'existe pas.", 404);
+            abort(NOT_FOUND, __('Campagne de contrôle introuvable'));
         }
     }
 
@@ -143,7 +150,6 @@ class ControlCampaignController extends Controller
             $data['updated_at'] = now()->format('Y-m-d H:i:s');
             $data['reference'] = generateCDCRef($isValidated, $data['start_date'], $isForTesting);
             $data['id'] = \Illuminate\Support\Str::uuid();
-            $data['type'] = 1;
             unset($data['pcf'], $data['is_validated']);
 
             $result = DB::transaction(function () use ($data, $processes, $isValidated, $isForTesting) {
@@ -250,7 +256,6 @@ class ControlCampaignController extends Controller
             $errorMessage = DEFAULT_ERROR_MESSAGE;
             $notValidatedCampaigns = DB::table('control_campaigns as cc')
                 ->whereDate('end_date', '<', $campaign->start_date)
-                ->whereNull('deleted_at')
                 ->whereNull('validated_at')
                 ->where('id', '!=', $campaign->id)
                 ->orderBy('start_date')
@@ -303,14 +308,14 @@ class ControlCampaignController extends Controller
      */
     public function destroy(string $campaign)
     {
-        $campaign = getControlCampaigns(1, $campaign);
+        $campaign = (new ControlCampaignQuery())->prepare()->query->having('cc.id', $campaign)->first();
         $canDelete = !boolVal(intVal($campaign->is_validated));
         if (!hasRole('dcp')) {
             $canDelete = !$campaign->is_validated && $campaign->created_by_id == auth()->user()->id;
         }
         try {
             if ($canDelete) {
-                $result = DB::table('control_campaigns')->where('id', $campaign->id)->delete();
+                $result = DB::table('control_campaigns')->delete($campaign->id);
                 EventLog::store(['type' => EventLogTypes::DELETE, 'attachable_type' => ControlCampaign::class, 'attachable_id' => $campaign->id, 'payload' => ['success' => $result]]);
                 if ($campaign->validated_at && !config('mail.disabled')) {
                     $roles = ['cdc', 'cdrcp', 'dre'];
@@ -322,7 +327,9 @@ class ControlCampaignController extends Controller
                         Notification::send($user, new Deleted($campaign->id));
                     }
                 }
-                return actionResponse($result, DELETE_SUCCESS, DELETE_ERROR);
+                $deleteSuccess = "Campagne de contrôle <b>$campaign->reference</b> supprimer avec succès";
+                $deleteError = "Une erreur est survenue lors de la tentative de suppression de la Campagne de contrôle <b>$campaign->reference</b>";
+                return actionResponse($result, $deleteSuccess, $deleteError);
             } else {
                 $errorMessage = "Cette campagne de contrôle ne peut pas être supprimée car elle est validée.";
                 EventLog::store(['type' => EventLogTypes::DELETE, 'attachable_type' => ControlCampaign::class, 'attachable_id' => $campaign->id, 'payload' => ['success' => false, 'content' => $errorMessage]]);
@@ -355,21 +362,26 @@ class ControlCampaignController extends Controller
     /**
      * Get campaign processes list
      */
-    public function processes(string $campaign)
+    public function processes(string $campaign, ?int $process = null)
     {
-        $campaign = getControlCampaigns()->where('c.id', $campaign)->select(['c.id', DB::raw('(CASE WHEN c.validated_at IS NOT NULL THEN 1 ELSE 0 END) AS is_validated')])->first();
+        $campaign = (new ControlCampaignQuery())->prepare()->query->having('cc.id', $campaign)->select(['cc.id', DB::raw('(CASE WHEN cc.validated_at IS NOT NULL THEN 1 ELSE 0 END) AS is_validated')])->first();
+        abort_if(!($campaign->is_validated || hasRole(['dcp', 'cdcr', 'root', 'admin'])), FORBIDDEN, __('unauthorized'));
+        if (!$process) {
+            $processes = getProcesses()->leftJoin('control_campaign_processes AS ccp', 'ccp.process_id', 'p.id')
+                ->where('ccp.control_campaign_id', $campaign->id);
+            $search = request('search', false);
+            $perPage = request('perPage', 10);
 
-        abort_if(!($campaign->is_validated || hasRole(['dcp', 'cdcr'])), 401, __('unauthorized'));
-
-        $processes = getControlCampaignProcesses($campaign);
-        $search = request('search', false);
-        $perPage = request('perPage', 10);
-
-        if ($search) {
-            $processes = $processes->search(['p.name', 'd.name', 'f.name'], $search);
+            if ($search) {
+                $processes = $processes->search(['p.name', 'd.name', 'f.name'], $search);
+            }
+            return ProcessResource::collection($processes->paginate($perPage)->onEachSide(1));
+        } else {
+            $process = getProcesses($process);
+            $controlPoints = getControlPoints()->where('p.id', $process->id)->where('cp.is_active', true)->select('cp.name')->get();
+            $process->control_points = $controlPoints;
+            return response()->json($process);
         }
-
-        return ProcessResource::collection($processes->paginate($perPage)->onEachSide(1));
     }
 
 
@@ -386,9 +398,9 @@ class ControlCampaignController extends Controller
         if (isset($filter['validated'])) {
             $value = $filter['validated'];
             if ($value == 'En attente') {
-                $campaigns = $campaigns->whereNull('c.validated_at');
+                $campaigns = $campaigns->whereNull('cc.validated_at');
             } elseif ($value == 'Validée') {
-                $campaigns = $campaigns->whereNotNull('c.validated_at');
+                $campaigns = $campaigns->whereNotNull('cc.validated_at');
             } else {
                 abort(422, "La valeur " . $value . " n'est pas une valeur valide.");
             }
@@ -396,21 +408,21 @@ class ControlCampaignController extends Controller
         if (isset($filter['test'])) {
             $value = $filter['test'];
             if ($value == 'Non') {
-                $campaigns = $campaigns->where('c.is_for_testing', false);
+                $campaigns = $campaigns->where('cc.is_for_testing', false);
             } elseif ($value == 'Oui') {
-                $campaigns = $campaigns->where('c.is_for_testing', true);
+                $campaigns = $campaigns->where('cc.is_for_testing', true);
             } else {
                 abort(422, "La valeur " . $value . " n'est pas une valeur valide.");
             }
         }
         if (isset($filter['start'])) {
             $start = isset($filter['start']) ? $filter['start'] : null;
-            $campaigns = $campaigns->whereDate('c.start_date', '>=', $start);
+            $campaigns = $campaigns->whereDate('cc.start_date', '>=', $start);
         }
 
         if (isset($filter['end'])) {
             $end = isset($filter['end']) ? $filter['end'] : null;
-            $campaigns = $campaigns->whereDate('c.end_date', '<=', $end);
+            $campaigns = $campaigns->whereDate('cc.end_date', '<=', $end);
         }
         return $campaigns;
     }

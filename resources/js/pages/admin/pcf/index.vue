@@ -4,27 +4,27 @@
             title="Textes réglementaires" urlPrefix="pcf"
             @dataLoaded="() => this.$store.dispatch('settings/updatePageLoading', false)">
             <template #table-actions>
-                <router-link v-if="is('root', 'admin', 'cdcr')" :to="{ name: 'pcf-management-create' }" class="btn">
+                <router-link v-if="is(['root', 'admin', 'cdcr'])" :to="{ name: 'pcf-management-create' }" class="btn">
                     <NLIcon name="add" />
                     Ajouter
                 </router-link>
             </template>
         </NLDatatable>
 
-        <ProcessInformationsModal :process="currentProcess" :show="!!currentProcess" @close="close" />
+        <ProcessModal :rowSelected="currentProcess" :show="!!currentProcess" @close="close" />
     </ContentBody>
 </template>
 <script>
-import ProcessInformationsModal from '../../../Modals/ProcessInformationsModal'
-import NLColumn from '../../../components/Grid/NLColumn'
-import NLGrid from '../../../components/Grid/NLGrid'
-import NLListItem from '../../../components/List/NLListItem'
-import NLList from '../../../components/List/NLList'
-import NLModal from '../../../components/NLModal'
-import { hasRole } from '../../../plugins/user'
+import ProcessModal from '~/Modals/ProcessModal'
+import NLColumn from '~/components/Grid/NLColumn'
+import NLGrid from '~/components/Grid/NLGrid'
+import NLListItem from '~/components/List/NLListItem'
+import NLList from '~/components/List/NLList'
+import NLModal from '~/components/NLModal'
+import { hasRole } from '~/plugins/user'
 export default {
     components: {
-        ProcessInformationsModal,
+        ProcessModal,
         NLColumn,
         NLGrid,
         NLListItem,
@@ -74,20 +74,20 @@ export default {
                     multiple: true,
                     data: [
                         {
-                            id: 'Note',
-                            label: 'Note',
+                            id: 'Notes',
+                            label: 'Notes',
                         },
                         {
-                            id: 'Circulaire',
-                            label: 'Circulaire',
+                            id: 'Circulaires',
+                            label: 'Circulaires',
                         },
                         {
-                            id: 'Lettre-circulaire',
-                            label: 'Lettre-circulaire',
+                            id: 'Lettres-circulaire',
+                            label: 'Lettres-circulaire',
                         },
                         {
-                            id: 'Guide 1er niveau',
-                            label: 'Guide 1er niveau',
+                            id: 'Guides 1er niveau',
+                            label: 'Guides 1er niveau',
                         },
                     ],
                     value: null

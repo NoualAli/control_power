@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\EventLogTypes;
 use App\Exports\UsersExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreRequest;
@@ -9,6 +10,7 @@ use App\Http\Requests\User\UpdateUserInfoRequest;
 use App\Http\Requests\User\UpdateUserPasswordRequest;
 use App\Http\Resources\LoginHistoryResource;
 use App\Http\Resources\UserResource;
+use App\Models\EventLog;
 use App\Models\User;
 use App\Notifications\ResetUserNotification;
 use App\Notifications\UserCreatedNotification;
@@ -107,8 +109,8 @@ class UserController extends Controller
     {
         try {
             $data = $request->validated();
-            $firstLoginPassword = $data['password'];
-            $user = DB::transaction(function () use ($data) {
+            $firstLoginPassword = $data['password'] ?: config('auth.password_default');
+            $user = DB::transaction(function () use ($data, $firstLoginPassword) {
                 $data['password'] = isset($data['password']) && !empty($data['password']) ? Hash::make($data['password'])  : Hash::make(config('auth.password_default'));
                 $data['active_role_id'] = $data['role'];
                 $role = $data['role'];
@@ -120,47 +122,17 @@ class UserController extends Controller
                         $structures = 'ri-' . $structures;
                     }
                     $agencies = loadAgencies($structures);
-                    unset($data['agencies']);
+                    unset($data['structures']);
                     $user->agencies()->sync($agencies);
                 }
                 $user->roles()->attach([$role]);
-                $settings = DB::table('user_has_notifications');
-
-                if (in_array($user->role->code, ['ci', 'cc'])) {
-                    $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['mission_assignation_removed', 'mission_assigned', 'mission_updated', 'mission_validated', 'mission_major_fact_rejected'])->get()->pluck('id');
-                } elseif ($user->code == 'cder') {
-                    $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['mission_assignation_removed', 'mission_assigned'])->get()->pluck('id');
-                } elseif ($user->role->code == 'cdc') {
-                    $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['control_campaign_created', 'control_campaign_deleted', 'control_campaign_updated', 'mission_major_fact_detected', 'mission_validated', 'mission_pdf_repport_generated', 'mission_major_fact_rejected'])->get()->pluck('id');
-                } elseif ($user->role->code == 'da') {
-                    $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['mission_major_fact_detected', 'mission_validated', 'mission_pdf_repport_generated'])->get()->pluck('id');
-                } elseif (in_array($user->role->code, ['dg', 'ig', 'iga', 'ir', 'dga', 'sg', 'der', 'deac', 'cdrcp', 'dre', 'dcp', 'cdcr'])) {
-                    $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['control_campaign_created', 'control_campaign_deleted', 'control_campaign_updated', 'mission_major_fact_detected', 'mission_validated', 'mission_pdf_repport_generated'])->get()->pluck('id');
-                } else {
-                    $notificationTypes = collect([]);
-                }
-                if ($notificationTypes->isNotEmpty()) {
-                    foreach ($notificationTypes as $type) {
-                        if (in_array($user->code, ['dg', 'ig', 'iga', 'dga', 'sg', 'der', 'deac', 'cdrcp', 'dcp', 'cdcr', 'dre'])) {
-                            $databaseIsEnabled = true;
-                            $emailIsEnabled = false;
-                        } else {
-                            $databaseIsEnabled = true;
-                            $emailIsEnabled = true;
-                        }
-                        $settings->insert([
-                            'user_id' => $user->id,
-                            'notification_type_id' => $type,
-                            'email_is_enabled' => $emailIsEnabled,
-                            'database_is_enabled' => $databaseIsEnabled,
-                        ]);
-                    }
+                $this->setNotifications($user);
+                EventLog::store(['type' => EventLogTypes::CREATE, 'attachable_type' => User::class, 'attachable_id' => $user->id]);
+                if ($user->is_active) {
+                    Notification::send($user, new UserCreatedNotification($user, $firstLoginPassword));
                 }
                 return $user;
             });
-            if ($user->is_active) {
-                Notification::send($user, new UserCreatedNotification($user, $firstLoginPassword));
-            }
             return response()->json([
                 'message' => CREATE_SUCCESS,
                 'status' => true,
@@ -196,6 +168,7 @@ class UserController extends Controller
             $data = $request->validated();
 
             $result = DB::transaction(function () use ($data, $user) {
+                $oldUser = clone $user;
                 $data['active_role_id'] = $data['role'];
                 $role = $data['role'];
                 unset($data['role']);
@@ -212,6 +185,7 @@ class UserController extends Controller
                     unset($data['structures']);
                     $user->agencies()->sync($structuresId);
                 }
+                EventLog::store(['type' => EventLogTypes::UPDATE, 'attachable_type' => User::class, 'attachable_id' => $user->id, 'payload' => ['success' => $result, 'old' => $oldUser, 'new' => $user]]);
                 return $result;
                 // Notification::send($user, new UserInfoUpdatedNotification($user, $updatedInformations));
             });
@@ -230,6 +204,7 @@ class UserController extends Controller
     public function reset(User $user)
     {
         try {
+            $oldUser = clone $user;
             $result = DB::transaction(function () use ($user) {
                 return $user->update([
                     'last_name' => null,
@@ -243,6 +218,7 @@ class UserController extends Controller
             if ($result) {
                 Notification::send($user, new ResetUserNotification($user));
             }
+            EventLog::store(['type' => EventLogTypes::RESET, 'attachable_type' => User::class, 'attachable_id' => $user->id, 'payload' => ['success' => $result, 'old' => $oldUser, 'new' => $user]]);
             return actionResponse($result, 'Utilisateur réinitialiser avec succès');
         } catch (\Throwable $th) {
             return throwedError($th);
@@ -259,7 +235,8 @@ class UserController extends Controller
     public function updatePassword(UpdateUserPasswordRequest $request, User $user)
     {
         try {
-            $result = DB::transaction(function () use ($request, $user) {
+            $oldUser = clone $user;
+            $result = DB::transaction(function () use ($request, $user, $oldUser) {
                 $data = $request->validated();
                 $mustChangePassword = auth()->user()->id !== $user->id;
                 $result = $user->update([
@@ -272,6 +249,7 @@ class UserController extends Controller
                         Notification::send($user, new UserPasswordUpdatedNotification($user, $data['password']));
                     }
                 }
+                EventLog::store(['type' => EventLogTypes::UPDATE_PASSWORD, 'attachable_type' => User::class, 'attachable_id' => $user->id, 'payload' => ['success' => $result, 'old' => $oldUser, 'new' => $user]]);
                 return $result;
             });
             return actionResponse($result, UPDATE_PASSWORD_SUCCESS, UPDATE_PASSWORD_ERROR);
@@ -290,7 +268,9 @@ class UserController extends Controller
     {
         isAbleOrAbort('delete_user');
         try {
+            $oldUser = clone $user;
             $result = $user->delete();
+            EventLog::store(['type' => EventLogTypes::DELETE, 'attachable_type' => User::class, 'attachable_id' => $user->id, 'payload' => ['success' => $result, 'old' => $oldUser, 'new' => $user]]);
             return actionResponse($result, DELETE_SUCCESS, DELETE_ERROR);
         } catch (\Throwable $th) {
             return throwedError($th);
@@ -331,5 +311,53 @@ class UserController extends Controller
         }
         // dd($users->get());
         return $users;
+    }
+
+    /**
+     * Set user notifications
+     */
+    private function setNotifications($user)
+    {
+        $settings = DB::table('user_has_notifications');
+
+        if (in_array($user->role->code, ['ci', 'cc'])) {
+            $notificationTypes = DB::table('notification_types')->select('id')
+                ->whereIn('code', ['mission_assignation_removed', 'mission_assigned', 'mission_updated', 'mission_validated', 'mission_major_fact_rejected']);
+        } elseif ($user->code == 'cder') {
+            $notificationTypes = DB::table('notification_types')->select('id')
+                ->whereIn('code', ['mission_assignation_removed', 'mission_assigned']);
+        } elseif ($user->role->code == 'cdc') {
+            $notificationTypes = DB::table('notification_types')->select('id')
+                ->whereIn('code', ['control_campaign_created', 'control_campaign_deleted', 'control_campaign_updated', 'mission_major_fact_detected', 'mission_validated', 'mission_pdf_repport_generated', 'mission_major_fact_rejected']);
+        } elseif ($user->role->code == 'da') {
+            $notificationTypes = DB::table('notification_types')->select('id')
+                ->whereIn('code', ['mission_validated', 'mission_pdf_repport_generated']);
+        } elseif (in_array($user->role->code, ['dg', 'ig', 'iga', 'ir', 'dga', 'sg', 'der', 'deac', 'cdrcp', 'dre', 'dcp', 'cdcr'])) {
+            $notificationTypes = DB::table('notification_types')->select('id')
+                ->whereIn('code', ['control_campaign_created', 'control_campaign_deleted', 'control_campaign_updated', 'mission_major_fact_detected', 'mission_validated', 'mission_pdf_repport_generated']);
+        } elseif ($user->role->code == 'cd') {
+            $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['mission_validated', 'mission_pdf_repport_generated']);
+        } else {
+            $notificationTypes = collect([]);
+        }
+        $notificationTypes = $notificationTypes->get();
+        if ($notificationTypes->isNotEmpty()) {
+            $notificationTypes = $notificationTypes->pluck('id');
+            foreach ($notificationTypes as $type) {
+                if (in_array($user->code, ['dg', 'ig', 'iga', 'dga', 'sg', 'der', 'deac', 'cdrcp', 'dcp', 'cdcr', 'dre'])) {
+                    $databaseIsEnabled = true;
+                    $emailIsEnabled = false;
+                } else {
+                    $databaseIsEnabled = true;
+                    $emailIsEnabled = true;
+                }
+                $settings->insert([
+                    'user_id' => $user->id,
+                    'notification_type_id' => $type,
+                    'email_is_enabled' => $emailIsEnabled,
+                    'database_is_enabled' => $databaseIsEnabled,
+                ]);
+            }
+        }
     }
 }

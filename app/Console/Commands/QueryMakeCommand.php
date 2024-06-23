@@ -133,7 +133,7 @@ class QueryMakeCommand extends GeneratorCommand
      */
     protected function getDefaultNamespace($namespace)
     {
-        return $namespace . '\DB\Repositories';
+        return $namespace . '\DB\Queries';
     }
 
     /**

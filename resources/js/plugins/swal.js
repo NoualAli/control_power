@@ -8,7 +8,7 @@ import Swal from 'sweetalert2'
  *
  * @return {any}
  */
-export function confirm({ icon = 'question', title = '', message = '', cancelButtonText = 'Non', confirmButtonText = "Oui", showConfirmButton = true, showCancelButton = true }) {
+export function confirm({ icon = 'question', title = 'Confirmation', message = 'Êtes-vous sûr de vouloir enregistrer ces informations ?', cancelButtonText = 'Non', confirmButtonText = "Oui", showConfirmButton = true, showCancelButton = true }) {
     return Swal.fire({
         icon,
         title,

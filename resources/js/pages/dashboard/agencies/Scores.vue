@@ -110,6 +110,7 @@ import { mapGetters } from 'vuex'
 import { Bar, Doughnut } from 'vue-chartjs'
 export default {
     name: "Scores",
+    emits: [ 'savePNG' ],
     components: {
         Bar,
         Doughnut,
@@ -145,7 +146,7 @@ export default {
     methods: {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
-            this.$store.dispatch('agencyLevelStatistics/fetchScores', { onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign }).then(() => {
+            this.$store.dispatch('agencyLevelStatistics/fetchScores', { onlyCurrentCampaign: false, currentCampaign: this?.currentCampaign }).then(() => {
                 this.charts.globalScores = this.scores.data.globalScores
                 this.charts.avgScoreByFamily = this.scores.data.avgScoreByFamily
                 this.tables.avgScoreByDre = this.scores.data.avgScoreByDre

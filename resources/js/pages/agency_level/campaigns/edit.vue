@@ -10,7 +10,7 @@
             </NLColumn>
             <NLColumn lg="4" md="6">
                 <NLInputDate v-model="form.end_date" :form="form" name="end_date" label="Date de fin" type="date"
-                    label-required :disabled="endDateIsDisabled" :min="minDateForEnd" />
+                    label-required :readonly="endDateIsDisabled" :min="minDateForEnd" />
             </NLColumn>
             <NLColumn>
                 <NLSelect v-model="form.pcf" :form="form" name="pcf" :options="pcfList" label="PCF" :multiple="true"
@@ -138,7 +138,7 @@ export default {
         update() {
             let cantLeave = this.checkIfCanLeave()
             if (cantLeave) {
-                this.$swal.confirm({ message: 'Êtes-vous sûr de vouloir enregistrer ces informations ?' }).then(action => {
+                this.$swal.confirm_update('Êtes-vous sûr de vouloir enregistrer ces informations ?').then(action => {
                     if (action.isConfirmed) {
                         this.formIsLoading = true
                         this.form.put('agency_level/campaigns/' + this.$route.params.campaignId).then(response => {
@@ -186,7 +186,7 @@ export default {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
 
-            this.$store.dispatch('agency_level/campaigns/fetch', { campaignId: this.$route.params.campaignId, edit: true }).then(() => {
+            this.$store.dispatch('campaigns/fetch', { campaignId: this.$route.params.campaignId, edit: true }).then(() => {
                 if (this.campaign?.current?.validated_by_id) {
                     this.$router.push({ name: 'campaigns' })
                 }

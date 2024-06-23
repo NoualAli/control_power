@@ -17,6 +17,7 @@ class RegionalInspection extends Model
 
     public $appends = [
         'full_name',
+        'dre_str'
     ];
 
     protected $searchable = ['code', 'name'];
@@ -24,6 +25,11 @@ class RegionalInspection extends Model
     /**
      * Getters
      */
+
+    public function getDreStrAttribute()
+    {
+        return $this->dres->pluck('full_name')->implode(', ');
+    }
 
     public function getNameAttribute($name)
     {

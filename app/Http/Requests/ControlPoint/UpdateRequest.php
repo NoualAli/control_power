@@ -25,17 +25,27 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         $id = request()->controlPoint->id;
-        return [
-            'name' => ['required', new UniqueInProcess(request()->process_id, $id), 'string', 'max:255'],
-            'family_id' => ['required', 'exists:families,id'],
-            'domain_id' => ['required', 'exists:domains,id'],
-            'process_id' => ['required', 'exists:processes,id'],
+        $rules = [
             'has_major_fact' => ['required', 'boolean'],
-            'sampling_fields' => ['nullable', 'exists:fields,id'],
-            'scores' => ['nullable', 'array'],
-            'scores.*' => ['required', 'array'],
-            'scores.*.0.score' => ['required', 'distinct'],
-            'scores.*.1.label' => ['required', 'distinct'],
+            'usable_for_agency' => ['required', 'boolean'],
+            'usable_for_dre' => ['required', 'boolean'],
+            'is_active' => ['required', 'boolean'],
+            'display_priority' => ['required', 'numeric'],
+            'update_others_priority' => ['required', 'boolean'],
         ];
+
+        $controlPoint = getControlPoints(request('controlPoint')->id);
+        if ($controlPoint->is_deletable) {
+            $rules['name'] = ['required', new UniqueInProcess(request()->process_id, $id), 'string', 'max:255'];
+            $rules['family_id'] = ['required', 'exists:families,id'];
+            $rules['domain_id'] = ['required', 'exists:domains,id'];
+            $rules['process_id'] = ['required', 'exists:processes,id'];
+            $rules['sampling_fields'] = ['nullable', 'exists:fields,id'];
+            $rules['scores'] = ['nullable', 'array'];
+            $rules['scores.*'] = ['required', 'array'];
+            $rules['scores.*.0.score'] = ['required', 'distinct'];
+            $rules['scores.*.1.label'] = ['required', 'distinct'];
+        }
+        return $rules;
     }
 }

@@ -5,7 +5,7 @@ namespace App\Exports;
 use App\Enums\EventLogTypes;
 use App\Models\EventLog;
 use App\Models\Process;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -15,7 +15,7 @@ class ProcessesExport extends BaseExport implements FromView, WithProperties, Sh
 {
 
     /**
-     * @var Illuminate\Database\Eloquent\Collection
+     * @var Illuminate\Support\Collection
      */
     private $data;
 

@@ -13,7 +13,7 @@ abstract class BaseQuery
     /**
      * @var \Illuminate\Database\Query\Builder
      */
-    protected $query;
+    public $query;
 
     /**
      * @var string
@@ -58,7 +58,7 @@ abstract class BaseQuery
         if (!$table) {
             $table = Str::snake(Str::pluralStudly(str_replace('Query', '', class_basename($this))));
         }
-        $this->alias = $alias ?: implode('', array_map(fn ($item) => $item[0], explode(' ', $table)));
+        $this->alias = $alias ?: implode('', array_map(fn ($item) => $item[0], explode('_', $table)));
         $table = !empty($this->alias) ? $table . ' AS ' . $this->alias : $table;
 
         $this->query = DB::table($table);
@@ -85,6 +85,7 @@ abstract class BaseQuery
         extract($sort);
 
         if ($sort) {
+            $this->query->reorder();
             $this->query->sortByMultiple($sort);
         } else {
             if (isset($default)) {

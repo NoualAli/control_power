@@ -15,7 +15,7 @@
                 En cours d'assainissement
             </p>
             <p class="mt-3" v-else>
-                Non levée
+                En attente de traitement
             </p>
         </NLColumn>
         <NLColumn v-for="comment in regularization.comments">
@@ -39,7 +39,7 @@
         </NLColumn>
         <NLColumn>
             <label class="label">
-                Actions engagées
+                Action(s) engagée(s)
             </label>
             <div v-html="regularization.action_to_be_taken" class="mt-3"></div>
         </NLColumn>

@@ -56,7 +56,7 @@ class Detected extends Notification
      */
     private function getUrl(): string
     {
-        return url('/major-facts?filter[id]=' . $this->detail->id);
+        return url('/agency-level/major-facts?filter[id]=' . $this->detail->id);
     }
 
     /**

@@ -13,7 +13,7 @@ class SwitchUsersToDevMode extends Command
      *
      * @var string
      */
-    protected $signature = 'users-devmode';
+    protected $signature = 'users:devmode';
 
     /**
      * The console command description.
@@ -32,7 +32,8 @@ class SwitchUsersToDevMode extends Command
         if (env('APP_ENV') !== 'production' && env('APP_ENV') !== 'production-test') {
             try {
                 $total = DB::table('users')->update([
-                    'password' => Hash::make('123456')
+                    'password' => Hash::make('123456'),
+                    'must_change_password' => false,
                 ]);
                 if ($total) {
                     $total = $total > 1 ? $total . ' lignes ont étaient mise à jour' : $total . ' ligne mise à jour a été mise à jour';

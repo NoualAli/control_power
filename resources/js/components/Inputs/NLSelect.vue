@@ -1,12 +1,24 @@
 <template>
     <InputContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired"
-        :help-text="helpText">
+        :help-text="helpText" v-if="!readonly">
         <Treeselect :id="getId" v-bind="$attrs" ref="treeselect" v-model="selected" :key="forcedKey"
             :class="[{ 'is-danger': form?.errors.has(name) }, 'select']" :value="modelValue" :name="name"
             :multiple="multiple" :options="options" :placeholder="placeholder" :loading-text="loadingText"
             :no-options-text="noOptionsText" @deselect="deselect" search-nested
-            :disable-branch-nodes="disableBranchNodes" :showCount="true" :disabled="disabled" />
+            :disable-branch-nodes="disableBranchNodes" :showCount="true" />
     </InputContainer>
+    <div class="input-base-container" v-else>
+        <label class="label">{{ label }}</label>
+        <div class="input-container">
+            <div class="input is-disabled" v-if="!['object', 'array'].includes(typeof modelValue)">
+                {{ options?.find(option => option.id == modelValue)?.label || '-' }}
+            </div>
+            <div class="input is-disabled" v-else>
+                {{ options?.filter(option => modelValue.includes(option.id)).map(item => item.label)?.join(', ') ||
+            '-' }}
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -21,7 +33,7 @@ export default {
         id: { type: String },
         label: { type: String, default: '' },
         labelRequired: { type: Boolean, default: false },
-        disabled: { type: Boolean, default: false },
+        readonly: { type: Boolean, default: false },
         placeholder: { type: String, default: 'Choisissez une option' },
         loadingText: { type: String, default: 'Chargement en cours...' },
         noOptionsText: { type: String, default: 'Aucune option disponible' },

@@ -26,12 +26,16 @@ class PermissionsTableSeeder extends Seeder
                 ['name' => 'Créer les inspections régionales', 'code' => 'create_regional_inspection', 'module_id' => $structuresManagementModule],
                 ['name' => 'Modifier les inspections régionales', 'code' => 'edit_regional_inspection', 'module_id' => $structuresManagementModule],
                 ['name' => 'Supprimer les inspections régionales', 'code' => 'delete_regional_inspection', 'module_id' => $structuresManagementModule],
+                ['name' => 'Voir les départments', 'code' => 'view_department', 'module_id' => $structuresManagementModule],
+                ['name' => 'Créer les départments', 'code' => 'creat_department', 'module_id' => $structuresManagementModule],
+                ['name' => 'Modifier les départments', 'code' => 'edit_department', 'module_id' => $structuresManagementModule],
+                ['name' => 'Supprimer les départments', 'code' => 'delet_department', 'module_id' => $structuresManagementModule],
             ]);
 
             // Update root and admin roles to add new permissions
             $roles = DB::table('roles')->whereIn('code', ['root', 'admin'])->get();
             foreach ($roles as $role) {
-                $permissions = DB::table('permissions')->select('id')->whereLike('code', '%regional_inspection%')->get();
+                $permissions = DB::table('permissions')->select('id')->where('code', 'LIKE', '%regional_inspection%')->orWhere('code', 'LIKE', '%department%')->get();
                 foreach ($permissions as $permission) {
                     DB::table('role_has_permissions')->insert([
                         'role_id' => $role->id,
@@ -51,6 +55,20 @@ class PermissionsTableSeeder extends Seeder
             foreach ($irs as $ir) {
                 foreach ($igPermissions as $permission) {
                     DB::table('role_has_permissions')->insert(['role_id' => $ir, 'permission_id' => $permission]);
+                }
+            }
+
+            /**
+             * Set CD role permissions
+             */
+            $roles = DB::table('roles')->where('code', 'cd')->get();
+            foreach ($roles as $role) {
+                $permissions = DB::table('permissions')->select('id')->whereIn('code', ['view_control_campaign', 'view_mission', 'view_mission_detail', 'view_major_fact', 'view_dre_report', 'regularize_mission_detail', 'comment_regularization',])->get();
+                foreach ($permissions as $permission) {
+                    DB::table('role_has_permissions')->insert([
+                        'role_id' => $role->id,
+                        'permission_id' => $permission->id
+                    ]);
                 }
             }
         });

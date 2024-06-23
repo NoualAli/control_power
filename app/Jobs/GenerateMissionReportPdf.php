@@ -6,7 +6,7 @@ use App\DB\Queries\MissionProcessesQuery;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Mission;
 use App\Models\User;
-use App\Notifications\ReportNotification;
+use App\Notifications\Mission\ReportNotification;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -29,22 +29,32 @@ class GenerateMissionReportPdf implements ShouldQueue
      */
     protected $mission;
 
+    /**
+     * @var App\Models\User
+     */
+    protected $user;
+
+    /**
+     * @var boolean
+     */
     protected $notify;
 
     /**
-     * @var array
+     * @var string
      */
-    protected $response = [];
+    protected $type;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Mission $mission, $notify = true)
+    public function __construct(Mission $mission, User $user, $notify = true, string $type = 'dcp')
     {
         $this->mission = $mission;
         $this->notify = $notify;
+        $this->type = $type;
+        $this->user = $user;
     }
 
     /**
@@ -61,7 +71,8 @@ class GenerateMissionReportPdf implements ShouldQueue
             $mission = $this->mission;
             $start = now();
             $mission->unsetRelations();
-            $mission->load(['details', 'campaign']);
+            $mission->load(['details', 'details.regularizations', 'details.regularizations.images', 'campaign']);
+            $closingReport = $mission->closingReport()->where('attachable_id', $mission->id)->get();
             $details = $mission->details()->whereIn('score', [1, 2, 3, 4])->get()->map(function ($detail) {
                 $detail->observation = $detail->observations()->first() ?: null;
                 return $detail;
@@ -74,10 +85,18 @@ class GenerateMissionReportPdf implements ShouldQueue
                 'total_anomalies' => $mission->details()->whereAnomaly()->count(),
                 'total_major_facts' => $mission->details()->onlyMajorFacts()->count(),
             ];
-            $pdf = Pdf::loadView('export.report', compact('mission', 'campaign', 'details', 'stats'));
+            $pdf = Pdf::loadView('export.report', compact('mission', 'campaign', 'closingReport', 'details', 'stats'));
             $pdf->render();
             $canvas = $pdf->get_canvas();
             $cpdf = $canvas->get_cpdf();
+            $pdf->addInfo([
+                'Title' => 'Rapport de la mission ' . $mission->reference,
+                'Creator' => env('APP_NAME'),
+                'Author' => $this->user->full_name_with_martial . '-' . $this->user->id,
+                'Subject' => 'Rapport PDF mission de contrôle niveau agence'
+            ]);
+
+            $pdf->setEncryption('', 'ownerpass', array('print'));
 
             $font = $pdf->getFontMetrics()->get_font("helvetica", "bold");
 
@@ -97,7 +116,7 @@ class GenerateMissionReportPdf implements ShouldQueue
             }
             $content = $pdf->download()->getOriginalContent();
             Storage::put($this->filepath(), $content);
-            $notifiables = User::whereRoles(['cdcr', 'cdrcp', 'dcp'])->where('is_active', true)->get();
+            $notifiables = User::whereRoles(['dg', 'ig', 'iga', 'deac', 'dga', 'sg', 'der', 'cdcr', 'cdrcp', 'dcp'])->where('is_active', true)->get();
             $notifiables = User::whereRoles(['dre', 'da', 'ir'])->whereRelation('agencies', 'agencies.id', $mission->agency_id)->where('is_active', true)->get()->merge($notifiables);
             $notifiables = $notifiables->merge([$mission->dreController]);
             if ($mission->dcp_controller) {
@@ -108,7 +127,7 @@ class GenerateMissionReportPdf implements ShouldQueue
             $difference = $end->diffInMinutes($start);
             if ($difference < 1) {
                 $difference = $end->diffInSeconds($start);
-                $difference = $difference > 1 ? $difference . ' secondes' : $difference . ' sconde';
+                $difference = $difference > 1 ? $difference . ' secondes' : $difference . ' seconde';
             } else {
                 $difference = $difference > 1 ? $difference . ' minutes' : $difference . ' minute';
             }
@@ -126,6 +145,7 @@ class GenerateMissionReportPdf implements ShouldQueue
                     'mimetype' => 'application/pd',
                     'size' => Storage::fileSize($this->filepath()),
                     'created_at' => now(),
+                    'category' => 'mission_pdf_report',
                     'payload' => json_encode([
                         'name' => $mission->reference,
                     ]),
@@ -171,7 +191,7 @@ class GenerateMissionReportPdf implements ShouldQueue
      */
     private function dirPath(bool $public_path = false): string
     {
-        $relativePath = $public_path ? 'exported\campaigns\\' . $this->mission->campaign->reference . '\\missions' : 'public\\exported\campaigns\\' . $this->mission->campaign->reference . '\\missions';
+        $relativePath = 'public\\exported\campaigns\\' . $this->mission->campaign->reference . '\\missions';
         if (!Storage::directoryExists($relativePath)) {
             Storage::makeDirectory($relativePath);
         }
@@ -189,7 +209,11 @@ class GenerateMissionReportPdf implements ShouldQueue
         if ($withExtension) {
             $extension = '.pdf';
         }
-        return  $this->mission->report_name . $extension;
+        $filename = $this->mission->report_name;
+        if ($this->type == 'der') {
+            $filename .= ' (classée)';
+        }
+        return  $filename . $extension;
     }
 
     /**
@@ -205,7 +229,7 @@ class GenerateMissionReportPdf implements ShouldQueue
     private function loadProcesses(Mission $mission, bool $paginated = false, bool $formated = false, bool $onlyWhereAnomaly = false)
     {
         $mission->unsetRelations();
-        $processes = (new MissionProcessesQuery($mission))->prepare()->whereIn('md.score', [2, 3, 4])->orderBy('f.id')->orderBy('p.id')->get();
+        $processes = (new MissionProcessesQuery($mission))->prepare()->query->whereIn('md.score', [2, 3, 4])->orderBy('f.id')->orderBy('p.id')->get();
 
         if ($formated) {
             $processes = formatForSelect($processes->toArray());

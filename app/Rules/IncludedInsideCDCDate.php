@@ -3,6 +3,7 @@
 namespace App\Rules;
 
 use App\Models\ControlCampaign;
+use App\Models\DREControlCampaign;
 use Carbon\Carbon;
 use Illuminate\Contracts\Validation\Rule;
 
@@ -18,10 +19,14 @@ class IncludedInsideCDCDate implements Rule
      *
      * @return void
      */
-    public function __construct(?string $campaign = null)
+    public function __construct(?string $campaign = null, int $type = 1)
     {
         if ($campaign) {
-            $this->campaign = ControlCampaign::findOrFail($campaign);
+            if ($type == 2) {
+                $this->campaign = DREControlCampaign::findOrFail($campaign);
+            } else {
+                $this->campaign = ControlCampaign::findOrFail($campaign);
+            }
         }
     }
 

@@ -17,7 +17,6 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use Znck\Eloquent\Traits\BelongsToThrough;
@@ -25,7 +24,7 @@ use Illuminate\Support\Str;
 
 class Mission extends BaseModel
 {
-    use HasFactory, BelongsToThrough, HasRelationships, SoftDeletes, IsSearchable, IsSortable, HasUuid, HasDates, HasScopes, IsFilterable, IsCommentable, HasMedia;
+    use HasFactory, BelongsToThrough, HasRelationships, IsSearchable, IsSortable, HasUuid, HasDates, HasScopes, IsFilterable, IsCommentable, HasMedia;
 
     protected $filter = 'App\Filters\Mission';
 
@@ -48,19 +47,19 @@ class Mission extends BaseModel
         'cc_validation_by_id',
         'cdcr_validation_by_id',
         'dcp_validation_by_id',
-        'da_validation_by_id',
+        'der_validation_by_id',
         'ci_validation_at',
         'cdc_validation_at',
         'cc_validation_at',
         'cdcr_validation_at',
         'dcp_validation_at',
-        'da_validation_at',
+        'der_validation_at',
         'current_state',
         'creator_full_name',
         'cdc_validator_full_name',
         'cdcr_validator_full_name',
         'dcp_validator_full_name',
-        'da_validator_full_name',
+        'der_validator_full_name',
         'is_for_testing',
         'assigned_to_cc_id',
         'assigned_to_ci_id',
@@ -77,7 +76,7 @@ class Mission extends BaseModel
         'remaining_days_before_end',
         'remaining_days_before_start_str',
         'remaining_days_before_end_str',
-        'progress_status',
+        'progress_rate',
         'regularization_status',
         'avg_score',
         'end',
@@ -87,12 +86,13 @@ class Mission extends BaseModel
         'is_validated_by_cc',
         'is_validated_by_cdcr',
         'is_validated_by_dcp',
-        'is_validated_by_da',
+        'is_validated_by_der',
         'ci_report_exists',
         'cdc_report_exists',
         'ci_report',
         'cdc_report',
         'pdf_report_exists',
+        'classified_pdf_report_exists',
         'report_name',
         'total_anomalies',
         'anomalies_rate',
@@ -101,17 +101,27 @@ class Mission extends BaseModel
         'total_major_facts',
         'is_late',
         'report_link',
+        'classified_report_link',
         'is_for_testing_str',
         'assistants_str',
     ];
 
     protected $casts = [
-        'progress_status' => 'int',
+        'progress_rate' => 'int',
         'programmed_start' => 'date:d-m-Y',
         'programmed_end' => 'date:d-m-Y',
         'real_end' => 'date:d-m-Y',
         'real_start' => 'date:d-m-Y',
         'end' => 'date:d-m-Y',
+        'ci_validation_at' => 'date:d-m-Y',
+        'cdc_validation_at' => 'date:d-m-Y',
+        'cc_validation_at' => 'date:d-m-Y',
+        'cdcr_validation_at' => 'date:d-m-Y',
+        'dcp_validation_at' => 'date:d-m-Y',
+        'der_validation_at' => 'date:d-m-Y',
+        'assigned_to_ci_at' => 'date:d-m-Y',
+        'assigned_to_cc_at' => 'date:d-m-Y',
+        'assigned_to_cder_at' => 'date:d-m-Y',
     ];
 
     protected $searchable = ['reference', 'campaign.reference'];
@@ -240,6 +250,11 @@ class Mission extends BaseModel
         return Storage::fileExists('public\exported\campaigns\\' . $this->campaign->reference . '\\missions\\' . $this->report_name . '.pdf');
     }
 
+    public function getClassifiedPdfReportExistsAttribute()
+    {
+        return Storage::fileExists('public\exported\campaigns\\' . $this->campaign->reference . '\\missions\\' . $this->report_name . ' (classée).pdf');
+    }
+
     public function getReportNameAttribute()
     {
         $reference = Str::slug($this->reference . '-' . $this->agency->name);
@@ -249,6 +264,16 @@ class Mission extends BaseModel
     public function getReportLinkAttribute()
     {
         return env('APP_URL') . '/storage/exported/campaigns/' . $this->campaign->reference . '/missions/' . $this->report_name . '.pdf';
+    }
+
+    public function getClassifiedReportLinkAttribute()
+    {
+        return env('APP_URL') . '/storage/exported/campaigns/' . $this->campaign->reference . '/missions/' . $this->report_name . ' (classée).pdf';
+    }
+
+    public function getReportPathAttribute()
+    {
+        return 'storage\\exported\\campaigns\\' . $this->campaign->reference . '\missions\\' . $this->report_name . '.pdf';
     }
 
     public function getEndAttribute()
@@ -284,10 +309,10 @@ class Mission extends BaseModel
         return $this->dreController->full_name;
     }
 
-    public function getProgressStatusAttribute()
+    public function getProgressRateAttribute()
     {
-        $totalDetails = $this->details()->count();
-        $totalFinishedDetails = $this->details()->controlled()->count();
+        $totalDetails = $this->details()->where('is_disabled', false)->count();
+        $totalFinishedDetails = $this->details()->where('is_disabled', false)->controlled()->count();
 
         return $totalFinishedDetails ? number_format($totalFinishedDetails * 100 / $totalDetails) : 0;
     }
@@ -366,19 +391,19 @@ class Mission extends BaseModel
         return boolval($this->dcp_validation_at) && boolval($this->dcp_validation_by_id);
     }
 
-    public function getIsValidatedByDaAttribute()
+    public function getIsValidatedByDerAttribute()
     {
-        return boolval($this->da_validation_at) && boolval($this->dcp_validation_by_id);
+        return boolval($this->der_validation_at) && boolval($this->der_validation_by_id);
     }
 
     public function getCdcReportAttribute()
     {
-        return $this->comments()->where('type', 'cdc_report')->first();
+        return $this->comments()->where('commentable_type', Mission::class)->where('type', 'cdc_report')->first();
     }
 
     public function getCiReportAttribute()
     {
-        return $this->comments()->where('type', 'ci_report')->first();
+        return $this->comments()->where('commentable_type', Mission::class)->where('type', 'ci_report')->first();
     }
 
     /**
@@ -453,14 +478,14 @@ class Mission extends BaseModel
     {
         return $this->media()->where(function ($query) {
             $query->whereLike('folder', '%uploads/Ordres de mission%')->orWhere('folder', 'uploads/mission_order');
-        });
+        })->orWhere('category', 'Ordre de mission');
     }
 
     public function closingReport()
     {
         return $this->media()->where(function ($query) {
             $query->whereLike('folder', '%uploads/Pv de clôture%')->orWhere('folder', 'uploads/closing_report');
-        });
+        })->orWhere('category', 'PV de clôture');
     }
 
 

@@ -22,18 +22,9 @@
                         :readonly="![1, 2].includes(form.currentMode)" multiple labelRequired
                         :helpText="'- Uniquement les fichiers de type jpg,jpeg,png sont accéptés\n- Chaque fichier ne doit pas dépassé 2Mo soit 2048Ko'"
                         :folder="fields.file.folderName" />
-                    <!-- CI -->
-                    <NLFile v-if="form.currentMode == 1" @uploaded="handleMedia" @deleted="handleMedia"
-                        @loaded="handleMedia" v-model="form.mission_order" name="mission_order" label="Ordre de mission"
-                        attachable-type="App\Models\Mission" :attachable-id="mission.id" :form="form"
-                        accepted="jpg,jpeg,png" placeholder="Téléverser votre ordre de mission"
-                        :canDelete="canDeleteMedia()" :readonly="![1, 2].includes(form.currentMode)" multiple
-                        labelRequired
-                        :helpText="'- Uniquement les fichiers de type jpg,jpeg,png sont accéptés\n- Chaque fichier ne doit pas dépassé 2Mo soit 2048Ko'"
-                        :folder="fields.file.folderName" />
                 </NLColumn>
                 <NLColumn>
-                    <NLSwitch type="is-success" v-model="form.validated" :name="fields.validated.name" :form="form"
+                    <NLSwitch v-model="form.validated" :name="fields.validated.name" :form="form"
                         :label="fields.validated.label" />
                 </NLColumn>
             </NLForm>
@@ -142,26 +133,22 @@ export default {
                     name: 'validated'
                 },
 
-                file: {
-                    label: 'Ordre de mission',
-                    name: 'mission_order'
-                },
+                // file: {
+                //     label: 'Ordre de mission',
+                //     name: 'mission_order'
+                // },
             },
             title: null,
         }
     },
     methods: {
         handleMedia(files) {
-            if (this.form.currentMode == 1) {
-                this.form.mission_order = files
-            } else if (this.form.currentMode == 2) {
+            if (this.form.currentMode == 2) {
                 this.form.closing_report = files
             }
         },
         canDeleteMedia() {
-            if (this.form.currentMode == 1) {
-                return !this.mission.is_validated_by_ci
-            } else if (this.form.currentMode == 2) {
+            if (this.form.currentMode == 2) {
                 return !this.mission.is_validated_by_cdc
             }
             return false
@@ -272,7 +259,7 @@ export default {
             this.fields.file = {
                 label: 'Ordre de mission',
                 name: 'mission_order',
-                folderName: 'Ordres de mission' + '/' + this.slugify(this.mission?.campaign?.reference) + '/' + this.slugify(this.mission?.reference)
+                folderName: 'Ordres de mission/' + this.slugify(this.mission?.campaign?.reference) + '/' + this.slugify(this.mission?.reference)
             }
         },
         /**
@@ -296,7 +283,7 @@ export default {
             this.fields.file = {
                 label: 'PV de clôture',
                 name: 'closing_report',
-                folderName: 'Pv de clôture' + '/' + this.slugify(this.mission?.campaign?.reference) + '/' + this.slugify(this.mission?.reference)
+                folderName: 'Pv de clôture/' + this.slugify(this.mission?.campaign?.reference) + '/' + this.slugify(this.mission?.reference)
             }
         },
         /**

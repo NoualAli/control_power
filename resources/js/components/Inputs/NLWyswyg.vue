@@ -1,15 +1,15 @@
 <template>
-    <InputContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired" :length="length"
-        :current-length="currentLength" v-if="!readonly">
+    <InputContainer :id="getId" :form="form" :label="label" :name="name" :label-required="labelRequired"
+        :length="length" :current-length="currentLength" v-if="!readonly">
         <VueEditor :id="getId" :editor-toolbar="editorSettings"
-            :class="[{ 'is-danger': form?.errors.has(name), 'disabled': disabled }, 'input']" :name="name"
-            :disabled="disabled" :autocomplete="autocomplete" :autofocus="autofocus" v-model="currentValue"
-            :max-length="length" :placeholder="placeholder || label" :value="currentValue" :help-text="helpText"
-            @textChange="onInput" v-bind="$attrs" @ready="quill => { editorQuill = quill }" />
+            :class="[{ 'is-danger': form?.errors.has(name) }, 'input']" :name="name" :autocomplete="autocomplete"
+            :autofocus="autofocus" v-model="currentValue" :max-length="length" :placeholder="placeholder || label"
+            :value="currentValue" :help-text="helpText" @textChange="onInput" v-bind="$attrs"
+            @ready="quill => { editorQuill = quill }" />
     </InputContainer>
     <div class="input-base-container" v-else>
         <label class="label">{{ label }}</label>
-        <div class="content text-normal my-2" v-html="currentValue"></div>
+        <div class="content is-disabled input" v-html="currentValue || '-'"></div>
     </div>
 </template>
 <script>
@@ -33,7 +33,6 @@ export default {
         placeholder: { type: String, default: '' },
         modelValue: { type: [ String, Number, null ], default: null },
         readonly: { type: Boolean, default: false },
-        disabled: { type: Boolean, default: false },
         length: { type: [ Number, null ], default: null },
         helpText: { type: String, default: null }
     },

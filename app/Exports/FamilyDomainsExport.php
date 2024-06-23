@@ -6,6 +6,7 @@ use App\Enums\EventLogTypes;
 use App\Models\Domain;
 use App\Models\EventLog;
 use App\Models\Family;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -19,17 +20,17 @@ class FamilyDomainsExport extends BaseExport implements FromView, WithProperties
      */
     private $data;
 
-    public function __construct(Family $data)
+    public function __construct($data)
     {
         $this->data = $data;
     }
 
     public function view(): View
     {
-        $domains = $this->data->domains;
+        $domains = getDomains()->where('f.id', $this->data->id)->get();
         $family = $this->data;
         EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => Family::class, 'attachable_id' => $family->id, 'payload' => ['content' => 'Liste des domaines de la famille ' . $family->name]]);
-        return view('export.family_domains', compact('domains', 'family'));
+        return view('export.domains', compact('domains', 'family'));
     }
 
     /**

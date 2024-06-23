@@ -12,19 +12,39 @@
     <table>
         <thead>
             <tr>
-                <th>Familles</th>
-                <th>Domaines</th>
-                <th>Nom</th>
+                <th>Ordre d'affichage</th>
+                <th>Famille</th>
+                <th>Domaine</th>
+                <th>Nombre des processus</th>
                 <th>Nombre des points de contrôle</th>
+                <th>Nombre des campagnes de contrôle</th>
+                <th>Nombre des missions</th>
+                <th>Nombre des anomalies</th>
+                <th>Créateur</th>
+                <th>Date de création</th>
+                <th>Modifier par</th>
+                <th>Date de modification</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($processes as $process)
                 <tr>
-                    <td>{{ ucfirst(strtolower($process->family->name)) }}</td>
-                    <td>{{ ucfirst(strtolower($process->domain->name)) }}</td>
-                    <td>{{ ucfirst(strtolower($process->name)) }}</td>
+                    <td>{{ $process->display_priority }}</td>
+                    <td>{{ ucfirst(strtolower($process->family_name)) }}</td>
+                    <td>{{ ucfirst(strtolower($process->domain_name)) }}</td>
+                    <td>{{ $process->name }}</td>
                     <td>{{ $process->control_points_count }}</td>
+                    <td>{{ $process->control_campaigns_count }}</td>
+                    <td>{{ $process->missions_count }}</td>
+                    <td>{{ $process->anomalies_count }}</td>
+                    <td>{{ $process->creator_full_name ?: '-' }}</td>
+                    <td>
+                        {{ $process->created_at ? Carbon\Carbon::parse($process->created_at)->format('d-m-Y H:i') : '-' }}
+                    </td>
+                    <td>{{ $process->updater_full_name ?: '-' }}</td>
+                    <td>
+                        {{ $process->updated_at ? Carbon\Carbon::parse($process->updated_at)->format('d-m-Y H:i') : '-' }}
+                    </td>
                 </tr>
             @endforeach
         </tbody>

@@ -69,12 +69,12 @@
                         <!-- Active -->
                         <NLColumn v-if="showIsActiveSwitch" lg="6">
                             <NLSwitch v-model="form.is_active" name="is_active" :form="form"
-                                label="Le compte est activé ?" type="is-success" />
+                                label="Le compte est activé ?" />
                         </NLColumn>
                         <!-- Testing -->
                         <!-- <NLColumn lg="6">
                             <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form"
-                                label="Utilisateur TEST" type="is-success" />
+                                label="Utilisateur TEST" />
                         </NLColumn> -->
 
                         <NLColumn>

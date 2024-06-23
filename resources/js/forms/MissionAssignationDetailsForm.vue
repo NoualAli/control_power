@@ -25,7 +25,6 @@
 </template>
 
 <script>
-import api from '../plugins/agencyLevelApi'
 import NLForm from '../components/NLForm'
 import { Form } from 'vform'
 import NLComponentLoader from '../components/NLComponentLoader'
@@ -112,7 +111,7 @@ export default {
         detachProcess(item) {
             confirm({ message: "Êtes-vous sûr de vouloir détaché le processus <b>" + item?.process_name + "</b>" }).then((action) => {
                 if (action.isConfirmed) {
-                    api.delete('missions/' + this.mission.id + '/assign/' + item.process_id + '/' + this.form.controller + '/' + this.type).then(response => {
+                    this.$alapi.delete('missions/' + this.mission.id + '/assign/' + item.process_id + '/' + this.form.controller + '/' + this.type).then(response => {
                         this.$swal.toast_success(response?.data?.message)
                         this.refresh += 1
                         this.$emit('success')
@@ -149,7 +148,7 @@ export default {
         initData() {
             this.isLoading = true
             this.currentMission = this.mission
-            api.get('missions/' + this.mission.id + '/loadAssignationData/' + this.type).then((response) => {
+            this.$alapi.get('missions/' + this.mission.id + '/loadAssignationData/' + this.type).then((response) => {
                 if ([ 'cc', 'cder' ].includes(this.type)) {
                     this.form.controller = response.data.controller
                 } else {
@@ -171,7 +170,7 @@ export default {
          */
         fetchNotDispatchedPCF() {
             this.isLoading = true
-            api.get('missions/' + this.mission.id + '/not-dispatched-processes/' + this.type).then((response) => {
+            this.$alapi.get('missions/' + this.mission.id + '/not-dispatched-processes/' + this.type).then((response) => {
                 this.pcfList = response.data
                 this.isLoading = false
             }).catch(error => this.$swal.catchError(error))

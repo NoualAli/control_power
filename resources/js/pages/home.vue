@@ -1,26 +1,34 @@
 <template>
     <ContentBody v-if="!isLoading">
-        <NLFlex alignItems="center" lgJustifyContent="start" gap="2" extraClass="my-4" wrap>
+        <NLFlex>
+            <h2>
+                <router-link :to="{ name: 'campaign', params: { campaignId: currentCampaign?.id } }" class="text-dark">
+                    Campagne {{ currentCampaign?.reference }}
+                </router-link>
+            </h2>
+            <h2>Du {{ currentCampaign?.start_date }} Au {{ currentCampaign?.end_date }}</h2>
+        </NLFlex>
+        <NLFlex alignItems="center" lgJustifyContent="start" gap="2" extraClass="mt-8 mb-12" wrap>
             <button class="btn" :class="{ 'is-active': currentSection == 'missionsStates' }"
                 :disabled="currentSection == 'missionsStates'" @click="setCurrentSection('missionsStates')"
                 v-if="!is('da')">
                 <NLIcon name="checklist" />
-                Suivi de la réalisation des missions
+                Suivi des missions
             </button>
             <button class="btn" :class="{ 'is-active': currentSection == 'scores' }"
                 :disabled="currentSection == 'scores'" @click="setCurrentSection('scores')">
                 <NLIcon name="format_list_numbered" />
-                Statistiques des notations
+                Notations
             </button>
             <button class="btn" :class="{ 'is-active': currentSection == 'anomalies' }"
                 :disabled="currentSection == 'anomalies'" @click="setCurrentSection('anomalies')">
                 <NLIcon name="breaking_news" />
-                Statistiques des anomalies
+                Anomalies
             </button>
             <button class="btn" :class="{ 'is-active': currentSection == 'majorFacts' }"
                 :disabled="currentSection == 'majorFacts'" @click="setCurrentSection('majorFacts')" v-if="!is('da')">
                 <NLIcon name="brightness_alert" />
-                Statistiques des faits majeurs
+                Faits majeurs
             </button>
             <button class="btn" :class="{ 'is-active': currentSection == 'KPI' }" :disabled="currentSection == 'KPI'"
                 @click="setCurrentSection('KPI')" v-if="is(['dcp', 'cdcr', 'root', 'admin'])">
@@ -31,24 +39,24 @@
 
         <!-- Suivi de la réalisation des missions -->
         <Missions v-if="currentSection == 'missionsStates'" :userRole="userRole"
-            :circularChartOptions="circularChartOptions" @savePNG="savePNG" />
-
+            :circularChartOptions="circularChartOptions" :currentCampaign="currentCampaign.id" @savePNG="savePNG" />
 
         <!-- Scores -->
         <Scores v-if="currentSection == 'scores'" :userRole="userRole" :circularChartOptions="circularChartOptions"
-            @savePNG="savePNG" :horizontalBarOptions="horizontalBarOptions" />
+            @savePNG="savePNG" :horizontalBarOptions="horizontalBarOptions" :currentCampaign="currentCampaign.id" />
 
         <!-- Anomalies -->
         <Anomalies v-if="currentSection == 'anomalies'" :userRole="userRole"
-            :circularChartOptions="circularChartOptions" @savePNG="savePNG" />
+            :circularChartOptions="circularChartOptions" @savePNG="savePNG" :currentCampaign="currentCampaign.id" />
 
         <!-- Major facts -->
         <MajorFacts v-if="currentSection == 'majorFacts' && !is('da')" :userRole="userRole"
-            :circularChartOptions="circularChartOptions" @savePNG="savePNG"
-            :horizontalBarOptions="horizontalBarOptions" />
+            :circularChartOptions="circularChartOptions" @savePNG="savePNG" :horizontalBarOptions="horizontalBarOptions"
+            :currentCampaign="currentCampaign.id" />
 
         <!-- KPI -->
-        <KPI v-if="currentSection == 'KPI' && !is('da')" :userRole="userRole" @savePNG="savePNG" />
+        <KPI v-if="currentSection == 'KPI' && !is('da')" :userRole="userRole" @savePNG="savePNG"
+            :currentCampaign="currentCampaign.id" />
     </ContentBody>
 </template>
 
@@ -71,6 +79,7 @@ export default {
     middleware: [ 'auth' ],
     data() {
         return {
+            currentCampaign: null,
             currentSection: null,
             userRole: null,
             isLoading: true,
@@ -108,14 +117,26 @@ export default {
         }
     },
     created() {
-        if (hasRole('da')) {
-            this.setCurrentSection('scores')
-        } else {
-            this.setCurrentSection('missionsStates')
-        }
-        this.userRole = user()?.role?.code
+        this.initData()
     },
     methods: {
+        /**
+         * Initialize data
+         */
+        initData() {
+            this.$store.dispatch('settings/updatePageLoading', true)
+            this.$alapi.get('statistics/current-campaign').then(response => {
+                this.currentCampaign = response.data
+                if (hasRole('da')) {
+                    this.setCurrentSection('scores')
+                } else {
+                    this.setCurrentSection('missionsStates')
+                }
+                this.userRole = user()?.role?.code
+            }).catch(error => {
+                this.$swal.catchError(error)
+            })
+        },
         /**
          * Set the current section name and fetch data from laravel api
          *
@@ -126,10 +147,15 @@ export default {
         setCurrentSection(section) {
             this.currentSection = section
             this.isLoading = false
-            // this.$store.dispatch('settings/updatePageLoading', false)
         },
-        savePNG(element) {
-            const canvas = document.querySelector(`#${element}`)
+
+        /**
+         * Save charts as PNG
+         *
+         * @param {String} elementId
+         */
+        savePNG(elementId) {
+            const canvas = document.querySelector(`#${elementId}`)
             const title = canvas.dataset.title
             const dataURL = canvas.toDataURL('image/png')
             const link = document.createElement('a')

@@ -63,7 +63,7 @@ class MediaController extends Controller
      */
     public function show(string $media): \Illuminate\Http\JsonResponse
     {
-        $media = getMedia($media)->reorder();
+        $media = getMedia($media)->reorder('original_name');
 
         $media = MediaResource::collection($media->get()->unique('id'));
         $all = request()->has('all');
@@ -155,6 +155,7 @@ class MediaController extends Controller
                 'extension' => $extension,
                 'mimetype' => $mimetype,
                 'size' => $size,
+                'category' => request('category'),
                 'uploaded_by_id' => auth()->user()->id,
                 'created_at' => now(),
                 // 'payload' => $payload,

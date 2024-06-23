@@ -11,12 +11,11 @@ use App\Traits\IsSortable;
 use App\Traits\IsSearchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 class ControlCampaign extends BaseModel
 {
-    use HasFactory, HasUuid, SoftDeletes, IsSearchable, IsSortable, IsFilterable, HasDates, HasRelationships, HasScopes, HasMedia;
+    use HasFactory, HasUuid, IsSearchable, IsSortable, IsFilterable, HasDates, HasRelationships, HasScopes, HasMedia;
 
     protected $fillable = [
         'description',

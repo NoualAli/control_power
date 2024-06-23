@@ -71,20 +71,20 @@ export default {
             media: null,
             categories: [
                 {
-                    id: 'Note',
-                    label: 'Note',
+                    id: 'Notes',
+                    label: 'Notes',
                 },
                 {
-                    id: 'Circulaire',
-                    label: 'Circulaire',
+                    id: 'Circulaires',
+                    label: 'Circulaires',
                 },
                 {
-                    id: 'Lettre-circulaire',
-                    label: 'Lettre-circulaire',
+                    id: 'Lettres-circulaire',
+                    label: 'Lettres-circulaire',
                 },
                 {
-                    id: 'Guide 1er niveau',
-                    label: 'Guide 1er niveau',
+                    id: 'Guides 1er niveau',
+                    label: 'Guides 1er niveau',
                 },
             ]
         }

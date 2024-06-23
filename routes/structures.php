@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Structures\AgencyController;
 use App\Http\Controllers\Api\Structures\AgencyCategoriesController;
+use App\Http\Controllers\Api\Structures\DepartmentController;
 use App\Http\Controllers\Api\Structures\DreController;
 use App\Http\Controllers\Api\Structures\RegionalInspectionController;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +31,17 @@ Route::prefix('structures')->group(function () {
         Route::post('/', 'store');
         Route::put('{dre}', 'update');
         Route::delete('{dre}', 'destroy');
+    });
+
+    /**
+     * Departments
+     */
+    Route::prefix('departments')->controller(DepartmentController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::get('{department}', 'show');
+        Route::post('/', 'store');
+        Route::put('{department}', 'update');
+        Route::delete('{department}', 'destroy');
     });
 
     /**

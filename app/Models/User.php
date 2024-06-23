@@ -87,7 +87,6 @@ class User extends Authenticatable implements JWTSubject
         'gender_str',
         'martial_status',
         'full_name_with_martial',
-        'authorizations',
         'permissions_arr',
         'agencies_str',
         'is_for_testing_str',
@@ -128,6 +127,7 @@ class User extends Authenticatable implements JWTSubject
         $details = $details->get()->flatten();
         return $details;
     }
+
     public function getIsForTestingStrAttribute()
     {
         return $this->is_for_testing ? 'Oui' : 'Non';
@@ -148,30 +148,32 @@ class User extends Authenticatable implements JWTSubject
         return $this->gender == 1 ? 'M' : 'Mme';
     }
 
-    public function getAuthorizationsAttribute()
-    {
-        $authorizations = [];
-        foreach ($this->permissions_arr as $permission) {
-            $authorizations[$permission] = isAbleTo($permission);
-        }
-        return $authorizations;
-    }
-
     public function getPermissionsArrAttribute()
     {
         return $this->role->permissions->pluck('code')->toArray();
     }
+
+    public function getFirstNameAttribute($first_name)
+    {
+        return $first_name ? ucfirst(strtolower($first_name)) : null;
+    }
+
+    public function getLastNameAttribute($last_name)
+    {
+        return $last_name ? strtoupper($last_name) : null;
+    }
+
     public function getAbbreviatedNameAttribute()
     {
-        return $this->first_name && $this->last_name ? substr(strtoupper($this->first_name), 0, 1) . '.' . strtoupper($this->last_name) : $this->full_name;
+        return $this->first_name && $this->last_name ? substr($this->first_name, 0, 1) . '.' . $this->last_name : $this->full_name;
     }
     public function getAbbreviatedNameWithMartialAttribute()
     {
-        return $this->first_name && $this->last_name ? $this->martial_status . ' ' . substr(strtoupper($this->first_name), 0, 1) . '.' . strtoupper($this->last_name) : $this->full_name_with_martial;
+        return $this->first_name && $this->last_name ? $this->martial_status . ' ' . substr($this->first_name, 0, 1) . '.' . $this->last_name : $this->full_name_with_martial;
     }
     public function getFullNameAttribute()
     {
-        return $this->first_name && $this->last_name ? ucfirst(strtolower($this->first_name)) . ' ' . ucfirst(strtolower($this->last_name)) : $this->username;
+        return $this->first_name && $this->last_name ? $this->first_name . ' ' . $this->last_name : $this->username;
     }
 
     public function getFullNameWithMartialAttribute()
@@ -240,13 +242,6 @@ class User extends Authenticatable implements JWTSubject
         if (hasRole(['dcp', 'cdcr'])) {
             return $this->hasMany(ControlCampaign::class, 'created_by_id');
         } elseif (hasRole(['ci', 'cc'])) {
-            // return ControlCampaign::whereIn('id', function ($query) {
-            //     $query->select('control_campaigns.id')
-            //         ->from('control_campaigns')
-            //         ->join('missions', 'missions.control_campaign_id', '=', 'control_campaigns.id')
-            //         ->join('mission_has_controllers', 'mission_has_controllers.mission_id', '=', 'missions.id')
-            //         ->where('mission_has_controllers.user_id', '=', $this->id);
-            // })->groupBy('control_campaigns.id', 'control_campaigns.description', 'control_campaigns.start', 'control_campaigns.end', 'control_campaigns.reference', 'control_campaigns.created_by_id', 'control_campaigns.validated_by_id', 'control_campaigns.validated_at', 'control_campaigns.created_at', 'control_campaigns.updated_at', 'control_campaigns.deleted_at')->distinct();
         }
     }
 

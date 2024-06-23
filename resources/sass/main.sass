@@ -33,7 +33,7 @@ $main-container-w-active: $main-container-w
 $main-container-h: $layout-h
 $main-container-bg: $body-bg
 $body-fs: 1rem
-$normal-border-radius: 6px
+$normal-border-radius: 4px
 
 *
     margin: 0
@@ -239,21 +239,6 @@ a
     background-image: linear-gradient(180deg, $primary 0%, $primary-light 99%)
     box-shadow: inset 2px 2px 5px 0 rgba(#fff, 0.5)
     border-radius: 1rem
-
-.badge
-    display: flex
-    justify-content: center
-    align-items: center
-    height: 1.5rem
-    width: 1.5rem
-    border-radius: .75rem
-    background-color: $danger
-    color: $white !important
-    text-align: center
-    vertical-align: baseline
-    font-weight: bold
-    &.is-blink
-        animation: bounce-out-top 1.5s infinite both
 
 .avatar
     position: relative
@@ -467,6 +452,24 @@ ul
             left: 50%
             transform: translate(-50%, -50%)
             font-weight: 900
+    &.classify
+        border-color: darken($success, 10)
+        &::before
+            background-color: $success
+            width: 100%
+        &::after
+            content: "\f187"
+            font-family: "Line Awesome Free"
+            color: $white
+            font-size: 10px
+            position: absolute
+            top: 50%
+            left: 50%
+            transform: translate(-50%, -50%)
+            font-weight: 900
+        &.is-late
+            &::before
+                background-color: $danger
     &.done
         color: $white !important
         border-color: darken($success, 10)
@@ -481,48 +484,3 @@ ul
             left: 50%
             transform: translate(-50%, -50%)
             font-weight: 900
-
-.pcf-component
-    position: relative
-    margin-bottom: 3rem
-    &::after
-        content: ''
-        position: absolute
-        bottom: -10px
-        left: 50%
-        height: 1px
-        width: 75%
-        transform: translateX(-50%)
-        background-color: $primary
-
-.component-loader-container
-    position: absolute
-    top: 0
-    left: 0
-    display: flex
-    justify-content: center
-    align-items: center
-    gap: 1rem
-    width: 100%
-    min-height: 200px
-    height: 100%
-    background-color: rgba($primary,.4)
-    border-top-left-radius: $normal-border-radius
-    border-top-right-radius: $normal-border-radius
-    user-select: none
-    z-index: 4
-
-.component-loader
-    animation: spinAround .5s infinite linear
-    position: relative
-    height: 3rem
-    width: 3rem
-    border-radius: 50%
-    border: .25rem solid $light
-    border-right-color: transparent
-    border-top-color: transparent
-
-.component-loader-text
-    color: $light
-    font-weight: bold
-    letter-spacing: 1px

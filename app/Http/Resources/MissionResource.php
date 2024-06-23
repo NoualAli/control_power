@@ -16,11 +16,10 @@ class MissionResource extends JsonResource
     public function toArray($request)
     {
         isAbleOrAbort('view_mission');
-        // dd(formatNumber($this->progress_rate));
         $data = [
             'id' => $this->id,
             'campaign' => $this->campaign,
-            // 'reference' => $this->reference,
+            'reference' => $this->reference,
             'dre' => $this->dre,
             'agency' => $this->agency,
             'start_date' => $this->start_date,
@@ -44,11 +43,7 @@ class MissionResource extends JsonResource
             unset($data['dre_controller_full_name']);
         }
 
-        if (!hasRole(['cdcr', 'cc', 'dcp'])) {
-            unset($data['is_validated_by_cdc']);
-        }
-
-        if (hasRole(['cdc', 'ci', 'da'])) {
+        if (hasRole(['ci', 'cdc', 'da', 'dre', 'ir', 'cder', 'der'])) {
             unset($data['avg_score']);
         }
 

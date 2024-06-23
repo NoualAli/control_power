@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Mission;
 
+use App\Enums\MissionState;
 use App\Rules\CanBeControlled;
 use App\Rules\CanNotBeAssistant;
 use App\Rules\CanNotBetAssistant;
@@ -22,7 +23,8 @@ class UpdateRequest extends FormRequest
     public function authorize()
     {
         $mission = request()->mission;
-        return isAbleTo('edit_mission') && $mission->remaining_days_before_start > 0 && in_array($mission->agency_id, auth()->user()->agencies->pluck('id')->toArray());
+        // dd((int) $mission->current_state !== MissionState::TODO);
+        return isAbleTo('edit_mission') && (int) $mission->current_state == MissionState::TODO && in_array($mission->agency_id, auth()->user()->agencies->pluck('id')->toArray());
     }
 
     /**

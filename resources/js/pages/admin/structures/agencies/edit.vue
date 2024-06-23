@@ -2,8 +2,7 @@
     <ContentBody v-if="can('edit_agency')">
         <NLForm :action="update" :form="form">
             <NLColumn>
-                <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form" label="Agence TEST"
-                    type="is-success" />
+                <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form" label="Agence TEST" />
             </NLColumn>
 
             <!-- Code -->

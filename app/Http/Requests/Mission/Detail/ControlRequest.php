@@ -54,7 +54,6 @@ class ControlRequest extends FormRequest
         if (hasRole(['dcp', 'cdcr', 'cc'])) {
             $rules['comment'] = ['nullable', new MaxLengthQuill(2500)];
         }
-
         return $rules;
     }
 

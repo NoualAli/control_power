@@ -9,7 +9,7 @@
                     <span>
                         Total {{ total }}
                     </span>
-                    <span>
+                    <span v-if="total > 10">
                         de {{ from }} à {{ to }}
                     </span>
                 </NLColumn>

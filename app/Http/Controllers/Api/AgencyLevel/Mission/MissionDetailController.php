@@ -13,7 +13,7 @@ use App\Models\User;
 use App\Notifications\Mission\MajorFact\Detected;
 use App\Services\ExcelExportService;
 use App\Traits\UploadFiles;
-use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
@@ -43,33 +43,56 @@ class MissionDetailController extends Controller
         }
     }
 
-    private function details()
+    /**
+     * Toggle detail state
+     *
+     * @param MissionDetail $detail
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function toggleState(MissionDetail $detail): JsonResponse
     {
-        $details = MissionDetail::with([
-            'controlPoint'  => fn ($query) => $query->with(['process'  => fn ($query) => $query->with(['domain'  => fn ($query) => $query->with('family')])]),
-            'agency'  => fn ($query) => $query->with('dre'),
-            'mission' => fn ($query) => $query->with(['campaign'])
-        ]);
-
-        $user = auth()->user();
-        if (hasRole('dcp')) {
-            $details = $details->hasCdcValidation();
-        } elseif (hasRole('cdcr')) {
-            $details = $details->hasCdcValidation();
-        } elseif (hasRole(['cdc', 'cc', 'ci'])) {
-            $details = $user->details()->controlled();
-        } elseif (hasRole(['dg', 'cdrcp', 'der', 'cder', 'deac', 'dga'])) {
-            $details = $details->hasDcpValidation();
-        } elseif (hasRole('dre')) {
-            $details = $user->details()->hasDcpValidation();
-        } elseif (hasRole('da')) {
-            $details = $user->details()->hasDcpValidation();
-        } else {
-            $details = $details;
+        try {
+            $updated = $detail->update(['is_disabled' => !$detail->is_disabled]);
+            $succesMessage = $detail->is_disabled ? "Désactivation du point de contrôle avec succès" : "Activation du point de contrôle avec succès";
+            return actionResponse($updated, $succesMessage);
+        } catch (\Throwable $th) {
+            return throwedError($th);
         }
-        dd('test');
-        return $details->whereAnomaly()->withoutMajorFacts();
     }
+
+    /**
+     * Toggle detail control column state
+     *
+     * @param MissionDetail $detail
+     * @param bool $controlled
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function toggleControlState(MissionDetail $detail, string $controlled = 'Oui'): JsonResponse
+    {
+        try {
+            $controlled = $controlled == 'Oui';
+            hasRoleOrAbort(['cdc', 'cdcr', 'cc', 'dcp']);
+            $userRoleCode = strtolower(auth()->user()->role->code);
+            $controlledAtColumn = 'controlled_by_' . $userRoleCode . '_at';
+            $controlledByIdColumn = 'controlled_by_' . $userRoleCode . '_id';
+            $fullnameColumn = $userRoleCode . '_full_name';
+            $fullname = $controlled ? auth()->user()->full_name_with_martial . ' (' . strtoupper($userRoleCode) . ')' : null;
+            $controlledAt = $controlled ? now() : null;
+            $controlledById = $controlled ? auth()->user()->id : null;
+            $updated = $detail->update([
+                $controlledAtColumn => $controlledAt,
+                $controlledByIdColumn => $controlledById,
+                $fullnameColumn => $fullname
+            ]);
+            $succesMessage = $controlled ? "Le point de contrôle est marqué comme étant contrôlé" : "Le point de contrôle est marqué comme étant non contrôlé";
+            return actionResponse($updated, $succesMessage);
+        } catch (\Throwable $th) {
+            return throwedError($th);
+        }
+    }
+
     /**
      * Enregistre les informations de la mission dans la base de donéees
      *
@@ -110,17 +133,21 @@ class MissionDetailController extends Controller
                     }
                 }
                 if (hasRole(['dcp', 'cdcr', 'cc'])) {
-                    if ($detail->additionalComments()->count() && $detail->additionalComments->first()->created_by_id == auth()->user()->id) {
+                    if ($detail->additionalComments()->count() && $detail->additionalComments->first()->created_by_id == auth()->user()->id && !empty($data['comment'])) {
                         $detail->additionalComments->first()->update([
                             'content' => $data['comment'],
                         ]);
+                    } elseif ($detail->additionalComments()->count() && $detail->additionalComments->first()->created_by_id == auth()->user()->id && empty($data['comment'])) {
+                        DB::table('comments')->delete($detail->additionalComments->first()->id);
                     } else {
-                        $detail->additionalComments()->create([
-                            'content' => $data['comment'],
-                            'created_by_id' => auth()->user()->id,
-                            'type' => auth()->user()->role->code . '_observation',
-                            'creator_full_name' => getUserFullNameWithRole(),
-                        ]);
+                        if (!empty($data['comment'])) {
+                            $detail->additionalComments()->create([
+                                'content' => $data['comment'],
+                                'created_by_id' => auth()->user()->id,
+                                'type' => auth()->user()->role->code . '_observation',
+                                'creator_full_name' => getUserFullNameWithRole(),
+                            ]);
+                        }
                     }
                 }
                 unset($data['detail'], $data['report']);
@@ -147,7 +174,39 @@ class MissionDetailController extends Controller
         $detail->show_regularizations = true;
         $detail->load('observations', 'additionalComments');
         $detail->observation = $detail->observations()->count() ? $detail->observations()->first() : null;
-        $detail->comment = $detail->additionalComments()->count() ? $detail->additionalComments()->first() : null;
+
+        /**
+         * Handle DCP, CDCR, CC comment visibility
+         */
+        $detail->show_comment = false;
+        $additionalComments = $detail->additionalComments();
+        if (hasRole(['cdcr', 'cc', 'dcp'])) {
+            if (hasRole(['cdcr', 'cc'])) {
+                $detail->comment = $additionalComments->whereIn('type', ['cc_observation', 'cdcr_observation', 'dcp_observation'])->count() ? $additionalComments->whereIn('type', ['cc_observation', 'cdcr_observation', 'dcp_observation'])->first() : null;
+            } elseif (hasRole('dcp')) {
+                $detail->comment = $additionalComments->whereIn('type', ['cdcr_observation', 'dcp_observation'])->count() ? $additionalComments->whereIn('type', ['cdcr_observation', 'dcp_observation'])->first() : null;
+            }
+        } else {
+            $detail->comment = $additionalComments->where('type', 'dcp_observation')->count() ? $additionalComments->where('type', 'dcp_observation')->first() : null;
+        }
+
+        $commentType = $detail?->comment?->type;
+
+        if (hasRole(['cdcr', 'cc', 'dcp'])) {
+            if (hasRole(['cdcr', 'cc']) && in_array($commentType, ['cc_observation', 'cdc_observation', 'dcp_observation'])) {
+                $detail->show_comment = true;
+            } elseif (hasRole('dcp') && in_array($commentType, ['cdc_observation', 'dcp_observation'])) {
+                $detail->show_comment = true;
+            }
+        } else {
+            if ($commentType == 'dcp_observation') {
+                $detail->show_comment = true;
+            }
+        }
+
+        /**
+         * Handle regularization visibility
+         */
         if ($detail->show_regularizations) {
             $detail->load(['regularizations', 'regularizations.comments' => fn ($query) => $query->orderBy('created_at', 'DESC')]);
             $detail->regularizations = $detail->regularizations->map(function ($regularization) {

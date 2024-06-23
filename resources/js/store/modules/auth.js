@@ -60,11 +60,9 @@ export const actions = {
             const { data } = await api.get('user')
             const user = { ...data }
             delete user.dres_str
-            delete user.permissions_arr
-            delete user.authorizations
             ls_set('user', JSON.stringify(user))
             ls_set('role', user?.role?.code)
-            ls_set('permissions', JSON.stringify(data.role.permissions.map(permission => permission.code)))
+            ls_set('permissions', JSON.stringify(user.permissions_arr))
             ls_set('dres', JSON.stringify(data.dres.map(dre => dre.full_name)))
             if (data.dres?.agencies) {
                 ls_set('agencies', JSON.stringify(data.dres?.map(dre => dre?.agencies?.map(agency => agency.full_name))[ 0 ]))

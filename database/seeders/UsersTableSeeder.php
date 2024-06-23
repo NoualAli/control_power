@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Notification;
 class UsersTableSeeder extends Seeder
 {
 
+
     /**
      * Auto generated seed file
      *
@@ -20,9 +21,46 @@ class UsersTableSeeder extends Seeder
         DB::transaction(function () {
             try {
                 print_r("  Création des utilisateurs en cours \n");
+                /**
+                 * Create IGA users
+                 */
+                DB::table('users')->insert([
+                    [
+                        'last_name' => NULL,
+                        'first_name' => NULL,
+                        'username' => 'IGA-1',
+                        'registration_number' => NULL,
+                        'email' => 'iga-1@bna.dz',
+                        'phone' => NULL,
+                        'gender' => 1,
+                        'active_role_id' => 18,
+                        'password' => Hash::make(config('auth.password_default')),
+                        'is_active' => 1,
+                        'created_at' => now(),
+                        'must_change_password' => env('APP_ENV') == 'dev' ? 0 : 1,
+                    ],
+                    [
+                        'last_name' => NULL,
+                        'first_name' => NULL,
+                        'username' => 'IGA-2',
+                        'registration_number' => NULL,
+                        'email' => 'iga-2@bna.dz',
+                        'phone' => NULL,
+                        'gender' => 1,
+                        'active_role_id' => 18,
+                        'password' => Hash::make(config('auth.password_default')),
+                        'is_active' => 1,
+                        'created_at' => now(),
+                        'must_change_password' => env('APP_ENV') == 'dev' ? 0 : 1,
+                    ]
+                ]);
+
                 $ris = DB::table('regional_inspections')->select('code')->pluck('code')->toArray();
 
-                $inserted = DB::table('users')->insert([
+                /**
+                 * Create IR users
+                 */
+                DB::table('users')->insert([
                     [
                         'last_name' => NULL,
                         'first_name' => NULL,
@@ -80,12 +118,12 @@ class UsersTableSeeder extends Seeder
                         'must_change_password' => env('APP_ENV') == 'dev' ? 0 : 1,
                     ],
                     [
-                        'last_name' => NULL,
-                        'first_name' => NULL,
+                        'last_name' => 'LABED',
+                        'first_name' => 'NASREDDINE',
                         'username' => 'IR-147',
-                        'registration_number' => NULL,
+                        'registration_number' => 4971,
                         'email' => 'ir.bejaia@bna.dz',
-                        'phone' => NULL,
+                        'phone' => '0661 63 99 15',
                         'gender' => 1,
                         'active_role_id' => 19,
                         'password' => Hash::make(config('auth.password_default')),
@@ -148,41 +186,65 @@ class UsersTableSeeder extends Seeder
                     }
                 }
 
-                DB::table('users')->insert([
-                    'last_name' => NULL,
-                    'first_name' => NULL,
-                    'username' => 'IGA-1',
-                    'registration_number' => NULL,
-                    'email' => 'iga-1@bna.dz',
-                    'phone' => NULL,
-                    'gender' => 1,
-                    'active_role_id' => 18,
-                    'password' => Hash::make(config('auth.password_default')),
-                    'is_active' => 1,
-                    'created_at' => now(),
-                    'must_change_password' => env('APP_ENV') == 'dev' ? 0 : 1,
-                ]);
+                /**
+                 * Create department users
+                 */
+                $departments = DB::table('families')->select('id', 'code')->where('usable_for_dre', true)->get();
+                $dre = DB::table('dres')->select('id', 'code')->get();
+                foreach ($dre as $item) {
+                    foreach ($departments as $department) {
+                        $username = 'CD-' . $department->code . '-' . $item->code;
+                        DB::table('users')->insert([
+                            'last_name' => NULL,
+                            'first_name' => NULL,
+                            'username' => $username,
+                            'registration_number' => NULL,
+                            'email' => $username . '@bna.dz',
+                            'phone' => NULL,
+                            'gender' => 1,
+                            'active_role_id' => 20,
+                            'password' => Hash::make(config('auth.password_default')),
+                            'is_active' => 1,
+                            'created_at' => now(),
+                            'must_change_password' => env('APP_ENV') == 'dev' ? 0 : 1,
+                            'department_id' => $department->id,
+                        ]);
+                        $agencies = DB::table('agencies AS a')->select('a.id')
+                            ->leftJoin('dres AS d', 'd.id', 'a.dre_id')->where('d.id', $item->id)->get()->pluck('id')->toArray();
+                        $user = DB::table('users')->select('id')->where('username', $username)->first()->id;
+                        foreach ($agencies as $agency) {
+                            DB::table('user_has_agencies')->insert(['user_id' => $user, 'agency_id' => $agency]);
+                        }
+                    }
+                }
 
-                DB::table('users')->insert([
-                    'last_name' => NULL,
-                    'first_name' => NULL,
-                    'username' => 'IGA-2',
-                    'registration_number' => NULL,
-                    'email' => 'iga-2@bna.dz',
-                    'phone' => NULL,
-                    'gender' => 1,
-                    'active_role_id' => 18,
-                    'password' => Hash::make(config('auth.password_default')),
-                    'is_active' => 1,
-                    'created_at' => now(),
-                    'must_change_password' => env('APP_ENV') == 'dev' ? 0 : 1,
-                ]);
-
+                /**
+                 * Add notifications to IR and IGA
+                 */
                 $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['control_campaign_created', 'control_campaign_deleted', 'control_campaign_updated', 'mission_major_fact_detected', 'mission_validated', 'mission_pdf_repport_generated'])->get()->pluck('id');
                 $settings = DB::table('user_has_notifications');
-
                 $users = DB::table('users')->where('username', 'LIKE', '%IR-%')->orWhere('username', 'LIKE', '%IGA%')->get();
+                foreach ($users as $user) {
+                    if ($notificationTypes->isNotEmpty()) {
+                        foreach ($notificationTypes as $type) {
+                            $databaseIsEnabled = true;
+                            $emailIsEnabled = true;
+                            $settings->insert([
+                                'user_id' => $user->id,
+                                'notification_type_id' => $type,
+                                'email_is_enabled' => $emailIsEnabled,
+                                'database_is_enabled' => $databaseIsEnabled,
+                            ]);
+                        }
+                    }
+                }
 
+                /**
+                 *  Add notifications to CD
+                 */
+                $notificationTypes = DB::table('notification_types')->select('id')->whereIn('code', ['mission_validated', 'mission_pdf_repport_generated'])->get()->pluck('id');
+                $settings = DB::table('user_has_notifications');
+                $users = DB::table('users')->where('username', 'LIKE', '%CD%')->get();
                 foreach ($users as $user) {
                     if ($notificationTypes->isNotEmpty()) {
                         foreach ($notificationTypes as $type) {

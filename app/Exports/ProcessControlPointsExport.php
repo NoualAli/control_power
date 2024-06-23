@@ -18,17 +18,17 @@ class ProcessControlPointsExport extends BaseExport implements FromView, WithPro
      */
     private $data;
 
-    public function __construct(Process $data)
+    public function __construct($data)
     {
         $this->data = $data;
     }
 
     public function view(): View
     {
-        $controlPoints = $this->data->control_points;
+        $controlPoints = getControlPoints()->where('p.id', $this->data->id)->get();
         $process = $this->data;
         EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => Process::class, 'attachable_id' => $process->id, 'payload' => ['content' => 'Liste de points de contrôles du processus ' . $process->name]]);
-        return view('export.process_control_points', compact('controlPoints', 'process'));
+        return view('export.control_points', compact('controlPoints', 'process'));
     }
 
     /**

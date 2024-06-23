@@ -20,9 +20,12 @@ class ControlPoint extends BaseModel
         'process_id',
         'scores',
         'has_major_fact',
+        'usable_for_agency',
+        'usable_for_dre',
+        'is_active',
+        'display_priority',
+        'creator_full_name',
     ];
-
-    public $timestamps = false;
 
     protected $perPage = 10;
 
@@ -33,6 +36,12 @@ class ControlPoint extends BaseModel
     public $casts = [
         'has_major_fact' => 'boolean',
         'scores' => 'object',
+        'usable_for_agency' => 'boolean',
+        'usable_for_dre' => 'boolean',
+        'is_active' => 'boolean',
+        'display_priority' => 'integer',
+        'created_at' => 'datetime:d-m-Y H:i',
+        'updated_at' => 'datetime:d-m-Y H:i'
         // 'fields' => 'object',
     ];
 

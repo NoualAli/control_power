@@ -37,11 +37,8 @@ class AppServiceProvider extends ServiceProvider
 
         QueryBuilder::macro('search', function ($columns, $search) {
             return $this->where(function ($query) use ($columns, $search) {
-                $values = explode(' ', $search);
-                foreach ($values as $value) {
-                    foreach ($columns as $column) {
-                        $query->orWhere($column, 'LIKE', "%{$value}%");
-                    }
+                foreach ($columns as $column) {
+                    $query->orWhere($column, 'LIKE', "%{$search}%");
                 }
             });
         });

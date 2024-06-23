@@ -21,7 +21,7 @@ class DreController extends Controller
     public function index()
     {
         isAbleOrAbort(['view_dre', 'create_user', 'update_user']);
-        $dres = Dre::withCount('agencies');
+        $dres = Dre::with(['regionalInspection'])->withCount('agencies');
 
         $filter = request('filter', null);
         $search = request('search', null);

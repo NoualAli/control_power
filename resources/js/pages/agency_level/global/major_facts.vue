@@ -177,24 +177,7 @@ export default {
                     label: 'Etat',
                     multiple: false,
                     value: null,
-                    data: [
-                        {
-                            id: 'Non levée',
-                            label: 'Non levée'
-                        },
-                        {
-                            id: 'En cours d\'assainissement',
-                            label: 'En cours d\'assainissement'
-                        },
-                        {
-                            id: 'Levée',
-                            label: 'Levée'
-                        },
-                        {
-                            id: 'Rejetée',
-                            label: 'Rejetée'
-                        }
-                    ]
+                    data: null
                 },
                 with_metadata: {
                     label: 'Avec échantillonage',

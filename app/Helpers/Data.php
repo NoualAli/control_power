@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ControlPoint;
 use App\Models\Mission;
 use App\Models\Process;
 use App\Models\User;
@@ -93,8 +94,7 @@ if (!function_exists('getMissions')) {
             ->leftJoin('users as dcc', 'dcc.id', 'm.assigned_to_cc_id')
             ->leftJoin('users as ucc', 'ucc.id', 'm.cc_validation_by_id')
             ->leftJoin('users as cder', 'cder.id', 'm.assigned_to_cder_id')
-            ->where('m.level', $level)
-            ->whereNull('m.deleted_at');
+            ->where('m.level', $level);
         if (hasRole('ci')) {
             $missions = $missions->addSelect([
                 DB::raw(
@@ -315,7 +315,6 @@ if (!function_exists('getMissionDetails')) {
 
         $details = DB::table('mission_details as md')
             ->select($columns)
-            ->whereNotNull('md.score')
             ->join('missions as m', 'm.id', 'md.mission_id')
             ->join('control_campaigns as cc', 'cc.id', 'm.control_campaign_id')
             ->join('agencies as a', 'a.id', 'm.agency_id')
@@ -325,10 +324,10 @@ if (!function_exists('getMissionDetails')) {
             ->join('domains as dm', 'dm.id', 'p.domain_id')
             ->join('families as f', 'f.id', 'dm.family_id')
             ->leftJoin('users as ci', 'ci.id', 'md.controlled_by_ci_id')
-            ->leftJoin('users as ccr', 'ccr.id', 'md.controlled_by_cc_id')
-            ->whereNull('md.deleted_at');
+            ->leftJoin('users as ccr', 'ccr.id', 'md.controlled_by_cc_id');
 
         $user = auth()->user();
+        $details = $details->whereNotNull('md.score')->where('md.is_disabled', false);
         if (hasRole('ci')) {
             $details = $details->leftJoin('mission_has_controllers as mhc', 'mhc.mission_id', 'm.id')
                 ->where(
@@ -358,6 +357,7 @@ if (!function_exists('getMissionDetails')) {
         } else {
             $details = $details->whereNotNull('m.dcp_validation_by_id');
         }
+
 
         if ($mission) {
             $details = $details->where('md.mission_id', $mission);
@@ -453,10 +453,12 @@ if (!function_exists('getMissionAnomalies')) {
             'md.reg_is_regularized',
             'md.reg_is_rejected',
             'md.reg_is_sanitation_in_progress',
+            DB::raw('COUNT(mdr.id) AS total_regularizations')
         ];
 
         $details = DB::table('mission_details as md')
             ->select($columns)
+            ->leftJoin('mission_detail_regularizations AS mdr', 'mdr.mission_detail_id', 'md.id')
             ->join('missions as m', 'm.id', 'md.mission_id')
             ->join('control_campaigns as cc', 'cc.id', 'm.control_campaign_id')
             ->join('agencies as a', 'a.id', 'm.agency_id')
@@ -508,6 +510,11 @@ if (!function_exists('getMissionAnomalies')) {
             $details = $details->whereNotNull('m.dcp_validation_by_id');
         }
 
+        $details = $details->orderBy('f.display_priority', 'ASC')->orderBy('f.updated_at', 'DESC')
+            ->orderBy('dm.display_priority', 'ASC')->orderBy('dm.updated_at', 'DESC')
+            ->orderBy('p.display_priority', 'ASC')->orderBy('p.updated_at', 'DESC')
+            ->orderBy('cp.display_priority', 'ASC')->orderBy('cp.updated_at', 'DESC');
+
         $details = $details->groupBy(
             'md.reference',
             'md.id',
@@ -538,6 +545,14 @@ if (!function_exists('getMissionAnomalies')) {
             'md.reg_is_regularized',
             'md.reg_is_rejected',
             'md.reg_is_sanitation_in_progress',
+            'cp.display_priority',
+            'cp.updated_at',
+            'p.display_priority',
+            'p.updated_at',
+            'dm.display_priority',
+            'dm.updated_at',
+            'f.display_priority',
+            'f.updated_at'
         );
         return $details;
     }
@@ -682,7 +697,7 @@ if (!function_exists('getControlCampaigns')) {
      *
      * @return Builder
      */
-    function getControlCampaigns(int $type = 1, ?string $campaignId = null)
+    function getControlCampaigns(?string $campaignId = null)
     {
         $columns = [
             'c.reference',
@@ -710,9 +725,6 @@ if (!function_exists('getControlCampaigns')) {
 
         $user = auth()->user();
 
-        $campaigns = $campaigns->whereNull('c.deleted_at');
-
-
         if (!hasRole(['dcp', 'cdcr', 'root', 'admin'])) {
             $campaigns = $campaigns->whereNotNull('validated_at');
         }
@@ -731,8 +743,6 @@ if (!function_exists('getControlCampaigns')) {
         if (hasRole('cder')) {
             $campaigns = $campaigns->where('m.assigned_to_cder_id', $user->id);
         }
-
-        $campaigns = $campaigns->where('type', $type);
 
         if (!hasRole(['dre', 'cdc', 'ci', 'da'])) {
             $agencies = getAgencies()->get()->count();
@@ -782,24 +792,7 @@ if (!function_exists('getControlCampaignProcesses')) {
     {
         $campaign = $campaign instanceof stdClass ? $campaign?->id : $campaign;
 
-        $processes = DB::table('control_campaign_processes', 'ccp')->select([
-            'f.id as family_id',
-            'd.id as domain_id',
-            'p.id',
-            'p.name as process',
-            'd.name as domain',
-            'f.name as family',
-            DB::raw('COUNT(cp.id) as control_points_count')
-        ])
-            ->leftJoin('control_points as cp', 'cp.process_id', 'ccp.process_id')
-            ->leftJoin('processes as p', 'p.id', 'ccp.process_id')
-            ->leftJoin('domains as d', 'd.id', 'p.domain_id')
-            ->leftJoin('families as f', 'f.id', 'd.family_id')
-            ->where('control_campaign_id', $campaign)
-            ->groupBy('p.id', 'p.name', 'd.name', 'f.name', 'f.id', 'd.id', 'p.id')
-            ->orderBy('f.id')
-            ->orderBy('d.id')
-            ->orderBy('p.id');
+        $processes = getProcesses()->leftJoin('control_campaign_processes AS ccp', 'ccp.process_id', 'p.id')->where('ccp.control_campaign_id', $campaign);
 
         return $processes;
     }
@@ -838,26 +831,297 @@ if (!function_exists('getAgencies')) {
 }
 
 if (!function_exists('getFamilies')) {
-    function getFamilies()
+    function getFamilies(?int $id = null)
     {
-        $families = DB::table('families as f')->select('f.id', 'f.name');
+        $families = DB::table('families as f')->select([
+            'f.id',
+            'f.name',
+            'f.code',
+            'f.is_active',
+            'f.usable_for_agency',
+            'f.usable_for_dre',
+            'f.display_priority',
+            'f.creator_full_name',
+            'f.created_at',
+            'f.updater_full_name',
+            'f.updated_at',
+            DB::raw('COUNT(DISTINCT d.id) AS domains_count'),
+            DB::raw('COUNT(DISTINCT p.id) AS processes_count'),
+            DB::raw('COUNT(DISTINCT cp.id) AS control_points_count'),
+            DB::raw('COUNT(DISTINCT m.id) AS missions_count'),
+            DB::raw('COUNT(DISTINCT cc.id) AS control_campaigns_count'),
+            DB::raw('SUM(CASE WHEN md.score IN (2,3,4) THEN 1 ELSE 0 END) AS anomalies_count'),
+            DB::raw('SUM(CASE WHEN md.reg_is_regularized = 1 THEN 1 ELSE 0 END) AS regularizations_count'),
+            DB::raw('(SUM(CASE WHEN md.reg_is_regularized = 1 THEN 1 ELSE 0 END) * 100 /
+            CASE WHEN SUM(CASE WHEN md.score IN (2,3,4) THEN 1 ELSE 0 END) = 0
+                 THEN NULL
+                 ELSE SUM(CASE WHEN md.score IN (2,3,4) THEN 1 ELSE 0 END)
+            END) as regularizations_rate'),
+            DB::raw('(CASE WHEN COUNT(DISTINCT cc.id) > 0 THEN 0 ELSE 1 END) AS is_deletable'),
+        ])
+            ->leftJoin('domains AS d', 'f.id', 'd.family_id')
+            ->leftJoin('processes AS p', 'd.id', 'p.domain_id')
+            ->leftJoin('control_points AS cp', 'p.id', 'cp.process_id')
+            ->leftJoin('mission_details AS md', 'cp.id', 'md.control_point_id')
+            ->leftJoin('missions AS m', 'm.id', 'md.mission_id')
+            ->leftJoin('control_campaigns AS cc', 'cc.id', 'm.control_campaign_id')
+            ->groupBy(
+                'f.id',
+                'f.name',
+                'f.code',
+                'f.is_active',
+                'f.usable_for_agency',
+                'f.usable_for_dre',
+                'f.display_priority',
+                'f.updated_at',
+                'f.creator_full_name',
+                'f.created_at',
+                'f.updater_full_name',
+                'f.updated_at',
+            )
+            ->orderBy('f.display_priority', 'ASC')->orderBy('f.updated_at', 'DESC');
+        if ($id) {
+            $family = $families->where('f.id', $id)->first();
+            if (!$family) abort(404, 'La famille rechercher est introuvable');
+            $family->is_deletable = boolval($family->is_deletable);
+            $family->usable_for_agency = boolval($family->usable_for_agency);
+            $family->usable_for_dre = boolval($family->usable_for_dre);
+            $family->is_active = boolval($family->is_active);
+            $family->created_at = $family->created_at ? Carbon::parse($family->created_at)->format('d-m-Y H:i') : '-';
+            $family->updated_at = $family->updated_at ? Carbon::parse($family->updated_at)->format('d-m-Y H:i') : '-';
+            return $family;
+        }
         return $families;
     }
 }
 
 if (!function_exists('getDomains')) {
-    function getDomains()
+    function getDomains(?int $id = null)
     {
-        $domains = DB::table('domains as d')->select('d.id', 'd.name');
+        $domains = DB::table('domains as d')->select([
+            'd.id',
+            'd.name',
+            'd.is_active',
+            'd.usable_for_agency',
+            'd.usable_for_dre',
+            'd.display_priority',
+            'd.creator_full_name',
+            'd.created_at',
+            'd.updater_full_name',
+            'd.updated_at',
+            'f.name AS family_name',
+            'f.is_active AS family_is_active',
+            'f.id AS family_id',
+            DB::raw('COUNT(DISTINCT p.id) AS processes_count'),
+            DB::raw('COUNT(DISTINCT cp.id) AS control_points_count'),
+            DB::raw('COUNT(DISTINCT m.id) AS missions_count'),
+            DB::raw('COUNT(DISTINCT cc.id) AS control_campaigns_count'),
+            DB::raw('SUM(CASE WHEN md.score IN (2,3,4) THEN 1 ELSE 0 END) AS anomalies_count'),
+            DB::raw('(CASE WHEN COUNT(DISTINCT cc.id) > 0 THEN 0 ELSE 1 END) AS is_deletable'),
+        ])
+            ->leftJoin('families AS f', 'f.id', 'd.family_id')
+            ->leftJoin('processes AS p', 'd.id', 'p.domain_id')
+            ->leftJoin('control_points AS cp', 'p.id', 'cp.process_id')
+            ->leftJoin('mission_details AS md', 'cp.id', 'md.control_point_id')
+            ->leftJoin('missions AS m', 'm.id', 'md.mission_id')
+            ->leftJoin('control_campaigns AS cc', 'cc.id', 'm.control_campaign_id')
+            ->groupBy(
+                'd.id',
+                'd.name',
+                'd.is_active',
+                'd.usable_for_agency',
+                'd.usable_for_dre',
+                'd.display_priority',
+                'd.updated_at',
+                'd.creator_full_name',
+                'd.updater_full_name',
+                'd.created_at',
+                'f.is_active',
+                'f.display_priority',
+                'f.updated_at',
+                'f.name',
+                'f.id'
+            )
+            ->orderBy('f.display_priority', 'ASC')
+            ->orderBy('f.updated_at', 'DESC')
+            ->orderBy('d.display_priority', 'ASC')
+            ->orderBy('d.updated_at', 'DESC');
+
+        if ($id) {
+            $domain = $domains->where('d.id', $id)->first();
+            if (!$domain) abort(404, 'Le domaine rechercher est introuvable');
+            $domain->is_deletable = boolval($domain->is_deletable);
+            $domain->usable_for_agency = boolval($domain->usable_for_agency);
+            $domain->usable_for_dre = boolval($domain->usable_for_dre);
+            $domain->is_active = boolval($domain->is_active);
+            $domain->created_at = $domain->created_at ? Carbon::parse($domain->created_at)->format('d-m-Y H:i') : '-';
+            $domain->updated_at = $domain->updated_at ? Carbon::parse($domain->updated_at)->format('d-m-Y H:i') : '-';
+            return $domain;
+        }
+
         return $domains;
     }
 }
 
 if (!function_exists('getProcesses')) {
-    function getProcesses()
+    function getProcesses(?int $id = null)
     {
-        $processes = DB::table('processes as p')->select('p.id', 'p.name');
+        $processes = DB::table('processes as p')
+            ->select([
+                'p.id',
+                'p.name',
+                'p.is_active',
+                'p.usable_for_agency',
+                'p.usable_for_dre',
+                'p.display_priority',
+                'p.creator_full_name',
+                'p.created_at',
+                'p.updater_full_name',
+                'p.updated_at',
+                'f.name AS family_name',
+                'f.id AS family_id',
+                'd.name AS domain_name',
+                'd.id AS domain_id',
+                'd.is_active AS domain_is_active',
+                DB::raw('(SELECT COUNT(*) FROM control_points WHERE process_id = p.id AND is_active = 1) AS activated_control_points_count'),
+                DB::raw('COUNT(DISTINCT cp.id) AS control_points_count'),
+                DB::raw('COUNT(DISTINCT m.id) AS missions_count'),
+                DB::raw('COUNT(DISTINCT cc.id) AS control_campaigns_count'),
+                DB::raw('SUM(CASE WHEN md.score IN (2,3,4) THEN 1 ELSE 0 END) AS anomalies_count'),
+                DB::raw('(CASE WHEN COUNT(DISTINCT cc.id) > 0 THEN 0 ELSE 1 END) AS is_deletable')
+
+            ])
+            ->leftJoin('domains AS d', 'd.id', 'p.domain_id')
+            ->leftJoin('families AS f', 'f.id', 'd.family_id')
+            ->leftJoin('control_points AS cp', 'p.id', 'cp.process_id')
+            ->leftJoin('mission_details AS md', 'cp.id', 'md.control_point_id')
+            ->leftJoin('missions AS m', 'm.id', 'md.mission_id')
+            ->leftJoin('control_campaigns AS cc', 'cc.id', 'm.control_campaign_id')
+            ->groupBy(
+                'p.id',
+                'p.name',
+                'p.is_active',
+                'p.usable_for_agency',
+                'p.usable_for_dre',
+                'p.display_priority',
+                'p.updated_at',
+                'p.created_at',
+                'p.creator_full_name',
+                'p.updater_full_name',
+                'd.display_priority',
+                'd.updated_at',
+                'd.is_active',
+                'f.display_priority',
+                'f.updated_at',
+                'f.name',
+                'f.id',
+                'd.name',
+                'd.id'
+            )
+            ->orderBy('f.display_priority', 'ASC')->orderBy('f.updated_at', 'DESC')
+            ->orderBy('d.display_priority', 'ASC')->orderBy('d.updated_at', 'DESC')
+            ->orderBy('p.display_priority', 'ASC')->orderBy('p.updated_at', 'DESC');
+
+        if ($id) {
+            $process = $processes->where('p.id', $id)->first();
+            if (!$process) abort(404, 'Le processus rechercher est introuvable');
+            $process->is_deletable = boolval($process->is_deletable);
+            $process->usable_for_agency = boolval($process->usable_for_agency);
+            $process->usable_for_dre = boolval($process->usable_for_dre);
+            $process->is_active = boolval($process->is_active);
+            $process->created_at = $process->created_at ? Carbon::parse($process->created_at)->format('d-m-Y H:i') : '-';
+            $process->updated_at = $process->updated_at ? Carbon::parse($process->updated_at)->format('d-m-Y H:i') : '-';
+            return $process;
+        }
+
         return $processes;
+    }
+}
+
+if (!function_exists('getControlPoints')) {
+    function getControlPoints(?int $id = null)
+    {
+        $control_points = DB::table('control_points as cp')
+            ->select([
+                'cp.id',
+                'cp.name',
+                'cp.is_active',
+                'cp.usable_for_agency',
+                'cp.usable_for_dre',
+                'cp.display_priority',
+                'cp.has_major_fact',
+                'cp.creator_full_name',
+                'cp.created_at',
+                'cp.updater_full_name',
+                'cp.updated_at',
+                'f.name AS family_name',
+                'f.id AS family_id',
+                'd.name AS domain_name',
+                'd.id AS domain_id',
+                'p.name AS process_name',
+                'p.id AS process_id',
+                'p.is_active AS process_is_active',
+                DB::raw('COUNT(DISTINCT hf.field_id) AS field_count'),
+                DB::raw('COUNT(DISTINCT m.id) AS missions_count'),
+                DB::raw('COUNT(DISTINCT cc.id) AS control_campaigns_count'),
+                DB::raw('SUM(CASE WHEN md.score IN (2,3,4) THEN 1 ELSE 0 END) AS anomalies_count'),
+                DB::raw('(CASE WHEN COUNT(DISTINCT cc.id) > 0 THEN 0 ELSE 1 END) AS is_deletable'),
+            ])
+            ->leftJoin('has_fields AS hf', function ($join) {
+                $join->on('hf.attachable_id', 'cp.id')
+                    ->where('hf.attachable_type', ControlPoint::class);
+            })
+            ->leftJoin('processes AS p', 'p.id', 'cp.process_id')
+            ->leftJoin('domains AS d', 'd.id', 'p.domain_id')
+            ->leftJoin('families AS f', 'f.id', 'd.family_id')
+            ->leftJoin('mission_details AS md', 'cp.id', 'md.control_point_id')
+            ->leftJoin('missions AS m', 'm.id', 'md.mission_id')
+            ->leftJoin('control_campaigns AS cc', 'cc.id', 'm.control_campaign_id')
+            ->groupBy(
+                'cp.id',
+                'cp.name',
+                'cp.is_active',
+                'cp.usable_for_agency',
+                'cp.usable_for_dre',
+                'cp.display_priority',
+                'cp.updated_at',
+                'cp.creator_full_name',
+                'cp.created_at',
+                'cp.updater_full_name',
+                'cp.updated_at',
+                'p.display_priority',
+                'p.updated_at',
+                'p.is_active',
+                'd.display_priority',
+                'd.updated_at',
+                'f.display_priority',
+                'f.updated_at',
+                'cp.has_major_fact',
+                'f.name',
+                'f.id',
+                'd.name',
+                'd.id',
+                'p.name',
+                'p.id'
+            )
+            ->orderBy('f.display_priority', 'ASC')->orderBy('f.updated_at', 'DESC')
+            ->orderBy('d.display_priority', 'ASC')->orderBy('d.updated_at', 'DESC')
+            ->orderBy('p.display_priority', 'ASC')->orderBy('p.updated_at', 'DESC')
+            ->orderBy('cp.display_priority', 'ASC')->orderBy('cp.updated_at', 'DESC');
+
+        if ($id) {
+            $controlPoint = $control_points->where('cp.id', $id)->first();
+            if (!$controlPoint) abort(404, 'Le point de contrôle rechercher est introuvable');
+            $controlPoint->is_deletable = boolval($controlPoint->is_deletable);
+            $controlPoint->usable_for_agency = boolval($controlPoint->usable_for_agency);
+            $controlPoint->usable_for_dre = boolval($controlPoint->usable_for_dre);
+            $controlPoint->is_active = boolval($controlPoint->is_active);
+            $controlPoint->created_at = $controlPoint->created_at ? Carbon::parse($controlPoint->created_at)->format('d-m-Y H:i') : '-';
+            $controlPoint->updated_at = $controlPoint->updated_at ? Carbon::parse($controlPoint->updated_at)->format('d-m-Y H:i') : '-';
+            return $controlPoint;
+        }
+
+        return $control_points;
     }
 }
 
@@ -922,8 +1186,23 @@ if (!function_exists('getMedia')) {
     function getMedia(string|array $mediaIds = null)
     {
         $media = DB::table('media', 'm')->select([
-            'm.id', 'm.original_name', 'm.category', 'm.hash_name', 'm.folder', 'm.extension', 'm.mimetype', DB::raw('CAST(m.size as int) AS size'), 'm.payload', 'hm.attachable_type', 'hm.attachable_id', 'm.uploaded_by_id', 'm.created_at', 'm.payload',
-            'u.username', 'u.first_name', 'u.last_name'
+            'm.id',
+            'm.original_name',
+            'm.category',
+            'm.hash_name',
+            'm.folder',
+            'm.extension',
+            'm.mimetype',
+            DB::raw('CAST(m.size as int) AS size'),
+            'm.payload',
+            'hm.attachable_type',
+            'hm.attachable_id',
+            'm.uploaded_by_id',
+            'm.created_at',
+            'm.payload',
+            'u.username',
+            'u.first_name',
+            'u.last_name'
         ]);
 
 
@@ -954,14 +1233,11 @@ if (!function_exists('getSingleMedia')) {
         $media->storage_link = getMediaStorageLink($media->folder, $media->hash_name);
         $media->is_owner = true;
 
-        $media->payload = json_decode(json_decode($media->payload), true);
+        $media->payload = $media?->payload ? json_decode($media->payload, true) : null;
         $payload = $media->payload;
-        // dd($payload);
         $media->number = isset($payload['number']) ? $payload['number'] : null;
         $media->date = isset($payload['date']) ? Carbon::parse($payload['date'])->format('d-m-Y') : null;
         $media->object = isset($payload['object']) ? $payload['object'] : null;
-        // dd($media->number);
-        unset($media->payload);
         return $media;
     }
 }
@@ -971,13 +1247,14 @@ if (!function_exists('getMediaByForeign')) {
     {
         $media = DB::table('media as m')->select([
             'm.id', 'm.original_name', 'm.hash_name', 'm.folder', 'm.extension', 'm.mimetype', DB::raw('CAST(m.size as int) AS size'), 'm.payload', 'hm.attachable_type', 'hm.attachable_id', 'm.uploaded_by_id', 'm.created_at', 'm.payload',
-            'u.username', 'u.first_name', 'u.last_name'
+            'u.username', 'u.first_name', 'u.last_name',
+            DB::raw("CONCAT(m.folder, '\', m.hash_name) AS path")
         ]);
 
         $media = $media->leftJoin('has_media as hm', 'hm.media_id', 'm.id')
             ->leftJoin('users as u', 'u.id', 'uploaded_by_id');
 
-        $media = $media->where('attachable_type', $attachable_type)->where('attachable_id', $attachable_id)->where('folder', $folder);
+        $media = $media->where('attachable_type', $attachable_type)->where('attachable_id', $attachable_id)->where(fn ($query) => $query->where('folder', $folder)->orWhere('category', $folder));
 
         $media = $media->orderBy('created_at', 'DESC');
         return $media;
@@ -992,7 +1269,7 @@ if (!function_exists('getRegulations')) {
      */
     function getRegulations(): Collection
     {
-        $regulations = DB::table('media')->select('id', 'original_name')->whereIn('category', ['Circulaire', 'Lettre-circulaire', 'Note', 'Guide 1er niveau'])->get();
+        $regulations = DB::table('media')->select('id', 'original_name')->whereIn('category', ['Circulaires', 'Lettres-circulaire', 'Notes', 'Guides 1er niveau'])->get();
         return $regulations;
     }
 }

@@ -39,8 +39,8 @@
                             {{ user?.abbreviated_name }}
                         </router-link>
                     </div>
-                    <router-link :key="totalUnreadNotifications" :to="{ name: 'notifications' }" class="notification-link"
-                        :class="{ 'notified text-small': totalUnreadNotifications > 0 }"
+                    <router-link :key="totalUnreadNotifications" :to="{ name: 'notifications' }"
+                        class="notification-link" :class="{ 'notified text-small': totalUnreadNotifications > 0 }"
                         :data-total-notifications="totalUnreadNotifications > 9 ? '+9' : totalUnreadNotifications">
                         <!-- <i class="las la-bell icon" :class="{ 'la-spin': totalUnreadNotifications > 0 }" /> -->
                         <NLIcon name="notifications" />
@@ -146,9 +146,9 @@ export default {
 
 
 /* Hide default scrollbar */
-.content-container::-webkit-scrollbar {
+/* .content-container::-webkit-scrollbar {
     display: none !important;
-}
+} */
 
 /* Style your custom scrollbar */
 .scrollbar {

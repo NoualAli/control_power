@@ -16,11 +16,15 @@ class Family extends BaseModel
 
     protected $fillable = [
         'name',
+        'code',
         'usable_for_agency',
         'usable_for_dre',
+        'is_active',
+        'display_priority',
+        'creator_full_name',
+        'created_at',
+        'updated_at',
     ];
-
-    public $timestamps = false;
 
     // public $withCount = ['domains'];
 
@@ -29,6 +33,8 @@ class Family extends BaseModel
     protected $casts = [
         'usable_for_agency' => 'boolean',
         'usable_for_dre' => 'boolean',
+        'is_active' => 'boolean',
+        'display_priority' => 'integer',
     ];
 
     /**

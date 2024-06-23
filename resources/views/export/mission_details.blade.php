@@ -60,7 +60,7 @@
                     @if (!hasRole(['ci', 'cdc', 'da']))
                         <td>{{ $detail->score }}</td>
                     @endif
-                    <td>{{ boolVal(intVal($detail->reg_is_regularized)) ? 'Levée' : 'Non levée' }}</td>
+                    <td>{{ boolVal(intVal($detail->reg_is_regularized)) ? 'Levée' : 'En attente de traitement' }}</td>
                     @if (!empty(sanitizeString($detail->observation)))
                         <td>
                             {{ sanitizeString($detail->observation) }}
@@ -170,9 +170,7 @@
                         if (is_string($metadata)) {
                             $metadata = json_decode($metadata);
                         }
-                        $headings = collect(\Arr::flatten($metadata))
-                            ->map(fn($item) => $item->label)
-                            ->unique();
+                        $headings = collect(\Arr::flatten($metadata))->map(fn($item) => $item->label)->unique();
                         $maxspan = hasRole(['ci', 'cdc', 'da']) ? 19 : 27;
                         $totalColumns = count($headings);
                         $colspan = $maxspan - $totalColumns;

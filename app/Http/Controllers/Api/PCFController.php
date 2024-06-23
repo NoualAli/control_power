@@ -10,9 +10,7 @@ use App\Models\Media;
 use App\Models\Process;
 use Carbon\Carbon;
 use Illuminate\Contracts\Database\Query\Builder;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class PCFController extends Controller
 {
@@ -20,7 +18,7 @@ class PCFController extends Controller
     {
         $pcf = DB::table('media AS m')
             ->leftJoin('has_media AS hm', 'm.id', '=', 'hm.media_id')
-            ->whereIn('m.category', ['circulaire', 'note', 'guide 1er niveau', 'lettre-circulaire'])
+            ->whereIn('m.category', ['Circulaires', 'Notes', 'Guides 1er niveau', 'Lettres-circulaire'])
             ->select('m.id', 'm.size', 'm.category', 'm.hash_name', 'm.original_name', 'm.folder', DB::raw('COUNT(hm.media_id) AS relationship_count'))
             ->groupBy('m.id', 'm.size', 'm.category', 'm.hash_name', 'm.original_name', 'm.folder');
 

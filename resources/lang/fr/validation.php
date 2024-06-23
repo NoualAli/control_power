@@ -249,7 +249,8 @@ return [
         'assistants.*' => 'contrôleur',
         'new_password' => 'nouveau mot de passe',
         'category' => 'catégorie',
-        'comment' => 'commentaire'
+        'comment' => 'commentaire',
+        'display_priority' => 'priorité d\'affichage'
     ],
 
 ];

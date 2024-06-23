@@ -14,14 +14,13 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Znck\Eloquent\Traits\BelongsToThrough;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 use stdClass;
 
 class MissionDetail extends BaseModel
 {
-    use HasFactory, SoftDeletes, HasUuid, HasRelationships, BelongsToThrough, HasMedia, IsFilterable, IsSearchable, HasScopes, IsCommentable;
+    use HasFactory, HasUuid, HasRelationships, BelongsToThrough, HasMedia, IsFilterable, IsSearchable, HasScopes, IsCommentable;
 
     public $fillable = [
         'reference',
@@ -64,6 +63,7 @@ class MissionDetail extends BaseModel
         'reg_is_rejected',
         'reg_is_regularized',
         'reg_is_sanitation_in_progress',
+        'is_disabled',
     ];
 
     protected $filter = 'App\Filters\MissionDetail';
@@ -89,7 +89,8 @@ class MissionDetail extends BaseModel
         'major_fact_is_rejected_at_dre' => 'boolean',
         'reg_is_rejected' => 'boolean',
         'reg_is_regularized' => 'boolean',
-        'reg_is_sanitation_in_progress' => 'boolean'
+        'reg_is_sanitation_in_progress' => 'boolean',
+        'is_disabled' => 'boolean',
     ];
 
     public $appends = [
@@ -153,7 +154,7 @@ class MissionDetail extends BaseModel
 
     public function getIsRegularizedStrAttribute()
     {
-        return $this->reg_is_regularized ? 'Levée' : 'Non levée';
+        return $this->reg_is_regularized ? 'Levée' : 'En attente de traitement';
     }
 
     public function getExecutedAtAttribute($controlled_by_ci_at)
@@ -253,10 +254,6 @@ class MissionDetail extends BaseModel
         return $newMetadata;
     }
 
-    // public function getMajorFactStrAttribute()
-    // {
-    //     return $this->major_fact ? '<i class="las la-times-circle text-danger text-medium icon" title="Oui"></i>' : '<i class="las la-check-circle text-success text-medium icon" title="Non"></i>';
-    // }
     /**
      * Relationships
      */

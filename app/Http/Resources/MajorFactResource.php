@@ -41,6 +41,7 @@ class MajorFactResource extends JsonResource
             'is_rejected' => $this->reg_is_rejected,
             'is_sanitation_in_progress' => $this->reg_is_sanitation_in_progress,
             'state' => $this->state(),
+            'is_controlled' => $this->isControlled()
         ];
     }
 
@@ -54,12 +55,27 @@ class MajorFactResource extends JsonResource
             } elseif ($isRegularized && !$isRejected) {
                 return 'Levée et validée';
             } elseif (!$isRegularized && !$isRejected) {
-                return 'Non levée';
+                return 'En attente de traitement';
             } elseif (!$isRegularized && $isRejected) {
                 return 'Rejetée';
             }
         } else {
             return "En cours d'assainissement";
+        }
+    }
+
+    private function isControlled()
+    {
+        if (hasRole('ci')) {
+            return $this->controlled_by_ci_at ? 'Oui' : 'Non';
+        } elseif (hasRole('cdc')) {
+            return $this->controlled_by_cdc_at ? 'Oui' : 'Non';
+        } elseif (hasRole('cc')) {
+            return $this->controlled_by_cc_at ? 'Oui' : 'Non';
+        } elseif (hasRole('cdcr')) {
+            return $this->controlled_by_cdcr_at ? 'Oui' : 'Non';
+        } elseif (hasRole('dcp')) {
+            return $this->controlled_by_dcp_at ? 'Oui' : 'Non';
         }
     }
 }

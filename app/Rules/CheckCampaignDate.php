@@ -2,7 +2,6 @@
 
 namespace App\Rules;
 
-use App\Models\ControlCampaign;
 use Carbon\Carbon;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\DB;
@@ -24,14 +23,17 @@ class CheckCampaignDate implements Rule
      */
     private $lastCampaign;
 
+    private $type;
+
     /**
      * Create a new rule instance.
      *
      * @return void
      */
-    public function __construct($campaign = null)
+    public function __construct($campaign = null, int $type = 1)
     {
         $this->currentCampaign = $campaign;
+        $this->type = $type;
     }
 
     /**
@@ -45,9 +47,12 @@ class CheckCampaignDate implements Rule
     {
         if (!request('is_for_testing')) {
             $greatterOrEquelThanToday = Carbon::parse($value)->diffInDays(today(), false) <= 0;
-            // Fetch all campaigns that are'nt for testing and are validated
-            // $this->lastCampaign = ControlCampaign::isNotForTesting()->validated()->whereYear('start_date', Carbon::parse(request()->start_date)->format('Y'))->orderBy('start_date', 'ASC')->first();
-            $lastCampaign = DB::table('control_campaigns as cc')->where('cc.is_for_testing', false)->whereNull('cc.deleted_at')->orderBy('cc.start_date', 'ASC');
+            // Fetch all campaigns that aren't for testing and are validated
+            if ($this->type == 2) {
+                $lastCampaign = DB::table('dre_control_campaigns as dcc')->orderBy('dcc.start_date', 'ASC');
+            } else {
+                $lastCampaign = DB::table('control_campaigns as cc')->orderBy('cc.start_date', 'ASC');
+            }
             // If we get results we can process to check
             if ($lastCampaign->count()) {
                 $this->lastCampaign = $lastCampaign->get()->last();

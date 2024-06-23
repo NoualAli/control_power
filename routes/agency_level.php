@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\AgencyLevel\Mission\MissionDetailController;
 use App\Http\Controllers\Api\AgencyLevel\Mission\MissionCommentController;
 use App\Http\Controllers\Api\AgencyLevel\Mission\MissionDetailRegularizationController;
 use App\Http\Controllers\Api\AgencyLevel\Mission\MissionProcessController;
+use App\Http\Controllers\Api\AgencyLevel\MissionStateController;
 use App\Http\Controllers\Api\AgencyLevel\Statistics\KPIController;
 
 use Illuminate\Support\Facades\Route;
@@ -27,7 +28,7 @@ Route::prefix('agency_level')->group(function () {
         Route::get('/campaign', 'campaign');
         Route::get('/next-reference', 'getNextReference');
         Route::get('/{campaign}', 'show');
-        Route::get('/processes/{campaign}', 'processes');
+        Route::get('/processes/{campaign}/{process?}', 'processes');
         Route::put('/{campaign}', 'update');
         Route::put('/{campaign}/validate', 'validateCampaign');
         Route::delete('{campaign}', 'destroy');
@@ -38,17 +39,18 @@ Route::prefix('agency_level')->group(function () {
      * Missions
      */
     Route::prefix('missions')->controller(MissionController::class)->group(function () {
-        Route::post('/', 'store');
-        Route::put('{mission}', 'update');
         Route::get('/', 'index');
         Route::get('/{mission}', 'show');
-        Route::get('/{mission}/report', 'handleReport');
-        // Route::put('{mission}/assign', 'assignToCC');
-        Route::get('/concerns/test-config', 'testConfig');
         Route::get('/concerns/config', 'config');
-        Route::delete('{mission}', 'destroy');
-        Route::put('{mission}/validate/{type}', 'validateMission');
+        Route::get('anomalies/states', [MissionStateController::class, 'index']);
         Route::get('{mission}/processes', [MissionProcessController::class, 'index']);
+        Route::get('control-points/{mission}/processes/{process}/', [MissionProcessController::class, 'controlPoints']);
+        Route::post('/', 'store');
+        Route::post('{mission}/additional-anomaly/{process}', [MissionProcessController::class, 'storeAdditionalAnomaly']);
+        Route::post('/{mission}/report/{action?}', 'handleReport');
+        Route::put('{mission}', 'update');
+        Route::put('{mission}/validate/{type}', 'validateMission');
+        Route::delete('{mission}', 'destroy');
 
         /**
          * Processes
@@ -65,6 +67,8 @@ Route::prefix('agency_level')->group(function () {
         Route::prefix('details')->controller(MissionDetailController::class)->group(function () {
             Route::get('{mission}/export', 'export');
             Route::get('{detail}', 'show');
+            Route::put('{detail}', 'toggleState');
+            Route::put('{detail}/{controlled}', 'toggleControlState');
             Route::post('{mission}', 'control');
         });
 
@@ -90,7 +94,7 @@ Route::prefix('agency_level')->group(function () {
      * Anomalies
      */
     Route::prefix('anomalies')->controller(AnomalyController::class)->group(function () {
-        Route::get('/{mission?}', 'index');
+        Route::get('{campaign?}/{mission?}', 'index');
     });
 
     /**
@@ -118,10 +122,12 @@ Route::prefix('agency_level')->group(function () {
      * Statistics
      */
     Route::prefix('statistics')->controller(StatisticController::class)->group(function () {
+        Route::get('current-campaign', 'currentCampaign');
         Route::get('anomalies', 'anomalies');
         Route::get('major-facts', 'majorFacts');
         Route::get('scores', 'scores');
         Route::get('missions-states', 'missionsStates');
+        Route::get('{campaign}/dre-statistics/{dre}', 'dre');
         Route::prefix('kpi')->controller(KPIController::class)->group(function () {
             Route::get('/', 'v1');
             Route::get('export/excel/{type}', 'exportToExcel');

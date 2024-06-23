@@ -25,7 +25,7 @@
                 <NLColumn lg="4">
                     <NLSelect v-model="form.agency_id" name="agency_id" label="Agence"
                         placeholder="Veuillez choisir une agence" :options="agenciesList" :form="form" label-required
-                        :disabled="disabled.agency_id" loadingText="Chargement de la liste des agences en cours..."
+                        :readonly="disabled.agency_id" loadingText="Chargement de la liste des agences en cours..."
                         noOptionsText="Il n'y a aucune agence de disponible le moment" />
                 </NLColumn>
 
@@ -34,13 +34,13 @@
                 <!-- Start date -->
                 <NLColumn lg="3">
                     <NLInputDate v-model="form.programmed_start" :form="form" name="programmed_start" label="Date début"
-                        :min="minDateForStart" :max="maxDateForStart" label-required :disabled="disabled.start" />
+                        :min="minDateForStart" :max="maxDateForStart" label-required :readonly="disabled.start" />
                 </NLColumn>
 
                 <!-- End date -->
                 <NLColumn lg="3">
                     <NLInputDate v-model="form.programmed_end" :form="form" name="programmed_end" label="Date fin"
-                        :min="minDateForEnd" :max="maxDateForEnd" label-required :disabled="disabled.end" />
+                        :min="minDateForEnd" :max="maxDateForEnd" label-required :readonly="disabled.end" />
                 </NLColumn>
 
                 <NLColumn lg="6"></NLColumn>
@@ -51,7 +51,7 @@
                         placeholder="Veuillez choisir un chef de mission" :options="headsOfMissionList" :form="form"
                         label-required loadingText="Chargement de la liste des chefs de mission en cours"
                         noOptionsText="Vous n'avez aucun chef de mission de disponible pour le moment"
-                        :disabled="disabled.head_of_mission_id" />
+                        :readonly="disabled.head_of_mission_id" />
                 </NLColumn>
 
                 <!-- Assistants -->
@@ -60,13 +60,13 @@
                         placeholder="Veuillez choisir un ou deux contrôleur pour la mission" :options="controllersList"
                         :form="form" loadingText="Chargement de la liste des contrôleurs en cours"
                         noOptionsText="Vous n'avez aucun contrôleur de disponible pour le moment"
-                        :disabled="disabled.assistants" multiple />
+                        :readonly="disabled.assistants" multiple />
                 </NLColumn>
 
                 <!-- Note -->
                 <NLColumn>
                     <NLWyswyg v-model="form.note" :form="form" name="note" label="Note" :length="1000"
-                        placeholder="Ajouter une note" :disabled="disabled.note" />
+                        placeholder="Ajouter une note" :readonly="disabled.note" />
                 </NLColumn>
 
                 <NLColumn>

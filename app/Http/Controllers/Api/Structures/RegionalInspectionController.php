@@ -7,7 +7,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Structures\RegionalInspection\StoreRequest;
 use App\Http\Requests\Structures\RegionalInspection\UpdateRequest;
 use App\Http\Resources\Structures\RegionalInspectionResource;
+use App\Models\Structures\Dre;
 use App\Models\Structures\RegionalInspection;
+use App\Models\User;
 use App\Services\ExcelExportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -109,8 +111,21 @@ class RegionalInspectionController extends Controller
                 $data = $request->validated();
                 $dres = $data['dres'];
                 unset($data['dres']);
+                $removedDre = array_diff($regional_inspection->dres->pluck('id')->toArray(), $dres);
+                $addedDre = array_diff($dres, $regional_inspection->dres->pluck('id')->toArray());
+                $removedAgencies = Dre::whereIn('id', $removedDre)->with('agencies')->get()->pluck('agencies')->flatten()->pluck('id')->toArray();
+                $addedAgencies = Dre::whereIn('id', $addedDre)->with('agencies')->get()->pluck('agencies')->flatten()->pluck('id')->toArray();
                 $regional_inspection->update($data);
                 DB::table('dres')->where('regional_inspection_id', $regional_inspection->id)->update(['regional_inspection_id' => NULL]);
+                $regionalInspectors = User::whereRoles(['ir'])->whereRelation('regional_inspections', 'regional_inspections.id', $regional_inspection->id)->get();
+                dd($regionalInspectors, $regional_inspection->id);
+                foreach ($regionalInspectors as $ri) {
+                    dd($ri->id, $addedAgencies);
+                    DB::table('user_has_agencies')->where('user_id', $ri->id)->whereIn('agency_id', $removedAgencies)->delete();
+                    foreach ($addedAgencies as $agency) {
+                        DB::table('user_has_agencies')->insert(['user_id' => $ri->id, 'agency_id' => $agency]);
+                    }
+                }
                 if (!empty($dres)) {
                     DB::table('dres')->whereIn('id', $dres)->update(['regional_inspection_id' => $regional_inspection->id]);
                 }

@@ -248,7 +248,7 @@
 import { mapGetters } from 'vuex'
 import { Bar, Doughnut } from 'vue-chartjs'
 export default {
-    name: "Anomalies",
+    name: "KPI",
     components: {
         Bar,
         Doughnut,
@@ -282,15 +282,12 @@ export default {
     methods: {
         initData() {
             this.$store.dispatch('settings/updatePageLoading', true)
-            this.$store.dispatch('agencyLevelStatistics/fetchKPI', { onlyCurrentCampaign: this?.onlyCurrentCampaign, currentCampaign: this?.currentCampaign }).then(() => {
+            this.$store.dispatch('agencyLevelStatistics/fetchKPI', { onlyCurrentCampaign: false, currentCampaign: this?.currentCampaign }).then(() => {
                 this.tables.accomplishRate = this.kpi.data.accomplishRate
                 this.tables.timeLag = this.kpi.data.timeLag
                 this.tables.missionsFall = this.kpi.data.missionsFall
                 this.$store.dispatch('settings/updatePageLoading', false)
             })
-        },
-        savePNG(element) {
-            this.$emit('savePNG', element)
         },
         exportExcel(type) {
             window.open('api/statistics/kpi/export/excel/' + type)

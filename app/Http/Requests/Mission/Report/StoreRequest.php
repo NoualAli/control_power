@@ -33,10 +33,6 @@ class StoreRequest extends FormRequest
             'id' => ['nullable', 'exists:comments'],
             'validated' => ['required', 'boolean']
         ];
-        if (hasRole('ci')) {
-            $rules['mission_order'] = ['required', 'array'];
-            $rules['mission_order.*'] = ['exists:media,id'];
-        }
 
         if (hasRole('cdc')) {
             $rules['closing_report'] = ['required', 'array'];

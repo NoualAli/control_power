@@ -13,6 +13,10 @@ trait HasStructures
     /**
      * Getters
      */
+    public function getdreStrAttribute()
+    {
+        return $this->dre->full_name ?: '-';
+    }
     public function getdresStrAttribute()
     {
         $dres = implode(', ', $this->dres->pluck('full_name')->toArray());
@@ -31,6 +35,10 @@ trait HasStructures
     public function getAgenciesArrAttribute()
     {
         return $this->agencies?->pluck('id')->toArray();
+    }
+    public function getDreArrAttribute()
+    {
+        return $this->dres?->pluck('id')->toArray();
     }
 
     public function getStructuresStrAttribute()
@@ -61,6 +69,18 @@ trait HasStructures
         return in_array($agencies, $this->agencies_arr);
     }
 
+    public function hasDre(int|array $dre)
+    {
+        if (is_array($dre)) {
+            $hasDre = [];
+            foreach ($dre as $item) {
+                array_push($hasDre, in_array($item, $this->dre_arr));
+            }
+            return in_array(true, $hasDre);
+        }
+        return in_array($dre, $this->dre_arr);
+    }
+
     /**
      * Relationships
      */
@@ -72,6 +92,11 @@ trait HasStructures
     public function dres()
     {
         return $this->hasManyDeepFromRelations($this->agencies(), (new Agency())->dre())->distinct();
+    }
+
+    public function dre()
+    {
+        return $this->hasOneDeepFromRelations($this->agencies(), (new Agency())->dre())->distinct();
     }
 
     public function regional_inspections()

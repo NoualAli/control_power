@@ -29,6 +29,10 @@ class StoreRequest extends FormRequest
             'name' => ['required', 'string', 'max:255', 'unique:processes'],
             'regulations' => ['nullable', 'array'],
             'regulations.*' => ['exists:media,id'],
+            'usable_for_agency' => ['required', 'boolean'],
+            'usable_for_dre' => ['required', 'boolean'],
+            'is_active' => ['required', 'boolean'],
+            'display_priority' => ['required', 'numeric'],
         ];
     }
 }

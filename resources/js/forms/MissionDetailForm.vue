@@ -2,42 +2,30 @@
     <NLModal :show="show" @isExpanded="handleDetailForm" @close="close">
         <template #title>
             <small>
-                {{ data?.control_point.name }}
+                {{ currentDetail?.control_point.name }}
             </small>
         </template>
         <template #default>
-            <NLForm :form="form" :action="save" v-if="!isLoading" @change="() => alert('test')">
+            <NLForm :form="form" :action="save" v-if="!isLoading">
                 <!-- Major fact -->
                 <NLColumn
-                    v-if="data?.control_point?.has_major_fact && ([2, 3, 4]).includes(Number(form.score))
-                        && !data.major_fact && (!Boolean(data?.controlled_by_ci_at) || !Boolean(data?.controlled_by_cdc_at) || !Boolean(data?.controlled_by_cdcr_at) || !Boolean(data?.controlled_by_cc_at) || !Boolean(data?.controlled_by_dcp_at))">
-                    <NLSwitch type="is-danger" v-model="form.major_fact" :name="'major_fact'" :form="form"
-                        label="Fait majeur" />
+                    v-if="currentDetail?.control_point?.has_major_fact && ([2, 3, 4]).includes(Number(form.score))
+        && !currentDetail.major_fact && (!Boolean(currentDetail?.controlled_by_ci_at) || !Boolean(currentDetail?.controlled_by_cdc_at) || !Boolean(currentDetail?.controlled_by_cdcr_at) || !Boolean(currentDetail?.controlled_by_cc_at) || !Boolean(currentDetail?.controlled_by_dcp_at))">
+                    <NLSwitch v-model="form.major_fact" :name="'major_fact'" :form="form" label="Fait majeur" />
                 </NLColumn>
                 <NLColumn :lg="isContainerExpanded ? 8 : 12"
                     :class="{ 'col-lg-12': !isContainerExpanded, 'col-lg-8': isContainerExpanded }">
                     <NLGrid>
                         <!-- score -->
-                        <NLColumn v-if="[1, 2].includes(form.currentMode)">
+                        <NLColumn>
                             <NLSelect v-model="form.score" :name="'score'" label="Notation" :form="form"
                                 :options="scoresList" label-required
-                                v-if="[1, 2].includes(form.currentMode) && !data?.major_fact" />
-                            <!-- <NLInput v-model="data.appreciation" label="Notation" :readonly="true" v-else /> -->
-                        </NLColumn>
-                        <NLColumn v-else>
-                            <NLGrid>
-                                <NLColumn>
-                                    <h2>Notation</h2>
-                                </NLColumn>
-                                <NLColumn>
-                                    {{ data.appreciation }}
-                                </NLColumn>
-                            </NLGrid>
+                                :readonly="![1, 2].includes(Number(form.currentMode)) || currentDetail.major_fact" />
                         </NLColumn>
 
                         <!-- Metadata -->
                         <NLColumn
-                            v-if="data?.control_point?.fields?.length && Number(form.score) > 0 && [1, 2].includes(form.currentMode)"
+                            v-if="currentDetail?.control_point?.fields?.length && Number(form.score) > 0 && [1, 2].includes(form.currentMode)"
                             extraClass="mb-4">
                             <div class="repeater">
                                 <h2 class="mb-6">
@@ -59,7 +47,7 @@
                                         <NLGrid>
                                             <NLColumn>
                                                 <NLGrid>
-                                                    <div v-for="( input, index ) in  setupFields(data?.control_point.fields) "
+                                                    <div v-for="( input, index ) in  setupFields(currentDetail?.control_point.fields) "
                                                         :key="'metadata-input-' + input.name + '-' + dataRow + '-id'"
                                                         :class="input.style">
                                                         <!-- Defining different inputs -->
@@ -88,7 +76,8 @@
                                                             :label="input.label" :placeholder="input.placeholder"
                                                             :type="input.type" :label-required="input.required"
                                                             :name="'metadata.' + dataRow + '.' + index + '.' + input.name"
-                                                            :length="input.length" :helpText="input.help_text" />
+                                                            :length="input.length" :helpText="input.help_text"
+                                                            :readonly="false" />
                                                     </div>
                                                 </NLGrid>
                                             </NLColumn>
@@ -97,7 +86,7 @@
                                 </NLGrid>
                                 <!-- Add new row -->
                                 <NLFlex lgAlignItems="center">
-                                    <span class="btn has-icon" @click="addRow(data?.control_point.fields)"
+                                    <span class="btn has-icon" @click="addRow(currentDetail?.control_point.fields)"
                                         title="alt + '+'">
                                         <i class="las la-plus" />
                                     </span>
@@ -105,29 +94,31 @@
                             </div>
                         </NLColumn>
 
-                        <NLColumn v-else-if="![1, 2].includes(form.currentMode) && data?.metadata" extraClass="list-item">
+                        <NLColumn v-else-if="![1, 2].includes(form.currentMode) && currentDetail?.metadata"
+                            extraClass="list-item">
                             <div class="list-item-content no-bg grid">
-                                <NLColumn :class="{ 'col-lg-8': !data?.parsed_metadata?.lines }">
-                                    <div class="table-container " v-if="data?.parsed_metadata?.lines">
+                                <NLColumn :class="{ 'col-lg-8': !currentDetail?.parsed_metadata?.lines }">
+                                    <div class="table-container " v-if="currentDetail?.parsed_metadata?.lines">
                                         <h2>
                                             Informations supplémentaires
                                         </h2>
                                         <table>
                                             <thead>
                                                 <tr>
-                                                    <th v-for="( heading, indexHeading ) in  data?.parsed_metadata?.headings"
+                                                    <th v-for="( heading, indexHeading ) in  currentDetail?.parsed_metadata?.headings"
                                                         :key="indexHeading" class="text-left">
                                                         {{ heading }}
                                                     </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr v-for="( line, indexLine ) in data?.parsed_metadata?.lines"
+                                                <tr v-for="( line, indexLine ) in currentDetail?.parsed_metadata?.lines"
                                                     :key="'metadata-row-' + indexLine">
                                                     <td
-                                                        v-for="( heading, indexHeading ) in  data?.parsed_metadata?.headings">
-                                                        {{ data?.parsed_metadata?.metadata[indexLine][indexHeading]?.value
-                                                        }}
+                                                        v-for="( heading, indexHeading ) in  currentDetail?.parsed_metadata?.headings">
+                                                        {{
+        currentDetail?.parsed_metadata?.metadata[indexLine][indexHeading]?.value
+    }}
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -139,33 +130,25 @@
                         </NLColumn>
 
                         <!-- Report -->
-                        <NLColumn v-if="[1, 2].includes(form.currentMode)">
+                        <NLColumn>
                             <NLWyswyg :length="2500" v-model="form.report" :name="'report'" label="Constat" :form="form"
                                 :placeholder="![1, 2, 3, 4].includes(Number(form.score)) && !form.major_fact ? 'Constat' : 'Ajouter votre constat'"
                                 :label-required="[1, 2, 3, 4].includes(Number(form.score)) || form.major_fact"
-                                :readonly="![1, 2].includes(form.currentMode)"
-                                :disabled="![1, 2, 3, 4].includes(Number(form.score)) && !form.major_fact" />
+                                :readonly="![1, 2].includes(form.currentMode) || (![1, 2, 3, 4].includes(Number(form.score)) && !form.major_fact)" />
                         </NLColumn>
-                        <NLColumn v-else>
-                            <NLGrid>
-                                <NLColumn>
-                                    <h2>Constat</h2>
-                                </NLColumn>
-                                <NLColumn v-html="form.report"></NLColumn>
-                            </NLGrid>
-                        </NLColumn>
+
                         <!-- Recovery plan -->
                         <NLColumn>
                             <NLWyswyg :length="2500" v-model="form.recovery_plan" :name="'recovery_plan'"
                                 label="Plan de redressement" :form="form"
-                                :placeholder="![2, 3, 4].includes(Number(form.score)) && !form.major_fact ? '' : 'Ajouter votre plan de redressement'"
+                                :placeholder="![2, 3, 4].includes(Number(form.score)) && !form.major_fact ? 'Plan de redressement' : 'Ajouter votre plan de redressement'"
                                 :label-required="[2, 3, 4].includes(Number(form.score)) || form.major_fact"
-                                :disabled="![2, 3, 4].includes(Number(form.score)) && !form.major_fact" />
+                                :readonly="![2, 3, 4].includes(Number(form.score)) && !form.major_fact" />
                         </NLColumn>
 
-                        <!-- Recovery plan -->
+                        <!-- Comment -->
                         <NLColumn v-if="is(['dcp', 'cdcr', 'cc'])">
-                            <NLWyswyg :length="2500" v-model="form.comment" :name="'comment'" label="Commentaire"
+                            <NLWyswyg :length="2500" v-model="form.comment" name="comment" label="Commentaire"
                                 :form="form" placeholder="Ajouter votre commentaire" />
                         </NLColumn>
                     </NLGrid>
@@ -175,8 +158,8 @@
                     v-if="[1, 2].includes(form.currentMode) || (![1, 2].includes(form.currentMode) && Object.values(form.media).length)">
                     <NLFile @uploaded="handleMedia" @deleted="handleMedia" @loaded="handleMedia" v-model="form.media"
                         :name="'media'" label="Pièces jointes" attachable-type="App\Models\MissionDetail"
-                        :folder="folderName" :attachable-id="form.detail" :form="form" multiple :canDelete="canDeleteMedia"
-                        :readonly="![1, 2].includes(form.currentMode)" />
+                        :folder="folderName" :attachable-id="form.detail" :form="form" multiple
+                        :canDelete="canDeleteMedia" :readonly="![1, 2].includes(form.currentMode)" />
                 </NLColumn>
             </NLForm>
             <!-- Loader -->
@@ -248,6 +231,7 @@ export default {
     data() {
         return {
             formIsLoading: false,
+            currentDetail: null,
             originalData: {
                 mission: null,
                 process: null,
@@ -290,10 +274,10 @@ export default {
          */
         handleKeyboard() {
             window.addEventListener('keyup', e => {
-                if (this.data?.control_point?.fields && Number(this.form.score) > 1 && [ 1, 2 ].includes(this.form.currentMode)) {
+                if (this.currentDetail?.control_point?.fields && Number(this.form.score) > 1 && [ 1, 2 ].includes(this.form.currentMode)) {
                     if (e.key == '+' && e.altKey) {
                         e.preventDefault()
-                        this.addRow(this.data?.control_point.fields)
+                        this.addRow(this.currentDetail?.control_point.fields)
                     }
                     if (e.key == '-' && e.altKey) {
                         e.preventDefault()
@@ -362,13 +346,12 @@ export default {
          */
         initData() {
             this.isLoading = !this.isLoading
-            this.originalMetadata = JSON.parse(this.data?.metadata) || []
-
             this.$store.dispatch('details/fetch', this.data?.id).then(() => {
-                const detail = this.detail.detail
-                const metadata = detail.parsed_metadata?.metadata
-                this.currentMetadata.headings = detail.parsed_metadata?.headings
-                this.currentMetadata.keys = detail.parsed_metadata?.keys
+                this.currentDetail = this.detail.detail
+                this.originalMetadata = JSON.parse(this.currentDetail?.metadata) || []
+                const metadata = this.currentDetail.parsed_metadata?.metadata
+                this.currentMetadata.headings = this.currentDetail.parsed_metadata?.headings
+                this.currentMetadata.keys = this.currentDetail.parsed_metadata?.keys
                 if (hasRole([ 'ci' ])) {
                     this.form.currentMode = 1 // Execution mode
                 } else if (hasRole('cdc')) {
@@ -383,40 +366,40 @@ export default {
                     this.form.currentMode = 6 // Readonly mode
                 }
                 this.form.errors.errors = {}
-                this.currentMission = detail.mission
-                this.form.mission = detail.mission_id
-                this.form.process = Number(detail.control_point.process_id)
-                this.form.detail = detail.id
-                this.form.media = detail.media.length ? detail.media.map(file => file.id) : []
-                this.form.report = detail?.observation?.content
-                this.form.recovery_plan = detail.recovery_plan
-                this.form.score = detail.score ? parseInt(detail.score) : null
-                this.form.major_fact = !!detail.major_fact
+                this.currentMission = this.currentDetail.mission
+                this.form.mission = this.currentDetail.mission_id
+                this.form.process = Number(this.currentDetail.control_point.process_id)
+                this.form.detail = this.currentDetail.id
+                this.form.media = this.currentDetail.media.length ? this.currentDetail.media.map(file => file.id) : []
+                this.form.report = this.currentDetail?.observation?.content || null
+                this.form.recovery_plan = this.currentDetail.recovery_plan
+                this.form.score = this.currentDetail.score ? parseInt(this.currentDetail.score) : null
+                this.form.major_fact = !!this.currentDetail.major_fact
                 this.form.metadata = metadata || []
-                this.form.comment = detail?.comment?.content
+                this.form.comment = this.currentDetail?.comment?.content || null
                 this.isLoading = !this.isLoading
 
 
-                this.setupScores(this.data?.control_point.scores)
+                this.setupScores(this.currentDetail?.control_point.scores)
                 this.loadMissingMetadata()
 
-                this.originalData.mission = detail.mission_id
-                this.originalData.process = Number(detail.control_point.process_id)
-                this.originalData.detail = detail.id
-                this.originalData.report = detail?.observation?.content
-                this.originalData.recovery_plan = detail.recovery_plan
-                this.originalData.score = detail.score ? parseInt(detail.score) : null
-                this.originalData.major_fact = !!detail.major_fact
+                this.originalData.mission = this.currentDetail.mission_id
+                this.originalData.process = Number(this.currentDetail.control_point.process_id)
+                this.originalData.detail = this.currentDetail.id
+                this.originalData.report = this.currentDetail?.observation?.content
+                this.originalData.recovery_plan = this.currentDetail.recovery_plan
+                this.originalData.score = this.currentDetail.score ? parseInt(this.currentDetail.score) : null
+                this.originalData.major_fact = !!this.currentDetail.major_fact
             }).catch(error => this.$swal.catchError(error))
         },
         /**
          * Save detail
          */
         save() {
-            this.$swal.confirm({ message: "Êtes-vous sûr de vouloir enregistrer ces informations ?", confirmButtonText: 'Oui' }).then(action => {
+            this.$swal.confirm({}).then(action => {
                 if (action.isConfirmed) {
                     this.formIsLoading = true
-                    this.form.post('agency_level/missions/details/' + this.data.mission_id).then(response => {
+                    this.form.post('agency_level/missions/details/' + this.currentDetail.mission_id).then(response => {
                         if (response.data.status) {
                             this.$swal.toast_success(response.data.message)
                             this.$emit('success', response)
@@ -469,7 +452,7 @@ export default {
          * Load missing metadata in case if a new field was added in course of mission
          */
         loadMissingMetadata() {
-            const fields = this.data?.control_point?.fields
+            const fields = this.currentDetail?.control_point?.fields
             const fieldTypes = fields?.map(field => field.name)
             const existingKeys = [ ...this.currentMetadata.keys ]
             const unexistingKeys = fieldTypes?.filter(key => !existingKeys?.includes(key))

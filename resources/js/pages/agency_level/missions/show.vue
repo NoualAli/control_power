@@ -5,20 +5,23 @@
         </template>
 
         <template v-if="!pageLoadingState" #right-actions>
-            <NLFlex lgJustifyContent="end" extraClass="w-100">
+            <NLFlex lgJustifyContent="end" extraClass="w-100" gap="2">
                 <router-link v-if="can('view_control_campaign')"
                     :to="{ name: 'campaign', params: { campaignId: mission?.current.campaign.id } }" class="btn">
                     {{ mission?.current?.campaign?.reference }}
                 </router-link>
-                <router-link v-if="mission?.current?.remaining_days_before_start > 0" class="btn btn-warning has-icon"
+                <router-link v-if="mission?.current?.current_state == 1 && can('edit_mission')"
+                    class="btn btn-warning has-icon"
                     :to="{ name: 'missions-edit', params: { missionId: mission?.current.id } }">
                     <NLIcon name="edit" />
                     Modifier
                 </router-link>
-                <NLButton v-if="mission?.current?.remaining_days_before_start > 0 && can('delete_mission')"
-                    label="Supprimer" :loading="isLoading.destroy" @click.stop="destroy"
-                    class="btn btn-danger has-icon">
+                <NLButton v-if="mission?.current?.current_state == 1 && can('delete_mission')" label="Supprimer"
+                    :loading="isLoading.destroy" @click.stop="destroy" class="btn btn-danger has-icon">
                     <NLIcon name="delete" />
+                </NLButton>
+                <NLButton @click.stop="() => initData()" class="btn has-icon">
+                    <NLIcon name="sync" />
                 </NLButton>
             </NLFlex>
         </template>
@@ -98,7 +101,7 @@
                         Taux de progression:
                     </span>
                     <span>
-                        {{ mission?.current?.progress_status }}%
+                        {{ mission?.current?.progress_rate }}%
                     </span>
                 </NLColumn>
                 <NLColumn lg="3">
@@ -142,7 +145,7 @@
                         {{ mission?.current?.total_details }}
                     </span>
                 </NLColumn>
-                <NLColumn lg="4" v-if="!is('da')">
+                <NLColumn lg="4" v-if="!is(['da', 'cc'])">
                     <span class="text-bold">
                         Faits majeurs détéctés:
                     </span>
@@ -150,7 +153,7 @@
                         {{ mission?.current?.has_major_facts ? 'Oui' : 'Non' }}
                     </span>
                 </NLColumn>
-                <NLColumn lg="4" v-if="!is('da')">
+                <NLColumn lg="4" v-if="!is(['da', 'cc'])">
                     <span class="text-bold">
                         Total faits majeurs:
                     </span>
@@ -242,7 +245,7 @@
                                 Chef de secteur:
                             </span>
                             <span>
-                                {{ mission?.current?.cc_validator?.abbreviated_name_with_martial || '-' }}
+                                {{ mission?.current?.cc_validator?.full_name_with_martial || '-' }}
                             </span>
                         </NLColumn>
                         <NLColumn lg="3">
@@ -307,15 +310,20 @@
         <NLFlex lgJustifyContent="start" gap="2">
             <!-- Actions -->
             <NLFlex lgJustifyContent="start" gap="2">
-                <NLButton class="has-icon" type="office-excel" label="Exporter"
-                    @click.stop="this.excelExportIsOpen = true"
-                    v-if="mission?.current?.progress_status > 0 && is('ci')">
+                <!-- <NLButton class="has-icon" type="office-excel" label="Exporter"
+                    @click.stop="this.excelExportIsOpen = true" v-if="mission?.current?.progress_rate > 0 && is('ci')">
                     <NLIcon name="table" />
-                </NLButton>
-                <a v-if="mission?.current?.pdf_report_exists" class="btn has-icon" :href="mission?.current?.report_link"
-                    target="_blank">
+                </NLButton> -->
+                <a v-if="mission?.current?.pdf_report_exists && is(['cdc', 'cdcr', 'dcp'])" class="btn has-icon"
+                    :href="mission?.current?.report_link" target="_blank">
                     <NLIcon name="picture_as_pdf" />
                     Exporter le rapport
+                </a>
+
+                <a v-if="mission?.current?.classified_pdf_report_exists && is(['cdc', 'cdcr', 'dcp'])"
+                    class="btn has-icon" :href="mission?.current?.classified_report_link" target="_blank">
+                    <NLIcon name="picture_as_pdf" />
+                    Exporter le rapport (classé)
                 </a>
 
                 <!-- View report -->
@@ -325,8 +333,8 @@
                 </NLButton>
 
                 <!-- Download files -->
-                <NLButton v-if="mission?.current.is_validated_by_cdc" label="Pièces jointes" class="has-icon"
-                    @click="downloadZip()">
+                <NLButton v-if="mission?.current.is_validated_by_cdc && !is('ci')" label="Pièces jointes"
+                    class="has-icon" @click="downloadZip()">
                     <NLIcon name="folder_zip" />
                 </NLButton>
             </NLFlex>
@@ -341,7 +349,7 @@
             <!-- CI ACTIONS -->
             <NLFlex lgJustifyContent="start" gap="2" v-if="is('ci')">
                 <NLButton
-                    v-if="mission?.current.progress_status == 100 && !mission?.current.is_validated_by_ci && mission?.current?.ci_report_exists && user().id == mission?.current?.assigned_to_ci_id"
+                    v-if="mission?.current.progress_rate == 100 && !mission?.current.is_validated_by_ci && mission?.current?.ci_report_exists && user().id == mission?.current?.assigned_to_ci_id"
                     class="has-icon" type="success" label="Valider la mission" @click.prevent="validateMission('ci')">
                     <NLIcon name="check_circle" />
                 </NLButton>
@@ -351,7 +359,7 @@
                     <NLIcon name="description" />
                 </NLButton>
                 <NLButton
-                    v-if="!mission?.current?.ci_report_exists && !mission?.current?.cdc_report_exists && mission?.current?.progress_status == 100 && user().id == mission?.current?.assigned_to_ci_id"
+                    v-if="!mission?.current?.ci_report_exists && !mission?.current?.cdc_report_exists && mission?.current?.progress_rate == 100 && user().id == mission?.current?.assigned_to_ci_id"
                     class="has-icon" type="info" label="Ajouter votre conclusion" @click="showCommentForm('ci_report')">
                     <!-- <NLIcon name="add_note"/> -->
                     <NLIcon name="add_notes" />
@@ -361,18 +369,23 @@
             <!-- CDC ACTIONS -->
             <NLFlex lgJustifyContent="start" gap="2" v-if="is('cdc')">
                 <NLButton
-                    v-if="mission?.current.progress_status == 100 && !mission?.current.cdc_report_exists && mission?.current?.is_validated_by_ci"
-                    class="has-icon" type="info" label="Ajouter votre conclusion"
-                    @click="showCommentForm('cdc_report')">
-                    <NLIcon name="add_notes" />
-                </NLButton>
-                <NLButton
-                    v-if="mission?.current.is_validated_by_ci && !mission?.current.is_validated_by_cdc && mission?.current.cdc_report_exists"
+                    v-if="mission?.current?.is_validated_by_ci && !mission?.current?.is_validated_by_cdc && mission?.current?.cdc_report_exists"
                     label="Valider la mission" type="success" class="has-icon" @click.prevent="validateMission('cdc')"
                     loadingLabel="Validation en cours" :loading="isLoading.cdcValidation">
                     <NLIcon name="check_circle" />
                 </NLButton>
-                <NLButton v-if="mission?.current.is_validated_by_ci" label="Conclusion du chef de mission" type="info"
+                <NLButton
+                    v-if="mission?.current?.progress_rate == 100 && !mission?.current?.cdc_report_exists && mission?.current?.is_validated_by_ci"
+                    class="has-icon" type="info" label="Ajouter votre conclusion"
+                    @click="showCommentForm('cdc_report')">
+                    <NLIcon name="add_notes" />
+                </NLButton>
+                <NLButton type="info"
+                    v-if="mission?.current?.progress_rate == 100 && !mission?.current.is_validated_by_cdc && mission?.current?.cdc_report_exists"
+                    class="has-icon" label="Votre conclusion" @click="showCommentForm('cdc_report', true)">
+                    <NLIcon name="description" />
+                </NLButton>
+                <NLButton v-if="mission?.current?.is_validated_by_ci" label="Conclusion du chef de mission" type="info"
                     class="has-icon" @click="showCommentForm('ci_report', true)">
                     <NLIcon name="description" />
                 </NLButton>
@@ -415,12 +428,18 @@
 
             <!-- DER ACTIONS -->
             <NLFlex lgJustifyContent="start" gap="2" v-if="is('der')">
-                <NLButton v-if="Number(this.mission?.current?.current_state) == 8" class="has-icon"
+                <NLButton v-if="!mission?.current.is_validated_by_der" class="has-icon"
                     :type="!mission?.current?.assigned_to_cder_id ? 'info' : 'warning'"
                     :label="!mission?.current?.assigned_to_cder_id ? 'Déléguer' : 'Modifier l\'assignation'"
                     @click.prevent="showDispatchForm">
                     <NLIcon name="account_circle" v-if="!mission?.current?.assigned_to_cder_id" />
                     <NLIcon name="person_edit" v-else />
+                </NLButton>
+
+                <NLButton v-if="mission?.current.is_validated_by_dcp && !mission?.current.is_validated_by_der"
+                    class="has-icon" type="success" label="Classer la mission" :loading="isLoading.derValidation"
+                    @click.prevent="validateMission('der')">
+                    <NLIcon name="archive" />
                 </NLButton>
             </NLFlex>
         </NLFlex>
@@ -429,27 +448,27 @@
             :show="modals.dispatch" @success="close({ reload: true })" @close="close({ type: 'dispatch' })" />
 
         <NLDatatable v-if="mission?.current?.id" :columns="columns" :details="details" title="Liste des processus"
-            :urlPrefix="'agency_level/missions/' + mission?.current?.id + '/processes'" detailsUrlPrefix="processes"
+            :urlPrefix="'agency_level/missions/' + mission?.current?.id + '/processes'"
+            :detailsUrlPrefix="'agency_level/missions/control-points/' + mission?.current?.id + '/processes'"
             :refresh="refresh" @dataLoaded="handleDataLoaded">
 
             <template #actions-after="{ item }">
                 <button
                     v-if="can('control_agency,view_mission_detail') && !item.is_disabled && mission?.current?.remaining_days_before_start <= 0"
                     class="btn btn-info has-icon" @click.stop="showProcess(item)">
-                    <NLIcon name="list"
-                        v-if="item.progress_status_num < 100 && !mission?.current.opinion && !is('cc')" />
+                    <NLIcon name="list" v-if="item.progress_rate_num < 100 && !mission?.current.opinion && !is('cc')" />
                     <NLIcon name="visibility"
-                        v-else-if="item.progress_status_num < 100 && !mission?.current.opinion && is('cc') && user().id == item?.assigned_to_cc_id" />
+                        v-else-if="item.progress_rate_num < 100 && !mission?.current.opinion && is('cc')" />
                     <NLIcon name="checklist_rtl" v-else />
                 </button>
                 <NLButton loadingLabel=""
-                    v-if="mission?.current?.remaining_days_before_start <= 0 && item.progress_status_num == 0 && !mission?.current?.is_validated_by_ci && !item.is_disabled && (is('cdc') || (is('ci') && user().id == mission?.current?.assigned_to_ci_id))"
+                    v-if="mission?.current?.remaining_days_before_start <= 0 && item.progress_rate_num == 0 && !mission?.current?.is_validated_by_ci && !item.is_disabled && (is('cdc') || is('ci'))"
                     class="btn btn-danger has-icon" :loading="lockProcessIsLoading == item.id"
                     @click.stop="lockProcess(item)">
                     <NLIcon name="lock" />
                 </NLButton>
                 <NLButton loadingLabel=""
-                    v-if="mission?.current?.remaining_days_before_start <= 0 && item.progress_status_num == 0 && !mission?.current?.is_validated_by_ci && item.is_disabled && (is('cdc') || (is('ci') && user().id == mission?.current?.assigned_to_ci_id))"
+                    v-if="mission?.current?.remaining_days_before_start <= 0 && item.progress_rate_num == 0 && !mission?.current?.is_validated_by_ci && item.is_disabled && (is('cdc') || is('ci'))"
                     class="btn btn-success has-icon" :loading="unlockProcessIsLoading == item.id"
                     @click.stop="unlockProcess(item)">
                     <NLIcon name="lock_open" />
@@ -569,19 +588,50 @@ export default {
                     field: 'major_fact',
                     align: 'center',
                     sortable: true,
-                    hide: hasRole('da')
+                    hide: hasRole([ 'da', 'cc' ])
                 },
                 {
                     label: 'Taux de progression',
-                    field: 'progress_status',
+                    field: 'progress_rate',
                     align: 'center',
                     sortable: true,
                     hide: !hasRole([ 'ci', 'cdc' ]),
                 },
-                // {
-                //     label: 'Contrôleur',
-                //     field: 'cc_full_name',
-                // },
+                {
+                    label: 'Taux de contrôle',
+                    field: 'control_rate',
+                    align: 'center',
+                    sortable: true,
+                    hide: !hasRole([ 'dcp', 'cdcr', 'cc', 'cdc' ]),
+                },
+                {
+                    label: 'Taux de contrôle (CDC)',
+                    field: 'control_rate_cdc',
+                    align: 'center',
+                    sortable: true,
+                    hide: !hasRole([ 'root', 'admin' ]),
+                },
+                {
+                    label: 'Taux de contrôle (CC)',
+                    field: 'control_rate_cc',
+                    align: 'center',
+                    sortable: true,
+                    hide: !hasRole([ 'root', 'admin' ]),
+                },
+                {
+                    label: 'Taux de contrôle (CDCR)',
+                    field: 'control_rate_cdcr',
+                    align: 'center',
+                    sortable: true,
+                    hide: !hasRole([ 'root', 'admin' ]),
+                },
+                {
+                    label: 'Taux de contrôle (DCP)',
+                    field: 'control_rate_dcp',
+                    align: 'center',
+                    sortable: true,
+                    hide: !hasRole([ 'root', 'admin' ]),
+                },
             ],
             details: [
                 {
@@ -590,24 +640,6 @@ export default {
                     hasMany: true
                 }
             ],
-            // filters: {
-            //     family: {
-            //         label: 'Famille',
-            //         name: 'family',
-            //         multiple: true,
-            //         data: null,
-            //         value: null,
-            //         cols: 4
-            //     },
-            //     domain: {
-            //         label: 'Domaine',
-            //         name: 'domain',
-            //         multiple: true,
-            //         data: null,
-            //         value: null,
-            //         cols: 5
-            //     }
-            // },
             modals: {
                 comment: false,
                 dispatch: false
@@ -624,6 +656,7 @@ export default {
                 dcpValidation: false,
                 ccValidation: false,
                 daValidation: false,
+                derValidation: false,
                 destroy: false,
             }
         }
@@ -641,6 +674,8 @@ export default {
             const PENDING_CDCR_VALIDATION_STR = 'En attente de validation CDCR';
             const PENDING_DCP_VALIDATION_STR = 'En attente de validation DCP';
             const DONE_STR = 'Réalisée, validée';
+            const CLASSIFY_STR = 'Classée';
+
             let status = ''
             let is_late = this.mission?.current?.is_late ? ' / En retard' : ''
             if (hasRole([ 'cdrcp', 'dcp', 'cdcr', 'cc' ])) {
@@ -665,6 +700,9 @@ export default {
                         break;
                     case 7:
                         status = DONE_STR
+                        break;
+                    case 8:
+                        status = CLASSIFY_STR
                         break;
                     default:
                         status = TODO_STR
@@ -693,6 +731,9 @@ export default {
                     case 7:
                         status = DONE_STR
                         break;
+                    case 8:
+                        status = CLASSIFY_STR
+                        break;
                     default:
                         status = TODO_STR
                         break;
@@ -713,9 +754,20 @@ export default {
         this.initData()
     },
     methods: {
+        /**
+         * Handle url when data are loaded
+         *
+         * @param {*} response
+         */
         handleDataLoaded(response) {
             this.currentUrl = response.url
         },
+
+        /**
+         * Lock process
+         *
+         * @param {*} item
+         */
         lockProcess(item) {
             this.$swal.confirm_update("Êtes-vous sûr de vouloir verrouiller le processus <b>" + item.process + "</b> ?").then(action => {
                 if (action.isConfirmed) {
@@ -736,6 +788,11 @@ export default {
             })
         },
 
+        /**
+         * Unlock process
+         *
+         * @param {*} item
+         */
         unlockProcess(item) {
             this.$swal.confirm_update("Êtes-vous sûr de vouloir déverrouiller le processus <b>" + item.process + "</b> ?").then(action => {
                 if (action.isConfirmed) {
@@ -755,12 +812,13 @@ export default {
                 }
             })
         },
+
         /**
          * Export or Preview report
          */
         generateReport() {
             this.generateReportIsLoading = true
-            this.$alapi.get('missions/' + this.mission?.current?.id + '/report?action=regenerate').then((response) => {
+            this.$alapi.post('missions/' + this.mission?.current?.id + '/report/regenerate').then((response) => {
                 this.generateReportIsLoading = false
                 if (response.data.status) {
                     this.$swal.alert_success('La génération du rapport de la mission ' + this.mission?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.', 'Génération du rapport PDF')
@@ -772,6 +830,7 @@ export default {
                 this.$swal.catchError(error);
             })
         },
+
         /**
          * Download mission's and detail's media
          *
@@ -779,6 +838,7 @@ export default {
         downloadZip() {
             window.open('/zip/Mission/' + this.mission?.current?.id)
         },
+
         /**
          * Dispatch mission
          */
@@ -853,6 +913,8 @@ export default {
                             this.$swal.toast_success(response.data.message)
                             if (type == 'dcp') {
                                 this.$swal.alert_success('La génération du rapport de la mission ' + this.mission?.current?.reference + ' est en cours, vous recevrez une notification une fois la génération terminer.', 'Génération du rapport PDF')
+                            } else if (type == 'der') {
+                                this.$swal.alert_success('La génération du rapport de la mission ' + this.mission?.current?.reference + ' contenant les régularisations est en cours, vous recevrez une notification une fois la génération terminer.', 'Génération du rapport PDF')
                             }
                             this.initData()
                         } else {
@@ -865,6 +927,7 @@ export default {
                 }
             })
         },
+
         /**
          * Handle validation button state for each type of validation
          *
@@ -877,6 +940,7 @@ export default {
                 this.isLoading[ property ] = isLoading
             }
         },
+
         /**
          * Initialize data
          */
@@ -903,7 +967,7 @@ export default {
         },
 
         /**
-         * ²oy mission
+         * Delete mission
          */
         destroy() {
             this.$swal.confirm({ message: "Êtes-vous sûr de vouloir supprimer la mission <b>" + this.mission?.current?.reference + "</b>" }).then((action) => {

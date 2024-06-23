@@ -17,14 +17,14 @@
 
                 <!-- Registration number -->
                 <NLColumn lg="6" md="6">
-                    <NLInput v-model="form.registration_number" :form="form" name="registration_number"
-                        label="Matricule" type="number" :length="5" />
+                    <NLInput v-model="form.registration_number" :form="form" name="registration_number" label="Matricule"
+                        type="number" :length="5" />
                 </NLColumn>
 
                 <!-- Username -->
                 <NLColumn lg="6" md="6">
-                    <NLInput v-model="form.username" :form="form" name="username" label="Nom d'utilisateur"
-                        label-required :length="30" />
+                    <NLInput v-model="form.username" :form="form" name="username" label="Nom d'utilisateur" label-required
+                        :length="30" />
                 </NLColumn>
 
                 <!-- Email -->
@@ -65,24 +65,22 @@
                         <NLColumn lg="4" md="4">
                             <NLInput v-model="form.password" :form="form" label="Mot de passe" name="password"
                                 type="password"
-                                helpText="Si vous ne saisissez aucun mot de passe alors le mot de passe par défaut sera attribuer à l'utilisateur" />
+                                helpText="Si vous ne saisissez aucun mot de passe alors le mot de passe par défaut 'Azerty123' sera attribuer à l'utilisateur" />
                         </NLColumn>
                         <!-- Password Confirmation -->
                         <NLColumn lg="4" md="4">
-                            <NLInput v-model="form.password_confirmation" :form="form"
-                                label="Confirmation du mot de passe" name="password_confirmation" type="password" />
+                            <NLInput v-model="form.password_confirmation" :form="form" label="Confirmation du mot de passe"
+                                name="password_confirmation" type="password" />
                         </NLColumn>
                     </NLGrid>
                 </NLColumn>
 
                 <!-- Active -->
                 <NLColumn v-if="showIsActiveSwitch" lg="6">
-                    <NLSwitch v-model="form.is_active" name="is_active" :form="form" label="Le compte est activé ?"
-                        type="is-success" />
+                    <NLSwitch v-model="form.is_active" name="is_active" :form="form" label="Le compte est activé ?" />
                 </NLColumn>
                 <!-- <NLColumn lg="6">
-                    <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form" label="Utilisateur TEST"
-                        type="is-success" />
+                    <NLSwitch v-model="form.is_for_testing" name="is_for_testing" :form="form" label="Utilisateur TEST" />
                 </NLColumn> -->
                 <NLColumn>
                     <NLFlex lgJustifyContent="end">

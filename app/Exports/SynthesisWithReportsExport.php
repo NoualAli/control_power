@@ -54,18 +54,21 @@ class SynthesisWithReportsExport implements FromView, WithStyles, WithProperties
                     ],
                 ];
 
-                if ($cellValue >= 1 && $cellValue < 2) {
+                if ($cellValue >= 1 && $cellValue < 2 && is_numeric($cellValue)) {
                     $style['fill']['startColor']['argb'] = 'FF00C851';
                     $style['font']['color']['argb'] = 'FFFFFFFF';
-                } else if ($cellValue >= 2 && $cellValue < 3) {
+                } else if ($cellValue >= 2 && $cellValue < 3 && is_numeric($cellValue)) {
                     $style['fill']['startColor']['argb'] = 'FF33b5e5';
                     $style['font']['color']['argb'] = 'FFFFFFFF';
-                } elseif ($cellValue >= 3 && $cellValue < 4) {
+                } elseif ($cellValue >= 3 && $cellValue < 4 && is_numeric($cellValue)) {
                     $style['fill']['startColor']['argb'] = 'FFFFbb33';
                     $style['font']['color']['argb'] = 'FF333333';
-                } elseif ($cellValue == 4) {
+                } elseif ($cellValue == 4 && is_numeric($cellValue)) {
                     $style['fill']['startColor']['argb'] = 'FFFF4444';
                     $style['font']['color']['argb'] = 'FFFFFFFF';
+                } elseif ($cellValue == '-' || is_null($cellValue) || empty($cellValue)) {
+                    $style['fill']['startColor']['argb'] = 'D9D9D9';
+                    $style['font']['color']['argb'] = '363636';
                 }
 
                 $sheet->getStyle($col . $row)->applyFromArray($style);
@@ -90,6 +93,7 @@ class SynthesisWithReportsExport implements FromView, WithStyles, WithProperties
         return [
             1 => ['font' => ['bold' => true], 'alignment' => ['horizontal' => 'center']],
             2 => ['font' => ['bold' => true], 'alignment' => ['horizontal' => 'center']],
+            3 => ['font' => ['bold' => true], 'alignment' => ['horizontal' => 'center']],
         ];
     }
 
@@ -103,11 +107,11 @@ class SynthesisWithReportsExport implements FromView, WithStyles, WithProperties
         return [
             'creator'        => env('APP_NAME'),
             'lastModifiedBy' => env('APP_NAME'),
-            'title'          => 'Synthèse ' . $this->data['controlCampaign']->reference,
-            'description'    => 'Synthèse de la campagne de contrôle ' . $this->data['controlCampaign']->reference,
-            'subject'        => 'Synthèse',
-            'keywords'       => 'Synthèse,export,spreadsheet,excel',
-            'category'       => 'Synthèse',
+            'title'          => 'Récapitulatif des constats ' . $this->data['controlCampaign']->reference,
+            'description'    => 'Récapitulatif des constats de la campagne de contrôle ' . $this->data['controlCampaign']->reference,
+            'subject'        => 'Récapitulatif des constats',
+            'keywords'       => 'Récapitulatif des constats,export,spreadsheet,excel',
+            'category'       => 'Récapitulatif des constats',
             'manager'        => 'Noual Ali - noualdev@gmail.com',
             'company'        => 'Banque Nationale d\'Algérie (BNA)',
         ];

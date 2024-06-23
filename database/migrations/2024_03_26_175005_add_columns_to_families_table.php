@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('families', function (Blueprint $table) {
-            $table->boolean('usable_for_agency')->default(true);
+            $table->boolean('usable_for_agency')->default(false);
             $table->boolean('usable_for_dre')->default(false);
         });
     }

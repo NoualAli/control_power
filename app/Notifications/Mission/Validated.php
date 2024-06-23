@@ -135,9 +135,9 @@ class Validated extends Notification
     private function getObject(): string
     {
         if ($this->type == 'ci' || 'ci_report') {
-            return 'MISSION ' . $this->mission->reference . ' REALISEE ET VALIDEE PAR ' . getUserFullNameWithRole() . ' - ' . env('APP_NAME');
+            return 'MISSION ' . $this->mission->reference . ' REALISEE ET VALIDEE - ' . env('APP_NAME');
         }
-        return 'MISSION ' . $this->mission->reference . ' TRAITEE ER VALIDEE PAR ' . getUserFullNameWithRole() . ' - ' . env('APP_NAME');
+        return 'MISSION ' . $this->mission->reference . ' TRAITEE ER VALIDEE - ' . env('APP_NAME');
     }
 
     /**
@@ -147,7 +147,7 @@ class Validated extends Notification
      */
     private function getUrl(): string
     {
-        return url('/missions/' . $this->mission->id);
+        return url('/agency-level/missions/' . $this->mission->id);
     }
     /**
      * Get the notification's delivery channels.

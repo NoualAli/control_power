@@ -19,17 +19,17 @@ class DomainProcessesExport extends BaseExport implements FromView, WithProperti
      */
     private $data;
 
-    public function __construct(Domain $data)
+    public function __construct($data)
     {
         $this->data = $data;
     }
 
     public function view(): View
     {
-        $processes = $this->data->processes;
+        $processes = getProcesses()->where('d.id', $this->data->id)->get();
         $domain = $this->data;
         EventLog::store(['type' => EventLogTypes::EXPORT, 'attachable_type' => Domain::class, 'attachable_id' => $domain->id, 'payload' => ['content' => 'Liste des processus du domaine ' . $domain->name]]);
-        return view('export.domain_processes', compact('processes', 'domain'));
+        return view('export.processes', compact('processes', 'domain'));
     }
 
     /**

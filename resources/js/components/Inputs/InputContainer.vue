@@ -6,19 +6,21 @@
                     :class="{ 'text-danger': form?.errors.has(name), 'is-required': labelRequired }">
                     {{ label }}
                 </label>
-                <i v-if="helpText" class="las la-question-circle text-medium help-text" :class="{ 'ml-4': labelRequired }"
-                    :title="helpText" />
+                <i v-if="helpText" class="las la-question-circle text-medium help-text"
+                    :class="{ 'ml-4': labelRequired }" :title="helpText" />
             </div>
             <slot name="additional"></slot>
         </NLFlex>
         <slot />
-        <div v-if="length !== null && currentLength !== null" class="text-small text-bold d-flex justify-end align-center"
+        <div v-if="length !== null && currentLength !== null"
+            class="text-small text-bold d-flex justify-end align-center"
             :class="{ 'text-danger': currentLength >= length || form?.errors.has(name) }">
             {{ currentLength }} / {{ length }}
         </div>
         <div class="d-flex justify-end align-center is-column is-lg-row"
-            :class="{ 'justify-between': form?.errors.has(name) }">
-            <has-error v-if="form" :form="form" :field="name" class="text-danger d-inline" />
+            :class="{ 'justify-between': form?.errors.has(name) }" v-if="form?.errors.has(name)">
+            <!-- <has-error v-if="form" :form="form" :field="name" class="text-danger d-inline" /> -->
+            <p class="text-danger">{{ formatError(form.errors.errors[name][0]) }}</p>
         </div>
     </div>
 </template>
@@ -47,6 +49,12 @@ export default {
                 }
             }
             return fieldErrors
+        }
+    },
+    methods: {
+        formatError(error) {
+            // error = error.replace(/metadata\.\d\.\d\./g, "")
+            return error.replace(this.name, this.label.toLowerCase())
         }
     }
 }

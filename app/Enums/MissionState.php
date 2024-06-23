@@ -24,6 +24,7 @@ class MissionState extends Enum
     const PENDING_CDCR_VALIDATION = 5;
     const PENDING_DCP_VALIDATION = 6;
     const DONE = 7;
+    const CLASSIFY = 8;
 
     const TODO_STR = 'À réaliser';
     const ACTIVE_STR = 'En cours';
@@ -32,4 +33,5 @@ class MissionState extends Enum
     const PENDING_CDCR_VALIDATION_STR = 'En attente de validation CDCR';
     const PENDING_DCP_VALIDATION_STR = 'En attente de validation DCP';
     const DONE_STR = 'Réalisée et validée';
+    const CLASSIFY_STR = 'Classée';
 }

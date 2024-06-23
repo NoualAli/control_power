@@ -55,7 +55,7 @@ b<?php
          */
         private function getUrl(): string
         {
-            return url('/campaigns/' . $this->campaign->id);
+            return url('/agency-level/campaigns/' . $this->campaign->id);
         }
 
         /**

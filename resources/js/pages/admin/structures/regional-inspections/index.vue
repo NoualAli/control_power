@@ -1,6 +1,6 @@
 <template>
     <ContentBody v-if="can('view_regional_inspection')">
-        <NLDatatable :columns="columns" :actions="actions" title="Liste des inspections régionales"
+        <NLDatatable :columns="columns" :actions="actions" :details="details" title="Liste des inspections régionales"
             urlPrefix="structures/regional-inspections" @edit="edit" @delete="destroy" :refresh="refresh"
             @dataLoaded="handleDataLoaded">
 
@@ -58,6 +58,12 @@ export default {
                     label: 'Nombre de DRE',
                     field: 'dres_count',
                     sortable: true
+                },
+            ],
+            details: [
+                {
+                    label: 'DRE',
+                    field: 'dre_str',
                 },
             ],
             actions: {
